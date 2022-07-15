@@ -181,6 +181,9 @@ class BasicMixin(object):
                                                        'supervisord')
     self.usage_report_periodicity = 1
     self.buildout = None
+    self.certificate_repository_path = os.path.join(self._tempdir, 'partition_pki');
+    if not os.path.isdir(self.certificate_repository_path):
+      os.mkdir(self.certificate_repository_path)
     self.grid = slapgrid.Slapgrid(self.software_root,
                                   self.instance_root,
                                   self.master_url,
@@ -189,7 +192,8 @@ class BasicMixin(object):
                                   develop=develop,
                                   logger=logging.getLogger(),
                                   shared_part_list=self.shared_parts_root,
-                                  force_stop=force_stop)
+                                  force_stop=force_stop,
+                                  certificate_repository_path=self.certificate_repository_path)
     self.grid._manager_list = self.manager_list
     # monkey patch buildout bootstrap
 
@@ -429,6 +433,11 @@ class ComputerForTest(object):
       return {
               'status_code': 200,
               'content': dumps(ip_address_list)
+              }
+    elif url.path == '/getComputerPartitionCertificate':
+      return {
+              'status_code': 200,
+              'content': dumps({'certificate': '', 'key': ''})
               }
     if req.method == 'POST' and 'computer_partition_id' in qs:
       instance = self.instance_list[int(qs['computer_partition_id'][0])]
@@ -1442,9 +1451,12 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
                         '/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition',
-                        '/getHateoasUrl', '/getFullComputerInformation',
-                         '/stoppedComputerPartition',
+                        '/getHateoasUrl',
+                        '/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
+                        '/stoppedComputerPartition',
                         '/getHateoasUrl',
                         '/getFullComputerInformation'])
 
@@ -1467,9 +1479,12 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
                         '/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition',
-                        '/getHateoasUrl', '/getFullComputerInformation',
-                         '/stoppedComputerPartition'])
+                        '/getHateoasUrl',
+                        '/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
+                        '/stoppedComputerPartition'])
 
   def test_partition_periodicity_remove_timestamp(self):
     """

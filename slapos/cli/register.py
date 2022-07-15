@@ -282,7 +282,7 @@ def slapconfig(conf):
         cfg = re.sub('\n\\s*%s\\s*=.*' % key, '\n%s = %s' % (key, value), cfg)
 
     if not dry_run:
-        with open(config_path, 'w') as fout:
+        with open(config_path, 'wb') as fout:
             fout.write(cfg.encode('utf8'))
 
     conf.logger.info('SlapOS configuration written to %s', config_path)

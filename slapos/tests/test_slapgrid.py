@@ -193,7 +193,10 @@ class BasicMixin(object):
                                   logger=logging.getLogger(),
                                   shared_part_list=self.shared_parts_root,
                                   force_stop=force_stop,
-                                  certificate_repository_path=self.certificate_repository_path)
+                                  certificate_repository_path=self.certificate_repository_path,
+                                  slapgrid_jio_uri=self.master_url + "api/",
+                                  )
+    self.use_jio_api = True
     self.grid._manager_list = self.manager_list
     # monkey patch buildout bootstrap
 
@@ -378,6 +381,29 @@ class MasterMixin(BasicMixin):
     self._unmock_sleep()
     BasicMixin.tearDown(self)
 
+class SlapToolMasterMixin(MasterMixin):
+  def setSlapgrid(self, develop=False, force_stop=False):
+    if getattr(self, 'master_url', None) is None:
+      self.master_url = 'http://127.0.0.1:80/'
+    self.computer_id = 'computer'
+    self.supervisord_socket = os.path.join(self._tempdir, 'sv.sock')
+    self.supervisord_configuration_path = os.path.join(self._tempdir,
+                                                       'supervisord')
+    self.usage_report_periodicity = 1
+    self.buildout = None
+    self.grid = slapgrid.Slapgrid(self.software_root,
+                                  self.instance_root,
+                                  self.master_url,
+                                  self.computer_id,
+                                  self.buildout,
+                                  develop=develop,
+                                  logger=logging.getLogger(),
+                                  shared_part_list=self.shared_parts_root,
+                                  force_stop=force_stop,
+                                  )
+    self.grid._manager_list = self.manager_list
+    self.use_jio_api = False
+    # monkey patch buildout bootstrap
 
 class ComputerForTest(object):
   """
@@ -393,6 +419,7 @@ class ComputerForTest(object):
     Will set up instances, software and sequence
     """
     self.sequence = []
+    self.body_sequence = []
     self.instance_amount = instance_amount
     self.software_amount = software_amount
     self.software_root = software_root
@@ -421,6 +448,163 @@ class ComputerForTest(object):
       qs = parse.parse_qs(url.query)
     else:
       qs = parse.parse_qs(req.body)
+
+    # Catch API calls
+    if url.path.startswith('/api/'):
+      content = json.loads(req.body)
+      self.body_sequence.append(content)
+      if (url.path == '/api/allDocs/'):
+        if content["portal_type"] == "Software Installation":
+          return json.dumps({
+            "result_list": [{
+              "software_release_uri": x.name,
+              "portal_type": "Software Installation",
+              "compute_node_id": content["compute_node_id"],
+              "state": x.requested_state
+            } for x in self.software_list]
+          })
+        if content["portal_type"] == "Software Instance":
+          if "compute_node_id" in content:
+            return json.dumps({
+              "result_list": [{
+                "software_release_uri": x.software.name if x.software else None,
+                "reference": x.name,
+                "title": x.name,
+                "portal_type": "Software Instance",
+                "compute_partition_id": x.name,
+                "state": x.requested_state
+              } for x in self.instance_list]
+            })
+          elif "root_instance_title" in content:
+            return json.dumps({
+              "result_list": [{
+                "software_release_uri": x.software.name if x.software else None,
+                "reference": x.name,
+                "title": x.name,
+                "portal_type": "Software Instance",
+                "compute_partition_id": x.name,
+                "state": x.requested_state
+              } for x in self.instance_list] + [
+                {
+                "software_release_uri": "foo.cfg",
+                "reference": "related_instance",
+                "title": "related_instance",
+                "portal_type": "Software Instance",
+                "compute_partition_id": "related_instance",
+                "state": "stopped"
+              }
+              ]
+            })
+
+      elif (url.path == '/api/put/'):
+        if content["portal_type"] == "Software Installation":
+          software = self.software_list[0]
+          software.sequence.append((url.path, content))
+          if "error_status" in content:
+            software.error_log = content['error_status']
+            software.error = True
+
+          return json.dumps({"id": content["software_release_uri"]})
+        elif content["portal_type"] == "Software Instance":
+          reference = content["reference"]
+          requested_instance = None
+          for instance in self.instance_list:
+            if instance.name == reference:
+              requested_instance = instance
+              break
+          if requested_instance:
+            requested_instance.sequence.append((url.path, content))
+            if "reported_state" in content:
+              if content["reported_state"] == "error":
+                instance.error = True
+                instance.error_log = content["status_message"]
+              else:
+                requested_instance.state = content["reported_state"]
+              return json.dumps({
+                "reference": requested_instance.name,
+                "portal_type": "Software Instance",
+                "success": "Done"
+              }, indent=2)
+            if "requested_instance_list" in content:
+              return json.dumps({
+                "reference": requested_instance.name,
+                "portal_type": "Software Instance",
+                "success": "Done"
+              }, indent=2)
+          else:
+            return json.dumps({
+              "status": "404",
+              "message": "No document found with parameters: %s" % reference,
+              "name": "NotFound",
+            })
+
+      elif (url.path == '/api/get/'):
+        if content["portal_type"] == "Software Instance":
+          reference = content["reference"]
+          # Treat the case of firewall
+          if reference == "related_instance":
+            return json.dumps({
+              "title": "related_instance",
+              "reference": "related_instance",
+              "software_release_uri": "foo.cfg",
+              "software_type": None,
+              "state": "stopped",
+              "connection_parameters": {
+              },
+              "parameters": {},
+              "shared": False,
+              "root_instance_title": "0",
+              "ip_list": self.ip_address_list,
+              "X509": {
+                "certificate": "",
+                "key": ""
+              },
+              "sla_parameters": {},
+              "compute_node_id": None,
+              "compute_partition_id": "requested_instance",
+              "processing_timestamp": 0,
+              "access_status_message": "",
+              "portal_type": "Software Instance"
+            })
+          requested_instance = None
+          for instance in self.instance_list:
+            if instance.name == reference:
+              requested_instance = instance
+              break
+          if requested_instance:
+            requested_instance.sequence.append((url.path, content))
+            return json.dumps({
+              "title": requested_instance.name,
+              "reference": requested_instance.name,
+              "software_release_uri": requested_instance.software.name,
+              "software_type": None,
+              "state": requested_instance.requested_state,
+              "connection_parameters": {
+              },
+              "parameters": {},
+              "shared": False,
+              "root_instance_title": requested_instance.name,
+              "ip_list": requested_instance.ip_list,
+              "full_ip_list": requested_instance.full_ip_list,
+              "X509": {
+                "certificate": requested_instance.certificate,
+                "key": requested_instance.key
+              },
+              "sla_parameters": requested_instance.filter_dict,
+              "compute_node_id": None,
+              "compute_partition_id": requested_instance.name,
+              "processing_timestamp": requested_instance.timestamp,
+              "access_status_message": requested_instance.error_log,
+              "portal_type": "Software Instance"
+            })
+          else:
+            return json.dumps({
+              "status": "404",
+              "message": "No document found with parameters: %s" % reference,
+              "name": "NotFound",
+            })
+      raise ValueError("Unexcepted call to API. URL:%s Content:%s" % (url.path, req.body))
+
     if (url.path == '/getFullComputerInformation'
             and 'computer_id' in qs):
       slap_computer = self.getComputer(qs['computer_id'][0])
@@ -557,6 +741,10 @@ class InstanceForTest(object):
     self.ip_list = [('interface0', '10.0.8.2')]
     self.full_ip_list = [('route_interface0', '10.10.2.3', '10.10.0.1',
                           '255.0.0.0', '10.0.0.0')]
+    self.certificate = str(random.random())
+    self.key = str(random.random())
+    self.filter_dict = {}
+
 
   def getInstance(self, computer_id, ):
     """
@@ -565,8 +753,7 @@ class InstanceForTest(object):
     partition = slapos.slap.ComputerPartition(computer_id, self.name)
     partition._software_release_document = self.getSoftwareRelease()
     partition._requested_state = self.requested_state
-    if getattr(self, 'filter_dict', None):
-      partition._filter_dict = self.filter_dict
+    partition._filter_dict = self.filter_dict
     partition._parameter_dict = {'ip_list': self.ip_list,
                                   'full_ip_list': self.full_ip_list
                                   }
@@ -624,12 +811,10 @@ class InstanceForTest(object):
       os.mkdir(certificate_repository_path)
     self.cert_file = os.path.join(certificate_repository_path,
                                   "%s.crt" % self.name)
-    self.certificate = str(random.random())
     with open(self.cert_file, 'w') as f:
       f.write(self.certificate)
     self.key_file = os.path.join(certificate_repository_path,
                                  '%s.key' % self.name)
-    self.key = str(random.random())
     with open(self.key_file, 'w') as f:
       f.write(self.key)
 
@@ -735,11 +920,9 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
                                                     'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition'])
-      self.assertEqual(open(os.path.join(self.certificate_repository_path, '0.crt')).read(), 'SLAPOS_cert')
-      self.assertEqual(open(os.path.join(self.certificate_repository_path, '0.key')).read(), 'SLAPOS_key')
+                       ['/api/allDocs/', '/api/get/', '/api/put/'])
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+      self.assertEqual(instance.state, 'stopped')
 
   def test_one_partition_instance_cfg(self):
     """
@@ -756,9 +939,9 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
                                                     'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition'])
+                       ['/api/allDocs/', '/api/get/', '/api/put/'])
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+      self.assertEqual(instance.state, 'stopped')
 
   def test_one_free_partition(self):
     """
@@ -791,9 +974,8 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/api/allDocs/', '/api/get/', '/api/put/'])
+      self.assertEqual(partition.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(partition.state, 'started')
 
   def test_one_partition_started_fail(self):
@@ -811,9 +993,8 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/api/allDocs/', '/api/get/', '/api/put/'])
+      self.assertEqual(partition.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(partition.state, 'started')
 
       instance = computer.instance_list[0]
@@ -827,14 +1008,11 @@ exit 1
                              'etc', 'software_release', 'worked',
                              '.slapos-retention-lock-delay', '.slapgrid-0-error.log'])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition',
-                        '/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/softwareInstanceError'])
+                       ['/api/allDocs/', '/api/get/', '/api/put/', '/getHateoasUrl',
+                       '/api/allDocs/', '/api/get/', '/api/put/'])
+      self.assertEqual(instance.sequence[3][1]["reported_state"], 'error')
       self.assertEqual(instance.state, 'started')
+      self.assertTrue(instance.error_log.startswith("Failed to run buildout profile in direct"))
 
   def test_one_partition_started_stopped(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root)
@@ -871,9 +1049,8 @@ chmod 755 etc/run/wrapper
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/api/allDocs/', '/api/get/', '/api/put/'])
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(instance.state, 'started')
 
       computer.sequence = []
@@ -886,9 +1063,8 @@ chmod 755 etc/run/wrapper
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition'])
+                        '/api/allDocs/', '/api/get/', '/api/put/'])
+      self.assertEqual(instance.sequence[3][1]["reported_state"], 'stopped')
       self.assertEqual(instance.state, 'stopped')
 
   def test_one_broken_partition_stopped(self):
@@ -932,9 +1108,10 @@ chmod 755 etc/run/wrapper
       six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/api/allDocs/',
+                        '/api/get/',
+                        '/api/put/'])
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(instance.state, 'started')
 
       computer.sequence = []
@@ -951,10 +1128,12 @@ exit 1
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/softwareInstanceError'])
+                        '/api/allDocs/',
+                        '/api/get/',
+                        '/api/put/'])
+      self.assertEqual(instance.sequence[3][1]["reported_state"], 'error')
       self.assertEqual(instance.state, 'started')
+      self.assertTrue(instance.error_log.startswith("Failed to run buildout profile in direct"))
 
   def test_one_partition_stopped_started(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root)
@@ -971,9 +1150,10 @@ exit 1
       six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition'])
+                       ['/api/allDocs/',
+                        '/api/get/',
+                        '/api/put/'])
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
       self.assertEqual('stopped', instance.state)
 
       instance.requested_state = 'started'
@@ -990,9 +1170,10 @@ exit 1
       self.assertLogContent(wrapper_log, 'Working')
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                        '/api/allDocs/',
+                        '/api/get/',
+                        '/api/put/'])
+      self.assertEqual(instance.sequence[3][1]["reported_state"], 'started')
       self.assertEqual('started', instance.state)
 
   def test_one_partition_destroyed(self):
@@ -1016,9 +1197,10 @@ exit 1
       six.assertCountEqual(self, os.listdir(partition), ['.slapgrid', dummy_file_name])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition'])
+                       ['/api/allDocs/',
+                        '/api/get/',
+                        '/api/put/'])
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
       self.assertEqual('stopped', instance.state)
 
 
@@ -1408,8 +1590,8 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       with open(timestamp_path) as f:
         self.assertIn(timestamp, f.read())
-      self.assertEqual(instance.sequence,
-                       ['/stoppedComputerPartition'])
+      self.assertEqual(instance.sequence[1][0],'/api/put/')
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
 
   def test_partition_timestamp_develop(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root)
@@ -1430,9 +1612,10 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
                        slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
 
-      self.assertEqual(instance.sequence,
-                       [ '/stoppedComputerPartition',
-                         '/stoppedComputerPartition'])
+      self.assertEqual(instance.sequence[1][0],'/api/put/')
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+      self.assertEqual(instance.sequence[3][0],'/api/put/')
+      self.assertEqual(instance.sequence[3][1]["reported_state"], 'stopped')
 
   def test_partition_old_timestamp(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root)
@@ -1449,8 +1632,8 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       instance.timestamp = str(int(timestamp) - 1)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
-      self.assertEqual(instance.sequence,
-                       [ '/stoppedComputerPartition'])
+      self.assertEqual(instance.sequence[1][0],'/api/put/')
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
 
   def test_partition_timestamp_new_timestamp(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root)
@@ -1468,17 +1651,10 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       instance.timestamp = str(int(timestamp) + 1)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
-      self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition',
-                        '/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition',
-                        '/getHateoasUrl',
-                        '/getFullComputerInformation'])
+      self.assertEqual(
+        [x[0] for x in instance.sequence],
+        ['/api/get/', '/api/put/', '/api/get/', '/api/put/', '/api/get/']
+      )
 
   def test_partition_timestamp_no_timestamp(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root)
@@ -1496,15 +1672,10 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
                             [instance.software.software_hash])
       instance.timestamp = None
       self.launchSlapgrid()
-      self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition',
-                        '/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition'])
+      self.assertEqual(
+        [x[0] for x in instance.sequence],
+        ['/api/get/', '/api/put/', '/api/get/', '/api/put/']
+      )
 
   def test_partition_periodicity_remove_timestamp(self):
     """
@@ -1569,17 +1740,17 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
           os.path.join(instance0.partition_path, '.timestamp'))
       time.sleep(wanted_periodicity + 1)
       for instance in computer.instance_list[1:]:
-        self.assertEqual(instance.sequence,
-                         [ '/stoppedComputerPartition'])
+        self.assertEqual(instance.sequence[1][0],'/api/put/')
+        self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
       time.sleep(1)
       self.launchSlapgrid()
-      self.assertEqual(instance0.sequence,
-                       [ '/startedComputerPartition',
-                         '/startedComputerPartition',
-                        ])
+      self.assertEqual(instance0.sequence[1][0],'/api/put/')
+      self.assertEqual(instance0.sequence[1][1]["reported_state"], 'started')
+      self.assertEqual(instance0.sequence[3][0],'/api/put/')
+      self.assertEqual(instance0.sequence[3][1]["reported_state"], 'started')
       for instance in computer.instance_list[1:]:
-        self.assertEqual(instance.sequence,
-                         [ '/stoppedComputerPartition'])
+        self.assertEqual(instance.sequence[1][0],'/api/put/')
+        self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
       self.assertGreater(
           os.path.getmtime(os.path.join(instance0.partition_path, '.timestamp')),
           last_runtime)
@@ -1609,16 +1780,17 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
           os.path.join(instance0.partition_path, '.timestamp'))
       time.sleep(wanted_periodicity + 1)
       for instance in computer.instance_list[1:]:
-        self.assertEqual(instance.sequence,
-                         [ '/stoppedComputerPartition'])
+        self.assertEqual(instance.sequence[1][0],'/api/put/')
+        self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
       time.sleep(1)
       self.launchSlapgrid()
-      self.assertEqual(instance0.sequence,
-                       [ '/stoppedComputerPartition',
-                         '/stoppedComputerPartition'])
+      self.assertEqual(instance0.sequence[1][0],'/api/put/')
+      self.assertEqual(instance0.sequence[1][1]["reported_state"], 'stopped')
+      self.assertEqual(instance0.sequence[3][0],'/api/put/')
+      self.assertEqual(instance0.sequence[3][1]["reported_state"], 'stopped')
       for instance in computer.instance_list[1:]:
-        self.assertEqual(instance.sequence,
-                         [ '/stoppedComputerPartition'])
+        self.assertEqual(instance.sequence[1][0],'/api/put/')
+        self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
       self.assertNotEqual(os.path.getmtime(os.path.join(instance0.partition_path,
                                                         '.timestamp')),
                           last_runtime)
@@ -1649,17 +1821,19 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
           os.path.join(instance0.partition_path, '.timestamp'))
       time.sleep(wanted_periodicity + 1)
       for instance in computer.instance_list[1:]:
-        self.assertEqual(instance.sequence,
-                         [ '/stoppedComputerPartition'])
+        self.assertEqual(instance.sequence[1][0],'/api/put/')
+        self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
       time.sleep(1)
       instance0.requested_state = 'destroyed'
       self.launchSlapgrid()
-      self.assertEqual(instance0.sequence,
-                       [ '/stoppedComputerPartition',
-                                                       '/stoppedComputerPartition'])
+      self.assertEqual(instance0.sequence[1][0],'/api/put/')
+      self.assertEqual(instance0.sequence[1][1]["reported_state"], 'stopped')
+      self.assertEqual(instance0.sequence[3][0],'/api/put/')
+      self.assertEqual(instance0.sequence[3][1]["reported_state"], 'stopped')
+
       for instance in computer.instance_list[1:]:
-        self.assertEqual(instance.sequence,
-                         [ '/stoppedComputerPartition'])
+        self.assertEqual(instance.sequence[1][0],'/api/put/')
+        self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
       self.assertNotEqual(os.path.getmtime(os.path.join(instance0.partition_path,
                                                         '.timestamp')),
                           last_runtime)
@@ -1723,10 +1897,15 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       instance0.software.setBuildout("""#!/bin/sh
 exit 42""")
       self.launchSlapgrid()
-      self.assertEqual(instance0.sequence,
-                       ['/softwareInstanceError'])
-      self.assertEqual(instance1.sequence,
-                       [ '/stoppedComputerPartition'])
+      self.assertTrue(instance0.error_log.startswith("Failed to run buildout profile in direct"))
+      self.assertEqual(instance1.sequence[1],
+                         (
+                            '/api/put/',
+                            {'portal_type': 'Software Instance',
+                             'reference': '1',
+                             'reported_state': 'stopped'}
+                          )
+                      )
 
   def test_one_partition_lacking_software_path_does_not_disturb_others(self):
     """
@@ -1740,10 +1919,15 @@ exit 42""")
       instance1.software = computer.software_list[1]
       shutil.rmtree(instance0.software.srdir)
       self.launchSlapgrid()
-      self.assertEqual(instance0.sequence,
-                       ['/softwareInstanceError'])
-      self.assertEqual(instance1.sequence,
-                       [ '/stoppedComputerPartition'])
+      self.assertEqual(instance0.sequence[1][0],'/api/put/')
+      self.assertEqual(instance0.sequence[1][1]["reported_state"], 'error')
+      self.assertIn(
+        "Software Release http://sr0/ is not present on system",
+        instance0.sequence[1][1]["status_message"]
+      )
+      self.assertIn("Cannot deploy instance.", instance0.sequence[1][1]["status_message"])
+      self.assertEqual(instance1.sequence[1][0],'/api/put/')
+      self.assertEqual(instance1.sequence[1][1]["reported_state"], 'stopped')
 
   def test_one_partition_lacking_software_bin_path_does_not_disturb_others(self):
     """
@@ -1757,10 +1941,12 @@ exit 42""")
       instance1.software = computer.software_list[1]
       shutil.rmtree(instance0.software.srbindir)
       self.launchSlapgrid()
-      self.assertEqual(instance0.sequence,
-                       ['/softwareInstanceError'])
-      self.assertEqual(instance1.sequence,
-                       [ '/stoppedComputerPartition'])
+      self.assertEqual(instance0.sequence[1][0],'/api/put/')
+      self.assertEqual(instance0.sequence[1][1]["reported_state"], 'error')
+      self.assertIn("No such file or directory", instance0.sequence[1][1]["status_message"])
+      self.assertIn("sbin/buildout", instance0.sequence[1][1]["status_message"])
+      self.assertEqual(instance1.sequence[1][0],'/api/put/')
+      self.assertEqual(instance1.sequence[1][1]["reported_state"], 'stopped')
 
   def test_one_partition_lacking_path_does_not_disturb_others(self):
     """
@@ -1774,10 +1960,12 @@ exit 42""")
       instance1.software = computer.software_list[1]
       shutil.rmtree(instance0.partition_path)
       self.launchSlapgrid()
-      self.assertEqual(instance0.sequence,
-                       ['/softwareInstanceError'])
-      self.assertEqual(instance1.sequence,
-                       [ '/stoppedComputerPartition'])
+      self.assertEqual(instance0.sequence[0][0],'/api/put/')
+      self.assertEqual(instance0.sequence[0][1]["reported_state"], 'error')
+      self.assertIn("Partition directory", instance0.sequence[0][1]["status_message"])
+      self.assertIn("does not exist", instance0.sequence[0][1]["status_message"])
+      self.assertEqual(instance1.sequence[1][0],'/api/put/')
+      self.assertEqual(instance1.sequence[1][1]["reported_state"], 'stopped')
 
   def test_one_partition_buildout_fail_is_correctly_logged(self):
     """
@@ -1793,7 +1981,8 @@ exit 42""")
       instance.software.setBuildout("""#!/bin/sh
 echo %s; echo %s; exit 42""" % (line1, line2))
       self.launchSlapgrid()
-      self.assertEqual(instance.sequence, ['/softwareInstanceError'])
+      self.assertEqual(instance.sequence[1][0], '/api/put/')
+      self.assertEqual(instance.sequence[1][1]["reported_state"], "error")
       # We don't care of actual formatting, we just want to have full log
       self.assertIn(line1, instance.error_log)
       self.assertIn(line2, instance.error_log)
@@ -1876,7 +2065,8 @@ echo %s; echo %s; exit 42""" % (line1, line2))
         ['etc', '.slapgrid', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay']
       )
       self.assertFalse(os.path.exists(promise_ran))
-      self.assertFalse(instance.sequence)
+      self.assertEqual(len(instance.sequence), 1)
+      self.assertEqual(instance.sequence[0][0], "/api/get/")
 
 
 class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
@@ -1902,14 +2092,18 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/api/allDocs/',
+                        '/api/get/',
+                        '/api/put/'])
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(instance.state, 'started')
 
       # Then destroy the instance
       computer.sequence = []
+      instance.sequence = []
       instance.requested_state = 'destroyed'
+      # Reset Cache
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
@@ -1921,10 +2115,11 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertIsNotCreated(wrapper_log)
 
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition',
-                        '/destroyedComputerPartition'])
+                       ['/api/allDocs/',
+                        '/api/put/',
+                        '/api/put/'])
+      self.assertEqual(instance.sequence[0][1]["reported_state"], 'stopped')
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'destroyed')
       self.assertEqual(instance.state, 'destroyed')
 
   def test_partition_list_is_complete_if_empty_destroyed_partition(self):
@@ -1942,6 +2137,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
 
       computer.sequence = []
       instance.requested_state = 'destroyed'
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
@@ -1952,12 +2148,13 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertIsNotCreated(wrapper_log)
 
-      self.assertEqual(
-          computer.sequence,
-          ['/getFullComputerInformation',
-           '/getComputerPartitionCertificate',
-           '/stoppedComputerPartition',
-           '/destroyedComputerPartition'])
+      self.assertEqual(computer.sequence,
+                       ['/api/allDocs/',
+                        '/api/put/',
+                        '/api/put/'])
+      self.assertEqual(instance.sequence[0][1]["reported_state"], 'stopped')
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'destroyed')
+      self.assertEqual(instance.state, 'destroyed')
 
   def test_slapgrid_not_destroy_bad_instance(self):
     """
@@ -1977,33 +2174,32 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
-      self.assertEqual('started', instance.state)
+                       ['/api/allDocs/',
+                        '/api/get/',
+                        '/api/put/'])
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'started')
+      self.assertEqual(instance.state, 'started')
 
       # Then run usage report and see if it is still working
       computer.sequence = []
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
-      # registerComputerPartition will create one more file:
-      from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
-      request_list_file = COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME % instance.name
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked',
-                             '.slapos-retention-lock-delay', request_list_file])
+                             '.slapos-retention-lock-delay'])
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked',
-                             '.slapos-retention-lock-delay', request_list_file])
+                             '.slapos-retention-lock-delay'])
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation'])
+                       ['/api/allDocs/'])
       self.assertEqual('started', instance.state)
 
   def test_slapgrid_instance_ignore_free_instance(self):
@@ -2023,7 +2219,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(instance.partition_path), [])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
-      self.assertEqual(computer.sequence, ['/getFullComputerInformation'])
+      self.assertEqual(computer.sequence, ['/api/allDocs/'])
 
   def test_slapgrid_report_ignore_free_instance(self):
     """
@@ -2042,10 +2238,10 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(instance.partition_path), [])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
-      self.assertEqual(computer.sequence, ['/getFullComputerInformation'])
+      self.assertEqual(computer.sequence, ['/api/allDocs/'])
 
 
-class TestSlapgridSoftwareRelease(MasterMixin, unittest.TestCase):
+class TestSlapgridSoftwareReleaseSlapTool(SlapToolMasterMixin, unittest.TestCase):
 
   fake_waiting_time = 0.05
   def test_one_software_buildout_fail_is_correctly_logged(self):
@@ -2114,6 +2310,95 @@ chmod a-rxw directory
       self.launchSlapgridSoftware()
       self.assertEqual(os.listdir(self.software_root), [])
 
+class TestSlapgridSoftwareRelease(MasterMixin, unittest.TestCase):
+
+  fake_waiting_time = 0.05
+  def test_one_software_buildout_fail_is_correctly_logged(self):
+    """
+    1. We set up a software using a corrupted buildout
+    2. It will fail, make sure that whole log is sent to master
+    """
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    with httmock.HTTMock(computer.request_handler):
+      software = computer.software_list[0]
+
+      line1 = "Nerdy kitten: Can I haz a process crash?"
+      line2 = "Cedric: Sure, here it is."
+      software.setBuildout("""#!/bin/sh
+echo %s; echo %s; exit 42""" % (line1, line2))
+      self.launchSlapgridSoftware()
+      self.assertEqual(
+        software.sequence,
+        [
+          (
+            '/api/put/',
+            {
+              'compute_node_id': self.computer_id,
+              'portal_type': 'Software Installation',
+              'reported_state': 'building',
+              'software_release_uri': software.name,
+            }
+          ),
+          (
+            '/api/put/',
+            {
+              'compute_node_id': self.computer_id,
+              'portal_type': 'Software Installation',
+              'error_status': software.error_log,
+              'software_release_uri': software.name,
+            }
+          )
+        ]
+      )
+      # We don't care of actual formatting, we just want to have full log
+      self.assertIn(line1, software.error_log)
+      self.assertIn(line2, software.error_log)
+      self.assertIn('Failed to run buildout', software.error_log)
+
+  def test_software_install_generate_buildout_cfg_with_shared_part_list(self):
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    with httmock.HTTMock(computer.request_handler):
+      software = computer.software_list[0]
+      # examine the genrated buildout
+      software.setBuildout("""#!/bin/sh
+        cat buildout.cfg; exit 1""")
+      self.launchSlapgridSoftware()
+    self.assertIn('shared-part-list = %s' % self.shared_parts_root, software.error_log)
+
+  def test_remove_software(self):
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    with httmock.HTTMock(computer.request_handler):
+      software = computer.software_list[0]
+
+      software.setBuildout("""#!/bin/sh
+mkdir directory
+touch directory/file
+""")
+      self.launchSlapgridSoftware()
+      self.assertIn('directory', os.listdir(os.path.join(self.software_root, software.software_hash)))
+
+      software.requested_state = 'destroyed'
+      self.launchSlapgridSoftware()
+      self.assertEqual(os.listdir(self.software_root), [])
+
+  def test_remove_software_chmod(self):
+    # This software is "hard" to remove, as permissions have been changed
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    with httmock.HTTMock(computer.request_handler):
+      software = computer.software_list[0]
+
+      software.setBuildout("""#!/bin/sh
+mkdir directory
+touch directory/file
+chmod a-rxw directory/file
+chmod a-rxw directory
+""")
+      self.launchSlapgridSoftware()
+      self.assertIn('directory', os.listdir(os.path.join(self.software_root, software.software_hash)))
+
+      software.requested_state = 'destroyed'
+      self.launchSlapgridSoftware()
+      self.assertEqual(os.listdir(self.software_root), [])
 
 class SlapgridInitialization(unittest.TestCase):
   """
@@ -2397,6 +2682,8 @@ class TestSlapgridDestructionLock(MasterMixin, unittest.TestCase):
       )))
 
       instance.requested_state = 'destroyed'
+      # Reset Cache
+      self.grid.computer_partition_list = None
       self.grid.agregateAndSendUsage()
       self.assertTrue(os.path.exists(dummy_instance_file_path))
       self.assertTrue(os.path.exists(os.path.join(
@@ -2850,28 +3137,30 @@ exit 0
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/api/allDocs/',
+                        '/api/get/',
+                        '/api/put/'])
+      self.assertEqual(partition.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(partition.state, 'started')
       manager_list = slapmanager.from_config({'manager_list': 'prerm'})
       self.grid._manager_list = manager_list
 
       partition.requested_state = 'destroyed'
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (pre-delete is running)
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay',
-                             '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list',
-                             '.slapos-request-transaction-0'])
+                             '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list'])
       six.assertCountEqual(self, os.listdir(self.software_root),
                             [partition.software.software_hash])
 
       # wait until the pre-delete script is finished
       self._wait_prerm_script_finished(partition.partition_path)
 
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
@@ -2902,12 +3191,13 @@ exit 0
       self.grid._manager_list = manager_list
 
       partition.requested_state = 'destroyed'
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (retention-delay-lock)
       six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', 'buildout.cfg', 'etc', 'software_release',
                              'worked', '.slapos-retention-lock-delay',
-                             '.slapos-retention-lock-date', '.slapos-request-transaction-0'])
+                             '.slapos-retention-lock-date'])
       self.assertTrue(os.path.exists(pre_delete_script))
       self.assertTrue(os.path.exists(os.path.join(
           partition.partition_path,
@@ -2915,6 +3205,7 @@ exit 0
       )))
 
       time.sleep(1)
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
 
       # Assert partition directory is not destroyed (pre-delete is running)
@@ -2922,7 +3213,7 @@ exit 0
                             ['.slapgrid', 'buildout.cfg', 'etc', 'software_release',
                              'worked', '.slapos-retention-lock-delay', '.slapos-retention-lock-date',
                              '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list',
-                             '.slapos-request-transaction-0'])
+                            ])
 
       # wait until the pre-delete script is finished
       self._wait_prerm_script_finished(partition.partition_path)
@@ -2948,11 +3239,12 @@ exit 0
       self.grid._manager_list = manager_list
 
       partition.requested_state = 'destroyed'
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (pre-delete is running)
       six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', 'buildout.cfg', 'etc', 'software_release',
-                             'worked', '.slapos-retention-lock-delay', '.slapos-request-transaction-0',
+                             'worked', '.slapos-retention-lock-delay',
                              '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list'])
 
       # wait until the pre-delete script is finished
@@ -2961,6 +3253,7 @@ exit 0
         # the script is well finished...
         self.assertTrue("finished prerm script." in f.read())
 
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
@@ -2983,11 +3276,12 @@ exit 0
       self.grid._manager_list = manager_list
 
       partition.requested_state = 'destroyed'
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (pre-delete is running)
       six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', 'buildout.cfg', 'etc', 'software_release',
-                             'worked', '.slapos-retention-lock-delay', '.slapos-request-transaction-0',
+                             'worked', '.slapos-retention-lock-delay',
                              '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list'])
 
       stat_info = os.stat(partition.partition_path)
@@ -3013,6 +3307,7 @@ exit 0
       # wait until the pre-delete script is finished
       self._wait_prerm_script_finished(partition.partition_path)
 
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
@@ -3041,6 +3336,73 @@ class TestSlapgridNoFDLeak(MasterMixin, unittest.TestCase):
 
   def _test_no_fd_leak(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
+    with httmock.HTTMock(computer.request_handler):
+      software = computer.software_list[0]
+
+      software.setBuildout("""#!/bin/bash
+fdleak() {
+  echo "file descriptors: leaked:" "$@"
+  exit 1
+}
+
+# https://unix.stackexchange.com/a/206848
+: >&3 && fdleak 3
+: >&4 && fdleak 4
+: >&5 && fdleak 5
+: >&6 && fdleak 6
+
+echo "file descriptors: ok"
+exit 1  # do not proceed trying to use this software
+""")
+
+      self.launchSlapgridSoftware()
+
+      self.assertEqual(
+        software.sequence,
+        [
+          (
+            '/api/put/',
+            {
+              'compute_node_id': self.computer_id,
+              'portal_type': 'Software Installation',
+              'reported_state': 'building',
+              'software_release_uri': software.name,
+            }
+          ),
+          (
+            '/api/put/',
+            {
+              'compute_node_id': self.computer_id,
+              'portal_type': 'Software Installation',
+              'error_status': software.error_log,
+              'software_release_uri': software.name,
+            }
+          )
+        ]
+      )
+      self.assertNotIn("file descriptors: leaked", software.error_log)
+      self.assertIn("file descriptors: ok", software.error_log)
+
+class TestSlapgridNoFDLeakSlapTool(SlapToolMasterMixin, unittest.TestCase):
+
+  def test_no_fd_leak(self):
+    filev = []
+    try:
+      # open some file descriptors
+      for i in range(4):
+        f = open(os.devnull)
+        filev.append(f)
+        self.assertGreater(f.fileno(), 2)
+
+      # 'node software' with check that buildout does not see opened files
+      self._test_no_fd_leak()
+
+    finally:
+      for f in filev:
+        f.close()
+
+  def _test_no_fd_leak(self):
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       software = computer.software_list[0]
 
@@ -3098,9 +3460,8 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
     self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
     self.assertEqual(self.computer.sequence,
-                     ['/getFullComputerInformation',
-                      '/getComputerPartitionCertificate',
-                      '/startedComputerPartition'])
+                      ['/api/allDocs/', '/api/get/', '/api/put/'])
+    self.assertEqual(self.partition.sequence[1][1]["reported_state"], 'started')
     self.assertEqual(self.partition.state, 'started')
 
   def test_simple_port_redirection(self):
@@ -3174,11 +3535,13 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(self.computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/api/allDocs/',
+                        '/api/get/',
+                        '/api/put/',
+                        '/api/get/',
+                        '/api/put/'])
+      self.assertEqual(self.partition.sequence[1][1]["reported_state"], 'started')
+      self.assertEqual(self.partition.sequence[3][1]["reported_state"], 'started')
       self.assertEqual(self.partition.state, 'started')
 
       # Check the socat command
@@ -3582,6 +3945,7 @@ class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'started'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
@@ -3600,6 +3964,7 @@ class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'started'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
@@ -3624,6 +3989,7 @@ class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'started'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
@@ -3708,6 +4074,7 @@ class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'destroyed'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
+      self.grid.computer_partition_list = None
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
@@ -3764,9 +4131,8 @@ class TestSlapgridManagerLifecycle(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(self.computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/api/allDocs/', '/api/get/', '/api/put/'])
+      self.assertEqual(partition.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(partition.state, 'started')
 
       self.assertEqual(self.manager.sequence,

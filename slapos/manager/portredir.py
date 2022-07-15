@@ -82,9 +82,8 @@ class Manager(object):
 
     # Get partitions IPv6 address
     computer_partition = partition.computer_partition
-    parameter_dict = computer_partition.getInstanceParameterDict()
 
-    partition_ip_list = parameter_dict['ip_list'] + parameter_dict.get(
+    partition_ip_list = computer_partition['ip_list'] + computer_partition.get(
       'full_ip_list', [])
     partition_ip_list = [tup[1] for tup in partition_ip_list]
 

@@ -423,6 +423,7 @@ class Partition(object):
                instance_storage_home='',
                ipv4_global_network='',
                buildout_debug=False,
+               api_backward_compatibility=False,
                ):
     """Initialisation of class parameters"""
     self.buildout = buildout
@@ -443,6 +444,7 @@ class Partition(object):
     self.software_release_url = software_release_url
     self.instance_storage_home = instance_storage_home
     self.ipv4_global_network = ipv4_global_network
+    self.api_backward_compatibility = api_backward_compatibility
 
     self.key_file = ''
     self.cert_file = ''
@@ -489,16 +491,20 @@ class Partition(object):
       # Certificate files are unset, skip.
       return
 
-    try:
-      partition_certificate = self.computer_partition.getCertificate()
-    except NotFoundError:
-      raise NotFoundError('Partition %s is not known by SlapOS Master.' %
-          self.partition_id)
+    if self.api_backward_compatibility:
+      try:
+        partition_certificate = self.computer_partition["slap_partition"].getCertificate()
+        self.computer_partition["X509"] = {}
+        self.computer_partition["X509"]["certificate"] = partition_certificate["certificate"]
+        self.computer_partition["X509"]["key"] = partition_certificate["key"]
+      except NotFoundError:
+        raise NotFoundError('Partition %s is not known by SlapOS Master.' %
+            self.partition_id)
 
     uid, gid = self.getUserGroupId()
 
     for name, path in [('certificate', self.cert_file), ('key', self.key_file)]:
-      new_content = partition_certificate[name]
+      new_content = self.computer_partition["X509"][name]
       old_content = None
       if os.path.exists(path):
         old_content = open(path).read()
@@ -582,7 +588,7 @@ class Partition(object):
     installs the software partition with the help of buildout
     """
     self.logger.info("Installing Computer Partition %s..."
-        % self.computer_partition.getId())
+        % self.computer_partition.get("compute_partition_id"))
 
     self.check_free_space()
 
@@ -731,7 +737,7 @@ class Partition(object):
       if os.path.exists(self.supervisord_partition_configuration_path):
         os.unlink(self.supervisord_partition_configuration_path)
     else:
-      partition_id = self.computer_partition.getId()
+      partition_id = self.computer_partition.get("compute_partition_id")
       group_partition_template = bytes2str(pkg_resources.resource_string(__name__,
           'templates/group_partition_supervisord.conf.in'))
       self.supervisor_configuration_group = group_partition_template % {
@@ -766,22 +772,22 @@ class Partition(object):
     """Asks supervisord to start the instance. If this instance is not
     installed, we install it.
     """
-    partition_id = self.computer_partition.getId()
+    partition_id = self.computer_partition.get("compute_partition_id")
     try:
       with self.getSupervisorRPC() as supervisor:
         supervisor.startProcessGroup(partition_id, False)
     except xmlrpclib.Fault as exc:
       if exc.faultString.startswith('BAD_NAME:'):
         self.logger.info("Nothing to start on %s..." %
-                         self.computer_partition.getId())
+                         self.computer_partition.get("compute_partition_id"))
       else:
         raise
     else:
-      self.logger.info("Requested start of %s..." % self.computer_partition.getId())
+      self.logger.info("Requested start of %s..." % self.computer_partition.get("compute_partition_id"))
 
   def stop(self):
     """Asks supervisord to stop the instance."""
-    partition_id = self.computer_partition.getId()
+    partition_id = self.computer_partition.get("compute_partition_id")
     try:
       with self.getSupervisorRPC() as supervisor:
         supervisor.stopProcessGroup(partition_id, False)
@@ -791,13 +797,13 @@ class Partition(object):
       else:
         raise
     else:
-      self.logger.info("Requested stop of %s..." % self.computer_partition.getId())
+      self.logger.info("Requested stop of %s..." % self.computer_partition.get("compute_partition_id"))
 
   def destroy(self):
     """Destroys the partition and makes it available for subsequent use."
     """
     self.logger.info("Destroying Computer Partition %s..."
-        % self.computer_partition.getId())
+        % self.computer_partition.get("compute_partition_id"))
 
     self.createRetentionLockDate()
     if not self.checkRetentionIsAuthorized():

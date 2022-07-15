@@ -366,6 +366,7 @@ class Slapgrid(object):
                buildout_debug=False,
                shared_part_list='',
                force_stop=False,
+               slapgrid_jio_uri=None,
                ):
     """Makes easy initialisation of class parameters"""
     # Parses arguments
@@ -400,10 +401,16 @@ class Slapgrid(object):
     self.shadir_key_file = shadir_key_file
     self.forbid_supervisord_automatic_launch = forbid_supervisord_automatic_launch
     self.logger = logger
+    self.slapgrid_jio_uri = slapgrid_jio_uri
     # Creates objects from slap module
     self.slap = slapos.slap.slap()
     self.slap.initializeConnection(self.master_url, key_file=self.key_file,
-        cert_file=self.cert_file, master_ca_file=self.master_ca_file)
+        cert_file=self.cert_file, master_ca_file=self.master_ca_file,
+        slapgrid_jio_uri=self.slapgrid_jio_uri)
+    if self.slap.jio_api_connector:
+      self.api_backward_compatibility = False
+    else:
+      self.api_backward_compatibility = True
     self.computer = self.slap.registerComputer(self.computer_id)
     # Defines all needed paths
     self.buildout = buildout
@@ -419,6 +426,7 @@ class Slapgrid(object):
     if computer_partition_filter_list is not None:
       self.computer_partition_filter_list = \
           computer_partition_filter_list.split(",")
+    self.computer_partition_list = None
     self.maximum_periodicity = maximum_periodicity
     self.software_min_free_space = software_min_free_space
     self.instance_min_free_space = instance_min_free_space
@@ -553,22 +561,62 @@ stderr_logfile_backups=1
       launchSupervisord(instance_root=self.instance_root, logger=self.logger)
 
   def getComputerPartitionList(self):
-    try:
-      return self.computer.getComputerPartitionList()
-    except socket.error as exc:
-      self.logger.fatal(exc)
-      raise
+    if self.computer_partition_list is None:
+      if not self.api_backward_compatibility:
+        self.computer_partition_list = self.slap.jio_api_connector.allDocs({
+          "portal_type": "Software Instance",
+          "compute_node_id": self.computer_id,
+        }).get("result_list", [])
+      else:
+        try:
+          slap_partition_list = self.computer.getComputerPartitionList()
+        except socket.error as exc:
+          self.logger.fatal(exc)
+          raise
+        self.computer_partition_list = []
+        for partition in slap_partition_list:
+          try:
+            software_release_uri = partition.getSoftwareRelease().getURI()
+          except (NotFoundError, TypeError, NameError):
+            software_release_uri = None
+          self.computer_partition_list.append({
+            "reference": partition._instance_guid,
+            "portal_type": "Software Instance",
+            "compute_partition_id": partition.getId(),
+            "state": partition.getState(),
+            "software_type": partition.getInstanceParameterDict().get(
+              'slap_software_type', None),
+            "parameters": partition.getInstanceParameterDict(),
+            "instance_processing_timestamp": partition.getInstanceParameterDict().get(
+              "timestamp"),
+            "slap_partition": partition,
+            "access_status_message": partition.getAccessStatus(),
+            "software_release_uri": software_release_uri,
+            "sla_parameters": getattr(partition, '_filter_dict', {}),
+          })
+    return self.computer_partition_list
+
+  def sendPartitionError(self, partition, error_message, logger=None):
+    if not self.api_backward_compatibility:
+      self.slap.jio_api_connector.put({
+        "portal_type": "Software Instance",
+        "reported_state": "error",
+        "status_message": str(error_message),
+        "reference": partition.get("reference")
+      })
+    else:
+      partition["slap_partition"].error(error_message, logger=logger)
 
   def getRequiredComputerPartitionList(self):
     """Return the computer partitions that should be processed.
     """
     cp_list = self.getComputerPartitionList()
-    cp_id_list = [cp.getId() for cp in cp_list]
+    cp_id_list = [cp.get("computer_partition_id", "") for cp in cp_list]
     required_cp_id_set = check_required_only_partitions(
       cp_id_list, self.computer_partition_filter_list)
     busy_cp_list = self.FilterComputerPartitionList(cp_list)
     if required_cp_id_set:
-      return [cp for cp in busy_cp_list if cp.getId() in required_cp_id_set]
+      return [cp for cp in busy_cp_list if cp.get("computer_partition_id", "") in required_cp_id_set]
     return busy_cp_list
 
   def processSoftwareReleaseList(self):
@@ -578,10 +626,27 @@ stderr_logfile_backups=1
     self.logger.info('Processing software releases...')
     # Boolean to know if every instance has correctly been deployed
     clean_run = True
-    for software_release in self.computer.getSoftwareReleaseList():
-      state = software_release.getState()
+    if not self.api_backward_compatibility:
+      software_installation_list = self.slap.jio_api_connector.allDocs({
+        "portal_type": "Software Installation",
+        "compute_node_id": self.computer_id
+      })
+      if "result_list" in software_installation_list:
+        software_installation_list = software_installation_list["result_list"]
+      else:
+        software_installation_list = []
+    else:
+      software_installation_list = []
+      for software_release in self.computer.getSoftwareReleaseList():
+        software_installation_list.append({
+          "software_release_uri": software_release.getURI(),
+          "state": software_release.getState(),
+          "compatibility_software_release": software_release,
+        })
+    for software_release in software_installation_list:
+      state = software_release["state"]
       try:
-        software_release_uri = software_release.getURI()
+        software_release_uri = software_release["software_release_uri"]
         url_hash = md5digest(software_release_uri)
         software_path = os.path.join(self.software_root, url_hash)
         software = Software(url=software_release_uri,
@@ -623,7 +688,15 @@ stderr_logfile_backups=1
                  url_hash in self.software_release_filter_list or
                  url_hash in (md5digest(uri) for uri in self.software_release_filter_list)):
             try:
-              software_release.building()
+              if not self.api_backward_compatibility:
+                self.slap.jio_api_connector.put({
+                  "portal_type": "Software Installation",
+                  "compute_node_id": self.computer_id,
+                  "software_release_uri": software_release_uri,
+                  "reported_state": "building",
+                })
+              else:
+                software_release["compatibility_software_release"].building()
             except NotFoundError:
               pass
             software.install()
@@ -640,14 +713,32 @@ stderr_logfile_backups=1
           manager.softwareTearDown(software)
       # Send log before exiting
       except (SystemExit, KeyboardInterrupt):
-        software_release.error(traceback.format_exc(), logger=self.logger)
+        if not self.api_backward_compatibility:
+          self.slap.jio_api_connector.put({
+            "portal_type": "Software Installation",
+            "compute_node_id": self.computer_id,
+            "software_release_uri": software_release_uri,
+            "error_status": traceback.format_exc(),
+          })
+        else:
+          software_release["compatibility_software_release"].error(
+            traceback.format_exc(), logger=self.logger
+          )
         raise
 
       # Buildout failed: send log but don't print it to output (already done)
       except BuildoutFailedError as exc:
         clean_run = False
         try:
-          software_release.error(exc, logger=self.logger)
+          if not self.api_backward_compatibility:
+            self.slap.jio_api_connector.put({
+              "portal_type": "Software Installation",
+              "compute_node_id": self.computer_id,
+              "software_release_uri": software_release_uri,
+              "error_status": str(exc),
+            })
+          else:
+            software_release["compatibility_software_release"].error(exc, logger=self.logger)
         except (SystemExit, KeyboardInterrupt):
           raise
         except Exception:
@@ -656,17 +747,43 @@ stderr_logfile_backups=1
       # For everything else: log it, send it, continue.
       except Exception:
         self.logger.exception('')
-        software_release.error(traceback.format_exc(), logger=self.logger)
+        if not self.api_backward_compatibility:
+          self.slap.jio_api_connector.put({
+            "portal_type": "Software Installation",
+            "compute_node_id": self.computer_id,
+            "software_release_uri": software_release_uri,
+            "error_status": traceback.format_exc(),
+          })
+        else:
+          software_release["compatibility_software_release"].error(
+            traceback.format_exc(), logger=self.logger
+          )
         clean_run = False
       else:
         if state == 'available':
           try:
-            software_release.available()
+            if not self.api_backward_compatibility:
+              self.slap.jio_api_connector.put({
+                "portal_type": "Software Installation",
+                "compute_node_id": self.computer_id,
+                "software_release_uri": software_release_uri,
+                "reported_state": "available",
+              })
+            else:
+              software_release["compatibility_software_release"].available()
           except (NotFoundError, ServerError):
             pass
         elif state == 'destroyed':
           try:
-            software_release.destroyed()
+            if not self.api_backward_compatibility:
+              self.slap.jio_api_connector.put({
+                "portal_type": "Software Installation",
+                "compute_node_id": self.computer_id,
+                "software_release_uri": software_release_uri,
+                "reported_state": "destroyed",
+              })
+            else:
+              software_release["compatibility_software_release"].destroyed()
           except (NotFoundError, ServerError):
             self.logger.exception('')
     self.logger.info('Finished software releases.')
@@ -764,7 +881,7 @@ stderr_logfile_backups=1
       return PromiseLauncher(config=promise_config, logger=self.logger).run()
 
   def _endInstallationTransaction(self, computer_partition):
-    partition_id = computer_partition.getId()
+    partition_id = computer_partition.get("compute_partition_id")
     transaction_file_name = COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME % partition_id
     transaction_file_path = os.path.join(self.instance_root,
                                       partition_id,
@@ -773,9 +890,16 @@ stderr_logfile_backups=1
     if os.path.exists(transaction_file_path):
       with open(transaction_file_path, 'r') as tf:
         try:
-          computer_partition.setComputerPartitionRelatedInstanceList(
-            [reference for reference in tf.read().split('\n') if reference]
-          )
+          if not self.api_backward_compatibility:
+            self.slap.jio_api_connector.put({
+              "portal_type": "Software Instance",
+              "reference": computer_partition.get("reference"),
+              "requested_instance_list": [reference for reference in tf.read().split('\n') if reference],
+            })
+          else:
+            computer_partition["slap_partition"].setComputerPartitionRelatedInstanceList(
+              [reference for reference in tf.read().split('\n') if reference]
+            )
         except NotFoundError as e:
           # Master doesn't implement this feature ?
           self.logger.warning("NotFoundError: %s. \nCannot send requested instance "\
@@ -986,7 +1110,23 @@ stderr_logfile_backups=1
       elif valid_ipv6(ip):
         ipv6_list.append(ip)
 
-    hosting_ip_list = computer_partition.getFullHostingIpAddressList()
+    if not self.api_backward_compatibility:
+      hosting_ip_list = []
+      # Get all the instances of the instance tree
+      related_instance_list = self.slap.jio_api_connector.allDocs({
+        "portal_type": "Software Instance",
+        "root_instance_title": computer_partition["root_instance_title"],
+      }).get("result_list", [])
+      for instance_result in related_instance_list:
+        if instance_result["reference"] != computer_partition["reference"]:
+          instance = self.slap.jio_api_connector.get({
+            "portal_type": "Software Instance",
+            "reference": instance_result["reference"],
+          })
+          hosting_ip_list = hosting_ip_list + instance["ip_list"]
+    else:
+      hosting_ip_list = computer_partition["slap_partition"].getFullHostingIpAddressList()
+
     for iface, ip in hosting_ip_list:
       if valid_ipv4(ip):
         if not ip in ipv4_list:
@@ -995,7 +1135,7 @@ stderr_logfile_backups=1
         if not ip in ipv6_list:
           hosting_ipv6_list.append(ip)
 
-    filter_dict = getattr(computer_partition, '_filter_dict', None)
+    filter_dict = computer_partition.get('sla_parameters', None)
     extra_list = []
     accept_ip_list = []
     if filter_dict is not None:
@@ -1015,11 +1155,11 @@ stderr_logfile_backups=1
     for ip in ipv4_list:
       cmd_list = getFirewallRules(ip, hosting_ipv4_list,
                                   source_ipv4_list, ip_type='ipv4')
-      self._checkAddFirewallRules(computer_partition.getId(),
+      self._checkAddFirewallRules(computer_partition.get("compute_partition_id"),
                                   cmd_list, add=add_rules)
 
   def _checkPromiseAnomaly(self, local_partition, computer_partition):
-    partition_access_status = computer_partition.getAccessStatus()
+    partition_access_status = computer_partition.get("access_status_message", "")
     status_error = False
     if partition_access_status and partition_access_status.startswith("#error"):
       status_error = True
@@ -1031,17 +1171,24 @@ stderr_logfile_backups=1
       self.logger.error(e)
       if partition_access_status is None or not status_error:
         local_partition._updateCertificate()
-        computer_partition.error(e, logger=self.logger)
+        self.sendPartitionError(computer_partition, e, logger=self.logger)
     else:
       if partition_access_status is None or status_error:
         local_partition._updateCertificate()
-        computer_partition.started()
+        if not self.api_backward_compatibility:
+          self.slap.jio_api_connector.put({
+            "portal_type": "Software Instance",
+            "reference": computer_partition.get("reference"),
+            "reported_state": "started"
+          })
+        else:
+          computer_partition["slap_partition"].started()
 
   def processPromise(self, computer_partition):
     """
     Process the promises from a given Computer Partition, depending on its state
     """
-    computer_partition_id = computer_partition.getId()
+    computer_partition_id = computer_partition.get("compute_partition_id")
 
     # Sanity checks before processing
     # Those values should not be None or empty string or any falsy value
@@ -1050,12 +1197,7 @@ stderr_logfile_backups=1
 
     instance_path = os.path.join(self.instance_root, computer_partition_id)
     os.environ['SLAPGRID_INSTANCE_ROOT'] = self.instance_root
-    try:
-      software_url = computer_partition.getSoftwareRelease().getURI()
-    except NotFoundError:
-      # Problem with instance: SR URI not set.
-      # Try to process it anyway, it may need to be deleted.
-      software_url = None
+    software_url = computer_partition.get("software_release_uri")
 
     try:
       software_path = os.path.join(self.software_root, md5digest(software_url))
@@ -1064,7 +1206,7 @@ stderr_logfile_backups=1
       # Try to process it anyway, it may need to be deleted.
       software_path = None
 
-    computer_partition_state = computer_partition.getState()
+    computer_partition_state = computer_partition.get("state")
 
     local_partition = Partition(
       software_path=software_path,
@@ -1082,10 +1224,11 @@ stderr_logfile_backups=1
       buildout=self.buildout,
       buildout_debug=self.buildout_debug,
       logger=self.logger,
-      retention_delay=getattr(computer_partition, '_filter_dict', {}).get('retention_delay', '0'),
+      retention_delay=computer_partition.get('sla_parameters', {}).get('retention_delay', '0'),
       instance_min_free_space=self.instance_min_free_space,
       instance_storage_home=self.instance_storage_home,
       ipv4_global_network=self.ipv4_global_network,
+      api_backward_compatibility=self.api_backward_compatibility,
     )
 
     self.logger.info('Processing Promises for Computer Partition %s.', computer_partition_id)
@@ -1101,7 +1244,7 @@ stderr_logfile_backups=1
     """
     Process a Computer Partition, depending on its state
     """
-    computer_partition_id = computer_partition.getId()
+    computer_partition_id = computer_partition.get("compute_partition_id")
 
     # Sanity checks before processing
     # Those values should not be None or empty string or any falsy value
@@ -1125,20 +1268,14 @@ stderr_logfile_backups=1
         instance_path,
         COMPUTER_PARTITION_TIMESTAMP_FILENAME
     )
-    parameter_dict = computer_partition.getInstanceParameterDict()
-    timestamp = parameter_dict.get('timestamp')
+    timestamp = computer_partition.get("processing_timestamp")
 
     error_output_file = os.path.join(
         instance_path,
         COMPUTER_PARTITION_INSTALL_ERROR_FILENAME % computer_partition_id
     )
 
-    try:
-      software_url = computer_partition.getSoftwareRelease().getURI()
-    except NotFoundError:
-      # Problem with instance: SR URI not set.
-      # Try to process it anyway, it may need to be deleted.
-      software_url = None
+    software_url = computer_partition.get("software_release_uri")
     try:
       software_path = os.path.join(self.software_root, md5digest(software_url))
     except TypeError:
@@ -1146,7 +1283,7 @@ stderr_logfile_backups=1
       # Try to process it anyway, it may need to be deleted.
       software_path = None
 
-    computer_partition_state = computer_partition.getState()
+    computer_partition_state = computer_partition.get("state")
     periodicity = self.maximum_periodicity
     if software_path:
       periodicity_path = os.path.join(software_path, 'periodicity')
@@ -1174,7 +1311,7 @@ stderr_logfile_backups=1
       buildout=self.buildout,
       buildout_debug=self.buildout_debug,
       logger=self.logger,
-      retention_delay=getattr(computer_partition, '_filter_dict', {}).get('retention_delay', '0'),
+      retention_delay=computer_partition.get('sla_parameters', {}).get('retention_delay', '0'),
       instance_min_free_space=self.instance_min_free_space,
       instance_storage_home=self.instance_storage_home,
       ipv4_global_network=self.ipv4_global_network,
@@ -1254,7 +1391,7 @@ stderr_logfile_backups=1
       local_partition._updateCertificate()
 
       # XXX this line breaks 37 tests
-      # self.logger.info('  Instance type: %s' % computer_partition.getType())
+      # self.logger.info('  Instance type: %s' % computer_partition.get("software_type"))
       self.logger.info('  Instance status: %s' % computer_partition_state)
 
       if os.path.exists(error_output_file):
@@ -1262,7 +1399,7 @@ stderr_logfile_backups=1
 
       partition_ip_list = full_hosting_ip_list = []
       if self.firewall_conf:
-        partition_ip_list = parameter_dict['ip_list'] + parameter_dict.get(
+        partition_ip_list = computer_partition['ip_list'] + computer_partition.get(
                                                             'full_ip_list', [])
 
       if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
@@ -1276,7 +1413,14 @@ stderr_logfile_backups=1
                                               partition_ip_list)
         if not self.force_stop:
           self._checkPromiseList(local_partition)
-          computer_partition.started()
+          if not self.api_backward_compatibility:
+            self.slap.jio_api_connector.put({
+              "portal_type": "Software Instance",
+              "reference": computer_partition.get("reference"),
+              "reported_state": "started"
+            })
+          else:
+            computer_partition["slap_partition"].started()
         self._endInstallationTransaction(computer_partition)
       elif computer_partition_state == COMPUTER_PARTITION_STOPPED_STATE:
         try:
@@ -1290,9 +1434,16 @@ stderr_logfile_backups=1
           # Instance has to be stopped even if buildout/reporting is wrong.
           local_partition.stop()
         try:
-          computer_partition.stopped()
+          if not self.api_backward_compatibility:
+            self.slap.jio_api_connector.put({
+              "portal_type": "Software Instance",
+              "reference": computer_partition.get("reference"),
+              "reported_state": "stopped"
+            })
+          else:
+            computer_partition["slap_partition"].stopped()
         except (SystemExit, KeyboardInterrupt):
-          computer_partition.error(traceback.format_exc(), logger=self.logger)
+          self.sendPartitionError(computer_partition, traceback.format_exc(), logger=self.logger)
           raise
         except Exception:
           pass
@@ -1304,16 +1455,23 @@ stderr_logfile_backups=1
                                               partition_ip_list,
                                               drop_entries=True)
         try:
-          computer_partition.stopped()
+          if not self.api_backward_compatibility:
+            self.slap.jio_api_connector.put({
+              "portal_type": "Software Instance",
+              "reference": computer_partition.get("reference"),
+              "reported_state": "stopped"
+            })
+          else:
+            computer_partition["slap_partition"].stopped()
         except (SystemExit, KeyboardInterrupt):
-          computer_partition.error(traceback.format_exc(), logger=self.logger)
+          self.sendPartitionError(computer_partition, traceback.format_exc(), logger=self.logger)
           raise
         except Exception:
           pass
       else:
         error_string = "Computer Partition %r has unsupported state: %s" % \
           (computer_partition_id, computer_partition_state)
-        computer_partition.error(error_string, logger=self.logger)
+        self.sendPartitionError(computer_partition, error_string, logger=self.logger)
         raise NotImplementedError(error_string)
     except Exception as e:
       if not isinstance(e, PromiseError):
@@ -1349,7 +1507,7 @@ stderr_logfile_backups=1
     for computer_partition in computer_partition_list:
       try:
         computer_partition_path = os.path.join(self.instance_root,
-            computer_partition.getId())
+            computer_partition.get("compute_partition_id"))
         if not os.path.exists(computer_partition_path):
           raise NotFoundError('Partition directory %s does not exist.' %
               computer_partition_path)
@@ -1358,11 +1516,8 @@ stderr_logfile_backups=1
         # partition, and check if it has some Software information.
         # XXX-Cedric: Temporary AND ugly solution to check if an instance
         # is in the partition. Dangerous because not 100% sure it is empty
-        computer_partition_state = computer_partition.getState()
-        try:
-          software_url = computer_partition.getSoftwareRelease().getURI()
-        except (NotFoundError, TypeError, NameError):
-          software_url = None
+        computer_partition_state = computer_partition.get("state")
+        software_url = computer_partition.get("software_release_uri")
         if computer_partition_state == COMPUTER_PARTITION_DESTROYED_STATE and \
            not software_url:
           # Exclude files which may come from concurrent processing 
@@ -1380,7 +1535,7 @@ stderr_logfile_backups=1
           # Ignore .slapos-resource file dumped by slapformat.
           if os.listdir(computer_partition_path) not in empty_partition_listdir:
             self.logger.warning("Free partition %s contains file(s) in %s." % (
-                computer_partition.getId(), computer_partition_path))
+                computer_partition.get("compute_partition_id"), computer_partition_path))
           continue
 
         # Everything seems fine
@@ -1390,7 +1545,7 @@ stderr_logfile_backups=1
 
       # Send log before exiting
       except (SystemExit, KeyboardInterrupt):
-        computer_partition.error(traceback.format_exc(), logger=self.logger)
+        self.sendPartitionError(computer_partition, traceback.format_exc(), logger=self.logger)
         raise
 
       except Exception as exc:
@@ -1399,7 +1554,7 @@ stderr_logfile_backups=1
           # For everything else: log it, send it, continue.
           self.logger.exception('')
         try:
-          computer_partition.error(exc, logger=self.logger)
+          self.sendPartitionError(computer_partition, exc, logger=self.logger)
         except (SystemExit, KeyboardInterrupt):
           raise
         except Exception:
@@ -1430,20 +1585,25 @@ stderr_logfile_backups=1
       # Nothing should raise outside of the current loop iteration, so that
       # even if something is terribly wrong while processing an instance, it
       # won't prevent processing other ones.
+      if not self.api_backward_compatibility:
+        computer_partition = self.slap.jio_api_connector.get({
+          "portal_type": "Software Instance",
+          "reference": computer_partition["reference"]
+        })
       try:
         # Process the partition itself
         self.processComputerPartition(computer_partition)
 
       # Send log before exiting
       except (SystemExit, KeyboardInterrupt):
-        computer_partition.error(traceback.format_exc(), logger=self.logger)
+        self.sendPartitionError(computer_partition, traceback.format_exc(), logger=self.logger)
         raise
 
       except PromiseError as exc:
         clean_run_promise = False
         try:
           self.logger.error(exc)
-          computer_partition.error(exc, logger=self.logger)
+          self.sendPartitionError(computer_partition, exc, logger=self.logger)
           promise_error_partition_list.append((computer_partition, exc))
         except (SystemExit, KeyboardInterrupt):
           raise
@@ -1457,7 +1617,7 @@ stderr_logfile_backups=1
           # For everything else: log it, send it, continue.
           self.logger.exception('')
         try:
-          computer_partition.error(exc, logger=self.logger)
+          self.sendPartitionError(computer_partition, exc, logger=self.logger)
           process_error_partition_list.append((computer_partition, exc))
         except (SystemExit, KeyboardInterrupt):
           raise
@@ -1467,9 +1627,8 @@ stderr_logfile_backups=1
     def getPartitionType(part):
       """returns the partition type, if known at that point.
       """
-      try:
-        return part.getType()
-      except slapos.slap.ResourceNotReady:
+      software_type = partition.get("software_type", None)
+      if software_type is None:
         return '(not ready)'
 
     self.logger.info('Finished computer partitions.')
@@ -1477,11 +1636,11 @@ stderr_logfile_backups=1
     if process_error_partition_list:
       self.logger.info('Error while processing the following partitions:')
       for partition, exc in process_error_partition_list:
-        self.logger.info('  %s[%s]: %s', partition.getId(), getPartitionType(partition), exc)
+        self.logger.info('  %s[%s]: %s', partition.get("compute_partition_id"), getPartitionType(partition), exc)
     if promise_error_partition_list:
       self.logger.info('Error with promises for the following partitions:')
       for partition, exc in promise_error_partition_list:
-        self.logger.info('  %s[%s]: %s', partition.getId(), getPartitionType(partition), exc)
+        self.logger.info('  %s[%s]: %s', partition.get("compute_partition_id"), getPartitionType(partition), exc)
 
     # Return success value
     if not clean_run:
@@ -1502,6 +1661,11 @@ stderr_logfile_backups=1
 
     promise_error_partition_list = []
     for computer_partition in computer_partition_list:
+      if not self.api_backward_compatibility:
+        computer_partition = self.slap.jio_api_connector.get({
+          "portal_type": "Software Instance",
+          "reference": computer_partition["reference"]
+        })
       try:
         # Process the partition itself
         self.processPromise(computer_partition)
@@ -1517,15 +1681,14 @@ stderr_logfile_backups=1
     def getPartitionType(part):
       """returns the partition type, if known at that point.
       """
-      try:
-        return part.getType()
-      except slapos.slap.ResourceNotReady:
+      software_type = partition.get("software_type", None)
+      if software_type is None:
         return '(not ready)'
 
     if promise_error_partition_list:
       self.logger.info('Finished computer partitions.')
       for partition, exc in promise_error_partition_list:
-        self.logger.info('  %s[%s]: %s', partition.getId(), getPartitionType(partition), exc)
+        self.logger.info('  %s[%s]: %s', partition.get("compute_partition_id"), getPartitionType(partition), exc)
 
     # Return success value
     if not clean_run_promise:
@@ -1618,7 +1781,6 @@ stderr_logfile_backups=1
     self.checkEnvironmentAndCreateStructure()
     self._launchSupervisord()
 
-    slap_computer_usage = self.slap.registerComputer(self.computer_id)
     computer_partition_usage_list = []
     self.logger.info('Aggregating and sending usage reports...')
 
@@ -1648,11 +1810,11 @@ stderr_logfile_backups=1
     clean_run = True
     # Loop over the different computer partitions
     computer_partition_list = self.FilterComputerPartitionList(
-       slap_computer_usage.getComputerPartitionList())
+       self.getComputerPartitionList())
 
     for computer_partition in computer_partition_list:
       try:
-        computer_partition_id = computer_partition.getId()
+        computer_partition_id = computer_partition.get("compute_partition_id")
 
         instance_path = os.path.join(self.instance_root, computer_partition_id)
 
@@ -1688,18 +1850,18 @@ stderr_logfile_backups=1
             failed_script_list.append("Script %r failed." % script)
             self.logger.warning('Failed to run %r' % invocation_list)
           if len(failed_script_list):
-            computer_partition.error('\n'.join(failed_script_list), logger=self.logger)
+            self.sendPartitionError(computer_partition, '\n'.join(failed_script_list), logger=self.logger)
       # Whatever happens, don't stop processing other instances
       except Exception:
         self.logger.exception('Cannot run usage script(s) for %r:' %
-                                  computer_partition.getId())
+                                  computer_partition.get("compute_partition_id"))
 
     # Now we loop through the different computer partitions to report
     report_usage_issue_cp_list = []
     for computer_partition in computer_partition_list:
       try:
         filename_delete_list = []
-        computer_partition_id = computer_partition.getId()
+        computer_partition_id = computer_partition.get("compute_partition_id")
         instance_path = os.path.join(self.instance_root, computer_partition_id)
         dir_report_list = [os.path.join(instance_path, 'var', 'xml_report'),
             os.path.join(self.instance_root, 'var', 'xml_report',
@@ -1744,7 +1906,7 @@ stderr_logfile_backups=1
       # Whatever happens, don't stop processing other instances
       except Exception:
         self.logger.exception('Cannot run usage script(s) for %r:' %
-                                computer_partition.getId())
+                                computer_partition.get("compute_partition_id"))
 
     for computer_partition_usage in computer_partition_usage_list:
       self.logger.info('computer_partition_usage_list: %s - %s' %
@@ -1770,7 +1932,7 @@ stderr_logfile_backups=1
 
       if self.validateXML(usage, computer_consumption_model):
         self.logger.info('XML file generated by asXML is valid')
-        slap_computer_usage.reportUsage(usage)
+        self.computer.reportUsage(usage)
         filename_delete_list.append(filename)
       else:
         self.logger.info('XML file is invalid %s' % file_path)
@@ -1790,34 +1952,35 @@ stderr_logfile_backups=1
         # We test the XML report before sending it
         if self.validateXML(computer_consumption, computer_consumption_model):
           self.logger.info('XML file generated by asXML is valid')
-          slap_computer_usage.reportUsage(computer_consumption)
+          self.computer.reportUsage(computer_consumption)
         else:
           self.logger.info('XML file generated by asXML is not valid !')
           raise ValueError('XML file generated by asXML is not valid !')
       except Exception:
         issue = "Cannot report usage for %r: %s" % (
-            computer_partition.getId(),
+            computer_partition.get("compute_partition_id"),
             traceback.format_exc())
         self.logger.info(issue)
-        computer_partition.error(issue, logger=self.logger)
+        self.sendPartitionError(computer_partition, issue, logger=self.logger)
         report_usage_issue_cp_list.append(computer_partition_id)
 
     for computer_partition in computer_partition_list:
-      if computer_partition.getState() == COMPUTER_PARTITION_DESTROYED_STATE:
+      if computer_partition.get("state") == COMPUTER_PARTITION_DESTROYED_STATE:
         destroyed = False
         try:
-          computer_partition_id = computer_partition.getId()
+          computer_partition_id = computer_partition.get("compute_partition_id")
+          software_url = computer_partition.get("software_release_uri")
           try:
-            software_url = computer_partition.getSoftwareRelease().getURI()
             software_path = os.path.join(self.software_root, md5digest(software_url))
-          except (NotFoundError, TypeError):
-            software_url = None
+          except TypeError:
+            # Problem with instance: SR URI not set.
+            # Try to process it anyway, it may need to be deleted.
             software_path = None
 
           local_partition = Partition(
             software_path=software_path,
             instance_path=os.path.join(self.instance_root,
-                computer_partition.getId()),
+                computer_partition.get("compute_partition_id")),
             supervisord_partition_configuration_path=os.path.join(
               _getSupervisordConfigurationDirectory(self.instance_root), '%s.conf' %
               computer_partition_id),
@@ -1837,9 +2000,16 @@ stderr_logfile_backups=1
           local_partition.stop()
           local_partition._updateCertificate()
           try:
-            computer_partition.stopped()
+            if not self.api_backward_compatibility:
+              self.slap.jio_api_connector.put({
+                "portal_type": "Software Instance",
+                "reference": computer_partition.get("reference"),
+                "reported_state": "stopped"
+              })
+            else:
+              computer_partition["slap_partition"].stopped()
           except (SystemExit, KeyboardInterrupt):
-            computer_partition.error(traceback.format_exc(), logger=self.logger)
+            self.sendPartitionError(computer_partition, traceback.format_exc(), logger=self.logger)
             raise
           except Exception:
             pass
@@ -1847,9 +2017,9 @@ stderr_logfile_backups=1
           for manager in self._manager_list:
             manager.report(local_partition)
 
-          if computer_partition.getId() in report_usage_issue_cp_list:
+          if computer_partition.get("compute_partition_id") in report_usage_issue_cp_list:
             self.logger.info('Ignoring destruction of %r, as no report usage was sent' %
-                                computer_partition.getId())
+                                computer_partition.get("compute_partition_id"))
             continue
           if self._checkWaitProcessList(local_partition,
               state_list=['RUNNING', 'STARTING']):
@@ -1858,24 +2028,31 @@ stderr_logfile_backups=1
             continue
           destroyed = local_partition.destroy()
         except (SystemExit, KeyboardInterrupt):
-          computer_partition.error(traceback.format_exc(), logger=self.logger)
+          self.sendPartitionError(computer_partition, traceback.format_exc(), logger=self.logger)
           raise
         except Exception:
           clean_run = False
           self.logger.exception('')
           exc = traceback.format_exc()
-          computer_partition.error(exc, logger=self.logger)
+          self.sendPartitionError(computer_partition, exc, logger=self.logger)
         try:
           if destroyed:
-            computer_partition.destroyed()
+            if not self.api_backward_compatibility:
+              self.slap.jio_api_connector.put({
+                "portal_type": "Software Instance",
+                "reference": computer_partition.get("reference"),
+                "reported_state": "destroyed"
+              })
+            else:
+              computer_partition["slap_partition"].destroyed()
         except NotFoundError:
           self.logger.debug('Ignored slap error while trying to inform about '
                             'destroying not fully configured Computer Partition %r' %
-                                computer_partition.getId())
+                                computer_partition.get("compute_partition_id"))
         except ServerError as server_error:
           self.logger.debug('Ignored server error while trying to inform about '
                             'destroying Computer Partition %r. Error is:\n%r' %
-                                (computer_partition.getId(), server_error.args[0]))
+                                (computer_partition.get("compute_partition_id"), server_error.args[0]))
 
     self.logger.info('Finished usage reports.')
 

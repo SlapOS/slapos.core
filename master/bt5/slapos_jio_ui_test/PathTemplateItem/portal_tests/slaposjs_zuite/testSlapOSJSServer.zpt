@@ -22,6 +22,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/create_simple_compute_node" />
       </tal:block>
 
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_call_slapgrid" />
+
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
 
@@ -196,6 +198,7 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_call_slapgrid" />
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
@@ -220,6 +223,16 @@
         <td></td>
       </tr>
       <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
         <td></td>
@@ -230,6 +243,26 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Available')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Available')]</td>
+        <td></td>
+      </tr>
       <tr>
         <td>click</td>
         <td tal:content="python: '//th/a[text()=\'%s\']' % (here.Base_translateString('Software Release', lang=lang))"></td>
@@ -254,6 +287,17 @@
       <tal:block define="header python: 'Software Installation : Frontend'; ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Available')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Available')]</td>
+        <td></td>
+      </tr>
 
       <tal:block define="menu_action python: 'Destroy'">
         <tr>

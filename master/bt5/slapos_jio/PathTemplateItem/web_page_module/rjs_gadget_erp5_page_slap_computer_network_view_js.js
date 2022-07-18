@@ -10,6 +10,7 @@
     .declareAcquiredMethod("updateHeader", "updateHeader")
     .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getUrlParameter", "getUrlParameter")
+    .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("updateDocument", "updateDocument")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
@@ -107,7 +108,8 @@
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.getTranslationList(translation_list)
+            gadget.getTranslationList(translation_list),
+            gadget.getSetting("hateoas_url")
           ]);
         })
         .push(function (result) {
@@ -190,11 +192,11 @@
                   "editable_column_list": [],
                   "key": "slap_project_compute_node_listbox",
                   "lines": 10,
-                  "list_method": "portal_catalog",
-                  // XXX TODO Filter by   default_strict_allocation_scope_uid="!=%s" % context.getPortalObject().portal_categories.allocation_scope.close.forever.getUid(),
-                  "query": "urn:jio:allDocs?query=portal_type%3A%22" +
-                    "Compute Node" + "%22%20AND%20" +
-                    "subordination_reference%3A" + gadget.state.doc.reference,
+                  "list_method": "ComputerNetwork_getComputeNodeList",
+                  "list_method_template": result[2] + "ERP5Document_getHateoas?mode=search&" +
+                            "list_method=ComputerNetwork_getComputeNodeList&relative_url=" +
+                            gadget.state.jio_key + "&default_param_json=eyJpZ25vcmVfdW5rbm93bl9jb2x1bW5zIjogdHJ1ZX0={&query,select_list*,limit*,sort_on*,local_roles*}",
+                  "query": "urn:jio:allDocs?query=",
                   "portal_type": [],
                   "search_column_list": column_list,
                   "sort_column_list": column_list,

@@ -99,7 +99,7 @@
                           <string>Reference</string>
                         </tuple>
                         <tuple>
-                          <string>destination</string>
+                          <string>destination_section_title</string>
                           <string>User</string>
                         </tuple>
                         <tuple>

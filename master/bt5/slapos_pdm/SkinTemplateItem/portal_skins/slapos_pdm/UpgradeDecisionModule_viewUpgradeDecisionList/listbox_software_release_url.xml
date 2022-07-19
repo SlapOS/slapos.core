@@ -155,6 +155,10 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>input_type</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>max_length</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -230,6 +234,10 @@
                     <value> <int>0</int> </value>
                 </item>
                 <item>
+                    <key> <string>input_type</string> </key>
+                    <value> <string>text</string> </value>
+                </item>
+                <item>
                     <key> <string>max_length</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -239,7 +247,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Instance Tree</string> </value>
+                    <value> <string>Software Release</string> </value>
                 </item>
                 <item>
                     <key> <string>truncate</string> </key>
@@ -267,7 +275,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: cell.UpgradeDecision_getSoftwareRelease() and cell.UpgradeDecision_getSoftwareRelease().getUrlString() or \'\'</string> </value>
+            <value> <string>python: cell.UpgradeDecision_getAggregateValue(\'Software Release\') and cell.UpgradeDecision_getAggregateValue(\'Software Release\').getUrlString() or \'\'</string> </value>
         </item>
       </dictionary>
     </pickle>

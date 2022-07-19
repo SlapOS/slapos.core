@@ -10,6 +10,8 @@
     .declareAcquiredMethod("updateHeader", "updateHeader")
     .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getSetting", "getSetting")
+    .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
+    .declareAcquiredMethod("notifySubmitted", "notifySubmitted")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("jio_post", "jio_post")
@@ -26,7 +28,10 @@
 
     .onEvent('submit', function () {
       var gadget = this;
-      return gadget.getDeclaredGadget('form_view')
+      return gadget.notifySubmitting()
+        .push(function () {
+          return gadget.getDeclaredGadget('form_view');
+        })
         .push(function (form_gadget) {
           return form_gadget.getContent();
         })
@@ -38,8 +43,12 @@
             });
         })
         .push(function () {
-          // Workaround, find a way to open document without break gadget.
-          return gadget.redirect({"command": "change", "options": {"page": "slap_controller"}});
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
+            .push(function () {
+              // Workaround, find a way to open document without break gadget.
+              return gadget.redirect({"command": "change",
+                                    "options": {"page": "slap_controller"}});
+            });
         });
     })
 
@@ -52,7 +61,9 @@
         page_title_translation,
         translation_list = [
           "Parent Relative Url",
-          "Stop Instance Tree:"
+          "Stop Instance Tree:",
+          "Service is Stopped."
+
         ];
       return new RSVP.Queue()
         .push(function () {
@@ -65,6 +76,7 @@
         .push(function (result) {
           options.doc = result[1];
           page_title_translation = result[2][1];
+          gadget.message_translation = result[2][2];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {

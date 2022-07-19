@@ -1,11 +1,17 @@
 portal_type = data_dict["portal_type"]
 portal = context.getPortalObject()
 
+slap_state_dict = {
+  "stop_requested": "started",
+  "start_requested": "stopped",
+  "destroy_requested": "destroyed",
+}
+
 if portal_type == "Software Instance":
   search_kw = {
     "portal_type": "Software Instance",
     "validation_state": "validated",
-    "select_list": ("title", "reference", "portal_type")
+    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "url_string")
   }
 
   if "title" in data_dict:
@@ -19,13 +25,16 @@ if portal_type == "Software Instance":
     "title": x.title,
     "reference": x.reference,
     "portal_type": x.portal_type,
+    "state": slap_state_dict.get(x.slap_state, ""),
+    "compute_partition_id": x.aggregate_reference,
+    "software_release_uri": x.url_string,
   } for x in portal.portal_catalog(**search_kw)]
 
 elif portal_type == "Shared Instance":
   search_kw = {
     "portal_type": "Slave Instance",
     "validation_state": "validated",
-    "select_list": ("title", "reference", "portal_type")
+    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "url_string")
   }
   if "host_instance_reference" in data_dict:
     host_instance_list = portal.portal_catalog(
@@ -47,6 +56,9 @@ elif portal_type == "Shared Instance":
     "title": x.title,
     "reference": x.reference,
     "portal_type": x.portal_type,
+    "state": x.slap_state,
+    "compute_partition_id": x.aggregate_reference,
+    "software_release_uri": x.url_string,
   } for x in portal.portal_catalog(**search_kw)]
 
 else:

@@ -341,6 +341,7 @@ class SoftwareInstance(Item, JSONType):
       "software_type": self.getSourceReference().decode("UTF-8"),
       "compute_node_id": parameter_dict.get("slap_computer_id"),
       "compute_partition_id": parameter_dict.get("slap_computer_partition_id"),
+      "sla_parameters": self.getSlaXmlAsDict(),
     }
     result.update(parameter_dict)
     return json.dumps(result, indent=2)

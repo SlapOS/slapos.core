@@ -158,6 +158,11 @@
           "title": "Requested Network",\n
           "descritpion": "Requested Network Reference",\n
           "type": "string"\n
+        },\n
+        "retention_delay": {\n
+          "title": "Retention Delay",\n
+          "Description": "Number of days during the data is preserved after the instance is destroyed",\n
+          "type": "number"\n
         }\n
       },\n
       "additionalProperties": { "type": "string" }\n

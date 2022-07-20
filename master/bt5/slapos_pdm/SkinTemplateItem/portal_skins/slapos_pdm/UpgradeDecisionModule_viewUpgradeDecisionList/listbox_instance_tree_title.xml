@@ -155,6 +155,10 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>input_type</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>max_length</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -267,7 +271,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: cell.UpgradeDecision_getInstanceTree() and cell.UpgradeDecision_getInstanceTree().getTitle() or \'\'</string> </value>
+            <value> <string>python: cell.UpgradeDecision_getAggregateValue() and cell.UpgradeDecision_getAggregateValue().getTitle() or \'\'</string> </value>
         </item>
       </dictionary>
     </pickle>

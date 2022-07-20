@@ -175,6 +175,16 @@
       "type": "string",\n
       "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance"\n
     },\n
+    "processing_timestamp": {\n
+      "title": "Processing Timestamp",\n
+      "type": "number",\n
+      "description": "Timestamp set by the master node to mark when it was last processed in the master node. If it has been processed on master, it needs reprocessiing on the compute node."\n
+    },\n
+    "access_status_message": {\n
+      "title": "Access Status",\n
+      "type": "string",\n
+      "description": "Get latest software instance Access message state"\n
+    },\n
     "portal_type": {\n
       "title": "Portal Type",\n
       "const": "Software Instance",\n

@@ -342,6 +342,8 @@ class SoftwareInstance(Item, JSONType):
       "compute_node_id": parameter_dict.get("slap_computer_id"),
       "compute_partition_id": parameter_dict.get("slap_computer_partition_id"),
       "sla_parameters": self.getSlaXmlAsDict(),
+      "access_status_message": self.getTextAccessStatus(),
+      "processing_timestamp": parameter_dict.get("timestamp"),
     }
     result.update(parameter_dict)
     return json.dumps(result, indent=2)

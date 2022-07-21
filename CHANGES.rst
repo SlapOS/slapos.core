@@ -1,6 +1,13 @@
 Changes
 =======
 
+1.7.11 (2022-07-21)
+-------------------
+ *  register: fix slapconfig in python3
+ *  register: no need to be root if configuration file in /tmp
+ *  networkcache: fix upload_network_cached in python3
+ *  slapgrid: fix _updateCertificate in python3
+
 1.7.10 (2022-07-11)
 -------------------
  * format: fix for python3

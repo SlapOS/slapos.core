@@ -345,8 +345,10 @@ class SoftwareInstance(Item, JSONType):
       "sla_parameters": self.getSlaXmlAsDict(),
       "access_status_message": self.getTextAccessStatus(),
       "processing_timestamp": parameter_dict.get("timestamp"),
-      "key": self.getSslKey(),
-      "certificate": self.getSslCertificate(),
+      "X509": {
+        "key": self.getSslKey(),
+        "certificate": self.getSslCertificate(),
+      },
     }
     result.update(parameter_dict)
     self.REQUEST.response.setHeader('Cache-Control',

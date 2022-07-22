@@ -90,6 +90,14 @@
       "const": "Software Instance",\n
       "type": "string"\n
     },\n
+    "requested_instance_list": {\n
+      "title": "Requested Instance List",\n
+      "type": "array",\n
+      "description": "List of the instances references requested by this instance. This is used to garbage collect instances that are no longer requested by this instance.",\n
+      "items": {\n
+        "type": "string"\n
+      }\n
+    },\n
     "title": {\n
       "title": "New Title",\n
       "type": "string",\n

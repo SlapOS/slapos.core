@@ -118,7 +118,7 @@
       "type": "boolean",\n
       "description": "This instance is Shared Instance hosted on another instance. It doesn\'t use a computer partition."\n
     },\n
-    "root_instante_title": {\n
+    "root_instance_title": {\n
       "title": "Root Instance Title",\n
       "type": "string",\n
       "description": "Title of the Instance at the root of the instance tree. This is the title of the instance that has been requested by the user."\n

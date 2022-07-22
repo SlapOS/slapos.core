@@ -31,7 +31,7 @@
         <item>
             <key> <string>output_schema</string> </key>
             <value> <string>{\n
-  "title": "bar"\n
+  "$ref: "%(base_url)s/portal_types/Software%20Instance/getTextContent"\n
 }</string> </value>
         </item>
         <item>

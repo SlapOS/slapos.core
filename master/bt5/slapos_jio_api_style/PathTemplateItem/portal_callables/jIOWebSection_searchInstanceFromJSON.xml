@@ -105,7 +105,7 @@
           "type": "string",\n
           "description": "The Id of the compute node hosting the instance, example: COMP-1234"\n
         },\n
-        "root_instante_title": {\n
+        "root_instance_title": {\n
           "title": "Root Instance Title",\n
           "type": "string",\n
           "description": "Title of the Instance at the root of the instance tree. This is the title of the instance that has been requested by the user."\n
@@ -131,7 +131,7 @@
           "type": "string",\n
           "description": "Reference of the Instance where this is instance is hosted, usefull for shared instances"\n
         },\n
-        "root_instante_title": {\n
+        "root_instance_title": {\n
           "title": "Root Instance Title",\n
           "type": "string",\n
           "description": "Title of the Instance at the root of the instance tree. This is the title of the instance that has been requested by the user."\n

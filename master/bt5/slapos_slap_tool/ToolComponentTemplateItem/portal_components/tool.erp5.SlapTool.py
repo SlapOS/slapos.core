@@ -1033,7 +1033,8 @@ class SlapTool(BaseTool):
                           _getSoftwareInstanceForComputePartition(compute_node_id,
                           compute_partition_id)
 
-    software_instance_document._updateSucessorList(instance_reference_xml)
+    instance_reference_list = loads(instance_reference_xml)
+    software_instance_document._updateSucessorList(instance_reference_list)
 
   ####################################################
   # Internals methods

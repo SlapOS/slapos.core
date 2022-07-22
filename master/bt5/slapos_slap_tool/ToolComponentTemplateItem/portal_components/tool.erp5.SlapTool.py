@@ -1096,7 +1096,7 @@ class SlapTool(BaseTool):
       compute_partition_id, slave_reference=None):
     compute_partition_document = self.getPortalObject().portal_catalog.getComputePartitionObject(
       compute_node_id, compute_partition_id)
-    return compute_partition_document._getSoftwareInstance(slave_reference)
+    return compute_partition_document.getSoftwareInstance(slave_reference)
 
   @convertToREST
   def _softwareReleaseError(self, url, compute_node_id, error_log):

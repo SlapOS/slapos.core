@@ -35,6 +35,9 @@ if "reported_state" in data_dict:
       error_message="Unexcepected Reported State: %s" % reported_state,
     )
 
+if "requested_instance_list":
+  software_instance.updateRequestedInstanceList(data_dict["requested_instance_list"])
+
 if "title" in data_dict and data_dict["title"] != software_instance.getTitle():
   software_instance.rename(
     new_name=data_dict["title"],
@@ -45,6 +48,6 @@ return json.dumps({
   "$schema": json_form.absolute_url().strip() + "/getOutputJSONSchema",
   "reference": software_instance.getReference(),
   "portal_type": "Software Instance",
-  "date": str(DateTime()),
+  "date": DateTime().HTML4(),
   "success": "Done"
 }, indent=2)

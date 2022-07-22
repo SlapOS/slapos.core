@@ -39,11 +39,9 @@ from erp5.component.module.SlapOSCloud import _assertACI
 
 from zLOG import LOG, INFO
 try:
-  from slapos.util import xml2dict, loads
+  from slapos.util import xml2dict
 except ImportError:
   def xml2dict(dictionary):
-    raise ImportError
-  def loads(*args):
     raise ImportError
 
 class DisconnectedSoftwareTree(Exception):
@@ -281,19 +279,21 @@ class SoftwareInstance(Item, JSONType):
     
     return ip_address_list
 
-  def _updateSucessorList(self, instance_reference_xml):
+  def updateRequestedInstanceList(self, instance_reference_list):
+    return self._updateSucessorList(instance_reference_list)
+
+  def _updateSucessorList(self, instance_reference_list):
     """
     Update Software Instance successor list to match the given list. If one
     instance was not requested by this compute partition, it should be removed
     in the successor_list of this instance.
     Once the link is removed, this instance will be trashed by Garbage Collect!
 
-    instance_reference_xml contain list of title of sub-instances requested by
+    instance_reference_list contain list of title of sub-instances requested by
     this instance.
     """
     cache_reference = '%s-PREDLIST' % self.getReference()
-    if not self.isLastData(cache_reference, instance_reference_xml):
-      instance_reference_list = loads(instance_reference_xml)
+    if not self.isLastData(cache_reference, str(instance_reference_list)):
       current_successor_list = self.getSuccessorValueList(
                             portal_type=['Software Instance', 'Slave Instance'])
       current_successor_title_list = [i.getTitle() for i in current_successor_list]
@@ -307,7 +307,7 @@ class SoftwareInstance(Item, JSONType):
             self.getReference(), successor_list), error=False)
         self.edit(successor_list=successor_list,
             comment='successor_list edited to unlink non commited instances')
-      self.setLastData(instance_reference_xml, key=cache_reference)
+      self.setLastData(str(instance_reference_list), key=cache_reference)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'asJSONText')

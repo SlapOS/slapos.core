@@ -18,8 +18,8 @@ if portal_type == "Software Instance":
     search_kw["title"] = data_dict["title"]
   if "compute_node_id" in data_dict:
     search_kw["aggregate_parent_reference"] = data_dict["compute_node_id"]
-  if "root_instante_title" in data_dict:
-    search_kw["strict_specialise_title"] = data_dict["root_instante_title"]
+  if "root_instance_title" in data_dict:
+    search_kw["strict_specialise_title"] = data_dict["root_instance_title"]
 
   result_list = [{
     "title": x.title,
@@ -49,8 +49,8 @@ elif portal_type == "Shared Instance":
         error_code=404
       )
     search_kw["strict_aggregate_uid"] = host_instance_list[0].getObject().getAggregateUid()
-  if "root_instante_title" in data_dict:
-    search_kw["strict_specialise_title"] = data_dict["root_instante_title"]
+  if "root_instance_title" in data_dict:
+    search_kw["strict_specialise_title"] = data_dict["root_instance_title"]
   #return portal.portal_catalog(src__=1, **search_kw)
   result_list = [{
     "title": x.title,

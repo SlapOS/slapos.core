@@ -26,6 +26,7 @@
 #
 ##############################################################################
 from AccessControl import ClassSecurityInfo
+from App.Common import rfc1123_date
 from Products.ERP5Type import Permissions
 from erp5.component.document.Item import Item
 from erp5.component.document.JSONType import JSONType
@@ -344,8 +345,16 @@ class SoftwareInstance(Item, JSONType):
       "sla_parameters": self.getSlaXmlAsDict(),
       "access_status_message": self.getTextAccessStatus(),
       "processing_timestamp": parameter_dict.get("timestamp"),
+      "key": self.getSslKey(),
+      "certificate": self.getSslCertificate(),
     }
     result.update(parameter_dict)
+    self.REQUEST.response.setHeader('Cache-Control',
+                                    'private, max-age=0, must-revalidate')
+    self.REQUEST.response.setHeader('Vary',
+                                    'REMOTE_USER')
+    self.REQUEST.response.setHeader('Last-Modified',
+                                    rfc1123_date(self.getModificationDate()))
     return json.dumps(result, indent=2)
 
   security.declareProtected(Permissions.ModifyPortalContent, 'fromJSONText')

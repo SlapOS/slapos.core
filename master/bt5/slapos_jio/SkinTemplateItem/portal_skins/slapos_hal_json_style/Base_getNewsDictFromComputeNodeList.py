@@ -10,4 +10,7 @@ for compute_node in compute_node_list:
   compute_partition_dict[compute_node.getReference()] = news_dict["partition"]
 
 return {"compute_node": compute_node_dict,
-        "partition": compute_partition_dict}
+        "partition": compute_partition_dict,
+        "reference": context.getReference(),
+        "portal_type": context.getPortalType(),
+        "monitor_url": context.Base_getStatusMonitorUrl()}

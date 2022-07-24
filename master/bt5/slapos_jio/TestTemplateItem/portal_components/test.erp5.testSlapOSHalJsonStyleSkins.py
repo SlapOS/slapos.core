@@ -161,7 +161,8 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'instance': [],
       'portal_type': instance_tree.getPortalType(),
       'reference': instance_tree.getReference(),
-      'title': instance_tree.getTitle()
+      'title': instance_tree.getTitle(),
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Instance Tree" AND title:(Template Instance Tree)'
     }
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
@@ -174,6 +175,7 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'portal_type': instance_tree.getPortalType(),
       'reference': instance_tree.getReference(),
       'title': instance_tree.getTitle(),
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Instance Tree" AND title:(Template Instance Tree)',
       'is_slave': 1
     }
     self.assertEqual(news_dict, 
@@ -187,6 +189,7 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'portal_type': instance_tree.getPortalType(),
       'reference': instance_tree.getReference(),
       'title': instance_tree.getTitle(),
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Instance Tree" AND title:(Template Instance Tree)',
       'is_stopped': 1
     }
     self.assertEqual(_decode_with_json(news_dict),
@@ -200,6 +203,7 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'portal_type': instance_tree.getPortalType(),
       'reference': instance_tree.getReference(),
       'title': instance_tree.getTitle(),
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Instance Tree" AND title:(Template Instance Tree)',
       'is_destroyed': 1
     }
     self.assertEqual(_decode_with_json(news_dict),
@@ -216,11 +220,15 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'portal_type': instance_tree.getPortalType(),
       'reference': instance_tree.getReference(),
       'title': instance_tree.getTitle(),
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Instance Tree" AND title:(Template Instance Tree)',
       'instance': [{'created_at': self.created_at,
                 'no_data': 1,
                 'portal_type': instance.getPortalType(),
                 'reference': instance.getReference(),
                 'since': self.created_at,
+                'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND reference:%s' % (
+                  instance.getReference()
+                ),
                 'state': '',
                 'text': '#error no data found for %s' % instance.getReference(),
                 'user': 'SlapOS Master'}]
@@ -239,7 +247,8 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'portal_type': instance_tree.getPortalType(),
       'reference': instance_tree.getReference(),
       'title': instance_tree.getTitle(),
-      'instance': []
+      'instance': [],
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Instance Tree" AND title:(Template Instance Tree)'
     }
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
@@ -258,12 +267,16 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'portal_type': instance_tree.getPortalType(),
       'reference': instance_tree.getReference(),
       'title': instance_tree.getTitle(),
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Instance Tree" AND title:(Template Instance Tree)',
       'instance': [
         {'created_at': self.created_at,
           'no_data': 1,
           'portal_type': instance0.getPortalType(),
           'reference': instance0.getReference(),
           'since': self.created_at,
+          'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND reference:%s' % (
+            instance0.getReference()
+          ),
           'state': '',
           'text': '#error no data found for %s' % instance0.getReference(),
           'user': 'SlapOS Master'},
@@ -272,6 +285,9 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
          'portal_type': instance.getPortalType(),
          'reference': instance.getReference(), 
          'since': self.created_at,
+         'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND reference:%s' % (
+            instance.getReference()
+          ),
          'state': '',
          'text': '#error no data found for %s' % instance.getReference(),
          'user': 'SlapOS Master'}]}
@@ -286,14 +302,17 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
     self._logFakeAccess(instance)
     news_dict = instance.SoftwareInstance_getNewsDict()
     expected_news_dict =  {'created_at': self.created_at,
-                           'no_data_since_15_minutes': 0,
-                           'no_data_since_5_minutes': 0,
-                           'portal_type': instance.getPortalType(),
-                           'reference': instance.getReference(),
-                           'since': self.created_at,
-                           'state': 'start_requested',
-                           'text': '#access OK',
-                          'user': 'SlapOS Master'}
+      'no_data_since_15_minutes': 0,
+      'no_data_since_5_minutes': 0,
+      'portal_type': instance.getPortalType(),
+      'reference': instance.getReference(),
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND reference:%s' % (
+        instance.getReference()
+      ),
+      'since': self.created_at,
+      'state': 'start_requested',
+      'text': '#access OK',
+      'user': 'SlapOS Master'}
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
 
@@ -310,6 +329,9 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'since': self.created_at,
       'state': '',
       'text': '#error no data found for %s' % instance.getReference(),
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND reference:%s' % (
+        instance.getReference()
+      ),
       'user': 'SlapOS Master'}
 
     self.assertEqual(_decode_with_json(news_dict),
@@ -323,6 +345,9 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'reference': instance.getReference(),
       'is_slave': 1,
       'text': '#nodata is a slave %s' % instance.getReference(),
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND reference:%s' % (
+        instance.getReference()
+      ),
       'user': 'SlapOS Master'}
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
@@ -336,6 +361,9 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       "reference": instance.getReference(),
       "user": "SlapOS Master",
       "text": "#nodata is an stopped instance %s" % instance.getReference(),
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND reference:%s' % (
+        instance.getReference()
+      ),
       "is_stopped": 1
     }
     self.assertEqual(_decode_with_json(news_dict),
@@ -350,6 +378,9 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       "reference": instance.getReference(),
       "user": "SlapOS Master",
       "text": "#nodata is an destroyed instance %s" % instance.getReference(),
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND reference:%s' % (
+        instance.getReference()
+      ),
       "is_destroyed": 1
     }
     self.assertEqual(_decode_with_json(news_dict),
@@ -424,7 +455,8 @@ class TestSoftwareInstallation_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'since': self.created_at,
       'state': '',
       'text': '#error no data found for %s' % installation.getReference(),
-      'user': 'SlapOS Master'}
+      'user': 'SlapOS Master'
+    }
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
 
@@ -435,6 +467,7 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
     compute_node = self._makeComputeNode()
     self._logFakeAccess(compute_node)
     news_dict = compute_node.ComputeNode_getNewsDict()
+    monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND aggregate_reference:%s' % (compute_node.getReference())
     expected_news_dict =  {'compute_node': 
                            {'created_at': self.created_at,
                            'no_data_since_15_minutes': 0,
@@ -447,7 +480,8 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                           'user': 'SlapOS Master'},
                           'partition': {},
                           'portal_type': compute_node.getPortalType(),
-                          'reference': compute_node.getReference()
+                          'reference': compute_node.getReference(),
+                          'monitor_url': monitor_url
                           }
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
@@ -458,6 +492,7 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                         state='stop_requested')
     news_dict = compute_node.ComputeNode_getNewsDict()
     compute_node.getSlapState = fakeStopRequestedSlapState
+    monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND aggregate_reference:%s' % (compute_node.getReference())
 
     expected_news_dict =  {'compute_node': 
                             {'created_at': self.created_at,
@@ -471,7 +506,8 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                             'user': 'SlapOS Master'},
                           'partition': {},
                           'portal_type': compute_node.getPortalType(),
-                          'reference': compute_node.getReference()
+                          'reference': compute_node.getReference(),
+                          'monitor_url': monitor_url
                           }
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
@@ -482,6 +518,7 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                         state='destroy_requested')
     news_dict = compute_node.ComputeNode_getNewsDict()
     compute_node.getSlapState = fakeDestroyRequestedSlapState
+    monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND aggregate_reference:%s' % (compute_node.getReference())
 
     expected_news_dict =  {'compute_node': 
                            {'created_at': self.created_at,
@@ -495,7 +532,8 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                            'user': 'SlapOS Master'},
                           'partition': {},
                           'portal_type': compute_node.getPortalType(),
-                          'reference': compute_node.getReference()
+                          'reference': compute_node.getReference(),
+                          'monitor_url': monitor_url
                           }
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
@@ -503,6 +541,7 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
   def test_no_data(self):
     compute_node = self._makeComputeNode()
     news_dict = compute_node.ComputeNode_getNewsDict()
+    monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND aggregate_reference:%s' % (compute_node.getReference())
     expected_news_dict = {'compute_node': 
                            {'created_at': self.created_at,
                             'no_data': 1,
@@ -514,7 +553,8 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                             'user': 'SlapOS Master'},
                           'partition': {},
                           'portal_type': compute_node.getPortalType(),
-                          'reference': compute_node.getReference()
+                          'reference': compute_node.getReference(),
+                          'monitor_url': monitor_url
                           }
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
@@ -523,6 +563,7 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
     compute_node = self._makeComputeNode()
     instance = self._makeInstance()
     instance.setAggregateValue(compute_node.slappart0)
+    monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND aggregate_reference:%s' % (compute_node.getReference())
     self.tic()
     
     self._logFakeAccess(compute_node)
@@ -546,7 +587,8 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                               'text': '#error no data found for %s' % (instance.getReference()),
                               'user': 'SlapOS Master'}},
                           'portal_type': compute_node.getPortalType(),
-                          'reference': compute_node.getReference()
+                          'reference': compute_node.getReference(),
+                          'monitor_url': monitor_url
                           }
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
@@ -574,6 +616,11 @@ class TestComputerNetwork_getNewsDict(TestSlapOSHalJsonStyleMixin):
                                u'state': u'start_requested',
                                u'text': u'#access OK',
                                u'user': u'SlapOS Master'}},
+                            'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND aggregate_reference:("%s")' % (
+                              compute_node.getReference()
+                            ),
+                            'portal_type': network.getPortalType(),
+                            'reference': network.getReference(),
                             'partition':
                               { compute_node.getReference():
                                 {'slappart0': {'created_at': self.created_at,
@@ -595,7 +642,12 @@ class TestComputerNetwork_getNewsDict(TestSlapOSHalJsonStyleMixin):
   def test_no_data(self):
     network = self._makeComputerNetwork()
     news_dict = network.ComputerNetwork_getNewsDict()
-    expected_news_dict = {'compute_node': {}, 'partition': {}}
+    expected_news_dict = {
+      'compute_node': {},
+      'partition': {},
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND aggregate_reference:()',
+      'portal_type': network.getPortalType(),
+      'reference': network.getReference()}
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
 
@@ -613,30 +665,36 @@ class TestOrganisation_getNewsDict(TestSlapOSHalJsonStyleMixin):
     self.tic()
     self._logFakeAccess(compute_node)
     news_dict = organisation.Organisation_getNewsDict()
-    expected_news_dict =  {'compute_node': 
-                            { compute_node.getReference():
-                              {u'created_at': u'%s' % self.created_at,
-                               'no_data_since_15_minutes': 0,
-                               'no_data_since_5_minutes': 0,
-                               'portal_type': compute_node.getPortalType(),
-                               'reference': compute_node.getReference(),
-                               u'since': u'%s' % self.created_at,
-                               u'state': u'start_requested',
-                               u'text': u'#access OK',
-                               u'user': u'SlapOS Master'}},
-                            'partition':
-                              { compute_node.getReference():
-                                {'slappart0': {'created_at': self.created_at,
-                                'no_data': 1,
-                                'portal_type': instance.getPortalType(),
-                                'reference': instance.getReference(),
-                                'since': self.created_at,
-                                'state': '',
-                                'text': '#error no data found for %s' % (instance.getReference()),
-                                'user': 'SlapOS Master'}
-                                }
-                              }
-                            }
+    expected_news_dict =  {
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND aggregate_reference:("%s")' % (
+        compute_node.getReference()
+      ),
+      'portal_type': 'Organisation',
+      'reference': organisation.getReference(),
+      'compute_node': 
+        { compute_node.getReference():
+          {u'created_at': u'%s' % self.created_at,
+           'no_data_since_15_minutes': 0,
+           'no_data_since_5_minutes': 0,
+           'portal_type': compute_node.getPortalType(),
+           'reference': compute_node.getReference(),
+           u'since': u'%s' % self.created_at,
+           u'state': u'start_requested',
+           u'text': u'#access OK',
+           u'user': u'SlapOS Master'}},
+        'partition':
+          { compute_node.getReference():
+            {'slappart0': {'created_at': self.created_at,
+            'no_data': 1,
+            'portal_type': instance.getPortalType(),
+            'reference': instance.getReference(),
+            'since': self.created_at,
+            'state': '',
+            'text': '#error no data found for %s' % (instance.getReference()),
+            'user': 'SlapOS Master'}
+            }
+          }
+        }
                           
 
     self.assertEqual(_decode_with_json(news_dict),
@@ -645,7 +703,12 @@ class TestOrganisation_getNewsDict(TestSlapOSHalJsonStyleMixin):
   def test_no_data(self):
     organisation = self._makeOrganisation()
     news_dict = organisation.Organisation_getNewsDict()
-    expected_news_dict = {'compute_node': {}, 'partition': {}}
+    expected_news_dict = {
+      'compute_node': {},
+      'partition': {},
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND aggregate_reference:()',
+      'portal_type': 'Organisation',
+      'reference': organisation.getReference()}
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
 
@@ -663,7 +726,14 @@ class TestProject_getNewsDict(TestSlapOSHalJsonStyleMixin):
     self.tic()
     self._logFakeAccess(compute_node)
     news_dict = project.Project_getNewsDict()
-    expected_news_dict =  {'compute_node': 
+    monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND aggregate_reference:("%s")' % (
+      compute_node.getReference()
+    )
+    expected_news_dict =  {
+                          'monitor_url': monitor_url, 
+                          'portal_type': 'Project',
+                          'reference': project.getReference(),
+                          'compute_node': 
                             { compute_node.getReference():
                               {u'created_at': u'%s' % self.created_at,
                                'no_data_since_15_minutes': 0,
@@ -695,7 +765,13 @@ class TestProject_getNewsDict(TestSlapOSHalJsonStyleMixin):
   def test_no_data(self):
     project = self._makeProject()
     news_dict = project.Project_getNewsDict()
-    expected_news_dict = {'compute_node': {}, 'partition': {}}
+    expected_news_dict = {
+      'compute_node': {},
+      'partition': {},
+      'monitor_url': 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND aggregate_reference:()',
+      'portal_type': 'Project',
+      'reference': project.getReference()}
+
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
 

@@ -206,11 +206,11 @@
         class: "ui-btn ui-btn-icon-left ui-icon-desktop"
       };
 
-    if (result && result.portal_type && result.portal_type === "Compute Node") {
-      monitor_url = 'https://monitor.app.officejs.com/#/' +
-        '?page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20' +
-        'AND%20aggregate_reference%3A%22' + result.reference + '%22';
+    if (result && result.monitor_url) {
+      monitor_url = result.monitor_url
+    }
 
+    if (result && result.portal_type && result.portal_type === "Compute Node") {
       main_link_configuration_dict.href = monitor_url;
       main_link_configuration_dict.target = "_target";
       main_link_configuration_dict.text = 'Compute Node';
@@ -250,13 +250,7 @@
         result.portal_type === "Software Instance" ||
         result.portal_type === "Slave Instance"
       )) {
-      monitor_url = 'https://monitor.app.officejs.com/#/' +
-        '?page=ojsm_dispatch&query=' +
-        'portal_type%3A%22Software%20Instance%22%20AND%20reference%3A%22' +
-        result.reference + '%22';
-      if (result && result.news) {
-        status_class = getInstanceStatus(result.news);
-      }
+      status_class = getInstanceStatus(result);
       right_class = "ui-btn-hide";
       if (status_class === 'ui-btn-is-slave') {
         status_class = 'ui-btn-no-data ui-btn-color-white';
@@ -278,19 +272,6 @@
         status_class = getInstanceTreeStatus(result.news);
       }
       // it should verify if the monitor-base-url is ready.
-      for (i in result.connection_parameter_list) {
-        if (result.connection_parameter_list.hasOwnProperty(i)) {
-          if (result.connection_parameter_list[i].connection_key ===
-                                                   "monitor-setup-url") {
-            monitor_url = result.connection_parameter_list[i].connection_value;
-          }
-        }
-      }
-      if (monitor_url === "") {
-        monitor_url = 'https://monitor.app.officejs.com/#/' +
-          '?page=ojsm_dispatch&query=portal_type' +
-          '%3A%22Instance%20Tree%22%20AND%20title%3A' + result.title;
-      }
       right_class = "ui-btn-hide";
       if (status_class === 'ui-btn-is-slave') {
         status_class = 'ui-btn-no-data ui-btn-color-white';
@@ -307,8 +288,6 @@
         main_link_configuration_dict.text = 'Instance';
       }
     } else {
-      monitor_url = gadget.state.jio_key + '/Base_redirectToMonitor';
-
       main_link_configuration_dict.href = monitor_url;
       main_link_configuration_dict.target = "_target";
       main_link_configuration_dict.text = 'Compute Node';
@@ -351,7 +330,9 @@
       if (gadget.state.jio_key) {
         return gadget.jio_get(gadget.state.jio_key)
           .push(function (result) {
-            return gadget.changeState(result);
+            var state_dict = result.news || {};
+            state_dict.jio_key = gadget.state.jio_key;
+            return gadget.changeState(state_dict);
           });
       }
     }, 300000)

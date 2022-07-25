@@ -29,6 +29,7 @@
 ##############################################################################
 
 from six.moves import configparser
+import distro
 import errno
 import fcntl
 import grp
@@ -326,7 +327,7 @@ class Computer(object):
     self.public_ipv4_address = getPublicIPv4Address()
     self.slapos_version = version.version
     self.python_version = platform.python_version()
-    self.os_type = platform.platform()
+    self.os_type = json.dumps((platform.platform(),distro.id(),distro.version(),distro.name()))
 
   def send(self, conf):
     """

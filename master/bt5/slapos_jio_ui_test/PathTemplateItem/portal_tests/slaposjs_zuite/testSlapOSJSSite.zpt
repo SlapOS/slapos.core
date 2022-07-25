@@ -179,23 +179,23 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'organisation_module') and contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'organisation_module') and contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
         <td></td>
       </tr>
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'organisation_module') and contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'organisation_module') and contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
         <td></td>
       </tr>
 
@@ -212,28 +212,6 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'organisation_module') and contains(text(), 'Node')]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'organisation_module') and contains(text(), 'Node')]</td>
-        <td></td>
-      </tr>
-
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'organisation_module') and contains(text(), 'Node')]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'organisation_module') and contains(text(), 'Node')]</td>
-        <td></td>
-      </tr>
-
-      <tr>
-        <td>waitForElementPresent</td>
         <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
         <td></td>
       </tr>
@@ -243,6 +221,27 @@
         <td></td>
       </tr>
 
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td></td>
+      </tr>
+      <!-- Check on listbox -->
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td></td>
+      </tr>
 
       <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
                              dummy python: context.REQUEST.set('mapping', {'count': '1'})">

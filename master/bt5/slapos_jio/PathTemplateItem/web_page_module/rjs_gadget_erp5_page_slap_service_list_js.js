@@ -30,7 +30,7 @@
                   hidden: 0,
                   default: {jio_key: value, result: news},
                   key: "status",
-                  url: "gadget_slapos_instance_tree_status.html",
+                  url: "gadget_slapos_status.html",
                   type: "GadgetField"
                 }
               };

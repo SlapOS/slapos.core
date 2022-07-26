@@ -9,7 +9,6 @@
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("updateHeader", "updateHeader")
     .declareAcquiredMethod("updatePanel", "updatePanel")
-    .declareAcquiredMethod("getUrlParameter", "getUrlParameter")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("updateDocument", "updateDocument")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
@@ -36,9 +35,12 @@
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
-                  "default": {jio_key: value, result: value},
+                  "default": {
+                    jio_key: value,
+                    result: value,
+                    portal_type: "Software Installation"},
                   key: "status",
-                  url: "gadget_slapos_installation_status.html",
+                  url: "gadget_slapos_status.html",
                   title: "Status",
                   type: "GadgetField"
                 }
@@ -294,11 +296,12 @@
                   "description": "",
                   "title": results[2][29],
                   "default": {jio_key: gadget.state.jio_key,
-                              result: gadget.state.doc.news},
+                              result: gadget.state.doc.news,
+                              portal_type: "Compute Node"},
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
-                  "url": "gadget_slapos_compute_node_status.html",
+                  "url": "gadget_slapos_status.html",
                   "sandbox": "",
                   "key": "monitoring_status",
                   "hidden": 0,

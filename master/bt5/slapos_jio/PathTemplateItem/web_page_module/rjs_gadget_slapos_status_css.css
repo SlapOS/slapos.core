@@ -16,6 +16,18 @@
     clear: left;
 }
 
+.ui-block-50 {
+  width: 50%;
+}
+
+.ui-btn-color-white {
+  color: white !important;
+}
+
+.ui-btn-hide {
+  display: none;
+}
+
 .ui-bar {
 	position: relative;
 	padding: .4em 1em;

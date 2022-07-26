@@ -11,7 +11,7 @@ from AccessControl.SecurityManagement import newSecurityManager
 import xml_marshaller
 
 
-def ComputeNode_simulateSlapgridCP(self, instance_connection_dict=None,
+def ComputeNode_simulateSlapgridInstance(self, instance_connection_dict=None,
                        slave_connection_dict=None):
 
   if slave_connection_dict is None:
@@ -70,6 +70,30 @@ def ComputeNode_simulateSlapgridCP(self, instance_connection_dict=None,
             slave_reference=slave_reference
           )
         
+  finally:
+    setSecurityManager(sm)
+
+def ComputeNode_simulateSlapgridSoftware(self):
+  sm = getSecurityManager()
+  portal = self.getPortalObject()
+  compute_node_user_id = self.getUserId()
+  try:
+    newSecurityManager(None, portal.acl_users.getUserById(compute_node_user_id))
+    compute_node_xml = portal.portal_slap.getFullComputerInformation(
+        computer_id=self.getReference())
+    if not isinstance(compute_node_xml, str):
+      compute_node_xml = compute_node_xml.getBody()
+    slap_compute_node = xml_marshaller.xml_marshaller.loads(compute_node_xml)
+    assert 'Computer' == slap_compute_node.__class__.__name__
+    for software_release in slap_compute_node._software_release_list:
+      if software_release._requested_state == 'destroyed':
+        portal.portal_slap.destroyedSoftwareRelease(
+          software_release._software_release,
+					self.getReference())
+      else:
+        portal.portal_slap.availableSoftwareRelease(
+          software_release._software_release,
+					self.getReference())
   finally:
     setSecurityManager(sm)
 

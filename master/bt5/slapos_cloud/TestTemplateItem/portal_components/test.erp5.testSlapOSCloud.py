@@ -27,6 +27,10 @@
 ##############################################################################
 
 
+def _decode_with_json(value):
+  # Ensure value is serisalisable as json
+  return json.loads(json.dumps(value))
+
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 from DateTime import DateTime
 from App.Common import rfc1123_date
@@ -67,6 +71,8 @@ class TestSlapOSCloudSlapOSCacheMixin(
     created_at = since
     def getBaseExpectedDict(doc):
       return {
+          "portal_type": doc.getPortalType(),
+          "reference": doc.getReference(),
           "user": "SlapOS Master",
           'created_at': '%s' % created_at,
           'since': '%s' % since,
@@ -102,6 +108,8 @@ class TestSlapOSCloudSlapOSCacheMixin(
 
     def getExpectedCacheDict(doc):
       return json.dumps({
+          "portal_type": doc.getPortalType(),
+          "reference": doc.getReference(),
           "user": "ERP5TypeTestCase",
           'created_at': '%s' % created_at,
           'since': '%s' % since,
@@ -109,22 +117,24 @@ class TestSlapOSCloudSlapOSCacheMixin(
           "text": "#access TEST123 %s" % doc.getUid()
         })
     def getBaseExpectedDict(doc):
-      return {
+      return _decode_with_json({
+          "portal_type": doc.getPortalType(),
+          "reference": doc.getReference(),
           "user": "ERP5TypeTestCase",
           'created_at': '%s' % created_at,
-          u'since': u'%s' % since,
-          u'state': u"",
-          u"text": u"#access TEST123 %s" % doc.getUid(),
+          'since': '%s' % since,
+          'state': "",
+          "text": "#access TEST123 %s" % doc.getUid(),
           'no_data_since_15_minutes': 0,
           'no_data_since_5_minutes': 0
-        }
+        })
     
     # Check Compute Node
     self.assertEqual(True,
       self.compute_node.setAccessStatus("TEST123 %s" % self.compute_node.getUid()))
     self.assertEqual(self.compute_node._getCachedAccessInfo(),
                          getExpectedCacheDict(self.compute_node))
-    self.assertEqual(self.compute_node.getAccessStatus(),
+    self.assertEqual(_decode_with_json(self.compute_node.getAccessStatus()),
                      getBaseExpectedDict(self.compute_node))
     self.assertEqual(False,
       self.compute_node.setAccessStatus("TEST123 %s" % self.compute_node.getUid()))
@@ -135,7 +145,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
       installation.setAccessStatus("TEST123 %s" % installation.getUid()))
     self.assertEqual(installation._getCachedAccessInfo(),
                          getExpectedCacheDict(installation))
-    self.assertEqual(installation.getAccessStatus(),
+    self.assertEqual(_decode_with_json(installation.getAccessStatus()),
                      getBaseExpectedDict(installation))   
     self.assertEqual(False,
       installation.setAccessStatus("TEST123 %s" % installation.getUid()))
@@ -146,7 +156,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
       partition.setAccessStatus("TEST123 %s" % partition.getUid()))
     self.assertEqual(partition._getCachedAccessInfo(),
                          getExpectedCacheDict(partition))
-    self.assertEqual(partition.getAccessStatus(),
+    self.assertEqual(_decode_with_json(partition.getAccessStatus()),
                      getBaseExpectedDict(partition))  
     self.assertEqual(False,
       partition.setAccessStatus("TEST123 %s" % partition.getUid()))
@@ -158,7 +168,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
       instance.setAccessStatus("TEST123 %s" % instance.getUid()))
     self.assertEqual(instance._getCachedAccessInfo(),
                          getExpectedCacheDict(instance))
-    self.assertEqual(instance.getAccessStatus(),
+    self.assertEqual(_decode_with_json(instance.getAccessStatus()),
                      getBaseExpectedDict(instance))  
     self.assertEqual(False,
       instance.setAccessStatus("TEST123 %s" % instance.getUid()))
@@ -170,6 +180,8 @@ class TestSlapOSCloudSlapOSCacheMixin(
 
     def getExpectedCacheDict(doc):
       return json.dumps({
+          "portal_type": doc.getPortalType(),
+          "reference": doc.getReference(),
           "user": "ERP5TypeTestCase",
           'created_at': '%s' % created_at,
           'since': '%s' % since,
@@ -177,15 +189,17 @@ class TestSlapOSCloudSlapOSCacheMixin(
           "text": "#access TEST123 %s" % doc.getUid()
         })
     def getBaseExpectedDict(doc):
-      return {
+      return _decode_with_json({
+          "portal_type": doc.getPortalType(),
+          "reference": doc.getReference(),
           "user": "ERP5TypeTestCase",
           'created_at': '%s' % created_at,
-          u'since': u'%s' % since,
-          u'state': u"",
-          u"text": u"#access TEST123 %s" % doc.getUid(),
+          'since': '%s' % since,
+          'state': "",
+          "text": "#access TEST123 %s" % doc.getUid(),
           'no_data_since_15_minutes': 0,
           'no_data_since_5_minutes': 0
-        }
+        })
     
     self.tic()
 
@@ -202,7 +216,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
       instance.setAccessStatus("TEST123 %s" % instance.getUid()))
     self.assertEqual(instance._getCachedAccessInfo(),
                          getExpectedCacheDict(instance))
-    self.assertEqual(instance.getAccessStatus(),
+    self.assertEqual(_decode_with_json(instance.getAccessStatus()),
                      getBaseExpectedDict(instance))
     self.tic()
     new_indexation_timestamp = self.portal.portal_catalog(
@@ -246,6 +260,8 @@ class TestSlapOSCloudSlapOSCacheMixin(
 
     def getExpectedCacheDict(doc):
       return json.dumps({
+          "portal_type": doc.getPortalType(),
+          "reference": doc.getReference(),
           "user": "ERP5TypeTestCase",
           'created_at': '%s' % created_at,
           'since': '%s' % since,
@@ -253,22 +269,24 @@ class TestSlapOSCloudSlapOSCacheMixin(
           "text": "#error TEST123 %s" % doc.getUid()
         })
     def getBaseExpectedDict(doc):
-      return {
+      return _decode_with_json({
+          "portal_type": doc.getPortalType(),
+          "reference": doc.getReference(),
           "user": "ERP5TypeTestCase",
           'created_at': '%s' % created_at,
-          u'since': u'%s' % since,
-          u'state': u"",
-          u"text": u"#error TEST123 %s" % doc.getUid(),
+          'since': '%s' % since,
+          'state': "",
+          "text": "#error TEST123 %s" % doc.getUid(),
           'no_data_since_15_minutes': 0,
           'no_data_since_5_minutes': 0
-        }
+        })
     
     # Check Compute Node
     self.assertEqual(True,
       self.compute_node.setErrorStatus("TEST123 %s" % self.compute_node.getUid()))
     self.assertEqual(self.compute_node._getCachedAccessInfo(),
                          getExpectedCacheDict(self.compute_node))
-    self.assertEqual(self.compute_node.getAccessStatus(),
+    self.assertEqual(_decode_with_json(self.compute_node.getAccessStatus()),
                      getBaseExpectedDict(self.compute_node))
     self.assertEqual(False,
       self.compute_node.setErrorStatus("TEST123 %s" % self.compute_node.getUid()))
@@ -279,7 +297,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
       installation.setErrorStatus("TEST123 %s" % installation.getUid()))
     self.assertEqual(installation._getCachedAccessInfo(),
                          getExpectedCacheDict(installation))
-    self.assertEqual(installation.getAccessStatus(),
+    self.assertEqual(_decode_with_json(installation.getAccessStatus()),
                      getBaseExpectedDict(installation))   
     self.assertEqual(False,
       installation.setErrorStatus("TEST123 %s" % installation.getUid()))
@@ -290,7 +308,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
       partition.setErrorStatus("TEST123 %s" % partition.getUid()))
     self.assertEqual(partition._getCachedAccessInfo(),
                          getExpectedCacheDict(partition))
-    self.assertEqual(partition.getAccessStatus(),
+    self.assertEqual(_decode_with_json(partition.getAccessStatus()),
                      getBaseExpectedDict(partition))  
     self.assertEqual(False,
       partition.setErrorStatus("TEST123 %s" % partition.getUid()))
@@ -301,7 +319,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
       instance.setErrorStatus("TEST123 %s" % instance.getUid()))
     self.assertEqual(instance._getCachedAccessInfo(),
                          getExpectedCacheDict(instance))
-    self.assertEqual(instance.getAccessStatus(),
+    self.assertEqual(_decode_with_json(instance.getAccessStatus()),
                      getBaseExpectedDict(instance))  
     self.assertEqual(False,
       instance.setErrorStatus("TEST123 %s" % instance.getUid()))
@@ -313,6 +331,8 @@ class TestSlapOSCloudSlapOSCacheMixin(
 
     def getExpectedCacheDict(doc):
       return json.dumps({
+          "portal_type": doc.getPortalType(),
+          "reference": doc.getReference(),
           "user": "ERP5TypeTestCase",
           'created_at': '%s' % created_at,
           'since': '%s' % since,
@@ -320,15 +340,17 @@ class TestSlapOSCloudSlapOSCacheMixin(
           "text": "#building TEST123 %s" % doc.getUid()
         })
     def getBaseExpectedDict(doc):
-      return {
+      return _decode_with_json({
+          "portal_type": doc.getPortalType(),
+          "reference": doc.getReference(),
           "user": "ERP5TypeTestCase",
           'created_at': '%s' % created_at,
-          u'since': u'%s' % since,
-          u'state': u"",
-          u"text": u"#building TEST123 %s" % doc.getUid(),
+          'since': '%s' % since,
+          'state': "",
+          "text":  "#building TEST123 %s" % doc.getUid(),
           'no_data_since_15_minutes': 0,
           'no_data_since_5_minutes': 0
-        }
+        })
 
     # Check Software Installation
     installation = self.start_requested_software_installation
@@ -336,7 +358,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
       installation.setBuildingStatus("TEST123 %s" % installation.getUid()))
     self.assertEqual(installation._getCachedAccessInfo(),
                          getExpectedCacheDict(installation))
-    self.assertEqual(installation.getAccessStatus(),
+    self.assertEqual(_decode_with_json(installation.getAccessStatus()),
                      getBaseExpectedDict(installation))   
     self.assertEqual(False,
       installation.setBuildingStatus("TEST123 %s" % installation.getUid()))

@@ -1,3 +1,2 @@
 import json
-
-return json.dumps(len(context.getSubordinationRelatedList(portal_type="Compute Node")))
+return json.dumps(len(context.ComputerNetwork_getComputeNodeList()))

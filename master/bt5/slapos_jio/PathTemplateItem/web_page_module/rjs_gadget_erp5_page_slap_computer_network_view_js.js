@@ -10,6 +10,7 @@
     .declareAcquiredMethod("updateHeader", "updateHeader")
     .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getUrlParameter", "getUrlParameter")
+    .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("updateDocument", "updateDocument")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
@@ -27,18 +28,23 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, len = result.data.total_rows;
+          var i, value, news, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
             if (1 || (result.data.rows[i].value.hasOwnProperty("ComputeNode_getNewsDict"))) {
-              value = result.data.rows[i].value.ComputeNode_getNewsDict;
+              value = result.data.rows[i].id;
+              news = result.data.rows[i].value.ComputeNode_getNewsDict;
               result.data.rows[i].value.ComputeNode_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
-                  "default": {jio_key: value, result: value},
+                  "default": {
+                    jio_key: value,
+                    result: news,
+                    portal_type: "Compute Node"
+                  },
                   key: "status",
-                  url: "gadget_slapos_compute_node_status.html",
+                  url: "gadget_slapos_status.html",
                   title: gadget.title_translation,
                   type: "GadgetField"
                 }
@@ -102,7 +108,8 @@
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.getTranslationList(translation_list)
+            gadget.getTranslationList(translation_list),
+            gadget.getSetting("hateoas_url")
           ]);
         })
         .push(function (result) {
@@ -141,7 +148,6 @@
                   "hidden": 0,
                   "type": "StringField"
                 },
-
                 "my_monitoring_status": {
                   "description": "",
                   "title": result[1][5],
@@ -150,7 +156,7 @@
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
-                  "url": "gadget_slapos_network_status.html",
+                  "url": "gadget_slapos_status.html",
                   "sandbox": "",
                   "key": "monitoring_status",
                   "hidden": 0,
@@ -186,11 +192,11 @@
                   "editable_column_list": [],
                   "key": "slap_project_compute_node_listbox",
                   "lines": 10,
-                  "list_method": "portal_catalog",
-                  // XXX TODO Filter by   default_strict_allocation_scope_uid="!=%s" % context.getPortalObject().portal_categories.allocation_scope.close.forever.getUid(),
-                  "query": "urn:jio:allDocs?query=portal_type%3A%22" +
-                    "Compute Node" + "%22%20AND%20" +
-                    "subordination_reference%3A" + gadget.state.doc.reference,
+                  "list_method": "ComputerNetwork_getComputeNodeList",
+                  "list_method_template": result[2] + "ERP5Document_getHateoas?mode=search&" +
+                            "list_method=ComputerNetwork_getComputeNodeList&relative_url=" +
+                            gadget.state.jio_key + "&default_param_json=eyJpZ25vcmVfdW5rbm93bl9jb2x1bW5zIjogdHJ1ZX0={&query,select_list*,limit*,sort_on*,local_roles*}",
+                  "query": "urn:jio:allDocs?query=",
                   "portal_type": [],
                   "search_column_list": column_list,
                   "sort_column_list": column_list,

@@ -162,11 +162,15 @@
                     "my_monitoring_status": {
                       "description": "",
                       "title": result[2][2],
-                      "default": {jio_key: gadget.state.jio_key},
+                      "default": {
+                        jio_key: gadget.state.jio_key,
+                        result: gadget.state.doc.news,
+                        portal_type: gadget.state.doc.portal_type
+                      },
                       "css_class": "",
                       "required": 1,
                       "editable": 0,
-                      "url": "gadget_slapos_instance_status.html",
+                      "url": "gadget_slapos_status.html",
                       "sandbox": "",
                       "key": "monitoring_status",
                       "hidden": gadget.state.doc.portal_type === "Slave Instance",

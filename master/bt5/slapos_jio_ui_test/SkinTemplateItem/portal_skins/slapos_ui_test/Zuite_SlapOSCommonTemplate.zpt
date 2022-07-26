@@ -29,7 +29,6 @@
     </tal:block>
   </tal:block>
 
-
   <tal:block metal:define-macro="access_menu_item">
     <tal:block tal:define="panel_gadget_id python: 'gadget_slapos_panel.html'">
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_base" />
@@ -77,7 +76,7 @@
       <td></td>
     </tr>
     <tr>
-      <td>open</td>
+      <td>openAndWait</td>
       <td>${base_url}/ERP5Site_removeTestUserList</td>
       <td></td>
     </tr>
@@ -86,16 +85,9 @@
       <td>Done.</td>
       <td></td>
     </tr>
-
     <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
-
     <tr>
-      <td>assertTextPresent</td>
-      <td>Done.</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>open</td>
+      <td>openAndWait</td>
       <td tal:content="python:'${base_url}/web_site_module/%s/ERP5Site_createTestUserList' % web_site_id">.../ERP5Site_createTestUserList</td>
       <td></td>
     </tr>
@@ -106,13 +98,6 @@
     </tr>
 
     <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
-
-    <tr>
-      <td>assertTextPresent</td>
-      <td>Done.</td>
-      <td></td>
-    </tr>
-
   </tal:block>
 
   <tal:block metal:define-macro="slapos_login_base">
@@ -122,7 +107,9 @@
       <td tal:content="python:'${base_url}/web_site_module/%s/WebSite_logout' % web_site_id">.../WebSite_logout</td>
       <td></td>
     </tr>
-    <!-- Initialize -->
+    <tr>
+      <td colspan="3"><b> Login as demo_functional_user</b></td>
+    </tr>
     <tr>
       <td>open</td>
       <td tal:content="python:'${base_url}/web_site_module/%s/' % web_site_id"></td>
@@ -220,14 +207,10 @@
 
 
   <tal:block metal:define-macro="slapos_wait_for_activities_and_front_page_base">
-
-    <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
-
     <tr>
-      <td>assertTextPresent</td>
-      <td>Done.</td>
-      <td></td>
+      <td colspan="3"><b> Wait for activities and return to the front page </b></td>
     </tr>
+    <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
     <tr>
       <td>open</td>
       <td tal:content="python:'${base_url}/web_site_module/%s/' % web_site_id"></td>
@@ -295,6 +278,25 @@
     </tr>
   </tal:block>
 
+
+  <tal:block metal:define-macro="slapos_wait_for_activities_and_call_slapgrid">
+    <tr>
+      <td colspan="3"><b> Wait for activities and simulate call Slapgrid </b></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
+    <tr>
+      <td>openAndWait</td>
+      <td>${base_url}/ERP5Site_formatAndUpdateUserComputeNodeList </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertTextPresent</td>
+      <td>Done.</td>
+      <td></td>
+    </tr> 
+  </tal:block>
+
+
   <tal:block metal:define-macro="slapos_logout">
     <tr>
       <td colspan="3"><b>Logout the website</b></td>
@@ -343,7 +345,7 @@
   </tal:block>
 
   <tal:block metal:define-macro="access_menu_item_base">
-     <tr>
+    <tr>
       <td colspan="3"><b tal:content="python: 'Access Entry on the Menu for : %s' % menu_item"> Menu Item </b></td>
     </tr>
     <tr>
@@ -1141,9 +1143,10 @@
 
 
   <tal:block metal:define-macro="create_fake_invoice">
-
+    <tr>
+      <td colspan="3"><b> Create a fake invoice</b></td>
+    </tr>
     <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
-
     <tr>
       <td>assertTextPresent</td>
       <td>Done.</td>
@@ -1161,7 +1164,6 @@
     </tr>
     
     <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
-
     <tr>
       <td>assertTextPresent</td>
       <td>Done.</td>

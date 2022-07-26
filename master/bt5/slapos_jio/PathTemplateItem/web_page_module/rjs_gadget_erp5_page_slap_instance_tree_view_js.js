@@ -39,7 +39,7 @@
                   hidden:  0,
                   "default": {jio_key: jio_key_value, result: value},
                   key: "status",
-                  url: "gadget_slapos_instance_status.html",
+                  url: "gadget_slapos_status.html",
                   title: gadget.title_translation,
                   type: "GadgetField"
                 }
@@ -357,11 +357,11 @@
                       "description": "",
                       "title": result[1][23],
                       "default": {jio_key: gadget.state.jio_key,
-                                  result: gadget.state.doc.news},
+                                  result: gadget.state.doc},
                       "css_class": "",
                       "required": 0,
                       "editable": 0,
-                      "url": "gadget_slapos_instance_tree_status.html",
+                      "url": "gadget_slapos_status.html",
                       "sandbox": "",
                       "key": "monitoring_status",
                       "hidden": 0,

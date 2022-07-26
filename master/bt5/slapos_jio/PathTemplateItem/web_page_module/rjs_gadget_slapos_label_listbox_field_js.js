@@ -1,16 +1,10 @@
-/*globals console, window, document, rJS, loopEventListener, i18n */
+/*globals window, document, rJS, JSON */
 /*jslint indent: 2, nomen: true, maxlen: 80*/
 
-(function (window, document, rJS) {
+(function (window, document, rJS, JSON) {
   "use strict";
-  var gadget_klass = rJS(window);
 
-  gadget_klass
-    .declareAcquiredMethod("jio_get", "jio_get")
-    .declareAcquiredMethod("getSetting", "getSetting")
-    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
-    .declareAcquiredMethod("translateHtml", "translateHtml")
-
+  rJS(window)
     .declareMethod("getContent", function () {
       return {};
     })
@@ -19,7 +13,7 @@
       return gadget.getElement()
         .push(function (element) {
           value = options.value;
-          if (options.value) {
+          if (typeof options.value === "string") {
             if (options.value.startsWith("http://") ||
                  options.value.startsWith("https://")) {
               a = document.createElement('a');
@@ -32,9 +26,11 @@
               pre.innerText = options.value;
               value = pre.outerHTML;
             }
+            element.innerHTML = value;
+          } else {
+            element.innerHTML = JSON.stringify(value);
           }
-          element.innerHTML = value;
           return element;
         });
     });
-}(window, document, rJS));
+}(window, document, rJS, JSON));

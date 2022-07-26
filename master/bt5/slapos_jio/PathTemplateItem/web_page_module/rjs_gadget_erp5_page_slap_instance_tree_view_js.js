@@ -357,7 +357,7 @@
                       "description": "",
                       "title": result[1][23],
                       "default": {jio_key: gadget.state.jio_key,
-                                  result: gadget.state.doc},
+                                  result: gadget.state.doc.news},
                       "css_class": "",
                       "required": 0,
                       "editable": 0,

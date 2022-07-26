@@ -35,7 +35,6 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
       </tal:block>
 
-
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
 
       <tal:block tal:define="header python: 'Computer Network :${title}';
@@ -43,6 +42,21 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
+      <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
+
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@id="title"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@id="title"]</td>
+        <td></td>
+      </tr>
       <tr>
         <td>type</td>
         <td>//input[@id="title"]</td>
@@ -51,16 +65,71 @@
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/save" />
 
+      <tal:block define="document_title python: 'TEST-SLAPOSJS-NETWORK-COMPUTER 0';">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/create_simple_compute_node" />
+      </tal:block>
 
-      <!-- check site -->
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
-      <!--  Broken history to return
-<tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Site : TEST-SLAPOSJS-SET 0"]</td>
-  <td></td>
-</tr>
--->
+      <tr>
+        <td rowspan="1" colspan="3">Add server into the site</td>
+      </tr>
+  
+      <tal:block define="menu_item python: 'Servers'; header menu_item">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+      </tal:block>
+
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-NETWORK-COMPUTER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-NETWORK-COMPUTER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//a[text()="TEST-SLAPOSJS-NETWORK-COMPUTER 0"]</td>
+        <td></td>
+      </tr>
+
+      <tal:block tal:define="header python: 'Compute Node: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-NETWORK-COMPUTER 0'}) ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
+
+
+      <tr>
+        <td colspan="3"><b> Add Compute Node into Computer Network </b></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//select[@name="subordination"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//select[@name="subordination"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>select</td>
+        <td>//select[@name="subordination"]</td>
+        <td>TEST-SLAPOSJS-NETWORK 1</td>
+      </tr>
+
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/save" />
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_call_slapgrid" />
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
 

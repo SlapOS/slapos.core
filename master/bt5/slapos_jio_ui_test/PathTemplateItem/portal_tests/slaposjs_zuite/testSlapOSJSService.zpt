@@ -226,10 +226,79 @@
         <td>www.erp5.com</td>
       </tr>
 
-      <!-- Update Parameters -->
-      <!-- Update Add Ticket -->
-      <!-- Update Stop -->
-      <!-- Update Start -->
+
+      <tal:block define="menu_action python: 'Stop'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+      </tal:block>
+
+      <tal:block tal:define="header python: 'Stop Instance Tree:${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-FRONTEND 0'}) ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'Service is Stopped.'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      </tal:block>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Stopped')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Stopped')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Stopped')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Stopped')]</td>
+        <td></td>
+      </tr>
+
+      <tal:block define="menu_action python: 'Start'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+      </tal:block>
+
+      <tal:block tal:define="header python: 'Start Instance Tree:${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-FRONTEND 0'}) ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'Service is Started.'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      </tal:block>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-error')]//a[contains(text(), 'Instance') and contains(@href, 'TEST-SLAPOSJS-SERVICE-FRONTEND 0')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-error')]//a[contains(text(), 'Instance') and contains(@href, 'TEST-SLAPOSJS-SERVICE-FRONTEND 0')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-no-data')]//a[contains(text(), 'Instance')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-no-data')]//a[contains(text(), 'Instance')]</td>
+        <td></td>
+      </tr>
+
 
 
       <tal:block define="menu_action python: 'Destroy'">
@@ -246,6 +315,29 @@
                                                            'text': 'Service is Destroyed.'}">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
       </tal:block>
+
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Destroyed')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Destroyed')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Destroyed')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Destroyed')]</td>
+        <td></td>
+      </tr>
+
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 

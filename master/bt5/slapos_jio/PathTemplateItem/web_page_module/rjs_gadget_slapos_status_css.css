@@ -17,15 +17,11 @@
 }
 
 .ui-block-50 {
-  width: 50%;
-}
-
-.ui-btn-color-white {
-  color: white !important;
+  width: 50% !important;
 }
 
 .ui-btn-hide {
-  display: none;
+  display: none !important;
 }
 
 .ui-bar {
@@ -89,6 +85,18 @@
   text-align: center;
 }
 
+.ui-btn-color-white,
+.ui-btn-color-white:active,
+.ui-btn-color-white:hover,
+.ui-btn-color-white a,
+.ui-btn-color-white:active a,
+.ui-btn-color-white:hover a  {
+  color: white !important;
+  background: grey !important;
+  cursor: default;
+  text-align: center;
+}
+
 
 .ui-btn-white,
 .ui-btn-white:active,
@@ -99,6 +107,10 @@
   background: white !important;
   cursor: default;
   text-align: center;
+}
+
+a.ui-icon-desktop::before {
+  margin-left: 5px;
 }
 
 /* for Software Logo*/

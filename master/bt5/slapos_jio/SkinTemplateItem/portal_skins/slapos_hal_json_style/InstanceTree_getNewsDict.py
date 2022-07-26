@@ -1,4 +1,3 @@
-news_dict = {"instance" : []}
 news_dict = {
   "portal_type": context.getPortalType(),
   "reference": context.getReference(),

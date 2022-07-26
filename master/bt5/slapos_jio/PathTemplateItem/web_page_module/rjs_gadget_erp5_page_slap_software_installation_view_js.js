@@ -153,7 +153,10 @@
                 "my_monitoring_status": {
                   "description": "",
                   "title": result[2][8],
-                  "default": {jio_key: gadget.state.jio_key},
+                  "default": {
+                    jio_key: gadget.state.jio_key,
+                    result: gadget.state.doc.news
+                  },
                   "css_class": "",
                   "required": 1,
                   "editable": 0,

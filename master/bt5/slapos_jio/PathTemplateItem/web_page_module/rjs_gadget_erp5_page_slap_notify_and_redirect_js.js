@@ -1,15 +1,10 @@
-/*globals console, window, rJS, RSVP, loopEventListener, i18n, Handlebars, $*/
+/*globals console, window, rJS, RSVP, loopEventListener, i18n, domsugar, $*/
 /*jslint indent: 2, nomen: true, maxlen: 80*/
 
-(function (window, rJS, RSVP, Handlebars) {
+(function (window, rJS, RSVP, domsugar) {
   "use strict";
-  var gadget_klass = rJS(window),
-    message_source = gadget_klass.__template_element
-                         .getElementById("message-template")
-                         .innerHTML,
-    message_template = Handlebars.compile(message_source);
 
-  gadget_klass
+  rJS(window)
     .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
@@ -27,7 +22,8 @@
         translation_list = [
           "Success...",
           "Fail...",
-          "Unknown action to take:"
+          "Unknown action to take:",
+          "Continue"
         ];
       return new RSVP.Queue()
         .push(function () {
@@ -37,28 +33,42 @@
         })
         .push(function () {
           return RSVP.all([
-            gadget.getElement(),
             gadget.getUrlFor({command: 'change',
                      options: {jio_key: "/", page: "slapos"}}),
             gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
-          var redirect_url = result[1],
-            element = result[0],
+          var redirect_url = result[0],
             message = options.portal_status_message,
             page_title;
           if (options.message_type === "success") {
-            page_title = result[2][0];
+            page_title = result[1][0];
           } else if (options.message_type === "error") {
-            page_title = result[2][1];
+            page_title = result[1][1];
           } else {
-            throw new Error(result[2][2] + " " + options.result);
+            throw new Error(result[1][2] + " " + options.result);
           }
-          element.innerHTML = message_template({
-            message_to_acknowledge: message,
-            redirect_url: redirect_url
-          });
+          domsugar(gadget.element,
+            {},
+            [
+              domsugar("p", {}, [
+                domsugar("center", {}, [
+                  domsugar("strong", {text: message})
+                ])
+              ]),
+              domsugar("p"),
+              domsugar("p", {}, [
+                domsugar("center", {}, [
+                  domsugar("a", {
+                    text: result[1][3],
+                    "data-i18n": "Continue",
+                    href: redirect_url,
+                    class: "ui-btn ui-first-child ui-btn-icon-center"
+                  })
+                ])
+              ])
+            ]);
           return page_title;
         })
         .push(function (page_title) {
@@ -68,4 +78,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, Handlebars));
+}(window, rJS, RSVP, domsugar));

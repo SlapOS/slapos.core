@@ -8,50 +8,24 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>Information</title>
-    <!-- renderjs -->
     <script src="rsvp.js"></script>
     <script src="renderjs.js"></script>
-    <script src="handlebars.js"></script>
+    <script src="domsugar.js"></script>
     <!-- custom script -->
     <script src="gadget_erp5_attention_point.js" type="text/javascript"></script>
     <link rel="stylesheet" type="text/css" href="gadget_erp5_attention_point.css">
-    <script id="attention_point-item-template" type="text/x-handlebars-template">
-      {{#each option}}
-        <div class="attention-point">
-        {{#if link}}
-          <a href={{link}}>
-        {{/if}}
-        {{text}}
-        {{#if link}}
-          </a>
-        {{/if}}
-        </div>
-      {{/each}}
-    </script>
-    <script id="attention_point-template" type="text/x-handlebars-template">
-      <div class="ui-panel-inner">
-        <div data-role="header" role="banner" class="ui-header ui-bar-inherit">
-          <div class="ui-controlgroup ui-controlgroup-horizontal ui-btn-right">
-            <div class="ui-controlgroup-controls">
-              <button data-rel="save" data-i18n="Submit" type="submit" class="submit responsive ui-last-child ui-btn ui-btn-icon-left"></button>
-            </div>
-          </div>
-          <h1 class="ui-title" role="heading" data-i18n="Warnings" aria-level="1">Warnings</h1>
-          <div class="ui-controlgroup ui-controlgroup-horizontal ui-btn-left">
-            <div class="ui-controlgroup-controls">
-              <button data-i18n="Close" data-rel="close" type="submit" class="close responsive ui-first-child ui-btn ui-btn-icon-left ui-icon-times">Close</button>
-            </div>
-          </div>
-        </div>
-        <section class="ui-body-c ui-content-section">
-          <div class="attention_point_item_container ui-controlgroup ui-corner_all"></div>
-        </section>
-      </div>
-    </script>
   </head>
   <body>
     <form class="attention_point_editor">
-      <div class="container"></div>
+      <div class="container">
+        <div class="ui-panel-inner">
+          <div data-role="header" role="banner" class="ui-header ui-bar-inherit attention_point_header">
+          </div>
+          <section class="ui-body-c ui-content-section">
+            <div class="attention_point_item_container ui-controlgroup ui-corner_all"></div>
+          </section>
+        </div>
+      </div>
     </form>
   </body>
 </html>

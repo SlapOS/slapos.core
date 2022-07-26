@@ -160,7 +160,7 @@ def upload_network_cached(software_root, software_url, cached_key,
       os=distribution_tuple(),
     )
 
-    f = open(path, 'r')
+    f = open(path, 'rb')
     # convert '' into None in order to call nc nicely
     if not signature_private_key_file:
         signature_private_key_file = None

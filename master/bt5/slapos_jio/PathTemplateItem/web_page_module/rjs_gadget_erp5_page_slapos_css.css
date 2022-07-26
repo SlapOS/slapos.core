@@ -7,7 +7,8 @@
   float: right;
 }
 
-.box-gadget-bottom {
+.box-gadget-bottom,
+.box-gadget-bottom-header {
   float: left;
   width: 100%;
   padding-top: 17px;

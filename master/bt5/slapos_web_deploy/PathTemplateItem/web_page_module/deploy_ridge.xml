@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Web Script" module="erp5.portal_type"/>
+      <global name="Web Page" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -24,7 +23,6 @@
             <key> <string>_Add_portal_content_Permission</string> </key>
             <value>
               <tuple>
-                <string>Assignee</string>
                 <string>Assignor</string>
                 <string>Manager</string>
               </tuple>
@@ -43,8 +41,6 @@
             <key> <string>_Modify_portal_content_Permission</string> </key>
             <value>
               <tuple>
-                <string>Assignee</string>
-                <string>Assignor</string>
                 <string>Manager</string>
               </tuple>
             </value>
@@ -59,7 +55,14 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>categories</string> </key>
+            <value>
+              <tuple>
+                <string>contributor/person_module/20200810-4679F50</string>
               </tuple>
             </value>
         </item>
@@ -70,8 +73,12 @@
             </value>
         </item>
         <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>text/plain</string> </value>
+        </item>
+        <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_trial.js</string> </value>
+            <value> <string>deploy-Ridge</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -81,7 +88,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_trial_js</string> </value>
+            <value> <string>deploy_ridge</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -89,7 +96,7 @@
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Web Script</string> </value>
+            <value> <string>Web Page</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
@@ -98,12 +105,16 @@
             </value>
         </item>
         <item>
+            <key> <string>text_content_substitution_mapping_method_id</string> </key>
+            <value> <string>WebPage_getDeploySubstitutionMappingDict</string> </value>
+        </item>
+        <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Trial Homepage JS</string> </value>
+            <value> <string>Deploy Ridge</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>002</string> </value>
+            <value> <string>001</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -161,11 +172,11 @@
                 <dictionary>
                   <item>
                       <key> <string>action</string> </key>
-                      <value> <string>publish_alive</string> </value>
+                      <value> <string>publish</string> </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <string>superthomas</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -187,7 +198,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1520868638.43</float>
+                              <float>1658224268.38</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -196,7 +207,7 @@
                   </item>
                   <item>
                       <key> <string>validation_state</string> </key>
-                      <value> <string>published_alive</string> </value>
+                      <value> <string>published</string> </value>
                   </item>
                 </dictionary>
               </list>
@@ -222,7 +233,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <string>superthomas</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -236,7 +247,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>966.10344.44452.55944</string> </value>
+                      <value> <string>1001.45775.9209.17595</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -254,7 +265,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1521109447.89</float>
+                              <float>1658224660.81</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -285,7 +296,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <string>superthomas</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -315,7 +326,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1520868616.0</float>
+                              <float>1658223897.73</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

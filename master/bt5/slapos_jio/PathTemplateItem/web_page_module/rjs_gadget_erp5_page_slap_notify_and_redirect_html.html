@@ -4,29 +4,20 @@
   data-i18n=Success...
   data-i18n=Fail...
   data-i18n=Unknown action to take:
+  data-i18n=Continue
 -->
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, user-scalable=no" />
-    <title>Site List</title>
+    <title>Notify and Redirect</title>
 
     <!-- renderjs -->
     <script src="rsvp.js" type="text/javascript"></script>
     <script src="renderjs.js" type="text/javascript"></script>
-    <script src="handlebars.js" type="text/javascript"></script>
-
+    <script src="domsugar.js" type="text/javascript"></script>
     <!-- custom script -->
     <script src="gadget_erp5_page_slap_notify_and_redirect.js" type="text/javascript"></script>
-
-    <script id="message-template" type="text/x-handlebars-template">
-      <p> <center><strong>{{message_to_acknowledge}} </strong> </center> </p>
-
-      <p>  </p>
-
-      <p>  <center><a class="ui-btn ui-first-child ui-btn-icon-center" data-i18n="Continue" href="{{redirect_url}}"> Continue </a></center> </p>
-    </script>
   </head>
-
 
   </head>
   <body>

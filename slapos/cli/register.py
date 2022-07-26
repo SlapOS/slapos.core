@@ -227,7 +227,8 @@ def slapconfig(conf):
         if os.path.dirname(directory) == directory:
             break
         # Do "chmod g+xro+xr"
-        os.chmod(directory, os.stat(directory).st_mode | stat.S_IXGRP | stat.S_IRGRP | stat.S_IXOTH | stat.S_IROTH)
+        if (os.stat(directory).st_mode & (stat.S_IXGRP | stat.S_IRGRP | stat.S_IXOTH | stat.S_IROTH) != stat.S_IXGRP | stat.S_IRGRP | stat.S_IXOTH | stat.S_IROTH):
+            os.chmod(directory, os.stat(directory).st_mode | stat.S_IXGRP | stat.S_IRGRP | stat.S_IXOTH | stat.S_IROTH)
         directory = os.path.dirname(directory)
 
     if not os.path.exists(slap_conf_dir):
@@ -250,7 +251,6 @@ def slapconfig(conf):
             with open(dst, 'w') as destination:
                 destination.write(''.join(src))
             os.chmod(dst, 0o600)
-            os.chown(dst, 0, 0)
 
     certificate_repository_path = os.path.join(slap_conf_dir, 'ssl', 'partition_pki')
     if not os.path.exists(certificate_repository_path):
@@ -282,7 +282,7 @@ def slapconfig(conf):
         cfg = re.sub('\n\\s*%s\\s*=.*' % key, '\n%s = %s' % (key, value), cfg)
 
     if not dry_run:
-        with open(config_path, 'w') as fout:
+        with open(config_path, 'wb') as fout:
             fout.write(cfg.encode('utf8'))
 
     conf.logger.info('SlapOS configuration written to %s', config_path)

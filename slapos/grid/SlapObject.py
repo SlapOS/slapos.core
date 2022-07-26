@@ -509,7 +509,7 @@ class Partition(object):
         else:
           self.logger.info('Changed %s content. Updating %r' % (name, path))
 
-        with os.fdopen(os.open(path, os.O_CREAT | os.O_WRONLY | os.O_TRUNC, 0o400), 'wb') as fout:
+        with os.fdopen(os.open(path, os.O_CREAT | os.O_WRONLY | os.O_TRUNC, 0o400), 'w') as fout:
           fout.write(new_content)
         os.chown(path, uid, gid)
 

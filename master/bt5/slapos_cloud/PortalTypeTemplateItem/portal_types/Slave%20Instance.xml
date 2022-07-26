@@ -89,8 +89,6 @@
                 <string>description</string>
                 <string>reference</string>
                 <string>short_title</string>
-                <string>text_content</string>
-                <string>sla_xml</string>
               </tuple>
             </value>
         </item>

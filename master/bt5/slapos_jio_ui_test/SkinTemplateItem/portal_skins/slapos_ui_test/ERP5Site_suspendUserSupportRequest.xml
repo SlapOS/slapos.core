@@ -50,19 +50,21 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>email, user_input_dict=None, batch_mode=True, REQUEST=None</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>_proxy_roles</string> </key>
             <value>
               <tuple>
+                <string>Assignee</string>
+                <string>Auditor</string>
                 <string>Manager</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>TrialCondition_requestFreeTrialProxy</string> </value>
+            <value> <string>ERP5Site_suspendUserSupportRequest</string> </value>
         </item>
       </dictionary>
     </pickle>

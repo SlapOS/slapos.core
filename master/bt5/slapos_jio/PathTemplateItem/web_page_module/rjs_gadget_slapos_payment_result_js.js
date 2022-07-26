@@ -1,19 +1,10 @@
-/*globals console, window, rJS, RSVP, loopEventListener, i18n, Handlebars $*/
+/*globals console, window, rJS, RSVP, domsugar */
 /*jslint indent: 2, nomen: true, maxlen: 80*/
 
-(function (window, rJS, RSVP, Handlebars) {
+(function (window, rJS, RSVP, domsugar) {
   "use strict";
-  var gadget_klass = rJS(window),
-    message_source = gadget_klass.__template_element
-                         .getElementById("message-template")
-                         .innerHTML,
-    message_template = Handlebars.compile(message_source);
-
-  gadget_klass
-    .declareAcquiredMethod("jio_get", "jio_get")
+  rJS(window)
     .declareAcquiredMethod("getSetting", "getSetting")
-    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
-    .declareAcquiredMethod("translateHtml", "translateHtml")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("updateHeader", "updateHeader")
 
@@ -28,19 +19,21 @@
       if (return_page === undefined) {
         return_page = "slap_invoice_list";
       }
-
+      // XXX RAFAEL Missing change state
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
-            gadget.getElement(),
+            gadget.getTranslationDict(["Return to Invoice List"]),
             gadget.getUrlFor({command: 'change',
                      options: {jio_key: "/", page: return_page, "result": ""}})
           ]);
         })
         .push(function (result) {
           var payment_url = result[1],
-              element = result[0],
-              message, advice, page_title;
+            translation_dict = result[0],
+            message,
+            advice,
+            page_title;
           if (options.result === "success") {
             page_title = "Thank you for your Payment";
             message = "Thank you for finalising the payment.";
@@ -71,11 +64,27 @@
           } else {
             throw new Error("Unknown action to take: " + options.result);
           }
-          element.innerHTML = message_template({
-            message_to_acknowledge: message,
-            advice: advice,
-            payment_url: payment_url
-          });
+          domsugar(gadget.element, {},
+            [
+              domsugar("p", {}, [
+                domsugar("center", {}, [
+                  domsugar("strong", {text: message})
+                ])
+              ]),
+              domsugar("p", {}, [
+                domsugar("center", {text: advice})
+              ]),
+              domsugar("p"),
+              domsugar("p", {}, [
+                domsugar("center", {}, [
+                  domsugar("a", {
+                    class: "ui-btn ui-first-child ui-btn-icon-center",
+                    href: payment_url,
+                    text: translation_dict["Return to Invoice List"]
+                  })
+                ])
+              ])
+            ]);
           return page_title;
         })
         .push(function (page_title) {
@@ -85,4 +94,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, Handlebars));
+}(window, rJS, RSVP, domsugar));

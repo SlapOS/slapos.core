@@ -1,13 +1,8 @@
-/*global document, window, Option, rJS, RSVP, Chart, UriTemplate, Handlebars*/
+/*global document, window, Option, rJS, RSVP, Chart, UriTemplate, domsugar */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, Handlebars) {
+(function (window, rJS, RSVP, domsugar) {
   "use strict";
-  var gadget_klass = rJS(window),
-    ticket_control_source = gadget_klass.__template_element
-                         .getElementById("ticket-link-control-template")
-                         .innerHTML,
-    ticket_control_template = Handlebars.compile(ticket_control_source);
-
+  var gadget_klass = rJS(window);
   gadget_klass
     .ready(function (gadget) {
       gadget.property_dict = {};
@@ -22,7 +17,6 @@
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("updatePanel", "updatePanel")
-    .declareAcquiredMethod("translateHtml", "translateHtml")
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("updateHeader", "updateHeader")
@@ -249,49 +243,51 @@
               "Modification Date",
               "State",
               "Pending Tickets to Process",
-              "Dashboard"
+              "Dashboard",
+              "Show All Tickets",
+              "RSS",
+              "Critical"
             ];
           return new RSVP.Queue()
             .push(function () {
               return RSVP.all([
+                gadget.getDeclaredGadget('last'),
+                gadget.getTranslationList(translation_list1),
                 gadget.getUrlFor({command: 'change', options: {page: "slap_ticket_list"}}),
                 gadget.getUrlFor({command: 'change', options: {page: "slap_rss_ticket"}}),
                 gadget.getUrlFor({command: 'change', options: {page: "slap_rss_critical_ticket"}})
               ]);
             })
             .push(function (result) {
-              return RSVP.all([
-                gadget.getDeclaredGadget('last'),
-                gadget.translateHtml(ticket_control_template({
-                  show_all_url: result[0],
-                  rss_all_url: result[1],
-                  rss_critical_url: result[2]
-                })),
-                gadget.getTranslationList(translation_list1)
-              ]);
-            })
-            .push(function (result) {
-              gadget.page_title_translation = result[2][4];
+              gadget.page_title_translation = result[1][4];
               var form_list = result[0],
+                bottom_header = domsugar('div', {"class": "slapos-control-front"},
+                  [
+                    domsugar("center", {}, [
+                      domsugar("a",
+                        {"class": "ui-btn ui-first-child ui-btn-white-front  ui-btn-icon-left ui-icon-sort-alpha-asc",
+                          "text": result[1][5],
+                          "href": result[2]}),
+                      domsugar("a",
+                        {"class": "ui-btn ui-first-child ui-btn-white-front  ui-btn-icon-left ui-icon-rss",
+                          "text": result[1][6],
+                          "href": result[3]}),
+                      domsugar("a",
+                        {"class": "ui-btn ui-first-child ui-btn-white-front  ui-btn-icon-left ui-icon-rss",
+                          "text": result[1][7],
+                          "href": result[4]})
+                    ])
+                  ]),
+                div_bottom_header = gadget.element.querySelector(".box-gadget-bottom-header"),
                 column_list = [
-                  ['title', result[2][0]],
-                  ['modification_date', result[2][1]],
-                  ['translated_simulation_state_title', result[2][2]]
+                  ['title', result[1][0]],
+                  ['modification_date', result[1][1]],
+                  ['translated_simulation_state_title', result[1][2]]
                 ];
+              div_bottom_header.appendChild(bottom_header);
               return form_list.render({
                 erp5_document: {
                   "_embedded": {"_view": {
-                    "control": {
-                      "description": "",
-                      "title": "Link Control",
-                      "default": result[1],
-                      "css_class": "",
-                      "required": 1,
-                      "editable": 0,
-                      "key": "control",
-                      "hidden": 0,
-                      "type": "EditorField"
-                    },
                     "listbox": {
                       "column_list": column_list,
                       "show_anchor": 0,
@@ -307,7 +303,7 @@
                       "search_column_list": column_list,
                       "sort_column_list": column_list,
                       "sort": [["modification_date", "Descending"]],
-                      "title": result[2][3],
+                      "title": result[1][3],
                       "type": "ListBox"
                     }
                   }},
@@ -398,4 +394,4 @@
             });
         });
     });
-}(window, rJS, RSVP, Handlebars));
+}(window, rJS, RSVP, domsugar));

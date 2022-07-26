@@ -121,6 +121,8 @@ elif context.getPortalType() == "Organisation Module":
 
 # Translate titles
 for contextual_help in contextual_help_list:
+  # Preserve untranslated title for reference.
+  contextual_help['data-i18n'] = contextual_help['title']
   contextual_help['title'] = context.Base_translateString(contextual_help['title'])
 
 return json.dumps(contextual_help_list)

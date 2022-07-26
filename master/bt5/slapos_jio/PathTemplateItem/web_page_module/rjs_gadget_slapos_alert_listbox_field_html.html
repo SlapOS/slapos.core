@@ -6,32 +6,9 @@
     <title>Message Alert</title>
     <script src="rsvp.js"></script>
     <script src="renderjs.js"></script>
-    <script src="handlebars.js"></script>
+    <script src="domsugar.js"></script>
     <script src="gadget_slapos_alert_listbox_field.js"></script>
     <link href="gadget_slapos_alert_listbox_field.css" rel="stylesheet" type="text/css"/>
-    <script id="alert-message-template" type="text/x-handlebars-template">
-      {{#if link}}
-      <a href={{link}}>
-      {{/if}}
-      <div class="alert alert-{{type}}">
-        {{#if title}}
-        <h2>{{title}}</h2>
-        {{/if}}
-        <p>{{message}}</p>
-      </div>
-      {{#if link}}
-      </a>
-      {{/if}}
-    </script>
-    <script id="alert-message-with-link-template" type="text/x-handlebars-template">
-        <div class="alert alert-{{type}}">
-          {{#if title}}
-          <h2>{{title}}</h2>
-          {{/if}}
-          <p>{{message}}</p>
-        </div>
-      </a>
-    </script>
   </head>
   <body>
   </body>

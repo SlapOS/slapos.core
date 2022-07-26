@@ -402,7 +402,7 @@
         </item>
         <item>
             <key> <string>configuration_content_security_policy</string> </key>
-            <value> <string>default-src \'self\'; img-src \'self\' data: *.openstreetmap.org; media-src \'self\' blob:; connect-src \'self\' data: lab.node.vifib.com lab.nexedi.com; script-src \'self\' \'unsafe-eval\'; font-src \'self\'; style-src \'self\' data: \'unsafe-inline\'; frame-src \'self\' data:</string> </value>
+            <value> <string>default-src \'self\'; img-src \'self\' data: *.openstreetmap.org; media-src \'self\' blob:; connect-src \'self\' data: lab.node.vifib.com lab.nexedi.com; script-src \'self\'; font-src \'self\'; style-src \'self\' data: \'unsafe-inline\'; frame-src \'self\' data:</string> </value>
         </item>
         <item>
             <key> <string>configuration_default_jio_document_page_gadget_url</string> </key>
@@ -701,7 +701,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>999.2068.62564.17</string> </value>
+                      <value> <string>1000.41365.61594.63982</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -719,7 +719,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1652448693.65</float>
+                              <float>1654507392.23</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

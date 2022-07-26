@@ -1,7 +1,7 @@
-/*globals console, document, window, rJS, RSVP, Handlebars*/
+/*globals console, document, window, rJS */
 /*jslint indent: 2, nomen: true, maxlen: 80*/
 
-(function (document, window, rJS, RSVP, Handlebars) {
+(function (document, window, rJS, domsugar) {
   "use strict";
   var gadget_klass = rJS(window),
     alert_message_content = gadget_klass.__template_element
@@ -14,27 +14,21 @@
 
     .declareMethod("render", function (options) {
       var gadget = this,
-          html_message,
-          message_content = document.createElement('div'),
-          closable = options.can_close || false,
-          id = "alert"  + new Date().getTime();
+        // html_message,
+        message_content = domsugar('div'),
+        // closable = options.can_close || false,
+        id = "alert"  + new Date().getTime();
 
       message_content.id = id;
       message_content.setAttribute("data-key", options.key || "");
       return new RSVP.Queue()
         .push(function () {
           if (options.value.link) {
-            return RSVP.all([
-              gadget.getElement(),
-              gadget.getUrlFor({command: "index",
+            return gadget.getUrlFor({command: "index",
                                 options: {jio_key: options.value.link,
-                                          page: "slap_controller"}})
+                                          page: "slap_controller"}
             ]);
-          } else {
-            return RSVP.all([
-              gadget.getElement()
-            ]);
-          }
+          return 
         })
         .push(function (result) {
           var element = result[0],

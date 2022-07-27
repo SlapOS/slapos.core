@@ -1,9 +1,5 @@
 # Send an email for the user with a URL, so he can set the password.
-
 from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
-
-portal = context.getPortalObject()
-portal_preferences = portal.portal_preferences
 
 reference = None
 password = None
@@ -21,12 +17,6 @@ role_list = ['member', 'subscriber']
 
 open_assignment_list = person.searchFolder(portal_type="Assignment",
                                               validation_state="open")
-
-# Initialisation
-assignment_duration = portal_preferences.getPreferredCredentialAssignmentDuration()
-today = DateTime()
-delay = today+assignment_duration
-
 current_assignment_list = {}
 for assignment in open_assignment_list:
   role = assignment.getRole()
@@ -37,21 +27,23 @@ for assignment in open_assignment_list:
 
 for role in role_list:
   if role in current_assignment_list:
-    #Update assignment
+    # Update assignment (Reset stop/start dates)
     for assignment in current_assignment_list[role]:
-      assignment.update()
-      assignment.edit(stop_date=delay)
-      assignment.open()
+      if assignment.getStartDate() is None or \
+        assignment.getStopDate() is None:
+        assignment.update()
+        assignment.edit(stop_date=None,
+                        start_date=None)
+        assignment.open(
+          comment="Start and Stop reset by Subscription Request")
   else:
-    #Create assignment
+    # Create assignment
     assignment = person.newContent(
         portal_type='Assignment',
         title = '%s Assignment' % (role.capitalize()),
-        role = role,
-        start_date = today - 1,
-        stop_date = delay)
+        role = role)
 
-    assignment.open()
+    assignment.open(comment="Created by Subscription Request")
 
 login_list = [x for x in person.objectValues(portal_type=['ERP5 Login', 'Google Login', 'Facebook Login']) \
               if x.getValidationState() == 'validated']
@@ -68,7 +60,7 @@ if not open_assignment_list and person.getUserId() == login_list[0].getReference
   # Update password of the user
   password = person.Person_generatePassword()
   login.setPassword(password)
-  login.validate()
+  login.validate(comment="Updated by Subscription Request")
 
 # Update Roles and Title
 try:
@@ -79,9 +71,9 @@ except UnsupportedWorkflowMethod:
 person.edit(default_career_role_list=role_list)
 
 default_career = getattr(person,'default_career',None)
-#Try to validate the default career
+# Try to validate the default career
 try:
-  default_career.start()
+  default_career.start(comment="Started by Subscription Request")
   default_career.setStartDate(DateTime())
 except UnsupportedWorkflowMethod:
   pass

@@ -410,15 +410,10 @@ assert password""")
     subscriber_role = [i for i in open_assignment_list if i.getRole() == 'subscriber'][0]
     member_role = [i for i in open_assignment_list if i.getRole() == 'member'][0]
 
-    self.assertNotEqual(subscriber_role.getStartDate(), None)
-    self.assertNotEqual(member_role.getStopDate(), None)
-    self.assertNotEqual(subscriber_role.getStartDate(), None)
-    self.assertNotEqual(member_role.getStopDate(), None)
-
-    self.assertTrue(subscriber_role.getStartDate() < DateTime())
-    self.assertTrue(member_role.getStopDate() > DateTime() + 365*5)
-    self.assertTrue(subscriber_role.getStartDate() < DateTime())
-    self.assertTrue(member_role.getStopDate() > DateTime()  + 365*5)
+    self.assertEqual(subscriber_role.getStartDate(), None)
+    self.assertEqual(member_role.getStopDate(), None)
+    self.assertEqual(subscriber_role.getStartDate(), None)
+    self.assertEqual(member_role.getStopDate(), None)
 
     login_list = person.searchFolder(portal_type='ERP5 Login', validation_state="validated")
     self.assertEqual(len(login_list), 1)

@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.7.13 (2022-07-28)
+-------------------
+ * format: add more information in os_type
+
 1.7.12 (2022-07-28)
 -------------------
  * slapgrid: fix agregateAndSendUsage in python3

@@ -1718,7 +1718,7 @@ stderr_logfile_backups=1
 
             file_path = os.path.join(dir_reports, filename)
             if os.path.exists(file_path):
-              with open(file_path, 'r') as f:
+              with open(file_path, 'rb') as f:
                 usage = f.read()
 
               # We check the validity of xml content of each reports
@@ -1765,7 +1765,7 @@ stderr_logfile_backups=1
 
       file_path = os.path.join(computer_report_dir, filename)
       if os.path.exists(file_path):
-        with open(file_path, 'r') as f:
+        with open(file_path, 'rb') as f:
           usage = f.read()
 
       if self.validateXML(usage, computer_consumption_model):

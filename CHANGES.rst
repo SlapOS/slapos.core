@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.7.12 (2022-07-28)
+-------------------
+ * slapgrid: fix agregateAndSendUsage in python3
+
 1.7.11 (2022-07-21)
 -------------------
  *  register: fix slapconfig in python3

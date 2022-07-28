@@ -123,14 +123,13 @@
           });
         })
         .push(function () {
-          return gadget.updatePanel({
-            jio_key: "computer_network_module"
-          });
+          return gadget.getSetting('frontpage_gadget');
         })
-        .push(function () {
+        .push(function (frontpage_gadget) {
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {"page": "slap_add_network"}}),
-            gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
+            gadget.getUrlFor({command: "change", options: {"page": frontpage_gadget}}),
+            gadget.updatePanel({jio_key: "computer_network_module"})
           ]);
         })
         .push(function (result) {

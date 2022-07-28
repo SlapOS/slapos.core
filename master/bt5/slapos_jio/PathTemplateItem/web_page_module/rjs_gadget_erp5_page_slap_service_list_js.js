@@ -87,15 +87,13 @@
           });
         })
         .push(function () {
-          return gadget.updatePanel({
-            jio_key: "instance_tree_module"
-          });
+          return gadget.getSetting('frontpage_gadget');
         })
-        .push(function () {
+        .push(function (frontpage_gadget) {
           return RSVP.all([
             gadget.getUrlFor({command: "display_dialog_with_history", options: {"page": "slap_select_software_product"}}),
-            gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
-
+            gadget.getUrlFor({command: "change", options: {"page": frontpage_gadget}}),
+            gadget.updatePanel({jio_key: "instance_tree_module"})
           ]);
         })
         .push(function (result) {

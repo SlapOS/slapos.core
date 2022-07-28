@@ -324,13 +324,18 @@
             });
         })
         .push(function () {
-          return gadget.updatePanel({
-            jio_key: false
-          });
+          return gadget.getSetting('frontpage_gadget');
         })
-        .push(function () {
+        .push(function (frontpage_gadget) {
+          return RSVP.all([
+            gadget.getUrlFor({command: "change", options: {"page": frontpage_gadget}}),
+            gadget.updatePanel({jio_key: false})
+          ]);
+        })
+        .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: gadget.page_title_translation
+            page_title: gadget.page_title_translation,
+            selection_url: url_list[0]
           });
         });
     })

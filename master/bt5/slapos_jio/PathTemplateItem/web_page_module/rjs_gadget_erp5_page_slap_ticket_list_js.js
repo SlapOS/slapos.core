@@ -96,16 +96,15 @@
           });
         })
         .push(function () {
-          return gadget.updatePanel({
-            jio_key: "support_request_module"
-          });
+          return gadget.getSetting('frontend_gadget');
         })
-        .push(function () {
+        .push(function (frontend_gadget) {
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {"page": "slap_add_ticket"}}),
             gadget.getUrlFor({command: "change", options: {"page": "slap_rss_ticket"}}),
-            gadget.getUrlFor({command: "change", options: {"page": "slapos"}}),
-            gadget.getUrlFor({command: "change", options: {"page": "slap_rss_critical_ticket"}})
+            gadget.getUrlFor({command: "change", options: {"page": frontend_gadget}}),
+            gadget.getUrlFor({command: "change", options: {"page": "slap_rss_critical_ticket"}}),
+            gadget.updatePanel({jio_key: "support_request_module"})
           ]);
         })
         .push(function (result) {

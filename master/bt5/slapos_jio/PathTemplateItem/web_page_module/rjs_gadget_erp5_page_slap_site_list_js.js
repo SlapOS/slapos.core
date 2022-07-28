@@ -147,17 +147,16 @@
           });
         })
         .push(function () {
-          return gadget.updatePanel({
-            jio_key: 'organisation_module'
-          });
+          return gadget.getSetting('frontend_gadget');
         })
-        .push(function () {
+        .push(function (frontend_gadget) {
           return RSVP.all([
             gadget.getUrlFor({
               command: 'change',
               options: { page: 'slap_add_organisation' }
             }),
-            gadget.getUrlFor({ command: 'change', options: { page: 'slapos' } })
+            gadget.getUrlFor({ command: 'change', options: { page: frontend_gadget}}),
+            gadget.updatePanel({jio_key: 'organisation_module'})
           ]);
         })
         .push(function (result) {

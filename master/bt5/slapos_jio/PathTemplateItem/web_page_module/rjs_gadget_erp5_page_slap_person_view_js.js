@@ -309,7 +309,7 @@
         .push(function () {
           return RSVP.all([
             window.getSettingMe(gadget),
-            gadget.getSetting('frontend_gadget')
+            gadget.getSetting('frontpage_gadget')
           ]);
         })
         .push(function (setting_list) {

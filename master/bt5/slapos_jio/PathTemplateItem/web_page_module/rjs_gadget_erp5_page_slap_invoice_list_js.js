@@ -179,7 +179,7 @@
             gadget.jio_getAttachment("contract_relative_url",
               url_list[0] + url_list[1] + "/Person_getCloudContractRelated?return_json=True"),
             gadget.updatePanel({jio_key: "accounting_module"}),
-            gadget.getSetting('frontend_gadget')
+            gadget.getSetting('frontpage_gadget')
           ]);
         })
         .push(function (result) {

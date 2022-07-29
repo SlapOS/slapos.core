@@ -169,29 +169,28 @@
           });
         })
         .push(function () {
-          return gadget.updatePanel({
-            jio_key: "accounting_module"
-          });
-        })
-        .push(function () {
           return RSVP.all([
             gadget.getSetting("hateoas_url"),
             window.getSettingMe(gadget)
           ]);
         })
         .push(function (url_list) {
-          return  gadget.jio_getAttachment("contract_relative_url",
-            url_list[0] + url_list[1] + "/Person_getCloudContractRelated?return_json=True");
+          return RSVP.all([
+            gadget.jio_getAttachment("contract_relative_url",
+              url_list[0] + url_list[1] + "/Person_getCloudContractRelated?return_json=True"),
+            gadget.updatePanel({jio_key: "accounting_module"}),
+            gadget.getSetting('frontpage_gadget')
+          ]);
         })
-        .push(function (contract_relative_url) {
+        .push(function (result) {
           var promise_list = [
-            gadget.getUrlFor({command: "change", options: {"page": "slapos"}}),
+            gadget.getUrlFor({command: "change", options: {"page": result[2]}}),
             gadget.getUrlFor({command: "change", options: {"page": "slap_rss_ticket",
                                                            "jio_key": "accounting_module"}})
           ];
-          if (contract_relative_url) {
+          if (result[0]) {
             promise_list.push(
-              gadget.getUrlFor({command: "change", options: {"jio_key": contract_relative_url,
+              gadget.getUrlFor({command: "change", options: {"jio_key": result[0],
                                                            "page": "slap_controller"}})
             );
           }

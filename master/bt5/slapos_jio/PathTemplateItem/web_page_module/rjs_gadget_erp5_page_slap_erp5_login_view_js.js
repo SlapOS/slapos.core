@@ -68,7 +68,6 @@
                       hateoas_url + gadget.state.jio_key + "/Login_edit", doc);
                 })
                 .push(function (response) {
-                  var redirect_url;
                   if (response.target === undefined) {
                     return gadget.notifySubmitted({message: gadget.message2_translation, status: 'success'});
                   }
@@ -77,10 +76,13 @@
                     // The script required to launch a redirect
                     return gadget.notifySubmitted({message: gadget.message2_translation, status: 'success'})
                       .push(function () {
+                        return gadget.getSetting('frontpage_gadget');
+                      })
+                      .push(function (frontpage_gadget) {
                         return gadget.getUrlFor({
                           command: 'display',
                           absolute_url: true,
-                          options: {"jio_key": "/", "page": "slapos"}
+                          options: {"jio_key": "/", "page": frontpage_gadget}
                         })
                       })
                       .push(function (came_from) {

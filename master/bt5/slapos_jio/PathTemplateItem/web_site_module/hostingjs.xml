@@ -414,7 +414,7 @@
         </item>
         <item>
             <key> <string>configuration_frontpage_gadget_url</string> </key>
-            <value> <string>slapos</string> </value>
+            <value> <string>slap_service_list</string> </value>
         </item>
         <item>
             <key> <string>configuration_hateoas_url</string> </key>
@@ -701,7 +701,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1000.41365.61594.63982</string> </value>
+                      <value> <string>1001.26171.19762.42854</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -719,7 +719,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1654507392.23</float>
+                              <float>1659036783.36</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

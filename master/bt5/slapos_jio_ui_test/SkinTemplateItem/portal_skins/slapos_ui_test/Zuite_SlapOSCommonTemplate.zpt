@@ -24,7 +24,7 @@
 
 
   <tal:block metal:define-macro="slapos_wait_for_activities_and_front_page">
-    <tal:block tal:define="web_site_id python: 'hostingjs'">
+    <tal:block tal:define="web_site_id python: 'hostingjs';">
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page_base" />
     </tal:block>
   </tal:block>
@@ -220,18 +220,76 @@
   </tal:block>
 
   <tal:block metal:define-macro="slapos_wait_for_front_page">
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % (here.Base_translateString('Services', lang=lang))"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % (here.Base_translateString('Services', lang=lang))"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementNotPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1//a[contains(@class, "ui-icon-spinner")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementNotPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1//a[contains(@class, "ui-icon-spinner")]</td>
+      <td></td>
+    </tr>
+    <tal:block define="menu_item python: 'Dashboard'; header menu_item ">
+      <tr>
+        <td colspan="3"><b tal:content="python: 'Access Entry on the Menu for : %s' % menu_item"> Menu Item </b></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//button[@data-i18n='Menu']</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//button[@data-i18n='Menu']</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//button[@data-i18n='Menu']</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_panel.html\')]//a[@data-i18n=\'%s\']' % (menu_item)"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_panel.html\')]//a[@data-i18n=\'%s\']' % (menu_item)"></td>
+        <td></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
+  
+      <tr>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % here.Base_translateString(menu_item, lang=lang)"></td>
+        <td></td>
+      </tr>
+    </tal:block>
     <tr>
       <td colspan="3"><b>Wait for Dashboard on header and front page elements</b></td>
     </tr>
     <!-- Dashboard -->
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//span[@data-i18n=\'%s\']' % (here.Base_translateString('Dashboard', lang=lang))"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % (here.Base_translateString('Dashboard', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//span[@data-i18n=\'%s\']' % (here.Base_translateString('Dashboard', lang=lang))"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % (here.Base_translateString('Dashboard', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
@@ -1192,7 +1250,6 @@
       <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//dl[@class="dl-contextual-help"]</td>
       <td></td>
     </tr>
-
   </tal:block>
 
   <tal:block metal:define-macro="suspend_user_tickets">

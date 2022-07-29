@@ -130,15 +130,14 @@
           });
         })
         .push(function () {
-          return gadget.updatePanel({
-            jio_key: "compute_node_module"
-          });
+          return gadget.getSetting('frontpage_gadget');
         })
-        .push(function () {
+        .push(function (frontpage_gadget) {
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {"page": "slap_add_compute_node"}}),
             gadget.getUrlFor({command: "change", options: {page: "slap_compute_node_get_token"}}),
-            gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
+            gadget.getUrlFor({command: "change", options: {"page": frontpage_gadget}}),
+            gadget.updatePanel({jio_key: "compute_node_module"})
 
           ]);
         })

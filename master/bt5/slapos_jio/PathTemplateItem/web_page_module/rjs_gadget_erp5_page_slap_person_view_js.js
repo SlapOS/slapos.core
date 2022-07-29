@@ -307,23 +307,22 @@
           });
         })
         .push(function () {
-          return gadget.updatePanel({
-            jio_key: "person_module"
-          });
+          return RSVP.all([
+            window.getSettingMe(gadget),
+            gadget.getSetting('frontpage_gadget')
+          ]);
         })
-        .push(function () {
-          return window.getSettingMe(gadget);
-        })
-        .push(function (me) {
+        .push(function (setting_list) {
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {editable: true}}),
-            gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_revoke_certificate"}}),
-            gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_request_certificate"}}),
-            gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_get_token"}}),
-            gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_add_erp5_login"}}),
-            gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_add_organisation"}}),
-            gadget.getUrlFor({command: "change", options: {page: "slapos"}}),
-            gadget.getUrlFor({command: "change", options: {jio_key: gadget.state.doc.contract_relative_url, page: "slap_controller"}})
+            gadget.getUrlFor({command: "change", options: {jio_key: setting_list[0], page: "slap_person_revoke_certificate"}}),
+            gadget.getUrlFor({command: "change", options: {jio_key: setting_list[0], page: "slap_person_request_certificate"}}),
+            gadget.getUrlFor({command: "change", options: {jio_key: setting_list[0], page: "slap_person_get_token"}}),
+            gadget.getUrlFor({command: "change", options: {jio_key: setting_list[0], page: "slap_person_add_erp5_login"}}),
+            gadget.getUrlFor({command: "change", options: {jio_key: setting_list[0], page: "slap_person_add_organisation"}}),
+            gadget.getUrlFor({command: "change", options: {page: setting_list[1]}}),
+            gadget.getUrlFor({command: "change", options: {jio_key: gadget.state.doc.contract_relative_url, page: "slap_controller"}}),
+            gadget.updatePanel({jio_key: "person_module"})
           ]);
         })
         .push(function (result) {

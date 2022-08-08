@@ -11,19 +11,19 @@
     })
     .onStateChange(function () {
       var gadget = this,
-        header_text = "By " + gadget.state.author +
-           " on " + gadget.state.modification_date + ":",
+        header_text = "By <strong>" + gadget.state.author +
+           "</strong> on " + gadget.state.modification_date + ":",
         header = domsugar("div", {
           class: "slapos-event-discussion-message-header"
         }, [
-          domsugar('p', {text: header_text})
+          domsugar('p', {html: header_text})
         ]);
       if (gadget.state.content_type === 'text/html') {
         return domsugar(gadget.element, {}, [
           header,
           domsugar('div', {
             class: "slapos-event-discussion-message-body",
-            text: gadget.state.text_content
+            html: gadget.state.text_content
           })
         ]);
       }

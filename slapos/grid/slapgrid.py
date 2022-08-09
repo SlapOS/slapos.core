@@ -561,39 +561,41 @@ stderr_logfile_backups=1
       launchSupervisord(instance_root=self.instance_root, logger=self.logger)
 
   def getComputerPartitionList(self):
-    if self.computer_partition_list is None:
-      if not self.api_backward_compatibility:
+    if not self.api_backward_compatibility:
+      if self.computer_partition_list is None:
         self.computer_partition_list = self.slap.jio_api_connector.allDocs({
           "portal_type": "Software Instance",
           "compute_node_id": self.computer_id,
         }).get("result_list", [])
-      else:
+    else:
+      try:
+        slap_partition_list = self.computer.getComputerPartitionList()
+      except socket.error as exc:
+        self.logger.fatal(exc)
+        raise
+      self.computer_partition_list = []
+      for partition in slap_partition_list:
         try:
-          slap_partition_list = self.computer.getComputerPartitionList()
-        except socket.error as exc:
-          self.logger.fatal(exc)
-          raise
-        self.computer_partition_list = []
-        for partition in slap_partition_list:
-          try:
-            software_release_uri = partition.getSoftwareRelease().getURI()
-          except (NotFoundError, TypeError, NameError):
-            software_release_uri = None
-          self.computer_partition_list.append({
-            "reference": partition._instance_guid,
-            "portal_type": "Software Instance",
-            "compute_partition_id": partition.getId(),
-            "state": partition.getState(),
-            "software_type": partition.getInstanceParameterDict().get(
-              'slap_software_type', None),
-            "parameters": partition.getInstanceParameterDict(),
-            "instance_processing_timestamp": partition.getInstanceParameterDict().get(
-              "timestamp"),
-            "slap_partition": partition,
-            "access_status_message": partition.getAccessStatus(),
-            "software_release_uri": software_release_uri,
-            "sla_parameters": getattr(partition, '_filter_dict', {}),
-          })
+          software_release_uri = partition.getSoftwareRelease().getURI()
+        except (NotFoundError, TypeError, NameError):
+          software_release_uri = None
+
+        parameter_dict = partition.getInstanceParameterDict()
+        self.computer_partition_list.append({
+          "reference": partition._instance_guid,
+          "portal_type": "Software Instance",
+          "compute_partition_id": partition.getId(),
+          "state": partition.getState(),
+          "software_type": parameter_dict.get('slap_software_type', None),
+          "parameters": parameter_dict,
+          "processing_timestamp": parameter_dict.get("timestamp"),
+          "slap_partition": partition,
+          "ip_list": parameter_dict["ip_list"],
+          "full_ip_list": parameter_dict.get("full_ip_list", []),
+          "access_status_message": partition.getAccessStatus(),
+          "software_release_uri": software_release_uri,
+          "sla_parameters": getattr(partition, '_filter_dict', {}),
+        })
     return self.computer_partition_list
 
   def sendPartitionError(self, partition, error_message, logger=None):

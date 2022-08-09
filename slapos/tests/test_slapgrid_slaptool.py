@@ -1,5 +1,5 @@
 ##############################################################################
-# coding: utf-8
+#
 # Copyright (c) 2010 Vifib SARL and Contributors. All Rights Reserved.
 #
 # WARNING: This program as such is intended to be used by professional
@@ -45,7 +45,6 @@ import json
 import re
 import grp
 import hashlib
-import errno
 
 import mock
 from mock import patch
@@ -65,11 +64,6 @@ from slapos.slap.exception import ConnectionError
 import slapos.grid.SlapObject
 from slapos import manager as slapmanager
 from slapos.util import dumps
-
-from slapos import __path__ as slapos_path
-from zope import __path__ as zope_path
-
-PROMISE_PATHS = sorted(set(map(os.path.dirname, list(slapos_path) + list(zope_path))))
 
 import httmock
 
@@ -119,10 +113,6 @@ touch worked
 """
 
 PROMISE_CONTENT_TEMPLATE = """
-# coding: utf-8
-import sys
-sys.path[0:0] = %(paths)r
-
 from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise import GenericPromise
@@ -132,7 +122,7 @@ class RunPromise(GenericPromise):
 
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(minute=%(periodicity)r)
+    self.setPeriodicity(minute=%(periodicity)s)
  
   def sense(self):
     %(content)s
@@ -143,11 +133,11 @@ class RunPromise(GenericPromise):
       self.logger.info("success")
 
   def anomaly(self):
-    return self._anomaly(result_count=2, failure_amount=%(failure_amount)r)
+    return self._anomaly(result_count=2, failure_amount=%(failure_amount)s)
 
   def test(self):
-    return self._test(result_count=1, failure_amount=%(failure_amount)r)
-"""
+    return self._test(result_count=1, failure_amount=%(failure_amount)s)
+""" 
 
 class BasicMixin(object):
   def setUp(self):
@@ -160,17 +150,6 @@ class BasicMixin(object):
       del os.environ['SLAPGRID_INSTANCE_ROOT']
     logging.basicConfig(level=logging.DEBUG)
     self.setSlapgrid()
-    self.setMock()
-
-  def getTestComputerClass(self):
-    return ComputerForTest
-
-  def setMock(self):
-    module = slapos.grid.SlapObject
-    func = 'getPythonExecutableFromSoftwarePath'
-    orig = getattr(module, func)
-    self.addCleanup(setattr, module, func, orig)
-    setattr(module, func, lambda software_path: None)
 
   def setSlapgrid(self, develop=False, force_stop=False):
     if getattr(self, 'master_url', None) is None:
@@ -181,9 +160,6 @@ class BasicMixin(object):
                                                        'supervisord')
     self.usage_report_periodicity = 1
     self.buildout = None
-    self.certificate_repository_path = os.path.join(self._tempdir, 'partition_pki');
-    if not os.path.isdir(self.certificate_repository_path):
-      os.mkdir(self.certificate_repository_path)
     self.grid = slapgrid.Slapgrid(self.software_root,
                                   self.instance_root,
                                   self.master_url,
@@ -192,11 +168,7 @@ class BasicMixin(object):
                                   develop=develop,
                                   logger=logging.getLogger(),
                                   shared_part_list=self.shared_parts_root,
-                                  force_stop=force_stop,
-                                  certificate_repository_path=self.certificate_repository_path,
-                                  slapgrid_jio_uri=self.master_url + "api/",
-                                  )
-    self.use_jio_api = True
+                                  force_stop=force_stop)
     self.grid._manager_list = self.manager_list
     # monkey patch buildout bootstrap
 
@@ -315,7 +287,7 @@ class TestBasicSlapgridCP(BasicMixin, unittest.TestCase):
 
   def test_environment_variable_HOME(self):
     # When running instance, $HOME is set to the partition path
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     partition = computer.instance_list[0]
     partition.requested_state = 'started'
     partition.software.setBuildout('#!/bin/sh\n echo $HOME > env_HOME')
@@ -326,7 +298,7 @@ class TestBasicSlapgridCP(BasicMixin, unittest.TestCase):
 
   def test_no_user_site_packages(self):
     # When running instance buildout, python's user site packages are ignored
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     partition = computer.instance_list[0]
     partition.requested_state = 'started'
 
@@ -381,6 +353,7 @@ class MasterMixin(BasicMixin):
     self._unmock_sleep()
     BasicMixin.tearDown(self)
 
+
 class ComputerForTest(object):
   """
   Class to set up environment for tests setting instance, software
@@ -395,7 +368,6 @@ class ComputerForTest(object):
     Will set up instances, software and sequence
     """
     self.sequence = []
-    self.body_sequence = []
     self.instance_amount = instance_amount
     self.software_amount = software_amount
     self.software_root = software_root
@@ -424,185 +396,79 @@ class ComputerForTest(object):
       qs = parse.parse_qs(url.query)
     else:
       qs = parse.parse_qs(req.body)
-
-    # Catch API calls
-    if url.path.startswith('/api/'):
-      content = json.loads(req.body)
-      self.body_sequence.append(content)
-      if (url.path == '/api/allDocs/'):
-        if content["portal_type"] == "Software Installation":
-          return json.dumps({
-            "result_list": [{
-              "software_release_uri": x.name,
-              "portal_type": "Software Installation",
-              "compute_node_id": content["compute_node_id"],
-              "state": x.requested_state
-            } for x in self.software_list]
-          })
-        if content["portal_type"] == "Software Instance":
-          if "compute_node_id" in content:
-            return json.dumps({
-              "result_list": [{
-                "software_release_uri": x.software.name if x.software else None,
-                "reference": x.name,
-                "title": x.name,
-                "portal_type": "Software Instance",
-                "compute_partition_id": x.name,
-                "state": x.requested_state
-              } for x in self.instance_list]
-            })
-          elif "root_instance_title" in content:
-            return json.dumps({
-              "result_list": [{
-                "software_release_uri": x.software.name if x.software else None,
-                "reference": x.name,
-                "title": x.name,
-                "portal_type": "Software Instance",
-                "compute_partition_id": x.name,
-                "state": x.requested_state
-              } for x in self.instance_list] + [
-                {
-                "software_release_uri": "foo.cfg",
-                "reference": "related_instance",
-                "title": "related_instance",
-                "portal_type": "Software Instance",
-                "compute_partition_id": "related_instance",
-                "state": "stopped"
+    if (url.path == '/getFullComputerInformation'
+            and 'computer_id' in qs):
+      slap_computer = self.getComputer(qs['computer_id'][0])
+      return {
+              'status_code': 200,
+              'content': dumps(slap_computer)
               }
-              ]
-            })
-
-      elif (url.path == '/api/put/'):
-        if content["portal_type"] == "Software Installation":
-          software = self.software_list[0]
-          software.sequence.append((url.path, content))
-          if "error_status" in content:
-            software.error_log = content['error_status']
-            software.error = True
-
-          return json.dumps({"id": content["software_release_uri"]})
-        elif content["portal_type"] == "Software Instance":
-          reference = content["reference"]
-          requested_instance = None
-          for instance in self.instance_list:
-            if instance.name == reference:
-              requested_instance = instance
-              break
-          if requested_instance:
-            requested_instance.sequence.append((url.path, content))
-            if "reported_state" in content:
-              if content["reported_state"] == "error":
-                instance.error = True
-                instance.error_log = content["status_message"]
-              else:
-                requested_instance.state = content["reported_state"]
-              return json.dumps({
-                "reference": requested_instance.name,
-                "portal_type": "Software Instance",
-                "success": "Done"
-              }, indent=2)
-            if "requested_instance_list" in content:
-              return json.dumps({
-                "reference": requested_instance.name,
-                "portal_type": "Software Instance",
-                "success": "Done"
-              }, indent=2)
-          else:
-            return json.dumps({
-              "status": "404",
-              "message": "No document found with parameters: %s" % reference,
-              "name": "NotFound",
-            })
-
-      elif (url.path == '/api/get/'):
-        if content["portal_type"] == "Software Instance":
-          reference = content["reference"]
-          # Treat the case of firewall
-          if reference == "related_instance":
-            return json.dumps({
-              "title": "related_instance",
-              "reference": "related_instance",
-              "software_release_uri": "foo.cfg",
-              "software_type": None,
-              "state": "stopped",
-              "connection_parameters": {
-              },
-              "parameters": {},
-              "shared": False,
-              "root_instance_title": "0",
-              "ip_list": self.ip_address_list,
-              "X509": {
-                "certificate": "",
-                "key": ""
-              },
-              "sla_parameters": {},
-              "compute_node_id": None,
-              "compute_partition_id": "requested_instance",
-              "processing_timestamp": 0,
-              "access_status_message": "",
-              "portal_type": "Software Instance"
-            })
-          requested_instance = None
-          for instance in self.instance_list:
-            if instance.name == reference:
-              requested_instance = instance
-              break
-          if requested_instance:
-            requested_instance.sequence.append((url.path, content))
-            return json.dumps({
-              "title": requested_instance.name,
-              "reference": requested_instance.name,
-              "software_release_uri": requested_instance.software.name,
-              "software_type": None,
-              "state": requested_instance.requested_state,
-              "connection_parameters": {
-              },
-              "parameters": {},
-              "shared": False,
-              "root_instance_title": requested_instance.name,
-              "ip_list": requested_instance.ip_list,
-              "full_ip_list": requested_instance.full_ip_list,
-              "X509": {
-                "certificate": requested_instance.certificate,
-                "key": requested_instance.key
-              },
-              "sla_parameters": requested_instance.filter_dict,
-              "compute_node_id": None,
-              "compute_partition_id": requested_instance.name,
-              "processing_timestamp": requested_instance.timestamp,
-              "access_status_message": requested_instance.error_log,
-              "portal_type": "Software Instance"
-            })
-          else:
-            return json.dumps({
-              "status": "404",
-              "message": "No document found with parameters: %s" % reference,
-              "name": "NotFound",
-            })
-
+    elif url.path == '/getHostingSubscriptionIpList':
+      ip_address_list = self.ip_address_list
+      return {
+              'status_code': 200,
+              'content': dumps(ip_address_list)
+              }
     if req.method == 'POST' and 'computer_partition_id' in qs:
       instance = self.instance_list[int(qs['computer_partition_id'][0])]
       instance.sequence.append(url.path)
       instance.header_list.append(req.headers)
+      if url.path == '/startedComputerPartition':
+        instance.state = 'started'
+        return {'status_code': 200}
+      if url.path == '/stoppedComputerPartition':
+        instance.state = 'stopped'
+        return {'status_code': 200}
+      if url.path == '/destroyedComputerPartition':
+        instance.state = 'destroyed'
+        return {'status_code': 200}
       if url.path == '/softwareInstanceBang':
         return {'status_code': 200}
-    raise ValueError("Unexcepted call to API. URL:%s Content:%s" % (url.path, req.body))
+      if url.path == "/updateComputerPartitionRelatedInstanceList":
+        return {'status_code': 200}
+      if url.path == '/softwareInstanceError':
+        instance.error_log = '\n'.join(
+            [
+                line
+                for line in qs['error_log'][0].splitlines()
+                if 'dropPrivileges' not in line
+            ]
+        )
+        instance.error = True
+        return {'status_code': 200}
 
+    elif req.method == 'POST' and 'url' in qs:
+      # XXX hardcoded to first software release!
+      software = self.software_list[0]
+      software.sequence.append(url.path)
+      if url.path == '/availableSoftwareRelease':
+        return {'status_code': 200}
+      if url.path == '/buildingSoftwareRelease':
+        return {'status_code': 200}
+      if url.path == '/destroyedSoftwareRelease':
+        return {'status_code': 200}
+      if url.path == '/softwareReleaseError':
+        software.error_log = '\n'.join(
+            [
+                line
+                for line in qs['error_log'][0].splitlines()
+                if 'dropPrivileges' not in line
+            ]
+        )
+        software.error = True
+        return {'status_code': 200}
 
-  def getTestSoftwareClass(self):
-    return SoftwareForTest
+    else:
+      return {'status_code': 500}
 
   def setSoftwares(self):
     """
     Will set requested amount of software
     """
     self.software_list = [
-        self.getTestSoftwareClass()(self.software_root, name=str(i))
+        SoftwareForTest(self.software_root, name=str(i))
         for i in range(self.software_amount)
     ]
-
-  def getTestInstanceClass(self):
-    return InstanceForTest
 
   def setInstances(self):
     """
@@ -614,7 +480,7 @@ class ComputerForTest(object):
       software = None
 
     self.instance_list = [
-        self.getTestInstanceClass()(self.instance_root, name=str(i), software=software)
+        InstanceForTest(self.instance_root, name=str(i), software=software)
         for i in range(self.instance_amount)
     ]
 
@@ -655,26 +521,24 @@ class InstanceForTest(object):
     self.ip_list = [('interface0', '10.0.8.2')]
     self.full_ip_list = [('route_interface0', '10.10.2.3', '10.10.0.1',
                           '255.0.0.0', '10.0.0.0')]
-    self.certificate = str(random.random())
-    self.key = str(random.random())
-    self.filter_dict = {}
-
 
   def getInstance(self, computer_id, ):
     """
     Will return current requested state of instance
     """
     partition = slapos.slap.ComputerPartition(computer_id, self.name)
+    partition._instance_guid = self.name
     partition._software_release_document = self.getSoftwareRelease()
     partition._requested_state = self.requested_state
-    partition._filter_dict = self.filter_dict
+    if getattr(self, 'filter_dict', None):
+      partition._filter_dict = self.filter_dict
     partition._parameter_dict = {'ip_list': self.ip_list,
                                   'full_ip_list': self.full_ip_list
                                   }
     if self.software is not None:
       if self.timestamp is not None:
         partition._parameter_dict['timestamp'] = self.timestamp
-
+        
     self.current_partition = partition
     return partition
 
@@ -701,7 +565,7 @@ class InstanceForTest(object):
       f.write(promise_content)
     os.chmod(promise, 0o777)
 
-  def setPluginPromise(self, promise_name, success=True, failure_count=1,
+  def setPluginPromise(self, promise_name, success=True, failure_count=1, 
       promise_content="", periodicity=0.03):
     """
     This function will set plugin promise and return its path
@@ -710,12 +574,11 @@ class InstanceForTest(object):
     if not os.path.isdir(promise_dir):
       os.makedirs(promise_dir)
     _promise_content = PROMISE_CONTENT_TEMPLATE % \
-         {'success': success,
-          'content': promise_content,
+         {'success': success, 
+          'content': promise_content, 
           'failure_amount': failure_count,
-          'periodicity': periodicity,
-          'paths': PROMISE_PATHS}
-
+          'periodicity': periodicity}
+ 
     with open(os.path.join(promise_dir, promise_name), 'w') as f:
       f.write(_promise_content)
     return os.path.join(promise_dir, promise_name)
@@ -725,17 +588,19 @@ class InstanceForTest(object):
       os.mkdir(certificate_repository_path)
     self.cert_file = os.path.join(certificate_repository_path,
                                   "%s.crt" % self.name)
+    self.certificate = str(random.random())
     with open(self.cert_file, 'w') as f:
       f.write(self.certificate)
     self.key_file = os.path.join(certificate_repository_path,
                                  '%s.key' % self.name)
+    self.key = str(random.random())
     with open(self.key_file, 'w') as f:
       f.write(self.key)
 
 class SoftwareForTest(object):
   """
   Class to prepare and simulate software.
-  each instance has a software attributed
+  each instance has a sotfware attributed
   """
   def __init__(self, software_root, name=''):
     """
@@ -815,7 +680,7 @@ class DummyManager(object):
 class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
 
   def test_nothing_to_do(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 0, 0)
+    computer = ComputerForTest(self.software_root, self.instance_root, 0, 0)
     with httmock.HTTMock(computer.request_handler):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual([])
@@ -824,7 +689,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertEqual(stat.S_IMODE(st.st_mode), 0o755)
 
   def test_one_partition(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
@@ -834,16 +699,15 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
                                                     'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/'])
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
-      self.assertEqual(instance.state, 'stopped')
+                       ['/getFullComputerInformation', 
+                        '/stoppedComputerPartition'])
 
   def test_one_partition_instance_cfg(self):
     """
     Check that slapgrid processes instance is profile is not named
     "template.cfg" but "instance.cfg".
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
@@ -853,15 +717,14 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
                                                     'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/'])
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
-      self.assertEqual(instance.state, 'stopped')
+                       ['/getFullComputerInformation', 
+                        '/stoppedComputerPartition'])
 
   def test_one_free_partition(self):
     """
     Test if slapgrid cp does not process "free" partition
     """
-    computer = self.getTestComputerClass()(self.software_root,
+    computer = ComputerForTest(self.software_root,
                                self.instance_root,
                                software_amount=0)
     with httmock.HTTMock(computer.request_handler):
@@ -874,7 +737,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertEqual(partition.sequence, [])
 
   def test_one_partition_started(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       partition.requested_state = 'started'
@@ -888,12 +751,12 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/'])
-      self.assertEqual(partition.sequence[1][1]["reported_state"], 'started')
+                       ['/getFullComputerInformation', 
+                        '/startedComputerPartition'])
       self.assertEqual(partition.state, 'started')
 
   def test_one_partition_started_fail(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       partition.requested_state = 'started'
@@ -907,8 +770,8 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/'])
-      self.assertEqual(partition.sequence[1][1]["reported_state"], 'started')
+                       ['/getFullComputerInformation', 
+                        '/startedComputerPartition'])
       self.assertEqual(partition.state, 'started')
 
       instance = computer.instance_list[0]
@@ -922,14 +785,13 @@ exit 1
                              'etc', 'software_release', 'worked',
                              '.slapos-retention-lock-delay', '.slapgrid-0-error.log'])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/', '/getHateoasUrl',
-                       '/api/allDocs/', '/api/get/', '/api/put/'])
-      self.assertEqual(instance.sequence[3][1]["reported_state"], 'error')
+                       ['/getFullComputerInformation', 
+                        '/startedComputerPartition', '/getHateoasUrl', '/getJIOAPIUrl',
+                        '/getFullComputerInformation', '/softwareInstanceError'])
       self.assertEqual(instance.state, 'started')
-      self.assertTrue(instance.error_log.startswith("Failed to run buildout profile in direct"))
 
   def test_one_partition_started_stopped(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
 
@@ -963,8 +825,8 @@ chmod 755 etc/run/wrapper
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/'])
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'started')
+                       ['/getFullComputerInformation', 
+                        '/startedComputerPartition'])
       self.assertEqual(instance.state, 'started')
 
       computer.sequence = []
@@ -976,9 +838,8 @@ chmod 755 etc/run/wrapper
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/api/allDocs/', '/api/get/', '/api/put/'])
-      self.assertEqual(instance.sequence[3][1]["reported_state"], 'stopped')
+                       ['/getHateoasUrl', '/getJIOAPIUrl', '/getFullComputerInformation', 
+                        '/stoppedComputerPartition'])
       self.assertEqual(instance.state, 'stopped')
 
   def test_one_broken_partition_stopped(self):
@@ -987,7 +848,7 @@ chmod 755 etc/run/wrapper
     processes will be stopped even if instance is broken (buildout fails
     to run) but status is still started.
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
 
@@ -1022,10 +883,8 @@ chmod 755 etc/run/wrapper
       six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/',
-                        '/api/get/',
-                        '/api/put/'])
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'started')
+                       ['/getFullComputerInformation', 
+                        '/startedComputerPartition'])
       self.assertEqual(instance.state, 'started')
 
       computer.sequence = []
@@ -1041,16 +900,12 @@ exit 1
                              '.slapos-retention-lock-delay', '.slapgrid-0-error.log'])
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/api/allDocs/',
-                        '/api/get/',
-                        '/api/put/'])
-      self.assertEqual(instance.sequence[3][1]["reported_state"], 'error')
+                       ['/getHateoasUrl', '/getJIOAPIUrl', '/getFullComputerInformation',
+                        '/softwareInstanceError'])
       self.assertEqual(instance.state, 'started')
-      self.assertTrue(instance.error_log.startswith("Failed to run buildout profile in direct"))
 
   def test_one_partition_stopped_started(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'stopped'
@@ -1064,10 +919,8 @@ exit 1
       six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/',
-                        '/api/get/',
-                        '/api/put/'])
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+                       ['/getFullComputerInformation', 
+                        '/stoppedComputerPartition'])
       self.assertEqual('stopped', instance.state)
 
       instance.requested_state = 'started'
@@ -1083,11 +936,8 @@ exit 1
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/api/allDocs/',
-                        '/api/get/',
-                        '/api/put/'])
-      self.assertEqual(instance.sequence[3][1]["reported_state"], 'started')
+                       ['/getHateoasUrl', '/getJIOAPIUrl', '/getFullComputerInformation', 
+                        '/startedComputerPartition'])
       self.assertEqual('started', instance.state)
 
   def test_one_partition_destroyed(self):
@@ -1095,14 +945,14 @@ exit 1
     Test that an existing partition with "destroyed" status will only be
     stopped by slapgrid-cp, not processed
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'destroyed'
 
       dummy_file_name = 'dummy_file'
       with open(os.path.join(instance.partition_path, dummy_file_name), 'w') as dummy_file:
-        dummy_file.write('dummy')
+          dummy_file.write('dummy')
 
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
@@ -1111,10 +961,8 @@ exit 1
       six.assertCountEqual(self, os.listdir(partition), ['.slapgrid', dummy_file_name])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/',
-                        '/api/get/',
-                        '/api/put/'])
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+                       ['/getFullComputerInformation',
+                        '/stoppedComputerPartition'])
       self.assertEqual('stopped', instance.state)
 
 
@@ -1147,7 +995,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
     4.Wait for it to fail
     5.Wait for file generated by monkeypacthed bang to appear
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       partition.requested_state = 'started'
@@ -1176,7 +1024,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
     4.Wait for it to fail
     5.Check that file generated by monkeypacthed bang do not appear
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       partition.requested_state = 'started'
@@ -1217,7 +1065,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
     Certificates used for the bang are also checked
     (ie: watchdog id in process name)
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       certificate_repository_path = os.path.join(self._tempdir, 'partition_pki')
@@ -1242,7 +1090,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
     Test that a process going to a mode not watched by watchdog
     in supervisord is not banged if watched by watchdog
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     instance = computer.instance_list[0]
 
     watchdog = Watchdog(
@@ -1265,7 +1113,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
     is not banged if not watched by watchdog
     (ie: no watchdog id in process name)
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     instance = computer.instance_list[0]
 
     watchdog = Watchdog(
@@ -1287,7 +1135,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
     existing), check that bang file is created and contains the timestamp of
     .timestamp file.
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       certificate_repository_path = os.path.join(self._tempdir, 'partition_pki')
@@ -1325,7 +1173,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
 
     Practically speaking, .timestamp file in the partition does not exsit.
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       certificate_repository_path = os.path.join(self._tempdir, 'partition_pki')
@@ -1360,7 +1208,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
      * First bang is transmitted
      * subsequent bangs are ignored until a deployment is successful.
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       certificate_repository_path = os.path.join(self._tempdir, 'partition_pki')
@@ -1410,7 +1258,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
      * The process crashes again, watchdog calls bang
      * The process crashes again, watchdog ignroes it
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       certificate_repository_path = os.path.join(self._tempdir, 'partition_pki')
@@ -1487,7 +1335,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
 class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
 
   def test_partition_timestamp(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       timestamp = str(int(time.time()))
@@ -1501,14 +1349,15 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       timestamp_path = os.path.join(instance.partition_path, '.timestamp')
       self.setSlapgrid()
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       with open(timestamp_path) as f:
         self.assertIn(timestamp, f.read())
-      self.assertEqual(instance.sequence[1][0],'/api/put/')
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+      self.assertEqual(instance.sequence,
+                       ['/stoppedComputerPartition'])
 
   def test_partition_timestamp_develop(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       timestamp = str(int(time.time()))
@@ -1526,13 +1375,12 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
                        slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
 
-      self.assertEqual(instance.sequence[1][0],'/api/put/')
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
-      self.assertEqual(instance.sequence[3][0],'/api/put/')
-      self.assertEqual(instance.sequence[3][1]["reported_state"], 'stopped')
+      self.assertEqual(instance.sequence,
+                       [ '/stoppedComputerPartition',
+                         '/stoppedComputerPartition'])
 
   def test_partition_old_timestamp(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       timestamp = str(int(time.time()))
@@ -1546,11 +1394,11 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       instance.timestamp = str(int(timestamp) - 1)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
-      self.assertEqual(instance.sequence[1][0],'/api/put/')
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+      self.assertEqual(instance.sequence,
+                       [ '/stoppedComputerPartition'])
 
   def test_partition_timestamp_new_timestamp(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       timestamp = str(int(time.time()))
@@ -1565,13 +1413,17 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       instance.timestamp = str(int(timestamp) + 1)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
-      self.assertEqual(
-        [x[0] for x in instance.sequence],
-        ['/api/get/', '/api/put/', '/api/get/', '/api/put/', '/api/get/']
-      )
+      self.assertEqual(computer.sequence,
+                       ['/getHateoasUrl', '/getJIOAPIUrl',
+                        '/getFullComputerInformation', 
+                        '/stoppedComputerPartition',
+                        '/getHateoasUrl', '/getJIOAPIUrl', '/getFullComputerInformation',
+                         '/stoppedComputerPartition',
+                        '/getHateoasUrl', '/getJIOAPIUrl',
+                        '/getFullComputerInformation'])
 
   def test_partition_timestamp_no_timestamp(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       timestamp = str(int(time.time()))
@@ -1586,17 +1438,19 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
                             [instance.software.software_hash])
       instance.timestamp = None
       self.launchSlapgrid()
-      self.assertEqual(
-        [x[0] for x in instance.sequence],
-        ['/api/get/', '/api/put/', '/api/get/', '/api/put/']
-      )
+      self.assertEqual(computer.sequence,
+                       ['/getHateoasUrl', '/getJIOAPIUrl',
+                        '/getFullComputerInformation', 
+                        '/stoppedComputerPartition',
+                        '/getHateoasUrl', '/getJIOAPIUrl', '/getFullComputerInformation',
+                         '/stoppedComputerPartition'])
 
   def test_partition_periodicity_remove_timestamp(self):
     """
     Check that if periodicity forces run of buildout for a partition, it
     removes the .timestamp file.
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       timestamp = str(int(time.time()))
@@ -1634,7 +1488,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
         software with periodicity was runned and not the other
     5. We check that modification time of .timestamp was modified
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 20, 20)
+    computer = ComputerForTest(self.software_root, self.instance_root, 20, 20)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       timestamp = str(int(time.time() - 5))
@@ -1654,17 +1508,17 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
           os.path.join(instance0.partition_path, '.timestamp'))
       time.sleep(wanted_periodicity + 1)
       for instance in computer.instance_list[1:]:
-        self.assertEqual(instance.sequence[1][0],'/api/put/')
-        self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+        self.assertEqual(instance.sequence,
+                         [ '/stoppedComputerPartition'])
       time.sleep(1)
       self.launchSlapgrid()
-      self.assertEqual(instance0.sequence[1][0],'/api/put/')
-      self.assertEqual(instance0.sequence[1][1]["reported_state"], 'started')
-      self.assertEqual(instance0.sequence[3][0],'/api/put/')
-      self.assertEqual(instance0.sequence[3][1]["reported_state"], 'started')
+      self.assertEqual(instance0.sequence,
+                       [ '/startedComputerPartition',
+                         '/startedComputerPartition',
+                        ])
       for instance in computer.instance_list[1:]:
-        self.assertEqual(instance.sequence[1][0],'/api/put/')
-        self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+        self.assertEqual(instance.sequence,
+                         [ '/stoppedComputerPartition'])
       self.assertGreater(
           os.path.getmtime(os.path.join(instance0.partition_path, '.timestamp')),
           last_runtime)
@@ -1675,7 +1529,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
     Check that periodicity forces processing a partition even if it is not
     started.
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 20, 20)
+    computer = ComputerForTest(self.software_root, self.instance_root, 20, 20)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       timestamp = str(int(time.time() - 5))
@@ -1694,17 +1548,16 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
           os.path.join(instance0.partition_path, '.timestamp'))
       time.sleep(wanted_periodicity + 1)
       for instance in computer.instance_list[1:]:
-        self.assertEqual(instance.sequence[1][0],'/api/put/')
-        self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+        self.assertEqual(instance.sequence,
+                         [ '/stoppedComputerPartition'])
       time.sleep(1)
       self.launchSlapgrid()
-      self.assertEqual(instance0.sequence[1][0],'/api/put/')
-      self.assertEqual(instance0.sequence[1][1]["reported_state"], 'stopped')
-      self.assertEqual(instance0.sequence[3][0],'/api/put/')
-      self.assertEqual(instance0.sequence[3][1]["reported_state"], 'stopped')
+      self.assertEqual(instance0.sequence,
+                       [ '/stoppedComputerPartition',
+                         '/stoppedComputerPartition'])
       for instance in computer.instance_list[1:]:
-        self.assertEqual(instance.sequence[1][0],'/api/put/')
-        self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+        self.assertEqual(instance.sequence,
+                         [ '/stoppedComputerPartition'])
       self.assertNotEqual(os.path.getmtime(os.path.join(instance0.partition_path,
                                                         '.timestamp')),
                           last_runtime)
@@ -1715,7 +1568,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
     Check that periodicity forces processing a partition even if it is not
     started.
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 20, 20)
+    computer = ComputerForTest(self.software_root, self.instance_root, 20, 20)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       timestamp = str(int(time.time() - 5))
@@ -1735,19 +1588,17 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
           os.path.join(instance0.partition_path, '.timestamp'))
       time.sleep(wanted_periodicity + 1)
       for instance in computer.instance_list[1:]:
-        self.assertEqual(instance.sequence[1][0],'/api/put/')
-        self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+        self.assertEqual(instance.sequence,
+                         [ '/stoppedComputerPartition'])
       time.sleep(1)
       instance0.requested_state = 'destroyed'
       self.launchSlapgrid()
-      self.assertEqual(instance0.sequence[1][0],'/api/put/')
-      self.assertEqual(instance0.sequence[1][1]["reported_state"], 'stopped')
-      self.assertEqual(instance0.sequence[3][0],'/api/put/')
-      self.assertEqual(instance0.sequence[3][1]["reported_state"], 'stopped')
-
+      self.assertEqual(instance0.sequence,
+                       [ '/stoppedComputerPartition',
+                                                       '/stoppedComputerPartition'])
       for instance in computer.instance_list[1:]:
-        self.assertEqual(instance.sequence[1][0],'/api/put/')
-        self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+        self.assertEqual(instance.sequence,
+                         [ '/stoppedComputerPartition'])
       self.assertNotEqual(os.path.getmtime(os.path.join(instance0.partition_path,
                                                         '.timestamp')),
                           last_runtime)
@@ -1764,7 +1615,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
     4. We launch slapgrid anew and check that install as not been called again
     """
 
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       timestamp = str(int(time.time()))
       instance = computer.instance_list[0]
@@ -1787,7 +1638,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
     new setup and one time because of periodicity = 0)
     """
 
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       timestamp = str(int(time.time()))
       instance = computer.instance_list[0]
@@ -1803,7 +1654,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
     1. We set up two instance one using a corrupted buildout
     2. One will fail but the other one will be processed correctly
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 2, 2)
+    computer = ComputerForTest(self.software_root, self.instance_root, 2, 2)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       instance1 = computer.instance_list[1]
@@ -1811,82 +1662,68 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       instance0.software.setBuildout("""#!/bin/sh
 exit 42""")
       self.launchSlapgrid()
-      self.assertTrue(instance0.error_log.startswith("Failed to run buildout profile in direct"))
-      self.assertEqual(instance1.sequence[1],
-                         (
-                            '/api/put/',
-                            {'portal_type': 'Software Instance',
-                             'reference': '1',
-                             'reported_state': 'stopped'}
-                          )
-                      )
+      self.assertEqual(instance0.sequence,
+                       ['/softwareInstanceError'])
+      self.assertEqual(instance1.sequence,
+                       [ '/stoppedComputerPartition'])
 
   def test_one_partition_lacking_software_path_does_not_disturb_others(self):
     """
     1. We set up two instance but remove software path of one
     2. One will fail but the other one will be processed correctly
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 2, 2)
+    computer = ComputerForTest(self.software_root, self.instance_root, 2, 2)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       instance1 = computer.instance_list[1]
       instance1.software = computer.software_list[1]
       shutil.rmtree(instance0.software.srdir)
       self.launchSlapgrid()
-      self.assertEqual(instance0.sequence[1][0],'/api/put/')
-      self.assertEqual(instance0.sequence[1][1]["reported_state"], 'error')
-      self.assertIn(
-        "Software Release http://sr0/ is not present on system",
-        instance0.sequence[1][1]["status_message"]
-      )
-      self.assertIn("Cannot deploy instance.", instance0.sequence[1][1]["status_message"])
-      self.assertEqual(instance1.sequence[1][0],'/api/put/')
-      self.assertEqual(instance1.sequence[1][1]["reported_state"], 'stopped')
+      self.assertEqual(instance0.sequence,
+                       ['/softwareInstanceError'])
+      self.assertEqual(instance1.sequence,
+                       [ '/stoppedComputerPartition'])
 
   def test_one_partition_lacking_software_bin_path_does_not_disturb_others(self):
     """
     1. We set up two instance but remove software bin path of one
     2. One will fail but the other one will be processed correctly
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 2, 2)
+    computer = ComputerForTest(self.software_root, self.instance_root, 2, 2)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       instance1 = computer.instance_list[1]
       instance1.software = computer.software_list[1]
       shutil.rmtree(instance0.software.srbindir)
       self.launchSlapgrid()
-      self.assertEqual(instance0.sequence[1][0],'/api/put/')
-      self.assertEqual(instance0.sequence[1][1]["reported_state"], 'error')
-      self.assertIn("No such file or directory", instance0.sequence[1][1]["status_message"])
-      self.assertIn("sbin/buildout", instance0.sequence[1][1]["status_message"])
-      self.assertEqual(instance1.sequence[1][0],'/api/put/')
-      self.assertEqual(instance1.sequence[1][1]["reported_state"], 'stopped')
+      self.assertEqual(instance0.sequence,
+                       ['/softwareInstanceError'])
+      self.assertEqual(instance1.sequence,
+                       [ '/stoppedComputerPartition'])
 
   def test_one_partition_lacking_path_does_not_disturb_others(self):
     """
     1. We set up two instances but remove path of one
     2. One will fail but the other one will be processed correctly
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 2, 2)
+    computer = ComputerForTest(self.software_root, self.instance_root, 2, 2)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       instance1 = computer.instance_list[1]
       instance1.software = computer.software_list[1]
       shutil.rmtree(instance0.partition_path)
       self.launchSlapgrid()
-      self.assertEqual(instance0.sequence[0][0],'/api/put/')
-      self.assertEqual(instance0.sequence[0][1]["reported_state"], 'error')
-      self.assertIn("Partition directory", instance0.sequence[0][1]["status_message"])
-      self.assertIn("does not exist", instance0.sequence[0][1]["status_message"])
-      self.assertEqual(instance1.sequence[1][0],'/api/put/')
-      self.assertEqual(instance1.sequence[1][1]["reported_state"], 'stopped')
+      self.assertEqual(instance0.sequence,
+                       ['/softwareInstanceError'])
+      self.assertEqual(instance1.sequence,
+                       [ '/stoppedComputerPartition'])
 
   def test_one_partition_buildout_fail_is_correctly_logged(self):
     """
     1. We set up an instance using a corrupted buildout
     2. It will fail, make sure that whole log is sent to master
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
 
@@ -1895,8 +1732,7 @@ exit 42""")
       instance.software.setBuildout("""#!/bin/sh
 echo %s; echo %s; exit 42""" % (line1, line2))
       self.launchSlapgrid()
-      self.assertEqual(instance.sequence[1][0], '/api/put/')
-      self.assertEqual(instance.sequence[1][1]["reported_state"], "error")
+      self.assertEqual(instance.sequence, ['/softwareInstanceError'])
       # We don't care of actual formatting, we just want to have full log
       self.assertIn(line1, instance.error_log)
       self.assertIn(line2, instance.error_log)
@@ -1905,30 +1741,23 @@ echo %s; echo %s; exit 42""" % (line1, line2))
   def test_processing_summary(self):
     """At the end of instance processing, a summary of partition with errors is displayed.
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 4, 4)
-    _, instance1, instance2, instance3 = computer.instance_list
+    computer = ComputerForTest(self.software_root, self.instance_root, 3, 3)
+    _, instance1, instance2 = computer.instance_list
     # instance0 has no problem, it is not in summary
 
     # instance 1 fails software
+    instance1 = computer.instance_list[1]
     instance1.software = computer.software_list[1]
     instance1.software.setBuildout("""#!/bin/sh
         echo fake buildout error
         exit 1""")
 
-    # instance 2 fails old style promises
+    # instance 2 fails promises
+    instance2 = computer.instance_list[2]
     instance2.requested_state = 'started'
     instance2.setPromise("failing_promise", """#!/bin/sh
-        echo héhé fake promise error
+        echo fake promise error
         exit 1""")
-
-    # instance 3 fails promise plugin
-    instance3.requested_state = 'started'
-    instance3.setPluginPromise(
-        "failing_promise_plugin.py",
-        promise_content="""if 1:
-          return self.logger.error("héhé fake promise plugin error")
-        """,
-    )
 
     with httmock.HTTMock(computer.request_handler), \
         patch.object(self.grid.logger, 'info',) as dummyLogger:
@@ -1936,20 +1765,17 @@ echo %s; echo %s; exit 42""" % (line1, line2))
 
     # reconstruct the string like logger does
     self.assertEqual(
-        dummyLogger.mock_calls[-5][1][0] % dummyLogger.mock_calls[-5][1][1:],
+        dummyLogger.mock_calls[-4][1][0] % dummyLogger.mock_calls[-4][1][1:],
         'Error while processing the following partitions:')
     self.assertRegexpMatches(
-        dummyLogger.mock_calls[-4][1][0] % dummyLogger.mock_calls[-4][1][1:],
+        dummyLogger.mock_calls[-3][1][0] % dummyLogger.mock_calls[-3][1][1:],
         r"  1\[\(not ready\)\]: Failed to run buildout profile in directory '.*/instance/1':\nfake buildout error\n\n")
     self.assertEqual(
-        dummyLogger.mock_calls[-3][1][0] % dummyLogger.mock_calls[-3][1][1:],
+        dummyLogger.mock_calls[-2][1][0] % dummyLogger.mock_calls[-2][1][1:],
         'Error with promises for the following partitions:')
     self.assertEqual(
-        dummyLogger.mock_calls[-2][1][0] % dummyLogger.mock_calls[-2][1][1:],
-        "  2[(not ready)]: Promise 'failing_promise' failed with output: héhé fake promise error")
-    self.assertEqual(
         dummyLogger.mock_calls[-1][1][0] % dummyLogger.mock_calls[-1][1][1:],
-        "  3[(not ready)]: Promise 'failing_promise_plugin.py' failed with output: héhé fake promise plugin error")
+        "  2[(not ready)]: Promise 'failing_promise' failed with output: fake promise error")
 
   def test_partition_force_stop(self):
     """
@@ -1959,7 +1785,7 @@ echo %s; echo %s; exit 42""" % (line1, line2))
     - services should be stopped
     - no report should be sent to master
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -1979,8 +1805,7 @@ echo %s; echo %s; exit 42""" % (line1, line2))
         ['etc', '.slapgrid', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay']
       )
       self.assertFalse(os.path.exists(promise_ran))
-      self.assertEqual(len(instance.sequence), 1)
-      self.assertEqual(instance.sequence[0][0], "/api/get/")
+      self.assertFalse(instance.sequence)
 
 
 class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
@@ -1992,7 +1817,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
     """
     Test than an instance in "destroyed" state is correctly destroyed
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2006,18 +1831,15 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/',
-                        '/api/get/',
-                        '/api/put/'])
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'started')
+                       ['/getFullComputerInformation',
+                        
+                        '/startedComputerPartition'])
       self.assertEqual(instance.state, 'started')
 
       # Then destroy the instance
       computer.sequence = []
-      instance.sequence = []
       instance.requested_state = 'destroyed'
-      # Reset Cache
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
@@ -2029,11 +1851,9 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertIsNotCreated(wrapper_log)
 
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/',
-                        '/api/put/',
-                        '/api/put/'])
-      self.assertEqual(instance.sequence[0][1]["reported_state"], 'stopped')
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'destroyed')
+                       ['/getFullComputerInformation',
+                        '/stoppedComputerPartition',
+                        '/destroyedComputerPartition'])
       self.assertEqual(instance.state, 'destroyed')
 
   def test_partition_list_is_complete_if_empty_destroyed_partition(self):
@@ -2045,13 +1865,13 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
     1. Simulate computer containing one "destroyed" partition but with valid SR
     2. See if it destroyed
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
 
       computer.sequence = []
       instance.requested_state = 'destroyed'
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
@@ -2062,19 +1882,15 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertIsNotCreated(wrapper_log)
 
-      self.assertEqual(computer.sequence,
-                       ['/api/allDocs/',
-                        '/api/put/',
-                        '/api/put/'])
-      self.assertEqual(instance.sequence[0][1]["reported_state"], 'stopped')
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'destroyed')
-      self.assertEqual(instance.state, 'destroyed')
+      self.assertEqual(
+          computer.sequence,
+          ['/getFullComputerInformation', '/stoppedComputerPartition', '/destroyedComputerPartition'])
 
   def test_slapgrid_not_destroy_bad_instance(self):
     """
     Checks that slapgrid-ur don't destroy instance not to be destroyed.
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2088,32 +1904,34 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/',
-                        '/api/get/',
-                        '/api/put/'])
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'started')
-      self.assertEqual(instance.state, 'started')
+                       ['/getFullComputerInformation',
+                        
+                        '/startedComputerPartition'])
+      self.assertEqual('started', instance.state)
 
       # Then run usage report and see if it is still working
       computer.sequence = []
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
+      # registerComputerPartition will create one more file: 
+      from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
+      request_list_file = COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME % instance.name
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked',
-                             '.slapos-retention-lock-delay'])
+                             '.slapos-retention-lock-delay', request_list_file])
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked',
-                             '.slapos-retention-lock-delay'])
+                             '.slapos-retention-lock-delay', request_list_file])
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/'])
+                       ['/getFullComputerInformation'])
       self.assertEqual('started', instance.state)
 
   def test_slapgrid_instance_ignore_free_instance(self):
@@ -2121,7 +1939,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
     Test than a free instance (so in "destroyed" state, but empty, without
     software_release URI) is ignored by slapgrid-cp.
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.software.name = None
@@ -2133,26 +1951,28 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(instance.partition_path), [])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
-      self.assertEqual(computer.sequence, ['/api/allDocs/'])
+      self.assertEqual(computer.sequence, ['/getFullComputerInformation'])
 
   def test_slapgrid_report_ignore_free_instance(self):
     """
     Test than a free instance (so in "destroyed" state, but empty, without
     software_release URI) is ignored by slapgrid-ur.
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.software.name = None
 
       computer.sequence = []
       instance.requested_state = 'destroyed'
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(instance.partition_path), [])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
-      self.assertEqual(computer.sequence, ['/api/allDocs/'])
+      self.assertEqual(computer.sequence, ['/getFullComputerInformation'])
+
 
 class TestSlapgridSoftwareRelease(MasterMixin, unittest.TestCase):
 
@@ -2171,29 +1991,8 @@ class TestSlapgridSoftwareRelease(MasterMixin, unittest.TestCase):
       software.setBuildout("""#!/bin/sh
 echo %s; echo %s; exit 42""" % (line1, line2))
       self.launchSlapgridSoftware()
-      self.assertEqual(
-        software.sequence,
-        [
-          (
-            '/api/put/',
-            {
-              'compute_node_id': self.computer_id,
-              'portal_type': 'Software Installation',
-              'reported_state': 'building',
-              'software_release_uri': software.name,
-            }
-          ),
-          (
-            '/api/put/',
-            {
-              'compute_node_id': self.computer_id,
-              'portal_type': 'Software Installation',
-              'error_status': software.error_log,
-              'software_release_uri': software.name,
-            }
-          )
-        ]
-      )
+      self.assertEqual(software.sequence,
+                       ['/buildingSoftwareRelease', '/softwareReleaseError'])
       # We don't care of actual formatting, we just want to have full log
       self.assertIn(line1, software.error_log)
       self.assertIn(line2, software.error_log)
@@ -2244,6 +2043,7 @@ chmod a-rxw directory
       self.launchSlapgridSoftware()
       self.assertEqual(os.listdir(self.software_root), [])
 
+
 class SlapgridInitialization(unittest.TestCase):
   """
   "Abstract" class setting setup and teardown for TestSlapgridArgumentTuple
@@ -2288,7 +2088,7 @@ buildout = /path/to/buildout/binary
 
 class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
   def test_one_failing_promise(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2305,7 +2105,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertNotEqual('started', instance.state)
 
   def test_one_succeeding_promise(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2322,7 +2122,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertEqual(instance.state, 'started')
 
   def test_stderr_has_been_sent(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
 
@@ -2350,7 +2150,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertIsNone(instance.state)
 
   def test_timeout_works(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2374,7 +2174,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertIsNone(instance.state)
 
   def test_two_succeeding_promises(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2395,7 +2195,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertEqual(instance.state, 'started')
 
   def test_one_succeeding_one_failing_promises(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2423,7 +2223,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertNotEqual('started', instance.state)
 
   def test_one_succeeding_one_timing_out_promises(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2452,7 +2252,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertNotEqual(instance.state, 'started')
 
   def test_promise_run_if_partition_started_fail(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2472,13 +2272,14 @@ exit 1
               touch "%s"
               exit 127""" % promise_file)
       instance.setPromise('promise_script', promise)
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.processComputerPartitionList(),
                        slapos.grid.slapgrid.SLAPGRID_FAIL)
       self.assertTrue(os.path.isfile(promise_file))
       self.assertTrue(instance.error)
 
   def test_promise_notrun_if_partition_stopped_fail(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'stopped'
@@ -2498,11 +2299,11 @@ exit 1
               touch "%s"
               exit 127""" % promise_file)
       instance.setPromise('promise_script', promise)
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.processComputerPartitionList(),
                        slapos.grid.slapgrid.SLAPGRID_FAIL)
       self.assertFalse(os.path.exists(promise_file))
       self.assertTrue(instance.error)
-
 
 class TestSlapgridDestructionLock(MasterMixin, unittest.TestCase):
   def test_retention_lock(self):
@@ -2510,7 +2311,7 @@ class TestSlapgridDestructionLock(MasterMixin, unittest.TestCase):
     Higher level test about actual retention (or no-retention) of instance
     if specifying a retention lock delay.
     """
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2526,8 +2327,7 @@ class TestSlapgridDestructionLock(MasterMixin, unittest.TestCase):
       )))
 
       instance.requested_state = 'destroyed'
-      # Reset Cache
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.grid.agregateAndSendUsage()
       self.assertTrue(os.path.exists(dummy_instance_file_path))
       self.assertTrue(os.path.exists(os.path.join(
@@ -2535,16 +2335,18 @@ class TestSlapgridDestructionLock(MasterMixin, unittest.TestCase):
           slapos.grid.SlapObject.Partition.retention_lock_date_filename
       )))
 
+      self.grid.computer._synced = False
       self.grid.agregateAndSendUsage()
       self.assertTrue(os.path.exists(dummy_instance_file_path))
 
       time.sleep(1)
+      self.grid.computer._synced = False
       self.grid.agregateAndSendUsage()
       self.assertFalse(os.path.exists(dummy_instance_file_path))
 
 
 class TestSlapgridCPWithFirewall(MasterMixin, unittest.TestCase):
-
+  
   def setFirewallConfig(self, source_ip=""):
 
     self.firewall_cmd_add = os.path.join(self._tempdir, 'firewall_cmd_add')
@@ -2595,7 +2397,7 @@ exit 1
       testing=True,
     )
     self.grid.firewall_conf = firewall_conf
-
+  
   def checkRuleFromIpSource(self, ip, accept_ip_list, cmd_list):
     # XXX - rules for one ip contain 2*len(ip_address_list + accept_ip_list) rules ACCEPT and 4 rules REJECT
     num_rules = len(self.ip_address_list) * 2 + len(accept_ip_list) * 2 + 4
@@ -2617,7 +2419,7 @@ exit 1
     # Check that there is REJECT rule on FORWARD, ESTABLISHED,RELATED
     rule = '%s FORWARD 900 -d %s -m state --state ESTABLISHED,RELATED -j REJECT' % (base_cmd, ip)
     self.assertIn(rule, cmd_list)
-
+    
     # Check that there is INPUT ACCEPT on ip_list
     for _, other_ip in self.ip_address_list:
       rule = '%s INPUT 0 -s %s -d %s -j ACCEPT' % (base_cmd, other_ip, ip)
@@ -2631,7 +2433,7 @@ exit 1
       self.assertIn(rule, cmd_list)
       rule = '%s FORWARD 0 -s %s -d %s -j ACCEPT' % (base_cmd, other_ip, ip)
       self.assertIn(rule, cmd_list)
-
+  
   def checkRuleFromIpSourceReject(self, ip, reject_ip_list, cmd_list):
     # XXX - rules for one ip contain 2 + 2*len(ip_address_list) rules ACCEPT and 4*len(reject_ip_list) rules REJECT
     num_rules = (len(self.ip_address_list) * 2) + (len(reject_ip_list) * 4)
@@ -2645,7 +2447,7 @@ exit 1
     # Check that there is ACCEPT rule on FORWARD
     #rule = '%s FORWARD 0 -d %s -j ACCEPT' % (base_cmd, ip)
     #self.assertIn(rule, cmd_list)
-
+    
     # Check that there is INPUT/FORWARD ACCEPT on ip_list
     for _, other_ip in self.ip_address_list:
       rule = '%s INPUT 0 -s %s -d %s -j ACCEPT' % (base_cmd, other_ip, ip)
@@ -2665,18 +2467,18 @@ exit 1
       self.assertIn(rule, cmd_list)
 
   def test_getFirewallRules(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     self.setFirewallConfig()
     self.ip_address_list = computer.ip_address_list
     ip = computer.instance_list[0].full_ip_list[0][1]
     source_ip_list = ['10.32.0.15', '10.32.0.0/8']
-
+    
     cmd_list = self.grid._getFirewallAcceptRules(ip,
                                 [elt[1] for elt in self.ip_address_list],
                                 source_ip_list,
                                 ip_type='ipv4')
     self.checkRuleFromIpSource(ip, source_ip_list, cmd_list)
-
+    
     cmd_list = self.grid._getFirewallRejectRules(ip,
                                 [elt[1] for elt in self.ip_address_list],
                                 source_ip_list,
@@ -2685,7 +2487,7 @@ exit 1
 
 
   def test_checkAddFirewallRules(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     self.setFirewallConfig()
     # For simulate query rule success
     self.grid.firewall_conf['firewall_cmd'] = self.firewall_cmd_add
@@ -2693,7 +2495,7 @@ exit 1
     instance = computer.instance_list[0]
     ip = instance.full_ip_list[0][1]
     name = computer.instance_list[0].name
-
+    
     cmd_list = self.grid._getFirewallAcceptRules(ip,
                                 [elt[1] for elt in self.ip_address_list],
                                 [],
@@ -2729,7 +2531,7 @@ exit 1
       self.checkRuleFromIpSource(ip, [], rules_list)
 
   def test_partition_no_firewall(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       self.assertEqual(self.grid.processComputerPartitionList(),
@@ -2740,7 +2542,7 @@ exit 1
       )))
 
   def test_partition_firewall_restrict(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     self.setFirewallConfig()
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
@@ -2756,12 +2558,12 @@ exit 1
       self.ip_address_list = computer.ip_address_list
       with open(rules_path, 'r') as frules:
         rules_list = json.loads(frules.read())
-
+      
       ip = instance.full_ip_list[0][1]
       self.checkRuleFromIpSource(ip, [], rules_list)
 
   def test_partition_firewall(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     self.setFirewallConfig()
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
@@ -2778,13 +2580,13 @@ exit 1
       self.ip_address_list = computer.ip_address_list
       with open(rules_path, 'r') as frules:
         rules_list = json.loads(frules.read())
-
+      
       ip = instance.full_ip_list[0][1]
       self.checkRuleFromIpSourceReject(ip, [], rules_list)
 
   @unittest.skip('Always fail: instance.filter_dict can\'t change')
   def test_partition_firewall_restricted_access_change(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     self.setFirewallConfig()
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
@@ -2810,6 +2612,7 @@ exit 1
       self.grid.firewall_conf['firewall_cmd'] = self.firewall_cmd_remove
       instance.setFilterParameter({'fw_restricted_access': 'on',
                               'fw_authorized_sources': ''})
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       with open(rules_path, 'r') as frules:
@@ -2818,7 +2621,7 @@ exit 1
       self.checkRuleFromIpSource(ip, [], rules_list)
 
   def test_partition_firewall_ipsource_accept(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     self.setFirewallConfig()
     source_ip = ['10.0.8.10', '10.0.8.11']
     self.grid.firewall_conf['authorized_sources'] = [source_ip[0]]
@@ -2845,17 +2648,17 @@ exit 1
       for thier_ip in source_ip:
         rule_input = '%s INPUT 0 -s %s -d %s -j ACCEPT' % (base_cmd, thier_ip, ip)
         self.assertIn(rule_input, rules_list)
-
+  
         rule_fwd = '%s FORWARD 0 -s %s -d %s -j ACCEPT' % (base_cmd, thier_ip, ip)
         self.assertIn(rule_fwd, rules_list)
 
       self.checkRuleFromIpSource(ip, source_ip, rules_list)
 
   def test_partition_firewall_ipsource_reject(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     self.setFirewallConfig()
     source_ip = '10.0.8.10'
-
+    
     self.grid.firewall_conf['authorized_sources'] = ['10.0.8.15']
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
@@ -2881,7 +2684,7 @@ exit 1
       self.checkRuleFromIpSourceReject(ip, source_ip.split(' '), rules_list)
 
   def test_partition_firewall_ip_change(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     self.setFirewallConfig()
     source_ip = ['10.0.8.10', '10.0.8.11']
     self.grid.firewall_conf['authorized_sources'] = [source_ip[0]]
@@ -2914,6 +2717,7 @@ exit 1
       self.grid.firewall_conf['firewall_cmd'] = self.firewall_cmd_remove
       self.grid.firewall_conf['authorized_sources'] = []
       computer.ip_address_list.append(('route_interface1', '10.10.8.4'))
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.ip_address_list = computer.ip_address_list
 
@@ -2924,7 +2728,7 @@ exit 1
 class TestSlapgridCPWithTransaction(MasterMixin, unittest.TestCase):
 
   def test_one_partition(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       partition = os.path.join(self.instance_root, '0')
@@ -2964,7 +2768,7 @@ exit 0
       count += 1
 
   def test_partition_destroy_with_pre_remove_service(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       pre_delete_dir = os.path.join(partition.partition_path, 'etc/prerm')
@@ -2981,37 +2785,36 @@ exit 0
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/',
-                        '/api/get/',
-                        '/api/put/'])
-      self.assertEqual(partition.sequence[1][1]["reported_state"], 'started')
+                       ['/getFullComputerInformation', 
+                        '/startedComputerPartition'])
       self.assertEqual(partition.state, 'started')
       manager_list = slapmanager.from_config({'manager_list': 'prerm'})
       self.grid._manager_list = manager_list
 
       partition.requested_state = 'destroyed'
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (pre-delete is running)
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay',
-                             '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list'])
+                             '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list',
+                             '.slapos-request-transaction-0'])
       six.assertCountEqual(self, os.listdir(self.software_root),
                             [partition.software.software_hash])
 
       # wait until the pre-delete script is finished
       self._wait_prerm_script_finished(partition.partition_path)
 
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(partition.partition_path), [])
 
   def test_partition_destroy_pre_remove_with_retention_lock(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       pre_delete_dir = os.path.join(partition.partition_path, 'etc/prerm')
@@ -3035,13 +2838,13 @@ exit 0
       self.grid._manager_list = manager_list
 
       partition.requested_state = 'destroyed'
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (retention-delay-lock)
       six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', 'buildout.cfg', 'etc', 'software_release',
                              'worked', '.slapos-retention-lock-delay',
-                             '.slapos-retention-lock-date'])
+                             '.slapos-retention-lock-date', '.slapos-request-transaction-0'])
       self.assertTrue(os.path.exists(pre_delete_script))
       self.assertTrue(os.path.exists(os.path.join(
           partition.partition_path,
@@ -3049,7 +2852,7 @@ exit 0
       )))
 
       time.sleep(1)
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
 
       # Assert partition directory is not destroyed (pre-delete is running)
@@ -3057,17 +2860,18 @@ exit 0
                             ['.slapgrid', 'buildout.cfg', 'etc', 'software_release',
                              'worked', '.slapos-retention-lock-delay', '.slapos-retention-lock-date',
                              '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list',
-                            ])
+                             '.slapos-request-transaction-0'])
 
       # wait until the pre-delete script is finished
       self._wait_prerm_script_finished(partition.partition_path)
 
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       six.assertCountEqual(self, os.listdir(partition.partition_path), [])
 
   def test_partition_destroy_pre_remove_script_not_stopped(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       pre_delete_dir = os.path.join(partition.partition_path, 'etc/prerm')
@@ -3083,12 +2887,12 @@ exit 0
       self.grid._manager_list = manager_list
 
       partition.requested_state = 'destroyed'
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (pre-delete is running)
       six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', 'buildout.cfg', 'etc', 'software_release',
-                             'worked', '.slapos-retention-lock-delay',
+                             'worked', '.slapos-retention-lock-delay', '.slapos-request-transaction-0',
                              '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list'])
 
       # wait until the pre-delete script is finished
@@ -3097,14 +2901,14 @@ exit 0
         # the script is well finished...
         self.assertTrue("finished prerm script." in f.read())
 
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(partition.partition_path), [])
 
   def test_partition_destroy_pre_remove_script_run_as_partition_user(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       pre_delete_dir = os.path.join(partition.partition_path, 'etc/prerm')
@@ -3120,12 +2924,12 @@ exit 0
       self.grid._manager_list = manager_list
 
       partition.requested_state = 'destroyed'
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (pre-delete is running)
       six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', 'buildout.cfg', 'etc', 'software_release',
-                             'worked', '.slapos-retention-lock-delay',
+                             'worked', '.slapos-retention-lock-delay', '.slapos-request-transaction-0',
                              '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list'])
 
       stat_info = os.stat(partition.partition_path)
@@ -3151,7 +2955,7 @@ exit 0
       # wait until the pre-delete script is finished
       self._wait_prerm_script_finished(partition.partition_path)
 
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
@@ -3179,7 +2983,7 @@ class TestSlapgridNoFDLeak(MasterMixin, unittest.TestCase):
         f.close()
 
   def _test_no_fd_leak(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       software = computer.software_list[0]
 
@@ -3201,29 +3005,8 @@ exit 1  # do not proceed trying to use this software
 
       self.launchSlapgridSoftware()
 
-      self.assertEqual(
-        software.sequence,
-        [
-          (
-            '/api/put/',
-            {
-              'compute_node_id': self.computer_id,
-              'portal_type': 'Software Installation',
-              'reported_state': 'building',
-              'software_release_uri': software.name,
-            }
-          ),
-          (
-            '/api/put/',
-            {
-              'compute_node_id': self.computer_id,
-              'portal_type': 'Software Installation',
-              'error_status': software.error_log,
-              'software_release_uri': software.name,
-            }
-          )
-        ]
-      )
+      self.assertEqual(software.sequence,
+                       ['/buildingSoftwareRelease', '/softwareReleaseError'])
       self.assertNotIn("file descriptors: leaked", software.error_log)
       self.assertIn("file descriptors: ok", software.error_log)
 
@@ -3234,7 +3017,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
     manager_list = slapmanager.from_config({'manager_list': 'portredir'})
     self.grid._manager_list = manager_list
 
-    self.computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    self.computer = ComputerForTest(self.software_root, self.instance_root)
     self.partition = self.computer.instance_list[0]
     self.instance_supervisord_config_path = os.path.join(
       self.instance_root, 'etc/supervisord.conf.d/0.conf')
@@ -3258,8 +3041,8 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
     self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
     self.assertEqual(self.computer.sequence,
-                      ['/api/allDocs/', '/api/get/', '/api/put/'])
-    self.assertEqual(self.partition.sequence[1][1]["reported_state"], 'started')
+                     ['/getFullComputerInformation', 
+                      '/startedComputerPartition'])
     self.assertEqual(self.partition.state, 'started')
 
   def test_simple_port_redirection(self):
@@ -3333,13 +3116,8 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(self.computer.sequence,
-                       ['/api/allDocs/',
-                        '/api/get/',
-                        '/api/put/',
-                        '/api/get/',
-                        '/api/put/'])
-      self.assertEqual(self.partition.sequence[1][1]["reported_state"], 'started')
-      self.assertEqual(self.partition.sequence[3][1]["reported_state"], 'started')
+                       ['/getFullComputerInformation', 
+                        '/startedComputerPartition', '/startedComputerPartition'])
       self.assertEqual(self.partition.state, 'started')
 
       # Check the socat command
@@ -3463,7 +3241,7 @@ class TestSlapgridWithDevPermLsblk(MasterMixin, unittest.TestCase):
     manager_list = slapmanager.from_config(self.config)
     self.grid._manager_list = manager_list
 
-    self.computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    self.computer = ComputerForTest(self.software_root, self.instance_root)
     self.partition = self.computer.instance_list[0]
     self.instance_supervisord_config_path = os.path.join(
       self.instance_root, 'etc/supervisord.conf.d/0.conf')
@@ -3660,7 +3438,7 @@ class TestSlapgridWithDevPermManagerDevPermAllowLsblk(TestSlapgridWithDevPermLsb
 class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
   config = {
     'manager_list': 'whitelistfirewall',
-    'firewall': {
+    'firewall':{
       'firewall_cmd': 'firewall_cmd',
     }
   }
@@ -3671,7 +3449,7 @@ class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
     manager_list = slapmanager.from_config(self.config)
     self.grid._manager_list = manager_list
 
-    self.computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    self.computer = ComputerForTest(self.software_root, self.instance_root)
     self.partition = self.computer.instance_list[0]
 
     self.whitelist_firewall_filename = os.path.join(
@@ -3743,7 +3521,7 @@ class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'started'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
@@ -3762,7 +3540,7 @@ class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'started'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
@@ -3787,7 +3565,7 @@ class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'started'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
@@ -3872,7 +3650,7 @@ class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'destroyed'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
-      self.grid.computer_partition_list = None
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
@@ -3895,6 +3673,7 @@ class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'destroyed'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
@@ -3915,7 +3694,7 @@ class TestSlapgridManagerLifecycle(MasterMixin, unittest.TestCase):
     self.manager_list = [self.manager]
     self.setSlapgrid()
 
-    self.computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    self.computer = ComputerForTest(self.software_root, self.instance_root)
 
   def _mock_requests(self):
     return httmock.HTTMock(self.computer.request_handler)
@@ -3929,8 +3708,8 @@ class TestSlapgridManagerLifecycle(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(self.computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/'])
-      self.assertEqual(partition.sequence[1][1]["reported_state"], 'started')
+                       ['/getFullComputerInformation', 
+                        '/startedComputerPartition'])
       self.assertEqual(partition.state, 'started')
 
       self.assertEqual(self.manager.sequence,
@@ -3983,7 +3762,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
 
   fake_waiting_time = 0.05
   def test_one_failing_promise(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -3998,7 +3777,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertTrue(os.path.isfile(worked_file))
 
   def test_one_failing_plugin_promise(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4016,7 +3795,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertEqual('failed', result["result"]["message"])
 
   def test_one_succeeding_promise(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4030,7 +3809,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertTrue(os.path.isfile(worked_file))
 
   def test_one_succeeding_plugin_promise(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4050,7 +3829,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
                        result["result"]["message"])
 
   def test_stderr_has_been_sent(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4071,7 +3850,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertTrue(os.path.isfile(worked_file))
 
   def test_stderr_has_been_sent_plugin(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4090,7 +3869,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertEqual('FAILED 254554802', result["result"]["message"])
 
   def test_timeout_works(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
 
@@ -4112,7 +3891,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertTrue(os.path.isfile(worked_file))
 
   def test_timeout_works_plugin(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4133,7 +3912,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
                        result["result"]["message"])
 
   def test_two_succeeding_promises(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4152,7 +3931,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
         self.assertTrue(os.path.isfile(worked_file))
 
   def test_two_succeeding_plugin_promise(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4177,7 +3956,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
 
       with open(os.path.join(instance.partition_path, ".slapgrid/promise/result/succeeding2.status.json"), "r") as f:
         result = json.loads(f.read())
-
+      
       self.assertEqual('success',
                        result["result"]["message"])
 
@@ -4189,7 +3968,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
 
 
   def test_one_succeeding_one_failing_promises(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4215,7 +3994,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
                        slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
 
   def test_one_succeeding_one_failing_promises_plugin(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4247,8 +4026,11 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
 
       self.assertEqual('success', result["result"]["message"])
 
+
+
+
   def test_one_succeeding_one_timing_out_promises(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4274,7 +4056,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
                        slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
 
   def test_one_succeeding_one_failing_promises_plugin(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4292,7 +4074,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
     import time
     time.sleep(27)""" % (timeout_file, timeout_file)
       instance.setPluginPromise(promise_name='timeout_fail.py', success=True, promise_content=fail)
-
+ 
       self.assertEqual(self.grid.processPromiseList(),
                        slapgrid.SLAPGRID_PROMISE_FAIL)
       self.assertTrue(os.path.isfile(worked_file))
@@ -4309,7 +4091,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
                        result["result"]["message"])
 
   def test_promise_notrun_if_partition_stopped(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'stopped'
@@ -4324,7 +4106,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertFalse(os.path.exists(promise_file))
 
   def test_promise_notrun_if_partition_stopped_plugin(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'stopped'
@@ -4338,156 +4120,6 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertFalse(os.path.isfile(worked_file))
       self.assertFalse(os.path.isfile(os.path.join(instance.partition_path,
                 ".slapgrid/promise/result/fail.status.json")))
-
-
-class TestSlapgridPluginPromiseWithInstancePython(TestSlapgridPromiseWithMaster):
-  expect_plugin = False
-
-  def setMock(self):
-    # unlike BasicMixin.setMock, we don't want to patch
-    # slapos.grid.SlapObject.getPythonExecutableFromSoftwarePath
-    pass
-
-  def setPython(self):
-    self.python_called = os.path.join(self.software_root, 'called')
-    wrapper = """#!/bin/sh
-    touch %s
-    exec %s "$@"
-    """ % (self.python_called, sys.executable)
-    path = os.path.join(self.software_root, 'python')
-    with open(path, 'w') as f:
-      f.write(wrapper)
-    os.chmod(path, 0o755)
-    return path
-
-  def getTestComputerClass(self):
-    # use a test computer class modified to use a different python, that
-    # will leave a `self.python_called` file when it's called so that we
-    # can assert that our custom python was executed, and not the slapos.core
-    # running python.
-
-    test_self = self
-    class TestComputerWithBuildout(
-        super(TestSlapgridPluginPromiseWithInstancePython,
-              self).getTestComputerClass()):
-
-      def getTestSoftwareClass(self):
-        class SoftwareForTestWithBuildout(
-            super(TestComputerWithBuildout, self).getTestSoftwareClass()):
-          def setBuildout(self, buildout=None):
-            buildout = '#!' + test_self.setPython()
-            return super(SoftwareForTestWithBuildout,
-                         self).setBuildout(buildout)
-        return SoftwareForTestWithBuildout
-
-      def getTestInstanceClass(self):
-        class InstanceForTestWithBuildout(
-            super(TestComputerWithBuildout, self).getTestInstanceClass()):
-          def setPluginPromise(self, *args, **kwargs):
-            test_self.expect_plugin = self.requested_state == 'started'
-            return super(InstanceForTestWithBuildout,
-                         self).setPluginPromise(*args, **kwargs)
-        return InstanceForTestWithBuildout
-
-    return TestComputerWithBuildout
-
-  def tearDown(self):
-    try:
-      os.remove(self.python_called)
-      called = True
-    except OSError as e:
-      if e.errno != errno.ENOENT:
-        raise
-      called = False
-    finally:
-      super(TestSlapgridPluginPromiseWithInstancePython, self).tearDown()
-    self.assertEqual(self.expect_plugin, called)
-
-  def test_failed_promise_output(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
-    instance, = computer.instance_list
-
-    instance.requested_state = 'started'
-    instance.setPluginPromise(
-        "failing_promise_plugin.py",
-        promise_content="""if 1:
-          return self.logger.error("héhé fake promise plugin error")
-        """,
-    )
-
-    with httmock.HTTMock(computer.request_handler), \
-        patch.object(self.grid.logger, 'info',) as dummyLogger:
-      self.launchSlapgrid()
-
-    self.assertEqual(
-        dummyLogger.mock_calls[-1][1][0] % dummyLogger.mock_calls[-1][1][1:],
-        "  0[(not ready)]: Promise 'failing_promise_plugin.py' failed with output: héhé fake promise plugin error")
-
-  def test_succeeding_promise_logs_output(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
-    instance, = computer.instance_list
-
-    name = "succeeding_promise_plugin.py"
-    output = "hehe fake promise plugin succeded !"
-
-    instance.requested_state = 'started'
-    instance.setPluginPromise(
-        name,
-        promise_content="""if 1:
-          return self.logger.info(%r)
-        """ % output,
-    )
-
-    with httmock.HTTMock(computer.request_handler), \
-        patch.object(self.grid.logger, 'info',) as dummyLogger:
-      self.launchSlapgrid()
-
-    self.assertIn(
-      "Checking promise %s..." % name,
-      dummyLogger.mock_calls[-4][1][0] % dummyLogger.mock_calls[-4][1][1:])
-
-    self.assertIn(
-      output,
-      dummyLogger.mock_calls[-3][1][0] % dummyLogger.mock_calls[-3][1][1:])
-
-
-class TestSlapgridPluginPromiseWithInstancePythonOldSlapOSCompatibility(
-    TestSlapgridPluginPromiseWithInstancePython):
-  """Process instance plugins with a different python, but simulate the case
-  where plugin scripts structure had one extra import
-  """
-
-  def getTestComputerClass(self):
-    # use a test computer that will use a custom python (because we reuse
-    # TestSlapgridPluginPromiseWithInstancePython) and some promise plugins
-    # scripts that look like the one slapos.cookbook was creating before 1.0.118
-    class TestComputer(
-        super(TestSlapgridPluginPromiseWithInstancePythonOldSlapOSCompatibility,
-              self).getTestComputerClass()):
-      def getTestInstanceClass(self):
-        class TestInstance(super(TestComputer, self).getTestInstanceClass()):
-          def setPluginPromise(self, *args, **kwargs):
-            plugin_promise = super(TestInstance,
-                                   self).setPluginPromise(*args, **kwargs)
-            with open(plugin_promise) as f:
-              plugin_code = f.read()
-
-            legacy_plugin_code = plugin_code.replace(
-                textwrap.dedent('''\
-                      # coding: utf-8
-                      import sys
-                      '''),
-                textwrap.dedent('''\
-                      # coding: utf-8
-                      import json
-                      import sys
-                      '''))
-            assert legacy_plugin_code != plugin_code  # make sure our replace matched
-            with open(plugin_promise, 'w') as f:
-              f.write(legacy_plugin_code)
-            return plugin_promise
-        return TestInstance
-    return TestComputer
 
 
 class TestSVCBackend(unittest.TestCase):

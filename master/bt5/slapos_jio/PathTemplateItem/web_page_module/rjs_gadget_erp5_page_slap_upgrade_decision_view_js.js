@@ -101,7 +101,7 @@
           "Ticket Type",
           "Related Compute Node or Service",
           "State",
-          "Upgrade Decision :",
+          "Upgrade Decision:",
           "The Status",
           "Status",
           "Data Updated",
@@ -245,7 +245,7 @@
         })
         .push(function (url_list) {
           var header_dict = {
-            page_title: gadget.page_title_translation + gadget.state.doc.title,
+            page_title: gadget.page_title_translation + " " + gadget.state.doc.title,
             selection_url: url_list[3]
           };
           if (gadget.state.doc.simulation_state_title === "Open") {

@@ -129,7 +129,6 @@ class MasterMixin(BasicMixin, unittest.TestCase):
       self,
       software_release_url,
       partition_id=None,
-      slap_computer_partition=None,
       retention_delay=None,
   ):
     """
@@ -145,10 +144,18 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     if partition_id is None:
       partition_id = 'mypartition'
 
-    if slap_computer_partition is None:
-      slap_computer_partition = SlapComputerPartition(
-        computer_id='bidon',
-        partition_id=partition_id)
+    software_instance = {
+      "reference": partition_id,
+      "compute_node_id": 'bidon',
+      "portal_type": "Software Instance",
+      "compute_partition_id": partition_id,
+      "state": "stopped",
+      "software_type": None,
+      "parameters": {},
+      "processing_timestamp": 0,
+      "ip_list": [],
+      "full_ip_list": [],
+    }
 
     instance_path = os.path.join(self.instance_root, partition_id)
     os.mkdir(instance_path)
@@ -165,7 +172,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
           supervisor_configuration_path, partition_id),
       supervisord_socket=os.path.join(
           supervisor_configuration_path, 'supervisor.sock'),
-      computer_partition=slap_computer_partition,
+      computer_partition=software_instance,
       computer_id='bidon',
       partition_id=partition_id,
       server_url='bidon',

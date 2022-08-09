@@ -62,3 +62,6 @@ msgstr "免费获取CDN"
 
 msgid "Get Free Chinese CDN!"
 msgstr "免费获取中国CDN"
+
+msgid "Accept Upgrade Decision: ${title}"
+msgstr "接受升级决定： ${title}"

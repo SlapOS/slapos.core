@@ -160,5 +160,19 @@ def ERP5Site_createFakeRegularisationRequest(self):
   finally:
     setSecurityManager(sm)
   
+def ERP5Site_createFakeUpgradeDecision(self, new_software_release, compute_node):
+  portal = self.getPortalObject()
+  sm = getSecurityManager()
+  try:
+    newSecurityManager(None, portal.acl_users.getUser(SUPER_USER))
+      # Direct creation
+    upgrade_decision = new_software_release.SoftwareRelease_createUpgradeDecision(
+      source_url=compute_node.getRelativeUrl(),
+      title='A new version of %s is available for %s' % \
+        (new_software_release.getAggregateTitle(), compute_node.getTitle()))
 
-
+    upgrade_decision.approveRegistration(upgrade_scope="ask_confirmation")
+    upgrade_decision.UpgradeDecision_notify()
+    return 'Done.'
+  finally:
+    setSecurityManager(sm)

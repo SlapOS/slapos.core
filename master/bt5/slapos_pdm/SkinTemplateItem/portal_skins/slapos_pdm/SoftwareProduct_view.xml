@@ -78,9 +78,7 @@
                 <item>
                     <key> <string>bottom (Preview)</string> </key>
                     <value>
-                      <list>
-                        <string>listbox</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>

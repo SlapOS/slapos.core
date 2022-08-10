@@ -2,9 +2,8 @@
  <portal_type id="Software Product">
   <item>Embedded File</item>
   <item>Software Product Individual Variation</item>
- </portal_type>
- <portal_type id="Upgrade Decision">
-  <item>Upgrade Decision Line</item>
+  <item>Software Product Release Variation</item>
+  <item>Software Product Type Variation</item>
  </portal_type>
  <portal_type id="Upgrade Decision Module">
   <item>Upgrade Decision</item>

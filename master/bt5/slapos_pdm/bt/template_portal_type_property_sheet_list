@@ -1,5 +1,9 @@
 Software Product Individual Variation | SlaposCapacity
+Software Product Release Variation | SlaposCapacity
+Software Product Type Variation | SlaposCapacity
 Software Product | DefaultImage
 Software Product | SlapOSSoftwareProductConstraint
+Software Product | SlapOSVirtualMasterConstraint
 Software Product | SlaposCapacity
-Software Release | SlapOSSoftwareReleaseConstraint
+Upgrade Decision | SlapOSVirtualMasterSourceProjectConstraint
+Upgrade Decision | SlaposUpgradeDecisionConstraint

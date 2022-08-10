@@ -12,7 +12,6 @@
               <list>
                 <string>all_columns</string>
                 <string>columns</string>
-                <string>editable_columns</string>
                 <string>selection_name</string>
                 <string>title</string>
               </list>
@@ -103,11 +102,11 @@
                           <string>User</string>
                         </tuple>
                         <tuple>
-                          <string>instance_tree_title</string>
+                          <string>aggregate_title</string>
                           <string>Instance Tree</string>
                         </tuple>
                         <tuple>
-                          <string>software_release_url</string>
+                          <string>software_release_title</string>
                           <string>Software Release URL</string>
                         </tuple>
                         <tuple>
@@ -117,21 +116,6 @@
                         <tuple>
                           <string>creation_date</string>
                           <string>Creation Date</string>
-                        </tuple>
-                      </list>
-                    </value>
-                </item>
-                <item>
-                    <key> <string>editable_columns</string> </key>
-                    <value>
-                      <list>
-                        <tuple>
-                          <string>instance_tree_title</string>
-                          <string>Instance Tree</string>
-                        </tuple>
-                        <tuple>
-                          <string>software_release_url</string>
-                          <string>Software Release URL</string>
                         </tuple>
                       </list>
                     </value>

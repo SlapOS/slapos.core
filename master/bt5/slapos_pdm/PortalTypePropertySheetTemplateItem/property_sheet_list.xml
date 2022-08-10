@@ -2,12 +2,20 @@
  <portal_type id="Software Product">
   <item>DefaultImage</item>
   <item>SlapOSSoftwareProductConstraint</item>
+  <item>SlapOSVirtualMasterConstraint</item>
   <item>SlaposCapacity</item>
  </portal_type>
  <portal_type id="Software Product Individual Variation">
   <item>SlaposCapacity</item>
  </portal_type>
- <portal_type id="Software Release">
-  <item>SlapOSSoftwareReleaseConstraint</item>
+ <portal_type id="Software Product Release Variation">
+  <item>SlaposCapacity</item>
+ </portal_type>
+ <portal_type id="Software Product Type Variation">
+  <item>SlaposCapacity</item>
+ </portal_type>
+ <portal_type id="Upgrade Decision">
+  <item>SlapOSVirtualMasterSourceProjectConstraint</item>
+  <item>SlaposUpgradeDecisionConstraint</item>
  </portal_type>
 </property_sheet_list>

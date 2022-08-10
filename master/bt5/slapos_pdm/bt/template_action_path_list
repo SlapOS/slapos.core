@@ -1,8 +1,8 @@
-Compute Node | view_related_upgrade_decision
 Instance Tree | view_upgrade
 Software Product Individual Variation | view
+Software Product Release Variation | view
+Software Product Type Variation | view
 Software Product | capacity
-Upgrade Decision Line | view
 Upgrade Decision Module | rss_view
 Upgrade Decision Module | view
 Upgrade Decision | view

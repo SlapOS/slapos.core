@@ -21,7 +21,7 @@ for instance in instance_list:
 
   compute_node_list.append(partition.getParentValue().getUid())
 
-if compute_node_list is None:
+if not compute_node_list:
   return True
 
 full_software_installation_list = [si for si in 

@@ -13,9 +13,9 @@ if context.getPortalType() == "Computer Network":
   return base_url + "aggregate_reference:(%s)" % compute_node_reference
 
 if context.getPortalType() == "Instance Tree":
-  for connection_parameter in context.InstanceTree_getConnectionParameterList():
+  for connection_parameter in context.InstanceTree_getConnectionParameterList(raw=True):
     if connection_parameter['connection_key'] == "monitor-setup-url":
-      return context.REQUEST.RESPONSE.redirect(connection_parameter['connection_key'])
+      return connection_parameter['connection_value']
   base_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Instance Tree" AND '
   return base_url + "title:(%s)" % context.getTitle()
 

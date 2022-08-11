@@ -46,7 +46,7 @@ if "error_status" in data_dict:
   software_installation.setErrorStatus('while installing %s' % url)
 
 return json.dumps({
-  "$schema": "id-response-schema.json",
+  "$schema": json_form.absolute_url().strip() + "/getOutputJSONSchema",
   "id": software_installation.getRelativeUrl(),
   "date": str(DateTime()),
   "success": "Done"

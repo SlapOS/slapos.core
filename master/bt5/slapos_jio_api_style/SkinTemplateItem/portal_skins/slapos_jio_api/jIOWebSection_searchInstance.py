@@ -18,6 +18,8 @@ if portal_type == "Software Instance":
     search_kw["title"] = data_dict["title"]
   if "compute_node_id" in data_dict:
     search_kw["aggregate_parent_reference"] = data_dict["compute_node_id"]
+  if "compute_partition_id" in data_dict:
+    search_kw["aggregate_reference"] = data_dict["compute_partition_id"]
   if "root_instance_title" in data_dict:
     search_kw["strict_specialise_title"] = data_dict["root_instance_title"]
 

@@ -441,16 +441,28 @@ class ComputerForTest(object):
           })
         if content["portal_type"] == "Software Instance":
           if "compute_node_id" in content:
-            return json.dumps({
-              "result_list": [{
-                "software_release_uri": x.software.name if x.software else None,
-                "reference": x.name,
-                "title": x.name,
-                "portal_type": "Software Instance",
-                "compute_partition_id": x.name,
-                "state": x.requested_state
-              } for x in self.instance_list]
-            })
+            if "compute_partition_id" in content:
+              return json.dumps({
+                "result_list": [{
+                  "software_release_uri": x.software.name if x.software else None,
+                  "reference": x.name,
+                  "title": x.name,
+                  "portal_type": "Software Instance",
+                  "compute_partition_id": x.name,
+                  "state": x.requested_state
+                } for x in self.instance_list if x.name == content["compute_partition_id"]]
+              })
+            else:
+              return json.dumps({
+                "result_list": [{
+                  "software_release_uri": x.software.name if x.software else None,
+                  "reference": x.name,
+                  "title": x.name,
+                  "portal_type": "Software Instance",
+                  "compute_partition_id": x.name,
+                  "state": x.requested_state
+                } for x in self.instance_list]
+              })
           elif "root_instance_title" in content:
             return json.dumps({
               "result_list": [{
@@ -493,6 +505,8 @@ class ComputerForTest(object):
             if "reported_state" in content:
               if content["reported_state"] == "error":
                 instance.error = True
+                instance.error_log = content["status_message"]
+              elif content["reported_state"] == "bang":
                 instance.error_log = content["status_message"]
               else:
                 requested_instance.state = content["reported_state"]
@@ -579,13 +593,11 @@ class ComputerForTest(object):
               "message": "No document found with parameters: %s" % reference,
               "name": "NotFound",
             })
-
-    if req.method == 'POST' and 'computer_partition_id' in qs:
-      instance = self.instance_list[int(qs['computer_partition_id'][0])]
-      instance.sequence.append(url.path)
-      instance.header_list.append(req.headers)
-      if url.path == '/softwareInstanceBang':
-        return {'status_code': 200}
+    if req.method == 'GET':
+      if url.path == "/getHateoasUrl":
+        return ""
+      elif url.path == "/getJIOAPIUrl":
+        return "https://127.0.0.1/api/"
     raise ValueError("Unexcepted call to API. URL:%s Content:%s" % (url.path, req.body))
 
 
@@ -1235,7 +1247,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
         payload = 'processname:%s groupname:%s from_state:RUNNING' % (
             'daemon' + WATCHDOG_MARK, instance.name)
         watchdog.handle_event(headers, payload)
-        self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
+        self.assertEqual(instance.sequence[0][1]["reported_state"], 'bang')
 
   def test_unwanted_events_will_not_bang(self):
     """
@@ -1311,7 +1323,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       payload = 'processname:%s groupname:%s from_state:RUNNING' % (
           'daemon' + WATCHDOG_MARK, instance.name)
       watchdog.handle_event(headers, payload)
-      self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
+      self.assertEqual(instance.sequence[0][1]["reported_state"], 'bang')
 
       with open(os.path.join(
           partition,
@@ -1346,7 +1358,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       payload = 'processname:%s groupname:%s from_state:RUNNING' % (
           'daemon' + WATCHDOG_MARK, instance.name)
       watchdog.handle_event(headers, payload)
-      self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
+      self.assertEqual(instance.sequence[0][1]["reported_state"], 'bang')
 
       with open(os.path.join(
           partition,
@@ -1381,7 +1393,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       payload = 'processname:%s groupname:%s from_state:RUNNING' % (
           'daemon' + WATCHDOG_MARK, instance.name)
       watchdog.handle_event(headers, payload)
-      self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
+      self.assertEqual(instance.sequence[0][1]["reported_state"], 'bang')
 
       # Second bang
       event = watchdog.process_state_events[0]
@@ -1435,7 +1447,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       payload = 'processname:%s groupname:%s from_state:RUNNING' % (
           'daemon' + WATCHDOG_MARK, instance.name)
       watchdog.handle_event(headers, payload)
-      self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
+      self.assertEqual(instance.sequence[0][1]["reported_state"], 'bang')
 
       with open(os.path.join(
           partition,
@@ -1466,7 +1478,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       payload = 'processname:%s groupname:%s from_state:RUNNING' % (
           'daemon' + WATCHDOG_MARK, instance.name)
       watchdog.handle_event(headers, payload)
-      self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
+      self.assertEqual(instance.sequence[0][1]["reported_state"], 'bang')
 
       with open(os.path.join(
           partition,

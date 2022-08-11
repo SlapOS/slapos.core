@@ -187,12 +187,32 @@ class Watchdog(object):
   def handle_process_state_change_event(self, headers, payload_dict):
     partition_id = payload_dict['groupname']
     self.initialize_connection(partition_id)
-    partition = slapos.slap.ComputerPartition(
-      computer_id=self.computer_id,
-      connection_helper=self.slap._connection_helper,
-      partition_id=partition_id)
-    partition.bang("%s process in partition %s encountered a problem"
-                   % (payload_dict['processname'], partition_id))
+    if self.slap.jio_api_connector:
+      instance_list = self.slap.jio_api_connector.allDocs({
+        "portal_type": "Software Instance",
+        "compute_node_id": self.computer_id,
+        "compute_partition_id": partition_id,
+      }).get("result_list", [])
+      if len(instance_list) != 1:
+        raise ValueError("No instance found for %s %s %s" % (
+          self.computer_id,
+          partition_id,
+          instance_list,
+        ))
+      self.slap.jio_api_connector.put({
+        "portal_type": "Software Instance",
+        "reported_state": "bang",
+        "status_message": "%s process in partition %s encountered a problem"
+                    % (payload_dict['processname'], partition_id),
+        "reference": instance_list[0]["reference"]
+      })
+    else:
+      partition = slapos.slap.ComputerPartition(
+        computer_id=self.computer_id,
+        connection_helper=self.slap._connection_helper,
+        partition_id=partition_id)
+      partition.bang("%s process in partition %s encountered a problem"
+                    % (payload_dict['processname'], partition_id))
     self.create_partition_bang_timestamp_file(payload_dict['groupname'])
 
 

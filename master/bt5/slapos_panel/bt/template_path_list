@@ -1,0 +1,4 @@
+image_module/slapos.cloud
+web_page_module/slapos_master_panel_*
+web_site_module/slapos_master_panel
+web_site_module/slapos_master_panel/**

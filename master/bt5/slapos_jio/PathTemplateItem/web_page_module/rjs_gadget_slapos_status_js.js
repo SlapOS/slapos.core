@@ -1,5 +1,5 @@
-/*globals console, window, rJS, i18n, domsugar*/
-/*jslint indent: 2, nomen: true, maxlen: 80*/
+/*globals console, window, rJS, i18n, domsugar */
+/*jslint indent: 2, nomen: true, maxlen: 80 */
 
 (function (window, rJS, domsugar) {
   "use strict";
@@ -230,9 +230,7 @@
         right_class = status_class;
       } else {
         if (result && result.partition) {
-          right_class = getComputePartitionStatus(
-            {compute_partition_news: result.partition}
-          );
+          right_class = getComputePartitionStatus(result.partition);
         }
       }
     } else if (result && result.portal_type &&

@@ -87,4 +87,18 @@ kw = {'portal_type': ('Authentication Event', 'Passoword Event')}
 for authentication_event in portal.portal_catalog(**kw):
   portal.system_event_module.manage_delObjects(ids=[authentication_event.getId()])
 
+notification_message_to_enable = [
+  'slapos-upgrade-instance-tree.notification',
+  'slapos-upgrade-delivered-instance-tree.notification',
+  'slapos-upgrade-compute-node.notification',
+  'slapos-upgrade-delivered-compute-node.notification',
+]
+
+for reference in notification_message_to_enable:
+  search_kw = dict(portal_type='Notification Message',
+    reference=reference)
+  if not len(portal.portal_catalog(validation_state='validated', **search_kw)):
+    portal.portal_catalog.getResultValue(validation_state='draft',
+      **search_kw).validate()
+
 return "Done."

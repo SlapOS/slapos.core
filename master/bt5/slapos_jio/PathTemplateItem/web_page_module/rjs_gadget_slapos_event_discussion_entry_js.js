@@ -11,12 +11,16 @@
     })
     .onStateChange(function () {
       var gadget = this,
-        header_text = "By <strong>" + gadget.state.author +
-           "</strong> on " + gadget.state.modification_date + ":",
+        header_text_element = domsugar('p', [
+          'By ',
+          domsugar('strong', {text: gadget.state.author}),
+          ' on ',
+          gadget.state.modification_date,
+          ':']),
         header = domsugar("div", {
           class: "slapos-event-discussion-message-header"
         }, [
-          domsugar('p', {html: header_text})
+          header_text_element
         ]);
       if (gadget.state.content_type === 'text/html') {
         return domsugar(gadget.element, {}, [

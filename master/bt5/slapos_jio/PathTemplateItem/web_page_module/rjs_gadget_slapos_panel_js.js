@@ -123,8 +123,15 @@
               ]));
             }
 
-            domsugar(gadget.element.querySelector("ul"),
+            return domsugar(gadget.element.querySelector("ul"),
                      [domsugar(null, element_list)]);
+          })
+          .push(function () {
+            return gadget.getDeclaredGadget('erp5_panel_shortcut');
+          })
+          .push(function (shortcut_gadget) {
+            // Ensure links are updated
+            return shortcut_gadget.render({update: 1});
           });
       }
       // Check for Alerts to pop

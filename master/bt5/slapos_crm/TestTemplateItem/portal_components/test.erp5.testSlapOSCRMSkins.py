@@ -675,7 +675,9 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
     self.assertEqual(event.getTitle(),
       'Allocation scope of %s changed to %s' % (compute_node.getReference(), 'open/personal'))
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), ticket.getSourceSection())
+
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('NotificationTool_getDocumentValue',
@@ -705,7 +707,9 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
     self.assertEqual(event.getTitle(),
       'Allocation scope of %s changed to %s' % (compute_node.getReference(), 'open/personal'))
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), ticket.getSourceSection())
+
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('ComputeNode_hasContactedRecently', '*args, **kwargs','return False')
@@ -737,7 +741,9 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
       'Allocation scope of %s changed to %s' % \
         (compute_node.getReference(), target_allocation_scope))
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), support_request.getSourceSection())
+    
 
   def test_ComputeNodeNormalAllocationScope_OpenPersonal(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
@@ -1065,7 +1071,9 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
 
     self.assertEqual(event.getTitle(), ticket.getTitle())
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), ticket.getSourceSection())
+
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('NotificationTool_getDocumentValue',
@@ -1092,7 +1100,8 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
 
     self.assertEqual(event.getTitle(), ticket.getTitle())
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), ticket.getSourceSection())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
 
 class TestSlapOSInstanceTree_createSupportRequestEvent(SlapOSTestCaseMixin):
 
@@ -1158,7 +1167,8 @@ class TestSlapOSInstanceTree_createSupportRequestEvent(SlapOSTestCaseMixin):
 
     self.assertEqual(event.getTitle(), ticket_title)
     self.assertIn(instance_tree.getReference(), event.getTextContent())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), ticket.getSourceSection())
 
     ticket.suspend()
     self.tic()
@@ -1576,7 +1586,8 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
     event = event_list[0]
 
     self.assertEqual(event.getTitle(), 'Instance Tree was destroyed was destroyed by the user')
-    self.assertEqual(event.getDestination(), support_request.getDestinationDecision())
+    self.assertEqual(event.getSource(), support_request.getDestinationDecision())
+    self.assertEqual(event.getDestination(), support_request.getSourceSection())
 
     self.assertEqual("invalidated",
       support_request.getSimulationState())

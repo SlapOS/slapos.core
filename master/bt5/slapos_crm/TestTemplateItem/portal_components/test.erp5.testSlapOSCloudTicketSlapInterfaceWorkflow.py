@@ -162,9 +162,9 @@ class TestSlapOSCoreTicketSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertEqual(self.support_request.getSimulationState(),
       'validated')
     
-    self.assertEqual(self.support_request.getDestinationDecision(),
+    self.assertEqual(self.support_request.getSourceSection(),
       event.getDestination())
-    self.assertEqual(person, event.getDestinationValue())
+    self.assertEqual(person, event.getSourceValue())
 
     self.assertEqual("service_module/slapos_crm_information",
       event.getResource())
@@ -176,7 +176,9 @@ class TestSlapOSCoreTicketSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertEqual(event.getContentType(), "text/html")
     self.assertEqual(event.getPortalType(), "Web Message")
     self.assertEqual(event.getSource(),
-      self.support_request.getSource())
+      self.support_request.getDestinationDecision())
+    self.assertEqual(event.getDestination(),
+      self.support_request.getSourceSection())
 
     # Retry now to see if doesn't create a new message
     self.support_request.notify(

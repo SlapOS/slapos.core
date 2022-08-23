@@ -43,8 +43,8 @@ event.edit(
   text_content=message,
   start_date = DateTime(),
   resource = resource,
-  source=ticket.getSource(),
-  destination=ticket.getDestinationDecision(),
+  source=ticket.getDestinationDecision(),
+  destination=ticket.getSource(),
   follow_up=ticket.getRelativeUrl(),
 )
 event.stop()

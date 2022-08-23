@@ -1,5 +1,14 @@
 <property_sheet_list>
+ <portal_type id="Mail Message">
+  <item>EventSlapOSConstraint</item>
+ </portal_type>
  <portal_type id="Regularisation Request">
   <item>Codification</item>
+ </portal_type>
+ <portal_type id="Site Message">
+  <item>EventSlapOSConstraint</item>
+ </portal_type>
+ <portal_type id="Web Message">
+  <item>EventSlapOSConstraint</item>
  </portal_type>
 </property_sheet_list>

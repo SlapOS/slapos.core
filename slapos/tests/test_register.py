@@ -73,9 +73,6 @@ class TestRegister(unittest.TestCase):
       qs = parse.parse_qs(url.query)
     else:
       qs = parse.parse_qs(req.body)
-    print("DEBUG THOMAS")
-    print(url)
-    print(req)
 
     if url.path == '/Person_requestComputer':
       return {

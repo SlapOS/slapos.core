@@ -7,10 +7,5 @@ if support_request:
     customer not in context.getDestinationList() :
     error_list.append(
       'Customer should be source or destination of the event')
-    if fixit:
-      destination_list = context.getDestinationList()
-      destination_list.append(customer)
-      context.edit(destination=customer)
-      assert customer in context.getDestinationList()
 
 return error_list

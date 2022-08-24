@@ -34,7 +34,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>customer_causality_related_constraint_constraint</string> </value>
+            <value> <string>causality_source_destination_constraint_constraint</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -42,7 +42,7 @@
         </item>
         <item>
             <key> <string>script_id</string> </key>
-            <value> <string>Event_checkCausalityRelatedConsistency</string> </value>
+            <value> <string>SupportRequest_checkCausalitySourceDestinationConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

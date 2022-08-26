@@ -590,7 +590,7 @@ stderr_logfile_backups=1
           "parameters": parameter_dict,
           "processing_timestamp": parameter_dict.get("timestamp"),
           "slap_partition": partition,
-          "ip_list": parameter_dict["ip_list"],
+          "ip_list": parameter_dict.get("ip_list", []),
           "full_ip_list": parameter_dict.get("full_ip_list", []),
           "access_status_message": partition.getAccessStatus(),
           "software_release_uri": software_release_uri,

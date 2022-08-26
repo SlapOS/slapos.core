@@ -675,7 +675,9 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
     self.assertEqual(event.getTitle(),
       'Allocation scope of %s changed to %s' % (compute_node.getReference(), 'open/personal'))
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), ticket.getSourceSection())
+
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('NotificationTool_getDocumentValue',
@@ -705,7 +707,9 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
     self.assertEqual(event.getTitle(),
       'Allocation scope of %s changed to %s' % (compute_node.getReference(), 'open/personal'))
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), ticket.getSourceSection())
+
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('ComputeNode_hasContactedRecently', '*args, **kwargs','return False')
@@ -737,7 +741,9 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
       'Allocation scope of %s changed to %s' % \
         (compute_node.getReference(), target_allocation_scope))
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), support_request.getSourceSection())
+    
 
   def test_ComputeNodeNormalAllocationScope_OpenPersonal(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
@@ -1065,7 +1071,9 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
 
     self.assertEqual(event.getTitle(), ticket.getTitle())
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), ticket.getSourceSection())
+
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('NotificationTool_getDocumentValue',
@@ -1092,7 +1100,8 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
 
     self.assertEqual(event.getTitle(), ticket.getTitle())
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), ticket.getSourceSection())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
 
 class TestSlapOSInstanceTree_createSupportRequestEvent(SlapOSTestCaseMixin):
 
@@ -1158,7 +1167,8 @@ class TestSlapOSInstanceTree_createSupportRequestEvent(SlapOSTestCaseMixin):
 
     self.assertEqual(event.getTitle(), ticket_title)
     self.assertIn(instance_tree.getReference(), event.getTextContent())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), ticket.getSourceSection())
 
     ticket.suspend()
     self.tic()
@@ -1495,6 +1505,94 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
         None,
         instance_tree.InstanceTree_checkSoftwareInstanceState())
 
+
+class TestCRMPropertySheetConstraint(SlapOSTestCaseMixin):
+
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    portal = self.getPortalObject()
+
+    self.ticket_trade_condition = portal.sale_trade_condition_module.slapos_ticket_trade_condition
+
+    person_user = self.makePerson()
+    self.tic()
+
+    # Login as new user
+    self.login(person_user.getUserId())
+
+    new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
+
+    self.support_request = portal.support_request_module.newContent(
+      portal_type="Support Request",
+      destination_decision=person_user.getRelativeUrl(),
+      specialise=self.ticket_trade_condition.getRelativeUrl()
+    )
+
+    # Value set by the init
+    self.assertTrue(self.support_request.getReference().startswith("SR-"),
+      "Reference don't start with SR- : %s" % self.support_request.getReference())
+
+  def beforeTearDown(self):
+    transaction.abort()
+
+  def testCheckCausalitySourceDestinationConsistency(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+
+    self.support_request.approveRegistration()
+    self.tic()
+
+    self.logout()
+    self.login()
+
+    event = self.support_request.getCausalityValue()
+    self.assertNotEqual(event, None)
+
+    self.assertFalse(event.checkConsistency())
+    self.assertFalse(self.support_request.checkConsistency())
+
+    source = event.getDestination()
+    event.setDestination(person.getRelativeUrl())
+
+    non_consistency_list = [str(i.getTranslatedMessage()) for i in self.support_request.checkConsistency()]
+    self.assertEqual(non_consistency_list,
+      ['Destination  of the related event should be the slapos organisation'])
+
+    event.setSource(source)
+    non_consistency_list = [str(i.getTranslatedMessage()) for i in self.support_request.checkConsistency()]
+    self.assertEqual(non_consistency_list,
+      ['Sender of the related event should be the customer',
+       'Destination  of the related event should be the slapos organisation'])    
+    
+
+  def testCheckCustomerAsSourceOrDestinationConsistency(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+
+    self.support_request.approveRegistration()
+    self.tic()
+
+    self.logout()
+    self.login()
+
+    event = self.support_request.getCausalityValue()
+    self.assertNotEqual(event, None)
+
+    self.assertFalse(event.checkConsistency())
+    self.assertFalse(self.support_request.checkConsistency())
+
+    person_user = self.makePerson()
+    self.tic()
+
+    event.setSource(person_user.getRelativeUrl())
+
+    non_consistency_list = [str(i.getTranslatedMessage()) for i in event.checkConsistency()]
+    self.assertEqual(non_consistency_list, [
+      'Customer should be source or destination of the event'
+    ])
+
+    event.setDestination(person.getRelativeUrl())
+    self.assertFalse(event.checkConsistency())
+
 class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
 
   def _makeInstanceTree(self):
@@ -1576,7 +1674,8 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
     event = event_list[0]
 
     self.assertEqual(event.getTitle(), 'Instance Tree was destroyed was destroyed by the user')
-    self.assertEqual(event.getDestination(), support_request.getDestinationDecision())
+    self.assertEqual(event.getSource(), support_request.getDestinationDecision())
+    self.assertEqual(event.getDestination(), support_request.getSourceSection())
 
     self.assertEqual("invalidated",
       support_request.getSimulationState())

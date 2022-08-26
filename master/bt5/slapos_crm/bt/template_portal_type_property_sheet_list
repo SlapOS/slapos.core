@@ -1,1 +1,5 @@
+Mail Message | SlapOSEventConstraint
 Regularisation Request | Codification
+Site Message | SlapOSEventConstraint
+Support Request | SlapOSSupportRequestConstraint
+Web Message | SlapOSEventConstraint

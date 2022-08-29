@@ -47,7 +47,9 @@ if "error_status" in data_dict:
 
 return json.dumps({
   "$schema": json_form.absolute_url().strip() + "/getOutputJSONSchema",
-  "id": software_installation.getRelativeUrl(),
+  "software_release_uri": software_installation.getUrlString(),
+  "compute_node_id": software_installation.getAggregateReference(),
   "date": str(DateTime()),
+  "portal_type": "Software Installation",
   "success": "Done"
 }, indent=2)

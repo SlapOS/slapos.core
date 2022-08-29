@@ -132,6 +132,17 @@
           }\n
       }\n
     },\n
+    "full_ip_list": {\n
+      "title": "Full IP List",\n
+      "type": "array",\n
+      "descritpion": "XXXX List of IPs usable by the Software Instance on the partition",\n
+      "items": {\n
+          "type": "array",\n
+          "items": {\n
+            "type": "string"\n
+          }\n
+      }\n
+    },\n
     "X509": {\n
       "title": "X509 Certificates",\n
       "description": "X509 Certificates used by the instance to authentify itself on master",\n
@@ -206,11 +217,6 @@
       "title": "Portal Type",\n
       "const": "Software Instance",\n
       "type": "string"\n
-    },\n
-    "id": {\n
-      "title": "ID",\n
-      "type": "string",\n
-      "description": "Unique Id of the object. It is not editable."\n
     }\n
   }\n
 }\n

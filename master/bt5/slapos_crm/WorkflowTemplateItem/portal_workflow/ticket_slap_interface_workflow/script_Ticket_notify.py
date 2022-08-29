@@ -16,11 +16,7 @@ except KeyError:
 resource = portal.service_module.slapos_crm_information.getRelativeUrl()
 
 # create Web message if needed for this ticket
-last_event = ticket.portal_catalog.getResultValue(
-             title=message_title,
-             follow_up_uid=ticket.getUid(),
-             sort_on=[('delivery.start_date', 'DESC')],
-)
+last_event = ticket.SupportRequest_getLastEvent(message_title)
 if last_event:
   # User has already been notified for this problem.
   ticket.REQUEST.set("ticket_notified_item", last_event)

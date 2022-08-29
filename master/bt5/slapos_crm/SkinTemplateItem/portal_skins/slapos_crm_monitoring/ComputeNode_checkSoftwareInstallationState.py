@@ -49,15 +49,23 @@ for software_installation in software_installation_list:
         (software_installation.getUrlString(), compute_node_title, software_installation.getCreationDate())
 
   if should_notify:
-    person.notify(support_request_title=ticket_title,
+    support_request = person.Base_getSupportRequestInProgress(
+      title=ticket_title,
+      aggregate=software_installation.getRelativeUrl())
+
+    if support_request is None:
+      person.notify(support_request_title=ticket_title,
               support_request_description=description,
               aggregate=software_installation.getRelativeUrl())
 
-    support_request_relative_url = context.REQUEST.get("support_request_relative_url")
-    if support_request_relative_url is None:
-      return
+      support_request_relative_url = context.REQUEST.get("support_request_relative_url")
+      if support_request_relative_url is None:
+        return
 
-    support_request = portal.restrictedTraverse(support_request_relative_url)
+      support_request = portal.restrictedTraverse(support_request_relative_url)
+    
+    if support_request is None:
+      return
 
     # Send Notification message
     notification_reference = 'slapos-crm-compute_node_software_installation_state.notification'
@@ -74,7 +82,10 @@ for software_installation in software_installation_list:
       message = notification_message.asText(
               substitution_method_parameter_dict={'mapping_dict':mapping_dict})
 
-    support_request.notify(message_title=ticket_title, message=message)
+    event = support_request.SupportRequest_getLastEvent(ticket_title)
+    if event is None:
+      support_request.notify(message_title=ticket_title, message=message)
+
     support_request_list.append(support_request)
 
 return support_request_list

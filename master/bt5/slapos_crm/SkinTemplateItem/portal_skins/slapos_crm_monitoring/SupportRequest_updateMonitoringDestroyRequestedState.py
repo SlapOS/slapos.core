@@ -24,8 +24,10 @@ if document is not None and document.getSlapState() == "destroy_requested":
     message = notification_message.asText(
               substitution_method_parameter_dict={'mapping_dict':mapping_dict})
 
-  context.notify(message_title="Instance Tree was destroyed was destroyed by the user",
-              message=message)
+  ticket_title = "Instance Tree was destroyed was destroyed by the user"
+  event = context.SupportRequest_getLastEvent(ticket_title)
+  if event is None:
+    context.notify(message_title=ticket_title, message=message)
 
   context.invalidate()
   return context.REQUEST.get("ticket_notified_item")

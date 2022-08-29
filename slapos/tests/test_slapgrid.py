@@ -2042,10 +2042,11 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
 
       self.assertEqual(computer.sequence,
                        ['/api/allDocs/',
+                        '/api/get/',
                         '/api/put/',
                         '/api/put/'])
-      self.assertEqual(instance.sequence[0][1]["reported_state"], 'stopped')
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'destroyed')
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+      self.assertEqual(instance.sequence[2][1]["reported_state"], 'destroyed')
       self.assertEqual(instance.state, 'destroyed')
 
   def test_partition_list_is_complete_if_empty_destroyed_partition(self):
@@ -2076,10 +2077,11 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
 
       self.assertEqual(computer.sequence,
                        ['/api/allDocs/',
+                        '/api/get/',
                         '/api/put/',
                         '/api/put/'])
-      self.assertEqual(instance.sequence[0][1]["reported_state"], 'stopped')
-      self.assertEqual(instance.sequence[1][1]["reported_state"], 'destroyed')
+      self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
+      self.assertEqual(instance.sequence[2][1]["reported_state"], 'destroyed')
       self.assertEqual(instance.state, 'destroyed')
 
   def test_slapgrid_not_destroy_bad_instance(self):

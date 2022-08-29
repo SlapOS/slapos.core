@@ -1979,6 +1979,12 @@ stderr_logfile_backups=1
             # Try to process it anyway, it may need to be deleted.
             software_path = None
 
+          if not self.api_backward_compatibility:
+            computer_partition = self.slap.jio_api_connector.get({
+              "portal_type": "Software Instance",
+              "reference": computer_partition["reference"]
+            })
+
           local_partition = Partition(
             software_path=software_path,
             instance_path=os.path.join(self.instance_root,

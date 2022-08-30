@@ -89,13 +89,9 @@ try:
         .getRelativeUrl()
       requester.setLastData(value, key=key)
 
-  if requested_software_instance is None:
-    raise SoftwareInstanceNotReady
-  else:
-    if not requested_software_instance.getAggregate(portal_type="Compute Partition"):
-      raise SoftwareInstanceNotReady
-    else:
-      return requested_software_instance.asJSONText()
+  if requested_software_instance is not None:
+    return requested_software_instance.asJSONText()
+  raise SoftwareInstanceNotReady
 except SoftwareInstanceNotReady:
   return logError(
     "Software Instance Not Ready",

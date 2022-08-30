@@ -2,8 +2,8 @@ portal_type = data_dict["portal_type"]
 portal = context.getPortalObject()
 
 slap_state_dict = {
-  "stop_requested": "started",
-  "start_requested": "stopped",
+  "stop_requested": "stopped",
+  "start_requested": "started",
   "destroy_requested": "destroyed",
 }
 

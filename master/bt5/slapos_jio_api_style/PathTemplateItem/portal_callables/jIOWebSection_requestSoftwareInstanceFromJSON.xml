@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>after_method_id</string> </key>
-            <value> <string>jIOWebSection_requestComputerPartition</string> </value>
+            <value> <string>jIOWebSection_requestSoftwareInstance</string> </value>
         </item>
         <item>
             <key> <string>content_type</string> </key>
@@ -16,11 +16,17 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>jIOWebSection_requestComputerPartitionFromJSON</string> </value>
+            <value> <string>jIOWebSection_requestSoftwareInstanceFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>jIOWebSection_requestComputerPartitionFromJSON</string> </value>
+            <value> <string>jIOWebSection_requestSoftwareInstanceFromJSON</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>

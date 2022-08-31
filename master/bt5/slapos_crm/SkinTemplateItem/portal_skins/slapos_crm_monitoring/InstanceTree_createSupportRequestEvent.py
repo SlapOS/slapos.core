@@ -16,15 +16,23 @@ if error_message:
 else:
   error_message = "No message!"
 
-person.notify(support_request_title=ticket_title,
+support_request = person.Base_getSupportRequestInProgress(
+    title=ticket_title,
+    aggregate=context.getRelativeUrl())
+
+if support_request is None:
+  person.notify(support_request_title=ticket_title,
               support_request_description=description,
               aggregate=context.getRelativeUrl())
 
-support_request_relative_url = context.REQUEST.get("support_request_relative_url")
-if support_request_relative_url is None:
-  return
+  support_request_relative_url = context.REQUEST.get("support_request_relative_url")
+  if support_request_relative_url is None:
+    return
 
-support_request = portal.restrictedTraverse(support_request_relative_url)
+  support_request = portal.restrictedTraverse(support_request_relative_url)
+
+if support_request is None:
+  return
 
 if support_request.getSimulationState() not in ["validated", "suspended"]:
   support_request.validate()
@@ -41,5 +49,8 @@ if notification_message is not None:
   message = notification_message.asText(
               substitution_method_parameter_dict={'mapping_dict':mapping_dict})
 
-support_request.notify(message_title=ticket_title, message=message)
+event = support_request.SupportRequest_getLastEvent(ticket_title)
+if event is None:
+  support_request.notify(message_title=ticket_title, message=message)
+
 return context.REQUEST.get("ticket_notified_item")

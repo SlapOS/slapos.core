@@ -29,12 +29,18 @@ request_title = 'Allocation scope of %s changed to %s' % (compute_node_reference
 request_description = 'Allocation scope has been changed to ' \
                      '%s for %s' % (target_allocation_scope, compute_node_reference)
 
-person.notify(support_request_title=request_title,
+support_request = person.Base_getSupportRequestInProgress(
+  title=request_title,
+  aggregate=context.getRelativeUrl()
+)
+
+if support_request is None:
+  person.notify(support_request_title=request_title,
               support_request_description=request_description,
               aggregate=context.getRelativeUrl())
 
-support_request_relative_url = context.REQUEST.get("support_request_relative_url")
-support_request = portal.restrictedTraverse(support_request_relative_url)
+  support_request_relative_url = context.REQUEST.get("support_request_relative_url")
+  support_request = portal.restrictedTraverse(support_request_relative_url)
 
 if support_request is not None:
   if support_request.getSimulationState() != "validated":
@@ -54,8 +60,10 @@ if support_request is not None:
     message = notification_message.asText(
               substitution_method_parameter_dict={'mapping_dict': mapping_dict})
 
-  support_request.notify(message_title=request_title, message=message)
-  event = support_request.REQUEST.get("ticket_notified_item")
+  event = support_request.SupportRequest_getLastEvent(request_title)
+  if event is None:
+    support_request.notify(message_title=request_title, message=message)
+    event = support_request.REQUEST.get("ticket_notified_item")
 
   if event is not None:
     # event added, suspend ticket

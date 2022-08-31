@@ -15,11 +15,9 @@ except KeyError:
 
 aggregate_value = portal.restrictedTraverse(aggregate)
 
-support_request_in_progress = portal.portal_catalog.getResultValue(
-  portal_type = 'Support Request',
-  title = support_request_title,
-  simulation_state = ["validated", "submitted", "suspended"],
-  default_aggregate_uid = aggregate_value.getUid(),
+support_request_in_progress = person.Base_getSupportRequestInProgress(
+  title=support_request_title,
+  aggregate=aggregate
 )
 
 if support_request_in_progress is not None:

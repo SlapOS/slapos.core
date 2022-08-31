@@ -1,5 +1,4 @@
-portal = context.getPortalObject()
-event = context.getCausalityValue(portal_type=portal.getPortalEventTypeList())
+event = context.Ticket_getCausalityValue()
 error_list = []
 
 if event:

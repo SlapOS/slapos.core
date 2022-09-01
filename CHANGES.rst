@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.8.0 (2022-09-01)
+------------------
+ * slapos.cfg: add lab.nxdcdn.com endpoint
+
 1.7.13 (2022-07-28)
 -------------------
  * format: add more information in os_type
@@ -11,10 +15,10 @@ Changes
 
 1.7.11 (2022-07-21)
 -------------------
- *  register: fix slapconfig in python3
- *  register: no need to be root if configuration file in /tmp
- *  networkcache: fix upload_network_cached in python3
- *  slapgrid: fix _updateCertificate in python3
+ * register: fix slapconfig in python3
+ * register: no need to be root if configuration file in /tmp
+ * networkcache: fix upload_network_cached in python3
+ * slapgrid: fix _updateCertificate in python3
 
 1.7.10 (2022-07-11)
 -------------------

@@ -1,11 +1,4 @@
-portal = context.getPortalObject()
-
-event = portal.portal_catalog.getResultValue(
-             follow_up_uid=context.getUid(), 
-             sort_on=[('modification_date', 'DESC')],
-)
-
-
+event = context.Ticket_getLastEvent()
 if event:
   return event.getModificationDate()
 

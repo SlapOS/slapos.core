@@ -241,11 +241,7 @@ function GetOSVersion {
         elif [[ $os_VENDOR =~ Red.*Hat ]]; then
             os_VENDOR="Red Hat"
         fi
-        if [[ "Kylin" =~ $os_VENDOR ]] && [[ $os_RELEASE =~ "v10" ]]; then
-	    os_CODENAME="jammy"
-	else
-            os_CODENAME=$(lsb_release -c -s)
-	fi
+        os_CODENAME=$(lsb_release -c -s)
     elif [[ -r /etc/redhat-release ]]; then
         # Red Hat Enterprise Linux Server release 5.5 (Tikanga)
         # Red Hat Enterprise Linux Server release 7.0 Beta (Maipo)

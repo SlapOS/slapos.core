@@ -229,7 +229,7 @@ function GetOSVersion {
         os_RELEASE=$(lsb_release -r -s)
         os_UPDATE=""
         os_PACKAGE="rpm"
-        if [[ "Debian,Ubuntu,LinuxMint,Raspbian" =~ $os_VENDOR ]]; then
+        if [[ "Debian,Ubuntu,LinuxMint,Raspbian,Kylin" =~ $os_VENDOR ]]; then
             os_PACKAGE="deb"
         elif [[ "SUSE LINUX" =~ $os_VENDOR ]]; then
             lsb_release -d -s | grep -q openSUSE
@@ -300,7 +300,7 @@ declare DISTRO
 
 function GetDistro {
     GetOSVersion
-    if [[ "$os_VENDOR" =~ (Ubuntu) || "$os_VENDOR" =~ (Debian) ]]; then
+    if [[ "$os_VENDOR" =~ (Ubuntu) || "$os_VENDOR" =~ (Debian) || "$os_VENDOR" =~ (Kylin) ]]; then
         # 'Everyone' refers to Ubuntu / Debian releases by the code name adjective
         DISTRO=$os_CODENAME
     elif [[ "$os_VENDOR" =~ (Fedora) ]]; then

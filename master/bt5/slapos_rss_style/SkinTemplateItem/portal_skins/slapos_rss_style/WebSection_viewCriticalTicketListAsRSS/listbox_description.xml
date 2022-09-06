@@ -155,6 +155,10 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>input_type</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>max_length</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -267,7 +271,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>cell/WebSection_getRSSDescriptionContent</string> </value>
+            <value> <string>python: cell.Ticket_getLatestEvent() and cell.Ticket_getLatestEvent().getTextContent() or cell.getDescription()</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.8.1 (2022-09-06)
+------------------
+ * nothing changed, new version to replace 1.8.0 which had a packaging mistake
+
 1.8.0 (2022-09-01)
 ------------------
  * slapos.cfg: add lab.nxdcdn.com endpoint

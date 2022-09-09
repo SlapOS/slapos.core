@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>WebSection_getRSSDateContent</string> </value>
+            <value> <string>Folder_getTicketFeedUrl</string> </value>
         </item>
       </dictionary>
     </pickle>

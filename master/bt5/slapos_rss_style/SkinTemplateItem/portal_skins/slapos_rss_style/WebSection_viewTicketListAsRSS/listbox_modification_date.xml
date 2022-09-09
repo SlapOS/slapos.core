@@ -177,6 +177,10 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>default_timezone</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>description</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -483,7 +487,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>cell/WebSection_getRSSDateContent</string> </value>
+            <value> <string>python: cell.Ticket_getLatestEvent() and cell.Ticket_getLatestEvent().getModificationDate() or cell.getModificationDate()</string> </value>
         </item>
       </dictionary>
     </pickle>

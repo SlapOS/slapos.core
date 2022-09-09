@@ -6,6 +6,7 @@ Incident Response | view
 Instance Tree Module | slapos_resilience_usage_report
 Instance Tree | jump_to_related_upgrade_decision_line
 Instance Tree | view_ticket
+Person | slapos_user_pending_ticket_report
 Regularisation Request Module | rss_view
 Regularisation Request Module | view
 Regularisation Request | clone_ticket_and_event_list

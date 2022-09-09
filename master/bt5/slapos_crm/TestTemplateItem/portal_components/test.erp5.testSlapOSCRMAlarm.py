@@ -763,3 +763,12 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
     alarm = self.portal.portal_alarms.\
           slapos_crm_update_support_request_state
     self._test_alarm(alarm, support_request, "SupportRequest_updateMonitoringState")
+
+
+class TestSlaposCrmSendPendingTicket_reminder(SlapOSTestCaseMixinWithAbort):
+
+  def test_alarm_send_pending_ticket_reminder(self):
+    person = self.makePerson()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_send_pending_ticket_reminder
+    self._test_alarm(alarm, person, "Person_sendPendingTicketReminder")

@@ -43,13 +43,13 @@ checkConsistency</string> </value>
         </item>
         <item>
             <key> <string>expression</string> </key>
-            <value> <string>python: context.getPortalType() in ["Sale Invoice Transaction", "Subscription Request"]</string> </value>
+            <value> <string>python: context.getRelativeUrl().count(\'/\') == 1</string> </value>
         </item>
         <item>
             <key> <string>expression_cache_key</string> </key>
             <value>
               <tuple>
-                <string>portal_type</string>
+                <string>relative_url</string>
               </tuple>
             </value>
         </item>

@@ -1400,7 +1400,6 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
       support_request.getSimulationState())
 
 
-
 class TestSlapOSFolder_getTicketFeedUrl(TestCRMSkinsMixin):
 
   def _test(self, module):
@@ -1425,3 +1424,229 @@ class TestSlapOSFolder_getTicketFeedUrl(TestCRMSkinsMixin):
 
   def test_Folder_getTicketFeedUrl_incident_response_module(self):
     self._test(self.portal.incident_response_module)
+
+
+class TestSlapOSPerson_getSlapOSPendingTicket(TestCRMSkinsMixin):
+
+  def test_getSlapOSPendingTicket_support_request(self):
+    person = self.makePerson()
+    ticket = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id,
+                        destination_decision=person.getRelativeUrl())
+
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    # Not indexed yet
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    self.tic()
+
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    ticket.submit()
+    ticket.immediateReindexObject()
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    ticket.validate()
+    ticket.immediateReindexObject()
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    ticket.suspend()
+    ticket.immediateReindexObject()
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 1)
+    self.assertEqual(pending_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.invalidate()
+    ticket.immediateReindexObject()
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+  def test_getSlapOSPendingTicket_support_request_cancelled(self):
+    person = self.makePerson()
+    ticket = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id,
+                        destination_decision=person.getRelativeUrl())
+
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    # Not indexed yet
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    self.tic()
+
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    ticket.submit()
+    ticket.immediateReindexObject()
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    ticket.cancel()
+    ticket.immediateReindexObject()
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+  def test_getSlapOSPendingTicket_upgrade_decision(self):
+    def newUpgradeDecision():
+      ticket = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        title="Upgrade Decision Test %s" % self.new_id,
+        reference="TESTUD-%s" % self.new_id)
+
+      ticket.immediateReindexObject()
+      return ticket
+
+    person = self.makePerson()
+    ticket = newUpgradeDecision()
+    ticket.setDestinationDecisionValue(person)
+
+    ticket.newContent(
+      portal_type="Upgrade Decision Line"
+    )
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    # Not indexed yet
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    self.tic()
+
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    ticket.plan()
+    ticket.immediateReindexObject()
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    ticket.confirm()
+    ticket.immediateReindexObject()
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 1)
+    self.assertEqual(pending_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.start()
+    ticket.immediateReindexObject()
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    ticket.stop()
+    ticket.immediateReindexObject()
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    ticket.deliver()
+    ticket.immediateReindexObject()
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+
+  def test_getSlapOSPendingTicket_upgrade_decision_cancel(self):
+    def newUpgradeDecision():
+      ticket = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        title="Upgrade Decision Test %s" % self.new_id,
+        reference="TESTUD-%s" % self.new_id)
+
+      ticket.immediateReindexObject()
+      return ticket
+
+    person = self.makePerson()
+    ticket = newUpgradeDecision()
+    ticket.setDestinationDecisionValue(person)
+
+
+    ticket.newContent(
+      portal_type="Upgrade Decision Line"
+    )
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    # Not indexed yet
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    self.tic()
+
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    ticket.plan()
+    ticket.immediateReindexObject()
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+    ticket.cancel()
+    ticket.immediateReindexObject()
+    pending_ticket_list = person.Person_getSlapOSPendingTicket()
+    self.assertEqual(len(pending_ticket_list), 0)
+
+
+class TestSlapOSPerson_getSlapOSPendingTicketMessageTemplate(TestCRMSkinsMixin):
+
+  @simulate('Person_getSlapOSPendingTicket', '*args, **kwargs','return range(99)')
+  def test_getSlapOSPendingTicketMessageTemplate(self):
+    person = self.makePerson()
+    title, message = person.Person_getSlapOSPendingTicketMessageTemplate()
+    self.assertEqual(""" You have 99 pending tickets  """, title)
+    self.assertEqual(""" You have 99 pending tickets  """, message)
+
+  def _makeNotificationMessage(self):
+    notification_message = self.portal.notification_message_module.newContent(
+      portal_type="Notification Message",
+      title='Pending ticket',
+      text_content_substitution_mapping_method_id='NotificationMessage_getSubstitutionMappingDictFromArgument',
+      text_content='Test NM content ${username} AMOUNT (${amount}) WEBSITE(${website})',
+      content_type='text/plain',
+      )
+
+    return notification_message.getRelativeUrl()
+
+  @simulate('Person_getSlapOSPendingTicket', '*args, **kwargs','return range(99)')
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None',
+  'assert reference == "slapos-crm-person-pending-ticket-notification"\n' \
+  'return context.restrictedTraverse(' \
+  'context.REQUEST["test_getSlapOSPendingTicketMessageTemplate"])')
+  def test_getSlapOSPendingTicketMessageTemplate_with_notification_message(self):
+    person = self.makePerson()
+
+    self.portal.REQUEST['test_getSlapOSPendingTicketMessageTemplate'] = \
+        self._makeNotificationMessage()
+
+    title, message = person.Person_getSlapOSPendingTicketMessageTemplate()
+    self.assertEqual('Pending ticket', title)
+    self.assertEqual('Test NM content Member Template AMOUNT (99) WEBSITE()', message)
+
+class TestSlapOSPerson_sendPendingTicketReminder(TestCRMSkinsMixin):
+
+  @simulate('Person_getSlapOSPendingTicket', '*args, **kwargs','return []')
+  @simulate('Person_sendSlapOSPendingTicketNotification', '*args, **kwargs','assert False')
+  def test_sendPendingTicketReminder(self):
+    person = self.makePerson()
+    # Script Person_sendSlapOSPendingTicketNotification not called 
+    person.Person_sendPendingTicketReminder()
+
+  @simulate('Person_getSlapOSPendingTicket', '*args, **kwargs','return [1]')
+  @simulate('Person_sendSlapOSPendingTicketNotification', '*args, **kwargs',
+    'context.REQUEST.set("test_getSlapOSPendingTicketMessageTemplate", "called")')
+  def test_sendPendingTicketReminder_positive_amount(self):
+    person = self.makePerson()
+    person.Person_sendPendingTicketReminder()
+
+    self.assertEqual(self.portal.REQUEST["test_getSlapOSPendingTicketMessageTemplate"],
+      "called")
+
+class TestSlapOSPerson_sendSlapOSPendingTicketNotification(TestCRMSkinsMixin):
+
+  def test_sendSlapOSPendingTicketNotification(self):
+    person = self.makePerson()
+    event = person.Person_sendSlapOSPendingTicketNotification(
+      "TEST TITLE",
+      "TEST CONTENT",
+      batch_mode=1
+    )
+    self.tic()
+    self.assertEqual(event.getTitle(), "TEST TITLE")
+    self.assertEqual(event.getTextContent(), "TEST CONTENT")
+    self.assertEqual(event.getSimulationState(), "started")
+    self.assertEqual(event.getPortalType(), "Mail Message")
+    self.assertEqual(event.getDestination(), person.getRelativeUrl())

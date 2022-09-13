@@ -12,6 +12,6 @@ if notification_message is not None:
   return notification_message.getTitle(), notification_message.asText(
               substitution_method_parameter_dict={'mapping_dict': mapping_dict})
 
-message = """ You have %s pending tickets  """ % pending_ticket_list_amount,
+message = """ You have %s pending tickets  """ % pending_ticket_list_amount
 
 return message, message

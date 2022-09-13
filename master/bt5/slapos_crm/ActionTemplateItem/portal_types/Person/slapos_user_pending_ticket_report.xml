@@ -73,7 +73,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>string:${object_url}/Person_viewSlapOSPendingTicket</string> </value>
+            <value> <string>string:${object_url}/Person_viewSlapOSPendingTicketDialog</string> </value>
         </item>
       </dictionary>
     </pickle>

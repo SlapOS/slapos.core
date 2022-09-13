@@ -50,20 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string></string> </value>
-        </item>
-        <item>
-            <key> <string>_proxy_roles</string> </key>
-            <value>
-              <tuple>
-                <string>Manager</string>
-                <string>Owner</string>
-              </tuple>
-            </value>
+            <value> <string>tag, fixit, params</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ERP5Site_initSlapOSUITest</string> </value>
+            <value> <string>Alarm_sendPendingTicketReminder</string> </value>
         </item>
       </dictionary>
     </pickle>

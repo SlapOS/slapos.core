@@ -101,4 +101,42 @@ for reference in notification_message_to_enable:
     portal.portal_catalog.getResultValue(validation_state='draft',
       **search_kw).validate()
 
+# Create an manager user
+try:
+  demo_manager_user = context.person_module["demo_manager_user"]
+except KeyError:
+  demo_manager_user = context.person_module.newContent(
+    id="demo_manager_user",
+    title="Demo Manager Functional User",
+    portal_type="Person",
+    email="x@example.com"
+  )
+
+try:
+  demo_manager_assignment = demo_manager_user["manager_assignment"]
+except KeyError:
+  demo_manager_assignment = demo_manager_user.newContent(
+    id="manager_assignment",
+    title="Demo Manager Functional User Assignment",
+    portal_type="Assignment",
+  )
+
+demo_manager_assignment.setGroup('company')
+
+if demo_manager_assignment.getValidationState() != "open":
+  demo_manager_assignment.open()
+
+try:
+  demo_manager_login = demo_manager_user["demo_manager_login"]
+except KeyError:
+  demo_manager_login = demo_manager_user.newContent(
+    id="demo_manager_login",
+    portal_type="ERP5 Login",
+    reference="demo_manager_functional_user"
+  )
+  demo_manager_login.setPassword("czz4yt36mshT*")
+
+if demo_manager_login.getValidationState() != "validated":
+  demo_manager_login.validate()
+
 return "Done."

@@ -3,6 +3,7 @@ Assignment | SlaposAssignmentConstraint
 Compute Node | ComputeNodeSlapOSMetadata
 Compute Node | ComputerUpgradeConstraint
 Compute Node | ERP5User
+Compute Node | SlapOSReferenceConstraint
 Compute Node | SlaposCapacity
 Compute Node | SlaposComputeNodeConstraint
 Compute Node | Url
@@ -16,6 +17,7 @@ Email | SlaposEmailConstraint
 Hosting Subscription | HostingSubscriptionUpgradeConstraint
 Instance Tree | HostingSubscriptionUpgradeConstraint
 Instance Tree | InstanceTree
+Instance Tree | SlapOSReferenceConstraint
 Instance Tree | SlaposInstanceTreeConstraint
 Instance Tree | SoftwareInstance
 Instance Tree | SoftwareInstanceUpgradeConstraint
@@ -25,17 +27,20 @@ Instance Tree | VariationRange
 Person | SlaposPersonConstraint
 Slave Instance | InstanceTree
 Slave Instance | Reference
+Slave Instance | SlapOSReferenceConstraint
 Slave Instance | SlaveInstanceConstraint
 Slave Instance | SoftwareInstance
 Slave Instance | SoftwareInstanceDuplicationConstraint
 Slave Instance | TextDocument
 Slave Instance | Url
 Slave Instance | VariationRange
+Software Installation | SlapOSReferenceConstraint
 Software Installation | Url
 Software Installation | VariationRange
 Software Instance | ERP5User
 Software Instance | InstanceTree
 Software Instance | Reference
+Software Instance | SlapOSReferenceConstraint
 Software Instance | SoftwareInstance
 Software Instance | SoftwareInstanceConstraint
 Software Instance | SoftwareInstanceDuplicationConstraint

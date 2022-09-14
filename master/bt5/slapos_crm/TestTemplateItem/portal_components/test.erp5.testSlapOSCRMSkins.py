@@ -1614,7 +1614,9 @@ class TestSlapOSPerson_getSlapOSPendingTicketMessageTemplate(TestCRMSkinsMixin):
 
     title, message = person.Person_getSlapOSPendingTicketMessageTemplate()
     self.assertEqual('Pending ticket', title)
-    self.assertEqual('Test NM content Member Template AMOUNT (99) WEBSITE()', message)
+    web_site_url = self.portal.portal_preferences.getPreferredSlaposWebSiteUrl()
+    self.assertEqual(message,
+      'Test NM content Member Template AMOUNT (99) WEBSITE(%s)' % web_site_url)
 
 class TestSlapOSPerson_sendPendingTicketReminder(TestCRMSkinsMixin):
 

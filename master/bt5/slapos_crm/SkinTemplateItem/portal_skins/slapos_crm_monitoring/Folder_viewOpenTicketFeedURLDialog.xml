@@ -91,7 +91,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Folder_viewOpenTicketFeedURL</string> </value>
+            <value> <string>Folder_viewOpenTicketFeedURLDialog</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>

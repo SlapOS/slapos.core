@@ -79,7 +79,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>string:${object_url}/Folder_viewOpenTicketFeedURL</string> </value>
+            <value> <string>string:${object_url}/Folder_viewOpenTicketFeedURLDialog</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -329,7 +329,7 @@ class SoftwareInstance(Item, JSONType):
       raise ValueError("Unknown slap state : %s" % requested_state)
     # software instance has to define an xml parameter
     result = {
-      "$schema": self.getPortalObject().portal_types.restrictedTraverse(self.getPortalType()).absolute_url()
+      "$schema": self.getPortalObject().portal_types.restrictedTraverse("Software Instance").absolute_url()
         + "/getTextContent",
       "title": self.getTitle().decode("UTF-8"),
       "reference": self.getReference().decode("UTF-8"),

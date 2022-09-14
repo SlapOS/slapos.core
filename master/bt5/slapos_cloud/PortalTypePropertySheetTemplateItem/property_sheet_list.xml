@@ -9,6 +9,7 @@
   <item>ComputeNodeSlapOSMetadata</item>
   <item>ComputerUpgradeConstraint</item>
   <item>ERP5User</item>
+  <item>SlapOSReferenceConstraint</item>
   <item>SlaposCapacity</item>
   <item>SlaposComputeNodeConstraint</item>
   <item>Url</item>
@@ -36,6 +37,7 @@
  <portal_type id="Instance Tree">
   <item>HostingSubscriptionUpgradeConstraint</item>
   <item>InstanceTree</item>
+  <item>SlapOSReferenceConstraint</item>
   <item>SlaposInstanceTreeConstraint</item>
   <item>SoftwareInstance</item>
   <item>SoftwareInstanceUpgradeConstraint</item>
@@ -49,6 +51,7 @@
  <portal_type id="Slave Instance">
   <item>InstanceTree</item>
   <item>Reference</item>
+  <item>SlapOSReferenceConstraint</item>
   <item>SlaveInstanceConstraint</item>
   <item>SoftwareInstance</item>
   <item>SoftwareInstanceDuplicationConstraint</item>
@@ -57,6 +60,7 @@
   <item>VariationRange</item>
  </portal_type>
  <portal_type id="Software Installation">
+  <item>SlapOSReferenceConstraint</item>
   <item>Url</item>
   <item>VariationRange</item>
  </portal_type>
@@ -64,6 +68,7 @@
   <item>ERP5User</item>
   <item>InstanceTree</item>
   <item>Reference</item>
+  <item>SlapOSReferenceConstraint</item>
   <item>SoftwareInstance</item>
   <item>SoftwareInstanceConstraint</item>
   <item>SoftwareInstanceDuplicationConstraint</item>

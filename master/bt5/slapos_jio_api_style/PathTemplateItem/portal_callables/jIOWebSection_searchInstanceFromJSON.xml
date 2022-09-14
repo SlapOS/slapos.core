@@ -115,6 +115,12 @@
           "type": "string",\n
           "description": "Title of the Instance at the root of the instance tree. This is the title of the instance that has been requested by the user."\n
         },\n
+        "state": {\n
+          "title": "Requested State",\n
+          "type": "string",\n
+          "enum": ["started", "stopped", "destroyed"],\n
+          "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
+        },\n
         "portal_type": {\n
           "title": "Portal Type",\n
           "const": "Software Instance",\n
@@ -140,6 +146,12 @@
           "title": "Root Instance Title",\n
           "type": "string",\n
           "description": "Title of the Instance at the root of the instance tree. This is the title of the instance that has been requested by the user."\n
+        },\n
+        "state": {\n
+          "title": "Requested State",\n
+          "type": "string",\n
+          "enum": ["started", "stopped", "destroyed"],\n
+          "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
         },\n
         "portal_type": {\n
           "title": "Portal Type",\n

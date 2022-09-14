@@ -27,6 +27,7 @@ Slave Instance | InstanceTree
 Slave Instance | Reference
 Slave Instance | SlaveInstanceConstraint
 Slave Instance | SoftwareInstance
+Slave Instance | SoftwareInstanceDuplicationConstraint
 Slave Instance | TextDocument
 Slave Instance | Url
 Slave Instance | VariationRange
@@ -37,6 +38,7 @@ Software Instance | InstanceTree
 Software Instance | Reference
 Software Instance | SoftwareInstance
 Software Instance | SoftwareInstanceConstraint
+Software Instance | SoftwareInstanceDuplicationConstraint
 Software Instance | SoftwareInstanceUpgradeConstraint
 Software Instance | TextDocument
 Software Instance | Url

@@ -40,40 +40,70 @@
       "description": "Contains a representation of the items",\n
       "type": "array",\n
       "items": {\n
-        "type": "object",\n
-        "title": "Item",\n
-        "properties": {\n
-          "reference": {\n
-            "title": "Software Instance Reference",\n
-            "description": "Unique identifier of the Software Instance",\n
-            "type": "string"\n
+        "anyOf": [\n
+          {\n
+            "type": "object",\n
+            "title": "Software Instance",\n
+            "properties": {\n
+              "reference": {\n
+                "title": "Software Instance Reference",\n
+                "description": "Unique identifier of the Software Instance",\n
+                "type": "string"\n
+              },\n
+              "title": {\n
+                "title": "Unique Title of the Instance",\n
+                "type": "string"\n
+              },\n
+              "state": {\n
+                "title": "Requested State",\n
+                "type": "string",\n
+                "enum": ["started", "stopped", "destroyed"],\n
+                "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
+              },\n
+              "compute_partition_id": {\n
+                "title": "Compute Partition Id",\n
+                "type": "string",\n
+                "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance"\n
+              },\n
+              "software_release_uri": {\n
+                "title": "Software Release URI",\n
+                "type": "string",\n
+                "description": "URL of the software release used by the software instance"\n
+              },\n
+              "portal_type": {\n
+                "title": "Portal Type",\n
+                "const": "Software Instance",\n
+                "type": "string"\n
+              }\n
+            }\n
           },\n
-          "title": {\n
-            "title": "Unique Title of the Instance",\n
-            "type": "string"\n
-          },\n
-          "state": {\n
-            "title": "Requested State",\n
-            "type": "string",\n
-            "enum": ["started", "stopped", "destroyed"],\n
-            "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
-          },\n
-          "compute_partition_id": {\n
-            "title": "Compute Partition Id",\n
-            "type": "string",\n
-            "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance"\n
-          },\n
-          "software_release_uri": {\n
-            "title": "Software Release URI",\n
-            "type": "string",\n
-            "description": "URL of the software release used by the software instance"\n
-          },\n
-          "portal_type": {\n
-            "title": "Portal Type",\n
-            "const": "Software Instance",\n
-            "type": "string"\n
+          {\n
+            "type": "object",\n
+            "title": "Shared Instance",\n
+            "properties": {\n
+              "reference": {\n
+                "title": "Software Instance Reference",\n
+                "description": "Unique identifier of the Software Instance",\n
+                "type": "string"\n
+              },\n
+              "title": {\n
+                "title": "Unique Title of the Instance",\n
+                "type": "string"\n
+              },\n
+              "state": {\n
+                "title": "Requested State",\n
+                "type": "string",\n
+                "enum": ["started", "stopped", "destroyed"],\n
+                "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
+              },\n
+              "portal_type": {\n
+                "title": "Portal Type",\n
+                "const": "Shared Instance",\n
+                "type": "string"\n
+              }\n
+            }\n
           }\n
-        }\n
+        ]\n
       }\n
     }\n
   }\n

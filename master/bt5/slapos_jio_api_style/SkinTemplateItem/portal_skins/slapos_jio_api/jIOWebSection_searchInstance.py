@@ -1,6 +1,12 @@
 portal_type = data_dict["portal_type"]
 portal = context.getPortalObject()
 
+reverse_slap_state_dict = {
+  "stopped": "stop_requested",
+  "started": "start_requested",
+  "destroyed": "destroy_requested",
+}
+
 slap_state_dict = {
   "stop_requested": "stopped",
   "start_requested": "started",
@@ -22,6 +28,8 @@ if portal_type == "Software Instance":
     search_kw["aggregate_reference"] = data_dict["compute_partition_id"]
   if "root_instance_title" in data_dict:
     search_kw["strict_specialise_title"] = data_dict["root_instance_title"]
+  if "state" in data_dict:
+    search_kw["slap_state"] = reverse_slap_state_dict.get(data_dict["state"], "")
 
   result_list = [{
     "title": x.title,
@@ -53,7 +61,8 @@ elif portal_type == "Shared Instance":
     search_kw["strict_aggregate_uid"] = host_instance_list[0].getObject().getAggregateUid()
   if "root_instance_title" in data_dict:
     search_kw["strict_specialise_title"] = data_dict["root_instance_title"]
-  #return portal.portal_catalog(src__=1, **search_kw)
+  if "state" in data_dict:
+    search_kw["slap_state"] = reverse_slap_state_dict.get(data_dict["state"], "")
   result_list = [{
     "title": x.title,
     "reference": x.reference,

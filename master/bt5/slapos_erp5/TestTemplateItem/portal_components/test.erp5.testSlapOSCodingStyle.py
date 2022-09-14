@@ -67,6 +67,47 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
       # we define it for CodingStyleTestCase.test_PythonSourceCode
       return ('erp5_administration', )
 
+    def test_PythonScriptTestCoverage(self):
+      content_dict = {}
+      for test_component in self.portal.portal_components.searchFolder(
+          portal_type='Test Component'):
+        if "Slap" not in test_component.getId() or \
+            "testSlapOSCodingStyle" in test_component.getId():
+          continue
+      content_dict[test_component.getId()] = test_component.getTextContent()
+
+      self.assertNotEqual(len(content_dict), 0)
+
+      skin_id_set = set()
+      for business_template in self._getTestedBusinessTemplateValueList():
+        skin_id_set.update(business_template.getTemplateSkinIdList())
+
+      # Init message list
+      message_list = []
+  
+      # Test skins
+      portal_skins = self.portal.portal_skins
+      for skin_id in skin_id_set:
+        skin = portal_skins[skin_id]
+        for _, document in skin.ZopeFind(
+            skin,
+            obj_metatypes=('Script (Python)', 'Z SQL Method', ),
+            search_sub=True):
+          if document.getId().startswith("Alarm_"):
+            # Alarms are tested directly, so we can safely skip
+            continue
+
+          found = 0
+          for _, content in content_dict.iteritems():
+            if document.getId() in content:
+              found = 1
+              break
+          if not found:
+            message_list.append("%s/%s" % (skin.getId(), document.getId()))
+
+      self.maxDiff = None
+      self.assertEqual(message_list, [])
+
   return type("TestSlapOSCodingStyle.%s" % tested_business_template,
               (TestSlapOSCodingStyle,),
               {"getTestedBusinessTemplateList": lambda self: (tested_business_template, )})

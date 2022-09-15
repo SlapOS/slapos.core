@@ -550,37 +550,69 @@ class TestSlapOSComputeNodeConstraint(TestSlapOSConstraintMixin):
     consistency_message = 'Title must be defined'
 
     self.assertTrue(consistency_message in self.getMessageList(compute_node))
-
     compute_node.setTitle(self.generateNewId())
-
     self.assertFalse(consistency_message in self.getMessageList(compute_node))
 
-  def test_reference_not_empty(self):
-    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node')
+
+class TestSlapOSReferenceConstraint(TestSlapOSConstraintMixin):
+
+  def test_reference_not_empty_compute_node(self):
+    self._test_reference_not_empty(
+      self.portal.compute_node_module.newContent(portal_type='Compute Node'))
+
+  def test_reference_not_empty_software_instance(self):
+    self._test_reference_not_empty(
+      self.portal.software_instance_module.newContent(portal_type='Software Instance'))
+
+  def test_reference_not_empty_slave_instance(self):
+    self._test_reference_not_empty(
+      self.portal.software_instance_module.newContent(portal_type='Slave Instance'))
+
+  def test_reference_not_empty_software_installation(self):
+    self._test_reference_not_empty(
+      self.portal.software_installation_module.newContent(portal_type='Software Installation'))
+
+  def _test_reference_not_empty(self, document):
     consistency_message = 'Reference must be defined'
 
-    self.assertTrue(consistency_message in self.getMessageList(compute_node))
+    self.assertIn(consistency_message, self.getMessageList(document))
+    document.setReference(self.generateNewId())
+    self.assertNotIn(consistency_message, self.getMessageList(document))
 
-    compute_node.setReference(self.generateNewId())
+  def test_reference_unique_compute_node(self):
+    module = self.portal.compute_node_module
+    self._test_reference_unique(
+      module.newContent(portal_type='Compute Node', reference=self.generateNewId()),
+      module.newContent(portal_type='Compute Node', reference=self.generateNewId()))
 
-    self.assertFalse(consistency_message in self.getMessageList(compute_node))
+  def test_reference_unique_software_instance(self):
+    module = self.portal.software_instance_module
+    self._test_reference_unique(
+      module.newContent(portal_type='Software Instance', reference=self.generateNewId()),
+      module.newContent(portal_type='Software Instance', reference=self.generateNewId()))
 
-  def test_reference_unique(self):
-    reference = self.generateNewId()
-    reference_2 = self.generateNewId()
-    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
-      reference=reference)
-    compute_node_2 = self.portal.compute_node_module.newContent(portal_type='Compute Node',
-      reference=reference)
+  def test_reference_unique_slave_instance(self):
+    module = self.portal.software_instance_module
+    self._test_reference_unique(
+      module.newContent(portal_type='Slave Instance', reference=self.generateNewId()),
+      module.newContent(portal_type='Slave Instance', reference=self.generateNewId()))
+
+  def test_reference_unique_software_installation(self):
+    module = self.portal.software_installation_module
+    self._test_reference_unique(
+      module.newContent(portal_type='Software Installation', reference=self.generateNewId()),
+      module.newContent(portal_type='Software Installation', reference=self.generateNewId()))
+
+  def _test_reference_unique(self, documentA, documentB):
     consistency_message = 'Reference must be unique'
-
     self.tic()
 
-    self.assertTrue(consistency_message in self.getMessageList(compute_node))
-    self.assertTrue(consistency_message in self.getMessageList(compute_node_2))
+    self.assertNotIn(consistency_message, self.getMessageList(documentA))
+    self.assertNotIn(consistency_message, self.getMessageList(documentB))
 
-    compute_node_2.setReference(reference_2)
+    documentB.setReference(documentA.getReference())
     self.tic()
 
-    self.assertFalse(consistency_message in self.getMessageList(compute_node))
-    self.assertFalse(consistency_message in self.getMessageList(compute_node_2))
+    self.assertEqual(documentB.getReference(), documentA.getReference())
+    self.assertIn(consistency_message, self.getMessageList(documentA))
+    self.assertIn(consistency_message, self.getMessageList(documentB))

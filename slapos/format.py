@@ -338,19 +338,51 @@ class Computer(object):
     if conf.key_file and conf.cert_file:
       connection_dict['key_file'] = conf.key_file
       connection_dict['cert_file'] = conf.cert_file
+    if conf.slapgrid_jio_uri:
+      connection_dict["slapgrid_jio_uri"] = conf.slapgrid_jio_uri
     slap_instance.initializeConnection(conf.master_url,
                                        **connection_dict)
-    slap_computer = slap_instance.registerComputer(self.reference)
+    
+    if slap_instance.jio_api_connector:
+      partition_list = []
+      for partition in self.partition_list:
+        ip_list = []
+        network_interface = partition.tap.name if partition.tap else partition.reference 
+        for address in partition.address_list:
+          ip_list.append({
+            "ip-address": address["addr"],
+            "network-interface": network_interface,
+          })
+        if partition.tap and partition.tap.ipv4_addr:
+          ip_list.append({
+            "ip-address": partition.tap.ipv4_addr,
+            "network-interface": partition.tap.name,
+            "gateway-ip-address": partition.tap.ipv4_gateway,
+            "netmask": partition.tap.netmask,
+            "network-address": partition.tap.ipv4_network
+          })
+        partition_list.append({
+          "partition_id": partition.reference,
+          "ip_list": ip_list
+        })
+      if conf.dry_run:
+        return
+      slap_instance.jio_api_connector.put({
+        "compute_node_id": self.reference,
+        "compute_partition_list": partition_list
+      })
+    else:
+      slap_computer = slap_instance.registerComputer(self.reference)
 
-    if conf.dry_run:
-      return
-    try:
-      slap_computer.updateConfiguration(dumps(_getDict(self)))
-    except slap.NotFoundError as error:
-      raise slap.NotFoundError("%s\nERROR: This SlapOS node is not recognised by "
-          "SlapOS Master and/or computer_id and certificates don't match. "
-          "Please make sure computer_id of slapos.cfg looks "
-          "like 'COMP-123' and is correct.\nError is : 404 Not Found." % error)
+      if conf.dry_run:
+        return
+      try:
+        slap_computer.updateConfiguration(dumps(_getDict(self)))
+      except slap.NotFoundError as error:
+        raise slap.NotFoundError("%s\nERROR: This SlapOS node is not recognised by "
+            "SlapOS Master and/or computer_id and certificates don't match. "
+            "Please make sure computer_id of slapos.cfg looks "
+            "like 'COMP-123' and is correct.\nError is : 404 Not Found." % error)
 
   def dump(self, path_to_xml, path_to_json, logger):
     """
@@ -1404,6 +1436,7 @@ def do_format(conf):
 
   computer.update()
   # Dumping and sending to the erp5 the current configuration
+  import pdb; pdb.set_trace()
   if not conf.dry_run:
     computer.dump(path_to_xml=conf.computer_xml,
                   path_to_json=conf.computer_json,

@@ -29,6 +29,7 @@
 from __future__ import print_function
 
 import glob
+import json
 import logging
 import os
 import shutil
@@ -51,6 +52,8 @@ import os
 import pwd
 import time
 import mock
+import httmock
+from six.moves.urllib import parse
 
 from .test_slapgrid import DummyManager
 
@@ -686,6 +689,81 @@ class TestFormatDump(SlapformatMixin):
     shutil.rmtree(self._tempdir, True)
     super(TestFormatDump, self).tearDown()
 
+class TestConfForAPI():
+  def __init__(self):
+    self.master_url = "https://127.0.0.1"
+    self.slapgrid_jio_uri = "https://127.0.0.1/api/"
+    self.key_file = None
+    self.cert_file = None
+    self.dry_run = False
+
+
+class TestFormatSendToMaster(SlapformatMixin):
+  def setUp(self):
+    super(TestFormatSendToMaster, self).setUp()
+    self.restoreOs()
+    self._tempdir = tempfile.mkdtemp()
+    self.sequence = []
+    self.body_sequence = []
+
+  def jio_api_request_handler(self, url, req):
+    self.sequence.append(url.path)
+    if req.method == 'GET':
+      qs = parse.parse_qs(url.query)
+    else:
+      qs = parse.parse_qs(req.body)
+    if url.path.startswith('/api/'):
+      content = json.loads(req.body)
+      self.body_sequence.append(content)
+      return json.dumps({})
+
+  def test(self):
+    computer = slapos.format.Computer('computer',
+      instance_root=os.path.join(self._tempdir, 'instance_root'),
+      software_root=os.path.join(self._tempdir, 'software_root'),
+      tap_ipv6=True,
+      interface=slapos.format.Interface(
+        logger=self.logger, name='myinterface', ipv4_local_network='127.0.0.1/16'),
+      partition_list=[
+          slapos.format.Partition(
+            'partition', 'part_path', slapos.format.User('testuser'), [], tap=slapos.format.Tap('tap')),
+        ])
+    global USER_LIST
+    USER_LIST = ['testuser']
+    global INTERFACE_DICT
+    INTERFACE_DICT['myinterface'] = {
+      socket.AF_INET: [{'addr': '192.168.242.77', 'broadcast': '127.0.0.1',
+        'netmask': '255.255.255.0'}],
+      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
+    }
+
+    computer.format(alter_user=False, alter_network=False, create_tap=False)
+
+    test_configuration = TestConfForAPI()
+    with httmock.HTTMock(self.jio_api_request_handler):
+      computer.send(test_configuration)
+    self.assertEqual(self.sequence, ['/getHateoasUrl', '/api/put/'])
+    self.assertEqual(
+      self.body_sequence,
+      [
+        {
+          'compute_node_id': 'computer',
+          'compute_partition_list': [
+            {
+              'ip_list': [
+                {'ip-address': computer.partition_list[0].address_list[0]["addr"], 'network-interface': 'tap'},
+                {'ip-address': computer.partition_list[0].address_list[1]["addr"], 'network-interface': 'tap'}
+              ],
+              'partition_id': 'partition'
+            }
+          ]
+        }
+      ]
+    )
+
+  def tearDown(self):
+    shutil.rmtree(self._tempdir, True)
+    super(TestFormatSendToMaster, self).tearDown()
 
 class SlapGridPartitionMock:
 

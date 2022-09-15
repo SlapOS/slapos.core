@@ -1317,6 +1317,7 @@ stderr_logfile_backups=1
       instance_min_free_space=self.instance_min_free_space,
       instance_storage_home=self.instance_storage_home,
       ipv4_global_network=self.ipv4_global_network,
+      api_backward_compatibility=self.api_backward_compatibility,
     )
 
     # let managers modify current partition
@@ -2004,6 +2005,7 @@ stderr_logfile_backups=1
             logger=self.logger,
             instance_storage_home=self.instance_storage_home,
             ipv4_global_network=self.ipv4_global_network,
+            api_backward_compatibility=self.api_backward_compatibility,
           )
           local_partition.stop()
           local_partition._updateCertificate()

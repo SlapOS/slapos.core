@@ -72,7 +72,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
       for test_component in self.portal.portal_components.searchFolder(
           portal_type='Test Component'):
         if "Slap" not in test_component.getId() or \
-            "testSlapOSCodingStyle" in test_component.getId():
+            "testSlapOSCodingStyle" not in test_component.getId():
           continue
       content_dict[test_component.getId()] = test_component.getTextContent()
 

@@ -28,7 +28,7 @@
             <key> <string>expression</string> </key>
             <value> <string encoding="cdata"><![CDATA[
 
-python: len(context.getSuccessorRelatedList()) <= 1
+python: len([x for x in context.getSuccessorRelatedValueList() if context.getRelativeUrl() in x.getSuccessorList()]) <= 1
 
 ]]></string> </value>
         </item>

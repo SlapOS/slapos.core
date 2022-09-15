@@ -237,9 +237,11 @@ class TestSlapOSSoftwareInstanceConstraint(TestSlapOSConstraintMixin):
 
   def test_successor_related(self):
     software_instance2 = self.portal.software_instance_module.newContent(
-      portal_type='Software Instance')
+      portal_type='Software Instance',
+      reference="TESTSOFTINST-%s" % self.generateNewId())
     software_instance3 = self.portal.software_instance_module.newContent(
-      portal_type='Software Instance')
+      portal_type='Software Instance',
+      reference="TESTSOFTINST-%s" % self.generateNewId())
 
     # fetch basic list of consistency messages
     current_message_list = self.getMessageList(self.software_instance)
@@ -376,9 +378,11 @@ class TestSlapOSSlaveInstanceConstraint(TestSlapOSConstraintMixin):
 
   def test_successor_related(self):
     software_instance2 = self.portal.software_instance_module.newContent(
-      portal_type='Slave Instance')
+      portal_type='Slave Instance',
+      reference="TESTSOFTINST-%s" % self.generateNewId())
     software_instance3 = self.portal.software_instance_module.newContent(
-      portal_type='Slave Instance')
+      portal_type='Slave Instance',
+      reference="TESTSOFTINST-%s" % self.generateNewId())
 
     # fetch basic list of consistency messages
     current_message_list = self.getMessageList(self.software_instance)

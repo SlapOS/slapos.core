@@ -1389,6 +1389,7 @@ stderr_logfile_backups=1
       self.logger.info('  Software URL: %s' % software_url)
       self.logger.info('  Software path: %s' % software_path)
       self.logger.info('  Instance path: %s' % instance_path)
+      self.logger.info('  jIO API used: %s' % (not self.api_backward_compatibility))
 
       # Update certifcate at late as possible
       local_partition._updateCertificate()

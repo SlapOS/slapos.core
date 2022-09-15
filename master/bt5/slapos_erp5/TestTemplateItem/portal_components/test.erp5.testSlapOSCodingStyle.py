@@ -72,9 +72,11 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
       for test_component in self.portal.portal_components.searchFolder(
           portal_type='Test Component'):
         if "Slap" not in test_component.getId() or \
-            "testSlapOSCodingStyle" not in test_component.getId():
+            "testSlapOSCodingStyle" in test_component.getId():
           continue
       content_dict[test_component.getId()] = test_component.getTextContent()
+
+      self.assertNotEqual(len(content_dict), 0)
 
       skin_id_set = set()
       for business_template in self._getTestedBusinessTemplateValueList():

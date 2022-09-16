@@ -613,7 +613,7 @@ stderr_logfile_backups=1
     """Return the computer partitions that should be processed.
     """
     cp_list = self.getComputerPartitionList()
-    cp_id_list = [cp.get("computer_partition_id", "") for cp in cp_list]
+    cp_id_list = [cp.get("compute_partition_id", "") for cp in cp_list]
     required_cp_id_set = check_required_only_partitions(
       cp_id_list, self.computer_partition_filter_list)
     busy_cp_list = self.FilterComputerPartitionList(cp_list)

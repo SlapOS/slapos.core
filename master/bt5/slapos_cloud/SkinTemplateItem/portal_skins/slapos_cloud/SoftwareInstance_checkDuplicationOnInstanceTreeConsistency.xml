@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>tag, fixit, **kw</string> </value>
+            <value> <string>fixit=False</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Alarm_searchDuplicatedObjectReference</string> </value>
+            <value> <string>SoftwareInstance_checkDuplicationOnInstanceTreeConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

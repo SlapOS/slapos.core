@@ -190,25 +190,16 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_consumption/Base_getUserConsumptionDetailList',
         'slapos_consumption/Base_jumpToViewLatestDayConsumption',
         'slapos_consumption/ComputeNode_getLatestCPUPercentLoad',
-        'slapos_consumption/ComputeNode_getWattConsumption',
-        'slapos_consumption/ComputeNode_getZeroEmissionRatio',
         'slapos_consumption/InstanceTree_getCPUStat',
         'slapos_consumption/InstanceTree_getDiskStat',
-        'slapos_consumption/InstanceTree_getEcoReallocationInformation',
         'slapos_consumption/InstanceTree_getMemoryStat',
-        'slapos_consumption/InstanceTree_getMostEcoEfficientSoftwareInstance',
         'slapos_consumption/InstanceTree_getResourceConsumptionDetailList',
         'slapos_consumption/InstanceTree_getStatForResource',
         'slapos_consumption/SaleInvoiceTransaction_generateResourceConsumptionDocument',
-        'slapos_consumption/SoftwareInstance_getAverageCPULoad',
-        'slapos_consumption/SoftwareInstance_getCurrentDeltaCO2',
-        'slapos_consumption/SoftwareInstance_getFutureDeltaCO2',
         'slapos_consumption/SoftwareInstance_getLatestCPUPercentLoad',
-        'slapos_consumption/SoftwareInstance_getResilientMasterNode',
-        'slapos_consumption/SoftwareInstance_getWattStats',
+        'slapos_consumption/SoftwareInstance_getAverageCPULoad',
         'slapos_consumption/SoftwareRelease_getAverageConsumedCPULoad',
         'slapos_consumption/SoftwareRelease_getAverageConsumedMemory',
-        'slapos_consumption/SoftwareRelease_getDeltaCO2List',
         'slapos_consumption/SoftwareRelease_updateCapacityQuantity',
         'slapos_wechat/Base_queryWechatOrderStatusByTradeNo',
         'slapos_wechat/ERP5Site_receiveWechatPaymentCallback',
@@ -218,8 +209,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_deploy_theme/WebPage_viewAsWeb',
         'slapos_deploy_theme/WebSection_getDocumentValue',
         'slapos_deploy_theme/WebSection_renderDefaultPageAsDeployScript',
-        'slapos_ecoallocation/ComputerConsumptionTioXMLFile_solveInvoicingGenerationEco',
-        'slapos_ecoallocation/Person_findPartitionEcoAllocation',
         'slapos_upgrader/Base_getUpgradeBusinessTemplateList',
         'slapos_upgrader/ERP5Site_upgradeERP5CoreBusinessTemplate',
         'slapos_upgrader/ERP5Site_upgradeSlapOSTestUICoreBusinessTemplate',
@@ -417,9 +406,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
           document_path = "%s/%s" % (skin.getId(), document.getId())
           if not found and document_path not in self.coverage_ignore_path_list:
             message_list.append(document_path)
-          
-          if found and document_path in self.coverage_ignore_path_list:
-            message_list.append("Remove %s from coverage_ignore_path_list" % document_path)
 
       self.maxDiff = None
       self.assertEqual(message_list, [])

@@ -10,9 +10,8 @@ import tempfile
 import time
 
 # blurb to make nice XML comparisions
-import xml.dom.ext.reader.Sax
-import xml.dom.ext
-import StringIO
+from lxml import etree
+
 import difflib
 import hashlib
 import json
@@ -260,29 +259,25 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
         response.headers.get('content-type'))
 
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """<?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <object id='i2' module='slapos.slap.slap' class='Computer'>
+  <object id="i2" module="slapos.slap.slap" class="Computer">
     <tuple>
       <string>%(compute_node_id)s</string>
     </tuple>
-    <dictionary id='i3'>
+    <dictionary id="i3">
       <string>_computer_id</string>
       <string>%(compute_node_id)s</string>
       <string>_computer_partition_list</string>
-      <list id='i4'>
-        <object id='i5' module='slapos.slap.slap' class='ComputerPartition'>
+      <list id="i4">
+        <object id="i5" module="slapos.slap.slap" class="ComputerPartition">
           <tuple>
             <string>%(compute_node_id)s</string>
             <string>partition4</string>
           </tuple>
-          <dictionary id='i6'>
+          <dictionary id="i6">
             <string>_computer_id</string>
             <string>%(compute_node_id)s</string>
             <string>_need_modification</string>
@@ -297,20 +292,20 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
             <none/>
           </dictionary>
         </object>
-        <object id='i7' module='slapos.slap.slap' class='ComputerPartition'>
+        <object id="i7" module="slapos.slap.slap" class="ComputerPartition">
           <tuple>
             <string>%(compute_node_id)s</string>
             <string>partition3</string>
           </tuple>
-          <dictionary id='i8'>
+          <dictionary id="i8">
             <string>_access_status</string>
             <string>#error no data found for %(partition_3_instance_guid)s</string>
             <string>_computer_id</string>
             <string>%(compute_node_id)s</string>
             <string>_connection_dict</string>
-            <dictionary id='i9'/>
+            <dictionary id="i9"/>
             <string>_filter_dict</string>
-            <dictionary id='i10'>
+            <dictionary id="i10">
               <string>paramé</string>
               <string>%(partition_3_sla)s</string>
             </dictionary>
@@ -319,13 +314,13 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
             <string>_need_modification</string>
             <int>1</int>
             <string>_parameter_dict</string>
-            <dictionary id='i11'>
+            <dictionary id="i11">
               <string>full_ip_list</string>
-              <list id='i12'/>
+              <list id="i12"/>
               <string>instance_title</string>
               <string>%(partition_3_instance_title)s</string>
               <string>ip_list</string>
-              <list id='i13'>
+              <list id="i13">
                 <tuple>
                   <string/>
                   <string>ip_address_3</string>
@@ -346,7 +341,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
               <string>slap_software_type</string>
               <string>%(partition_3_instance_software_type)s</string>
               <string>slave_instance_list</string>
-              <list id='i14'/>
+              <list id="i14"/>
               <string>timestamp</string>
               <string>%(partition_3_timestamp)s</string>
             </dictionary>
@@ -357,36 +352,36 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
             <string>_requested_state</string>
             <string>destroyed</string>
             <string>_software_release_document</string>
-            <object id='i15' module='slapos.slap.slap' class='SoftwareRelease'>
+            <object id="i15" module="slapos.slap.slap" class="SoftwareRelease">
               <tuple>
                 <string>%(partition_3_software_release_url)s</string>
                 <string>%(compute_node_id)s</string>
               </tuple>
-              <dictionary id='i16'>
+              <dictionary id="i16">
                 <string>_computer_guid</string>
                 <string>%(compute_node_id)s</string>
                 <string>_software_instance_list</string>
-                <list id='i17'/>
+                <list id="i17"/>
                 <string>_software_release</string>
                 <string>%(partition_3_software_release_url)s</string>
               </dictionary>
             </object>
           </dictionary>
         </object>
-        <object id='i18' module='slapos.slap.slap' class='ComputerPartition'>
+        <object id="i18" module="slapos.slap.slap" class="ComputerPartition">
           <tuple>
             <string>%(compute_node_id)s</string>
             <string>partition2</string>
           </tuple>
-          <dictionary id='i19'>
+          <dictionary id="i19">
             <string>_access_status</string>
             <string>#error no data found for %(partition_2_instance_guid)s</string>
             <string>_computer_id</string>
             <string>%(compute_node_id)s</string>
             <string>_connection_dict</string>
-            <dictionary id='i20'/>
+            <dictionary id="i20"/>
             <string>_filter_dict</string>
-            <dictionary id='i21'>
+            <dictionary id="i21">
               <string>paramé</string>
               <string>%(partition_2_sla)s</string>
             </dictionary>
@@ -395,13 +390,13 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
             <string>_need_modification</string>
             <int>1</int>
             <string>_parameter_dict</string>
-            <dictionary id='i22'>
+            <dictionary id="i22">
               <string>full_ip_list</string>
-              <list id='i23'/>
+              <list id="i23"/>
               <string>instance_title</string>
               <string>%(partition_2_instance_title)s</string>
               <string>ip_list</string>
-              <list id='i24'>
+              <list id="i24">
                 <tuple>
                   <string/>
                   <string>ip_address_2</string>
@@ -422,7 +417,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
               <string>slap_software_type</string>
               <string>%(partition_2_instance_software_type)s</string>
               <string>slave_instance_list</string>
-              <list id='i25'/>
+              <list id="i25"/>
               <string>timestamp</string>
               <string>%(partition_2_timestamp)s</string>
             </dictionary>
@@ -433,36 +428,36 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
             <string>_requested_state</string>
             <string>stopped</string>
             <string>_software_release_document</string>
-            <object id='i26' module='slapos.slap.slap' class='SoftwareRelease'>
+            <object id="i26" module="slapos.slap.slap" class="SoftwareRelease">
               <tuple>
                 <string>%(partition_2_software_release_url)s</string>
                 <string>%(compute_node_id)s</string>
               </tuple>
-              <dictionary id='i27'>
+              <dictionary id="i27">
                 <string>_computer_guid</string>
                 <string>%(compute_node_id)s</string>
                 <string>_software_instance_list</string>
-                <list id='i28'/>
+                <list id="i28"/>
                 <string>_software_release</string>
                 <string>%(partition_2_software_release_url)s</string>
               </dictionary>
             </object>
           </dictionary>
         </object>
-        <object id='i29' module='slapos.slap.slap' class='ComputerPartition'>
+        <object id="i29" module="slapos.slap.slap" class="ComputerPartition">
           <tuple>
             <string>%(compute_node_id)s</string>
             <string>partition1</string>
           </tuple>
-          <dictionary id='i30'>
+          <dictionary id="i30">
             <string>_access_status</string>
             <string>#error no data found for %(partition_1_instance_guid)s</string>
             <string>_computer_id</string>
             <string>%(compute_node_id)s</string>
             <string>_connection_dict</string>
-            <dictionary id='i31'/>
+            <dictionary id="i31"/>
             <string>_filter_dict</string>
-            <dictionary id='i32'>
+            <dictionary id="i32">
               <string>paramé</string>
               <string>%(partition_1_sla)s</string>
             </dictionary>
@@ -471,13 +466,13 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
             <string>_need_modification</string>
             <int>1</int>
             <string>_parameter_dict</string>
-            <dictionary id='i33'>
+            <dictionary id="i33">
               <string>full_ip_list</string>
-              <list id='i34'/>
+              <list id="i34"/>
               <string>instance_title</string>
               <string>%(partition_1_instance_title)s</string>
               <string>ip_list</string>
-              <list id='i35'>
+              <list id="i35">
                 <tuple>
                   <string/>
                   <string>ip_address_1</string>
@@ -498,8 +493,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
               <string>slap_software_type</string>
               <string>%(partition_1_instance_software_type)s</string>
               <string>slave_instance_list</string>
-              <list id='i36'>
-                <dictionary id='i37'>
+              <list id="i36">
+                <dictionary id="i37">
                   <string>paramé</string>
                   <string>%(slave_1_param)s</string>
                   <string>slap_software_type</string>
@@ -522,16 +517,16 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
             <string>_requested_state</string>
             <string>started</string>
             <string>_software_release_document</string>
-            <object id='i38' module='slapos.slap.slap' class='SoftwareRelease'>
+            <object id="i38" module="slapos.slap.slap" class="SoftwareRelease">
               <tuple>
                 <string>%(partition_1_software_release_url)s</string>
                 <string>%(compute_node_id)s</string>
               </tuple>
-              <dictionary id='i39'>
+              <dictionary id="i39">
                 <string>_computer_guid</string>
                 <string>%(compute_node_id)s</string>
                 <string>_software_instance_list</string>
-                <list id='i40'/>
+                <list id="i40"/>
                 <string>_software_release</string>
                 <string>%(partition_1_software_release_url)s</string>
               </dictionary>
@@ -540,13 +535,13 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
         </object>
       </list>
       <string>_software_release_list</string>
-      <list id='i41'>
-        <object id='i42' module='slapos.slap.slap' class='SoftwareRelease'>
+      <list id="i41">
+        <object id="i42" module="slapos.slap.slap" class="SoftwareRelease">
           <tuple>
             <string>%(destroy_requested_url)s</string>
             <string>%(compute_node_id)s</string>
           </tuple>
-          <dictionary id='i43'>
+          <dictionary id="i43">
             <string>_computer_guid</string>
             <string>%(compute_node_id)s</string>
             <string>_known_state</string>
@@ -554,17 +549,17 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
             <string>_requested_state</string>
             <string>destroyed</string>
             <string>_software_instance_list</string>
-            <list id='i44'/>
+            <list id="i44"/>
             <string>_software_release</string>
             <string>%(destroy_requested_url)s</string>
           </dictionary>
         </object>
-        <object id='i45' module='slapos.slap.slap' class='SoftwareRelease'>
+        <object id="i45" module="slapos.slap.slap" class="SoftwareRelease">
           <tuple>
             <string>%(start_requested_url)s</string>
             <string>%(compute_node_id)s</string>
           </tuple>
-          <dictionary id='i46'>
+          <dictionary id="i46">
             <string>_computer_guid</string>
             <string>%(compute_node_id)s</string>
             <string>_known_state</string>
@@ -572,7 +567,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
             <string>_requested_state</string>
             <string>available</string>
             <string>_software_instance_list</string>
-            <list id='i47'/>
+            <list id="i47"/>
             <string>_software_release</string>
             <string>%(start_requested_url)s</string>
           </dictionary>
@@ -636,17 +631,13 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
 
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data</string>
@@ -690,17 +681,13 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
         response.headers.get('content-type'))
 
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
 
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data_since_15_minutes</string>
@@ -773,7 +760,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
       compute_node_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>reference</string>
     <string>%(compute_node_reference)s</string>
   </dictionary>
@@ -808,17 +795,13 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
 
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data</string>
@@ -883,16 +866,12 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getSoftwareInstallationStatus(
                       url_string, self.compute_node_id)
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data_since_15_minutes</string>
@@ -937,16 +916,12 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getSoftwareInstallationStatus(
                       url_string, self.compute_node_id)
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data_since_15_minutes</string>
@@ -991,16 +966,12 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getSoftwareInstallationStatus(
                       url_string, self.compute_node_id)
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data_since_15_minutes</string>
@@ -1151,16 +1122,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>certificate</string>
     <string>%(instance_certificate)s</string>
     <string>key</string>
@@ -1187,38 +1154,34 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <object id='i2' module='slapos.slap.slap' class='Computer'>
+  <object id="i2" module="slapos.slap.slap" class="Computer">
     <tuple>
       <string>%(compute_node_id)s</string>
     </tuple>
-    <dictionary id='i3'>
+    <dictionary id="i3">
       <string>_computer_id</string>
       <string>%(compute_node_id)s</string>
       <string>_computer_partition_list</string>
-      <list id='i4'>
-        <object id='i5' module='slapos.slap.slap' class='ComputerPartition'>
+      <list id="i4">
+        <object id="i5" module="slapos.slap.slap" class="ComputerPartition">
           <tuple>
             <string>%(compute_node_id)s</string>
             <string>partition1</string>
           </tuple>
-          <dictionary id='i6'>
+          <dictionary id="i6">
             <string>_access_status</string>
             <string>%(access_status)s</string>
             <string>_computer_id</string>
             <string>%(compute_node_id)s</string>
             <string>_connection_dict</string>
-            <dictionary id='i7'/>
+            <dictionary id="i7"/>
             <string>_filter_dict</string>
-            <dictionary id='i8'>
+            <dictionary id="i8">
               <string>paramé</string>
               <string>%(sla)s</string>
             </dictionary>
@@ -1227,13 +1190,13 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
             <string>_need_modification</string>
             <int>1</int>
             <string>_parameter_dict</string>
-            <dictionary id='i9'>
+            <dictionary id="i9">
               <string>full_ip_list</string>
-              <list id='i10'/>
+              <list id="i10"/>
               <string>instance_title</string>
               <string>%(instance_title)s</string>
               <string>ip_list</string>
-              <list id='i11'>
+              <list id="i11">
                 <tuple>
                   <string/>
                   <string>ip_address_1</string>
@@ -1254,8 +1217,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
               <string>slap_software_type</string>
               <string>%(software_type)s</string>
               <string>slave_instance_list</string>
-              <list id='i12'>
-                <dictionary id='i13'>
+              <list id="i12">
+                <dictionary id="i13">
                   <string>paramé</string>
                   <string>%(slave_1_param)s</string>
                   <string>slap_software_type</string>
@@ -1278,16 +1241,16 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
             <string>_requested_state</string>
             <string>started</string>
             <string>_software_release_document</string>
-            <object id='i14' module='slapos.slap.slap' class='SoftwareRelease'>
+            <object id="i14" module="slapos.slap.slap" class="SoftwareRelease">
               <tuple>
                 <string>%(software_release_url)s</string>
                 <string>%(compute_node_id)s</string>
               </tuple>
-              <dictionary id='i15'>
+              <dictionary id="i15">
                 <string>_computer_guid</string>
                 <string>%(compute_node_id)s</string>
                 <string>_software_instance_list</string>
-                <list id='i16'/>
+                <list id="i16"/>
                 <string>_software_release</string>
                 <string>%(software_release_url)s</string>
               </dictionary>
@@ -1296,7 +1259,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         </object>
       </list>
       <string>_software_release_list</string>
-      <list id='i17'/>
+      <list id="i17"/>
     </dictionary>
   </object>
 </marshal>
@@ -1337,16 +1300,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data</string>
@@ -1392,16 +1351,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data</string>
@@ -1445,27 +1400,23 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <object id='i2' module='slapos.slap.slap' class='ComputerPartition'>
+  <object id="i2" module="slapos.slap.slap" class="ComputerPartition">
     <tuple>
       <string>%(compute_node_id)s</string>
       <string>partition1</string>
     </tuple>
-    <dictionary id='i3'>
+    <dictionary id="i3">
       <string>_computer_id</string>
       <string>%(compute_node_id)s</string>
       <string>_connection_dict</string>
-      <dictionary id='i4'/>
+      <dictionary id="i4"/>
       <string>_filter_dict</string>
-      <dictionary id='i5'>
+      <dictionary id="i5">
         <string>paramé</string>
         <string>%(sla)s</string>
       </dictionary>
@@ -1474,13 +1425,13 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       <string>_need_modification</string>
       <int>1</int>
       <string>_parameter_dict</string>
-      <dictionary id='i6'>
+      <dictionary id="i6">
         <string>full_ip_list</string>
-        <list id='i7'/>
+        <list id="i7"/>
         <string>instance_title</string>
         <string>%(instance_title)s</string>
         <string>ip_list</string>
-        <list id='i8'>
+        <list id="i8">
           <tuple>
             <string/>
             <string>ip_address_1</string>
@@ -1501,8 +1452,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         <string>slap_software_type</string>
         <string>%(software_type)s</string>
         <string>slave_instance_list</string>
-        <list id='i9'>
-          <dictionary id='i10'>
+        <list id="i9">
+          <dictionary id="i10">
             <string>connection-parameter-hash</string>
             <string>4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945</string>
             <string>paramé</string>
@@ -1527,16 +1478,16 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       <string>_requested_state</string>
       <string>started</string>
       <string>_software_release_document</string>
-      <object id='i11' module='slapos.slap.slap' class='SoftwareRelease'>
+      <object id="i11" module="slapos.slap.slap" class="SoftwareRelease">
         <tuple>
           <string>%(software_release_url)s</string>
           <string>%(compute_node_id)s</string>
         </tuple>
-        <dictionary id='i12'>
+        <dictionary id="i12">
           <string>_computer_guid</string>
           <string>%(compute_node_id)s</string>
           <string>_software_instance_list</string>
-          <list id='i13'/>
+          <list id="i13"/>
           <string>_software_release</string>
           <string>%(software_release_url)s</string>
         </dictionary>
@@ -1579,27 +1530,23 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <object id='i2' module='slapos.slap.slap' class='ComputerPartition'>
+  <object id="i2" module="slapos.slap.slap" class="ComputerPartition">
     <tuple>
       <string>%(compute_node_id)s</string>
       <string>partition1</string>
     </tuple>
-    <dictionary id='i3'>
+    <dictionary id="i3">
       <string>_computer_id</string>
       <string>%(compute_node_id)s</string>
       <string>_connection_dict</string>
-      <dictionary id='i4'/>
+      <dictionary id="i4"/>
       <string>_filter_dict</string>
-      <dictionary id='i5'>
+      <dictionary id="i5">
         <string>paramé</string>
         <string>%(sla)s</string>
       </dictionary>
@@ -1608,13 +1555,13 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       <string>_need_modification</string>
       <int>1</int>
       <string>_parameter_dict</string>
-      <dictionary id='i6'>
+      <dictionary id="i6">
         <string>full_ip_list</string>
-        <list id='i7'/>
+        <list id="i7"/>
         <string>instance_title</string>
         <string>%(instance_title)s</string>
         <string>ip_list</string>
-        <list id='i8'>
+        <list id="i8">
           <tuple>
             <string/>
             <string>ip_address_1</string>
@@ -1635,7 +1582,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         <string>slap_software_type</string>
         <string>%(software_type)s</string>
         <string>slave_instance_list</string>
-        <list id='i9'/>
+        <list id="i9"/>
         <string>timestamp</string>
         <string>%(timestamp)s</string>
       </dictionary>
@@ -1646,16 +1593,16 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       <string>_requested_state</string>
       <string>started</string>
       <string>_software_release_document</string>
-      <object id='i10' module='slapos.slap.slap' class='SoftwareRelease'>
+      <object id="i10" module="slapos.slap.slap" class="SoftwareRelease">
         <tuple>
           <string>%(software_release_url)s</string>
           <string>%(compute_node_id)s</string>
         </tuple>
-        <dictionary id='i11'>
+        <dictionary id="i11">
           <string>_computer_guid</string>
           <string>%(compute_node_id)s</string>
           <string>_software_instance_list</string>
-          <list id='i12'/>
+          <list id="i12"/>
           <string>_software_release</string>
           <string>%(software_release_url)s</string>
         </dictionary>
@@ -1768,16 +1715,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data_since_15_minutes</string>
@@ -1820,16 +1763,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data_since_15_minutes</string>
@@ -1869,12 +1808,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
 
     self.assertNotEqual(created_at, ncreated_at)
     self.assertNotEqual(since, ncreated_at)
@@ -1883,7 +1818,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data_since_15_minutes</string>
@@ -1938,16 +1873,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
         partition_id)
       # check returned XML
-      xml_fp = StringIO.StringIO()
-
-      xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-          stream=xml_fp)
-      xml_fp.seek(0)
-      got_xml = xml_fp.read()
+      got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
       expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data_since_15_minutes</string>
@@ -2262,16 +2193,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data_since_15_minutes</string>
@@ -2313,16 +2240,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data_since_15_minutes</string>
@@ -2380,16 +2303,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 
     response = self.portal_slap.getSoftwareReleaseListFromSoftwareProduct(
         software_product.getReference())
-    # check returned XML
-    xml_fp = StringIO.StringIO()
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <list id='i2'>
+  <list id="i2">
     <string>%s</string>
     <string>%s</string>
   </list>
@@ -2429,15 +2348,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getSoftwareReleaseListFromSoftwareProduct(
         software_product.getReference())
     # check returned XML
-    xml_fp = StringIO.StringIO()
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <list id='i2'>
+  <list id="i2">
     <string>%s</string>
     <string>%s</string>
     <string>%s</string>
@@ -2454,16 +2370,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 
     response = self.portal_slap.getSoftwareReleaseListFromSoftwareProduct(
         software_product.getReference())
-    # check returned XML
-    xml_fp = StringIO.StringIO()
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <list id='i2'/>
+  <list id="i2"/>
 </marshal>
 """ 
     self.assertEqual(expected_xml, got_xml,
@@ -2472,16 +2384,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   def test_getSoftwareReleaseListFromSoftwareProduct_NoSoftwareProduct(self):
     response = self.portal_slap.getSoftwareReleaseListFromSoftwareProduct(
         'Can I has a nonexistent software product?')
-    # check returned XML
-    xml_fp = StringIO.StringIO()
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <list id='i2'/>
+  <list id="i2"/>
 </marshal>
 """ 
     self.assertEqual(expected_xml, got_xml,
@@ -2515,15 +2423,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getSoftwareReleaseListFromSoftwareProduct(
         software_release_url=software_release2.getUrlString())
     # check returned XML
-    xml_fp = StringIO.StringIO()
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <list id='i2'>
+  <list id="i2">
     <string>%s</string>
     <string>%s</string>
   </list>
@@ -2564,17 +2469,13 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
 
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data</string>
@@ -2618,17 +2519,13 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         response.headers.get('content-type'))
 
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
 
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data_since_15_minutes</string>
@@ -2702,16 +2599,12 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data</string>
@@ -2759,16 +2652,12 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data</string>
@@ -2812,27 +2701,23 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <object id='i2' module='slapos.slap.slap' class='ComputerPartition'>
+  <object id="i2" module="slapos.slap.slap" class="ComputerPartition">
     <tuple>
       <string>%(compute_node_id)s</string>
       <string>partition1</string>
     </tuple>
-    <dictionary id='i3'>
+    <dictionary id="i3">
       <string>_computer_id</string>
       <string>%(compute_node_id)s</string>
       <string>_connection_dict</string>
-      <dictionary id='i4'/>
+      <dictionary id="i4"/>
       <string>_filter_dict</string>
-      <dictionary id='i5'>
+      <dictionary id="i5">
         <string>paramé</string>
         <string>%(sla)s</string>
       </dictionary>
@@ -2841,13 +2726,13 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       <string>_need_modification</string>
       <int>1</int>
       <string>_parameter_dict</string>
-      <dictionary id='i6'>
+      <dictionary id="i6">
         <string>full_ip_list</string>
-        <list id='i7'/>
+        <list id="i7"/>
         <string>instance_title</string>
         <string>%(instance_title)s</string>
         <string>ip_list</string>
-        <list id='i8'>
+        <list id="i8">
           <tuple>
             <string/>
             <string>ip_address_1</string>
@@ -2868,8 +2753,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         <string>slap_software_type</string>
         <string>%(software_type)s</string>
         <string>slave_instance_list</string>
-        <list id='i9'>
-          <dictionary id='i10'>
+        <list id="i9">
+          <dictionary id="i10">
             <string>connection-parameter-hash</string>
             <string>4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945</string>
             <string>paramé</string>
@@ -2894,16 +2779,16 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       <string>_requested_state</string>
       <string>started</string>
       <string>_software_release_document</string>
-      <object id='i11' module='slapos.slap.slap' class='SoftwareRelease'>
+      <object id="i11" module="slapos.slap.slap" class="SoftwareRelease">
         <tuple>
           <string>%(software_release_url)s</string>
           <string>%(compute_node_id)s</string>
         </tuple>
-        <dictionary id='i12'>
+        <dictionary id="i12">
           <string>_computer_guid</string>
           <string>%(compute_node_id)s</string>
           <string>_software_instance_list</string>
-          <list id='i13'/>
+          <list id="i13"/>
           <string>_software_release</string>
           <string>%(software_release_url)s</string>
         </dictionary>
@@ -2946,27 +2831,23 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <object id='i2' module='slapos.slap.slap' class='ComputerPartition'>
+  <object id="i2" module="slapos.slap.slap" class="ComputerPartition">
     <tuple>
       <string>%(compute_node_id)s</string>
       <string>partition1</string>
     </tuple>
-    <dictionary id='i3'>
+    <dictionary id="i3">
       <string>_computer_id</string>
       <string>%(compute_node_id)s</string>
       <string>_connection_dict</string>
-      <dictionary id='i4'/>
+      <dictionary id="i4"/>
       <string>_filter_dict</string>
-      <dictionary id='i5'>
+      <dictionary id="i5">
         <string>paramé</string>
         <string>%(sla)s</string>
       </dictionary>
@@ -2975,13 +2856,13 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       <string>_need_modification</string>
       <int>1</int>
       <string>_parameter_dict</string>
-      <dictionary id='i6'>
+      <dictionary id="i6">
         <string>full_ip_list</string>
-        <list id='i7'/>
+        <list id="i7"/>
         <string>instance_title</string>
         <string>%(instance_title)s</string>
         <string>ip_list</string>
-        <list id='i8'>
+        <list id="i8">
           <tuple>
             <string/>
             <string>ip_address_1</string>
@@ -3002,7 +2883,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         <string>slap_software_type</string>
         <string>%(software_type)s</string>
         <string>slave_instance_list</string>
-        <list id='i9'/>
+        <list id="i9"/>
         <string>timestamp</string>
         <string>%(timestamp)s</string>
       </dictionary>
@@ -3013,16 +2894,16 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       <string>_requested_state</string>
       <string>started</string>
       <string>_software_release_document</string>
-      <object id='i10' module='slapos.slap.slap' class='SoftwareRelease'>
+      <object id="i10" module="slapos.slap.slap" class="SoftwareRelease">
         <tuple>
           <string>%(software_release_url)s</string>
           <string>%(compute_node_id)s</string>
         </tuple>
-        <dictionary id='i11'>
+        <dictionary id="i11">
           <string>_computer_guid</string>
           <string>%(compute_node_id)s</string>
           <string>_software_instance_list</string>
-          <list id='i12'/>
+          <list id="i12"/>
           <string>_software_release</string>
           <string>%(software_release_url)s</string>
         </dictionary>
@@ -3071,17 +2952,14 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       since = created_at
       response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
         partition_id)
-      # check returned XML
-      xml_fp = StringIO.StringIO()
 
-      xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-          stream=xml_fp)
-      xml_fp.seek(0)
-      got_xml = xml_fp.read()
+      got_xml = etree.tostring(etree.fromstring(response.body),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
+      # check returned XML
       expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>no_data_since_15_minutes</string>
@@ -3230,34 +3108,30 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       )
     self.assertEqual(type(response), str)
     # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    got_xml = etree.tostring(etree.fromstring(response),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <object id='i2' module='slapos.slap.slap' class='SoftwareInstance'>
+  <object id="i2" module="slapos.slap.slap" class="SoftwareInstance">
     <tuple/>
-    <dictionary id='i3'>
+    <dictionary id="i3">
       <string>_connection_dict</string>
-      <dictionary id='i4'/>
+      <dictionary id="i4"/>
       <string>_filter_dict</string>
-      <dictionary id='i5'/>
+      <dictionary id="i5"/>
       <string>_instance_guid</string>
       <string>%(instance_guid)s</string>
       <string>_parameter_dict</string>
-      <dictionary id='i6'/>
+      <dictionary id="i6"/>
       <string>_requested_state</string>
       <string>%(state)s</string>
       <string>full_ip_list</string>
-      <list id='i7'/>
+      <list id="i7"/>
       <string>instance_title</string>
       <string>%(instance_title)s</string>
       <string>ip_list</string>
-      <list id='i8'>
+      <list id="i8">
         <tuple>
           <string/>
           <string>%(ip)s</string>
@@ -3276,7 +3150,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       <string>slap_software_type</string>
       <string>%(type)s</string>
       <string>slave_instance_list</string>
-      <list id='i9'/>
+      <list id="i9"/>
       <string>timestamp</string>
       <string>%(timestamp)s</string>
     </dictionary>
@@ -3346,22 +3220,16 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       compute_node_reference = 'live_comp_%s' % self.generateNewId()
       self.portal.REQUEST.set('compute_node_reference', compute_node_reference)
       response = self.portal_slap.requestComputer(compute_node_id)
-
-      # check returned XML
-      xml_fp = StringIO.StringIO()
-
-      xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response),
-          stream=xml_fp)
-      xml_fp.seek(0)
-      got_xml = xml_fp.read()
+      got_xml = etree.tostring(etree.fromstring(response),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
       expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <object id='i2' module='slapos.slap.slap' class='Computer'>
+  <object id="i2" module="slapos.slap.slap" class="Computer">
     <tuple>
       <string>%(compute_node_id)s</string>
     </tuple>
-    <dictionary id='i3'>
+    <dictionary id="i3">
       <string>_computer_id</string>
       <string>%(compute_node_id)s</string>
     </dictionary>
@@ -3396,18 +3264,12 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       self.portal.REQUEST.set('compute_node_certificate', compute_node_certificate)
       self.portal.REQUEST.set('compute_node_key', compute_node_key)
       response = self.portal_slap.generateComputerCertificate(self.compute_node_id)
-
-      # check returned XML
-      xml_fp = StringIO.StringIO()
-
-      xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response),
-          stream=xml_fp)
-      xml_fp.seek(0)
-      got_xml = xml_fp.read()
+      got_xml = etree.tostring(etree.fromstring(response),
+        pretty_print=True, encoding="UTF-8", xml_declaration=True)
       expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
-  <dictionary id='i2'>
+  <dictionary id="i2">
     <string>certificate</string>
     <string>%(compute_node_certificate)s</string>
     <string>key</string>

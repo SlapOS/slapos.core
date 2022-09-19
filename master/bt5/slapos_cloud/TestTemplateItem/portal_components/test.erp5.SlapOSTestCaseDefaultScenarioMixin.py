@@ -86,7 +86,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     self.tic()
 
-    welcome_message = findMessage(email, "the creation of you new ERP5 account")
+    welcome_message = findMessage(email, "the creation of you new")
     self.assertNotEqual(None, welcome_message)
 
   def _getCurrentInstanceTreeList(self):

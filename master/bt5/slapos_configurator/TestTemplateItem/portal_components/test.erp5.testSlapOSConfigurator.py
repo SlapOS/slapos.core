@@ -349,7 +349,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_web_renderjs_ui',
       'erp5_web_service',
       'erp5_graph_editor',
-      'slapos_ecoallocation',
       'slapos_jio',
       'slapos_l10n_zh',
       'slapos_subscription_request',

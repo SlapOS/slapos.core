@@ -315,7 +315,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
             'erp5_monaco_editor',
             'erp5_certificate_authority',
             'slapos_cloud',
-            'slapos_ecoallocation',
             'slapos_l10n_zh',
             'slapos_subscription_request',
             'slapos_slap_tool',

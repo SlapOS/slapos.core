@@ -106,3 +106,4 @@ service_module/slapos_reservation_fee
 service_module/slapos_reservation_fee/**
 service_module/slapos_reservation_refund
 service_module/slapos_tax
+service_module/zero_emission_ratio

@@ -1436,7 +1436,6 @@ def do_format(conf):
 
   computer.update()
   # Dumping and sending to the erp5 the current configuration
-  import pdb; pdb.set_trace()
   if not conf.dry_run:
     computer.dump(path_to_xml=conf.computer_xml,
                   path_to_json=conf.computer_json,

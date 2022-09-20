@@ -2288,7 +2288,7 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
   """
   dump_filename = NotImplemented
   initial_table_list = NotImplemented
-  current_version = '15'
+  current_version = '16'
 
   def setUp(self):
     TestInformation.setUp(self)
@@ -2426,6 +2426,12 @@ class TestMigrateVersion13ToLatest(_MigrationTestCase):
 class TestMigrateVersion14ToLatest(_MigrationTestCase):
   dump_filename = 'database_dump_version_14.sql'
   initial_table_list = ['computer14', 'forwarded_partition_request14', 'partition14', 'partition_network14', 'slave14', 'software14', ]
+
+
+class TestMigrateVersion15ToLatest(_MigrationTestCase):
+  dump_filename = 'database_dump_version_15.sql'
+  initial_table_list = ['computer15', 'forwarded_partition_request15', 'local_software_release_root15', 'partition15',
+                        'partition_network15', 'slave15', 'software15', ]
 
 
 del _MigrationTestCase

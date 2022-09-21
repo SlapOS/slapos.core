@@ -747,6 +747,7 @@ class TestFormatSendToMaster(SlapformatMixin):
       self.body_sequence,
       [
         {
+          'portal_type': 'Compute Node',
           'compute_node_id': 'computer',
           'compute_partition_list': [
             {

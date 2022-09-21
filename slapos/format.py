@@ -369,7 +369,8 @@ class Computer(object):
         return
       slap_instance.jio_api_connector.put({
         "compute_node_id": self.reference,
-        "compute_partition_list": partition_list
+        "compute_partition_list": partition_list,
+        "portal_type": "Compute Node",
       })
     else:
       slap_computer = slap_instance.registerComputer(self.reference)
@@ -1478,6 +1479,7 @@ class FormatConfig(object):
   dry_run = None                # modifiable by cmdline
   key_file = None
   cert_file = None
+  slapgrid_jio_uri = None
 
   def __init__(self, logger):
     self.logger = logger

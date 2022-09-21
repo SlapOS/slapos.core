@@ -4,9 +4,4 @@ if [ ! -f /etc/opt/slapcache.cfg ]; then
 fi
 sed -i "s/key = slapos-global-key/key = slapos-global-official-vifib-testing-key/g" /etc/opt/slapcache.cfg 
 
-DFILE=$(mktemp -d -t tmpplaybook_unstable"$(basename "$0")".XXXXXXXXXXXX)
-TFILE="archive.tar.gz"
-cd "$DFILE" || exit 1
-slapcache-download --destination=$TFILE
-tar -xzvf $TFILE
-rm $TFILE
+download_playbook

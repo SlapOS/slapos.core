@@ -136,6 +136,8 @@ class TestSlapOSCoreTicketSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertEqual(event.getPortalType(), "Web Message")
     self.assertEqual(event.getDestination(),
       self.support_request.getSource())
+    self.assertNotEqual(event.getStartDate(),
+      None)
 
   def test_SupportRequest_notify_noParameter(self):
     self.assertRaises(TypeError, self.support_request.notify)
@@ -179,6 +181,8 @@ class TestSlapOSCoreTicketSlapInterfaceWorkflow(SlapOSTestCaseMixin):
       self.support_request.getDestinationDecision())
     self.assertEqual(event.getDestination(),
       self.support_request.getSourceSection())
+    self.assertNotEqual(event.getStartDate(),
+      None)
 
     # Retry now to see if doesn't create a new message
     self.support_request.notify(

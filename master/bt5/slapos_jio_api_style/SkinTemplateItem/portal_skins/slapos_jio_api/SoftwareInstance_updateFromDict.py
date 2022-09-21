@@ -35,7 +35,7 @@ if "reported_state" in data_dict:
       error_message="Unexcepected Reported State: %s" % reported_state,
     )
 
-if "requested_instance_list":
+if "requested_instance_list" in data_dict:
   software_instance.updateRequestedInstanceList(data_dict["requested_instance_list"])
 
 if "title" in data_dict and data_dict["title"] != software_instance.getTitle():

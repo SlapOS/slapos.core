@@ -16,6 +16,8 @@
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
+    .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
+    .declareAcquiredMethod("notifySubmitted", "notifySubmitted")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -26,24 +28,28 @@
 
     .onEvent('submit', function () {
       var gadget = this;
-      return gadget.getDeclaredGadget('form_view')
-        .push(function (form_gadget) {
-          return form_gadget.getContent();
+      return gadget.notifySubmitting()
+        .push(function () {
+          return gadget.getDeclaredGadget('form_view');
         })
-        .push(function (doc) {
-          return gadget.jio_post(doc)
-            .push(function () {
-              return gadget.getSetting("hateoas_url");
-            })
-            .push(function (url) {
-              return gadget.jio_putAttachment(doc.follow_up,
-                url + doc.follow_up + "/SupportRequest_close", {});
-            });
+        .push(function (form_gadget) {
+          return RSVP.all([form_gadget.getContent(),
+                          gadget.getSetting('hateoas_url')]);
+        })
+        .push(function (result) {
+          var doc = result[0],
+            url = result[1];
+          return gadget.jio_putAttachment(gadget.state.jio_key,
+                url + gadget.state.jio_key + "/SupportRequest_close",
+                {text_content: doc.text_content});
         })
         .push(function () {
-          return gadget.redirect({"command": "change",
-                                  "options": {"jio_key": gadget.state.jio_key,
-                                              "page": "slap_controller"}});
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
+            .push(function () {
+              // Workaround, find a way to open document without break gadget.
+              return gadget.redirect({"command": "change",
+                                    "options": {"jio_key": gadget.state.jio_key, "page": "slap_controller"}});
+            });
         });
     })
 
@@ -60,11 +66,6 @@
           "Close:",
           "Your Close Message",
           "Include your close message",
-          "Source",
-          "Follow up",
-          "Portal Type",
-          "Web Message",
-          "Parent Relative Url",
           "Close Ticket"
         ];
       gadget.state.jio_key = options.jio_key;
@@ -73,20 +74,19 @@
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.getSetting('me'),
             gadget.jio_get(gadget.state.jio_key),
             gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
-          page_title_translation = result[3][10];
+          page_title_translation = result[2][5];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
-                  "description": result[3][0],
-                  "title": result[3][1],
-                  "default": result[3][2] + " " + result[2].title,
+                  "description": result[2][0],
+                  "title": result[2][1],
+                  "default": result[2][2] + " " + result[1].title,
                   "css_class": "",
                   "required": 1,
                   "editable": 1,
@@ -95,8 +95,8 @@
                   "type": "StringField"
                 },
                 "my_text_content": {
-                  "description": result[3][3],
-                  "title": result[3][4],
+                  "description": result[2][3],
+                  "title": result[2][4],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -104,50 +104,6 @@
                   "key": "text_content",
                   "hidden": 0,
                   "type": "TextAreaField"
-                },
-                "my_source": {
-                  "description": "",
-                  "title": result[3][5],
-                  "default": result[1],
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "source",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_follow_up": {
-                  "description": "",
-                  "title": result[3][6],
-                  "default": gadget.state.jio_key,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "follow_up",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_portal_type": {
-                  "description": result[3][0],
-                  "title": result[3][7],
-                  "default": "Web Message",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "portal_type",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_parent_relative_url": {
-                  "description": "",
-                  "title": result[3][9],
-                  "default": "event_module",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "parent_relative_url",
-                  "hidden": 1,
-                  "type": "StringField"
                 }
               }},
               "_links": {
@@ -160,9 +116,7 @@
             form_definition: {
               group_list: [[
                 "center",
-                [["my_title"], ["my_text_content"], ["my_follow_up"],
-                  ["my_portal_type"], ["my_parent_relative_url"],
-                  ["my_follow_up"], ["my_source"]]
+                [["my_title"], ["my_text_content"]]
               ]]
             }
           });

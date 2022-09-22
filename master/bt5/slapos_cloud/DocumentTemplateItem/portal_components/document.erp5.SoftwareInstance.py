@@ -342,10 +342,6 @@ class SoftwareInstance(Item, JSONType):
       "root_instance_title": parameter_dict.get("root_instance_title"),
       "ip_list": parameter_dict.get("ip_list"),
       "full_ip_list": parameter_dict.get("full_ip_list"),
-      "X509": {
-        "key": self.getSslKey(),
-        "certificate": self.getSslCertificate(),
-      },
       "sla_parameters": self.getSlaXmlAsDict(),
       "compute_node_id": parameter_dict.get("slap_computer_id"),
       "compute_partition_id": parameter_dict.get("slap_computer_partition_id"),

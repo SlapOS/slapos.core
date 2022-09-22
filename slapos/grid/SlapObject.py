@@ -486,25 +486,15 @@ class Partition(object):
                                       available=bytes2human(available),
                                       required=bytes2human(required)))
 
-  def _updateCertificate(self):
+  def _updateCertificate(self, partition_certificates):
     if not self.key_file or not self.cert_file:
       # Certificate files are unset, skip.
       return
 
-    if self.api_backward_compatibility:
-      try:
-        partition_certificate = self.computer_partition["slap_partition"].getCertificate()
-        self.computer_partition["X509"] = {}
-        self.computer_partition["X509"]["certificate"] = partition_certificate["certificate"]
-        self.computer_partition["X509"]["key"] = partition_certificate["key"]
-      except NotFoundError:
-        raise NotFoundError('Partition %s is not known by SlapOS Master.' %
-            self.partition_id)
-
     uid, gid = self.getUserGroupId()
 
     for name, path in [('certificate', self.cert_file), ('key', self.key_file)]:
-      new_content = self.computer_partition["X509"][name]
+      new_content = partition_certificates[name]
       old_content = None
       if os.path.exists(path):
         old_content = open(path).read()

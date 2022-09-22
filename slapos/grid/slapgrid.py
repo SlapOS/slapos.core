@@ -1160,6 +1160,19 @@ stderr_logfile_backups=1
       self._checkAddFirewallRules(computer_partition.get("compute_partition_id"),
                                   cmd_list, add=add_rules)
 
+  def retrieveCertificates(self, computer_partition):
+    if not self.api_backward_compatibility:
+      partition_certificates = self.slap.jio_api_connector.get({
+        "portal_type": "Software Instance Certificate Record",
+        "reference": computer_partition.get("reference"),
+      })
+    else:
+      try:
+        partition_certificates = computer_partition["slap_partition"].getCertificate()
+      except NotFoundError:
+        raise NotFoundError('Partition %s is not known by SlapOS Master.' % computer_partition.get("reference"))
+    return partition_certificates
+
   def _checkPromiseAnomaly(self, local_partition, computer_partition):
     partition_access_status = computer_partition.get("access_status_message", "")
     status_error = False
@@ -1172,11 +1185,11 @@ stderr_logfile_backups=1
     except PromiseError as e:
       self.logger.error(e)
       if partition_access_status is None or not status_error:
-        local_partition._updateCertificate()
+        local_partition._updateCertificate(self.retrieveCertificates(computer_partition))
         self.sendPartitionError(computer_partition, e, logger=self.logger)
     else:
       if partition_access_status is None or status_error:
-        local_partition._updateCertificate()
+        local_partition._updateCertificate(self.retrieveCertificates(computer_partition))
         if not self.api_backward_compatibility:
           self.slap.jio_api_connector.put({
             "portal_type": "Software Instance",
@@ -1392,7 +1405,7 @@ stderr_logfile_backups=1
       self.logger.info('  jIO API used: %s' % (not self.api_backward_compatibility))
 
       # Update certifcate at late as possible
-      local_partition._updateCertificate()
+      local_partition._updateCertificate(self.retrieveCertificates(computer_partition))
 
       # XXX this line breaks 37 tests
       # self.logger.info('  Instance type: %s' % computer_partition.get("software_type"))
@@ -2009,7 +2022,7 @@ stderr_logfile_backups=1
             api_backward_compatibility=self.api_backward_compatibility,
           )
           local_partition.stop()
-          local_partition._updateCertificate()
+          local_partition._updateCertificate(self.retrieveCertificates(computer_partition))
           try:
             if not self.api_backward_compatibility:
               self.slap.jio_api_connector.put({

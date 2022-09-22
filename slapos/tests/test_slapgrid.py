@@ -576,10 +576,6 @@ class ComputerForTest(object):
               "root_instance_title": requested_instance.name,
               "ip_list": requested_instance.ip_list,
               "full_ip_list": requested_instance.full_ip_list,
-              "X509": {
-                "certificate": requested_instance.certificate,
-                "key": requested_instance.key
-              },
               "sla_parameters": requested_instance.filter_dict,
               "compute_node_id": None,
               "compute_partition_id": requested_instance.name,
@@ -592,6 +588,21 @@ class ComputerForTest(object):
               "status": "404",
               "message": "No document found with parameters: %s" % reference,
               "name": "NotFound",
+            })
+        elif content["portal_type"] == "Software Instance Certificate Record":
+          reference = content["reference"]
+          requested_instance = None
+          for instance in self.instance_list:
+            if instance.name == reference:
+              requested_instance = instance
+              break
+          if requested_instance:
+            # We don't need to check certificates are being retrieved
+            return json.dumps({
+              "reference": requested_instance.name,
+              "certificate": requested_instance.certificate,
+              "key": requested_instance.key,
+              "portal_type": "Software Instance Certificate Record",
             })
     if req.method == 'GET':
       if url.path == "/getHateoasUrl":
@@ -846,7 +857,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
                                                     'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/'])
+                       ['/api/allDocs/', '/api/get/', '/api/get/', '/api/put/'])
       self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
       self.assertEqual(instance.state, 'stopped')
 
@@ -865,7 +876,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
                                                     'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/'])
+                       ['/api/allDocs/', '/api/get/', '/api/get/', '/api/put/'])
       self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
       self.assertEqual(instance.state, 'stopped')
 
@@ -900,7 +911,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/'])
+                       ['/api/allDocs/', '/api/get/', '/api/get/', '/api/put/'])
       self.assertEqual(partition.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(partition.state, 'started')
 
@@ -919,7 +930,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/'])
+                       ['/api/allDocs/', '/api/get/', '/api/get/', '/api/put/'])
       self.assertEqual(partition.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(partition.state, 'started')
 
@@ -934,8 +945,8 @@ exit 1
                              'etc', 'software_release', 'worked',
                              '.slapos-retention-lock-delay', '.slapgrid-0-error.log'])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/', '/getHateoasUrl',
-                       '/api/allDocs/', '/api/get/', '/api/put/'])
+                       ['/api/allDocs/', '/api/get/', '/api/get/', '/api/put/', '/getHateoasUrl',
+                       '/api/allDocs/', '/api/get/', '/api/get/', '/api/put/'])
       self.assertEqual(instance.sequence[3][1]["reported_state"], 'error')
       self.assertEqual(instance.state, 'started')
       self.assertTrue(instance.error_log.startswith("Failed to run buildout profile in direct"))
@@ -975,7 +986,7 @@ chmod 755 etc/run/wrapper
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/'])
+                       ['/api/allDocs/', '/api/get/', '/api/get/', '/api/put/'])
       self.assertEqual(instance.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(instance.state, 'started')
 
@@ -989,7 +1000,7 @@ chmod 755 etc/run/wrapper
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
-                        '/api/allDocs/', '/api/get/', '/api/put/'])
+                        '/api/allDocs/', '/api/get/', '/api/get/', '/api/put/'])
       self.assertEqual(instance.sequence[3][1]["reported_state"], 'stopped')
       self.assertEqual(instance.state, 'stopped')
 
@@ -1036,6 +1047,7 @@ chmod 755 etc/run/wrapper
       self.assertEqual(computer.sequence,
                        ['/api/allDocs/',
                         '/api/get/',
+                        '/api/get/',
                         '/api/put/'])
       self.assertEqual(instance.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(instance.state, 'started')
@@ -1055,6 +1067,7 @@ exit 1
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
                         '/api/allDocs/',
+                        '/api/get/',
                         '/api/get/',
                         '/api/put/'])
       self.assertEqual(instance.sequence[3][1]["reported_state"], 'error')
@@ -1078,6 +1091,7 @@ exit 1
       self.assertEqual(computer.sequence,
                        ['/api/allDocs/',
                         '/api/get/',
+                        '/api/get/',
                         '/api/put/'])
       self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
       self.assertEqual('stopped', instance.state)
@@ -1097,6 +1111,7 @@ exit 1
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
                         '/api/allDocs/',
+                        '/api/get/',
                         '/api/get/',
                         '/api/put/'])
       self.assertEqual(instance.sequence[3][1]["reported_state"], 'started')
@@ -1124,6 +1139,7 @@ exit 1
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/api/allDocs/',
+                        '/api/get/',
                         '/api/get/',
                         '/api/put/'])
       self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
@@ -2020,6 +2036,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertEqual(computer.sequence,
                        ['/api/allDocs/',
                         '/api/get/',
+                        '/api/get/',
                         '/api/put/'])
       self.assertEqual(instance.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(instance.state, 'started')
@@ -2042,6 +2059,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
 
       self.assertEqual(computer.sequence,
                        ['/api/allDocs/',
+                        '/api/get/',
                         '/api/get/',
                         '/api/put/',
                         '/api/put/'])
@@ -2078,6 +2096,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertEqual(computer.sequence,
                        ['/api/allDocs/',
                         '/api/get/',
+                        '/api/get/',
                         '/api/put/',
                         '/api/put/'])
       self.assertEqual(instance.sequence[1][1]["reported_state"], 'stopped')
@@ -2103,6 +2122,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/api/allDocs/',
+                        '/api/get/',
                         '/api/get/',
                         '/api/put/'])
       self.assertEqual(instance.sequence[1][1]["reported_state"], 'started')
@@ -2997,6 +3017,7 @@ exit 0
       self.assertEqual(computer.sequence,
                        ['/api/allDocs/',
                         '/api/get/',
+                        '/api/get/',
                         '/api/put/'])
       self.assertEqual(partition.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(partition.state, 'started')
@@ -3272,7 +3293,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
     self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
     self.assertEqual(self.computer.sequence,
-                      ['/api/allDocs/', '/api/get/', '/api/put/'])
+                      ['/api/allDocs/', '/api/get/', '/api/get/', '/api/put/'])
     self.assertEqual(self.partition.sequence[1][1]["reported_state"], 'started')
     self.assertEqual(self.partition.state, 'started')
 
@@ -3349,7 +3370,9 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       self.assertEqual(self.computer.sequence,
                        ['/api/allDocs/',
                         '/api/get/',
+                        '/api/get/',
                         '/api/put/',
+                        '/api/get/',
                         '/api/get/',
                         '/api/put/'])
       self.assertEqual(self.partition.sequence[1][1]["reported_state"], 'started')
@@ -3943,7 +3966,7 @@ class TestSlapgridManagerLifecycle(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(self.computer.sequence,
-                       ['/api/allDocs/', '/api/get/', '/api/put/'])
+                       ['/api/allDocs/', '/api/get/', '/api/get/', '/api/put/'])
       self.assertEqual(partition.sequence[1][1]["reported_state"], 'started')
       self.assertEqual(partition.state, 'started')
 

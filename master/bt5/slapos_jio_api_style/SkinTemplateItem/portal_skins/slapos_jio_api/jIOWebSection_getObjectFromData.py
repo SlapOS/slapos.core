@@ -30,4 +30,17 @@ elif portal_type == "Software Instance":
     if software_instance:
       return software_instance
 
+elif portal_type == "Software Instance Certificate Record":
+  if "reference" in data_dict:
+    software_instance = portal.portal_catalog.getSoftwareInstanceObject(
+      data_dict["reference"],
+      include_shared=True
+    )
+    if software_instance:
+      return software_instance.newContent(
+        temp_object=True,
+        portal_type="Software Instance Certificate Record",
+      )
+
+
 return None

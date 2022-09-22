@@ -15,6 +15,7 @@ except KeyError:
 
 web_message = portal.event_module.newContent(
   portal_type="Web Message",
+  start_date = DateTime(),
   title=title,
   text_content=text_content,
   source=source,

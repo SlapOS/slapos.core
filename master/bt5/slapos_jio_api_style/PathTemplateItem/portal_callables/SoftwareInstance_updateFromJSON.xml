@@ -74,6 +74,11 @@
       "type": "string",\n
       "description": "The unique reference of the Software Instance, example: SOFTINST-1234"\n
     },\n
+    "connection_parameters": {\n
+      "title": "Connections Parameters",\n
+      "type": "object",\n
+      "description": "List of parameters provided by the instance to access it."\n
+    },\n
     "reported_state": {\n
       "title": "Reported State",\n
       "type": "string",\n

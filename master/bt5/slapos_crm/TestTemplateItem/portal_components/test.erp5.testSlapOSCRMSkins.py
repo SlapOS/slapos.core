@@ -178,8 +178,7 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     self.tic()
 
     open_related_ticket_list = document.Base_getOpenRelatedTicketList()
-    self.assertEqual(len(open_related_ticket_list), 1)
-    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.submit()
     ticket.immediateReindexObject()
@@ -225,8 +224,7 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     self.tic()
 
     open_related_ticket_list = document.Base_getOpenRelatedTicketList()
-    self.assertEqual(len(open_related_ticket_list), 1)
-    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.submit()
     ticket.immediateReindexObject()
@@ -268,14 +266,12 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     self.tic()
 
     open_related_ticket_list = document.Base_getOpenRelatedTicketList()
-    self.assertEqual(len(open_related_ticket_list), 1)
-    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.plan()
     ticket.immediateReindexObject()
     open_related_ticket_list = document.Base_getOpenRelatedTicketList()
-    self.assertEqual(len(open_related_ticket_list), 1)
-    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.confirm()
     ticket.immediateReindexObject()
@@ -330,8 +326,7 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     self.tic()
 
     open_related_ticket_list = document.Base_getOpenRelatedTicketList()
-    self.assertEqual(len(open_related_ticket_list), 1)
-    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.cancel()
     ticket.immediateReindexObject()

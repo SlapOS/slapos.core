@@ -1781,7 +1781,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     """
     Test there is no instance on local proxy.
     Test there is instance on external proxy.
-    Test there is instance reference in external table of databse of local proxy.
+    Test there is instance reference in external table of database of local proxy.
     """
     # Adjust name to match forwarding prefix
     name = '%s_%s' % (requester or 'user', name)
@@ -1853,7 +1853,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
 
   def testForwardToMasterInList(self):
     """
-    Test that explicitely asking a master_url in SLA causes
+    Test that explicitly asking a master_url in SLA causes
     proxy to forward request to this master.
     """
     dummy_parameter_dict = {'foo': 'bar'}
@@ -1864,6 +1864,32 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     filter_kw = {'master_url': self.external_master_url}
     partition = self.request(self.software_release_not_in_list, None, instance_reference, 'slappart0',
                              filter_kw=filter_kw, partition_parameter_kw=dummy_parameter_dict)
+
+    self._checkInstanceIsFowarded(instance_reference, 'slappart0', dummy_parameter_dict, self.software_release_not_in_list)
+    self.assertEqual(
+        partition._master_url,
+        self.external_master_url
+    )
+
+  def testForwardToMasterInList_NoDuplicates(self):
+    """
+    Test that multiple explicitly forwarded requests for the same instance
+    do not result in duplicate entries in the proxy database.
+    """
+    dummy_parameter_dict = {'foo': 'bar'}
+    instance_reference = 'MyFirstInstance'
+    self.format_for_number_of_partitions(1)
+    self.external_proxy_format_for_number_of_partitions(1)
+
+    filter_kw = {'master_url': self.external_master_url}
+
+    for _ in range(2):
+      partition = self.request(self.software_release_not_in_list, None, instance_reference, 'slappart0',
+                               filter_kw=filter_kw, partition_parameter_kw=dummy_parameter_dict)
+
+    # Explicitly do the relevant test, even if _checkInstanceIsFowarded does it too
+    entries = slapos.proxy.views.execute_db('forwarded_partition_request', 'SELECT * from %s', db=self.db)
+    self.assertEqual(len(entries), 1)
 
     self._checkInstanceIsFowarded(instance_reference, 'slappart0', dummy_parameter_dict, self.software_release_not_in_list)
     self.assertEqual(
@@ -1895,6 +1921,32 @@ database_uri = %(rootdir)s/lib/external_proxy.db
 
     partition = self.request(self.external_software_release, None, instance_reference, 'slappart0',
                              partition_parameter_kw=dummy_parameter_dict)
+
+    self._checkInstanceIsFowarded(instance_reference, 'slappart0', dummy_parameter_dict, self.external_software_release)
+
+    instance_parameter_dict = partition.getInstanceParameterDict()
+    instance_parameter_dict.pop('timestamp')
+    self.assertEqual(dummy_parameter_dict, instance_parameter_dict)
+    self.assertEqual(self.external_software_release, partition.getSoftwareRelease())
+    self.assertEqual({}, partition.getConnectionParameterDict())
+
+  def testForwardRequest_SoftwareReleaseList_NoDuplicates(self):
+    """
+    Test that multiple automatically forwarded requests for the same instance
+    do not result in duplicate entries in the proxy database.
+    """
+    dummy_parameter_dict = {'foo': 'bar'}
+    instance_reference = 'MyFirstInstance'
+    self.format_for_number_of_partitions(1)
+    self.external_proxy_format_for_number_of_partitions(1)
+
+    for _ in range(2):
+      partition = self.request(self.external_software_release, None, instance_reference, 'slappart0',
+                               partition_parameter_kw=dummy_parameter_dict)
+
+    # Explicitly do the relevant test, even if _checkInstanceIsFowarded does it too
+    entries = slapos.proxy.views.execute_db('forwarded_partition_request', 'SELECT * from %s', db=self.db)
+    self.assertEqual(len(entries), 1)
 
     self._checkInstanceIsFowarded(instance_reference, 'slappart0', dummy_parameter_dict, self.external_software_release)
 
@@ -2236,7 +2288,7 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
   """
   dump_filename = NotImplemented
   initial_table_list = NotImplemented
-  current_version = '15'
+  current_version = '16'
 
   def setUp(self):
     TestInformation.setUp(self)
@@ -2317,6 +2369,14 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
         [(u'slappart0', u'computer', u'slappart0', u'127.0.0.1', u'255.255.255.255'), (u'slappart0', u'computer', u'slappart0', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart1', u'computer', u'slappart1', u'127.0.0.1', u'255.255.255.255'), (u'slappart1', u'computer', u'slappart1', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart2', u'computer', u'slappart2', u'127.0.0.1', u'255.255.255.255'), (u'slappart2', u'computer', u'slappart2', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart3', u'computer', u'slappart3', u'127.0.0.1', u'255.255.255.255'), (u'slappart3', u'computer', u'slappart3', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart4', u'computer', u'slappart4', u'127.0.0.1', u'255.255.255.255'), (u'slappart4', u'computer', u'slappart4', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart5', u'computer', u'slappart5', u'127.0.0.1', u'255.255.255.255'), (u'slappart5', u'computer', u'slappart5', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart6', u'computer', u'slappart6', u'127.0.0.1', u'255.255.255.255'), (u'slappart6', u'computer', u'slappart6', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart7', u'computer', u'slappart7', u'127.0.0.1', u'255.255.255.255'), (u'slappart7', u'computer', u'slappart7', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart8', u'computer', u'slappart8', u'127.0.0.1', u'255.255.255.255'), (u'slappart8', u'computer', u'slappart8', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart9', u'computer', u'slappart9', u'127.0.0.1', u'255.255.255.255'), (u'slappart9', u'computer', u'slappart9', u'fc00::1', u'ffff:ffff:ffff::')]
     )
 
+    # Check that duplicate forwarded requests in the initial table result in a single entry in the new table
+    if any(t.startswith('forwarded_partition_request') for t in self.initial_table_list):
+      forwarded_request_list = self.db.execute("select * from forwarded_partition_request{}".format(self.current_version)).fetchall()
+      self.assertEqual(
+          forwarded_request_list,
+          [('forwarded_instance', 'https://bogus/master/url')]
+      )
+
     # Check that we only have new tables
     table_list = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
     self.assertEqual([x[0] for x in table_list],
@@ -2374,6 +2434,12 @@ class TestMigrateVersion13ToLatest(_MigrationTestCase):
 class TestMigrateVersion14ToLatest(_MigrationTestCase):
   dump_filename = 'database_dump_version_14.sql'
   initial_table_list = ['computer14', 'forwarded_partition_request14', 'partition14', 'partition_network14', 'slave14', 'software14', ]
+
+
+class TestMigrateVersion15ToLatest(_MigrationTestCase):
+  dump_filename = 'database_dump_version_15.sql'
+  initial_table_list = ['computer15', 'forwarded_partition_request15', 'local_software_release_root15', 'partition15',
+                        'partition_network15', 'slave15', 'software15', ]
 
 
 del _MigrationTestCase

@@ -194,7 +194,7 @@ def _upgradeDatabaseIfNeeded():
     for row in execute_db(table, 'SELECT * from %s', db_version=current_schema_version):
       columns = ', '.join(row.keys())
       placeholders = ':'+', :'.join(row.keys())
-      query = 'INSERT INTO %s (%s) VALUES (%s)' % ('%s', columns, placeholders)
+      query = 'INSERT OR REPLACE INTO %s (%s) VALUES (%s)' % ('%s', columns, placeholders)
       execute_db(table, query, row)
   # then drop old tables
   for previous_table in previous_table_list:

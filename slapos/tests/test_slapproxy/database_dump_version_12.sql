@@ -121,4 +121,6 @@ CREATE TABLE forwarded_partition_request12 (
   partition_reference VARCHAR(255), -- a.k.a source_instance_id
   master_url VARCHAR(255)
 );
+INSERT INTO "forwarded_partition_request12" VALUES('forwarded_instance','https://bogus/master/url');
+INSERT INTO "forwarded_partition_request12" VALUES('forwarded_instance','https://bogus/master/url');
 COMMIT;

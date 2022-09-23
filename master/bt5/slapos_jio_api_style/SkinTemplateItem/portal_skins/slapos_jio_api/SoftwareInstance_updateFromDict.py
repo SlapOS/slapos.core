@@ -4,6 +4,14 @@ software_instance = context
 
 logError = context.ERP5Site_logApiErrorAndReturn
 
+castToStr = context.Base_castDictToXMLString
+if "connection_parameters" in data_dict:
+  connection_xml = castToStr(data_dict["connection_parameters"])
+  if not software_instance.isLastData(value=connection_xml):
+    software_instance.updateConnection(
+      connection_xml=connection_xml,
+    )
+
 if "reported_state" in data_dict:
 # Change desired state
   reported_state = data_dict["reported_state"]

@@ -627,6 +627,7 @@ class Partition(object):
         'templates/buildout-tail.cfg.in')) % {
             'computer_id': self.computer_id,
             'partition_id': self.partition_id,
+            'software_instance_reference': self.computer_partition.get("reference"),
             'server_url': self.server_url,
             'software_release_url': self.software_release_url,
             'key_file': self.key_file,

@@ -123,6 +123,10 @@
                           <string>Title</string>
                         </tuple>
                         <tuple>
+                          <string>portal_type</string>
+                          <string>Portal Type</string>
+                        </tuple>
+                        <tuple>
                           <string>resource_title</string>
                           <string>Type</string>
                         </tuple>
@@ -227,7 +231,7 @@
       <dictionary>
         <item>
             <key> <string>method_name</string> </key>
-            <value> <string>ComputeNode_getRelatedSupportRequestList</string> </value>
+            <value> <string>ComputeNode_getTicketRelatedList</string> </value>
         </item>
       </dictionary>
     </pickle>

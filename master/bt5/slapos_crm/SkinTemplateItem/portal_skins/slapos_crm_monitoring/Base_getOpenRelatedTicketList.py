@@ -1,11 +1,8 @@
-"""
-  Keep a custom script for permit render other times of documents, ie.: Software Installation.
-"""
-
 portal = context.getPortalObject()
 
 kw['portal_type'] = ["Support Request", "Upgrade Decision"]
-kw['default_or_child_aggregate_uid'] = context.getUid()
+if 'default_or_child_aggregate_uid' not in kw:
+  kw['default_or_child_aggregate_uid'] = context.getUid()
 kw['sort_on'] = (('modification_date', 'DESC'),)
 if 'simulation_state' not in kw:
   kw['simulation_state'] = ['validated','submitted', 'suspended', 'invalidated', 

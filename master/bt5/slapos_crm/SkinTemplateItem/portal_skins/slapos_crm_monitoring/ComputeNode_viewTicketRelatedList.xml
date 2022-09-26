@@ -38,6 +38,10 @@
             <value> <string>Base_edit</string> </value>
         </item>
         <item>
+            <key> <string>action_title</string> </key>
+            <value> <string></string> </value>
+        </item>
+        <item>
             <key> <string>description</string> </key>
             <value> <string></string> </value>
         </item>
@@ -105,7 +109,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputeNode_viewRelatedSupportRequest</string> </value>
+            <value> <string>ComputeNode_viewTicketRelatedList</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -113,7 +117,7 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>WebSection_viewMonitoringSupportRequestList</string> </value>
+            <value> <string>ComputeNode_viewTicketRelatedList</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
@@ -129,7 +133,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>View Monitoring Support Request List</string> </value>
+            <value> <string>Related Tickets</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

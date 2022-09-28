@@ -29,6 +29,13 @@ elif portal_type == "Software Instance":
     )
     if software_instance:
       return software_instance
+  elif "compute_node_id" and "compute_partition_id" in data_dict:
+    compute_partition = portal.portal_catalog.getComputePartitionObject(
+      data_dict["compute_node_id"],
+      data_dict["compute_partition_id"],
+    )
+    if compute_partition:
+      return compute_partition.getSoftwareInstance()
 
 elif portal_type == "Software Instance Certificate Record":
   if "reference" in data_dict:

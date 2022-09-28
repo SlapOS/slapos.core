@@ -71,9 +71,13 @@ class SlapOSCatalogToolCacheMixin(object):
 
   @UnrestrictedMethod
   def _getNonCachedComputeNodeUid(self, reference):
-    return self.unrestrictedSearchResults(
+    compute_node_list = self.unrestrictedSearchResults(
       portal_type='Compute Node', reference=reference,
-      validation_state="validated")[0].UID
+      validation_state="validated")
+    if len(compute_node_list) != 1:
+      raise NotFound, "No document found with parameters: %s" % reference
+    return compute_node_list[0].UID
+
 
   def getComputePartitionObject(self, compute_node_reference,
                                     compute_partition_reference):

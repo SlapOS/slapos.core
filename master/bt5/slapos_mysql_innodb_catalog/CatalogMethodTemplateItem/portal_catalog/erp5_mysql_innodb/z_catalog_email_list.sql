@@ -1,6 +1,6 @@
 <dtml-let email_list="[]">
   <dtml-in prefix="loop" expr="_.range(_.len(uid))">
-    <dtml-if expr="getPortalType[loop_item] in ['Email', 'Software Release', 'Software Installation', 'Software Instance', 'Instance Tree']">
+    <dtml-if expr="getPortalType[loop_item] in ['Email', 'Software Release', 'Software Product Release Variation', 'Software Installation', 'Software Instance', 'Instance Tree']">
       <dtml-call expr="email_list.append(loop_item)">
     </dtml-if>
   </dtml-in>

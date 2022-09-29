@@ -31,6 +31,7 @@ from __future__ import print_function
 
 import subprocess
 from six.moves.urllib.parse import urlparse
+from six.moves import xmlrpc_client as xmlrpclib
 from time import sleep
 import glob
 import os
@@ -41,6 +42,11 @@ from slapos.cli.command import check_root_user
 from slapos.cli.entry import SlapOSApp
 from slapos.cli.config import ConfigCommand
 from slapos.format import isGlobalScopeAddress
+from slapos.grid.slapgrid import (COMPUTER_PARTITION_REQUESTED_STATE_FILENAME,
+                                  COMPUTER_PARTITION_STARTED_STATE)
+from slapos.grid.svcbackend import  (_getSupervisordSocketPath,
+                                     getSupervisorRPC,
+                                     launchSupervisord)
 from slapos.util import string_to_boolean
 import argparse
 import logging
@@ -59,6 +65,48 @@ def _removeTimestamp(instancehome, partition_base_name):
        logger.info("Removing %s", timestamp_path)
        os.remove(timestamp_path)
 
+def _startComputerPartition(partition_id, supervisord_socket):
+    """
+    With supervisord, start the instance that was deployed
+    """
+    try:
+      with getSupervisorRPC(supervisord_socket) as supervisor:
+        supervisor.startProcessGroup(partition_id, False)
+    except xmlrpclib.Fault as exc:
+      if exc.faultString.startswith('BAD_NAME:'):
+        logger.info("Nothing to start on %s..." % partition_id)
+      else:
+        raise
+    else:
+      logger.info("Requested start of %s..." % partition_id)
+
+def _startComputerPartitionList(instance_root, partition_base_name):
+  """
+  Start services for partition which has requested state to 'started'
+  """
+  partition_glob_path = os.path.join(
+        instance_root,
+        "%s*" % partition_base_name)
+  launchSupervisord(instance_root=instance_root, logger=logger)
+  for partition_path in glob.glob(partition_glob_path):
+    partition_state_path = os.path.join(
+        partition_path,
+        COMPUTER_PARTITION_REQUESTED_STATE_FILENAME
+    )
+    supervisord_socket_path = _getSupervisordSocketPath(
+      instance_root,
+      logger
+    )
+    if os.path.exists(partition_state_path):
+      partition_state = ""
+      with open(partition_state_path) as f:
+        partition_state = f.read()
+      if partition_state == COMPUTER_PARTITION_STARTED_STATE:
+        # Call start for this computer partition
+        _startComputerPartition(
+          os.path.basename(partition_path.rstrip('/')),
+          supervisord_socket_path
+        )
 
 def _runBang(app):
     """
@@ -76,7 +124,9 @@ def _runFormat(app):
     Launch slapos node format.
     """
     logger.info("[BOOT] Invoking slapos node format...")
-    result = app.run(['node', 'format', '--now', '--verbose'])
+    # '--local' parameter is to prevent node format command to post data to
+    # master, so this command can work without internet and setup partitions IP.
+    result = app.run(['node', 'format', '--now', '--local', '--verbose'])
     if result == 1:
       return 0
     return 1
@@ -196,6 +246,15 @@ class BootCommand(ConfigCommand):
         if ipv6_interface is not None:
             _waitIpv6Ready(ipv6_interface)
 
+        app = SlapOSApp()
+        # Make sure slapos node format returns ok
+        while not _runFormat(app):
+            logger.error("[BOOT] Fail to format, try again in 15 seconds...")
+            sleep(15)
+
+        # Start computer partition services
+        _startComputerPartitionList(instance_root, partition_base_name)
+
         # Check that node can ping master
         if valid_ipv4(master_hostname):
             _test_ping(master_hostname)
@@ -204,12 +263,6 @@ class BootCommand(ConfigCommand):
         else:
             # hostname
             _ping_hostname(master_hostname)
-
-        app = SlapOSApp()
-        # Make sure slapos node format returns ok
-        while not _runFormat(app):
-            logger.error("[BOOT] Fail to format, try again in 15 seconds...")
-            sleep(15)
 
         # Make sure slapos node bang returns ok
         while not _runBang(app):

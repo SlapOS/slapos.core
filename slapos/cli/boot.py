@@ -44,7 +44,9 @@ from slapos.cli.config import ConfigCommand
 from slapos.format import isGlobalScopeAddress
 from slapos.grid.slapgrid import (COMPUTER_PARTITION_REQUESTED_STATE_FILENAME,
                                   COMPUTER_PARTITION_STARTED_STATE)
-from slapos.grid.svcbackend import  _getSupervisordSocketPath, getSupervisorRPC
+from slapos.grid.svcbackend import  (_getSupervisordSocketPath,
+                                     getSupervisorRPC,
+                                     launchSupervisord)
 from slapos.util import string_to_boolean
 import argparse
 import logging
@@ -85,6 +87,7 @@ def startComputerPartitionList(instance_root, partition_base_name):
   partition_glob_path = os.path.join(
         instance_root,
         "%s*" % partition_base_name)
+  launchSupervisord(instance_root=instance_root, logger=logger)
   for partition_path in glob.glob(partition_glob_path):
     partition_state_path = os.path.join(
         partition_path,

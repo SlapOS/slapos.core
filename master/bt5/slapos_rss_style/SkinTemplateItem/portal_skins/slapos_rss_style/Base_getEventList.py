@@ -24,19 +24,29 @@ def getTicketInfo(event):
     )
     return getTicket_memo[follow_up]
 
+if follow_up_portal_type is None:
+  follow_up_portal_type = ['Support Request', 'Regularisation Request', 'Upgrade Decision']
+
+context_kw = {}
+if context_related:
+  context_kw['follow_up_default_or_child_aggregate_uid'] = context.getUid()
+
 data_list = []
 for brain in portal.portal_simulation.getMovementHistoryList(
     security_query=portal.portal_catalog.getSecurityQuery(),
     # Limit only to listable portal types
     portal_type=['Web Message', 'Mail Nessage'],
-    follow_up_simulation_state="NOT cancelled",
+    follow_up_simulation_state = ['validated','submitted', 'suspended', 'invalidated', 
+                                  # Unfortunally Upgrade decision uses diferent states.
+                                  'confirmed', 'started', 'stopped', 'delivered'],
     only_accountable=False,
-    follow_up_portal_type=['Support Request', 'Regularisation Request', 'Upgrade Decision'],
+    follow_up_portal_type=follow_up_portal_type,
     omit_input=True,
     simulation_state=('started', 'stopped', 'delivered'),
     limit=list_lines,
     sort_on=(('stock.date', 'desc'),
-             ('uid', 'desc')),):
+             ('uid', 'desc')),
+    **context_kw):
   event = brain.getObject()
   (ticket_title,
    ticket_category,

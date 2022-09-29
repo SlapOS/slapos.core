@@ -73,6 +73,7 @@
                     <value>
                       <list>
                         <string>listbox</string>
+                        <string>listbox_guid</string>
                       </list>
                     </value>
                 </item>

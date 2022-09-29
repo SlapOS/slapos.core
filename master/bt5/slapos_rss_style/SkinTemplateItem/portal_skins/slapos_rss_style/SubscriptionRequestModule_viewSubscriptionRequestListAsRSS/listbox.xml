@@ -135,6 +135,14 @@
                           <string>Title</string>
                         </tuple>
                         <tuple>
+                          <string>guid</string>
+                          <string>guid</string>
+                        </tuple>
+                        <tuple>
+                          <string>destination_section_title</string>
+                          <string>author</string>
+                        </tuple>
+                        <tuple>
                           <string>pubDate</string>
                           <string>pubDate</string>
                         </tuple>
@@ -143,7 +151,7 @@
                           <string>Description</string>
                         </tuple>
                         <tuple>
-                          <string>absolute_url</string>
+                          <string>Base_getTicketUrl</string>
                           <string>link</string>
                         </tuple>
                       </list>
@@ -174,6 +182,10 @@
                         <tuple>
                           <string>description</string>
                           <string>description</string>
+                        </tuple>
+                        <tuple>
+                          <string>guid</string>
+                          <string>guid</string>
                         </tuple>
                       </list>
                     </value>

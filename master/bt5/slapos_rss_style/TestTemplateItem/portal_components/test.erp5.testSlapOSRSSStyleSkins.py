@@ -494,3 +494,303 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     ticket = newUpgradeDecision()
     self.login(person.getUserId())
     self._test_upgrade_decision(ticket, initial_amount + 2)
+
+class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
+
+  def test_getTicketRelatedEventList_support_request_related_to_compute_node(self):
+    self._test_getTicketRelatedEventList_support_request_related(
+      self._makeComputeNode()[0])
+
+  def test_getTicketRelatedEventList_support_request_related_to_instance_tree(self):
+    self._test_getTicketRelatedEventList_support_request_related(
+      self._makeInstanceTree())
+
+  def _test_getTicketRelatedEventList_support_request_related(self, document):
+    def newSupportRequest():
+      self.portal.portal_skins.changeSkin('View')
+      person = self.makePerson()
+      sr = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id)
+      event = self.portal.event_module.newContent(
+        portal_type='Web Message',
+        follow_up_value=sr,
+        text_content="Test Support Request %s" % self.new_id,
+        start_date = DateTime(),
+        source_value=person,
+        destination_value=self.portal.organisation_module.slapos,
+        resource_value=self.portal.service_module.slapos_crm_monitoring
+      )
+      event.start()
+      event.immediateReindexObject()
+      sr.immediateReindexObject()
+      return sr
+
+    ticket = newSupportRequest()
+    ticket.setAggregateValue(document)
+    event = ticket.getFollowUpRelatedValue()
+
+    person = self.makePerson(index=1, user=1)
+    person.newContent(portal_type="Assignment",
+                      group="company").open()
+    self.tic()
+
+    self.portal.portal_skins.changeSkin('RSS')
+    self.login(person.getUserId())
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    self.tic()
+
+    self.portal.portal_skins.changeSkin('RSS')
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.submit()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
+    self.assertEqual(open_related_ticket_list[0].guid,
+      '{}-{}'.format(event.getFollowUp(),
+                     event.getRelativeUrl()))
+    ticket.validate()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
+    self.assertEqual(open_related_ticket_list[0].guid,
+      '{}-{}'.format(event.getFollowUp(),
+                     event.getRelativeUrl()))
+    ticket.suspend()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
+    self.assertEqual(open_related_ticket_list[0].guid,
+      '{}-{}'.format(event.getFollowUp(),
+                     event.getRelativeUrl()))
+
+    ticket.invalidate()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
+    self.assertNotEqual(open_related_ticket_list[0].link, None)
+    self.assertIn(event.getTextContent(), open_related_ticket_list[0].description)
+    self.assertEqual(open_related_ticket_list[0].guid,
+      '{}-{}'.format(event.getFollowUp(),
+                     event.getRelativeUrl()))
+    self.assertEqual(open_related_ticket_list[0].title,
+      ticket.getTitle())
+
+  def test_getTicketRelatedEventList_cancelled_support_request_related_to_compute_node(self):
+    self._test_getTicketRelatedEventList_cancelled_support_request_related(
+      self._makeComputeNode()[0])
+
+  def test_getTicketRelatedEventList_cancelled_support_request_related_to_instance_tree(self):
+    self._test_getTicketRelatedEventList_cancelled_support_request_related(
+      self._makeInstanceTree())
+
+  def _test_getTicketRelatedEventList_cancelled_support_request_related(self, document):
+    def newSupportRequest():
+      self.portal.portal_skins.changeSkin('View')
+      person = self.makePerson()
+      sr = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id)
+      event = self.portal.event_module.newContent(
+        portal_type='Web Message',
+        follow_up_value=sr,
+        text_content="Test Support Request %s" % self.new_id,
+        start_date = DateTime(),
+        source_value=person,
+        destination_value=self.portal.organisation_module.slapos,
+        resource_value=self.portal.service_module.slapos_crm_monitoring
+      )
+      event.start()
+      event.immediateReindexObject()
+      sr.immediateReindexObject()
+      return sr
+
+    ticket = newSupportRequest()
+    ticket.setAggregateValue(document)
+    event = ticket.getFollowUpRelatedValue()
+    person = self.makePerson(index=1, user=1)
+    person.newContent(portal_type="Assignment",
+                      group="company").open()
+    self.tic()
+
+    self.portal.portal_skins.changeSkin('RSS')
+    self.login(person.getUserId())
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+    self.tic()
+
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.submit()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
+    self.assertNotEqual(open_related_ticket_list[0].link, None)
+    self.assertIn(event.getTextContent(), open_related_ticket_list[0].description)
+    self.assertEqual(open_related_ticket_list[0].guid,
+      '{}-{}'.format(event.getFollowUp(),
+                     event.getRelativeUrl()))
+    self.assertEqual(open_related_ticket_list[0].title,
+      ticket.getTitle())
+
+    ticket.cancel()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+  def makeUpgradeDecision(self):
+    self.portal.portal_skins.changeSkin('View')
+    person = self.makePerson()
+    ticket = self.portal.upgrade_decision_module.newContent(
+      portal_type='Upgrade Decision',
+      title="Upgrade Decision Test %s" % self.new_id,
+      reference="TESTUD-%s" % self.new_id)
+    event = self.portal.event_module.newContent(
+      portal_type='Web Message',
+      follow_up_value=ticket,
+      text_content=ticket.getTitle(),
+      start_date = DateTime(),
+      source_value=person,
+      destination_value=self.portal.organisation_module.slapos,
+      resource_value=self.portal.service_module.slapos_crm_monitoring
+    )
+    ticket.immediateReindexObject()
+    event.start()
+    event.immediateReindexObject()
+    return ticket
+
+  def test_getTicketRelatedEventList_upgrade_decision_related_to_compute_node(self):
+    self._test_getTicketRelatedEventList_upgrade_decision_related(
+      self._makeComputeNode()[0])
+
+  def test_getTicketRelatedEventList_upgrade_decision_related_to_instance_tree(self):
+    self._test_getTicketRelatedEventList_upgrade_decision_related(
+      self._makeInstanceTree())
+
+  def _test_getTicketRelatedEventList_upgrade_decision_related(self, document):
+    ticket = self.makeUpgradeDecision()
+    person = self.makePerson(index=1, user=1)
+    ticket.newContent(
+      portal_type="Upgrade Decision Line"
+    ).setAggregateValue(document)
+    person.newContent(portal_type="Assignment",
+                      group="company").open()
+    event = ticket.getFollowUpRelatedValue()
+    self.tic()
+
+    self.portal.portal_skins.changeSkin('RSS')
+    self.login(person.getUserId())
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+    self.tic()
+
+    self.portal.portal_skins.changeSkin('RSS')
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.plan()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.confirm()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
+    self.assertNotEqual(open_related_ticket_list[0].link, None)
+    self.assertIn(event.getTextContent(), open_related_ticket_list[0].description)
+    self.assertEqual(open_related_ticket_list[0].guid,
+      '{}-{}'.format(event.getFollowUp(),
+                     event.getRelativeUrl()))
+    self.assertEqual(open_related_ticket_list[0].title,
+      ticket.getTitle())
+
+    ticket.start()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
+    self.assertNotEqual(open_related_ticket_list[0].link, None)
+    self.assertIn(event.getTextContent(), open_related_ticket_list[0].description)
+    self.assertEqual(open_related_ticket_list[0].guid,
+      '{}-{}'.format(event.getFollowUp(),
+                     event.getRelativeUrl()))
+    self.assertEqual(open_related_ticket_list[0].title,
+      ticket.getTitle())
+
+    ticket.stop()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
+    self.assertNotEqual(open_related_ticket_list[0].link, None)
+    self.assertIn(event.getTextContent(), open_related_ticket_list[0].description)
+    self.assertEqual(open_related_ticket_list[0].guid,
+      '{}-{}'.format(event.getFollowUp(),
+                     event.getRelativeUrl()))
+    self.assertEqual(open_related_ticket_list[0].title,
+      ticket.getTitle())
+
+
+    ticket.deliver()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
+    self.assertNotEqual(open_related_ticket_list[0].link, None)
+    self.assertIn(event.getTextContent(), open_related_ticket_list[0].description)
+    self.assertEqual(open_related_ticket_list[0].guid,
+      '{}-{}'.format(event.getFollowUp(),
+                     event.getRelativeUrl()))
+    self.assertEqual(open_related_ticket_list[0].title,
+      ticket.getTitle())
+
+
+  def test_getTicketRelatedEventList_cancelled_upgrade_decision_related_to_compute_node(self):
+    self._test_getTicketRelatedEventList_cancelled_upgrade_decision_related(
+      self._makeComputeNode()[0])
+
+  def test_getTicketRelatedEventList_cancelled_upgrade_decision_related_to_instance_tree(self):
+    self._test_getTicketRelatedEventList_cancelled_upgrade_decision_related(
+      self._makeInstanceTree())
+
+  def _test_getTicketRelatedEventList_cancelled_upgrade_decision_related(self, document):
+    ticket = self.makeUpgradeDecision()
+    person = self.makePerson(index=1, user=1)
+    ticket.newContent(
+      portal_type="Upgrade Decision Line"
+    ).setAggregateValue(document)
+    person.newContent(portal_type="Assignment",
+                      group="company").open()
+    self.tic()
+
+    self.portal.portal_skins.changeSkin('RSS')
+    self.login(person.getUserId())
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    self.tic()
+
+    self.portal.portal_skins.changeSkin('RSS')
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.cancel()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.Base_getTicketRelatedEventList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+

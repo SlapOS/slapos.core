@@ -90,6 +90,7 @@ SLAPGRID_PROMISE_FAIL = 2
 PROMISE_TIMEOUT = 20
 
 COMPUTER_PARTITION_TIMESTAMP_FILENAME = '.timestamp'
+COMPUTER_PARTITION_REQUESTED_STATE_FILENAME = '.requested_state'
 COMPUTER_PARTITION_LATEST_BANG_TIMESTAMP_FILENAME = '.slapos_latest_bang_timestamp'
 COMPUTER_PARTITION_INSTALL_ERROR_FILENAME = '.slapgrid-%s-error.log'
 COMPUTER_PARTITION_WAIT_LIST_FILENAME = '.slapos-report-wait-service-list'
@@ -1125,6 +1126,10 @@ stderr_logfile_backups=1
         instance_path,
         COMPUTER_PARTITION_TIMESTAMP_FILENAME
     )
+    partition_state_path = os.path.join(
+        instance_path,
+        COMPUTER_PARTITION_REQUESTED_STATE_FILENAME
+    )
     parameter_dict = computer_partition.getInstanceParameterDict()
     timestamp = parameter_dict.get('timestamp')
 
@@ -1339,6 +1344,8 @@ stderr_logfile_backups=1
     if timestamp:
       with open(timestamp_path, 'w') as f:
         f.write(str(timestamp))
+      with open(partition_state_path, 'w') as f:
+        f.write(str(computer_partition_state))
 
   def FilterComputerPartitionList(self, computer_partition_list):
     """

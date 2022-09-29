@@ -582,7 +582,7 @@ stderr_logfile_backups=1
 
         parameter_dict = partition.getInstanceParameterDict()
         self.computer_partition_list.append({
-          "reference": partition._instance_guid,
+          "reference": getattr(partition, '_instance_guid', None),
           "portal_type": "Software Instance",
           "compute_partition_id": partition.getId(),
           "state": partition.getState(),

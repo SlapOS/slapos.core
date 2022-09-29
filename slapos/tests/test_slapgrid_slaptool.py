@@ -831,6 +831,7 @@ exit 1
                         '/getComputerPartitionCertificate',
                         '/startedComputerPartition',
                         '/getHateoasUrl',
+                        '/getJIOAPIUrl',
                         '/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/softwareInstanceError'])
@@ -886,6 +887,7 @@ chmod 755 etc/run/wrapper
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
+                        '/getJIOAPIUrl',
                         '/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition'])
@@ -951,6 +953,7 @@ exit 1
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
+                        '/getJIOAPIUrl',
                         '/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/softwareInstanceError'])
@@ -990,6 +993,7 @@ exit 1
       self.assertLogContent(wrapper_log, 'Working')
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
+                        '/getJIOAPIUrl',
                         '/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/startedComputerPartition'])
@@ -1470,14 +1474,17 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
+                        '/getJIOAPIUrl',
                         '/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition',
                         '/getHateoasUrl',
+                        '/getJIOAPIUrl',
                         '/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition',
                         '/getHateoasUrl',
+                        '/getJIOAPIUrl',
                         '/getFullComputerInformation'])
 
   def test_partition_timestamp_no_timestamp(self):
@@ -1498,10 +1505,12 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.launchSlapgrid()
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
+                        '/getJIOAPIUrl',
                         '/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition',
                         '/getHateoasUrl',
+                        '/getJIOAPIUrl',
                         '/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition'])
@@ -1910,6 +1919,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       # Then destroy the instance
       computer.sequence = []
       instance.requested_state = 'destroyed'
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
@@ -1984,6 +1994,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
 
       # Then run usage report and see if it is still working
       computer.sequence = []
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # registerComputerPartition will create one more file:
       from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
@@ -2397,6 +2408,7 @@ class TestSlapgridDestructionLock(MasterMixin, unittest.TestCase):
       )))
 
       instance.requested_state = 'destroyed'
+      self.grid.computer._synced = False
       self.grid.agregateAndSendUsage()
       self.assertTrue(os.path.exists(dummy_instance_file_path))
       self.assertTrue(os.path.exists(os.path.join(
@@ -2858,6 +2870,7 @@ exit 0
       self.grid._manager_list = manager_list
 
       partition.requested_state = 'destroyed'
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (pre-delete is running)
       self.assertInstanceDirectoryListEqual(['0'])
@@ -2872,6 +2885,7 @@ exit 0
       # wait until the pre-delete script is finished
       self._wait_prerm_script_finished(partition.partition_path)
 
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
@@ -2902,6 +2916,7 @@ exit 0
       self.grid._manager_list = manager_list
 
       partition.requested_state = 'destroyed'
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (retention-delay-lock)
       six.assertCountEqual(self, os.listdir(partition.partition_path),
@@ -2915,6 +2930,7 @@ exit 0
       )))
 
       time.sleep(1)
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
 
       # Assert partition directory is not destroyed (pre-delete is running)
@@ -2927,6 +2943,7 @@ exit 0
       # wait until the pre-delete script is finished
       self._wait_prerm_script_finished(partition.partition_path)
 
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       six.assertCountEqual(self, os.listdir(partition.partition_path), [])
@@ -2948,6 +2965,7 @@ exit 0
       self.grid._manager_list = manager_list
 
       partition.requested_state = 'destroyed'
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (pre-delete is running)
       six.assertCountEqual(self, os.listdir(partition.partition_path),
@@ -2961,6 +2979,7 @@ exit 0
         # the script is well finished...
         self.assertTrue("finished prerm script." in f.read())
 
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
@@ -2983,6 +3002,7 @@ exit 0
       self.grid._manager_list = manager_list
 
       partition.requested_state = 'destroyed'
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (pre-delete is running)
       six.assertCountEqual(self, os.listdir(partition.partition_path),
@@ -3013,6 +3033,7 @@ exit 0
       # wait until the pre-delete script is finished
       self._wait_prerm_script_finished(partition.partition_path)
 
+      self.grid.computer._synced = False
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])

@@ -1707,6 +1707,9 @@ class TestSlapOSFolder_getTicketFeedUrl(TestCRMSkinsMixin):
     self.assertIn('access_token=', url)
     self.assertIn('portal_skin=RSS', url)
 
+    self.tic()
+    self.assertEqual(url, module.Folder_getTicketFeedUrl())
+
   def test_Folder_getTicketFeedUrl_support_request_module(self):
     self._test(self.portal.support_request_module)
 

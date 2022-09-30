@@ -86,6 +86,7 @@ class CliMixin(unittest.TestCase):
   def setUp(self):
     slap = slapos.slap.slap()
     self.logger = create_autospec(logging.Logger)
+    slap.initializeConnection("http://127.0.0.1:80/")
     self.local = {'slap': slap, 'product': SoftwareProductCollection(self.logger, slap)}
     self.conf = create_autospec(ClientConfig)
     self.sign_cert_list = signature_certificate_list

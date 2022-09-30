@@ -70,6 +70,11 @@ _ALLOWED_CLASS_SET = frozenset((
 ))
 
 
+class UndefinedSerializationError(ValueError):
+    """Raised when the serialization type is not found"""
+    pass
+
+
 class SafeXMLMarshaller(Marshaller):
   def m_instance(self, value, kw):
     cls = value.__class__
@@ -400,7 +405,7 @@ class SoftwareReleaseSchema(object):
     if software_schema is None or 'serialisation' not in software_schema:
       software_schema = self.getSoftwareSchema()
     if software_schema is None:
-      return None
+      raise UndefinedSerializationError
     return SoftwareReleaseSerialisation(software_schema['serialisation'])
 
   def getInstanceRequestParameterSchemaURL(self):

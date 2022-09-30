@@ -40,7 +40,8 @@ from slapos.cli.config import ClientConfigCommand
 from slapos.client import (ClientConfig, _getSoftwareReleaseFromSoftwareString,
                            init)
 from slapos.slap import ResourceNotReady
-from slapos.util import SoftwareReleaseSchema, SoftwareReleaseSerialisation
+from slapos.util import (SoftwareReleaseSchema, SoftwareReleaseSerialisation,
+                         UndefinedSerializationError)
 
 try:
     from typing import IO, Dict
@@ -158,10 +159,10 @@ def do_request(logger, conf, local):
         conf.software_url = local[conf.software_url]
 
     software_schema = SoftwareReleaseSchema(conf.software_url, conf.type)
-    software_schema_serialisation = software_schema.getSerialisation()
     parameters = conf.parameters
     if conf.parameters_file:
-        parameters = getParametersFromFile(conf.parameters_file, software_schema_serialisation)
+        # getSerialisation must throw an exception if serialization cannot be found
+        parameters = getParametersFromFile(conf.parameters_file, software_schema.getSerialisation())
     try:
         partition = local['slap'].registerOpenOrder().request(
             software_release=conf.software_url,
@@ -175,9 +176,12 @@ def do_request(logger, conf, local):
         logger.info('Instance requested.\nState is : %s.', partition.getState())
         logger.info('Connection parameters of instance are:')
         connection_parameter_dict = partition.getConnectionParameterDict()
-        if software_schema_serialisation == SoftwareReleaseSerialisation.JsonInXml:
-            if '_' in connection_parameter_dict:
-                connection_parameter_dict = json.loads(connection_parameter_dict['_'])
+        try:
+            if software_schema.getSerialisation() == SoftwareReleaseSerialisation.JsonInXml:
+                if '_' in connection_parameter_dict:
+                    connection_parameter_dict = json.loads(connection_parameter_dict['_'])
+        except UndefinedSerializationError:
+            pass
         logger.info(StrPrettyPrinter().pformat(connection_parameter_dict))
         logger.info('You can rerun the command to get up-to-date information.')
     except ResourceNotReady:

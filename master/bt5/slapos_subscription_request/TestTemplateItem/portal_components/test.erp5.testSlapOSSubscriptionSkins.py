@@ -1590,3 +1590,24 @@ class TestSubscriptionRequest_processStarted(TestSubscriptionSkinsMixin):
     self.tic()
 
     self.assertEqual(subscription_request.getSimulationState(), "stopped")
+
+class TestSlapOSSubscriptionRequestModule_getTicketFeedUrl(TestSubscriptionSkinsMixin):
+
+  def test_getTicketFeedUrl(self):
+    module = self.portal.subscription_request_module
+    self.assertRaises(ValueError, module.SubscriptionRequestModule_getTicketFeedUrl)
+    person = self.makePerson(user=1)
+    self.tic()
+    
+    self.login(person.getUserId())
+
+    url = module.SubscriptionRequestModule_getTicketFeedUrl()
+    self.assertIn('SubscriptionRequestModule_viewSubscriptionRequestListAsRSS', url)
+    self.assertIn(module.absolute_url(), url)
+    self.assertIn('access_token_secret', url)
+    self.assertIn('access_token=', url)
+    self.assertIn('portal_skin=RSS', url)
+
+    self.tic()
+    # it gives the same URL as before
+    self.assertEqual(url, module.SubscriptionRequestModule_getTicketFeedUrl())

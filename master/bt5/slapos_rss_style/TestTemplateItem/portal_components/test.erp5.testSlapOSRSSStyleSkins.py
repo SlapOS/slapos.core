@@ -1062,7 +1062,6 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.assertEqual(open_ticket_list[2].title,
       ticket.getTitle())
 
-
 class TestBase_getTicketUrl(TestRSSSyleSkinsMixin):
   def testBase_getTicketUrl(self):
     ticket = self.portal.support_request_module.newContent(\
@@ -1081,4 +1080,47 @@ class TestBase_getTicketUrl(TestRSSSyleSkinsMixin):
 
     self.assertIn("/#/%s" % ticket.getRelativeUrl(),
                   web_site.support_request_module[ticket.getId()].Base_getTicketUrl())
-    
+
+
+class TestSlapOSSaleInvoiceTransaction_getRSSTitleAndDescription(TestRSSSyleSkinsMixin):
+
+  def test(self):
+    invoice = self.portal.accounting_module.newContent(\
+                      portal_type="Sale Invoice Transaction",
+                      reference="TESTINVOICE-%s" % self.new_id,
+                      title="Test Sale Invoice %s" % self.new_id)
+
+    self.portal.portal_skins.changeSkin('RSS')
+    text = self.portal.Base_translateString("Invoice")
+    self.assertEqual(
+      invoice.SaleInvoiceTransaction_getRSSTitle(),
+      "%s %s" % (text, invoice.getReference()))
+
+    self.assertIn(
+      invoice.Base_getTicketUrl(),
+      invoice.SaleInvoiceTransaction_getRSSDescription())
+
+    self.assertIn(
+      invoice.getReference(),
+      invoice.SaleInvoiceTransaction_getRSSDescription())
+
+    invoice_via_website = \
+      self.portal.web_site_module.renderjs_runner.accounting_module[invoice.getId()]
+    self.assertEqual(
+      invoice_via_website.SaleInvoiceTransaction_getRSSTitle(),
+      "[RenderJS Runner] %s %s" % (text, invoice.getReference()))
+
+    self.assertNotIn(
+      invoice.Base_getTicketUrl(),
+      invoice_via_website.SaleInvoiceTransaction_getRSSDescription())
+
+    self.assertIn(
+      invoice_via_website.Base_getTicketUrl(),
+      invoice_via_website.SaleInvoiceTransaction_getRSSDescription())
+
+    invoice.setStartDate(DateTime("02/01/2018"))
+    self.assertEqual(
+      invoice_via_website.SaleInvoiceTransaction_getRSSTitle(),
+      "[RenderJS Runner] %s %s - (01/02/2018)" % (text, invoice.getReference()))
+
+  

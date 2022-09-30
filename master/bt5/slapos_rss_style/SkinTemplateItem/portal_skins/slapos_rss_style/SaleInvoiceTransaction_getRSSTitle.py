@@ -8,6 +8,12 @@ else:
 
 prefix += "%s" % context.Base_translateString("Invoice")
 
-return "%s %s - (%s)" % (prefix,
+start_date = context.getStartDate()
+if start_date is not None:
+  start_date = ' - (%s)' % context.getStartDate().strftime("%d/%m/%Y")
+else:
+  start_date = ''
+
+return "%s %s%s" % (prefix,
   context.getReference(),
-  context.getStartDate().strftime("%d/%m/%Y"))
+  start_date)

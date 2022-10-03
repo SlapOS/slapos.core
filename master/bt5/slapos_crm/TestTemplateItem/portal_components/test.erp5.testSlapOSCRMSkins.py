@@ -156,6 +156,303 @@ class TestSlapOSSupportRequestModule_getMonitoringUrlList(TestCRMSkinsMixin):
     self.tic()
     self.assertNotEqual(instance_tree.getSuccessorList(), [])
 
+class TestSlapOSComputeNode_getTicketRelatedList(TestCRMSkinsMixin):
+
+  def test_getTicketRelatedList_support_request_related_to_allocated_instance(self):
+    document = self._makeComputeNode()[0]
+    self._makeComplexComputeNode()
+    ticket = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id)
+
+    ticket.setAggregateValue(self.start_requested_software_instance.getSpecialiseValue())
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    self.tic()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.submit()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.validate()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.suspend()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.invalidate()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+  def test_getTicketRelatedList_support_request_related_to_compute_node(self):
+    document = self._makeComputeNode()[0]
+    ticket = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id)
+
+    ticket.setAggregateValue(document)
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    self.tic()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.submit()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.validate()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.suspend()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.invalidate()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+  def test_getTicketRelatedList_cancelled_support_request_related_to_allocated_instance(self):
+    document = self._makeComputeNode()[0]
+    self._makeComplexComputeNode()
+    ticket = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id)
+
+    ticket.setAggregateValue(self.start_requested_software_instance.getSpecialiseValue())
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+    self.tic()
+
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.submit()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.cancel()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+  def test_getTicketRelatedList_cancelled_support_request_related_to_compute_node(self):
+    document = self._makeComputeNode()[0]
+    ticket = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id)
+
+    ticket.setAggregateValue(document)
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+    self.tic()
+
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.submit()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.cancel()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+  def test_getTicketRelatedList_upgrade_decision_related_to_allocated_instance(self):
+    document = self._makeComputeNode()[0]
+    self._makeComplexComputeNode()
+    def newUpgradeDecision():
+      ticket = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        title="Upgrade Decision Test %s" % self.new_id,
+        reference="TESTUD-%s" % self.new_id)
+
+      ticket.immediateReindexObject()
+      return ticket
+    ticket = newUpgradeDecision()
+    ticket.newContent(
+      portal_type="Upgrade Decision Line"
+    ).setAggregateValue(
+      self.start_requested_software_instance.getSpecialiseValue())
+
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    self.tic()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.plan()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.confirm()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.start()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.stop()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.deliver()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+  def test_getTicketRelatedList_upgrade_decision_related_to_compute_node(self):
+    document = self._makeComputeNode()[0]
+    def newUpgradeDecision():
+      ticket = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        title="Upgrade Decision Test %s" % self.new_id,
+        reference="TESTUD-%s" % self.new_id)
+
+      ticket.immediateReindexObject()
+      return ticket
+    ticket = newUpgradeDecision()
+
+    ticket.newContent(
+      portal_type="Upgrade Decision Line"
+    ).setAggregateValue(document)
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    self.tic()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.plan()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.confirm()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.start()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.stop()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.deliver()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+  def test_getTicketRelatedList_cancelled_upgrade_decision_to_allocated_instance(self):
+    document = self._makeComputeNode()[0]
+    self._makeComplexComputeNode()
+    def newUpgradeDecision():
+      ticket = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        title="Upgrade Decision Test %s" % self.new_id,
+        reference="TESTUD-%s" % self.new_id)
+
+      ticket.immediateReindexObject()
+      return ticket
+    ticket = newUpgradeDecision()
+    ticket.newContent(
+      portal_type="Upgrade Decision Line"
+    ).setAggregateValue(
+      self.start_requested_software_instance.getSpecialiseValue())
+
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    self.tic()
+
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.cancel()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+
+  def test_getTicketRelatedList_cancelled_upgrade_decision_to_computer_node(self):
+    document = self._makeComputeNode()[0]
+    def newUpgradeDecision():
+      ticket = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        title="Upgrade Decision Test %s" % self.new_id,
+        reference="TESTUD-%s" % self.new_id)
+
+      ticket.immediateReindexObject()
+      return ticket
+    ticket = newUpgradeDecision()
+
+    ticket.newContent(
+      portal_type="Upgrade Decision Line"
+    ).setAggregateValue(document)
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    self.tic()
+
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    ticket.cancel()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = document.ComputeNode_getTicketRelatedList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
 class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
 
   def test_getOpenRelatedTicketList_support_request_related_to_compute_node(self):
@@ -178,8 +475,7 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     self.tic()
 
     open_related_ticket_list = document.Base_getOpenRelatedTicketList()
-    self.assertEqual(len(open_related_ticket_list), 1)
-    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.submit()
     ticket.immediateReindexObject()
@@ -221,12 +517,10 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     # Not indexed yet
     self.assertEqual(len(open_related_ticket_list), 0)
-
     self.tic()
 
     open_related_ticket_list = document.Base_getOpenRelatedTicketList()
-    self.assertEqual(len(open_related_ticket_list), 1)
-    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.submit()
     ticket.immediateReindexObject()
@@ -268,14 +562,12 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     self.tic()
 
     open_related_ticket_list = document.Base_getOpenRelatedTicketList()
-    self.assertEqual(len(open_related_ticket_list), 1)
-    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.plan()
     ticket.immediateReindexObject()
     open_related_ticket_list = document.Base_getOpenRelatedTicketList()
-    self.assertEqual(len(open_related_ticket_list), 1)
-    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.confirm()
     ticket.immediateReindexObject()
@@ -330,8 +622,7 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     self.tic()
 
     open_related_ticket_list = document.Base_getOpenRelatedTicketList()
-    self.assertEqual(len(open_related_ticket_list), 1)
-    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.cancel()
     ticket.immediateReindexObject()
@@ -1415,6 +1706,9 @@ class TestSlapOSFolder_getTicketFeedUrl(TestCRMSkinsMixin):
     self.assertIn('access_token_secret', url)
     self.assertIn('access_token=', url)
     self.assertIn('portal_skin=RSS', url)
+
+    self.tic()
+    self.assertEqual(url, module.Folder_getTicketFeedUrl())
 
   def test_Folder_getTicketFeedUrl_support_request_module(self):
     self._test(self.portal.support_request_module)

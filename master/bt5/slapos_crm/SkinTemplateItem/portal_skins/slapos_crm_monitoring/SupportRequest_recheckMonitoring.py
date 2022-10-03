@@ -10,11 +10,12 @@ from DateTime import DateTime
 if context.getSimulationState() == "invalidated":
   return "Closed Ticket"
 
-document = context.getAggregateValue()
+if context.getPortalType() != "Support Request":
+  return "Not a Support Request"
 
+document = context.getAggregateValue()
 if document is None:
   return True
-
 
 aggregate_portal_type = document.getPortalType()
 if aggregate_portal_type == "Compute Node":

@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>listbox_description</string> </value>
+            <value> <string>listbox_guid</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>
@@ -234,6 +234,10 @@
                     <value> <int>0</int> </value>
                 </item>
                 <item>
+                    <key> <string>input_type</string> </key>
+                    <value> <string>text</string> </value>
+                </item>
+                <item>
                     <key> <string>max_length</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -243,7 +247,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Description</string> </value>
+                    <value> <string>guid</string> </value>
                 </item>
                 <item>
                     <key> <string>truncate</string> </key>
@@ -271,7 +275,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: cell.Ticket_getLatestEvent() and cell.Ticket_getLatestEvent().getTextContent() or cell.getDescription()</string> </value>
+            <value> <string>python: \'{}-{}\'.format(cell.getRelativeUrl(), cell.getSimulationState())</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -1,31 +1,13 @@
-"""
-  Keep a custom script for permit render other times of documents, ie.: Software Installation.
-"""
-from Products.ZSQLCatalog.SQLCatalog import ComplexQuery, SimpleQuery
-
 portal = context.getPortalObject()
 
-query = ComplexQuery(
-  ComplexQuery(
-    SimpleQuery(portal_type="Support Request"),
-    SimpleQuery(default_aggregate_uid=context.getUid()),
-    logical_operator='and'),
-  ComplexQuery(
-    SimpleQuery(portal_type="Upgrade Decision Line"),
-    SimpleQuery(default_aggregate_uid=context.getUid()),
-    logical_operator='and'),
-  logical_operator='or')
-
+kw['portal_type'] = ["Support Request", "Upgrade Decision"]
+if 'default_or_child_aggregate_uid' not in kw:
+  kw['default_or_child_aggregate_uid'] = context.getUid()
 kw['sort_on'] = (('modification_date', 'DESC'),)
 if 'simulation_state' not in kw:
-  kw['simulation_state'] = "NOT cancelled"
+  kw['simulation_state'] = ['validated','submitted', 'suspended', 'invalidated', 
+                            # Unfortunally Upgrade decision uses diferent states.
+                            'confirmed', 'started', 'stopped', 'delivered']
 if 'limit' not in kw:
   kw['limit'] = 30
-result_list = []
-for document in portal.portal_catalog(query=query, **kw):
-  if document.getPortalType() == "Upgrade Decision Line":
-    if document.getParentValue().getSimulationState() != 'cancelled':
-      result_list.append(document.getParentValue())
-    continue
-  result_list.append(document)
-return result_list
+return portal.portal_catalog(**kw)

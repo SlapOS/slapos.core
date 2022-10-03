@@ -73,13 +73,18 @@
                     <value>
                       <list>
                         <string>listbox</string>
+                        <string>listbox_guid</string>
                       </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>hidden</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>listbox_pubDate</string>
+                        <string>listbox_title</string>
+                        <string>listbox_description</string>
+                      </list>
                     </value>
                 </item>
               </dictionary>
@@ -87,7 +92,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>WebSection_viewCriticalTicketListAsRSS</string> </value>
+            <value> <string>SubscriptionRequestModule_viewSubscriptionRequestListAsRSS</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -95,7 +100,7 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>WebSection_viewRssFeedRender</string> </value>
+            <value> <string>SubscriptionRequestModule_viewSubscriptionRequestListAsRSS</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
@@ -111,7 +116,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>View user rss feed list</string> </value>
+            <value> <string>View Subscription Request As RSS</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

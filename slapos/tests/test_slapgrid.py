@@ -1710,6 +1710,43 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
         self.launchSlapgrid()
         self.assertEqual(mock_method.call_count, 2)
 
+  def test_partition_requested_state_created(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      timestamp = str(int(time.time()))
+      instance.timestamp = timestamp
+
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertInstanceDirectoryListEqual(['0'])
+      partition = os.path.join(self.instance_root, '0')
+      six.assertCountEqual(self, os.listdir(partition),
+                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg',
+                             'software_release', 'worked', '.slapos-retention-lock-delay'])
+      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
+      requested_state_path = os.path.join(instance.partition_path, '.requested_state')
+
+      with open(requested_state_path) as f:
+        self.assertEqual(f.read(), slapgrid.COMPUTER_PARTITION_STOPPED_STATE)
+      self.assertEqual(instance.sequence,
+                       ['/stoppedComputerPartition'])
+
+  def test_partition_requested_state_not_created_if_failed(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      timestamp = str(int(time.time()))
+      instance.timestamp = timestamp
+
+      instance.software.setBuildout("""#!/bin/sh
+exit 3""")
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_FAIL)
+      self.assertInstanceDirectoryListEqual(['0'])
+      self.assertEqual(instance.sequence,
+                       ['/softwareInstanceError'])
+      requested_state_path = os.path.join(instance.partition_path, '.requested_state')
+      self.assertFalse(os.path.exists(requested_state_path))
+
   def test_one_partition_buildout_fail_does_not_disturb_others(self):
     """
     1. We set up two instance one using a corrupted buildout

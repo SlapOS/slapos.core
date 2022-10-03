@@ -48,3 +48,21 @@ class TestSlapOSDump(SlapOSTestCaseMixin):
       else:
         ZopeTestCase._print('Stored dump %s in %s\n' % (dump, location))
     self.assertEqual(0, issue_count)
+
+  def test_save_and_assert(self):
+    self.beforeDumpExpectedConfiguration()
+    self.assertRaises(ValueError, self.portal.ERP5Site_assertDumpedConfiguration)
+    msg = self.portal.ERP5Site_saveDumpedConfiguration()
+    self.assertEqual('', self.portal.ERP5Site_assertDumpedConfiguration())
+
+    ZopeTestCase._print('\n')
+    filename = 'erp5_dumped_configuration'
+    try:
+      location = self.write('%s' % filename, msg)
+    except Exception:
+      ZopeTestCase._print(
+        'Problem with %s\n' % filename)
+    else:
+      ZopeTestCase._print(
+        'Stored dump ERP5Site_saveDumpedConfiguration in %s\n' % (location,))
+    

@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>filename=\'erp5_dumped_configuration\'</string> </value>
+            <value> <string>save=1, backup=0</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ERP5Site_assertDumpedConfiguration</string> </value>
+            <value> <string>ERP5Site_saveDumpedConfiguration</string> </value>
         </item>
       </dictionary>
     </pickle>

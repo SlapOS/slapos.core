@@ -1230,6 +1230,7 @@ stderr_logfile_backups=1
 
               return
         os.remove(timestamp_path)
+        os.remove(partition_state_path)
 
     # Include Partition Logging
     log_folder_path = "%s/.slapgrid/log" % instance_path

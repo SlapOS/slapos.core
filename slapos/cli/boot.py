@@ -65,9 +65,9 @@ def _removeTimestamp(instancehome, partition_base_name):
        logger.info("Removing %s", timestamp_path)
        os.remove(timestamp_path)
 
-def startComputerPartition(partition_id, supervisord_socket):
+def _startComputerPartition(partition_id, supervisord_socket):
     """
-    With supervisord, to start the instance that was deployed
+    With supervisord, start the instance that was deployed
     """
     try:
       with getSupervisorRPC(supervisord_socket) as supervisor:
@@ -80,7 +80,7 @@ def startComputerPartition(partition_id, supervisord_socket):
     else:
       logger.info("Requested start of %s..." % partition_id)
 
-def startComputerPartitionList(instance_root, partition_base_name):
+def _startComputerPartitionList(instance_root, partition_base_name):
   """
   Start services for partition which has requested state to 'started'
   """
@@ -103,7 +103,7 @@ def startComputerPartitionList(instance_root, partition_base_name):
         partition_state = f.read()
       if partition_state == COMPUTER_PARTITION_STARTED_STATE:
         # Call start for this computer partition
-        startComputerPartition(
+        _startComputerPartition(
           os.path.basename(partition_path.rstrip('/')),
           supervisord_socket_path
         )
@@ -253,7 +253,7 @@ class BootCommand(ConfigCommand):
             sleep(15)
 
         # Start computer partition services
-        startComputerPartitionList(instance_root, partition_base_name)
+        _startComputerPartitionList(instance_root, partition_base_name)
 
         # Check that node can ping master
         if valid_ipv4(master_hostname):

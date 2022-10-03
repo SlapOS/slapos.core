@@ -1401,7 +1401,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
+                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       timestamp_path = os.path.join(instance.partition_path, '.timestamp')
       self.setSlapgrid()
@@ -1422,7 +1422,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', 'buildout.cfg',
+                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg',
                              'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
 
@@ -1445,7 +1445,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
+                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       instance.timestamp = str(int(timestamp) - 1)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
@@ -1463,7 +1463,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
+                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       instance.timestamp = str(int(timestamp) + 1)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
@@ -1491,7 +1491,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
+                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       instance.timestamp = None
@@ -1523,7 +1523,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.launchSlapgrid()
       partition = os.path.join(self.instance_root, '0')
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', 'buildout.cfg',
+                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg',
                              'software_release', 'worked', '.slapos-retention-lock-delay'])
 
       time.sleep(2)
@@ -1533,7 +1533,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
 
       self.launchSlapgrid()
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', 'buildout.cfg',
+                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg',
                              'software_release', 'worked', '.slapos-retention-lock-delay'])
 
   def test_one_partition_periodicity_from_file_does_not_disturb_others(self):

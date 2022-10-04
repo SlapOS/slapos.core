@@ -766,6 +766,9 @@ def _byteify(data, ignore_dicts = False):
   return data
 
 def json_loads_byteified(json_text):
+  """
+  Encode string when loading JSON
+  """
   return _byteify(
     json.loads(json_text, object_hook=_byteify),
     ignore_dicts=True

@@ -52,14 +52,15 @@ for brain in portal.portal_simulation.getMovementHistoryList(
    ticket_category,
    ticket_link) = getTicketInfo(event)
 
+  author, date = event.Base_getNodeTitleAndDate(brain)
   data_list.append(
       Object(**{
         'title': ticket_title,
         'category': ticket_category,
-        'author': brain.node_title,
+        'author': author,
         'link': ticket_link,
         'description': event.getTextContent(),
-        'pubDate': brain.date,
+        'pubDate': date,
         'guid': '{}-{}'.format(
                   event.getFollowUp(),
                   event.getRelativeUrl()),

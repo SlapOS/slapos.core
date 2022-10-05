@@ -1321,6 +1321,9 @@ stderr_logfile_backups=1
           # Write error message in a log file assible to computer partition user
           error_file.write(str(e))
         if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
+          # Try to start partition services if requested state is to started
+          if not self.force_stop:
+            local_partition.start()
           try:
             self._checkPromiseList(local_partition)
           except PromiseError:

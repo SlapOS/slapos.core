@@ -83,6 +83,13 @@ class FormatCommand(ConfigCommand):
                         help='Launch slapformat without delay'
                              ' (default: %(default)s)')
 
+        ap.add_argument('--no_raise',
+                        default=False, # can have a default as it is not in .cfg
+                        action="store_true",
+                        help='Do not raise if failed to connect to master during'
+                             'posting xml data.'
+                             ' (default: %(default)s)')
+
         ap.add_argument('-n', '--dry_run',
                         default=False, # can have a default as it is not in .cfg
                         action="store_true",

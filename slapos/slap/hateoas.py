@@ -44,8 +44,7 @@ import requests
 urllib3_logger = logging.getLogger('requests.packages.urllib3')
 urllib3_logger.setLevel(logging.WARNING)
 
-from cachecontrol import CacheControl
-from cachecontrol.caches.file_cache import FileCache
+from requests_cache import CachedSession
 
 # XXX fallback_logger to be deprecated together with the old CLI entry points.
 fallback_logger = logging.getLogger(__name__)
@@ -85,8 +84,11 @@ class ConnectionHelper:
     self.uncached_session = requests.Session()
     self.session = CacheControl(self.uncached_session,
       cache=FileCache(os.path.expanduser("~/.slapos_cached_get")))
+    self.session = CachedSession('slapos_cached_get', backend='filesystem',
+                                 use_cache_dir=True, cache_control=True,
+                                 stale_if_error=True)
 
-  def do_request(self, method, path, params=None, data=None, headers=None):
+  def do_request(self, method, path, params=None, data=None, headers=None, only_if_cached=False):
     url = parse.urljoin(self.slapgrid_uri, path)
     if headers is None:
       headers = {}
@@ -117,7 +119,8 @@ class ConnectionHelper:
                    verify=False,
                    data=data,
                    headers=headers,
-                   timeout=self.timeout)
+                   timeout=self.timeout,
+                   only_if_cached=only_if_cached)
       try:
         req.raise_for_status()
       except TypeError:
@@ -157,10 +160,25 @@ class ConnectionHelper:
     return req
 
   def GET(self, path, params=None, headers=None):
-    req = self.do_request(self.session.get,
-                          path=path,
-                          params=params,
-                          headers=headers)
+    get_exc = None
+    try:
+      req = self.do_request(self.session.get,
+                            path=path,
+                            params=params,
+                            headers=headers)
+    except (requests.Timeout, requests.ConnectionError) as exc:
+      # we'll try offline get with only_if_cached=True
+      get_exc = exc
+    try:
+      req = self.do_request(self.session.get,
+                            path=path,
+                            params=params,
+                            headers=headers,
+                            only_if_cached=True)
+    except requests.exceptions.HTTPError:
+      # raise original exception as we failed to get data from cache
+      raise get_exc
+
     return req.text.encode('utf-8')
 
   def POST(self, path, params=None, data=None,

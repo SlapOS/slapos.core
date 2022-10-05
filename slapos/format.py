@@ -1409,7 +1409,11 @@ def do_format(conf):
                   path_to_json=conf.computer_json,
                   logger=conf.logger)
   conf.logger.info('Posting information to %r' % conf.master_url)
-  computer.send(conf)
+  try:
+    computer.send(conf)
+  except ConnectionError:
+    if not conf.no_raise:
+      raise
   conf.logger.info('slapos successfully prepared the computer.')
 
 

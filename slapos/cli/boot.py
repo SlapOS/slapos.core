@@ -196,6 +196,13 @@ class BootCommand(ConfigCommand):
         if ipv6_interface is not None:
             _waitIpv6Ready(ipv6_interface)
 
+        app = SlapOSApp()
+        # Make sure slapos node format returns ok
+        while not _runFormat(app):
+            logger.error("[BOOT] Fail to format, try again in 15 seconds...")
+            sleep(15)
+        _removeTimestamp(instance_root, partition_base_name)
+
         # Check that node can ping master
         if valid_ipv4(master_hostname):
             _test_ping(master_hostname)
@@ -205,15 +212,7 @@ class BootCommand(ConfigCommand):
             # hostname
             _ping_hostname(master_hostname)
 
-        app = SlapOSApp()
-        # Make sure slapos node format returns ok
-        while not _runFormat(app):
-            logger.error("[BOOT] Fail to format, try again in 15 seconds...")
-            sleep(15)
-
         # Make sure slapos node bang returns ok
         while not _runBang(app):
             logger.error("[BOOT] Fail to bang, try again in 15 seconds...")
             sleep(15)
-
-        _removeTimestamp(instance_root, partition_base_name)

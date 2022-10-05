@@ -82,8 +82,6 @@ class ConnectionHelper:
 
     # self.session will handle requests using HTTP Cache Control rules.
     self.uncached_session = requests.Session()
-    self.session = CacheControl(self.uncached_session,
-      cache=FileCache(os.path.expanduser("~/.slapos_cached_get")))
     self.session = CachedSession('slapos_cached_get', backend='filesystem',
                                  use_cache_dir=True, cache_control=True,
                                  stale_if_error=True)
@@ -113,6 +111,9 @@ class ConnectionHelper:
           if v is None:
             data[k] = 'None'
 
+      kw = {}
+      if only_if_cached:
+        kw['only_if_cached'] = True
       req = method(url=url,
                    params=params,
                    cert=cert,
@@ -120,7 +121,7 @@ class ConnectionHelper:
                    data=data,
                    headers=headers,
                    timeout=self.timeout,
-                   only_if_cached=only_if_cached)
+                   **kw)
       try:
         req.raise_for_status()
       except TypeError:
@@ -166,18 +167,19 @@ class ConnectionHelper:
                             path=path,
                             params=params,
                             headers=headers)
-    except (requests.Timeout, requests.ConnectionError) as exc:
+    except ConnectionError as exc:
       # we'll try offline get with only_if_cached=True
       get_exc = exc
-    try:
-      req = self.do_request(self.session.get,
-                            path=path,
-                            params=params,
-                            headers=headers,
-                            only_if_cached=True)
-    except requests.exceptions.HTTPError:
-      # raise original exception as we failed to get data from cache
-      raise get_exc
+    if get_exc is not None:
+      try:
+        req = self.do_request(self.session.get,
+                              path=path,
+                              params=params,
+                              headers=headers,
+                              only_if_cached=True)
+      except requests.exceptions.HTTPError:
+        # raise original exception as we failed to get data from cache
+        raise get_exc
 
     return req.text.encode('utf-8')
 

@@ -33,6 +33,7 @@ import six
 from six.moves.urllib import parse
 from uritemplate import expand
 import os
+import sys
 import logging
 
 from ..util import _addIpv6Brackets
@@ -161,16 +162,17 @@ class ConnectionHelper:
     return req
 
   def GET(self, path, params=None, headers=None):
-    get_exc = None
+    traceback = None
     try:
       req = self.do_request(self.session.get,
                             path=path,
                             params=params,
                             headers=headers)
-    except ConnectionError as exc:
+    except ConnectionError:
       # we'll try offline get with only_if_cached=True
-      get_exc = exc
-    if get_exc is not None:
+      exc, value, traceback = sys.exc_info()
+
+    if traceback is not None:
       try:
         req = self.do_request(self.session.get,
                               path=path,
@@ -179,7 +181,7 @@ class ConnectionHelper:
                               only_if_cached=True)
       except requests.exceptions.HTTPError:
         # raise original exception as we failed to get data from cache
-        raise get_exc
+        six.reraise(exc, value, traceback)
 
     return req.text.encode('utf-8')
 

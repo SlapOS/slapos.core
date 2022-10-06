@@ -1408,8 +1408,9 @@ def do_format(conf):
     computer.dump(path_to_xml=conf.computer_xml,
                   path_to_json=conf.computer_json,
                   logger=conf.logger)
-  conf.logger.info('Posting information to %r' % conf.master_url)
-  computer.send(conf)
+  if not conf.local:
+    conf.logger.info('Posting information to %r' % conf.master_url)
+    computer.send(conf)
   conf.logger.info('slapos successfully prepared the computer.')
 
 

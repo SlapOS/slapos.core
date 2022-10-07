@@ -4,7 +4,7 @@ if REQUEST is not None:
 
 state = context.getSimulationState()
 person = context.getSourceProjectValue(portal_type="Person")
-if (state != 'suspended') or \
+if (state not in ('suspended', 'validated')) or \
    (person is None):
   return
 

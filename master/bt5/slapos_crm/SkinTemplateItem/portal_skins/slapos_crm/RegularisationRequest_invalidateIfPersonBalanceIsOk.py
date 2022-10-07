@@ -19,10 +19,10 @@ for payment in person.Person_getSubscriptionRequestFirstUnpaidPaymentList():
 
 # It can't be smaller, we are considernig all open invoices are from unpaid_payment_amount
 if round(float(outstanding_amount), 2) == round(-float(unpaid_payment_amount), 2):
-  context.invalidate(comment="Automatically disabled as balance is %s" % person.Entity_statOutstandingAmount())
+  context.invalidate(comment="Automatically disabled as balance is %s" % outstanding_amount)
   return
 
 if (int(outstanding_amount) > 0):
   return
 
-context.invalidate(comment="Automatically disabled as balance is %s" % person.Entity_statOutstandingAmount())
+context.invalidate(comment="Automatically disabled as balance is %s" % outstanding_amount)

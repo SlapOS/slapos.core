@@ -127,13 +127,13 @@ class TestSlapOSCrmInvalidateSuspendedRegularisationRequest(SlapOSTestCaseMixinW
       reference="TESTREGREQ-%s" % new_id,
       )
 
-  def test_alarm_not_suspended_regularisation_request(self):
+  def test_alarm_validated_regularisation_request(self):
     ticket = self.createRegularisationRequest()
     ticket.validate()
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_invalidate_suspended_regularisation_request
-    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_invalidateIfPersonBalanceIsOk")
+    self._test_alarm(alarm, ticket, "RegularisationRequest_invalidateIfPersonBalanceIsOk")
 
   def test_alarm_suspended_regularisation_request(self):
     ticket = self.createRegularisationRequest()
@@ -143,6 +143,16 @@ class TestSlapOSCrmInvalidateSuspendedRegularisationRequest(SlapOSTestCaseMixinW
     alarm = self.portal.portal_alarms.\
           slapos_crm_invalidate_suspended_regularisation_request
     self._test_alarm(alarm, ticket, "RegularisationRequest_invalidateIfPersonBalanceIsOk")
+
+  def test_alarm_invalidated_regularisation_request(self):
+    ticket = self.createRegularisationRequest()
+    ticket.validate()
+    ticket.invalidate()
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_invalidate_suspended_regularisation_request
+    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_invalidateIfPersonBalanceIsOk")
+
 
 class TestSlapOSCrmTriggerEscalationOnAcknowledgmentRegularisationRequest(SlapOSTestCaseMixinWithAbort):
 

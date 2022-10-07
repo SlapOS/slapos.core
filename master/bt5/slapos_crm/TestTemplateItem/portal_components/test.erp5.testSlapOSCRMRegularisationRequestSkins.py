@@ -239,13 +239,13 @@ class TestSlapOSRegularisationRequest_invalidateIfPersonBalanceIsOk(
     self.assertEqual(ticket.getSimulationState(), 'invalidated')
 
   @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "0"')
-  def test_invalidateIfPersonBalanceIsOk_not_suspended(self):
+  def test_invalidateIfPersonBalanceIsOk_validated(self):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(source_project_value=person)
     ticket.validate()
     ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
-    self.assertEqual(ticket.getSimulationState(), 'validated')
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
 
   @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "0"')
   def test_invalidateIfPersonBalanceIsOk_no_person(self):

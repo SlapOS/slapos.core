@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.8.2 (2022-10-10)
+------------------
+ * slapproxy: make rows unique for forwarded requests
+ * slapos boot: start computer partitioning without connecting to master
+ * cli/request: raise error when serialization type is unknown
+
 1.8.1 (2022-09-06)
 ------------------
  * nothing changed, new version to replace 1.8.0 which had a packaging mistake

@@ -266,6 +266,8 @@ class OpenOrder(SlapRequester):
     elif not isinstance(partition_parameter_kw, dict):
       raise ValueError("Unexpected type of partition_parameter_kw '%s'" %
                        partition_parameter_kw)
+    if len(partition_parameter_kw) == 1 and '_' in partition_parameter_kw:
+      partition_parameter_kw ['_'] = json.dumps(partition_parameter_kw ['_'])
 
     if filter_kw is None:
       filter_kw = {}

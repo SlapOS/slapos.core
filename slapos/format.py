@@ -943,8 +943,8 @@ class Tun(Tap):
       ip_subnets = list(ip_network.subnet(Tun.BASE_MASK + mask_shift))
       subnet = ip_subnets[sequence]
       # For serialization purposes, convert directly to ``str``
-      self.ipv4_network = str(subnet)
-      self.ipv4_addr = str(subnet.ip)
+      self.ipv4_network = "{}/{}".format(subnet[1], subnet.netmask)
+      self.ipv4_addr = str(subnet[1])
       self.ipv4_netmask = str(subnet.netmask)
 
   def createRoutes(self):

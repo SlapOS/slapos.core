@@ -42,7 +42,7 @@ if (event is None) and (ticket.getSimulationState() == 'suspended'):
     text_content=text_content,
   )
 
-  portal.portal_workflow.doActionFor(event, 'start_action', send_mail=True, comment=comment)
+  event.start(send_mail=True, comment=comment)
   event.stop(comment=comment)
   event.deliver(comment=comment)
   event.reindexObject(activate_kw={'tag': tag})

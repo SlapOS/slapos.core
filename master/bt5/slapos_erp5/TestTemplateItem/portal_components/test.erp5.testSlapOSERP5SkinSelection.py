@@ -455,7 +455,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
-erp5_development
+erp5_json_type
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -504,7 +504,7 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_development
+erp5_wendelin
 erp5_wendelin_notebook
 erp5_xhtml_style
 external_method

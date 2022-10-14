@@ -30,3 +30,11 @@ storage-home = %(storage_home)s
 [network-information]
 global-ipv4-network = %(global_ipv4_network_prefix)s
 # This is end of zc.buildout profile's tail added by slapgrid
+
+[software-instance-data]
+state = %(instance_state)s
+software-type = %(instance_software_type)s
+reference = %(software_instance_reference)s
+processing-timestamp = %(instance_processing_timestamp)s
+connection-parameters-md5sum = %(connection_parameters_md5sum)s
+parameters-md5sum = %(parameters_md5sum)s

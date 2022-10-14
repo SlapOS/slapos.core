@@ -30,6 +30,7 @@
 
 import datetime
 import errno
+import json
 import os
 import pkg_resources
 import pwd
@@ -53,6 +54,7 @@ from slapos.grid.svcbackend import getSupervisorRPC
 from slapos.grid.exception import (BuildoutFailedError, WrongPermissionError,
                                    PathDoesNotExistError, DiskSpaceError)
 from slapos.grid.networkcache import download_network_cached, upload_network_cached
+from slapos.grid.utils import md5digest
 from slapos.human import bytes2human
 from slapos.util import bytes2str, rmtree
 
@@ -66,6 +68,8 @@ CP_STORAGE_FOLDER_NAME = 'DATA'
 # XXX not very clean. this is changed when testing
 PROGRAM_PARTITION_TEMPLATE = bytes2str(pkg_resources.resource_string(__name__,
             'templates/program_partition_supervisord.conf.in'))
+
+SOFTWARE_INSTANCE_JSON_FILENAME = '.software-instance.json'
 
 
 def free_space(path, fn):
@@ -599,6 +603,20 @@ class Partition(object):
                                  (self.instance_path, permission,
                                   REQUIRED_COMPUTER_PARTITION_PERMISSION))
 
+    uid, gid = self.getUserGroupId()
+   # Store software instance json
+    instance_json_location = os.path.join(
+      self.instance_path,
+      SOFTWARE_INSTANCE_JSON_FILENAME
+    )
+    partiton_dict = self.computer_partition.copy()
+    partiton_dict.pop("slap_partition", None)
+    # XXX Check if we want them or not
+    partiton_dict.pop("access_status_message", None)
+    with open(instance_json_location, 'w') as f:
+      json.dump(partiton_dict, f, indent=2)
+    os.chown(instance_json_location, uid, gid)
+
     # Check that Software Release directory is present
     if not os.path.exists(self.software_path):
       # XXX What should it raise?
@@ -616,6 +634,7 @@ class Partition(object):
         # XXX What should it raise?
         raise IOError('Software Release %s is not correctly installed.\nMissing file: %s' % (
             self.software_release_url, template_location))
+
     config_location = os.path.join(self.instance_path, 'buildout.cfg')
     self.logger.debug("Copying %r to %r" % (template_location, config_location))
     shutil.copy(template_location, config_location)
@@ -634,6 +653,19 @@ class Partition(object):
             'cert_file': self.cert_file,
             'storage_home': self.instance_storage_home,
             'global_ipv4_network_prefix': self.ipv4_global_network,
+            'parameters_md5sum': md5digest(
+              json.dumps(
+                self.computer_partition.get("parameters", {}), sort_keys=True
+              )
+            ),
+            'connection_parameters_md5sum': md5digest(
+              json.dumps(
+                self.computer_partition.get("connection_parameters", {}), sort_keys=True
+              )
+            ),
+            'instance_state': self.computer_partition.get("state"),
+            'instance_software_type': self.computer_partition.get("software_type"),
+            'instance_processing_timestamp': self.computer_partition.get("processing_timestamp"),
         }
     with open(config_location, 'w') as f:
       f.write(buildout_text)
@@ -649,7 +681,6 @@ class Partition(object):
         if q.startswith('bootstrap')]
     else:
       bootstrap_candidate_list = []
-    uid, gid = self.getUserGroupId()
     os.chown(config_location, -1, int(gid))
     if len(bootstrap_candidate_list) == 0:
       buildout_binary = os.path.join(self.software_path, 'bin', 'buildout')

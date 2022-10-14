@@ -581,21 +581,27 @@ stderr_logfile_backups=1
           software_release_uri = None
 
         parameter_dict = partition.getInstanceParameterDict()
-        self.computer_partition_list.append({
+        instance_dict = {
           "reference": getattr(partition, '_instance_guid', None),
           "portal_type": "Software Instance",
+          "compute_node_id": getattr(partition, '_computer_id', None),
           "compute_partition_id": partition.getId(),
           "state": partition.getState(),
-          "software_type": parameter_dict.get('slap_software_type', None),
-          "parameters": parameter_dict,
-          "processing_timestamp": parameter_dict.get("timestamp"),
+          "shared": False,
+          "software_type": parameter_dict.pop('slap_software_type', None),
+          "processing_timestamp": parameter_dict.pop("timestamp", None),
           "slap_partition": partition,
-          "ip_list": parameter_dict.get("ip_list", []),
-          "full_ip_list": parameter_dict.get("full_ip_list", []),
+          "ip_list": parameter_dict.pop("ip_list", []),
+          "full_ip_list": parameter_dict.pop("full_ip_list", []),
           "access_status_message": partition.getAccessStatus(),
           "software_release_uri": software_release_uri,
           "sla_parameters": getattr(partition, '_filter_dict', {}),
-        })
+          "connection_parameters": partition.getConnectionParameterDict(),
+          "root_instance_title": parameter_dict.pop("root_instance_title", None),
+          "title": parameter_dict.pop("instance_title", None),
+        }
+        instance_dict["parameters"] = parameter_dict
+        self.computer_partition_list.append(instance_dict)
     return self.computer_partition_list
 
   def sendPartitionError(self, partition, error_message, logger=None):

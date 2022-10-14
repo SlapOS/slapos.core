@@ -3,6 +3,9 @@
   "type": "object",
   "description": "Sample paremeters for a Simple Demo",
   "additionalProperties": false,
+  "required": [
+    "simple-string-required"
+  ],
   "properties": {
     "simple-string": {
       "title": "Example of Simple String",
@@ -20,6 +23,12 @@
         "simple string C"
         ],
       "default": "simple string A"
+    },
+    "simple-string-required": {
+      "title": "Example of Simple String Required",
+      "description": "Example of Simple String",
+      "type": "string",
+      "default": "Simple string "
     },
     "simple-boolean": {
       "title": "Example of Simple String",

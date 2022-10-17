@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.8.3 (2022-10-17)
+------------------
+ * format: use correct IPv4 for tun interfaces
+
 1.8.2 (2022-10-10)
 ------------------
  * slapproxy: make rows unique for forwarded requests

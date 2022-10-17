@@ -40,11 +40,12 @@
     );
   }
 
-  function render_selection(json_field, default_value) {
-    var option_list = [domsugar('option', {
-      value: "",
-      selected: (default_value === undefined)
-    })],
+  function render_selection(json_field, default_value, is_required) {
+    var property_dict = {size: 1},
+      option_list = [domsugar('option', {
+        value: "",
+        selected: (default_value === undefined)
+      })],
       option_index,
       selected,
       is_selected = (default_value === undefined),
@@ -77,16 +78,18 @@
         value: default_value,
         text: default_value,
         "data-format": data_format,
-        selected: selected
+        selected: true
       }));
     }
-    return domsugar('select', {
-      size: 1,
-      "data-format": data_format
-    }, option_list);
+
+    property_dict["data-format"] = data_format;
+    if (is_required) {
+      property_dict.required = true;
+    }
+    return domsugar('select', property_dict, option_list);
   }
 
-  function render_selection_oneof(json_field, default_value) {
+  function render_selection_oneof(json_field, default_value, is_required) {
     var option_list = [domsugar('option', {
       value: "",
       selected: (default_value === undefined)
@@ -114,7 +117,7 @@
     }, option_list);
   }
 
-  function render_textarea(json_field, default_value, data_format) {
+  function render_textarea(json_field, default_value, data_format, is_required) {
     var value = '';
     if (default_value !== undefined) {
       if (default_value instanceof Array) {
@@ -129,14 +132,14 @@
     });
   }
 
-  function render_field(json_field, default_value) {
+  function render_field(json_field, default_value, is_required) {
     var data_format, domsugar_input_dict = {};
     if (json_field['enum'] !== undefined) {
-      return render_selection(json_field, default_value);
+      return render_selection(json_field, default_value, is_required);
     }
 
     if (json_field.oneOf !== undefined) {
-      return render_selection_oneof(json_field, default_value);
+      return render_selection_oneof(json_field, default_value, is_required);
     }
 
     if (json_field.type === "boolean") {
@@ -147,7 +150,7 @@
       if (default_value === "false") {
         default_value = false;
       }
-      return render_selection(json_field, default_value);
+      return render_selection(json_field, default_value, is_required);
     }
 
     if (json_field.type === "array") {
@@ -157,11 +160,11 @@
           data_format = "array-number";
         }
       }
-      return render_textarea(json_field, default_value, data_format);
+      return render_textarea(json_field, default_value, data_format, is_required);
     }
 
     if (json_field.type === "string" && json_field.textarea === true) {
-      return render_textarea(json_field, default_value, "string");
+      return render_textarea(json_field, default_value, "string", is_required);
     }
 
     if (default_value !== undefined) {
@@ -179,6 +182,10 @@
       domsugar_input_dict.type = "text";
     }
 
+    if (is_required) {
+      domsugar_input_dict.required = true;
+    }
+
     return domsugar('input', domsugar_input_dict);
   }
 
@@ -192,7 +199,8 @@
       default_used_list = [],
       default_div,
       span_error,
-      span_info;
+      span_info,
+      is_required;
 
     if (default_dict === undefined) {
       default_dict = {};
@@ -271,6 +279,10 @@
         div.appendChild(label);
         div_input = document.createElement("div");
         div_input.setAttribute("class", "input");
+        is_required = false;
+        if ((Array.isArray(json_field.required)) && (json_field.required.includes(key))) {
+          is_required = true;
+        }
         if (json_field.properties[key].type === 'object') {
           label.setAttribute("class", "slapos-parameter-dict-key");
           div_input = render_subform(json_field.properties[key],
@@ -278,7 +290,8 @@
             div_input,
             path + "/" + key);
         } else {
-          input = render_field(json_field.properties[key], default_dict[key]);
+          input = render_field(
+            json_field.properties[key], default_dict[key], is_required);
           input.name = path + "/" + key;
           input.setAttribute("class", "slapos-parameter");
           input.setAttribute("placeholder", " ");
@@ -317,7 +330,7 @@
             div.appendChild(label);
             div_input = document.createElement("div");
             div_input.setAttribute("class", "input");
-            input = render_field({"type": "string", "textarea": true}, default_dict[key]);
+            input = render_field({"type": "string", "textarea": true}, default_dict[key], false);
             input.name = path + "/" + key;
             input.setAttribute("class", "slapos-parameter");
             input.setAttribute("placeholder", " ");
@@ -592,14 +605,27 @@
         for (error_index in validation.errors) {
           if (validation.errors.hasOwnProperty(error_index)) {
             field_name = validation.errors[error_index].dataPath;
-            input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
-            if (input_field === null) {
-              field_name = field_name.split("/").slice(0, -1).join("/");
+            if (field_name !== "") {
               input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
+              if (input_field === null) {
+                field_name = field_name.split("/").slice(0, -1).join("/");
+                input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
+              }
+              div = input_field.parentNode;
+              div.setAttribute("class", "slapos-parameter error-input");
+              div.querySelector("span.error").textContent = validation.errors[error_index].message;
+            } else if (validation.errors[error_index].code == "302")  {
+              // OBJECT_REQUIRED use case
+              field_name = "/" + validation.errors[error_index].params.key;
+              input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
+              if (input_field === null) {
+                field_name = field_name.split("/").slice(0, -1).join("/");
+                input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
+              }
+              div = input_field.parentNode;
+              div.setAttribute("class", "slapos-parameter error-input");
+              div.querySelector("span.error").textContent = validation.errors[error_index].message;
             }
-            div = input_field.parentNode;
-            div.setAttribute("class", "slapos-parameter error-input");
-            div.querySelector("span.error").textContent = validation.errors[error_index].message;
           }
         }
 

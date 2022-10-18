@@ -1,11 +1,12 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "description": "Extend simple parameter extension with extra only supported on json-in-xml",
   "additionalProperties": false,
+  "required": ["simple-object-is-required"],
   "allOf": [
     {
-      "$ref": "instance-input-schema.json#/"
+      "$ref": "instance-input-schema.json#"
     },
     {
       "properties": {
@@ -53,6 +54,33 @@
                1,
                2
              ]
+            }
+          }
+        },
+        "simple-object-with-required": {
+          "title": "Example of Single Object",
+          "description": "Example of Single Object",
+          "type": "object",
+          "required": ["sample-object-string"],
+          "properties": {
+            "sample-object-string": {
+              "title": "Example of Simple String on an object",
+              "description": "Example of Simple String",
+              "type": "string",
+              "default": "Simple string"
+            }
+          }
+        },
+        "simple-object-is-required": {
+          "title": "Example of Single Object",
+          "description": "Example of Single Object",
+          "type": "object",
+          "properties": {
+            "sample-object-string": {
+              "title": "Example of Simple String on an object",
+              "description": "Example of Simple String",
+              "type": "string",
+              "default": "Simple string "
             }
           }
         },

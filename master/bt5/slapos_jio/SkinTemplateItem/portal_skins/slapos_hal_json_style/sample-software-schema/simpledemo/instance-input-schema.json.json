@@ -1,10 +1,11 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "description": "Sample paremeters for a Simple Demo",
   "additionalProperties": false,
   "required": [
-    "simple-string-required"
+    "simple-string-required",
+    "simple-string-with-enum-required"
   ],
   "properties": {
     "simple-string": {
@@ -28,7 +29,18 @@
       "title": "Example of Simple String Required",
       "description": "Example of Simple String",
       "type": "string",
-      "default": "Simple string "
+      "default": "Simple string Required"
+    },
+    "simple-string-with-enum-required": {
+      "title": "Example of Simple String with enum",
+      "description": "Example of Simple String with enum",
+      "type": "string",
+      "enum" : [
+        "required string A",
+        "required string B",
+        "required string C"
+        ],
+      "default": "required string A"
     },
     "simple-boolean": {
       "title": "Example of Simple String",

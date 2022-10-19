@@ -239,7 +239,7 @@ https://lab.nexedi.com/nexedi/slapos/raw/master/schema.json#</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>999.32250.5458.58606</string> </value>
+                      <value> <string>1003.46353.55894.19370</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -257,7 +257,7 @@ https://lab.nexedi.com/nexedi/slapos/raw/master/schema.json#</string> </value>
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1649721266.53</float>
+                              <float>1666036947.97</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

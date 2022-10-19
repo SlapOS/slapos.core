@@ -2,7 +2,6 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "description": "Sample paremeters for a Simple Demo",
-  "additionalProperties": false,
   "required": [
     "simple-string-required",
     "simple-string-with-enum-required"

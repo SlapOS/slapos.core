@@ -2,7 +2,6 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "description": "Extend simple parameter extension with extra only supported on json-in-xml",
-  "additionalProperties": false,
   "required": ["simple-object-is-required"],
   "allOf": [
     {

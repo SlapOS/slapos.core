@@ -3,7 +3,7 @@
          jQuery, URI, vkbeautify, domsugar, Boolean */
 
 (function (window, document, rJS, $, XMLSerializer, jQuery, vkbeautify,
-           loopEventListener, domsugar, Boolean) {
+      domsugar, Boolean) {
   "use strict";
 
   var DISPLAY_JSON_FORM = 'display_json_form',
@@ -268,6 +268,15 @@
       }
     }
 
+    for (key in json_field.allOf) {
+      if (json_field.allOf.hasOwnProperty(key)) {
+        render_subform(json_field.allOf[key],
+            default_dict,
+            root,
+            path);
+      }
+    }
+
     for (key in json_field.properties) {
       if (json_field.properties.hasOwnProperty(key)) {
         div = document.createElement("div");
@@ -291,7 +300,10 @@
             path + "/" + key);
         } else {
           input = render_field(
-            json_field.properties[key], default_dict[key], is_required);
+            json_field.properties[key],
+            default_dict[key],
+            is_required
+          );
           input.name = path + "/" + key;
           input.setAttribute("class", "slapos-parameter");
           input.setAttribute("placeholder", " ");
@@ -577,11 +589,9 @@
           parameter_hash_input = g.element.querySelectorAll('.parameter_hash_output')[0],
           field_name,
           div,
-          divm,
-          missing_index,
-          missing_field_name,
           xml_output,
-          input_field;
+          input_field,
+          error_dict;
 
         $(g.element.querySelectorAll("span.error")).each(function (i, span) {
           span.textContent = "";
@@ -590,21 +600,20 @@
         $(g.element.querySelectorAll("div.error-input")).each(function (i, div) {
           div.setAttribute("class", "");
         });
+
         if (serialisation_type === "json-in-xml") {
           xml_output = jsonDictToParameterJSONInXML(json_dict);
         } else {
           xml_output = jsonDictToParameterXML(json_dict);
         }
         parameter_hash_input.value = btoa(xml_output);
-        // g.options.value.parameter.parameter_hash = btoa(xml_output);
-        // console.log(parameter_hash_input.value);
-        // console.log(xml_output);
-        if (validation.valid) {
-          return xml_output;
-        }
+
+        // Update fields if errors exist
         for (error_index in validation.errors) {
           if (validation.errors.hasOwnProperty(error_index)) {
-            field_name = validation.errors[error_index].dataPath;
+            error_dict = validation.errors[error_index];
+            // error_dict = { error : "", instanceLocation: "#", keyword: "", keywordLocation: "" }
+            field_name = error_dict.instanceLocation.slice(1);
             if (field_name !== "") {
               input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
               if (input_field === null) {
@@ -613,33 +622,21 @@
               }
               div = input_field.parentNode;
               div.setAttribute("class", "slapos-parameter error-input");
-              div.querySelector("span.error").textContent = validation.errors[error_index].message;
-            } else if (validation.errors[error_index].code == "302")  {
-              // OBJECT_REQUIRED use case
-              field_name = "/" + validation.errors[error_index].params.key;
+              div.querySelector("span.error").textContent = validation.errors[error_index].error;
+            } else if (error_dict.keyword === "required") {
+              // Specific use case for required
+              field_name = "/" + error_dict.key;
               input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
               if (input_field === null) {
                 field_name = field_name.split("/").slice(0, -1).join("/");
                 input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
               }
-              div = input_field.parentNode;
-              div.setAttribute("class", "slapos-parameter error-input");
-              div.querySelector("span.error").textContent = validation.errors[error_index].message;
+              if (input_field !== null) {
+                div = input_field.parentNode;
+                div.setAttribute("class", "slapos-parameter error-input");
+                div.querySelector("span.error").textContent = error_dict.error;
+              }
             }
-          }
-        }
-
-        for (missing_index in validation.missing) {
-          if (validation.missing.hasOwnProperty(missing_index)) {
-            missing_field_name = validation.missing[missing_index].dataPath;
-            input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']");
-            if (input_field === null) {
-              missing_field_name = field_name.split("/").slice(0, -1).join("/");
-              input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']");
-            }
-            divm = input_field.parentNode;
-            divm.setAttribute("class", "error-input");
-            divm.querySelector("span.error").textContent = validation.missing[missing_index].message;
           }
         }
         return xml_output;
@@ -1106,22 +1103,5 @@
         });
     }, {mutex: 'statechange'});
 
-    //.declareService(function () {
-    //  var gadget = this;
-      //return gadget.processValidation(gadget.options.json_url)
-      //  .fail(function (error) {
-      //    var parameter_xml = '';
-      //    console.log(error.stack);
-      //    if (gadget.options.value.parameter.parameter_hash !== undefined) {
-      //      parameter_xml = atob(gadget.options.value.parameter.parameter_hash);
-      //    }
-      //    return gadget.renderFailoverTextArea(parameter_xml, error.toString())
-      //      .push(function () {
-      //        error = undefined;
-      //        return gadget;
-      //      });
-      //  });
-    //});
-
 }(window, document, rJS, $, XMLSerializer, jQuery, vkbeautify,
-  rJS.loopEventListener, domsugar, Boolean));
+    domsugar, Boolean));

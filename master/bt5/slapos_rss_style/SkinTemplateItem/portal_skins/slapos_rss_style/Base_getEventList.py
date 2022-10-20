@@ -36,7 +36,7 @@ for brain in portal.portal_simulation.getMovementHistoryList(
     security_query=portal.portal_catalog.getSecurityQuery(),
     # Limit only to listable portal types
     portal_type=['Web Message', 'Mail Nessage'],
-    follow_up_simulation_state = ['validated','submitted', 'suspended', 'invalidated', 
+    follow_up_simulation_state = ['validated','submitted', 'suspended', 'invalidated',
                                   # Unfortunally Upgrade decision uses diferent states.
                                   'confirmed', 'started', 'stopped', 'delivered'],
     only_accountable=False,
@@ -48,6 +48,7 @@ for brain in portal.portal_simulation.getMovementHistoryList(
              ('uid', 'desc')),
     **context_kw):
   event = brain.getObject()
+
   (ticket_title,
    ticket_category,
    ticket_link) = getTicketInfo(event)
@@ -56,10 +57,10 @@ for brain in portal.portal_simulation.getMovementHistoryList(
       Object(**{
         'title': ticket_title,
         'category': ticket_category,
-        'author': brain.node_title,
+        'author': event.getSourceTitle(checked_permission="View"),
         'link': ticket_link,
         'description': event.getTextContent(),
-        'pubDate': brain.date,
+        'pubDate': event.getStartDate(),
         'guid': '{}-{}'.format(
                   event.getFollowUp(),
                   event.getRelativeUrl()),

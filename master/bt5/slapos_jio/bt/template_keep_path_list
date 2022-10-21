@@ -1,6 +1,8 @@
 web_site_module/hateoas
 web_site_module/hateoas/**
+web_site_module/renderjs_runner
 portal_types/ERP5 Form
 portal_propery_sheets/SlapOSHateoasSystemPreference
 web_page_module/rjs_gadget_erp5_panel_shortcut_html
 web_page_module/rjs_gadget_erp5_panel_shortcut_js
+web_page_module/slapos_admin_front_page

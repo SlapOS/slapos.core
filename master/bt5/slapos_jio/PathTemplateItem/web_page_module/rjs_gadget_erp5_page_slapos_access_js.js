@@ -18,7 +18,7 @@
         .push(function (result_dict) {
           return result_dict.access_gadget.render(options, [{
             title: result_dict.translation_dict.Home,
-            jio_key: 'web_page_module/20220609-702AB9',
+            jio_key: 'web_page_module/slapos_admin_front_page',
             erp5_action: 'render'
           }, {
             title: result_dict.translation_dict['User Usage'],

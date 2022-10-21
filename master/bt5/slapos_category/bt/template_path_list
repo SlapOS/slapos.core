@@ -15,7 +15,13 @@ portal_categories/base_amount/payroll/report
 portal_categories/base_amount/payroll/report/**
 portal_categories/base_amount/payroll/tax
 portal_categories/base_amount/payroll/tax/**
-portal_categories/business_application/**
+portal_categories/business_application
+portal_categories/business_application/accounting
+portal_categories/business_application/base
+portal_categories/business_application/crm
+portal_categories/business_application/dms
+portal_categories/business_application/pdm
+portal_categories/business_application/trade
 portal_categories/capacity_scope/**
 portal_categories/classification/collaborative
 portal_categories/classification/collaborative/**
@@ -89,6 +95,7 @@ portal_categories/quantity_unit/time/min
 portal_categories/quantity_unit/time/month
 portal_categories/quantity_unit/time/second
 portal_categories/quantity_unit/time/week
+portal_categories/quantity_unit/unit/piece
 portal_categories/quantity_unit/volume
 portal_categories/quantity_unit/volume/cubic_meter
 portal_categories/quantity_unit/volume/litre

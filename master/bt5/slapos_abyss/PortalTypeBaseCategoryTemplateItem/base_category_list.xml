@@ -1,4 +1,8 @@
 <base_category_list>
+ <portal_type id="Data Array">
+  <item>causality</item>
+  <item>predecessor</item>
+ </portal_type>
  <portal_type id="Data Product">
   <item>publication_section</item>
  </portal_type>

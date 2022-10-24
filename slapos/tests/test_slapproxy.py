@@ -1283,13 +1283,10 @@ class TestCliInformation(CliMasterMixin):
     self.request('http://sr1//', None, 'MyInstance1', None)
     self.request('http://sr2//', None, 'MyInstance2', None)
     self.request('http://sr3//', None, 'MyInstance3', 'slappart0')
-    output = self.cliDoSlapos(('service', 'list'), stderr=subprocess.DEVNULL).splitlines()
-    self.assertEqual(len(output), 4)
-    self.assertEqual(output[0], 'List of services:')
+    output = self.cliDoSlapos(('service', 'list'), stderr=subprocess.DEVNULL)
     self.assertEqual(
-      sorted(output[1:]),
-      ['MyInstance0 http://sr0//', 'MyInstance1 http://sr1//', 'MyInstance2 http://sr2//'],
-    )
+      json.loads(output),
+      {'MyInstance0': 'http://sr0//', 'MyInstance1': 'http://sr1//', 'MyInstance2': 'http://sr2//'})
 
   def test_service_info(self):
     self.format_for_number_of_partitions(3)
@@ -1298,27 +1295,23 @@ class TestCliInformation(CliMasterMixin):
     self.request('http://sr2//', None, 'MyInstance2', 'slappart0')
     output0 = self.cliDoSlapos(('service', 'info', 'MyInstance0'), stderr=subprocess.DEVNULL)
     self.assertEqual(
-      output0.splitlines(),
-      [
-        'Software Release URL: http://sr0//',
-        'Instance state: busy',
-        'Instance parameters:',
-        '{}',
-        'Connection parameters:',
-        '{}'
-      ],
+      json.loads(output0),
+      {
+        "software-url": "http://sr0//",
+        "instance-state": "busy",
+        "instance-parameters": {},
+        "connection-parameters": {},
+      },
     )
     output1 = self.cliDoSlapos(('service', 'info', 'MyInstance1'), stderr=subprocess.DEVNULL)
     self.assertEqual(
-      output1.splitlines(),
-      [
-        'Software Release URL: http://sr1//',
-        'Instance state: busy',
-        'Instance parameters:',
-        "{'couscous': 'hello'}",
-        'Connection parameters:',
-        '{}'
-      ],
+      json.loads(output1),
+      {
+        "software-url": "http://sr1//",
+        "instance-state": "busy",
+        "instance-parameters": {"couscous": "hello"},
+        "connection-parameters": {},
+      },
     )
     try:
       self.cliDoSlapos(('service', 'info', 'MyInstance2'), stderr=subprocess.STDOUT)

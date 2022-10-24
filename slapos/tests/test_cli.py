@@ -62,6 +62,7 @@ import slapos.grid.svcbackend
 import slapos.proxy
 import slapos.slap
 
+import six
 import supervisor.supervisorctl
 
 signature_certificate_list = """-----BEGIN CERTIFICATE-----
@@ -602,16 +603,15 @@ class TestCliList(CliMixin):
       'instance2': slapos.slap.SoftwareInstance(_title='instance2', _software_release_url='SR2'),
     }
     with patch.object(slapos.slap.slap, 'getOpenOrderDict', return_value=return_value) as _:
-      slapos.cli.list.do_list(self.logger, None, self.local)
-
-    self.logger.info.assert_any_call('%s %s', 'instance1', 'SR1')
-    self.logger.info.assert_any_call('%s %s', 'instance2', 'SR2')
+      slapos.cli.list.do_list(self.logger, self.conf, self.local)
+    if six.PY3:
+      self.logger.info.assert_called_once_with('{\n  "instance1": "SR1",\n  "instance2": "SR2"\n}')
 
   def test_emptyList(self):
     with patch.object(slapos.slap.slap, 'getOpenOrderDict', return_value={}) as _:
-      slapos.cli.list.do_list(self.logger, None, self.local)
+      slapos.cli.list.do_list(self.logger, self.conf, self.local)
 
-    self.logger.info.assert_called_once_with('No existing service.')
+    self.logger.info.assert_called_once_with('{}')
 
 @patch.object(slapos.slap.slap, 'registerOpenOrder', return_value=slapos.slap.OpenOrder())
 class TestCliInfo(CliMixin):
@@ -643,13 +643,19 @@ class TestCliInfo(CliMixin):
                       return_value=instance):
       slapos.cli.info.do_info(self.logger, self.conf, self.local)
 
-    self.logger.info.assert_any_call(pprint.pformat(instance._parameter_dict))
-    self.logger.info.assert_any_call(
-      'Software Release URL: %s', instance._software_release_url)
-    self.logger.info.assert_any_call(
-      'Instance state: %s', instance._requested_state)
-    self.logger.info.assert_any_call("{'myinstanceparameter': 'value2'}", )
-    self.logger.info.assert_any_call("{'myconnectionparameter': 'value1'}")
+    if six.PY3:
+      self.logger.info.assert_called_once_with(
+        textwrap.dedent('''\
+        {
+          "software-url": "SR1",
+          "instance-state": "mystate",
+          "instance-parameters": {
+            "myinstanceparameter": "value2"
+          },
+          "connection-parameters": {
+            "myconnectionparameter": "value1"
+          }
+        }'''))
 
   def test_unknownReference(self, _):
     """

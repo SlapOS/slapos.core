@@ -27,6 +27,7 @@
 #
 ##############################################################################
 
+import json
 import sys
 import six
 
@@ -54,9 +55,9 @@ def do_list(logger, conf, local):
     resetLogger(logger)
     # XXX catch exception
     instance_dict = local['slap'].getOpenOrderDict()
-    if instance_dict == {}:
-      logger.info('No existing service.')
-      return
-    logger.info('List of services:')
-    for title, instance in six.iteritems(instance_dict):
-      logger.info('%s %s', title, instance._software_release_url)
+    logger.info(
+      json.dumps(
+        {title: instance._software_release_url
+        for (title, instance) in six.iteritems(instance_dict)},
+        sort_keys=True,
+        indent=2))

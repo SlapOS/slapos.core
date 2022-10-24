@@ -597,19 +597,27 @@ class TestCliList(CliMixin):
     """
     Test "slapos service list" command output.
     """
+    setattr(self.conf, 'json', False)
     return_value = {
       'instance1': slapos.slap.SoftwareInstance(_title='instance1', _software_release_url='SR1'),
       'instance2': slapos.slap.SoftwareInstance(_title='instance2', _software_release_url='SR2'),
     }
     with patch.object(slapos.slap.slap, 'getOpenOrderDict', return_value=return_value) as _:
-      slapos.cli.list.do_list(self.logger, None, self.local)
+      slapos.cli.list.do_list(self.logger, self.conf, self.local)
 
     self.logger.info.assert_any_call('%s %s', 'instance1', 'SR1')
     self.logger.info.assert_any_call('%s %s', 'instance2', 'SR2')
 
+    setattr(self.conf, 'json', True)
+    self.logger.reset_mock()
+    with patch.object(slapos.slap.slap, 'getOpenOrderDict', return_value=return_value) as _:
+      slapos.cli.list.do_list(self.logger, self.conf, self.local)
+    self.logger.info.assert_called_once_with('{\n  "instance1": "SR1",\n  "instance2": "SR2"\n}')
+
   def test_emptyList(self):
+    setattr(self.conf, 'json', False)
     with patch.object(slapos.slap.slap, 'getOpenOrderDict', return_value={}) as _:
-      slapos.cli.list.do_list(self.logger, None, self.local)
+      slapos.cli.list.do_list(self.logger, self.conf, self.local)
 
     self.logger.info.assert_called_once_with('No existing service.')
 
@@ -639,6 +647,7 @@ class TestCliInfo(CliMixin):
     Test "slapos service info" command output.
     """
     setattr(self.conf, 'reference', 'instance1')
+    setattr(self.conf, 'json', False)
     with patch.object(slapos.slap.OpenOrder, 'getInformation',
                       return_value=instance):
       slapos.cli.info.do_info(self.logger, self.conf, self.local)
@@ -650,6 +659,24 @@ class TestCliInfo(CliMixin):
       'Instance state: %s', instance._requested_state)
     self.logger.info.assert_any_call("{'myinstanceparameter': 'value2'}", )
     self.logger.info.assert_any_call("{'myconnectionparameter': 'value1'}")
+
+    self.logger.reset_mock()
+    setattr(self.conf, 'json', True)
+    with patch.object(slapos.slap.OpenOrder, 'getInformation',
+                      return_value=instance):
+      slapos.cli.info.do_info(self.logger, self.conf, self.local)
+    self.logger.info.assert_called_once_with(
+      textwrap.dedent('''\
+      {
+        "software-release-url": "SR1",
+        "instance-state": "mystate",
+        "instance-parameters": {
+          "myinstanceparameter": "value2"
+        },
+        "connection-parameters": {
+          "myconnectionparameter": "value1"
+        }
+      }'''))
 
   def test_unknownReference(self, _):
     """

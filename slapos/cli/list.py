@@ -27,6 +27,7 @@
 #
 ##############################################################################
 
+import json
 import sys
 import six
 
@@ -40,6 +41,9 @@ class ListCommand(ClientConfigCommand):
 
     def get_parser(self, prog_name):
         ap = super(ListCommand, self).get_parser(prog_name)
+        ap.add_argument('--json',
+                        action='store_true',
+                        help='Output in json format')
         return ap
 
     def take_action(self, args):
@@ -54,9 +58,16 @@ def do_list(logger, conf, local):
     resetLogger(logger)
     # XXX catch exception
     instance_dict = local['slap'].getOpenOrderDict()
-    if instance_dict == {}:
-      logger.info('No existing service.')
-      return
-    logger.info('List of services:')
-    for title, instance in six.iteritems(instance_dict):
-      logger.info('%s %s', title, instance._software_release_url)
+    if conf.json:
+      logger.info(
+        json.dumps(
+          {title: instance._software_release_url
+          for (title, instance) in six.iteritems(instance_dict)},
+          indent=2))
+    else:
+      if instance_dict == {}:
+        logger.info('No existing service.')
+        return
+      logger.info('List of services:')
+      for title, instance in six.iteritems(instance_dict):
+        logger.info('%s %s', title, instance._software_release_url)

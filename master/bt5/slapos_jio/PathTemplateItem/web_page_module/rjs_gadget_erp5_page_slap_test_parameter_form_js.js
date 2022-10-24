@@ -69,10 +69,17 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
       if (options.url_string === undefined) {
         options.url_string = "";
       }
+      return this.changeState({
+        "url_string": options.url_string,
+        "parameter_output": options.parameter_output
+      })
+    })
+
+    .onStateChange(function onStateChange() {
+      var gadget = this;
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
@@ -85,19 +92,19 @@
             parameter_dict,
             default_url;
 
-          if (options.url_string === "") {
+          if (gadget.state.url_string === "") {
             default_url = result[1] + "sample-software-schema/simpledemo/software.cfg";
           } else {
-            default_url = options.url_string;
+            default_url = gadget.state.url_string;
           }
-          if (options.parameter_output === undefined) {
+          if (gadget.state.parameter_output === undefined) {
             parameter_hash = btoa('<?xml version="1.0" encoding="utf-8" ?><instance></instance>');
           } else {
-            parameter_hash = btoa(options.parameter_output);
+            parameter_hash = btoa(gadget.state.parameter_output);
           }
           parameter_dict = {
             'parameter' : {
-              'json_url':  options.url_string.split('?')[0] + ".json",
+              'json_url':  gadget.state.url_string.split('?')[0] + ".json",
               'parameter_hash': parameter_hash,
               'restricted_softwaretype': false
             }
@@ -111,7 +118,7 @@
                   "default": default_url,
                   "css_class": "",
                   "required": 1,
-                  "editable": options.url_string === "",
+                  "editable": gadget.state.url_string === "",
                   "key": "url_string",
                   "hidden": 0,
                   "type": "StringField"
@@ -122,23 +129,23 @@
                   "default": parameter_dict,
                   "css_class": "",
                   "required": 1,
-                  "editable": options.url_string !== "",
+                  "editable": gadget.state.url_string !== "",
                   "url": "gadget_erp5_page_slap_parameter_form.html",
                   "sandbox": "",
                   "key": "text_content",
-                  "hidden": options.url_string === "",
+                  "hidden": gadget.state.url_string === "",
                   "type": "GadgetField"
                 },
                 "your_parameter_output": {
                   "description": "",
                   "title": "Parameters Output",
-                  "default": options.parameter_output,
+                  "default": gadget.state.parameter_output,
                   "css_class": "",
                   "required": 0,
                   "editable": 0,
                   "sandbox": "",
                   "key": "parameter_output",
-                  "hidden": options.parameter_output === undefined,
+                  "hidden": gadget.state.parameter_output === undefined,
                   "type": "TextAreaField"
                 }
               }},
@@ -157,8 +164,14 @@
             }
           })
             .push(function () {
+              return gadget.getUrlFor({"command": "change",
+                                       "options": {"url_string": undefined,
+                                                  "parameter_output": undefined}});
+            })
+            .push(function (selection_url) {
               return gadget.updateHeader({
                 page_title: "Parameter testing page",
+                selection_url: selection_url,
                 submit_action: true
               });
             });

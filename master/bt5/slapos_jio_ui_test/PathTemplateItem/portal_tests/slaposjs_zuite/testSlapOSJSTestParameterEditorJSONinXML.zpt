@@ -20,6 +20,7 @@
         <td>${base_url}/web_site_module/hostingjs/#/?page=slap_test_parameter_form</td>
         <td></td>
       </tr>
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
       <tr>
         <td>waitForElementPresent</td>
         <td>//input[@name='url_string']</td>
@@ -282,6 +283,12 @@
         <td>//p[@id="parameter_hash"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>waitForTextPresent</td>
+        <td>PD94bWwgdmVyc2lvbj0iMS4wIi</td>
+        <td></td>
+      </tr>
+      
       <tr>
         <td>assertTextPresent</td>
         <td>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGluc3RhbmNlPgogICAgPHBhcmFtZXRlciBpZD0iXyI+ewogICAgInNpbXBsZS1zdHJpbmciOiAidGhpcyBpcyBhIHNpbXBsZSBzdHJpbmciLAogICAgInNpbXBsZS1zdHJpbmctd2l0aC1lbnVtIjogInNpbXBsZSBzdHJpbmcgQiIsCiAgICAic2ltcGxlLWJvb2xlYW4iOiB0cnVlLAogICAgInNpbXBsZS1zdHJpbmctd2l0aC10ZXh0LWFyZWEiOiAidGhpcyBpcyBhIHNpbXBsZSBzdHJpbmcgb24gYSB0ZXh0IGFyZWEiLAogICAgInNpbXBsZS1pbnRlZ2VyIjogMSwKICAgICJzaW1wbGUtaW50ZWdlci13aXRoLWVudW0iOiA3LAogICAgInNpbXBsZS1udW1lcmljLWludGVnZXIiOiAyLAogICAgInNpbXBsZS1udW1lcmljLWludGVnZXItZW51bSI6IDEzLAogICAgInNpbXBsZS1udW1lcmljLWZsb2F0IjogMiwKICAgICJzaW1wbGUtbnVtZXJpYy1mbG9hdC1lbnVtIjogMS4yNQp9PC9wYXJhbWV0ZXI+CjwvaW5zdGFuY2U+</td>

@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.8.4 (unreleased)
+------------------
+ * service list, service info: output json
+
 1.8.3 (2022-10-17)
 ------------------
  * format: use correct IPv4 for tun interfaces

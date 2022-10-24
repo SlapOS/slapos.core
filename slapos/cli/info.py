@@ -91,9 +91,14 @@ def do_info(logger, conf, local):
         if '_' in connection_parameter_dict:
             connection_parameter_dict = json.loads(connection_parameter_dict['_'])
 
-    logger.info('Software Release URL: %s', instance._software_release_url)
-    logger.info('Instance state: %s', instance._requested_state)
-    logger.info('Instance parameters:')
-    logger.info(StrPrettyPrinter().pformat(instance._parameter_dict))
-    logger.info('Connection parameters:')
-    logger.info(StrPrettyPrinter().pformat(connection_parameter_dict))
+    logger.info(
+        json.dumps(
+            {
+              'software-url': instance._software_release_url,
+              'instance-state': instance._requested_state,
+              'instance-parameters': instance._parameter_dict,
+              'connection-parameters': connection_parameter_dict,
+            },
+            indent=2,
+        )
+    )

@@ -129,9 +129,11 @@ is_package_installed ansible || install_package ansible
 
 if ! is_ubuntu || [[ $DISTRO = wheezy || $DISTRO == jessie || $DISTRO == stretch || $DISTRO == xenial || $DISTRO == bionic ]]; then
   is_package_installed python-pip || install_package python-pip
+  pip install --upgrade "pip < 21.0"
 else
   # Ansible is using python3 now
   is_package_installed python3-pip || install_package python3-pip
+  pip3 install --upgrade pip
 fi
 
 if is_ubuntu && [[ $DISTRO == focal || $DISTRO == buster ]]; then

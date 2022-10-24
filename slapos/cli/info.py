@@ -27,6 +27,7 @@
 #
 ##############################################################################
 
+import json
 import pprint
 import sys
 
@@ -34,6 +35,14 @@ from slapos.cli.command import resetLogger
 from slapos.cli.config import ClientConfigCommand
 from slapos.client import init, ClientConfig
 from slapos.slap import ResourceNotReady, NotFoundError
+
+from slapos.util import (
+  SoftwareReleaseSchema,
+  SoftwareReleaseSerialisation,
+  StrPrettyPrinter,
+  UndefinedSerializationError,
+  xml2dict,
+)
 
 
 class InfoCommand(ClientConfigCommand):
@@ -70,10 +79,21 @@ def do_info(logger, conf, local):
         logger.warning('Instance %s does not exist.', conf.reference)
         return(2)
 
+    software_schema = SoftwareReleaseSchema(
+        instance._software_release_url,
+        getattr(instance, '_software_type', None))
+    connection_parameter_dict = xml2dict(instance._connection_dict)
+    try:
+        software_serialisation = software_schema.getSerialisation()
+    except UndefinedSerializationError:
+        software_serialisation = SoftwareReleaseSerialisation.JsonInXml
+    if software_serialisation == SoftwareReleaseSerialisation.JsonInXml:
+        if '_' in connection_parameter_dict:
+            connection_parameter_dict = json.loads(connection_parameter_dict['_'])
+
     logger.info('Software Release URL: %s', instance._software_release_url)
     logger.info('Instance state: %s', instance._requested_state)
     logger.info('Instance parameters:')
-    logger.info(pprint.pformat(instance._parameter_dict))
+    logger.info(StrPrettyPrinter().pformat(instance._parameter_dict))
     logger.info('Connection parameters:')
-    logger.info(pprint.pformat(instance._connection_dict))
-
+    logger.info(StrPrettyPrinter().pformat(connection_parameter_dict))

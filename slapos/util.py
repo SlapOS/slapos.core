@@ -32,6 +32,7 @@ import errno
 import hashlib
 import json
 import os
+import pprint
 import shutil
 import socket
 import sqlite3
@@ -474,3 +475,13 @@ class SoftwareReleaseSchema(object):
           instance=instance,
           schema=self.getInstanceRequestParameterSchema(),
       )
+
+
+# BBB on python3 we can use pprint.pformat
+class StrPrettyPrinter(pprint.PrettyPrinter):
+  """A PrettyPrinter which produces consistent output on python 2 and 3
+  """
+  def format(self, object, context, maxlevels, level):
+    if six.PY2 and isinstance(object, six.text_type):
+      object = object.encode('utf-8')
+    return pprint.PrettyPrinter.format(self, object, context, maxlevels, level)

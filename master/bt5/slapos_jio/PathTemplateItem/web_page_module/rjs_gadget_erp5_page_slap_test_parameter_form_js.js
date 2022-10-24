@@ -147,7 +147,20 @@
                   "key": "parameter_output",
                   "hidden": gadget.state.parameter_output === undefined,
                   "type": "TextAreaField"
-                }
+                },
+                "your_parameter_hash": {
+                  "description": "",
+                  "title": "Parameters Hash",
+                  "default": parameter_hash,
+                  "css_class": "",
+                  "required": 0,
+                  "editable": 0,
+                  "sandbox": "",
+                  "key": "parameter_hash",
+                  "hidden": gadget.state.parameter_output === undefined,
+                  "type": "StringField"
+                },
+                
               }},
               "_links": {
                 "type": {
@@ -159,7 +172,7 @@
             form_definition: {
               group_list: [[
                 "center",
-                [["my_url_string"], ["your_parameter_output"], ["your_text_content"]]
+                [["my_url_string"], ["your_parameter_output"], ["your_parameter_hash"], ["your_text_content"]]
               ]]
             }
           })

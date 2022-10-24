@@ -1305,7 +1305,7 @@ class TestCliInformation(CliMasterMixin):
         'Instance parameters:',
         '{}',
         'Connection parameters:',
-        'None'
+        '{}'
       ],
     )
     output1 = self.cliDoSlapos(('service', 'info', 'MyInstance1'), stderr=subprocess.DEVNULL)
@@ -1317,7 +1317,7 @@ class TestCliInformation(CliMasterMixin):
         'Instance parameters:',
         "{'couscous': 'hello'}",
         'Connection parameters:',
-        'None'
+        '{}'
       ],
     )
     try:

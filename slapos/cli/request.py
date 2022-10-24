@@ -41,7 +41,7 @@ from slapos.client import (ClientConfig, _getSoftwareReleaseFromSoftwareString,
                            init)
 from slapos.slap import ResourceNotReady
 from slapos.util import (SoftwareReleaseSchema, SoftwareReleaseSerialisation,
-                         UndefinedSerializationError)
+                         UndefinedSerializationError, StrPrettyPrinter)
 
 try:
     from typing import IO, Dict
@@ -136,16 +136,6 @@ class RequestCommand(ClientConfigCommand):
 
         local = init(conf, self.app.log)
         do_request(self.app.log, conf, local)
-
-
-# BBB on python3 we can use pprint.pformat
-class StrPrettyPrinter(pprint.PrettyPrinter):
-  """A PrettyPrinter which produces consistent output on python 2 and 3
-  """
-  def format(self, object, context, maxlevels, level):
-    if six.PY2 and isinstance(object, six.text_type):
-      object = object.encode('utf-8')
-    return pprint.PrettyPrinter.format(self, object, context, maxlevels, level)
 
 
 def do_request(logger, conf, local):

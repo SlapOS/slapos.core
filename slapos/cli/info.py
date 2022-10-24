@@ -54,6 +54,10 @@ class InfoCommand(ClientConfigCommand):
         ap.add_argument('reference',
                         help='Your instance reference')
 
+        ap.add_argument('--json',
+                        action='store_true',
+                        help='Output in json format')
+
         return ap
 
     def take_action(self, args):
@@ -91,9 +95,22 @@ def do_info(logger, conf, local):
         if '_' in connection_parameter_dict:
             connection_parameter_dict = json.loads(connection_parameter_dict['_'])
 
-    logger.info('Software Release URL: %s', instance._software_release_url)
-    logger.info('Instance state: %s', instance._requested_state)
-    logger.info('Instance parameters:')
-    logger.info(StrPrettyPrinter().pformat(instance._parameter_dict))
-    logger.info('Connection parameters:')
-    logger.info(StrPrettyPrinter().pformat(connection_parameter_dict))
+    if conf.json:
+      logger.info(
+        json.dumps(
+          {
+            'software-release-url': instance._software_release_url,
+            'instance-state': instance._requested_state,
+            'instance-parameters': instance._parameter_dict,
+            'connection-parameters': connection_parameter_dict,
+          },
+          indent=2,
+        )
+      )
+    else:
+      logger.info('Software Release URL: %s', instance._software_release_url)
+      logger.info('Instance state: %s', instance._requested_state)
+      logger.info('Instance parameters:')
+      logger.info(StrPrettyPrinter().pformat(instance._parameter_dict))
+      logger.info('Connection parameters:')
+      logger.info(StrPrettyPrinter().pformat(connection_parameter_dict))

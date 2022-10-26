@@ -51,11 +51,7 @@
         .push(function (meta_schema) {
           return new RSVP.Queue()
             .push(function () {
-              return $RefParser
-                .dereference(url)
-                .then(function (schema) {
-                  return schema;
-                });
+              return $RefParser.dereference(url);
             })
             .push(function (schema) {
               var validator = new Validator(JSON.parse(meta_schema), '7');
@@ -72,10 +68,7 @@
           return new RSVP.Queue()
             .push(function () {
               return $RefParser
-                .dereference("slapos_load_software_schema.json")
-                .then(function (software_schema) {
-                  return software_schema;
-                });
+                .dereference("slapos_load_software_schema.json");
             })
             .push(function (software_schema) {
               var software_json = JSON.parse(software_cfg_json),
@@ -99,11 +92,7 @@
 
       return new RSVP.Queue()
         .push(function () {
-          return $RefParser
-            .dereference(parameter_schema_url)
-            .then(function (schema) {
-              return schema;
-            });
+          return $RefParser.dereference(parameter_schema_url);
         })
         .push(function (schema) {
           return new Validator(schema, '7', false).validate(generated_json);

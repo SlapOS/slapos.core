@@ -62,7 +62,8 @@ from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
 from slapos.util import mkdir_p, chownDirectory, string_to_boolean, listifdir
 from slapos.grid.exception import BuildoutFailedError
 from slapos.grid.SlapObject import Software, Partition
-from slapos.grid.svcbackend import (launchSupervisord,
+from slapos.grid.svcbackend import (getSupervisorRPC,
+                                    launchSupervisord,
                                     createSupervisordConfiguration,
                                     _getSupervisordConfigurationDirectory,
                                     _getSupervisordSocketPath)
@@ -552,6 +553,24 @@ stderr_logfile_backups=1
   def _launchSupervisord(self):
     if not self.forbid_supervisord_automatic_launch:
       launchSupervisord(instance_root=self.instance_root, logger=self.logger)
+
+  def _startComputerPartitionList(self):
+    """
+    Start all services for all computer partitions
+    """
+    supervisor_conf_dir = _getSupervisordConfigurationDirectory(self.instance_root)
+    with getSupervisorRPC(self.supervisord_socket) as supervisor:
+      for config_filename in os.listdir(supervisor_conf_dir):
+        partition_id = config_filename.rstrip('.conf')
+        try:
+          supervisor.startProcessGroup(partition_id, False)
+        except xmlrpclib.Fault as exc:
+          if exc.faultString.startswith('BAD_NAME:'):
+            self.logger.info("Nothing to start on %s...", partition_id)
+          else:
+            self.logger.error("Failed to start %s: %s", partition_id, exc)
+        else:
+          self.logger.info("Requested start of %s...", partition_id)
 
   def getComputerPartitionList(self):
     try:
@@ -1429,7 +1448,14 @@ stderr_logfile_backups=1
     # Boolean to know if every promises correctly passed
     clean_run_promise = True
 
-    computer_partition_list = self.getRequiredComputerPartitionList()
+    try:
+      computer_partition_list = self.getRequiredComputerPartitionList()
+    except slapos.slap.exception.ConnectionError:
+      # Network issue, we log exception start partitions and exit
+      self.logger.error(traceback.format_exc())
+      self._startComputerPartitionList()
+      self.logger.info('Finished computer partitions.')
+      return SLAPGRID_FAIL
 
     process_error_partition_list = []
     promise_error_partition_list = []

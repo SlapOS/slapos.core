@@ -447,21 +447,17 @@ class TestCliBoot(CliMixin):
           patch(
               'slapos.cli.boot.netifaces.ifaddresses',
               return_value={socket.AF_INET6: ({'addr': '2000::1'},),},) as ifaddresses,\
-          patch('slapos.cli.boot._startComputerPartition', return_value=None) as start_partition,\
-          patch('slapos.cli.boot.launchSupervisord', return_value=None),\
           patch('slapos.cli.boot._ping_hostname', return_value=1) as _ping_hostname:
         app.run(('node', 'boot'))
 
       # boot command runs as root
       check_root_user.assert_called_once()
-      # Computer partition was started during boot
-      start_partition.assert_called_once()
       # it waits for interface to have an IPv6 address
       ifaddresses.assert_called_once_with('interface_name_from_config')
       # then ping master hostname to wait for connectivity
       _ping_hostname.assert_called_once_with('slap.vifib.com')
       # then format and bang
-      SlapOSApp().run.assert_any_call(['node', 'format', '--now', '--local', '--verbose'])
+      SlapOSApp().run.assert_any_call(['node', 'format', '--now', '--ignore_network_errors', '--verbose'])
       SlapOSApp().run.assert_any_call(['node', 'bang', '-m', 'Reboot'])
 
       # timestamp files have been removed
@@ -483,7 +479,6 @@ class TestCliBoot(CliMixin):
         patch('slapos.cli.boot.netifaces.ifaddresses',
               side_effect=[net1, net2, net3]),\
         patch('slapos.cli.boot._ping_hostname', return_value=0),\
-        patch('slapos.cli.boot._startComputerPartitionList', return_value=None) as start_partition,\
         patch('slapos.cli.format.check_root_user', return_value=True),\
         patch('slapos.cli.format.logging.FileHandler', return_value=logging.NullHandler()),\
         patch('slapos.cli.bang.check_root_user', return_value=True),\
@@ -493,7 +488,6 @@ class TestCliBoot(CliMixin):
       app.run(('node', 'boot'))
 
     check_root_user.assert_called_once()
-    start_partition.assert_called_once()
 
     self.assertEqual(do_format.call_count, 3)
     self.assertEqual(do_bang.call_count, 3)

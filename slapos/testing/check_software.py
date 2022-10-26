@@ -70,6 +70,7 @@ def checkSoftware(slap, software_url):
       'libgcc_s',
       'libgomp',
       'libm',
+      'libmvec',
       'libnsl',
       'libpthread',
       'libthread_db',

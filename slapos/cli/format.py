@@ -83,10 +83,10 @@ class FormatCommand(ConfigCommand):
                         help='Launch slapformat without delay'
                              ' (default: %(default)s)')
 
-        ap.add_argument('--local',
+        ap.add_argument('--ignore_network_errors',
                         default=False, # can have a default as it is not in .cfg
                         action="store_true",
-                        help='Keep format data locally, do not post xml to master'
+                        help='Ignore network errors while connecting to slapos master.'
                              ' (default: %(default)s)')
 
         ap.add_argument('-n', '--dry_run',

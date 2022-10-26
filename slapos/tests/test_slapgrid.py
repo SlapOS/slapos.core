@@ -308,7 +308,9 @@ class TestBasicSlapgridCP(BasicMixin, unittest.TestCase):
   def test_no_master(self):
     os.mkdir(self.software_root)
     os.mkdir(self.instance_root)
-    self.assertRaises(ConnectionError, self.grid.processComputerPartitionList)
+    with patch.object(slapos.grid.slapgrid.Slapgrid, '_startComputerPartitionList', return_value=None) as start_cp:
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_FAIL)
+      self.assertTrue(start_cp.called)
 
   def test_environment_variable_HOME(self):
     # When running instance, $HOME is set to the partition path
@@ -3032,7 +3034,7 @@ exit 0
       gid = stat_info.st_gid
       supervisor_conf_file = os.path.join(self.instance_root,
                                           'etc/supervisord.conf.d',
-                                          '%s.conf' % partition.name)
+                                          '%s-prerm.conf' % partition.name)
       self.assertTrue(os.path.exists(supervisor_conf_file))
       regex_user = r"user=(\d+)"
       regex_group = r"group=(\d+)"
@@ -3114,7 +3116,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
     self.computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.partition = self.computer.instance_list[0]
     self.instance_supervisord_config_path = os.path.join(
-      self.instance_root, 'etc/supervisord.conf.d/0.conf')
+      self.instance_root, 'etc/supervisord.conf.d/0-portredir.conf')
 
     self.port_redirect_path = os.path.join(self.partition.partition_path,
                                            slapmanager.portredir.Manager.port_redirect_filename)

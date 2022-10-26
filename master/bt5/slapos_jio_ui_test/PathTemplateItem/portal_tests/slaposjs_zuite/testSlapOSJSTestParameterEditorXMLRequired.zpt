@@ -88,11 +88,11 @@
         <td></td>
       </tr>
       <tr>
-        <td>click</td>
+        <td>type</td>
         <td>//input[@name="//simple-string" and @type="text"]</td>
-        <td></td>
+        <td>x</td>
       </tr>
-
+      
       <tr>
         <td>waitForElementPresent</td>
         <td>//select[@name="//simple-string-with-enum"]</td>
@@ -104,7 +104,17 @@
         <td></td>
       </tr>
       <tr>
-        <td>click</td>
+        <td>select</td>
+        <td>//select[@name="//simple-string-with-enum"]</td>
+        <td>simple string B</td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@name="//simple-string" and @type="text"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>select</td>
         <td>//select[@name="//simple-string-with-enum"]</td>
         <td></td>
       </tr>
@@ -221,7 +231,6 @@
         <td>//span[@class="error" and text() = 'Instance does not have required property "simple-numeric-float-enum".']</td>
         <td></td>
       </tr>
-
 
       <tr>
         <td colspan="3"><b> Fill the simple string</b></td>

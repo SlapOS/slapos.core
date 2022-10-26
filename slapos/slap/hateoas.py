@@ -33,6 +33,7 @@ import six
 from six.moves.urllib import parse
 from uritemplate import expand
 import os
+import sys
 import logging
 
 from ..util import _addIpv6Brackets
@@ -44,8 +45,7 @@ import requests
 urllib3_logger = logging.getLogger('requests.packages.urllib3')
 urllib3_logger.setLevel(logging.WARNING)
 
-from cachecontrol import CacheControl
-from cachecontrol.caches.file_cache import FileCache
+from requests_cache import CachedSession
 
 # XXX fallback_logger to be deprecated together with the old CLI entry points.
 fallback_logger = logging.getLogger(__name__)
@@ -80,13 +80,15 @@ class ConnectionHelper:
     self.cert_file = cert_file
     self.master_ca_file = master_ca_file
     self.timeout = timeout
+    self.offline_mode = False
 
     # self.session will handle requests using HTTP Cache Control rules.
     self.uncached_session = requests.Session()
-    self.session = CacheControl(self.uncached_session,
-      cache=FileCache(os.path.expanduser("~/.slapos_cached_get")))
+    self.session = CachedSession('slapos_cached_get', backend='filesystem',
+                                 use_cache_dir=True, cache_control=True,
+                                 stale_if_error=True, serializer='json')
 
-  def do_request(self, method, path, params=None, data=None, headers=None):
+  def do_request(self, method, path, params=None, data=None, headers=None, only_if_cached=False):
     url = parse.urljoin(self.slapgrid_uri, path)
     if headers is None:
       headers = {}
@@ -111,13 +113,17 @@ class ConnectionHelper:
           if v is None:
             data[k] = 'None'
 
+      kw = {}
+      if only_if_cached:
+        kw['only_if_cached'] = True
       req = method(url=url,
                    params=params,
                    cert=cert,
                    verify=False,
                    data=data,
                    headers=headers,
-                   timeout=self.timeout)
+                   timeout=self.timeout,
+                   **kw)
       try:
         req.raise_for_status()
       except TypeError:
@@ -157,10 +163,31 @@ class ConnectionHelper:
     return req
 
   def GET(self, path, params=None, headers=None):
-    req = self.do_request(self.session.get,
-                          path=path,
-                          params=params,
-                          headers=headers)
+    traceback = None
+    if not self.offline_mode:
+      try:
+        req = self.do_request(self.session.get,
+                              path=path,
+                              params=params,
+                              headers=headers)
+      except ConnectionError:
+        self.offline_mode = True
+        # we'll try offline get with only_if_cached=True
+        exc, value, traceback = sys.exc_info()
+
+    if traceback is not None or self.offline_mode:
+      try:
+        req = self.do_request(self.session.get,
+                              path=path,
+                              params=params,
+                              headers=headers,
+                              only_if_cached=True)
+      except requests.exceptions.HTTPError:
+        if traceback:
+          # raise original exception as we failed to get data from cache
+          six.reraise(exc, value, traceback)
+        raise
+
     return req.text.encode('utf-8')
 
   def POST(self, path, params=None, data=None,

@@ -251,9 +251,9 @@ class BootCommand(ConfigCommand):
         while not _runFormat(app):
             logger.error("[BOOT] Fail to format, try again in 15 seconds...")
             sleep(15)
-
+        _removeTimestamp(instance_root, partition_base_name)
         # Start computer partition services
-        _startComputerPartitionList(instance_root, partition_base_name)
+        #_startComputerPartitionList(instance_root, partition_base_name)
 
         # Check that node can ping master
         if valid_ipv4(master_hostname):
@@ -268,5 +268,3 @@ class BootCommand(ConfigCommand):
         while not _runBang(app):
             logger.error("[BOOT] Fail to bang, try again in 15 seconds...")
             sleep(15)
-
-        _removeTimestamp(instance_root, partition_base_name)

@@ -122,8 +122,7 @@ class Manager(object):
       disk = str(disk)
       original = disk
       try:
-        while os.path.islink(disk):
-          disk = os.readlink(disk)
+        disk = os.path.realpath(disk)
       except OSError:
         logger.warning("Problem resolving link: %s " % original, exc_info=True)
         continue

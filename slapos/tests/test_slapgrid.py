@@ -3351,8 +3351,6 @@ class TestSlapgridWithDevPermLsblk(MasterMixin, unittest.TestCase):
       patch.object(os.path, 'exists', new=self.os_path_exists),
       patch.object(os, 'stat', new=self.os_stat),
       patch.object(os, 'chown', new=self.os_chown),
-      patch.object(os, 'readlink', new=self.os_readlink),
-      patch.object(os.path, 'islink', new=self.os_path_islink),
       patch.object(slapmanager.devperm.Manager, '_getLsblkJsonDict', new=self._getLsblkJsonDict)
     ]
     [q.start() for q in self.patcher_list]
@@ -3388,20 +3386,6 @@ class TestSlapgridWithDevPermLsblk(MasterMixin, unittest.TestCase):
     else:
       original(path, uid, gid)
 
-  def os_readlink(self, path, original=os.readlink):
-    if path == 'some_link':
-      return '/dev/tst'
-    elif path == 'bad_link':
-      return '/dev/non'
-    else:
-      return original(path)
-
-  def os_path_islink(self, path, original=os.path.islink):
-    if path in ['some_link', 'bad_link']:
-      return True
-    else:
-      return original(path)
-
   def test(self):
     with self._mock_requests():
       with open(self.disk_device_filename, 'w+') as f:
@@ -3418,9 +3402,12 @@ class TestSlapgridWithDevPermLsblk(MasterMixin, unittest.TestCase):
       )
 
   def test_link(self):
+    temp_dir = tempfile.mkdtemp()
+    self.addCleanup(shutil.rmtree, temp_dir)
+    os.symlink('/dev/tst', os.path.join(temp_dir, 'some_link'))
     with self._mock_requests():
       with open(self.disk_device_filename, 'w+') as f:
-        json.dump([{'disk': 'some_link'}], f)
+        json.dump([{'disk': os.path.join(temp_dir, 'some_link')}], f)
 
       self.partition.requested_state = 'started'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
@@ -3433,9 +3420,12 @@ class TestSlapgridWithDevPermLsblk(MasterMixin, unittest.TestCase):
       )
 
   def test_bad_link(self):
+    temp_dir = tempfile.mkdtemp()
+    self.addCleanup(shutil.rmtree, temp_dir)
+    os.symlink('/dev/non', os.path.join(temp_dir, 'bad_link'))
     with self._mock_requests():
       with open(self.disk_device_filename, 'w+') as f:
-        json.dump([{'disk': 'bad_link'}], f)
+        json.dump([{'disk': os.path.join(temp_dir, 'bad_link')}], f)
 
       self.partition.requested_state = 'started'
       self.partition.software.setBuildout(WRAPPER_CONTENT)

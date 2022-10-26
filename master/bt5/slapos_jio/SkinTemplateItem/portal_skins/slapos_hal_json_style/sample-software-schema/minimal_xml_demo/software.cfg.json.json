@@ -9,6 +9,13 @@
       "request": "instance-input-schema.json",
       "response": "instance-output-schema.json",
       "index": 0
+    },
+    "default-required": {
+      "title": "Required Example",
+      "description": "Default reference parameters with required",
+      "request": "instance-input-schema-required.json",
+      "response": "instance-output-schema.json",
+      "index": 0
     }
   }
 }

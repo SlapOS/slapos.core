@@ -919,8 +919,6 @@
         var i, div_list = gadget.element.querySelectorAll('.slapos-parameter-dict-key > div'),
           label_list = gadget.element.querySelectorAll('label.slapos-parameter-dict-key');
 
-        // console.log("Collapse paramaters");
-
         for (i = 0; i < div_list.length; i = i + 1) {
           $(div_list[i]).hide();
         }
@@ -928,6 +926,7 @@
         for (i = 0; i < label_list.length; i = i + 1) {
           $(label_list[i]).addClass("slapos-parameter-dict-key-colapse");
         }
+        return gadget.getContent();
       })
 
       .fail(function (error) {

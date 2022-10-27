@@ -272,12 +272,25 @@
       }
     }
 
+    // Expand by force the allOf recomposing the properties and required.
     for (key in json_field.allOf) {
       if (json_field.allOf.hasOwnProperty(key)) {
-        render_subform(json_field.allOf[key],
-            default_dict,
-            root,
-            path);
+        if (json_field.properties === undefined) {
+          json_field.properties = json_field.allOf[key].properties;
+        } else if (json_field.allOf[key].properties !== undefined) {
+          json_field.properties = Object.assign({},
+              json_field.properties,
+              json_field.allOf[key].properties
+            );
+        }
+        if (json_field.required === undefined) {
+          json_field.required = json_field.allOf[key].required;
+        } else if (json_field.allOf[key].required !== undefined) {
+          json_field.required.push.apply(
+            json_field.required,
+            json_field.allOf[key].required
+          );
+        }
       }
     }
 
@@ -286,7 +299,6 @@
         div = document.createElement("div");
         div.setAttribute("class", "subfield");
         div.title = json_field.properties[key].description;
-        /* console.log(key); */
         label = document.createElement("label");
         label.textContent = json_field.properties[key].title;
         div.appendChild(label);

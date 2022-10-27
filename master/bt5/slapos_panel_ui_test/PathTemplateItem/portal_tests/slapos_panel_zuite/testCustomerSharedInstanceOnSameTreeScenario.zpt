@@ -1,0 +1,283 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test SlapOS Panel</title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test SlapOS Panel</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration()">
+
+      <tal:block tal:define="init_configuration python: {'scenario': 'customer'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/slapos_init" />
+      </tal:block>
+
+      <tr>
+        <td>open</td>
+        <td>${base_url}/web_site_module/slapos_master_panel/#?editable=1</td>
+        <td></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_app_loaded" />
+
+
+
+      <tal:block tal:define="login_configuration python: {'user': user_configuration['manager_login'], 'password': user_configuration['passwd']}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/login" />
+      </tal:block>
+
+
+
+      <tr>
+        <td colspan="3"><b>Go to the project page</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Projects'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
+      <tal:block tal:define="click_configuration python: {'text': 'Test Project'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_page_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+
+
+      <tr>
+        <td colspan="3"><b>Add a software product</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Add Software Product'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <!--tr>
+        <td>type</td>
+        <td>//input[@name='field_your_title']</td>
+        <td>Test Software Product</td>
+      </tr-->
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name='field_your_product_import_json']</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@name='field_your_product_import_json']</td>
+        <td>https://lab.nexedi.com/nexedi/slapos/raw/1.0.289/software/theia/software.cfg</td>
+      </tr>
+      <!--tr>
+        <td>type</td>
+        <td>//input[@name='field_your_software_type']</td>
+        <td>default</td>
+      </tr-->
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'New Software Product created.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+
+
+      <tr>
+        <td colspan="3"><b>Back to the project page</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Software Product: Theia'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_header_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+
+
+      <tr>
+        <td colspan="3"><b>Add a compute node</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Add Compute Node'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tr>
+        <td>type</td>
+        <td>//input[@name='field_your_title']</td>
+        <td>Test Compute Node</td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'New Compute Node created.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'Action succeeded.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/wait_for_activities" />
+
+
+
+      <tr>
+        <td colspan="3"><b>Back to the project page</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Compute Node: Test Compute Node'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_header_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+
+
+      <tr>
+        <td colspan="3"><b>Create Allocation Supply</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Add Allocation Supply'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'New Allocation Supply created.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+
+
+
+      <tr>
+        <td colspan="3"><b>Allow the release</b></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
+      <tal:block tal:define="click_configuration python: {'text': 'Theia'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_page_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tr>
+        <td>click</td>
+        <td>//input[@name='field_matrixbox_allocable_cell_0_0_0']</td>
+        <td></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/save" />
+
+
+
+      <tr>
+        <td colspan="3"><b>Back to the allocation supply page</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Allocation Supply Line: Theia'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_header_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+
+
+      <tr>
+        <td colspan="3"><b>Allow Slave Allocation On Same Instance Tree</b></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//input[@name='field_my_slave_on_same_instance_tree_allocable']</td>
+        <td></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/save" />
+
+
+
+      <tr>
+        <td colspan="3"><b>Activate Allocation Supply</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Validate and Supply'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'Allocation Supply validated.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+
+
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/logout" />
+      <tal:block tal:define="login_configuration python: {'user': user_configuration['customer_login'], 'password': user_configuration['passwd']}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/login" />
+      </tal:block>
+
+
+      <tr>
+        <td colspan="3"><b>Add an instance tree</b></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
+      <tal:block tal:define="click_configuration python: {'text': 'Request'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@id='field_your_project_relative_url']</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//label[text()='Test Project']</td>
+        <td></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'Data received.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+      <!--tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" /-->
+      <!--tr>
+        <td>click</td>
+        <td>//input[@name='field_your_aggregate_uid']</td>
+        <td></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'Data received.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block-->
+      <!--tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" /-->
+      <tr>
+        <td>click</td>
+        <td>//input[@name='field_your_url_string']</td>
+        <td></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'Data received.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+      <!--tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" /-->
+      <!-- XXX TODO gadget crash if not fully loaded. Remove next wait, and fix gadget -->
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name='root[initial-embedded-instance]']</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@name='field_your_title']</td>
+        <td>Test instance</td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'Action succeeded.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/check_consistency" />
+
+    </tbody>
+  </table>
+</body>
+
+</html>

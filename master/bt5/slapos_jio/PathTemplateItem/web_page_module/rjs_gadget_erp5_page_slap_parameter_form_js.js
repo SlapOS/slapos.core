@@ -7,12 +7,11 @@
   "use strict";
 
   var DISPLAY_JSON_FORM = 'display_json_form',
-    DISPLAY_RAW_XML = 'display_raw_xml',
-    domparser = new DOMParser;
+    DISPLAY_RAW_XML = 'display_raw_xml';
 
   function jsonDictToParameterXML(json) {
     var parameter_id,
-      xml_output = $((new DOMParser).parseFromString(
+      xml_output = $((new DOMParser()).parseFromString(
         '<?xml version="1.0" encoding="UTF-8" ?><instance />', 'text/xml'));
     // Used by serialisation XML
     for (parameter_id in json) {
@@ -30,7 +29,7 @@
   }
 
   function jsonDictToParameterJSONInXML(json) {
-    var xml_output = $((new DOMParser).parseFromString(
+    var xml_output = $((new DOMParser()).parseFromString(
       '<?xml version="1.0" encoding="UTF-8" ?><instance />',
       'text/xml'
     ));

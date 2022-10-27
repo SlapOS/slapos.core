@@ -1,3 +1,7 @@
+data_operation_module/convert_raw_data_to_array_data_operation
+data_product_module/convert_data_stream_to_data_array
+organisation_module/meta_destination
+organisation_module/server_node
 portal_callables/MetadataIngestionPolicy_parseTag
 portal_categories/publication_section/file_system_image
 portal_categories/publication_section/file_system_image/**

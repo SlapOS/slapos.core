@@ -102,7 +102,7 @@
     "connection_parameters": {\n
       "title": "Connections Parameters",\n
       "type": "object",\n
-      "description": "List of parameters provided by the instance to access it.",\n
+      "description": "List of parameters provided by the instance to access it. Updated by the instance.",\n
       "additionalProperties": { "type": "string" }\n
     },\n
     "parameters": {\n

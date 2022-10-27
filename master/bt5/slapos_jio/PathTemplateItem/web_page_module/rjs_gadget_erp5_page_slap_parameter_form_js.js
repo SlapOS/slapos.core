@@ -1,17 +1,19 @@
 /*jslint nomen: true, maxlen: 200, indent: 2, unparam: true*/
 /*global rJS, console, window, document, RSVP, btoa, atob, $, XMLSerializer,
-         jQuery, URI, vkbeautify, domsugar, Boolean */
+         DOMParser, URI, vkbeautify, domsugar, Boolean */
 
-(function (window, document, rJS, $, XMLSerializer, jQuery, vkbeautify,
+(function (window, document, rJS, $, XMLSerializer, DOMParser, vkbeautify,
       domsugar, Boolean) {
   "use strict";
 
   var DISPLAY_JSON_FORM = 'display_json_form',
-    DISPLAY_RAW_XML = 'display_raw_xml';
+    DISPLAY_RAW_XML = 'display_raw_xml',
+    domparser = new DOMParser;
 
   function jsonDictToParameterXML(json) {
     var parameter_id,
-      xml_output = $($.parseXML('<?xml version="1.0" encoding="UTF-8" ?><instance />'));
+      xml_output = $((new DOMParser).parseFromString(
+        '<?xml version="1.0" encoding="UTF-8" ?><instance />', 'text/xml'));
     // Used by serialisation XML
     for (parameter_id in json) {
       if (json.hasOwnProperty(parameter_id)) {
@@ -28,8 +30,11 @@
   }
 
   function jsonDictToParameterJSONInXML(json) {
-    var xml_output = $($.parseXML('<?xml version="1.0" encoding="UTF-8" ?><instance />'));
-      // Used by serialisation XML
+    var xml_output = $((new DOMParser).parseFromString(
+      '<?xml version="1.0" encoding="UTF-8" ?><instance />',
+      'text/xml'
+    ));
+    // Used by serialisation XML
     $('instance', xml_output).append(
       $('<parameter />', xml_output)
           .text(vkbeautify.json(JSON.stringify(json)))
@@ -861,15 +866,19 @@
 
         if (parameter_xml !== undefined) {
           if (serialisation === "json-in-xml") {
-            parameter_list = jQuery.parseXML(
-              parameter_xml
+            parameter_list = (new DOMParser()).parseFromString(
+              parameter_xml,
+              'text/xml'
             ).querySelectorAll("parameter");
+
             if (parameter_list.length > 1) {
               throw new Error("The current parameter should contains only _ parameter (json-in-xml).");
             }
-            parameter_entry = jQuery.parseXML(
-              parameter_xml
+            parameter_entry = (new DOMParser()).parseFromString(
+              parameter_xml,
+              'text/xml'
             ).querySelector("parameter[id='_']");
+
             if (parameter_entry !== null) {
               parameter_dict = JSON.parse(parameter_entry.textContent);
             } else if (parameter_list.length === 1) {
@@ -878,14 +887,18 @@
               );
             }
           } else if (["", "xml"].indexOf(serialisation) >= 0) {
-            parameter_entry = jQuery.parseXML(
-              parameter_xml
+            parameter_entry = (new DOMParser()).parseFromString(
+              parameter_xml,
+              'text/xml'
             ).querySelector("parameter[id='_']");
+
             if (parameter_entry !== null) {
               throw new Error("The current parameter values should NOT contains _ parameter (xml).");
             }
-            $(jQuery.parseXML(parameter_xml)
-              .querySelectorAll("parameter"))
+            $((new DOMParser()).parseFromString(
+              parameter_xml,
+              'text/xml'
+            ).querySelectorAll("parameter"))
                 .each(function (key, p) {
                 parameter_dict[p.id] = p.textContent;
               });
@@ -921,9 +934,8 @@
         }
 
         for (i = 0; i < label_list.length; i = i + 1) {
-          $(label_list[i]).addClass("slapos-parameter-dict-key-colapse");
+          label_list[i].classList.add("slapos-parameter-dict-key-colapse");
         }
-        return gadget.getContent();
       })
 
       .fail(function (error) {
@@ -1102,5 +1114,5 @@
         });
     }, {mutex: 'statechange'});
 
-}(window, document, rJS, $, XMLSerializer, jQuery, vkbeautify,
+}(window, document, rJS, $, XMLSerializer, DOMParser, vkbeautify,
     domsugar, Boolean));

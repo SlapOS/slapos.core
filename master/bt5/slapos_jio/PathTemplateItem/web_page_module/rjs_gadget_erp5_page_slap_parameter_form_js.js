@@ -9,38 +9,66 @@
   var DISPLAY_JSON_FORM = 'display_json_form',
     DISPLAY_RAW_XML = 'display_raw_xml';
 
+  //////////////////////////////////////////
+  // ParserError
+  //////////////////////////////////////////
+  function DOMParserError(message) {
+    this.name = "DOMParserError";
+    if ((message !== undefined) && (typeof message !== "string")) {
+      throw new TypeError('You must pass a string for DOMParserError.');
+    }
+    this.message = message || "Default Message";
+  }
+  DOMParserError.prototype = new Error();
+  DOMParserError.prototype.constructor = DOMParserError;
+
+  //////////////////////////////////////////
+  // DOMParser
+  //////////////////////////////////////////
+  function parseDocumentStringOrFail(string, mime_type) {
+    var doc = new DOMParser().parseFromString(string, mime_type),
+      error_node = doc.querySelector('parsererror');
+    if (error_node !== null) {
+      // parsing failed
+      throw new DOMParserError(error_node.textContent);
+    }
+    return doc;
+  }
+
   function jsonDictToParameterXML(json) {
     var parameter_id,
-      xml_output = $((new DOMParser()).parseFromString(
-        '<?xml version="1.0" encoding="UTF-8" ?><instance />', 'text/xml'));
+      xml_output = parseDocumentStringOrFail(
+        '<?xml version="1.0" encoding="UTF-8" ?><instance />',
+        'text/xml'
+      ),
+      xml_instance = xml_output.querySelector('instance'),
+      xml_parameter;
     // Used by serialisation XML
     for (parameter_id in json) {
       if (json.hasOwnProperty(parameter_id)) {
-        $('instance', xml_output).append(
-          $('<parameter />', xml_output)
-            .text(json[parameter_id])
-              .attr({id: parameter_id})
-        );
+        xml_parameter = xml_output.createElement('parameter');
+        xml_parameter.textContent = json[parameter_id];
+        xml_parameter.id = parameter_id;
+        xml_instance.appendChild(xml_parameter);
       }
     }
     return vkbeautify.xml(
-      (new XMLSerializer()).serializeToString(xml_output.context)
+      (new XMLSerializer()).serializeToString(xml_output)
     );
   }
 
   function jsonDictToParameterJSONInXML(json) {
-    var xml_output = $((new DOMParser()).parseFromString(
-      '<?xml version="1.0" encoding="UTF-8" ?><instance />',
-      'text/xml'
-    ));
-    // Used by serialisation XML
-    $('instance', xml_output).append(
-      $('<parameter />', xml_output)
-          .text(vkbeautify.json(JSON.stringify(json)))
-            .attr({id: "_"})
-    );
+    var content = vkbeautify.json(JSON.stringify(json)),
+      xml_output = parseDocumentStringOrFail(
+        '<?xml version="1.0" encoding="UTF-8" ?>' +
+          '<instance><parameter id="_">{}</parameter></instance>',
+        'text/xml'
+      );
+
+    xml_output.querySelector('parameter[id="_"]').textContent = content;
+
     return vkbeautify.xml(
-      (new XMLSerializer()).serializeToString(xml_output.context)
+      (new XMLSerializer()).serializeToString(xml_output)
     );
   }
 
@@ -877,7 +905,7 @@
 
         if (parameter_xml !== undefined) {
           if (serialisation === "json-in-xml") {
-            parameter_list = (new DOMParser()).parseFromString(
+            parameter_list = parseDocumentStringOrFail(
               parameter_xml,
               'text/xml'
             ).querySelectorAll("parameter");
@@ -885,7 +913,7 @@
             if (parameter_list.length > 1) {
               throw new Error("The current parameter should contains only _ parameter (json-in-xml).");
             }
-            parameter_entry = (new DOMParser()).parseFromString(
+            parameter_entry = parseDocumentStringOrFail(
               parameter_xml,
               'text/xml'
             ).querySelector("parameter[id='_']");
@@ -898,7 +926,7 @@
               );
             }
           } else if (["", "xml"].indexOf(serialisation) >= 0) {
-            parameter_entry = (new DOMParser()).parseFromString(
+            parameter_entry = parseDocumentStringOrFail(
               parameter_xml,
               'text/xml'
             ).querySelector("parameter[id='_']");
@@ -906,7 +934,7 @@
             if (parameter_entry !== null) {
               throw new Error("The current parameter values should NOT contains _ parameter (xml).");
             }
-            $((new DOMParser()).parseFromString(
+            $(parseDocumentStringOrFail(
               parameter_xml,
               'text/xml'
             ).querySelectorAll("parameter"))

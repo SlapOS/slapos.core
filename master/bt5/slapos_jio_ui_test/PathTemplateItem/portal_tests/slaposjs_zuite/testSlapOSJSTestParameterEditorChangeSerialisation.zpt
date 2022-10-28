@@ -13,24 +13,7 @@
       </tr>
     </thead>
     <tbody>
-      <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/init" />
-      <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
-      <tr>
-        <td>open</td>
-        <td>${base_url}/web_site_module/hostingjs/#/?page=slap_test_parameter_form</td>
-        <td></td>
-      </tr>
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name='url_string']</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name='url_string']</td>
-        <td></td>
-      </tr>
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
       <tr>
         <td colspan="3"><b> Set URL for the software release </b></td>
       </tr>
@@ -41,65 +24,7 @@
       </tr>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
-      <tr>
-        <td colspan="3"><b> Wait for software type </b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Default"]
-        </td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Default"]
-        </td>
-        <td></td>
-      </tr>
-
-      <tr>
-        <td colspan="3"><b> Wait for software type </b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Default"]
-        </td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Default"]
-        </td>
-        <td></td>
-      </tr>
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
 
       <tr>
         <td>waitForElementPresent</td>
@@ -112,31 +37,7 @@
         <td></td>
       </tr>
 
-      <tr>
-        <td colspan="3"><b> Change Software type</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="JSON in XML"]
-        </td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="JSON in XML"]
-        </td>
-        <td></td>
-      </tr>
-
-      <tr>
-        <td>select</td>
-        <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]
-        </td>
-        <td>JSON in XML</td>
-      </tr>
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/select_software_type_json_in_xml" />
 
       <tr>
         <td>waitForElementPresent</td>
@@ -379,32 +280,8 @@
         <td>//input[@name="//simple-integer" and @type="number"]</td>
         <td>1</td>
       </tr>
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/click_proceed_and_wait_for_hash" />
 
-
-
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
-
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//pre[@id="parameter_output"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//pre[@id="parameter_output"]</td>
-        <td></td>
-      </tr>
-
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//p[@id="parameter_hash"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//p[@id="parameter_hash"]</td>
-        <td></td>
-      </tr>
       <tr>
         <td>waitForTextPresent</td>
         <td>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGluc3RhbmNlPgogICAgPHBhcmFtZXRlciBpZ</td>

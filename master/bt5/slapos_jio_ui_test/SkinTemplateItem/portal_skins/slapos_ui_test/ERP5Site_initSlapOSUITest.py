@@ -1,6 +1,8 @@
 # PreferenceTool
 from DateTime import DateTime
 
+software_version = "1.0.289"
+
 portal = context.getPortalObject()
 
 preference = portal.portal_preferences.getActiveSystemPreference()
@@ -39,46 +41,46 @@ except KeyError:
   )
 
 kvm_software_release.edit(
-  url_string="https://lab.nexedi.com/nexedi/slapos/raw/1.0.164/software/kvm/software.cfg",
+  url_string="https://lab.nexedi.com/nexedi/slapos/raw/%s/software/kvm/software.cfg" % software_version,
 )
 
 if kvm_software_release.getValidationState() == "draft":
   kvm_software_release.publishAlive()
 
 try:
-  slaprunner_product = context.software_product_module["slaprunner"]
+  theia_product = context.software_product_module["theia"]
 except KeyError:
-  slaprunner_product = context.software_product_module.newContent(
-    id="slaprunner",
-    title="Webrunner",
+  theia_product = context.software_product_module.newContent(
+    id="theia",
+    title="Theia",
     product_line ="software/application",
-    reference="slaprunner",
+    reference="theia",
     portal_type="Software Product"
   )
 
-if slaprunner_product.getValidationState() == "draft":
-  slaprunner_product.publish()
+if theia_product.getValidationState() == "draft":
+  theia_product.publish()
 
 try:
-  slaprunner_software_release = context.software_release_module["slaprunner"]
+  theia_software_release = context.software_release_module["theia"]
 except KeyError:
-  slaprunner_software_release = context.software_release_module.newContent(
-    id="slaprunner",
-    title="Webrunner",
+  theia_software_release = context.software_release_module.newContent(
+    id="theia",
+    title="Theia",
     portal_type="Software Release",
     version="0.1",
     language="en",
     effective_date=DateTime('2018/03/14 00:00:00 UTC'),
-    aggregate="software_product_module/slaprunner"
+    aggregate="software_product_module/theia"
 
   )
 
-slaprunner_software_release.edit(
-  url_string="https://lab.nexedi.com/nexedi/slapos/raw/1.0.164/software/slaprunner/software.cfg"
+theia_software_release.edit(
+  url_string="https://lab.nexedi.com/nexedi/slapos/raw/%s/software/theia/software.cfg" % software_version
 )
 
-if slaprunner_software_release.getValidationState() == "draft":
-  slaprunner_software_release.publishAlive()
+if theia_software_release.getValidationState() == "draft":
+  theia_software_release.publishAlive()
 
 portal = context.getPortalObject()
 

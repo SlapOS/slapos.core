@@ -80,7 +80,6 @@ class ConnectionHelper:
     self.cert_file = cert_file
     self.master_ca_file = master_ca_file
     self.timeout = timeout
-    self.offline_mode = False
 
     # self.session will handle requests using HTTP Cache Control rules.
     self.uncached_session = requests.Session()
@@ -163,30 +162,14 @@ class ConnectionHelper:
     return req
 
   def GET(self, path, params=None, headers=None):
-    traceback = None
-    if not self.offline_mode:
-      try:
-        req = self.do_request(self.session.get,
-                              path=path,
-                              params=params,
-                              headers=headers)
-      except ConnectionError:
-        self.offline_mode = True
-        # we'll try offline get with only_if_cached=True
-        exc, value, traceback = sys.exc_info()
-
-    if traceback is not None or self.offline_mode:
-      try:
-        req = self.do_request(self.session.get,
-                              path=path,
-                              params=params,
-                              headers=headers,
-                              only_if_cached=True)
-      except requests.exceptions.HTTPError:
-        if traceback:
-          # raise original exception as we failed to get data from cache
-          six.reraise(exc, value, traceback)
-        raise
+    cached = False
+    if os.environ.get('SLAPGRID_FAILSAFE_MODE'):
+      cached = True
+    req = self.do_request(self.session.get,
+                          path=path,
+                          params=params,
+                          headers=headers,
+                          only_if_cached=cached)
 
     return req.text.encode('utf-8')
 

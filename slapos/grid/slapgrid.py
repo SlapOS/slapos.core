@@ -43,6 +43,7 @@ import json
 import shutil
 import six
 import errno
+import requests
 
 if six.PY3:
   import subprocess
@@ -436,6 +437,7 @@ class Slapgrid(object):
     self._manager_list = slapmanager.from_config(config)
     self.shared_part_list = shared_part_list
     self.force_stop = force_stop
+    self.failsafe_mode = False
 
   def _getWatchdogLine(self):
     invocation_list = [WATCHDOG_PATH]
@@ -563,7 +565,25 @@ stderr_logfile_backups=1
   def getRequiredComputerPartitionList(self):
     """Return the computer partitions that should be processed.
     """
-    cp_list = self.getComputerPartitionList()
+    try:
+      cp_list = self.getComputerPartitionList()
+    except ConnectionError:
+      if self.failsafe_mode:
+        raise
+      # Network issue, we enable slapgrid failsafe mode and try again
+      exc, value, tb = sys.exc_info()
+      self.failsafe_mode = True
+      os.environ['SLAPGRID_FAILSAFE_MODE'] = True
+      # try again, this time from cache only
+      try:
+        cp_list = self.getComputerPartitionList()
+      except requests.exceptions.HTTPError:
+        if tb:
+          # raise original exception as we failed to get data from cache
+          six.reraise(exc, value, tb)
+      else:
+        self.logger.warn(tb.format_exc())
+
     cp_id_list = [cp.getId() for cp in cp_list]
     required_cp_id_set = check_required_only_partitions(
       cp_id_list, self.computer_partition_filter_list)
@@ -1270,6 +1290,12 @@ stderr_logfile_backups=1
       if self.firewall_conf:
         partition_ip_list = parameter_dict['ip_list'] + parameter_dict.get(
                                                             'full_ip_list', [])
+
+      if self.failsafe_mode:
+        self.logger.info('Fail Safe mode enabled')
+        if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
+          local_partition.start()
+        return
 
       if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
         local_partition.install()

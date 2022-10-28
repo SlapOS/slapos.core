@@ -92,7 +92,6 @@
         <td>//input[@name="//simple-string" and @type="text"]</td>
         <td>x</td>
       </tr>
-      
       <tr>
         <td>waitForElementPresent</td>
         <td>//select[@name="//simple-string-with-enum"]</td>
@@ -118,7 +117,11 @@
         <td>//select[@name="//simple-string-with-enum"]</td>
         <td></td>
       </tr>
-
+      <tr>
+        <td>fireEvent</td>
+        <td>//input[@name="//simple-string" and @type="text"]</td>
+        <td>change</td>
+      </tr>
       <tr>
         <td colspan="3"><b> Assert Error Messages</b></td>
       </tr>

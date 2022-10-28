@@ -150,18 +150,18 @@
   }
 
   function render_textarea(json_field, default_value, data_format, is_required) {
-    var value = '';
+    var property_dict = {"data-format": data_format};
     if (default_value !== undefined) {
       if (default_value instanceof Array) {
-        value = default_value.join("\n");
+        property_dict.value = default_value.join("\n");
       } else {
-        value = default_value;
+        property_dict.value = default_value;
       }
     }
-    return domsugar('textarea', {
-      value: value,
-      "data-format": data_format
-    });
+    if (is_required) {
+      property_dict.required = true;
+    }
+    return domsugar('textarea', property_dict);
   }
 
   function render_field(json_field, default_value, is_required) {

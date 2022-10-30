@@ -111,5 +111,56 @@
     </tr>
   </tal:block>
 
+  <tal:block metal:define-macro="show_raw_parameter">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-raw-parameter"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-raw-parameter"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-raw-parameter"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//textarea[@name="text_content"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//textarea[@name="text_content"]</td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="show_form_parameter">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-form"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-form"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-form"]</td>
+      <td></td>
+    </tr>
+  </tal:block>
 
 </tal:block>

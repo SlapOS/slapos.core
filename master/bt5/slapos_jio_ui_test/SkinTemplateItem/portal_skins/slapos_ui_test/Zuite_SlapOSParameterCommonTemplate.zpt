@@ -163,4 +163,21 @@
     </tr>
   </tal:block>
 
+  <tal:block metal:define-macro="input_text">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\']' % name"></td>
+      <td tal:content="python: value"></td>
+    </tr>
+  </tal:block>
 </tal:block>

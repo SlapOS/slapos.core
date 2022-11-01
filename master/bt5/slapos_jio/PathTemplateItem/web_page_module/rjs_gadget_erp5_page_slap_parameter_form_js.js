@@ -1,50 +1,83 @@
 /*jslint nomen: true, maxlen: 200, indent: 2, unparam: true*/
 /*global rJS, console, window, document, RSVP, btoa, atob, $, XMLSerializer,
-         jQuery, URI, vkbeautify, domsugar, Boolean */
+         DOMParser, URI, vkbeautify, domsugar, Boolean */
 
-(function (window, document, rJS, $, XMLSerializer, jQuery, vkbeautify,
-           loopEventListener, domsugar, Boolean) {
+(function (window, document, rJS, $, XMLSerializer, DOMParser, vkbeautify,
+      domsugar, Boolean) {
   "use strict";
 
   var DISPLAY_JSON_FORM = 'display_json_form',
     DISPLAY_RAW_XML = 'display_raw_xml';
 
+  //////////////////////////////////////////
+  // ParserError
+  //////////////////////////////////////////
+  function DOMParserError(message) {
+    this.name = "DOMParserError";
+    if ((message !== undefined) && (typeof message !== "string")) {
+      throw new TypeError('You must pass a string for DOMParserError.');
+    }
+    this.message = message || "Default Message";
+  }
+  DOMParserError.prototype = new Error();
+  DOMParserError.prototype.constructor = DOMParserError;
+
+  //////////////////////////////////////////
+  // DOMParser
+  //////////////////////////////////////////
+  function parseDocumentStringOrFail(string, mime_type) {
+    var doc = new DOMParser().parseFromString(string, mime_type),
+      error_node = doc.querySelector('parsererror');
+    if (error_node !== null) {
+      // parsing failed
+      throw new DOMParserError(error_node.textContent);
+    }
+    return doc;
+  }
+
   function jsonDictToParameterXML(json) {
     var parameter_id,
-      xml_output = $($.parseXML('<?xml version="1.0" encoding="UTF-8" ?><instance />'));
+      xml_output = parseDocumentStringOrFail(
+        '<?xml version="1.0" encoding="UTF-8" ?><instance />',
+        'text/xml'
+      ),
+      xml_instance = xml_output.querySelector('instance'),
+      xml_parameter;
     // Used by serialisation XML
     for (parameter_id in json) {
       if (json.hasOwnProperty(parameter_id)) {
-        $('instance', xml_output).append(
-          $('<parameter />', xml_output)
-            .text(json[parameter_id])
-              .attr({id: parameter_id})
-        );
+        xml_parameter = xml_output.createElement('parameter');
+        xml_parameter.textContent = json[parameter_id];
+        xml_parameter.id = parameter_id;
+        xml_instance.appendChild(xml_parameter);
       }
     }
     return vkbeautify.xml(
-      (new XMLSerializer()).serializeToString(xml_output.context)
+      (new XMLSerializer()).serializeToString(xml_output)
     );
   }
 
   function jsonDictToParameterJSONInXML(json) {
-    var xml_output = $($.parseXML('<?xml version="1.0" encoding="UTF-8" ?><instance />'));
-      // Used by serialisation XML
-    $('instance', xml_output).append(
-      $('<parameter />', xml_output)
-          .text(vkbeautify.json(JSON.stringify(json)))
-            .attr({id: "_"})
-    );
+    var content = vkbeautify.json(JSON.stringify(json)),
+      xml_output = parseDocumentStringOrFail(
+        '<?xml version="1.0" encoding="UTF-8" ?>' +
+          '<instance><parameter id="_">{}</parameter></instance>',
+        'text/xml'
+      );
+
+    xml_output.querySelector('parameter[id="_"]').textContent = content;
+
     return vkbeautify.xml(
-      (new XMLSerializer()).serializeToString(xml_output.context)
+      (new XMLSerializer()).serializeToString(xml_output)
     );
   }
 
-  function render_selection(json_field, default_value) {
-    var option_list = [domsugar('option', {
-      value: "",
-      selected: (default_value === undefined)
-    })],
+  function render_selection(json_field, default_value, is_required) {
+    var property_dict = {size: 1},
+      option_list = [domsugar('option', {
+        value: "",
+        selected: (default_value === undefined)
+      })],
       option_index,
       selected,
       is_selected = (default_value === undefined),
@@ -77,16 +110,18 @@
         value: default_value,
         text: default_value,
         "data-format": data_format,
-        selected: selected
+        selected: true
       }));
     }
-    return domsugar('select', {
-      size: 1,
-      "data-format": data_format
-    }, option_list);
+
+    property_dict["data-format"] = data_format;
+    if (is_required) {
+      property_dict.required = true;
+    }
+    return domsugar('select', property_dict, option_list);
   }
 
-  function render_selection_oneof(json_field, default_value) {
+  function render_selection_oneof(json_field, default_value, is_required) {
     var option_list = [domsugar('option', {
       value: "",
       selected: (default_value === undefined)
@@ -114,29 +149,29 @@
     }, option_list);
   }
 
-  function render_textarea(json_field, default_value, data_format) {
-    var value = '';
+  function render_textarea(json_field, default_value, data_format, is_required) {
+    var property_dict = {"data-format": data_format};
     if (default_value !== undefined) {
       if (default_value instanceof Array) {
-        value = default_value.join("\n");
+        property_dict.value = default_value.join("\n");
       } else {
-        value = default_value;
+        property_dict.value = default_value;
       }
     }
-    return domsugar('textarea', {
-      value: value,
-      "data-format": data_format
-    });
+    if (is_required) {
+      property_dict.required = true;
+    }
+    return domsugar('textarea', property_dict);
   }
 
-  function render_field(json_field, default_value) {
+  function render_field(json_field, default_value, is_required) {
     var data_format, domsugar_input_dict = {};
     if (json_field['enum'] !== undefined) {
-      return render_selection(json_field, default_value);
+      return render_selection(json_field, default_value, is_required);
     }
 
     if (json_field.oneOf !== undefined) {
-      return render_selection_oneof(json_field, default_value);
+      return render_selection_oneof(json_field, default_value, is_required);
     }
 
     if (json_field.type === "boolean") {
@@ -147,7 +182,7 @@
       if (default_value === "false") {
         default_value = false;
       }
-      return render_selection(json_field, default_value);
+      return render_selection(json_field, default_value, is_required);
     }
 
     if (json_field.type === "array") {
@@ -157,11 +192,11 @@
           data_format = "array-number";
         }
       }
-      return render_textarea(json_field, default_value, data_format);
+      return render_textarea(json_field, default_value, data_format, is_required);
     }
 
     if (json_field.type === "string" && json_field.textarea === true) {
-      return render_textarea(json_field, default_value, "string");
+      return render_textarea(json_field, default_value, "string", is_required);
     }
 
     if (default_value !== undefined) {
@@ -179,6 +214,10 @@
       domsugar_input_dict.type = "text";
     }
 
+    if (is_required) {
+      domsugar_input_dict.required = true;
+    }
+
     return domsugar('input', domsugar_input_dict);
   }
 
@@ -192,7 +231,8 @@
       default_used_list = [],
       default_div,
       span_error,
-      span_info;
+      span_info,
+      is_required;
 
     if (default_dict === undefined) {
       default_dict = {};
@@ -260,17 +300,42 @@
       }
     }
 
+    // Expand by force the allOf recomposing the properties and required.
+    for (key in json_field.allOf) {
+      if (json_field.allOf.hasOwnProperty(key)) {
+        if (json_field.properties === undefined) {
+          json_field.properties = json_field.allOf[key].properties;
+        } else if (json_field.allOf[key].properties !== undefined) {
+          json_field.properties = Object.assign({},
+              json_field.properties,
+              json_field.allOf[key].properties
+            );
+        }
+        if (json_field.required === undefined) {
+          json_field.required = json_field.allOf[key].required;
+        } else if (json_field.allOf[key].required !== undefined) {
+          json_field.required.push.apply(
+            json_field.required,
+            json_field.allOf[key].required
+          );
+        }
+      }
+    }
+
     for (key in json_field.properties) {
       if (json_field.properties.hasOwnProperty(key)) {
         div = document.createElement("div");
         div.setAttribute("class", "subfield");
         div.title = json_field.properties[key].description;
-        /* console.log(key); */
         label = document.createElement("label");
         label.textContent = json_field.properties[key].title;
         div.appendChild(label);
         div_input = document.createElement("div");
         div_input.setAttribute("class", "input");
+        is_required = false;
+        if ((Array.isArray(json_field.required)) && (json_field.required.includes(key))) {
+          is_required = true;
+        }
         if (json_field.properties[key].type === 'object') {
           label.setAttribute("class", "slapos-parameter-dict-key");
           div_input = render_subform(json_field.properties[key],
@@ -278,7 +343,11 @@
             div_input,
             path + "/" + key);
         } else {
-          input = render_field(json_field.properties[key], default_dict[key]);
+          input = render_field(
+            json_field.properties[key],
+            default_dict[key],
+            is_required
+          );
           input.name = path + "/" + key;
           input.setAttribute("class", "slapos-parameter");
           input.setAttribute("placeholder", " ");
@@ -317,7 +386,7 @@
             div.appendChild(label);
             div_input = document.createElement("div");
             div_input.setAttribute("class", "input");
-            input = render_field({"type": "string", "textarea": true}, default_dict[key]);
+            input = render_field({"type": "string", "textarea": true}, default_dict[key], false);
             input.name = path + "/" + key;
             input.setAttribute("class", "slapos-parameter");
             input.setAttribute("placeholder", " ");
@@ -564,11 +633,9 @@
           parameter_hash_input = g.element.querySelectorAll('.parameter_hash_output')[0],
           field_name,
           div,
-          divm,
-          missing_index,
-          missing_field_name,
           xml_output,
-          input_field;
+          input_field,
+          error_dict;
 
         $(g.element.querySelectorAll("span.error")).each(function (i, span) {
           span.textContent = "";
@@ -577,43 +644,43 @@
         $(g.element.querySelectorAll("div.error-input")).each(function (i, div) {
           div.setAttribute("class", "");
         });
+
         if (serialisation_type === "json-in-xml") {
           xml_output = jsonDictToParameterJSONInXML(json_dict);
         } else {
           xml_output = jsonDictToParameterXML(json_dict);
         }
         parameter_hash_input.value = btoa(xml_output);
-        // g.options.value.parameter.parameter_hash = btoa(xml_output);
-        // console.log(parameter_hash_input.value);
-        // console.log(xml_output);
-        if (validation.valid) {
-          return xml_output;
-        }
+
+        // Update fields if errors exist
         for (error_index in validation.errors) {
           if (validation.errors.hasOwnProperty(error_index)) {
-            field_name = validation.errors[error_index].dataPath;
-            input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
-            if (input_field === null) {
-              field_name = field_name.split("/").slice(0, -1).join("/");
+            error_dict = validation.errors[error_index];
+            // error_dict = { error : "", instanceLocation: "#", keyword: "", keywordLocation: "" }
+            field_name = error_dict.instanceLocation.slice(1);
+            if (field_name !== "") {
               input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
+              if (input_field === null) {
+                field_name = field_name.split("/").slice(0, -1).join("/");
+                input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
+              }
+              div = input_field.parentNode;
+              div.setAttribute("class", "slapos-parameter error-input");
+              div.querySelector("span.error").textContent = validation.errors[error_index].error;
+            } else if (error_dict.keyword === "required") {
+              // Specific use case for required
+              field_name = "/" + error_dict.key;
+              input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
+              if (input_field === null) {
+                field_name = field_name.split("/").slice(0, -1).join("/");
+                input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
+              }
+              if (input_field !== null) {
+                div = input_field.parentNode;
+                div.setAttribute("class", "slapos-parameter error-input");
+                div.querySelector("span.error").textContent = error_dict.error;
+              }
             }
-            div = input_field.parentNode;
-            div.setAttribute("class", "slapos-parameter error-input");
-            div.querySelector("span.error").textContent = validation.errors[error_index].message;
-          }
-        }
-
-        for (missing_index in validation.missing) {
-          if (validation.missing.hasOwnProperty(missing_index)) {
-            missing_field_name = validation.missing[missing_index].dataPath;
-            input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']");
-            if (input_field === null) {
-              missing_field_name = field_name.split("/").slice(0, -1).join("/");
-              input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']");
-            }
-            divm = input_field.parentNode;
-            divm.setAttribute("class", "error-input");
-            divm.querySelector("span.error").textContent = validation.missing[missing_index].message;
           }
         }
         return xml_output;
@@ -838,15 +905,19 @@
 
         if (parameter_xml !== undefined) {
           if (serialisation === "json-in-xml") {
-            parameter_list = jQuery.parseXML(
-              parameter_xml
+            parameter_list = parseDocumentStringOrFail(
+              parameter_xml,
+              'text/xml'
             ).querySelectorAll("parameter");
+
             if (parameter_list.length > 1) {
               throw new Error("The current parameter should contains only _ parameter (json-in-xml).");
             }
-            parameter_entry = jQuery.parseXML(
-              parameter_xml
+            parameter_entry = parseDocumentStringOrFail(
+              parameter_xml,
+              'text/xml'
             ).querySelector("parameter[id='_']");
+
             if (parameter_entry !== null) {
               parameter_dict = JSON.parse(parameter_entry.textContent);
             } else if (parameter_list.length === 1) {
@@ -855,14 +926,18 @@
               );
             }
           } else if (["", "xml"].indexOf(serialisation) >= 0) {
-            parameter_entry = jQuery.parseXML(
-              parameter_xml
+            parameter_entry = parseDocumentStringOrFail(
+              parameter_xml,
+              'text/xml'
             ).querySelector("parameter[id='_']");
+
             if (parameter_entry !== null) {
               throw new Error("The current parameter values should NOT contains _ parameter (xml).");
             }
-            $(jQuery.parseXML(parameter_xml)
-              .querySelectorAll("parameter"))
+            $(parseDocumentStringOrFail(
+              parameter_xml,
+              'text/xml'
+            ).querySelectorAll("parameter"))
                 .each(function (key, p) {
                 parameter_dict[p.id] = p.textContent;
               });
@@ -893,14 +968,12 @@
         var i, div_list = gadget.element.querySelectorAll('.slapos-parameter-dict-key > div'),
           label_list = gadget.element.querySelectorAll('label.slapos-parameter-dict-key');
 
-        // console.log("Collapse paramaters");
-
         for (i = 0; i < div_list.length; i = i + 1) {
           $(div_list[i]).hide();
         }
 
         for (i = 0; i < label_list.length; i = i + 1) {
-          $(label_list[i]).addClass("slapos-parameter-dict-key-colapse");
+          label_list[i].classList.add("slapos-parameter-dict-key-colapse");
         }
       })
 
@@ -1080,22 +1153,5 @@
         });
     }, {mutex: 'statechange'});
 
-    //.declareService(function () {
-    //  var gadget = this;
-      //return gadget.processValidation(gadget.options.json_url)
-      //  .fail(function (error) {
-      //    var parameter_xml = '';
-      //    console.log(error.stack);
-      //    if (gadget.options.value.parameter.parameter_hash !== undefined) {
-      //      parameter_xml = atob(gadget.options.value.parameter.parameter_hash);
-      //    }
-      //    return gadget.renderFailoverTextArea(parameter_xml, error.toString())
-      //      .push(function () {
-      //        error = undefined;
-      //        return gadget;
-      //      });
-      //  });
-    //});
-
-}(window, document, rJS, $, XMLSerializer, jQuery, vkbeautify,
-  rJS.loopEventListener, domsugar, Boolean));
+}(window, document, rJS, $, XMLSerializer, DOMParser, vkbeautify,
+    domsugar, Boolean));

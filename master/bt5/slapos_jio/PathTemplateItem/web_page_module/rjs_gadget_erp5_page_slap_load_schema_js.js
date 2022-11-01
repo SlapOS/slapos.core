@@ -1,9 +1,7 @@
 /*jslint nomen: true, maxlen: 200, indent: 2*/
-/*global window, rJS, console, RSVP, jQuery, jIO, tv4, URI, JSON, $, btoa */
-(function (window, rJS, $, RSVP, btoa, URI, tv4) {
+/*global window, rJS, RSVP, btoa, URI, Validator, jIO, JSON, $RefParser */
+(function (window, rJS, RSVP, btoa, URI, Validator, jIO, JSON, $RefParser) {
   "use strict";
-
-  var gk = rJS(window);
 
   function getJSON(url) {
     var uri = URI(url),
@@ -31,196 +29,7 @@
       });
   }
 
-  function resolveLocalReference(ref, schema) {
-    // 2 here is for #/
-    var i, ref_path = ref.substr(2, ref.length),
-      parts = ref_path.split("/");
-    if (parts.length === 1 && parts[0] === "") {
-      // It was uses #/ to reference the entire json so just return it.
-      return schema;
-    }
-    for (i = 0; i < parts.length; i += 1) {
-      schema = schema[parts[i]];
-    }
-    return schema;
-  }
-
-  function resolveReference(partial_schema, schema, base_url) {
-    var parts,
-      external_schema,
-      ref = partial_schema.$ref;
-
-    if (ref === undefined) {
-      return new RSVP.Queue().push(function () {
-        return partial_schema;
-      });
-    }
-
-    if (ref.substr(0, 1) === "#") {
-      return new RSVP.Queue().push(function () {
-        return resolveLocalReference(ref, schema);
-      });
-    }
-
-    return new RSVP.Queue().push(function () {
-      if (URI(ref).protocol() === "") {
-        if (base_url !== undefined) {
-          ref = base_url + "/" + ref;
-        }
-      }
-      return getJSON(ref);
-    })
-      .push(function (json) {
-        external_schema = JSON.parse(json);
-        parts = ref.split("#");
-        ref = "#" + parts[1];
-        return resolveLocalReference(ref, external_schema);
-      });
-  }
-
-  function clone(obj) {
-    return JSON.parse(JSON.stringify(obj));
-  }
-
-  // Inspired from https://github.com/nexedi/dream/blob/master/dream/platform/src/jsplumb/jsplumb.js#L398
-  function expandSchema(json_schema, full_schema, base_url) {
-    var i,
-      expanded_json_schema = clone(json_schema) || {};
-
-    if (!expanded_json_schema.properties) {
-      expanded_json_schema.properties = {};
-    }
-
-    return new RSVP.Queue().push(function () {
-      if (json_schema.$ref) {
-        return resolveReference(
-          json_schema,
-          full_schema,
-          base_url
-        )
-          .push(function (remote_schema) {
-            return expandSchema(
-              remote_schema,
-              full_schema,
-              base_url
-            );
-          }).push(function (referencedx) {
-            $.extend(expanded_json_schema, referencedx);
-            delete expanded_json_schema.$ref;
-            return true;
-          });
-      }
-      return true;
-    }).push(function () {
-
-      var property, queue = new RSVP.Queue();
-
-      function wrapperResolveReference(p) {
-        return resolveReference(
-          json_schema.properties[p],
-          full_schema,
-          base_url
-        ).push(function (external_schema) {
-          // console.log(p);
-          return expandSchema(
-            external_schema,
-            full_schema,
-            base_url
-          )
-            .push(function (referencedx) {
-              $.extend(expanded_json_schema.properties[p], referencedx);
-              if (json_schema.properties[p].$ref) {
-                delete expanded_json_schema.properties[p].$ref;
-              }
-              return referencedx;
-            });
-        });
-      }
-
-      // expand ref in properties
-      for (property in json_schema.properties) {
-        if (json_schema.properties.hasOwnProperty(property)) {
-          queue.push(
-            wrapperResolveReference.bind(this, property)
-          );
-        }
-      }
-      return queue;
-    })
-      .push(function () {
-
-        var zqueue = new RSVP.Queue();
-
-        function wrapperExpandSchema(p) {
-          return expandSchema(
-            json_schema.allOf[p],
-            full_schema,
-            base_url
-          ).push(function (referencedx) {
-            if (referencedx.properties) {
-              $.extend(
-                expanded_json_schema.properties,
-                referencedx.properties
-              );
-              delete referencedx.properties;
-            }
-            $.extend(expanded_json_schema, referencedx);
-          });
-        }
-
-        if (json_schema.allOf) {
-          for (i = 0; i < json_schema.allOf.length; i += 1) {
-            zqueue.push(wrapperExpandSchema.bind(this, i));
-          }
-        }
-        return zqueue;
-      })
-      .push(function () {
-        if (expanded_json_schema.allOf) {
-          delete expanded_json_schema.allOf;
-        }
-        if (expanded_json_schema.$ref) {
-          delete expanded_json_schema.$ref;
-        }
-        // console.log(expanded_json_schema);
-        return clone(expanded_json_schema);
-      });
-  }
-
-  function getMetaJSONSchema(serialisation) {
-    if (serialisation === "xml") {
-      return getJSON("slapos_load_meta_schema_xml.json");
-    }
-    if (serialisation === "json-in-xml") {
-      return getJSON("slapos_load_meta_schema_json_in_xml.json");
-    } 
-    return getJSON("slapos_load_meta_schema.json");
-  }
-
-  function validateJSONSchema(json, base_url, serialisation) {
-    return getMetaJSONSchema(serialisation)
-      .push(function (meta_schema) {
-        if (!tv4.validate(json, meta_schema)) {
-          throw new Error("Non valid JSON schema " + json);
-        }
-        return JSON.parse(json);
-      })
-      .push(function (schema) {
-        return expandSchema(schema, schema, base_url);
-      });
-  }
-
-  function validateSoftwareJSONSchema(json) {
-    return getJSON("slapos_load_software_schema.json")
-      .push(function (schema) {
-        if (!tv4.validate(json, schema)) {
-          throw new Error("Non valid JSON for software.cfg.json:" + json);
-        }
-        return JSON.parse(json);
-      });
-  }
-
-  gk
+  rJS(window)
     .declareMethod("getBaseUrl", function (url) {
       var base_url, url_uri = URI(url);
       base_url = url_uri.path().split("/");
@@ -229,20 +38,46 @@
       return base_url;
     })
     .declareMethod("loadJSONSchema", function (url, serialisation) {
-      var gadget = this;
-      return getJSON(url)
-        .push(function (json) {
-          return gadget.getBaseUrl(url)
-            .push(function (base_url) {
-              return validateJSONSchema(json, base_url, serialisation);
+      var meta_schema_url = "slapos_load_meta_schema.json";
+
+      if (serialisation === "xml") {
+        meta_schema_url = "slapos_load_meta_schema_xml.json";
+      }
+
+      if (serialisation === "json-in-xml") {
+        meta_schema_url = "slapos_load_meta_schema_json_in_xml.json";
+      }
+      return getJSON(meta_schema_url)
+        .push(function (meta_schema) {
+          return new RSVP.Queue()
+            .push(function () {
+              return $RefParser.dereference(url);
+            })
+            .push(function (schema) {
+              var validator = new Validator(JSON.parse(meta_schema), '7');
+              if (!validator.validate(schema)) {
+                throw new Error("Non valid JSON schema " + JSON.stringify(schema));
+              }
+              return schema;
             });
         });
     })
-
     .declareMethod("loadSoftwareJSON", function (url) {
       return getJSON(url)
-        .push(function (json) {
-          return validateSoftwareJSONSchema(json);
+        .push(function (software_cfg_json) {
+          return new RSVP.Queue()
+            .push(function () {
+              return $RefParser
+                .dereference("slapos_load_software_schema.json");
+            })
+            .push(function (software_schema) {
+              var software_json = JSON.parse(software_cfg_json),
+                validator = new Validator(software_schema, '7');
+              if (!validator.validate(software_json)) {
+                throw new Error("Non valid JSON for software.cfg.json:" + software_cfg_json);
+              }
+              return software_json;
+            });
         });
     })
 
@@ -255,13 +90,12 @@
         }
       }
 
-      return getJSON(parameter_schema_url)
-        .push(function (json) {
-          var schema = JSON.parse(json);
-          return expandSchema(schema, schema, base_url)
-            .push(function (loaded_json) {
-              return tv4.validateMultiple(generated_json, loaded_json);
-            });
+      return new RSVP.Queue()
+        .push(function () {
+          return $RefParser.dereference(parameter_schema_url);
+        })
+        .push(function (schema) {
+          return new Validator(schema, '7', false).validate(generated_json);
         });
     });
-}(window, rJS, $, RSVP, btoa, URI, tv4));
+}(window, rJS, RSVP, btoa, URI, Validator, jIO, JSON, $RefParser));

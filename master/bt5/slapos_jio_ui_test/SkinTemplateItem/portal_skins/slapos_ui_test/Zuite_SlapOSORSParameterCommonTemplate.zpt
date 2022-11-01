@@ -70,4 +70,164 @@
     </tr>
   </tal:block>
 
+  <tal:block metal:define-macro="basic_gnb_sim_card_scenario">
+    <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="gNB-EPC Sim Card"]
+      </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="gNB-EPC Sim Card"]
+      </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>select</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]
+      </td>
+      <td>gNB-EPC Sim Card</td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@name="//sim_algo" and @type="text"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//input[@name="//sim_algo" and @type="text"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@name="//sim_algo" and @type="text"]</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@name="//imsi" and @type="text"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//input[@name="//imsi" and @type="text"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@name="//imsi" and @type="text"]</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@name="//sim_algo" and @type="text"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@name="//imsi" and @type="text"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>fireEvent</td>
+      <td>//input[@name="//imsi" and @type="text"]</td>
+      <td>change</td>
+    </tr>
+    <tr>
+      <td colspan="3"><b> Assert Error Messages</b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//span[@class="error" and text() = 'Instance does not have required property "sim_algo".']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//span[@class="error" and text() = 'Instance does not have required property "imsi".']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//span[@class="error" and text() = 'Instance does not have required property "opc".']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//span[@class="error" and text() = 'Instance does not have required property "amf".']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//span[@class="error" and text() = 'Instance does not have required property "sqn".']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//span[@class="error" and text() = 'Instance does not have required property "k".']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//span[@class="error" and text() = 'Instance does not have required property "impu".']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//span[@class="error" and text() = 'Instance does not have required property "impi".']</td>
+      <td></td>
+    </tr>
+
+    <tal:block tal:define="name python: '//sim_algo'; value python: 'some value'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+    </tal:block>
+
+
+
+    <tal:block tal:define="name python:'//imsi'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//opc'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//amf'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//sqn'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//k'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//impu'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//impi'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+    </tal:block>
+    
+    <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/click_proceed_and_wait_for_hash" />
+    <tr>
+      <td>waitForTextPresent</td>
+      <td>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiP</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertTextPresent</td>
+      <td>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGluc3RhbmNlPgogICAgPHBhcmFtZXRlciBpZD0iXyI+ewogICAgInNpbV9hbGdvIjogInNvbWUgdmFsdWUiLAogICAgImltc2kiOiAic29tZSB2YWx1ZSIsCiAgICAib3BjIjogInNvbWUgdmFsdWUiLAogICAgImFtZiI6ICJzb21lIHZhbHVlIiwKICAgICJzcW4iOiAic29tZSB2YWx1ZSIsCiAgICAiayI6ICJzb21lIHZhbHVlIiwKICAgICJpbXB1IjogInNvbWUgdmFsdWUiLAogICAgImltcGkiOiAic29tZSB2YWx1ZSIKfTwvcGFyYW1ldGVyPgo8L2luc3RhbmNlPg==</td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+
 </tal:block>

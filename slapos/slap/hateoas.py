@@ -163,7 +163,7 @@ class ConnectionHelper:
 
   def GET(self, path, params=None, headers=None):
     cached = False
-    if os.environ.get('SLAPGRID_FAILSAFE_MODE'):
+    if os.environ.get('SLAPGRID_FAILSAFE_MODE') == '1':
       cached = True
     req = self.do_request(self.session.get,
                           path=path,

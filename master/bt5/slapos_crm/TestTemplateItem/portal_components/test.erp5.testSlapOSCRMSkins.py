@@ -1876,9 +1876,14 @@ class TestSlapOSPerson_getSlapOSPendingTicket(TestCRMSkinsMixin):
 
 class TestSlapOSPerson_getSlapOSPendingTicketMessageTemplate(TestCRMSkinsMixin):
 
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None',
+  'assert reference == "slapos-crm-person-pending-ticket-notification"\n' \
+  'return None')
   @simulate('Person_getSlapOSPendingTicket', '*args, **kwargs','return range(99)')
   def test_getSlapOSPendingTicketMessageTemplate(self):
     person = self.makePerson()
+    # Test without notification message
     title, message = person.Person_getSlapOSPendingTicketMessageTemplate()
     self.assertEqual(""" You have 99 pending tickets  """, title)
     self.assertEqual(""" You have 99 pending tickets  """, message)

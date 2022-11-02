@@ -1020,6 +1020,12 @@ class TestBase_getComputeNodeToken(TestSlapOSHalJsonStyleMixin):
     person = self._makePerson()
     base = self.portal.web_site_module.hostingjs
 
+    # On certain environments or sub-projects this value
+    # can be customized.
+    slapos_master_web_url = base.getLayoutProperty(
+      "configuration_slapos_master_web_url",
+      default=base.absolute_url())
+
     self.login(person.getUserId())
     token_dict = json.loads(base.Base_getComputeNodeToken())
 
@@ -1029,7 +1035,7 @@ class TestBase_getComputeNodeToken(TestSlapOSHalJsonStyleMixin):
     self.assertEqual(token_dict['command_line'], "wget https://deploy.erp5.net/slapos ; bash slapos")
     self.assertIn("%s-" % (DateTime().strftime("%Y%m%d")) , token_dict['access_token'])
     self.assertEqual(token_dict['slapos_master_api'], "https://slap.vifib.com")
-    self.assertEqual(token_dict['slapos_master_web'], base.absolute_url())
+    self.assertEqual(token_dict['slapos_master_web'], slapos_master_web_url)
     
     self.login()
     token = self.portal.access_token_module[token_dict["access_token"]]
@@ -1038,7 +1044,6 @@ class TestBase_getComputeNodeToken(TestSlapOSHalJsonStyleMixin):
 
     self.assertEqual(token.getAgentValue(), person)
     self.assertEqual("One Time Restricted Access Token", token.getPortalType())
-
 
 class TestInstanceTree_edit(TestSlapOSHalJsonStyleMixin):
 

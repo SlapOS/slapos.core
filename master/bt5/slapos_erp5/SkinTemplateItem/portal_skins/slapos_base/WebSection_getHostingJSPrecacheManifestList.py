@@ -111,8 +111,6 @@ url_list = [
   "gadget_erp5_page_slap_project_view.js",
   "gadget_erp5_page_slap_regularisation_request_view.html",
   "gadget_erp5_page_slap_regularisation_request_view.js",
-  "gadget_erp5_page_slap_rss_critical_ticket.html",
-  "gadget_erp5_page_slap_rss_critical_ticket.js",
   "gadget_erp5_page_slap_rss_ticket.html",
   "gadget_erp5_page_slap_rss_ticket.js",
   "gadget_erp5_page_slap_sale_invoice_transaction_view.html",

@@ -79,6 +79,8 @@ url_list = [
   "gadget_slapos_annotated_helper.js",
   "gadget_slapos_annotated_helper.html",
   "gadget_slapos_annotated_helper.css",
+  "gadget_erp5_page_slap_all_invoice_list.html",
+  "gadget_erp5_page_slap_all_invoice_list.js",
   "gadget_erp5_page_slap_invoice_list.html",
   "gadget_erp5_page_slap_invoice_list.js",
   "gadget_erp5_page_slap_load_schema.html",

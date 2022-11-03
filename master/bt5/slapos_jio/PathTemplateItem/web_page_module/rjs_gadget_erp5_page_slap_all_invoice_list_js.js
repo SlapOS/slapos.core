@@ -142,12 +142,9 @@
                   "editable_column_list": [],
                   "key": "slap_invoice_listbox",
                   "lines": lines_limit,
-                  "list_method": "AccountingTransactionModule_getUnpaidInvoiceList",
-                  "list_method_template": result[1] + "ERP5Document_getHateoas?mode=search&" +
-                    "list_method=AccountingTransactionModule_getUnpaidInvoiceList&relative_url=" +
-                    gadget.state.jio_key + "{&query,select_list*,limit*,sort_on*,local_roles*}",
-                  "query": "urn:jio:allDocs?query=",
-
+                  "list_method": "portal_catalog",
+                  // XXX FIX ME: Missing default_destination_section_uid=person.getUid()
+                  "query": "urn:jio:allDocs?query=(NOT%20title%3A%22Reversal%20Transaction%20for%20%25%22)%20AND%20(portal_type%3A%20%22Sale%20Invoice%20Transaction%22)",
                   "portal_type": [],
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
@@ -190,7 +187,7 @@
             gadget.getUrlFor({command: "change", options: {"page": result[2]}}),
             gadget.getUrlFor({command: "change", options: {"page": "slap_rss_ticket",
                                                            "jio_key": "accounting_module"}}),
-            gadget.getUrlFor({command: "change", options: {"page": 'slap_all_invoice_list'}})
+            gadget.getUrlFor({command: "change", options: {"page": 'slap_invoice_list'}})
           ];
           if (result[0]) {
             promise_list.push(
@@ -204,7 +201,7 @@
           var header_dict = {
             page_title: invoices_translation,
             selection_url: result[0],
-            list_all_url: result[2],
+            tab_url: result[2],
             rss_url: result[1],
             filter_action: true
           };

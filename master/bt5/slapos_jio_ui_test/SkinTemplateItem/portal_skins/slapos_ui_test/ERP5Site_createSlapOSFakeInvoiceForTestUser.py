@@ -19,7 +19,8 @@ def wrapWithShadow():
 
   payment.confirm()
   payment.start()
-  payment.stop()
+  if not unpaid:
+    payment.stop()
 
   payment.PaymentTransaction_generatePayzenId()
   
@@ -53,10 +54,23 @@ current_invoice, payment = demo_user_functional.Person_restrictMethodAsShadowUse
   argument_list=[])
 
 payment.setCausalityValue(current_invoice)
+payment.setDestinationSectionValue(demo_user_functional)
+
 current_invoice.plan()
 current_invoice.confirm()
 current_invoice.startBuilding()
 current_invoice.reindexObject()
 current_invoice.stop()
+
+if not unpaid:
+  def isNodeFromLineReceivable(line):
+    node_value = line.getSourceValue(portal_type='Account')
+    return node_value.getAccountType() == 'asset/receivable'
+
+  for line in current_invoice.getMovementList(portal.getPortalAccountingMovementTypeList()):
+    if isNodeFromLineReceivable(line):
+      if not line.hasGroupingReference():
+        line.setGroupingReference('FAKEGROUPINGREFERENCE')
+        break
 
 return 'Done.'

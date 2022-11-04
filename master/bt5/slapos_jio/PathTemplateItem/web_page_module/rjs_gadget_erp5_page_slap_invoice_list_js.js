@@ -116,7 +116,8 @@
           return RSVP.all([
             gadget.getDeclaredGadget('form_list'),
             gadget.getSetting("listbox_lines_limit", 20),
-            gadget.getTranslationList(translation_list)
+            gadget.getTranslationList(translation_list),
+            gadget.getSetting('hateoas_url')
           ]);
         })
         .push(function (result) {
@@ -143,11 +144,10 @@
                   "key": "slap_invoice_listbox",
                   "lines": lines_limit,
                   "list_method": "AccountingTransactionModule_getUnpaidInvoiceList",
-                  "list_method_template": result[1] + "ERP5Document_getHateoas?mode=search&" +
-                    "list_method=AccountingTransactionModule_getUnpaidInvoiceList&relative_url=" +
-                    gadget.state.jio_key + "{&query,select_list*,limit*,sort_on*,local_roles*}",
+                  "list_method_template": result[3] + "ERP5Document_getHateoas?mode=search&" +
+                    "list_method=AccountingTransactionModule_getUnpaidInvoiceList" +
+                    "&relative_url=accounting_module{&query,select_list*,limit*,sort_on*,local_roles*}",
                   "query": "urn:jio:allDocs?query=",
-
                   "portal_type": [],
                   "search_column_list": column_list,
                   "sort_column_list": column_list,

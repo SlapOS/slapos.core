@@ -1411,7 +1411,7 @@ def do_format(conf):
   conf.logger.info('Posting information to %r' % conf.master_url)
   try:
     computer.send(conf)
-  except ConnectionError as e:
+  except slap.exception.ConnectionError as e:
     if not conf.ignore_network_errors:
       raise
     conf.logger.warn('Failed to send information to master: %s' % str(e))

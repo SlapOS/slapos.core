@@ -568,21 +568,10 @@ stderr_logfile_backups=1
     try:
       cp_list = self.getComputerPartitionList()
     except slapos.slap.exception.ConnectionError:
-      if self.failsafe_mode:
-        raise
-      # Network issue, we enable slapgrid failsafe mode and try again
-      exc, value, tb = sys.exc_info()
+      # Network issue, we log exection and failsafe mode is True
       self.failsafe_mode = True
-      os.environ['SLAPGRID_FAILSAFE_MODE'] = '1'
-      # try again, this time from cache only
-      try:
-        cp_list = self.getComputerPartitionList()
-      except requests.exceptions.HTTPError:
-        # raise original exception as we failed to get data from cache
-        six.reraise(exc, value, tb)
-      else:
-        self.logger.error(traceback.format_exc())
-
+      self.logger.error(traceback.format_exc())
+      return
     cp_id_list = [cp.getId() for cp in cp_list]
     required_cp_id_set = check_required_only_partitions(
       cp_id_list, self.computer_partition_filter_list)
@@ -1290,11 +1279,6 @@ stderr_logfile_backups=1
         partition_ip_list = parameter_dict['ip_list'] + parameter_dict.get(
                                                             'full_ip_list', [])
 
-      if self.failsafe_mode:
-        if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
-          local_partition.start()
-        return
-
       if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
         local_partition.install()
         if not self.force_stop:
@@ -1455,7 +1439,10 @@ stderr_logfile_backups=1
 
     computer_partition_list = self.getRequiredComputerPartitionList()
     if self.failsafe_mode:
-        self.logger.warn('Fail Safe mode is enabled due to previous error.')
+      self.logger.warn('Fail Safe mode is enabled due to previous error.')
+      for computer_partition in computer_partition_list:
+        computer_partition.start()
+      return
 
     process_error_partition_list = []
     promise_error_partition_list = []

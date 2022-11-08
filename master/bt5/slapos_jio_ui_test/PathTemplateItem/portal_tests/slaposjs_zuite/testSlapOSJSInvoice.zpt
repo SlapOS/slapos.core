@@ -76,7 +76,16 @@
                            dummy python: context.REQUEST.set('mapping', {'count': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
-
+      <tr>
+        <td>waitForElementPresent</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//li[text()=\'%s\']' % (here.Base_translateString('Paid', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//li[text()=\'%s\']' % (here.Base_translateString('Paid', lang=lang))"></td>
+        <td></td>
+      </tr>
       <tr>
         <td>waitForElementPresent</td>
         <td>//p[@data-date='2019-10-20']</td>
@@ -134,6 +143,17 @@
       <tr>
         <td>assertElementPresent</td>
         <td tal:content="python: '//label[text()=\'%s\']' % (here.Base_translateString('Download', lang=lang))"></td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//li[text()=\'%s\']' % (here.Base_translateString('Paid', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//li[text()=\'%s\']' % (here.Base_translateString('Paid', lang=lang))"></td>
         <td></td>
       </tr>
 

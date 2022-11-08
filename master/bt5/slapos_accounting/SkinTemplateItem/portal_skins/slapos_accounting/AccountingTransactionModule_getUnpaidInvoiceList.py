@@ -9,7 +9,7 @@ def wrapWithShadow():
     simulation_state="started",
     destination_section_uid=user.getUid(),
     default_causality_portal_type="Sale Invoice Transaction",
-    default_causality_simulation_state="stopped",
+    default_causality_simulation_state=("stopped", "delivered"),
   )]
 
 return user.Person_restrictMethodAsShadowUser(

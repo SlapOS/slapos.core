@@ -43,7 +43,6 @@ import json
 import shutil
 import six
 import errno
-import requests
 
 if six.PY3:
   import subprocess

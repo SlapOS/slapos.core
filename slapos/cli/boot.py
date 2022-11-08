@@ -184,7 +184,6 @@ class BootCommand(ConfigCommand):
         if configp.has_option('slapos', 'root_check'):
             root_check = configp.getboolean('slapos', 'root_check')
 
-        root_check = True
         if root_check:
             check_root_user(self)
 

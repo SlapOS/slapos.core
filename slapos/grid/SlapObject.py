@@ -780,18 +780,11 @@ class Partition(object):
       self.logger.info("Requested start of %s..." % self.computer_partition.getId())
 
   def stop(self):
-    """Asks supervisord to stop the instance."""
-    partition_id = self.computer_partition.getId()
-    try:
-      with self.getSupervisorRPC() as supervisor:
-        supervisor.stopProcessGroup(partition_id, False)
-    except xmlrpclib.Fault as exc:
-      if exc.faultString.startswith('BAD_NAME:'):
-        self.logger.info('Partition %s not known in supervisord, ignoring' % partition_id)
-      else:
-        raise
-    else:
-      self.logger.info("Requested stop of %s..." % self.computer_partition.getId())
+    """Remove configuration file and asks supervisord to stop the instance."""
+    if os.path.exists(self.supervisord_partition_configuration_path):
+      os.unlink(self.supervisord_partition_configuration_path)
+    self.updateSupervisor()
+    self.logger.info("Requested stop of %s..." % self.computer_partition.getId())
 
   def destroy(self):
     """Destroys the partition and makes it available for subsequent use."

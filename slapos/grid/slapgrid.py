@@ -43,7 +43,6 @@ import json
 import shutil
 import six
 import errno
-import requests
 
 if six.PY3:
   import subprocess
@@ -63,7 +62,8 @@ from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
 from slapos.util import mkdir_p, chownDirectory, string_to_boolean, listifdir
 from slapos.grid.exception import BuildoutFailedError
 from slapos.grid.SlapObject import Software, Partition
-from slapos.grid.svcbackend import (launchSupervisord,
+from slapos.grid.svcbackend import (getSupervisorRPC,
+                                    launchSupervisord,
                                     createSupervisordConfiguration,
                                     _getSupervisordConfigurationDirectory,
                                     _getSupervisordSocketPath)
@@ -555,6 +555,24 @@ stderr_logfile_backups=1
     if not self.forbid_supervisord_automatic_launch:
       launchSupervisord(instance_root=self.instance_root, logger=self.logger)
 
+  def _startComputerPartitionList(self):
+    """
+    Start all services for all computer partitions
+    """
+    supervisor_conf_dir = _getSupervisordConfigurationDirectory(self.instance_root)
+    with getSupervisorRPC(self.supervisord_socket) as supervisor:
+      for config_filename in os.listdir(supervisor_conf_dir):
+        try:
+          partition_id = config_filename.rstrip('.conf')
+          supervisor.startProcessGroup(partition_id, False)
+        except xmlrpclib.Fault as exc:
+          if exc.faultString.startswith('BAD_NAME:'):
+            self.logger.info("Nothing to start on %s...", partition_id)
+          else:
+            self.logger.error("Failed to start %s: %s", partition_id, exc)
+        else:
+          self.logger.info("Requested start of %s...", partition_id)
+
   def getComputerPartitionList(self):
     try:
       return self.computer.getComputerPartitionList()
@@ -568,21 +586,10 @@ stderr_logfile_backups=1
     try:
       cp_list = self.getComputerPartitionList()
     except slapos.slap.exception.ConnectionError:
-      if self.failsafe_mode:
-        raise
-      # Network issue, we enable slapgrid failsafe mode and try again
-      exc, value, tb = sys.exc_info()
+      # Network issue, we log exception and failsafe mode is True
       self.failsafe_mode = True
-      os.environ['SLAPGRID_FAILSAFE_MODE'] = '1'
-      # try again, this time from cache only
-      try:
-        cp_list = self.getComputerPartitionList()
-      except requests.exceptions.HTTPError:
-        # raise original exception as we failed to get data from cache
-        six.reraise(exc, value, tb)
-      else:
-        self.logger.error(traceback.format_exc())
-
+      self.logger.error(traceback.format_exc())
+      return
     cp_id_list = [cp.getId() for cp in cp_list]
     required_cp_id_set = check_required_only_partitions(
       cp_id_list, self.computer_partition_filter_list)
@@ -1290,11 +1297,6 @@ stderr_logfile_backups=1
         partition_ip_list = parameter_dict['ip_list'] + parameter_dict.get(
                                                             'full_ip_list', [])
 
-      if self.failsafe_mode:
-        if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
-          local_partition.start()
-        return
-
       if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
         local_partition.install()
         if not self.force_stop:
@@ -1455,7 +1457,9 @@ stderr_logfile_backups=1
 
     computer_partition_list = self.getRequiredComputerPartitionList()
     if self.failsafe_mode:
-        self.logger.warn('Fail Safe mode is enabled due to previous error.')
+      self._startComputerPartitionList()
+      self.logger.info('Finished computer partitions.')
+      return
 
     process_error_partition_list = []
     promise_error_partition_list = []

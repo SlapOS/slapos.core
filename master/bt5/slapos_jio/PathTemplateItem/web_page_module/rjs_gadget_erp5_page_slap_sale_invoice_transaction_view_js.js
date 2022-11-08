@@ -158,7 +158,10 @@
                 "my_payment_state": {
                   "description": "",
                   "title": result[1][5],
-                  "default": {jio_key: gadget.state.jio_key},
+                  "default": {
+                    state: gadget.state.doc.payment_state,
+                    payment_transaction: gadget.state.doc.payment_transaction
+                  },
                   "css_class": "",
                   "required": 1,
                   "editable": 0,

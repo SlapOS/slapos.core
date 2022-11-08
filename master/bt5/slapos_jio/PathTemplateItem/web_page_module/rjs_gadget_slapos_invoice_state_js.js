@@ -1,11 +1,9 @@
 /*globals console, window, rJS, domsugar */
 /*jslint indent: 2, nomen: true, maxlen: 80*/
-
 (function (window, rJS, domsugar) {
   "use strict";
   rJS(window)
     .declareAcquiredMethod("getSetting", "getSetting")
-    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("getTranslationDict", "getTranslationDict")
 
     .declareMethod("getContent", function () {
@@ -16,7 +14,8 @@
         link;
       return gadget.getTranslationDict(['Pay Now'])
         .push(function (translation_dict) {
-          if (gadget.state.payment_transaction !== null) {
+          if ((gadget.state.payment_transaction !== null) &&
+              (gadget.state.payment_transaction !== undefined)) {
             link = domsugar("li", {},
               [
                 domsugar("a", {

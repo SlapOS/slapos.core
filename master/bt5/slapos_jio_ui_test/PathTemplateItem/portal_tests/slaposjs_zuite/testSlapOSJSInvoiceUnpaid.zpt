@@ -64,7 +64,56 @@
                            dummy python: context.REQUEST.set('mapping', {'count': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
-
+      <tr>
+        <td>waitForElementPresent</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[text()=\'%s\']' % (here.Base_translateString('Pay Now', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[text()=\'%s\']' % (here.Base_translateString('Pay Now', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'PaymentTransaction_redirectToManualSlapOSPayment')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'PaymentTransaction_redirectToManualSlapOSPayment')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, '/accounting_module/')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, '/accounting_module/')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a[contains(@href, 'SaleInvoiceTransaction_viewSlapOSPrintout')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a[contains(@href, 'SaleInvoiceTransaction_viewSlapOSPrintout')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a[contains(@href, '/accounting_module/')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a[contains(@href, '/accounting_module/')]</td>
+        <td></td>
+      </tr>
       <tr>
         <td>waitForElementPresent</td>
         <td>//p[@data-date='2019-10-20']</td>
@@ -80,10 +129,16 @@
         <td>//p[@data-date='2019-10-20']</td>
         <td></td>
       </tr>
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
 
+      <!-- check invoice view -->
+      <tal:block tal:define="header python: '%s ${title}' % (here.Base_translateString('Invoice:', lang=lang));
+                             dummy python: context.REQUEST.set('mapping', {'title': '1'})">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
 
       <tr>
-        <td colspan="3"><b tal:content="python: 'Click on Show all'"> Menu Item </b></td>
+        <td colspan="3"><b tal:content="python: 'Try again with Show All'"> Menu Item </b></td>
       </tr>
 
       <tal:block define="menu_item python: 'Invoices'; header menu_item">
@@ -98,7 +153,66 @@
                            dummy python: context.REQUEST.set('mapping', {'count': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
-
+      <tr>
+        <td>waitForElementPresent</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[text()=\'%s\']' % (here.Base_translateString('Pay Now', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[text()=\'%s\']' % (here.Base_translateString('Pay Now', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'PaymentTransaction_redirectToManualSlapOSPayment')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'PaymentTransaction_redirectToManualSlapOSPayment')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, '/accounting_module/')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, '/accounting_module/')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a[contains(@href, 'SaleInvoiceTransaction_viewSlapOSPrintout')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a[contains(@href, 'SaleInvoiceTransaction_viewSlapOSPrintout')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a[contains(@href, '/accounting_module/')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a[contains(@href, '/accounting_module/')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a//img[@src="pdf_icon.png"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a//img[@src="pdf_icon.png"]</td>
+        <td></td>
+      </tr>
       <tr>
         <td>waitForElementPresent</td>
         <td>//p[@data-date='2019-10-20']</td>
@@ -158,7 +272,66 @@
         <td tal:content="python: '//label[text()=\'%s\']' % (here.Base_translateString('Download', lang=lang))"></td>
         <td></td>
       </tr>
-
+      <tr>
+        <td>waitForElementPresent</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[text()=\'%s\']' % (here.Base_translateString('Pay Now', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[text()=\'%s\']' % (here.Base_translateString('Pay Now', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'PaymentTransaction_redirectToManualSlapOSPayment')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'PaymentTransaction_redirectToManualSlapOSPayment')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, '/accounting_module/')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, '/accounting_module/')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a[contains(@href, 'SaleInvoiceTransaction_viewSlapOSPrintout')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a[contains(@href, 'SaleInvoiceTransaction_viewSlapOSPrintout')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a[contains(@href, '/accounting_module/')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a[contains(@href, '/accounting_module/')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a//img[@src="pdf_icon.png"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_printout.html')]//a//img[@src="pdf_icon.png"]</td>
+        <td></td>
+      </tr>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
     </tbody>
   </table>

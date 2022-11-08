@@ -21,9 +21,8 @@ def wrapWithShadow():
   payment.start()
   if not unpaid:
     payment.stop()
+    payment.PaymentTransaction_generatePayzenId()
 
-  payment.PaymentTransaction_generatePayzenId()
-  
   template = portal.restrictedTraverse(portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate())
   current_invoice = template.Base_createCloneDocument(batch_mode=1)
 
@@ -43,9 +42,6 @@ def wrapWithShadow():
     quantity=1
   )
   cell.setPrice(1)
-
-
-
   return current_invoice, payment
 
 current_invoice, payment = demo_user_functional.Person_restrictMethodAsShadowUser(
@@ -62,15 +58,21 @@ current_invoice.startBuilding()
 current_invoice.reindexObject()
 current_invoice.stop()
 
-if not unpaid:
-  def isNodeFromLineReceivable(line):
-    node_value = line.getSourceValue(portal_type='Account')
-    return node_value.getAccountType() == 'asset/receivable'
+current_invoice.activate(after_method_id="immediateReindexObject").Delivery_manageBuildingCalculatingDelivery()
 
-  for line in current_invoice.getMovementList(portal.getPortalAccountingMovementTypeList()):
-    if isNodeFromLineReceivable(line):
-      if not line.hasGroupingReference():
-        line.setGroupingReference('FAKEGROUPINGREFERENCE')
-        break
+current_invoice.activate(
+  after_method_id=(
+    "immediateReindexObject", "_updateSimulation", "Delivery_manageBuildingCalculatingDelivery")
+  ).SaleInvoiceTransaction_forceBuildSlapOSAccountingLineList()
+
+if not unpaid:
+  current_invoice.activate(
+  after_method_id=(
+    "immediateReindexObject",
+    "_updateSimulation",
+    "Delivery_manageBuildingCalculatingDelivery",
+    "SimulationMovement_buildSlapOS",
+    "SaleInvoiceTransaction_forceBuildSlapOSAccountingLineList")
+  ).SaleInvoiceTransaction_setFakeGroupingReference()
 
 return 'Done.'

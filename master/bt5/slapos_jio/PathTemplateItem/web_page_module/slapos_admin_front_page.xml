@@ -107,7 +107,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>SlapOS Administrator Home Page</string> </value>
+            <value> <string>Welcome to SlapOS | Decentralized Cloud Computing</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -244,7 +244,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1003.52175.10063.19285</string> </value>
+                      <value> <string>1004.6436.36702.26948</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -262,7 +262,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1666386521.49</float>
+                              <float>1667961214.41</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

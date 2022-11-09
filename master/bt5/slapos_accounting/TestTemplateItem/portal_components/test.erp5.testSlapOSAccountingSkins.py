@@ -286,3 +286,61 @@ return context.getParentValue()""")
 
     self.assertEqual(delivery,
       person.Person_getAggregatedDelivery())
+
+  def test_AccountingTransactionModule_getUnpaidInvoiceList(self):
+    person = self.makePerson(user=1)
+
+    payment_template = self.portal.restrictedTraverse(
+      self.portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
+    payment = payment_template.Base_createCloneDocument(batch_mode=1)
+
+    for line in payment.contentValues():
+      if line.getSource() == "account_module/payment_to_encash":
+        line.setQuantity(-1)
+      elif line.getSource() == "account_module/receivable":
+        line.setQuantity(1)
+
+    payment.confirm()
+    payment.start()
+  
+    template = self.portal.restrictedTraverse(
+      self.portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate())
+    current_invoice = template.Base_createCloneDocument(batch_mode=1)
+
+    current_invoice.edit(
+        destination_value=person,
+        destination_section_value=person,
+        destination_decision_value=person,
+        start_date=DateTime('2019/10/20'),
+        stop_date=DateTime('2019/10/20'),
+        title='Fake Invoice for Demo User Functional',
+        price_currency="currency_module/EUR",
+        reference='1')
+
+    cell = current_invoice["1"]["movement_0"]
+    cell.edit(quantity=1)
+    cell.setPrice(1)
+    
+    payment.setCausalityValue(current_invoice)
+    payment.setDestinationSectionValue(person)
+    
+    current_invoice.plan()
+    current_invoice.confirm()
+    current_invoice.startBuilding()
+    current_invoice.reindexObject()
+    current_invoice.stop()
+
+    self.tic()
+    self.login(person.getUserId())
+    self.assertEqual(
+      self.portal.accounting_module.AccountingTransactionModule_getUnpaidInvoiceList(),
+      [current_invoice])
+
+    self.login()
+    payment.stop()
+    self.tic()
+
+    self.login(person.getUserId())
+    self.assertEqual(
+      self.portal.accounting_module.AccountingTransactionModule_getUnpaidInvoiceList(),
+      [])

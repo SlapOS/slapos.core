@@ -1455,7 +1455,7 @@ stderr_logfile_backups=1
       self.logger.error(traceback.format_exc())
       self._startComputerPartitionList()
       self.logger.info('Finished computer partitions.')
-      return
+      return SLAPGRID_FAIL
 
     process_error_partition_list = []
     promise_error_partition_list = []

@@ -753,7 +753,6 @@ class Partition(object):
       updateFile(self.supervisord_partition_configuration_path,
                  self.supervisor_configuration_group +
                  self.partition_supervisor_configuration)
-    self.updateSupervisor()
 
   def generateSupervisorConfigurationFile(self):
     """
@@ -767,6 +766,7 @@ class Partition(object):
     installed, we install it.
     """
     partition_id = self.computer_partition.getId()
+    self.updateSupervisor()
     try:
       with self.getSupervisorRPC() as supervisor:
         supervisor.startProcessGroup(partition_id, False)

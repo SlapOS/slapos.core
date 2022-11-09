@@ -573,12 +573,12 @@ stderr_logfile_backups=1
       else:
         self.logger.info("Requested start of %s...", partition_id)
 
-    def getComputerPartitionList(self):
-      try:
-        return self.computer.getComputerPartitionList()
-      except socket.error as exc:
-        self.logger.fatal(exc)
-        raise
+  def getComputerPartitionList(self):
+    try:
+      return self.computer.getComputerPartitionList()
+    except socket.error as exc:
+      self.logger.fatal(exc)
+      raise
 
   def getRequiredComputerPartitionList(self):
     """Return the computer partitions that should be processed.

@@ -417,7 +417,8 @@
         </item>
         <item>
             <key> <string>configuration_precache_manifest_script_list</string> </key>
-            <value> <string>WebSection_getMonacoEditorPrecacheManifestList</string> </value>
+            <value> <string>WebSection_getMonacoEditorPrecacheManifestList\n
+WebSection_getRenderJSRunnerAccessPagePrecacheManifestList</string> </value>
         </item>
         <item>
             <key> <string>configuration_precache_manifest_url_list</string> </key>

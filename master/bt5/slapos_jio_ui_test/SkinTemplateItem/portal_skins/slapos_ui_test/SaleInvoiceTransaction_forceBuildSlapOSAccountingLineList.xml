@@ -50,21 +50,19 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>unpaid=None</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>_proxy_roles</string> </key>
             <value>
               <tuple>
-                <string>Assignee</string>
-                <string>Auditor</string>
                 <string>Manager</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ERP5Site_createSlapOSFakeInvoiceForTestUser</string> </value>
+            <value> <string>SaleInvoiceTransaction_forceBuildSlapOSAccountingLineList</string> </value>
         </item>
       </dictionary>
     </pickle>

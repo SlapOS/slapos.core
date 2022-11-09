@@ -19,10 +19,10 @@ def wrapWithShadow():
 
   payment.confirm()
   payment.start()
-  payment.stop()
+  if not unpaid:
+    payment.stop()
+    payment.PaymentTransaction_generatePayzenId()
 
-  payment.PaymentTransaction_generatePayzenId()
-  
   template = portal.restrictedTraverse(portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate())
   current_invoice = template.Base_createCloneDocument(batch_mode=1)
 
@@ -42,9 +42,6 @@ def wrapWithShadow():
     quantity=1
   )
   cell.setPrice(1)
-
-
-
   return current_invoice, payment
 
 current_invoice, payment = demo_user_functional.Person_restrictMethodAsShadowUser(
@@ -53,10 +50,29 @@ current_invoice, payment = demo_user_functional.Person_restrictMethodAsShadowUse
   argument_list=[])
 
 payment.setCausalityValue(current_invoice)
+payment.setDestinationSectionValue(demo_user_functional)
+
 current_invoice.plan()
 current_invoice.confirm()
 current_invoice.startBuilding()
 current_invoice.reindexObject()
 current_invoice.stop()
+
+current_invoice.activate(after_method_id="immediateReindexObject").Delivery_manageBuildingCalculatingDelivery()
+
+current_invoice.activate(
+  after_method_id=(
+    "immediateReindexObject", "_updateSimulation", "Delivery_manageBuildingCalculatingDelivery")
+  ).SaleInvoiceTransaction_forceBuildSlapOSAccountingLineList()
+
+if not unpaid:
+  current_invoice.activate(
+  after_method_id=(
+    "immediateReindexObject",
+    "_updateSimulation",
+    "Delivery_manageBuildingCalculatingDelivery",
+    "SimulationMovement_buildSlapOS",
+    "SaleInvoiceTransaction_forceBuildSlapOSAccountingLineList")
+  ).SaleInvoiceTransaction_setFakeGroupingReference()
 
 return 'Done.'

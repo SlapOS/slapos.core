@@ -1206,11 +1206,6 @@
     </tr>
     <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
     <tr>
-      <td>assertTextPresent</td>
-      <td>Done.</td>
-      <td></td>
-    </tr>
-    <tr>
       <td>open</td>
       <td tal:content="python:'${base_url}/ERP5Site_createSlapOSFakeInvoiceForTestUser'">.../ERP5Site_createSlapOSFakeInvoiceForTestUser</td>
       <td></td>
@@ -1222,11 +1217,24 @@
     </tr>
     
     <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
+  </tal:block>
+
+  <tal:block metal:define-macro="create_fake_unpaid_invoice">
+    <tr>
+      <td colspan="3"><b> Create a fake UNPAID invoice</b></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
+    <tr>
+      <td>open</td>
+      <td tal:content="python:'${base_url}/ERP5Site_createSlapOSFakeInvoiceForTestUser?unpaid=True'">.../ERP5Site_createSlapOSFakeInvoiceForTestUser</td>
+      <td></td>
+    </tr>
     <tr>
       <td>assertTextPresent</td>
       <td>Done.</td>
       <td></td>
     </tr>
+    <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
   </tal:block>
 
   <tal:block metal:define-macro="check_contextual_help">

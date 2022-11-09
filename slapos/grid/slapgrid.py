@@ -561,24 +561,24 @@ stderr_logfile_backups=1
     """
     supervisor_conf_dir = _getSupervisordConfigurationDirectory(self.instance_root)
     with getSupervisorRPC(self.supervisord_socket) as supervisor:
-      try:
-        for config_filename in os.listdir(supervisor_conf_dir):
+      for config_filename in os.listdir(supervisor_conf_dir):
+        try:
           partition_id = config_filename.rstrip('.conf')
           supervisor.startProcessGroup(partition_id, False)
-      except xmlrpclib.Fault as exc:
-        if exc.faultString.startswith('BAD_NAME:'):
-          self.logger.info("Nothing to start on %s...", partition_id)
+        except xmlrpclib.Fault as exc:
+          if exc.faultString.startswith('BAD_NAME:'):
+            self.logger.info("Nothing to start on %s...", partition_id)
+          else:
+            self.logger.error("Failed to start %s: %s", partition_id, exc)
         else:
-          raise
-      else:
-        self.logger.info("Requested start of %s...", partition_id)
+          self.logger.info("Requested start of %s...", partition_id)
 
-    def getComputerPartitionList(self):
-      try:
-        return self.computer.getComputerPartitionList()
-      except socket.error as exc:
-        self.logger.fatal(exc)
-        raise
+  def getComputerPartitionList(self):
+    try:
+      return self.computer.getComputerPartitionList()
+    except socket.error as exc:
+      self.logger.fatal(exc)
+      raise
 
   def getRequiredComputerPartitionList(self):
     """Return the computer partitions that should be processed.
@@ -586,7 +586,7 @@ stderr_logfile_backups=1
     try:
       cp_list = self.getComputerPartitionList()
     except slapos.slap.exception.ConnectionError:
-      # Network issue, we log exection and failsafe mode is True
+      # Network issue, we log exception and failsafe mode is True
       self.failsafe_mode = True
       self.logger.error(traceback.format_exc())
       return

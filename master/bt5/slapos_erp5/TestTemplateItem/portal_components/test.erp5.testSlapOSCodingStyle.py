@@ -174,8 +174,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_accounting/OrderBuilder_selectSlapOSAggregatedDeliveryList',
         'slapos_accounting/PaymentTransaction_getExternalPaymentId',
         'slapos_accounting/PaymentTransaction_postOrderBuild',
-        'slapos_accounting/Person_getAggregatedDelivery',
-        'slapos_accounting/Person_setAggregatedDelivery',
         'slapos_accounting/SaleInvoiceTransaction_init',
         'slapos_accounting/SaleInvoiceTransaction_isTotalPriceEqualAccounting',
         'slapos_accounting/SaleInvoiceTransaction_isTotalPriceMatchingSalePackingList',

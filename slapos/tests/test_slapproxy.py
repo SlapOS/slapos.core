@@ -1988,6 +1988,26 @@ database_uri = %(rootdir)s/lib/external_proxy.db
         'requested_by': 'slappart0'
     }], requested_by)
 
+  def testForwardToMasterAndDestroy(self):
+    instance_reference = 'MyFirstInstance'
+    self.format_for_number_of_partitions(1)
+    self.external_proxy_format_for_number_of_partitions(1)
+
+    self.request(self.external_software_release, None, instance_reference, 'slappart0')
+    self._checkInstanceIsForwarded(instance_reference, 'slappart0', {}, self.external_software_release)
+
+    self.request(self.external_software_release, None, instance_reference, 'slappart0', state='destroyed')
+
+    # partition is destroyed in the external slapos
+    external_slap = slapos.slap.slap()
+    external_slap.initializeConnection(self.external_master_url)
+    external_computer = external_slap.registerComputer(self.external_computer_id)
+    external_partition = external_computer.getComputerPartitionList()[0]
+    self.assertEqual(external_partition.getState(), 'destroyed')
+
+    # and no longer referenced in forwarded_partition_request
+    self.assertFalse(slapos.proxy.views.execute_db('forwarded_partition_request', 'SELECT * from %s', db=self.db))
+
   def testRequestToCurrentMaster(self):
     """
     Explicitely ask deployment of an instance to current master

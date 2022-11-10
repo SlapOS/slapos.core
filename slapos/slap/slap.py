@@ -87,15 +87,23 @@ class SlapRequester(SlapDocument):
   """
   Abstract class that allow to factor method for subclasses that use "request()"
   """
+  def _validateRequestParameters(self, software_release, software_type, parameter_dict):
+    """Validate requests parameters.
 
-  def _requestComputerPartition(self, request_dict):
+    Default behavior is to fetch schema and warn using `warnings.warn` in case
+    of problems, with a special for the magic git.erp5.org used as an alias for
+    frontends that does not have a software.cfg.json
+    """
+    if software_release in (
+      'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
+    ):
+      return
 
     try:
       SoftwareReleaseSchema(
-          request_dict['software_release'],
-          request_dict['software_type']
-      ).validateInstanceParameterDict(
-          loads(request_dict['partition_parameter_xml']))
+        software_release,
+        software_type,
+      ).validateInstanceParameterDict(parameter_dict)
     except jsonschema.ValidationError as e:
       warnings.warn(
         "Request parameters do not validate against schema definition:\n{e}".format(e=e),
@@ -115,6 +123,12 @@ class SlapRequester(SlapDocument):
         UserWarning,
       )
 
+  def _requestComputerPartition(self, request_dict):
+    self._validateRequestParameters(
+      request_dict['software_release'],
+      request_dict['software_type'],
+      loads(request_dict['partition_parameter_xml']),
+    )
     try:
       xml = self._connection_helper.POST('requestComputerPartition', data=request_dict)
     except ResourceNotReady:

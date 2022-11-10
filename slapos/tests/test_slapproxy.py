@@ -1770,7 +1770,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     self.assertEqual('external_computer', partition.slap_computer_id)
     self.assertEqual('slappart0', partition.slap_computer_partition_id)
 
-  def _checkInstanceIsFowarded(self, name, requester, partition_parameter_kw, software_release):
+  def _checkInstanceIsForwarded(self, name, requester, partition_parameter_kw, software_release):
     """
     Test there is no instance on local proxy.
     Test there is instance on external proxy.
@@ -1858,7 +1858,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     partition = self.request(self.software_release_not_in_list, None, instance_reference, 'slappart0',
                              filter_kw=filter_kw, partition_parameter_kw=dummy_parameter_dict)
 
-    self._checkInstanceIsFowarded(instance_reference, 'slappart0', dummy_parameter_dict, self.software_release_not_in_list)
+    self._checkInstanceIsForwarded(instance_reference, 'slappart0', dummy_parameter_dict, self.software_release_not_in_list)
     self.assertEqual(
         partition._master_url,
         self.external_master_url
@@ -1880,11 +1880,11 @@ database_uri = %(rootdir)s/lib/external_proxy.db
       partition = self.request(self.software_release_not_in_list, None, instance_reference, 'slappart0',
                                filter_kw=filter_kw, partition_parameter_kw=dummy_parameter_dict)
 
-    # Explicitly do the relevant test, even if _checkInstanceIsFowarded does it too
+    # Explicitly do the relevant test, even if _checkInstanceIsForwarded does it too
     entries = slapos.proxy.views.execute_db('forwarded_partition_request', 'SELECT * from %s', db=self.db)
     self.assertEqual(len(entries), 1)
 
-    self._checkInstanceIsFowarded(instance_reference, 'slappart0', dummy_parameter_dict, self.software_release_not_in_list)
+    self._checkInstanceIsForwarded(instance_reference, 'slappart0', dummy_parameter_dict, self.software_release_not_in_list)
     self.assertEqual(
         partition._master_url,
         self.external_master_url
@@ -1915,7 +1915,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     partition = self.request(self.external_software_release, None, instance_reference, 'slappart0',
                              partition_parameter_kw=dummy_parameter_dict)
 
-    self._checkInstanceIsFowarded(instance_reference, 'slappart0', dummy_parameter_dict, self.external_software_release)
+    self._checkInstanceIsForwarded(instance_reference, 'slappart0', dummy_parameter_dict, self.external_software_release)
 
     instance_parameter_dict = partition.getInstanceParameterDict()
     instance_parameter_dict.pop('timestamp')
@@ -1937,11 +1937,11 @@ database_uri = %(rootdir)s/lib/external_proxy.db
       partition = self.request(self.external_software_release, None, instance_reference, 'slappart0',
                                partition_parameter_kw=dummy_parameter_dict)
 
-    # Explicitly do the relevant test, even if _checkInstanceIsFowarded does it too
+    # Explicitly do the relevant test, even if _checkInstanceIsForwarded does it too
     entries = slapos.proxy.views.execute_db('forwarded_partition_request', 'SELECT * from %s', db=self.db)
     self.assertEqual(len(entries), 1)
 
-    self._checkInstanceIsFowarded(instance_reference, 'slappart0', dummy_parameter_dict, self.external_software_release)
+    self._checkInstanceIsForwarded(instance_reference, 'slappart0', dummy_parameter_dict, self.external_software_release)
 
     instance_parameter_dict = partition.getInstanceParameterDict()
     instance_parameter_dict.pop('timestamp')

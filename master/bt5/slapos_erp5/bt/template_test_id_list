@@ -9,3 +9,4 @@ test.erp5.testSlapOSCodingStyle
 test.erp5.testSlapOSAuthenticationPolicy
 test.erp5.testSlapOSERP5InteractionWorkflow
 test.erp5.testSlapOSWendelinCoreTwo
+test.erp5.testSlapOSPrecacheManifest

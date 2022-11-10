@@ -341,7 +341,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_base/Login_notifyPasswordExpire',
         'slapos_base/Person_applyContractInvitation',
         'slapos_base/ERP5Site_getAvailableOAuthLoginList',
-        'slapos_base/WebSection_getHostingJSPrecacheManifestList',
         'slapos_erp5/CatalogTool_checkNoneCreationDateConsistency',
         'slapos_erp5/CertificateAuthorityTool_checkCertificateAuthorityConsistency',
         'slapos_erp5/CertificateAuthorityTool_checkSlapOSMachineNonExistenceConsistency',

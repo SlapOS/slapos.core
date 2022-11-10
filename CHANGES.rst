@@ -4,6 +4,7 @@ Changes
 1.8.4 (unreleased)
 ------------------
  * service list, service info: output json
+ * request: don't fetch schema for frontend software release, speeding up slapos node instance
 
 1.8.3 (2022-10-17)
 ------------------

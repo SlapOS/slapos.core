@@ -49,6 +49,11 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
       slapos_cloud/PreferenceTemplateItem/portal_preferences/slapos_default_system_preference.xml
       slapos_cloud/PreferenceTemplateItem/portal_preferences/slapos_default_site_preference.xml
 
+      # Since the sections can be overwriten on project context, keep it on ignore list.
+      slapos_jio/PathTemplateItem/web_site_module/hostingjs/feed.xml
+      slapos_jio/PathTemplateItem/web_site_module/hostingjs/feed/critical.xml
+      slapos_jio/PathTemplateItem/web_site_module/hostingjs/feed/invoice.xml
+
       # WebSite is updated after the installation to re-generate the translation data.
       # This list should be reconsider later so we can keep information accurated.
       slapos_jio/PathTemplateItem/web_site_module/hostingjs.xml
@@ -174,8 +179,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_accounting/OrderBuilder_selectSlapOSAggregatedDeliveryList',
         'slapos_accounting/PaymentTransaction_getExternalPaymentId',
         'slapos_accounting/PaymentTransaction_postOrderBuild',
-        'slapos_accounting/Person_getAggregatedDelivery',
-        'slapos_accounting/Person_setAggregatedDelivery',
         'slapos_accounting/SaleInvoiceTransaction_init',
         'slapos_accounting/SaleInvoiceTransaction_isTotalPriceEqualAccounting',
         'slapos_accounting/SaleInvoiceTransaction_isTotalPriceMatchingSalePackingList',

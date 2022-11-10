@@ -1,9 +1,31 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf8 -*-
 ##############################################################################
 #
 # Copyright (c) 2012 Nexedi SA and Contributors. All Rights Reserved.
 #
+# WARNING: This program as such is intended to be used by professional
+# programmers who take the whole responsibility of assessing all potential
+# consequences resulting from its eventual inadequacies and bugs
+# End users who are looking for a ready-to-use solution with commercial
+# guarantees and support are strongly adviced to contract a Free Software
+# Service Company
+#
+# This program is Free Software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
 ##############################################################################
+
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort, simulate
 
 from zExceptions import Unauthorized
@@ -29,7 +51,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       )
 
   @withAbort
-  def test_HS_calculateSubscriptionStartDate_REQUEST_disallowed(self):
+  def test_IT_calculateSubscriptionStartDate_REQUEST_disallowed(self):
     item = self.createInstanceTree()
     self.assertRaises(
       Unauthorized,
@@ -37,14 +59,14 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       REQUEST={})
 
   @withAbort
-  def test_HS_calculateSubscriptionStartDate_noWorkflow(self):
+  def test_IT_calculateSubscriptionStartDate_noWorkflow(self):
     item = self.createInstanceTree()
     item.workflow_history['instance_slap_interface_workflow'] = []
     date = item.InstanceTree_calculateSubscriptionStartDate()
     self.assertEqual(date, item.getCreationDate().earliestTime())
 
   @withAbort
-  def test_HS_calculateSubscriptionStartDate_withRequest(self):
+  def test_IT_calculateSubscriptionStartDate_withRequest(self):
     item = self.createInstanceTree()
     item.workflow_history['instance_slap_interface_workflow'] = [{
         'comment':'Directly request the instance',
@@ -58,7 +80,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.assertEqual(date, DateTime('2012/11/15'))
 
   @withAbort
-  def test_HS_calculateSubscriptionStartDate_withRequestEndOfMonth(self):
+  def test_IT_calculateSubscriptionStartDate_withRequestEndOfMonth(self):
     item = self.createInstanceTree()
     item.workflow_history['instance_slap_interface_workflow'] = [{
         'comment':'Directly request the instance',
@@ -72,7 +94,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.assertEqual(date, DateTime('2012/11/30'))
 
   @withAbort
-  def test_HS_calculateSubscriptionStartDate_withRequestAfterDestroy(self):
+  def test_IT_calculateSubscriptionStartDate_withRequestAfterDestroy(self):
     item = self.createInstanceTree()
     destroy_date = DateTime('2012/10/30 11:11')
     request_date = DateTime('2012/11/30 11:11')
@@ -97,7 +119,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.assertEqual(date, DateTime('2012/10/30'))
 
   @withAbort
-  def test_HS_calculateSubscriptionStopDate_REQUEST_disallowed(self):
+  def test_IT_calculateSubscriptionStopDate_REQUEST_disallowed(self):
     item = self.createInstanceTree()
     self.assertRaises(
       Unauthorized,
@@ -105,7 +127,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       REQUEST={})
 
   @withAbort
-  def test_HS_calculateSubscriptionStopDate_withDestroy(self):
+  def test_IT_calculateSubscriptionStopDate_withDestroy(self):
     item = self.createInstanceTree()
     destroy_date = DateTime('2012/10/30')
     item.workflow_history['instance_slap_interface_workflow'].append({
@@ -120,7 +142,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.assertEqual(date, DateTime('2012/10/31'))
 
   @withAbort
-  def test_HS_calculateSubscriptionStopDate_noDestroy(self):
+  def test_IT_calculateSubscriptionStopDate_noDestroy(self):
     item = self.createInstanceTree()
     item.workflow_history['instance_slap_interface_workflow'] = []
     date = item.InstanceTree_calculateSubscriptionStopDate()
@@ -249,3 +271,76 @@ return context.getParentValue()""")
       Unauthorized,
       sale_invoice_transaction.SaleInvoiceTransaction_resetPaymentMode,
       REQUEST={})
+
+  def test_Person_get_set_AggregatedDelivery(self):
+    person = self.makePerson()
+
+    self.assertEqual(
+      person.Person_getAggregatedDelivery(), None)
+
+    delivery = self.portal.sale_packing_list_module.newContent(
+      portal_type="Sale Packing List")
+
+    person.Person_setAggregatedDelivery(delivery)
+
+
+    self.assertEqual(delivery,
+      person.Person_getAggregatedDelivery())
+
+  def test_AccountingTransactionModule_getUnpaidInvoiceList(self):
+    person = self.makePerson(user=1)
+
+    payment_template = self.portal.restrictedTraverse(
+      self.portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
+    payment = payment_template.Base_createCloneDocument(batch_mode=1)
+
+    for line in payment.contentValues():
+      if line.getSource() == "account_module/payment_to_encash":
+        line.setQuantity(-1)
+      elif line.getSource() == "account_module/receivable":
+        line.setQuantity(1)
+
+    payment.confirm()
+    payment.start()
+  
+    template = self.portal.restrictedTraverse(
+      self.portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate())
+    current_invoice = template.Base_createCloneDocument(batch_mode=1)
+
+    current_invoice.edit(
+        destination_value=person,
+        destination_section_value=person,
+        destination_decision_value=person,
+        start_date=DateTime('2019/10/20'),
+        stop_date=DateTime('2019/10/20'),
+        title='Fake Invoice for Demo User Functional',
+        price_currency="currency_module/EUR",
+        reference='1')
+
+    cell = current_invoice["1"]["movement_0"]
+    cell.edit(quantity=1)
+    cell.setPrice(1)
+    
+    payment.setCausalityValue(current_invoice)
+    payment.setDestinationSectionValue(person)
+    
+    current_invoice.plan()
+    current_invoice.confirm()
+    current_invoice.startBuilding()
+    current_invoice.reindexObject()
+    current_invoice.stop()
+
+    self.tic()
+    self.login(person.getUserId())
+    self.assertEqual(
+      self.portal.accounting_module.AccountingTransactionModule_getUnpaidInvoiceList(),
+      [current_invoice])
+
+    self.login()
+    payment.stop()
+    self.tic()
+
+    self.login(person.getUserId())
+    self.assertEqual(
+      self.portal.accounting_module.AccountingTransactionModule_getUnpaidInvoiceList(),
+      [])

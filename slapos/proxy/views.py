@@ -667,12 +667,9 @@ def forwardRequestToExternalMaster(master_url, request_form):
   filter_kw = loads(request_form['filter_xml'].encode('utf-8'))
   partition_parameter_kw = loads(request_form['partition_parameter_xml'].encode('utf-8'))
 
-  app.logger.info("Forwarding request of %s to %s", partition_reference, master_url)
+  state = loads(request_form['state'].encode('utf-8'))
+  app.logger.info("Forwarding request of %s (state=%s) to %s ", partition_reference, state, master_url)
   app.logger.debug("request_form: %s", request_form)
-
-  # Store in database
-  execute_db('forwarded_partition_request', 'INSERT OR REPLACE INTO %s values(:partition_reference, :master_url)',
-             {'partition_reference':partition_reference, 'master_url': master_url})
 
   if master_entry.get('computer') and master_entry.get('partition'):
     app.logger.debug("requesting from partition %s", master_entry)
@@ -687,7 +684,7 @@ def forwardRequestToExternalMaster(master_url, request_form):
         shared=loads(request_form['shared_xml'].encode('utf-8')),
         partition_parameter_kw=partition_parameter_kw,
         filter_kw=filter_kw,
-        state=loads(request_form['state'].encode('utf-8')),
+        state=state,
     )
   else:
     filter_kw['source_instance_id'] = partition_reference
@@ -697,9 +694,21 @@ def forwardRequestToExternalMaster(master_url, request_form):
         partition_parameter_kw=partition_parameter_kw,
         software_type=request_form.get('software_type', ''),
         filter_kw=filter_kw,
-        state=loads(request_form['state'].encode('utf-8')),
+        state=state,
         shared=loads(request_form['shared_xml'].encode('utf-8')),
     )
+
+  # Store in database
+  if state == 'destroyed':
+    execute_db(
+      'forwarded_partition_request',
+      'DELETE FROM %s WHERE partition_reference = :partition_reference and master_url = :master_url',
+      {'partition_reference':partition_reference, 'master_url': master_url})
+  else:
+    execute_db(
+      'forwarded_partition_request',
+      'INSERT OR REPLACE INTO %s values(:partition_reference, :master_url)',
+      {'partition_reference':partition_reference, 'master_url': master_url})
 
   # XXX move to other end
   partition._master_url = master_url # type: ignore

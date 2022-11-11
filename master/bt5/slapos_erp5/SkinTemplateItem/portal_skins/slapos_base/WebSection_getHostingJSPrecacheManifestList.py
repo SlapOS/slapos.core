@@ -133,6 +133,8 @@ url_list = [
   "gadget_erp5_page_slap_stop_instance_tree.html",
   "gadget_erp5_page_slap_stop_instance_tree.js",
   "gadget_erp5_page_slap_support_request_view.html",
+  "gadget_erp5_page_slap_all_ticket_list.html",
+  "gadget_erp5_page_slap_all_ticket_list.js",
   "gadget_erp5_page_slap_ticket_list.html",
   "gadget_erp5_page_slap_ticket_list.js",
   "gadget_erp5_page_slap_ticket_view.js",

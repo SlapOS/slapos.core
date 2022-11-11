@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -59,7 +58,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -187,7 +185,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1508398046.04</float>
+                              <float>1668194508.48</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -236,7 +234,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1001.59377.44199.3498</string> </value>
+                      <value> <string>1004.16914.46845.35908</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -254,7 +252,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1659068844.09</float>
+                              <float>1668203512.68</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

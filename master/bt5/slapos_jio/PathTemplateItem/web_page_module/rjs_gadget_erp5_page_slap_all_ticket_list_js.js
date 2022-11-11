@@ -71,10 +71,7 @@
                   "key": "slap_site_listbox",
                   "lines": lines_limit,
                   "list_method": "portal_catalog",
-                  "query": "urn:jio:allDocs?query=portal_type%3A%20%28%22Support%20Request%22%2C%20%" +
-                           "22Upgrade%20Decision%22%2C%20%22Regularisation%20Request%22%29%20AND%20" +
-                           "simulation_state%3A%20%28%22suspended%22%2C%20%22validated%22%2C%20%22confirmed%22%2C%20%22started%22%29%20AND%20" +
-                           "destination_decision_reference%3A" +  result[1].reference,
+                  "query": "urn:jio:allDocs?query=portal_type%3A%20%28%22Support%20Request%22%2C%20%22Upgrade%20Decision%22%2C%20%22Regularisation%20Request%22%29%20AND%20destination_decision_reference%3A" +  result[1].reference,
                   "portal_type": [],
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
@@ -107,7 +104,8 @@
             gadget.getUrlFor({command: "change", options: {"page": "slap_rss_ticket"}}),
             gadget.getUrlFor({command: "change", options: {"page": frontpage_gadget}}),
             gadget.updatePanel({jio_key: "support_request_module"}),
-            gadget.getUrlFor({command: "change", options: {"page": 'slap_all_ticket_list'}})
+            gadget.getUrlFor({command: "change", options: {"page": "slap_ticket_list"}})
+
           ]);
         })
         .push(function (result) {
@@ -115,9 +113,9 @@
             page_title: tickets_translation,
             filter_action: true,
             selection_url: result[2],
+            tab_url: result[4],
             add_url: result[0],
-            rss_url: result[1],
-            list_all_url: result[4]
+            rss_url: result[1]
           });
         });
     });

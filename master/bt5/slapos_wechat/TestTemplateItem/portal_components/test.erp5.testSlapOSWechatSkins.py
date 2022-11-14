@@ -591,7 +591,7 @@ class TestSlapOSWechatAccountingTransaction_getPaymentState(
       destination_section=person.getRelativeUrl())
     self.tic()
     self.login(person.getUserId())
-    self.assertEqual("Pay now", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_waiting_payment(self):
     person = self.makePerson()

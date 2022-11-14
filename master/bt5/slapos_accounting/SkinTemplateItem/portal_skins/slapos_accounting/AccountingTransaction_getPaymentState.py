@@ -24,7 +24,7 @@ else:
         argument_list=[line])
     else:
       is_node_from_line_receivable = isNodeFromLineReceivable(line)
-
+ 
     if is_node_from_line_receivable:
       if not line.hasGroupingReference():
         paid = False
@@ -53,7 +53,7 @@ else:
         callable_object=payment.PaymentTransaction_getExternalPaymentId,
         argument_list=[])[0]
       if external_payment_id is None:
-        result = "Pay now"
+        result = "Pay Now"
       else:
         result = "Waiting for payment confirmation"
 

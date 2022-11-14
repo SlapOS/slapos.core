@@ -3116,7 +3116,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
     self.computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.partition = self.computer.instance_list[0]
     self.instance_supervisord_config_path = os.path.join(
-      self.instance_root, 'etc/supervisord.conf.d/0.conf')
+      self.instance_root, 'etc/supervisord.conf.d/0-portredir.conf')
 
     self.port_redirect_path = os.path.join(self.partition.partition_path,
                                            slapmanager.portredir.Manager.port_redirect_filename)

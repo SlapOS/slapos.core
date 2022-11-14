@@ -7,6 +7,7 @@ import os
 from .interface import IManager
 from six.moves import filter
 from zope.interface import implementer
+from slapos.grid.utils import updateFile
 
 logger = logging.getLogger(__name__)
 
@@ -164,7 +165,16 @@ class Manager(object):
                                   program['command'],
                                   as_user=program['as_user'])
 
-    partition.writeSupervisorConfigurationFile()
+    #partition.writeSupervisorConfigurationFile()
+    # Configuration is generated in a different config file so call
+    # of partition.stop will not delete this file
+    supervisord_config = os.path.splitext(
+      partition.supervisord_partition_configuration_path)[0] + \
+      '-portredir.conf'
+    updateFile(supervisord_config,
+                partition.supervisor_configuration_group +
+                partition.partition_supervisor_configuration)
+    partition.updateSupervisor()
 
     # Start processes
     with partition.getSupervisorRPC() as supervisor:

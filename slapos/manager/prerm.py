@@ -60,14 +60,12 @@ class Manager(object):
     """
       Write a prerm supervisord configuration file and update supervisord
     """
-    if partition.supervisor_configuration_group and \
-        partition.partition_supervisor_configuration:
-      config_path = os.path.splitext(
-        partition.supervisord_partition_configuration_path)[0] + \
-        '-prerm.conf'
-      updateFile(config_path,
-                 partition.supervisor_configuration_group +
-                 partition.partition_supervisor_configuration)
+    config_path = os.path.splitext(
+      partition.supervisord_partition_configuration_path)[0] + \
+      '-prerm.conf'
+    updateFile(config_path,
+                partition.supervisor_configuration_group +
+                partition.partition_supervisor_configuration)
 
   def report(self, partition):
     """Method called at `slapos node report` phase."""

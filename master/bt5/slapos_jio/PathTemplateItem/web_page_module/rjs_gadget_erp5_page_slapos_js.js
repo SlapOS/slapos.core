@@ -245,8 +245,7 @@
               "Pending Tickets to Process",
               "Dashboard",
               "Show All Tickets",
-              "RSS",
-              "Critical"
+              "RSS"
             ];
           return new RSVP.Queue()
             .push(function () {
@@ -254,8 +253,7 @@
                 gadget.getDeclaredGadget('last'),
                 gadget.getTranslationList(translation_list1),
                 gadget.getUrlFor({command: 'change', options: {page: "slap_ticket_list"}}),
-                gadget.getUrlFor({command: 'change', options: {page: "slap_rss_ticket"}}),
-                gadget.getUrlFor({command: 'change', options: {page: "slap_rss_critical_ticket"}})
+                gadget.getUrlFor({command: 'change', options: {page: "slap_rss_ticket"}})
               ]);
             })
             .push(function (result) {
@@ -271,11 +269,7 @@
                       domsugar("a",
                         {"class": "ui-btn ui-first-child ui-btn-white-front  ui-btn-icon-left ui-icon-rss",
                           "text": result[1][6],
-                          "href": result[3]}),
-                      domsugar("a",
-                        {"class": "ui-btn ui-first-child ui-btn-white-front  ui-btn-icon-left ui-icon-rss",
-                          "text": result[1][7],
-                          "href": result[4]})
+                          "href": result[3]})
                     ])
                   ]),
                 div_bottom_header = gadget.element.querySelector(".box-gadget-bottom-header"),

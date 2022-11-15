@@ -22,7 +22,8 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 import difflib
 
-slapos_folder_list = """slapos_base
+slapos_folder_list = """slapos_abyss
+slapos_base
 slapos_contract
 slapos_subscription_request
 slapos_crm_monitoring
@@ -873,6 +874,7 @@ erp5_interaction_drop
 erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request

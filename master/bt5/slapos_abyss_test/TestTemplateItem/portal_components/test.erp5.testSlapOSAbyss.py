@@ -80,25 +80,25 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
 
   def _create_request_dict(self):
     request_dict = {
-      'test_server': 'tail.0: {"beginning_date": "2021-10-15 15:11:02.230712384 +0200 CEST"}\n\
-tail.0:{"mac_address": "fe:27:02:3d:26:26"}\n\
-tail.0:{"path": "/home/test3/metadata-collect-agent/scan-filesystem/cython/command-line.main.pyx", "stat": {"st_dev": 65025, "st_ino": 150519, "st_mode": 33188, "st_nlink": 1, "st_uid": 1000, "st_gid": 1000, "st_rdev": 0, "st_size": 9153, "st_blksize": 4096, "st_blocks": 24, "st_atime": 1634293139, "st_mtime": 1632486702, "st_ctime": 1632486702, "st_atime_ns": 958685043, "st_mtime_ns": 839359789, "st_ctime_ns": 839359789}, "hash": {"md5": "8e29c0d260293bc592200a4ef37729e5", "sha1": "fed552c1e74f54275ba4f1106a51a3349e12bbda", "sha256": "776f9da4bc9ba9062c8ab9b8c0a2ab91ad204d6f1e1a7734be050c5d83db2a48", "sha512": "4c547b2c1b0cb76b6e960c21d34e758cd467158f7681042d80d2b7afdde697fdd33fa694e4075a2584bf18caa58a55ec3b15c4b3c13dc59288a216837f4a8d82"}}\n\
-tail.0:{}\n\
-tail.0:{"end_date": "2021-10-15 15:11:02.230745474 +0200 CEST", "end_marker": "fluentbit_end"}\n',
+      'test_server': '{"beginning_date": "2022/11/15 17:07 CET"}\n\
+{"mac_address": "fe:27:02:3d:26:26"}\n\
+{"path": "/home/test3/metadata-collect-agent/scan-filesystem/cython/command-line.main.pyx", "stat": {"st_dev": 65025, "st_ino": 150519, "st_mode": 33188, "st_nlink": 1, "st_uid": 1000, "st_gid": 1000, "st_rdev": 0, "st_size": 9153, "st_blksize": 4096, "st_blocks": 24, "st_atime": 1634293139, "st_mtime": 1632486702, "st_ctime": 1632486702, "st_atime_ns": 958685043, "st_mtime_ns": 839359789, "st_ctime_ns": 839359789}, "hash": {"md5": "8e29c0d260293bc592200a4ef37729e5", "sha1": "fed552c1e74f54275ba4f1106a51a3349e12bbda", "sha256": "776f9da4bc9ba9062c8ab9b8c0a2ab91ad204d6f1e1a7734be050c5d83db2a48", "sha512": "4c547b2c1b0cb76b6e960c21d34e758cd467158f7681042d80d2b7afdde697fdd33fa694e4075a2584bf18caa58a55ec3b15c4b3c13dc59288a216837f4a8d82"}}\n\
+{}\n\
+{"end_date": "2022/11/15 17:08 CET", "end_marker": "fluentbit_end"}\n',
 
-      'test_server_reference_1': 'tail.0: {"beginning_date": "2021-10-15 15:11:02.230694943 +0200 CEST"}\n\
-tail.0:{"mac_address": "fe:27:02:3d:26:26"}\n\
-tail.0:{}\n\
-tail.0:{"end_date": "2021-10-15 15:11:02.230745474 +0200 CEST", "end_marker": "fluentbit_end"}\n',
+      'test_server_reference_1': '{"beginning_date": "2022/11/15 17:07 CET"}\n\
+{"mac_address": "fe:27:02:3d:26:26"}\n\
+{}\n\
+{"end_date": "2022/11/15 17:07 CET", "end_marker": "fluentbit_end"}\n',
 
-      'test_server_reference_2': 'tail.0: {"beginning_date": "2021-10-15 15:11:02.230694943 +0200 CEST"}\n\
-tail.0:{"mac_address": "fe:27:02:3d:26:26"}\n\
-tail.0:{"path": "/home/test3/metadata-collect-agent/scan-filesystem/cython", "stat": {"st_dev": 65025, "st_ino": 150513, "st_mode": 16877, "st_nlink": 6, "st_uid": 1000, "st_gid": 1000, "st_rdev": 0, "st_size": 4096, "st_blksize": 4096, "st_blocks": 8, "st_atime": 1634303447, "st_mtime": 1634303457, "st_ctime": 1634303457, "st_atime_ns": 659600793, "st_mtime_ns": 447628573, "st_ctime_ns": 447628573}}\n\
-tail.0:{"path": "/home/test3/metadata-collect-agent/scan-filesystem/cython/command-line.main.pyx", "stat": {"st_dev": 65025, "st_ino": 150519, "st_mode": 33188, "st_nlink": 1, "st_uid": 1000, "st_gid": 1000, "st_rdev": 0, "st_size": 9153, "st_blksize": 4096, "st_blocks": 24, "st_atime": 1634293139, "st_mtime": 1632486702, "st_ctime": 1632486702, "st_atime_ns": 958685043, "st_mtime_ns": 839359789, "st_ctime_ns": 839359789}, "hash": {"md5": "8e29c0d260293bc592200a4ef37729e5", "sha1": "fed552c1e74f54275ba4f1106a51a3349e12bbda", "sha256": "776f9da4bc9ba9062c8ab9b8c0a2ab91ad204d6f1e1a7734be050c5d83db2a48", "sha512": "4c547b2c1b0cb76b6e960c21d34e758cd467158f7681042d80d2b7afdde697fdd33fa694e4075a2584bf18caa58a55ec3b15c4b3c13dc59288a216837f4a8d82"}}\n\
-tail.0:{"path": "/home/test3/metadata-collect-agent/scan-filesystem/cython/test.main.pyx", "stat": {"st_dev": 65025, "st_ino": 150592, "st_mode": 33188, "st_nlink": 1, "st_uid": 1000, "st_gid": 1000, "st_rdev": 0, "st_size": 10359, "st_blksize": 4096, "st_blocks": 24, "st_atime": 1634286743, "st_mtime": 1632487276, "st_ctime": 1632487276, "st_atime_ns": 583684050, "st_mtime_ns": 164380968, "st_ctime_ns": 164380968}, "hash": {"md5": "a81f35167d92ba1bcafe643890a68d31", "sha1": "eb300bc4d66fc641237ffe43f990cda05431a73f", "sha256": "bd8a0403f0acf7fce29a8728e1efcbb26f8ca2ee663b12dffcd49ec729be692b", "sha512": "fe19cf16c194adc70bef79945f70904c6d76f12dbd684cb7415885addd923f76f57841c8a68ec350c26ab6abb3f1c7e74a69f4f650c6674702a638c62e29aa4f"}}\n\
-tail.0:{"path": "/home/test3/metadata-collect-agent/scan-filesystem/cython/parse_link_errors.py", "stat": {"st_dev": 65025, "st_ino": 148852, "st_mode": 33261, "st_nlink": 1, "st_uid": 1000, "st_gid": 1000, "st_rdev": 0, "st_size": 822, "st_blksize": 4096, "st_blocks": 8, "st_atime": 1634301617, "st_mtime": 1634301600, "st_ctime": 1634301600, "st_atime_ns": 70528398, "st_mtime_ns": 658499228, "st_ctime_ns": 658499228}, "hash": {"md5": "465ab32cdc7531623c1130211b30d20c", "sha1": "3439417bacc24c55db7f6b62256122cab5c4cdc7", "sha256": "64214702209370590c7976b599b5a4b1033e175460c9e8a8bb1c133614cd8dac", "sha512": "28b74c2b9e7b93d9e354c35d618cf94cb6285fc62bc1d94ce31fdc5a2d1fc42b8325bcf1292c71351422f66b2d121670b0dbaaffba2107de0ee5d4f19581c64d"}}\n\
-tail.0:{}\n\
-tail.0:{"end_date": "2021-10-15 15:11:02.230745474 +0200 CEST", "end_marker": "fluentbit_end"}\n'
+      'test_server_reference_2': '{"beginning_date": "2022/11/15 17:07 CET"}\n\
+{"mac_address": "fe:27:02:3d:26:26"}\n\
+{"path": "/home/test3/metadata-collect-agent/scan-filesystem/cython", "stat": {"st_dev": 65025, "st_ino": 150513, "st_mode": 16877, "st_nlink": 6, "st_uid": 1000, "st_gid": 1000, "st_rdev": 0, "st_size": 4096, "st_blksize": 4096, "st_blocks": 8, "st_atime": 1634303447, "st_mtime": 1634303457, "st_ctime": 1634303457, "st_atime_ns": 659600793, "st_mtime_ns": 447628573, "st_ctime_ns": 447628573}}\n\
+{"path": "/home/test3/metadata-collect-agent/scan-filesystem/cython/command-line.main.pyx", "stat": {"st_dev": 65025, "st_ino": 150519, "st_mode": 33188, "st_nlink": 1, "st_uid": 1000, "st_gid": 1000, "st_rdev": 0, "st_size": 9153, "st_blksize": 4096, "st_blocks": 24, "st_atime": 1634293139, "st_mtime": 1632486702, "st_ctime": 1632486702, "st_atime_ns": 958685043, "st_mtime_ns": 839359789, "st_ctime_ns": 839359789}, "hash": {"md5": "8e29c0d260293bc592200a4ef37729e5", "sha1": "fed552c1e74f54275ba4f1106a51a3349e12bbda", "sha256": "776f9da4bc9ba9062c8ab9b8c0a2ab91ad204d6f1e1a7734be050c5d83db2a48", "sha512": "4c547b2c1b0cb76b6e960c21d34e758cd467158f7681042d80d2b7afdde697fdd33fa694e4075a2584bf18caa58a55ec3b15c4b3c13dc59288a216837f4a8d82"}}\n\
+{"path": "/home/test3/metadata-collect-agent/scan-filesystem/cython/test.main.pyx", "stat": {"st_dev": 65025, "st_ino": 150592, "st_mode": 33188, "st_nlink": 1, "st_uid": 1000, "st_gid": 1000, "st_rdev": 0, "st_size": 10359, "st_blksize": 4096, "st_blocks": 24, "st_atime": 1634286743, "st_mtime": 1632487276, "st_ctime": 1632487276, "st_atime_ns": 583684050, "st_mtime_ns": 164380968, "st_ctime_ns": 164380968}, "hash": {"md5": "a81f35167d92ba1bcafe643890a68d31", "sha1": "eb300bc4d66fc641237ffe43f990cda05431a73f", "sha256": "bd8a0403f0acf7fce29a8728e1efcbb26f8ca2ee663b12dffcd49ec729be692b", "sha512": "fe19cf16c194adc70bef79945f70904c6d76f12dbd684cb7415885addd923f76f57841c8a68ec350c26ab6abb3f1c7e74a69f4f650c6674702a638c62e29aa4f"}}\n\
+{"path": "/home/test3/metadata-collect-agent/scan-filesystem/cython/parse_link_errors.py", "stat": {"st_dev": 65025, "st_ino": 148852, "st_mode": 33261, "st_nlink": 1, "st_uid": 1000, "st_gid": 1000, "st_rdev": 0, "st_size": 822, "st_blksize": 4096, "st_blocks": 8, "st_atime": 1634301617, "st_mtime": 1634301600, "st_ctime": 1634301600, "st_atime_ns": 70528398, "st_mtime_ns": 658499228, "st_ctime_ns": 658499228}, "hash": {"md5": "465ab32cdc7531623c1130211b30d20c", "sha1": "3439417bacc24c55db7f6b62256122cab5c4cdc7", "sha256": "64214702209370590c7976b599b5a4b1033e175460c9e8a8bb1c133614cd8dac", "sha512": "28b74c2b9e7b93d9e354c35d618cf94cb6285fc62bc1d94ce31fdc5a2d1fc42b8325bcf1292c71351422f66b2d121670b0dbaaffba2107de0ee5d4f19581c64d"}}\n\
+{}\n\
+{"end_date": "2022/11/15 17:08 CET", "end_marker": "fluentbit_end"}\n'
     }
 
     return request_dict
@@ -123,7 +123,7 @@ tail.0:{"end_date": "2021-10-15 15:11:02.230745474 +0200 CEST", "end_marker": "f
 
   def string_to_ndarray(self, string):
     json_string_list = string.splitlines()[:-1]
-    data_list = [json.loads(json_string.split(':', 1)[-1]) for json_string in json_string_list]
+    data_list = [json.loads(json_string) for json_string in json_string_list]
     triplet_list = [(data['path'], data['hash']['sha256']) for data in data_list if 'path' in data and 'hash' in data and 'sha256' in data['hash']]
 
     data_mapping = self.portal.Base_getDataMapping()

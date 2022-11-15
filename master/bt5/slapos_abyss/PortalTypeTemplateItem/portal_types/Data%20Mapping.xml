@@ -14,8 +14,9 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Represents a very big infinite file with a streaming API.\n
-Usually used to store raw data.</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>factory</string> </key>
@@ -31,7 +32,7 @@ Usually used to store raw data.</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Data Stream</string> </value>
+            <value> <string>Data Mapping</string> </value>
         </item>
         <item>
             <key> <string>init_script</string> </key>
@@ -51,7 +52,7 @@ Usually used to store raw data.</string> </value>
         </item>
         <item>
             <key> <string>type_class</string> </key>
-            <value> <string>DataStream</string> </value>
+            <value> <string>DataMapping</string> </value>
         </item>
         <item>
             <key> <string>type_interface</string> </key>
@@ -62,9 +63,7 @@ Usually used to store raw data.</string> </value>
         <item>
             <key> <string>type_mixin</string> </key>
             <value>
-              <tuple>
-                <string>PathMappingMixin</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
       </dictionary>

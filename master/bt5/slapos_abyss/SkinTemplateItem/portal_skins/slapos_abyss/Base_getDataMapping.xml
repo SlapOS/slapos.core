@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>**kw</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>DataProduct_getExcludeFileList</string> </value>
+            <value> <string>Base_getDataMapping</string> </value>
         </item>
       </dictionary>
     </pickle>

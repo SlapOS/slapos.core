@@ -15,7 +15,7 @@ if data_transformation:
 data_transformation = context.data_transformation_module.newContent(
   portal_type = 'Data Transformation',
   reference = context.getReference(),
-  title='Data transformation for %s' % context.getTitle(),
+  title=context.getTitle(),
   resource_uid=context.getUid()
 )
 
@@ -25,7 +25,7 @@ data_transformation.newContent(
   reference='in_stream',
   quantity=-1,
   int_index=1,
-  aggregated_portal_type_list = ['Data Stream', 'Progress Indicator'],
+  aggregated_portal_type_list = ['Progress Indicator'],
   trade_phase='data/convert',
   resource_uid=context.getUid()
 )
@@ -48,7 +48,7 @@ data_transformation.newContent(
   reference='data_operation',
   quantity=1,
   int_index=3,
-  resource='data_operation_module/convert_raw_data_to_array_data_operation'
+  resource='data_operation_module/convert_data_stream_to_data_array'
 )
 
 data_transformation.validate()

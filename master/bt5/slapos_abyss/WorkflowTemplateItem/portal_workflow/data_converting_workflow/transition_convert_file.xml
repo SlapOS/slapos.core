@@ -29,7 +29,9 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>This workflow method is called to convert a file to a certain format</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>guard_group</string> </key>

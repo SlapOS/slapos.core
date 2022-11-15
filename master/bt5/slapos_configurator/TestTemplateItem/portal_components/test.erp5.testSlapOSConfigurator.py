@@ -289,7 +289,8 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'data_product_module',
        'big_file_module',
        'data_analysis_module',
-       'data_array_module'
+       'data_array_module',
+       'data_mapping_module'
     ]
     # If mixin contains a custom definition that introduce new business templated from
     # the project scope, them include it on expected list.
@@ -413,6 +414,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_big_file',
       'erp5_json_type',
       'erp5_wendelin',
+      'slapos_abyss',
       'erp5_development_wizard'
     ]
 

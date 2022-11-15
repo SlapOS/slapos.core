@@ -48,7 +48,9 @@
         <item>
             <key> <string>guard_permission</string> </key>
             <value>
-              <tuple/>
+              <tuple>
+                <string>Modify portal content</string>
+              </tuple>
             </value>
         </item>
         <item>

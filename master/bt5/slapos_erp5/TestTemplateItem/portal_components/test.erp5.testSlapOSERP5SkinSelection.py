@@ -58,6 +58,7 @@ erp5_interaction_drop
 erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -173,6 +174,7 @@ erp5_interaction_drop
 erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -289,6 +291,7 @@ erp5_web_hal_json
 erp5_web_renderjs_ui
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -402,6 +405,7 @@ erp5_interaction_drop
 erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -519,6 +523,7 @@ erp5_interaction_drop
 erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -636,6 +641,7 @@ erp5_interaction_drop
 erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -750,6 +756,7 @@ erp5_interaction_drop
 erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -865,6 +872,7 @@ erp5_interaction_drop
 erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -979,6 +987,7 @@ erp5_interaction_drop
 erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -1094,6 +1103,7 @@ erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
 slapos_rss_style
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -1208,6 +1218,7 @@ erp5_interaction_drop
 erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -1324,6 +1335,7 @@ erp5_interaction_drop
 erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -1442,6 +1454,7 @@ erp5_web_hal_json
 erp5_web_renderjs_ui
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -1558,6 +1571,7 @@ erp5_hal_json_style
 erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request

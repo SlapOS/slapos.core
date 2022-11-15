@@ -25,8 +25,7 @@ def getEndAndJsonList(start, in_data_stream, chunk_size = 4 * 1024 * 1024):
     end = start + len(scan_end.group()) + 1
     raw_data_string = raw_data_string[:len(scan_end.group())]
 
-  json_string_list = [line.split(':', 1)[-1] for line in raw_data_string.splitlines()]
-  return end, json_string_list, is_end_of_scan
+  return end, raw_data_string.splitlines(), is_end_of_scan
 
 def getTripletList(json_string_list, is_end_of_scan):
   if is_end_of_scan:
@@ -83,7 +82,12 @@ if start >= end:
   return
 end, json_string_list, is_end_of_scan = getEndAndJsonList(start, in_data_stream)
 if is_end_of_scan:
-  date = json.loads(json_string_list[-1])["end_date"]
+  stop_date = json.loads(json_string_list[-1])["end_date"]
+  out_data_array.edit(stop_date= DateTime(stop_date))
+if start == 0:
+  start_date = json.loads(json_string_list[0])["beginning_date"]
+  out_data_array.edit(start_date = DateTime(start_date))
+
 triplet_list = getTripletList(json_string_list, is_end_of_scan)
 uid_list = getUidList(triplet_list, in_data_stream)
 uid_ndarray = np.ndarray((len(uid_list),), 'int64', np.array(uid_list))
@@ -101,7 +105,6 @@ progress_indicator.setIntOffsetIndex(end)
 
 if is_end_of_scan:
   out_data_array.convertFile()
-  out_data_array.edit(start_date= DateTime(date))
   return
 
 if end < in_data_stream.getSize():

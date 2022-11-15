@@ -22,7 +22,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>resource/data_operation_module/convert_raw_data_to_array_data_operation</string>
+                <string>resource/data_operation_module/convert_data_stream_to_data_array</string>
                 <string>quantity_unit/piece</string>
               </tuple>
             </value>

@@ -17,14 +17,15 @@ class SequenceSliceMap():
 
   def __getitem__(self, index):
     return self.sequence_slice[index % self.length]
-tmp_data_stream = context.data_stream_module.newContent(portal_type='Data Stream', temp_object=True)
+
+data_mapping = context.Base_getDataMapping()
 
 def createTempBase(nr, row):
   def getElementFromArray(array, index):
-    return tmp_data_stream.get_path_from_uid(array[index])
+    return data_mapping.getObjectFromValue(array[index])
 
   def getElementFromScalar(scalar, index=None):
-    return tmp_data_stream.get_path_from_uid(scalar)
+    return data_mapping.getObjectFromValue(scalar)
 
   column_list = [col for col in context.DataArray_getArrayColumnList() if col[0] != 'index']
   column_iterator = enumerate(column_list)

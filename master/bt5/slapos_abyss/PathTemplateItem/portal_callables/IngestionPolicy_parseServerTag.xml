@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="PythonScript" module="Products.PythonScripts.PythonScript"/>
+      <global name="PyData Script" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -49,12 +49,63 @@
             </value>
         </item>
         <item>
+            <key> <string>_local_properties</string> </key>
+            <value>
+              <tuple>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>reference</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>string</string> </value>
+                  </item>
+                </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>comment</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>string</string> </value>
+                  </item>
+                </dictionary>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>_params</string> </key>
-            <value> <string>include_delivered=False</string> </value>
+            <value> <string>reference</string> </value>
+        </item>
+        <item>
+            <key> <string>comment</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ERP5Site_createDataAnalysisList</string> </value>
+            <value> <string>IngestionPolicy_parseServerTag</string> </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>PyData Script</string> </value>
+        </item>
+        <item>
+            <key> <string>reference</string> </key>
+            <value> <string>IngestionPolicy_parseServerTag</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value> <string>IngestionPolicy_parseServerTag</string> </value>
         </item>
       </dictionary>
     </pickle>

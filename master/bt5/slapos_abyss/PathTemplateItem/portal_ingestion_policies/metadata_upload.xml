@@ -14,9 +14,7 @@
                 <string>Assignor</string>
                 <string>Associate</string>
                 <string>Auditor</string>
-                <string>Author</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -27,9 +25,7 @@
                 <string>Assignee</string>
                 <string>Assignor</string>
                 <string>Associate</string>
-                <string>Author</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -40,9 +36,7 @@
                 <string>Assignee</string>
                 <string>Assignor</string>
                 <string>Associate</string>
-                <string>Author</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -54,9 +48,7 @@
                 <string>Assignor</string>
                 <string>Associate</string>
                 <string>Auditor</string>
-                <string>Author</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -84,7 +76,7 @@
         </item>
         <item>
             <key> <string>script_id</string> </key>
-            <value> <string>MetadataIngestionPolicy_parseTag</string> </value>
+            <value> <string>IngestionPolicy_parseServerTag</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
@@ -162,7 +154,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>997.57747.29368.10086</string> </value>
+                      <value> <string>1004.6368.24427.38843</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -180,7 +172,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1643727573.35</float>
+                              <float>1667897570.57</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -207,9 +199,7 @@
                 <dictionary>
                   <item>
                       <key> <string>action</string> </key>
-                      <value>
-                        <none/>
-                      </value>
+                      <value> <string>validate</string> </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
@@ -235,7 +225,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1634039589.72</float>
+                              <float>1667569942.35</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -244,7 +234,7 @@
                   </item>
                   <item>
                       <key> <string>validation_state</string> </key>
-                      <value> <string>draft</string> </value>
+                      <value> <string>validated</string> </value>
                   </item>
                 </dictionary>
               </list>

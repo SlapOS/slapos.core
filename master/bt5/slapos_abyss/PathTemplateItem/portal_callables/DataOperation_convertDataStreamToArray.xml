@@ -77,7 +77,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Metadata_convertDataStreamToArray</string> </value>
+            <value> <string>DataOperation_convertDataStreamToArray</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -85,7 +85,11 @@
         </item>
         <item>
             <key> <string>reference</string> </key>
-            <value> <string>DataAnalysisLine_convertEnvironmentDataStreamToArray</string> </value>
+            <value> <string>DataOperation_convertDataStreamToArray</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value> <string>DataOperation_convertDataStreamToArray</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -149,7 +153,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>997.59130.8151.19302</string> </value>
+                      <value> <string>1004.22206.22598.60637</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -167,7 +171,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1643806809.71</float>
+                              <float>1668522008.92</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

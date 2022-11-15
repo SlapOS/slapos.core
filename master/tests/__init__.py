@@ -61,7 +61,7 @@ class SlapOSCloud(SavedTestSuite, ProjectTestSuite):
 
   def run(self, full_test):
     test = ':' in full_test and full_test.split(':')[1] or full_test
-    if test in ('testSlapOSWendelinCoreTwo', 'testMetadataAgent'):
+    if test in ('testSlapOSWendelinCoreTwo', 'testSlapOSAbyss'):
       return self.runUnitTest('--with_wendelin_core', '--activity_node=1', full_test)
     elif test.startswith('testFunctional'):
       return self._updateFunctionalTestResponse(self.runUnitTest(full_test))

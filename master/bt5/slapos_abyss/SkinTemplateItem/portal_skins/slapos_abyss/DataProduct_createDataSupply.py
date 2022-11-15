@@ -14,11 +14,7 @@ if data_supply:
 
 data_supply = context.data_supply_module.newContent(
   portal_type = 'Data Supply',
-  reference = context.getReference(),
-  source = 'organisation_module/server_node',
-  source_section = 'organisation_module/server_node',
-  destination = 'organisation_module/meta_destination',
-  destination_section = 'organisation_module/meta_destination'
+  reference = context.getReference()
 )
 
 data_supply.newContent(
@@ -30,8 +26,6 @@ data_supply.newContent(
   use='big_data/ingestion/stream',
   resource_uid=context.getUid()
 ).validate()
-
-
 
 data_supply.newContent(
   portal_type='Data Supply Line',

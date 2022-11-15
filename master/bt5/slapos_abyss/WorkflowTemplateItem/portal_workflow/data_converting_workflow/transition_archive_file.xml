@@ -23,15 +23,13 @@
             <value>
               <tuple>
                 <string>action_type/workflow</string>
-                <string>destination/portal_workflow/data_converting_workflow/state_processed</string>
+                <string>destination/portal_workflow/data_converting_workflow/state_archived</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>only for reference image</string> </value>
         </item>
         <item>
             <key> <string>guard_group</string> </key>
@@ -42,15 +40,16 @@
         <item>
             <key> <string>guard_permission</string> </key>
             <value>
-              <tuple>
-                <string>Modify portal content</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>
             <key> <string>guard_role</string> </key>
             <value>
-              <tuple/>
+              <tuple>
+                <string>Assignor</string>
+                <string>Manager</string>
+              </tuple>
             </value>
         </item>
         <item>
@@ -61,7 +60,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>transition_process_file</string> </value>
+            <value> <string>transition_archive_file</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -69,7 +68,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Process File</string> </value>
+            <value> <string>Archive File</string> </value>
         </item>
         <item>
             <key> <string>trigger_type</string> </key>

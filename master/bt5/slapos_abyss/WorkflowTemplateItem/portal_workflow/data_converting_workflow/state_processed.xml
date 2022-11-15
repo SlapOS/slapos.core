@@ -16,7 +16,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>destination/portal_workflow/data_converting_workflow/transition_transform_file</string>
+                <string>destination/portal_workflow/data_converting_workflow/transition_archive_file</string>
               </tuple>
             </value>
         </item>
@@ -28,7 +28,9 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Conversion process failed from some reason</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>id</string> </key>
@@ -94,7 +96,54 @@
         <item>
             <key> <string>data</string> </key>
             <value>
-              <dictionary/>
+              <dictionary>
+                <item>
+                    <key> <string>Access contents information</string> </key>
+                    <value>
+                      <tuple>
+                        <string>Assignor</string>
+                        <string>Assignee</string>
+                        <string>Manager</string>
+                        <string>Auditor</string>
+                      </tuple>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>Add portal content</string> </key>
+                    <value>
+                      <tuple>
+                        <string>Manager</string>
+                      </tuple>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>Change local roles</string> </key>
+                    <value>
+                      <tuple>
+                        <string>Manager</string>
+                      </tuple>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>Modify portal content</string> </key>
+                    <value>
+                      <tuple>
+                        <string>Manager</string>
+                      </tuple>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>View</string> </key>
+                    <value>
+                      <tuple>
+                        <string>Assignor</string>
+                        <string>Assignee</string>
+                        <string>Manager</string>
+                        <string>Auditor</string>
+                      </tuple>
+                    </value>
+                </item>
+              </dictionary>
             </value>
         </item>
       </dictionary>

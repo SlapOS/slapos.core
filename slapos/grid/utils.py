@@ -35,7 +35,6 @@ import pkg_resources
 import pwd
 import stat
 import sys
-import threading
 import logging
 import psutil
 import time
@@ -92,27 +91,6 @@ LOCALE_ENVIRONMENT_REMOVE_LIST = [
   'LC_TIME',
 ]
 
-
-def logAndAccumulateOutput(process_stdout, buffer, logger):
-  """Read process output and place the output in `buffer`, logging the lines
-  one by one as they are emitted.
-  """
-  current_output = ''
-  while 1:
-    data = os.read(process_stdout.fileno(), 4096)
-    if not data:
-      return
-    data = data.decode('utf-8', 'replace')
-    buffer.append(data)
-    current_output += data
-    for current_output_line in current_output.splitlines(True):
-      if current_output_line.endswith('\n'):
-        logger.info(current_output_line.rstrip('\n'))
-        current_output = ''
-      else:
-        current_output = current_output_line
-
-
 class SlapPopen(subprocess.Popen):
   """
   Almost normal subprocess with greedish features and logging.
@@ -151,17 +129,12 @@ class SlapPopen(subprocess.Popen):
     self.stdin = None
 
     output_lines = []
-
-    # BBB: reading output in a separate thread is not needed on python 3,
-    # iterating on self.stdout seems enough.
-    t = threading.Thread(
-        target=logAndAccumulateOutput,
-        args=(self.stdout, output_lines, logger))
-    t.start()
-    try:
-      self.wait(timeout=timeout)
-    finally:
-      t.join()
+    for line in self.stdout:
+      if type(line) is not str:
+        line = line.decode(errors='replace')
+      output_lines.append(line)
+      logger.info(line.rstrip('\n'))
+    self.wait(timeout=timeout)
     self.output = ''.join(output_lines)
 
 

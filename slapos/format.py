@@ -1414,7 +1414,7 @@ def do_format(conf):
   except slap.exception.ConnectionError as e:
     if not conf.ignore_network_errors:
       raise
-    conf.logger.warn('Failed to send information to master: %s' % str(e))
+    conf.logger.warn('Failed to send information to master: %s', e)
   conf.logger.info('slapos successfully prepared the computer.')
 
 

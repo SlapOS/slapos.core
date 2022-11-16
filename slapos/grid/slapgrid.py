@@ -1452,7 +1452,7 @@ stderr_logfile_backups=1
       computer_partition_list = self.getRequiredComputerPartitionList()
     except slapos.slap.exception.ConnectionError:
       # Network issue, we log exception start partitions and exit
-      self.logger.error(traceback.format_exc())
+      self.logger.error("Ignoring network error when calling getRequiredComputerPartitionList", exc_info=True)
       self._startComputerPartitionList()
       self.logger.info('Finished computer partitions.')
       return SLAPGRID_FAIL

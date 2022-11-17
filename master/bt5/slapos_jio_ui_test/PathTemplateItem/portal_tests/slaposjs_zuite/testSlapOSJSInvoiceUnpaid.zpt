@@ -66,12 +66,12 @@
       </tal:block>
       <tr>
         <td>waitForElementPresent</td>
-        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[text()=\'%s\']' % (here.Base_translateString('Pay Now', lang=lang))"></td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[contains(text(), \'%s\')]' % (here.Base_translateString('Pay Now', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[text()=\'%s\']' % (here.Base_translateString('Pay Now', lang=lang))"></td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[contains(text(), \'%s\')]' % (here.Base_translateString('Pay Now', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
@@ -155,12 +155,12 @@
       </tal:block>
       <tr>
         <td>waitForElementPresent</td>
-        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[text()=\'%s\']' % (here.Base_translateString('Pay Now', lang=lang))"></td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[contains(text(), \'%s\')]' % (here.Base_translateString('Pay Now', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[text()=\'%s\']' % (here.Base_translateString('Pay Now', lang=lang))"></td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[contains(text(), \'%s\')]' % (here.Base_translateString('Pay Now', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
@@ -274,12 +274,12 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[text()=\'%s\']' % (here.Base_translateString('Pay Now', lang=lang))"></td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[contains(text(), \'%s\')]' % (here.Base_translateString('Pay Now', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[text()=\'%s\']' % (here.Base_translateString('Pay Now', lang=lang))"></td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_invoice_state.html\')]//a[contains(text(), \'%s\')]' % (here.Base_translateString('Pay Now', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>

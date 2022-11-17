@@ -2421,13 +2421,33 @@ class TestWebPageModule(TestSlapOSGroupRoleSecurityMixin):
 
 class TestWebPage(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
-    product = self.portal.web_page_module.newContent(
+    document = self.portal.web_page_module.newContent(
         portal_type='Web Page')
-    product.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(product,
+    document.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(document,
         ['G-COMPANY', self.user_id], False)
-    self.assertRoles(product, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(product, self.user_id, ['Owner'])
+    self.assertRoles(document, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(document, self.user_id, ['Owner'])
+
+class TestWebTable(TestSlapOSGroupRoleSecurityMixin):
+  def test_GroupCompany(self):
+    document = self.portal.web_page_module.newContent(
+        portal_type='Web Table')
+    document.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(document,
+        ['G-COMPANY', self.user_id], False)
+    self.assertRoles(document, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(document, self.user_id, ['Owner'])
+
+class TestWebIllustration(TestSlapOSGroupRoleSecurityMixin):
+  def test_GroupCompany(self):
+    document = self.portal.web_page_module.newContent(
+        portal_type='Web Illustration')
+    document.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(document,
+        ['G-COMPANY', self.user_id], False)
+    self.assertRoles(document, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(document, self.user_id, ['Owner'])
 
 class TestIntegrationTool(TestSlapOSGroupRoleSecurityMixin):
   def test(self):

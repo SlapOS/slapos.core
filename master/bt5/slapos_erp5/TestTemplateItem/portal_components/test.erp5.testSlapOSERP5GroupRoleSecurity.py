@@ -2918,3 +2918,71 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(upgrade_decision, person.getUserId(), ['Assignee'])
     self.assertRoles(upgrade_decision, self.user_id, ['Owner'])
     self.assertRoles(upgrade_decision, organisation.getReference(), ['Assignee'])
+
+
+class TestDataStreamModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_DataStreamModule(self):
+    module = self.portal.data_stream_module
+    self.changeOwnership(module)
+    self.assertSecurityGroup(module,
+        ['R-METADATA-HANDLER', 'R-METADATA-UPLOADER', self.user_id],
+        False)
+    self.assertRoles(module, 'R-METADATA-HANDLER', ['Auditor', 'Author'])
+    self.assertRoles(module, 'R-METADATA-UPLOADER', ['Auditor', 'Author'])
+    self.assertRoles(module, self.user_id, ['Owner'])
+
+class TestDataStream(TestSlapOSGroupRoleSecurityMixin):
+  def test_DataStream(self):
+    data_stream = self.portal.data_stream_module.newContent(
+        portal_type='Data Stream')
+
+    self.assertSecurityGroup(data_stream,
+        ['R-METADATA-HANDLER', 'R-METADATA-UPLOADER', self.user_id],
+        False)
+    self.assertRoles(data_stream, 'R-METADATA-HANDLER', ['Assignor'])
+    self.assertRoles(data_stream, 'R-METADATA-UPLOADER', ['Assignor'])
+    self.assertRoles(data_stream, self.user_id, ['Owner'])
+
+
+class TestDataMappingModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_DataMappingModule(self):
+    module = self.portal.data_mapping_module
+    self.changeOwnership(module)
+    self.assertSecurityGroup(module,
+        ['R-METADATA-HANDLER', self.user_id],
+        False)
+    self.assertRoles(module, 'R-METADATA-HANDLER', ['Auditor', 'Author'])
+    self.assertRoles(module, self.user_id, ['Owner'])
+
+class TestDataMapping(TestSlapOSGroupRoleSecurityMixin):
+  def test_DataMapping(self):
+    data_mapping = self.portal.data_mapping_module.newContent(
+        portal_type='Data Mapping')
+
+    self.assertSecurityGroup(data_mapping,
+        ['R-METADATA-HANDLER', self.user_id],
+        False)
+    self.assertRoles(data_mapping, 'R-METADATA-HANDLER', ['Assignor'])
+    self.assertRoles(data_mapping, self.user_id, ['Owner'])
+
+
+class TestDataArrayModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_DataArrayModule(self):
+    module = self.portal.data_array_module
+    self.changeOwnership(module)
+    self.assertSecurityGroup(module,
+        ['R-METADATA-HANDLER', self.user_id],
+        False)
+    self.assertRoles(module, 'R-METADATA-HANDLER', ['Auditor', 'Author'])
+    self.assertRoles(module, self.user_id, ['Owner'])
+
+class TestDataArray(TestSlapOSGroupRoleSecurityMixin):
+  def test_DataArray(self):
+    data_array = self.portal.data_array_module.newContent(
+        portal_type='Data Array')
+
+    self.assertSecurityGroup(data_array,
+        ['R-METADATA-HANDLER', self.user_id],
+        False)
+    self.assertRoles(data_array, 'R-METADATA-HANDLER', ['Assignor'])
+    self.assertRoles(data_array, self.user_id, ['Owner'])

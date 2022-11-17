@@ -1,5 +1,6 @@
 portal_callables/IngestionPolicy_parseServerTag
 portal_callables/DataOperation_convertDataStreamToArray
+portal_callables/DataArray_generateDiff
 portal_ingestion_policies/metadata_upload
 portal_categories/publication_section/file_system_image
 portal_categories/publication_section/file_system_image/**

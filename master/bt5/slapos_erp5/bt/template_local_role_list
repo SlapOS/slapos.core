@@ -35,7 +35,10 @@ credential_update_module
 currency_module
 currency_module/CNY
 currency_module/EUR
+data_array_module
+data_mapping_module
 data_set_module
+data_stream_module
 document_ingestion_module
 document_module
 event_module

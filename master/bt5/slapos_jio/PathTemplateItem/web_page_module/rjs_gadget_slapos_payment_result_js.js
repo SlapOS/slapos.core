@@ -6,6 +6,7 @@
   rJS(window)
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
+    .declareAcquiredMethod("getTranslationDict", "getTranslationDict")
     .declareAcquiredMethod("updateHeader", "updateHeader")
 
 

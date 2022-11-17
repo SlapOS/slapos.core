@@ -90,6 +90,8 @@ for analysis_line in sorted(context.objectValues(portal_type="Data Analysis Line
     else:
       parameter_dict[reference] = parameter
 
+if consuming_analysis_list is None:
+  consuming_analysis_list = []
 if transient_output_item is not None and not consuming_analysis_list:
   return
 

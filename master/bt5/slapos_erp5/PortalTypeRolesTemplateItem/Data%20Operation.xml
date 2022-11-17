@@ -1,0 +1,12 @@
+<type_roles>
+  <role id='Assignor'>
+   <property id='title'>Metadata handler</property>
+   <multi_property id='categories'>local_role_group/user</multi_property>
+   <multi_property id='category'>role/metadata/handler</multi_property>
+  </role>
+  <role id='Auditor'>
+   <property id='title'>Metadata uploader</property>
+   <multi_property id='categories'>local_role_group/user</multi_property>
+   <multi_property id='category'>role/metadata/uploader</multi_property>
+  </role>
+</type_roles>

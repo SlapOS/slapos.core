@@ -387,7 +387,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'slapos_accounting',
       'slapos_payzen',
       'slapos_wechat',
-      'slapos_web',
       'slapos_web_deploy',
       'slapos_erp5',
     ]

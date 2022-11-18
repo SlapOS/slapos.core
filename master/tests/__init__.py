@@ -13,7 +13,6 @@ slapos_bt_list = [
     'slapos_erp5',
     'slapos_pdm',
     'slapos_slap_tool',
-    'slapos_web',
     'slapos_crm',
     'slapos_payzen',
     'slapos_wechat',

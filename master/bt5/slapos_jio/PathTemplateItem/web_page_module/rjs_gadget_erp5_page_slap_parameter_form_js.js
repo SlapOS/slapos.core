@@ -773,6 +773,12 @@
           lowest_index = 999,
           lowest_option_index;
 
+        if (restricted_softwaretype === true) {
+          input.classList.add("readonly");
+          input["aria-disabled"] = "true";
+          input["tab-index"] = "-1";
+        }
+
         if (input.children.length === 0) {
           if (option_selected === undefined) {
             // search by the lowest index
@@ -792,19 +798,25 @@
 
           for (option_index in json['software-type']) {
             if (json['software-type'].hasOwnProperty(option_index)) {
-              option = document.createElement("option");
-              if (json['software-type'][option_index]['software-type'] !== undefined) {
-                option.value = json['software-type'][option_index]['software-type'];
-              } else {
-                option.value = option_index;
+
+              if (json['software-type'][option_index].shared === undefined) {
+                json['software-type'][option_index].shared = false;
               }
 
+              option = domsugar("option", {
+                text: json['software-type'][option_index].title,
+                value: option_index
+              });
               option['data-id'] = option_index;
-              option.textContent = json['software-type'][option_index].title;
+              option['data-index'] = 999;
+              option['data-shared'] = json['software-type'][option_index].shared
+
+              if (json['software-type'][option_index]['software-type'] !== undefined) {
+                option.value = json['software-type'][option_index]['software-type'];
+              }
+
               if (json['software-type'][option_index].index) {
                 option['data-index'] = json['software-type'][option_index].index;
-              } else {
-                option['data-index'] = 999;
               }
 
               if (option_index === lowest_option_index) {
@@ -820,12 +832,6 @@
                   shared = parameter_shared.value;
                 }
               }
-
-              if (json['software-type'][option_index].shared === undefined) {
-                json['software-type'][option_index].shared = false;
-              }
-
-              option['data-shared'] = json['software-type'][option_index].shared;
 
               if ((option_selected_index === undefined) &&
                   (option.value === option_selected) &&
@@ -843,6 +849,8 @@
                 if (option.value === softwaretype) {
                   if (Boolean(shared) === Boolean(json['software-type'][option_index].shared)) {
                     selection_option_list.push(option);
+                    // We expect a single possible occurence per software type
+                    break;
                   }
                 }
               } else {

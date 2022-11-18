@@ -71,7 +71,9 @@
         </item>
         <item>
             <key> <string>content_type</string> </key>
-            <value> <string>text/css</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>creators</string> </key>
@@ -267,7 +269,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>977.18105.11982.10410</string> </value>
+                      <value> <string>1004.26825.16664.52633</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -285,7 +287,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1563920275.64</float>
+                              <float>1668799949.11</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

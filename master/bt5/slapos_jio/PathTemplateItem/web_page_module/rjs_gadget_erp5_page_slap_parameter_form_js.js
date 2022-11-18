@@ -1,9 +1,9 @@
 /*jslint nomen: true, maxlen: 200, indent: 2, unparam: true*/
-/*global rJS, console, window, document, RSVP, btoa, atob, $, XMLSerializer,
+/*global rJS, console, window, document, RSVP, btoa, atob, XMLSerializer,
          DOMParser, URI, vkbeautify, domsugar, Boolean */
 
-(function (window, document, rJS, $, XMLSerializer, DOMParser, vkbeautify,
-      domsugar, Boolean) {
+(function (window, document, rJS, XMLSerializer, DOMParser, vkbeautify,
+      domsugar, Boolean, URI) {
   "use strict";
 
   var DISPLAY_JSON_FORM = 'display_json_form',
@@ -230,8 +230,6 @@
       default_value,
       default_used_list = [],
       default_div,
-      span_error,
-      span_info,
       is_required;
 
     if (default_dict === undefined) {
@@ -324,14 +322,10 @@
 
     for (key in json_field.properties) {
       if (json_field.properties.hasOwnProperty(key)) {
-        div = document.createElement("div");
-        div.setAttribute("class", "subfield");
-        div.title = json_field.properties[key].description;
-        label = document.createElement("label");
-        label.textContent = json_field.properties[key].title;
-        div.appendChild(label);
-        div_input = document.createElement("div");
-        div_input.setAttribute("class", "input");
+        label = domsugar("label", {
+          'text': json_field.properties[key].title
+        });
+
         is_required = false;
         if ((Array.isArray(json_field.required)) && (json_field.required.includes(key))) {
           is_required = true;
@@ -340,7 +334,7 @@
           label.setAttribute("class", "slapos-parameter-dict-key");
           div_input = render_subform(json_field.properties[key],
             default_dict[key],
-            div_input,
+            domsugar("div", {"class": "input"}),
             path + "/" + key);
         } else {
           input = render_field(
@@ -351,57 +345,57 @@
           input.name = path + "/" + key;
           input.setAttribute("class", "slapos-parameter");
           input.setAttribute("placeholder", " ");
-          div_input.appendChild(input);
+          div_input = domsugar("div", {"class": "input"}, [input]);
         }
         default_used_list.push(key);
         if (json_field.properties[key]['default'] !== undefined) {
-          span_info = document.createElement("span");
-          span_info.textContent = '(default = ' + json_field.properties[key]['default'] + ')';
-          div_input.appendChild(span_info);
+          div_input.appendChild(
+            domsugar("span",
+              {'text': '(default = ' + json_field.properties[key]['default'] + ')'})
+          );
         }
-        span_error = document.createElement("span");
-        span_error.setAttribute("class", "error");
-        div_input.appendChild(span_error);
-        div.appendChild(div_input);
-        root.appendChild(div);
+        div_input.appendChild(domsugar("span", {'class': 'error'}));
+        root.appendChild(
+          domsugar("div", {
+            "class": "subfield",
+            title: json_field.properties[key].description
+          }, [label, div_input])
+        );
       }
     }
     for (key in default_dict) {
       if (default_dict.hasOwnProperty(key)) {
         if (default_used_list.indexOf(key) < 0) {
-          div = document.createElement("div");
-          div.title = key;
           if (typeof default_dict[key] === 'object') {
-            div_input = document.createElement("div");
-            div_input.setAttribute("class", "input");
-            label.setAttribute("class", "slapos-parameter-dict-key");
-            div_input = render_subform({},
-              default_dict[key],
-              div_input,
-              path + "/" + key);
+            div = domsugar("div", {title: key}, [
+              domsugar("label", {
+                text: key,
+                "class": "slapos-parameter-dict-key"
+              }),
+              render_subform({},
+                default_dict[key],
+                domsugar("div", {"class": "input"}),
+                path + "/" + key)
+            ]);
           } else {
-            div.setAttribute("class", "subfield");
-            label = document.createElement("label");
-            label.textContent = key;
-            div.appendChild(label);
-            div_input = document.createElement("div");
-            div_input.setAttribute("class", "input");
             input = render_field({"type": "string", "textarea": true}, default_dict[key], false);
             input.name = path + "/" + key;
             input.setAttribute("class", "slapos-parameter");
             input.setAttribute("placeholder", " ");
-            div_input.appendChild(input);
-            span_info = document.createElement("span");
-            span_info.textContent = '(Not part of the schema)';
-            div_input.appendChild(span_info);
-            span_error = document.createElement("span");
-            span_error.setAttribute("class", "error");
-            div_input.appendChild(span_error);
+            div = domsugar("div", {
+              title: key,
+              "class": "subfield"
+            }, [
+              domsugar("label", {text: key}),
+              domsugar("div", {"class": "input"}, [
+                input,
+                domsugar("span", {text: '(Not part of the schema)'}),
+                domsugar("span", {'class': 'error'})
+              ])
+            ]);
           }
           default_used_list.push(key);
-          div.appendChild(div_input);
           root.appendChild(div);
-
         }
       }
     }
@@ -413,7 +407,7 @@
       entry,
       entry_list,
       multi_level_dict = {};
-    $(element.querySelectorAll(".slapos-parameter")).each(function (key, input) {
+    element.querySelectorAll(".slapos-parameter").forEach(function (input, index) {
       var index_e, data_format = input.getAttribute("data-format");
       if (input.value !== "") {
         if (input.type === 'number') {
@@ -491,18 +485,13 @@
   }
 
   function collapseParameter(element) {
-    $(element).parent().children("div").toggle(300);
-    if ($(element).hasClass("slapos-parameter-dict-key-colapse")) {
-      $(element).removeClass("slapos-parameter-dict-key-colapse");
-    } else {
-      $(element).addClass("slapos-parameter-dict-key-colapse");
-    }
-    console.log("COLLAPSED");
+    element.parentNode.querySelector("div").toggle(300);
+    element.classList.toggle("slapos-parameter-dict-key-colapse");
     return element;
   }
 
   function removeSubParameter(element) {
-    $(element).parent().parent().remove();
+    element.parentNone.parentNode.remove();
     return false;
   }
 
@@ -523,10 +512,7 @@
     })]);
 
     div = render_subform(subform_json, {}, div, element.name + "/" + input_text.value);
-
     element.parentNode.parentNode.insertBefore(div, element.parentNode.parentNode.children[1]);
-    // element.parentNode.parentNode.appendChild(div);
-
     return div;
   }
 
@@ -566,8 +552,8 @@
       throw new Error("Select not found.");
     }
 
-    $(to_hide).addClass("hidden-button");
-    $(to_show).removeClass("hidden-button");
+    to_hide.classList.add("hidden-button");
+    to_show.classList.remove("hidden-button");
 
     return g.changeState({
       display_step: DISPLAY_JSON_FORM,
@@ -581,8 +567,8 @@
     var e = g.element.querySelector("button.slapos-show-raw-parameter"),
       to_show = g.element.querySelector("button.slapos-show-form");
 
-    $(e).addClass("hidden-button");
-    $(to_show).removeClass("hidden-button");
+    e.classList.add("hidden-button");
+    to_show.classList.remove("hidden-button");
 
     return g.changeState({
       display_step: DISPLAY_RAW_XML,
@@ -637,11 +623,11 @@
           input_field,
           error_dict;
 
-        $(g.element.querySelectorAll("span.error")).each(function (i, span) {
+        g.element.querySelectorAll("span.error").forEach(function (span, i) {
           span.textContent = "";
         });
 
-        $(g.element.querySelectorAll("div.error-input")).each(function (i, div) {
+        g.element.querySelectorAll("div.error-input").forEach(function (div, i) {
           div.setAttribute("class", "");
         });
 
@@ -699,11 +685,11 @@
 
     if (error_text) {
       if (show_raw_button !== null) {
-        $(show_raw_button).addClass("hidden-button");
+        show_raw_button.classList.add("hidden-button");
       }
 
       if (show_form_button !== null) {
-        $(show_form_button).removeClass("hidden-button");
+        show_form_button.classList.remove("hidden-button");
       }
 
       div_error = domsugar('div', {
@@ -742,9 +728,11 @@
     ]);
 
     // Do not hide the Software type, let the user edit it.
-    $(fieldset_list[1]).replaceWith(fieldset);
+    fieldset_list[1].parentNode.replaceChild(
+      fieldset,
+      fieldset_list[1]
+    );
     fieldset_list[2].innerHTML = '';
-
     return fieldset;
   }
 
@@ -765,11 +753,11 @@
     }
 
     if (to_hide !== null) {
-      $(to_hide).addClass("hidden-button");
+      to_hide.classList.add("hidden-button");
     }
 
     if (to_show !== null) {
-      $(to_show).removeClass("hidden-button");
+      to_show.classList.remove("hidden-button");
     }
     return gadget.loadSoftwareJSON(json_url)
       .push(function (json) {
@@ -934,12 +922,12 @@
             if (parameter_entry !== null) {
               throw new Error("The current parameter values should NOT contains _ parameter (xml).");
             }
-            $(parseDocumentStringOrFail(
+            parseDocumentStringOrFail(
               parameter_xml,
               'text/xml'
-            ).querySelectorAll("parameter"))
-                .each(function (key, p) {
-                parameter_dict[p.id] = p.textContent;
+            ).querySelectorAll("parameter")
+                .forEach(function (element, index) {
+                parameter_dict[element.id] = element.textContent;
               });
           } else {
             throw new Error("Unknown serialisation: " + serialisation);
@@ -960,7 +948,10 @@
               fieldset = document.createElement("fieldset");
 
             fieldset = render_subform(json, parameter_dict, fieldset, undefined);
-            $(fieldset_list[1]).replaceWith(fieldset);
+            fieldset_list[1].parentNode.replaceChild(
+              fieldset,
+              fieldset_list[1]
+            );
             return fieldset_list;
           });
       })
@@ -969,7 +960,8 @@
           label_list = gadget.element.querySelectorAll('label.slapos-parameter-dict-key');
 
         for (i = 0; i < div_list.length; i = i + 1) {
-          $(div_list[i]).hide();
+          // This should be replaced by a proper class hidden-div
+          div_list[i].style.display = 'none';
         }
 
         for (i = 0; i < label_list.length; i = i + 1) {
@@ -1081,7 +1073,8 @@
         return collapseParameter(evt.target);
       }
 
-      if (evt.target.className.indexOf("bt_close") !== -1) {
+      if ((tag_name === 'SPAN') &&
+          (evt.target.className.indexOf("bt_close") !== -1)) {
         return removeSubParameter(evt.target);
       }
 
@@ -1111,6 +1104,7 @@
       }
 
       if ((tag_name === 'BUTTON') &&
+          // @ts-ignore
           (evt.target.className.indexOf("add-sub-form") !== -1)) {
         return queue
           .push(function () {
@@ -1153,5 +1147,5 @@
         });
     }, {mutex: 'statechange'});
 
-}(window, document, rJS, $, XMLSerializer, DOMParser, vkbeautify,
-    domsugar, Boolean));
+}(window, document, rJS, XMLSerializer, DOMParser, vkbeautify,
+    domsugar, Boolean, URI));

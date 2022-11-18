@@ -155,7 +155,6 @@ url_list = [
   "gadget_erp5_page_slapos.css",
   "gadget_erp5_page_slapos.html",
   "gadget_erp5_page_slapos.js",
-  "gadget_erp5_page_slapos_request_form.html",
   "gadget_erp5_panel_shortcut.html",
   "gadget_erp5_panel_shortcut.js",
   "gadget_erp5_pt_form_slapos_index.html",

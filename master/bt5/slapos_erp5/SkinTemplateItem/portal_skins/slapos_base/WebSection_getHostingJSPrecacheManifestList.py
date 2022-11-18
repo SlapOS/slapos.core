@@ -191,7 +191,6 @@ url_list = [
   "leaflet.css",
   "leaflet.js",
   "vkbeautify.js",
-  "jquery.js",
   "URI.js",
   "ref-parser.min.js",
   "cfworker-jsonschema-validator.js",

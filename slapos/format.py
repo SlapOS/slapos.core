@@ -1012,6 +1012,8 @@ class Interface(object):
     except KeyError:
       raise ValueError("%s must have at least one IPv6 address assigned" %
                          interface_name)
+    if not address_list:
+      raise NoAddressOnInterface(interface_name)
 
     if tap:
       try:
@@ -1158,9 +1160,6 @@ class Interface(object):
 
     # Getting one address of the interface as base of the next addresses
     interface_addr_list = self.getGlobalScopeAddressList()
-    # No address found
-    if len(interface_addr_list) == 0:
-      raise NoAddressOnInterface(interface_name)
     address_dict = interface_addr_list[0]
 
     if addr is not None:

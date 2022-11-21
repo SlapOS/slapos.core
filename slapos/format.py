@@ -959,8 +959,6 @@ class Tun(Tap):
     else:
       raise RuntimeError("Cannot setup address on interface {}. "
                          "Address is missing.".format(self.name))
-    # create routes
-    super(Tun, self).createRoutes()
 
 
 class Interface(object):

@@ -973,7 +973,7 @@ class Interface(object):
     self._logger = logger
     self.name = str(name)
     self.ipv4_local_network = ipv4_local_network
-    self.ipv6_interface = ipv6_interface
+    self.ipv6_interface = ipv6_interface or name
 
   # XXX no __getinitargs__, as instances of this class are never deserialized.
 
@@ -996,7 +996,7 @@ class Interface(object):
 
   def getGlobalScopeAddressList(self, tap=None):
     """Returns currently configured global scope IPv6 addresses"""
-    interface_name = self.ipv6_interface or self.name
+    interface_name = self.ipv6_interface
     try:
       address_list = [
           q
@@ -1040,7 +1040,7 @@ class Interface(object):
     if ipv6:
       address_string = '%s/%s' % (address, lenNetmaskIpv6(netmask))
       af = socket.AF_INET6
-      interface_name = self.ipv6_interface or self.name
+      interface_name = self.ipv6_interface
     else:
       af = socket.AF_INET
       address_string = '%s/%s' % (address, netmaskToPrefixIPv4(netmask))
@@ -1148,7 +1148,7 @@ class Interface(object):
       NoAddressOnInterface: There's no address on the interface to construct
           an address with.
     """
-    interface_name = self.ipv6_interface or self.name
+    interface_name = self.ipv6_interface
 
     # Getting one address of the interface as base of the next addresses
     interface_addr_list = self.getGlobalScopeAddressList()

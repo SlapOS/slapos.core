@@ -74,6 +74,7 @@ if reference_image:
     new_data_array = context.data_array_module.newContent(portal_type='Data Array')
     new_data_array.setArray(diff_array)
     new_data_array.edit(
+      title='diff of %s and %s' %(context.getTitle(), reference_image.getTitle()),
       predecessor_value_list=[context, reference_image],
       publication_section="file_system_image/node_image",
       causality = context.getCausality()

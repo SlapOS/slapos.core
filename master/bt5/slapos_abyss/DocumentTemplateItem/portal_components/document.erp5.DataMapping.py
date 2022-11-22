@@ -79,3 +79,10 @@ class DataMapping(Document):
     else:
       return None
 
+  def getData(self):
+    data_list = []
+    for obj in self._object_to_index_tree.keys():
+      data_list.append((obj, self._object_to_index_tree[obj]))
+    return data_list
+
+

@@ -82,7 +82,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     request_dict = {
       'test_server': '{"beginning_date": "2022/11/15 17:07 CET"}\n\
 {"mac_address": "fe:27:02:3d:26:26"}\n\
-{"path": "/home/test3/metadata-collect-agent/scan-filesystem/cython/command-line.main.pyx", "stat": {"st_dev": 65025, "st_ino": 150519, "st_mode": 33188, "st_nlink": 1, "st_uid": 1000, "st_gid": 1000, "st_rdev": 0, "st_size": 9153, "st_blksize": 4096, "st_blocks": 24, "st_atime": 1634293139, "st_mtime": 1632486702, "st_ctime": 1632486702, "st_atime_ns": 958685043, "st_mtime_ns": 839359789, "st_ctime_ns": 839359789}, "hash": {"md5": "8e29c0d260293bc592200a4ef37729e5", "sha1": "fed552c1e74f54275ba4f1106a51a3349e12bbda", "sha256": "776f9da4bc9ba9062c8ab9b8c0a2ab91ad204d6f1e1a7734be050c5d83db2a48", "sha512": "4c547b2c1b0cb76b6e960c21d34e758cd467158f7681042d80d2b7afdde697fdd33fa694e4075a2584bf18caa58a55ec3b15c4b3c13dc59288a216837f4a8d82"}}\n\
+{"path": "/sysroot/home/test3/metadata-collect-agent/scan-filesystem/cython/command-line.main.pyx", "stat": {"st_dev": 65025, "st_ino": 150519, "st_mode": 33188, "st_nlink": 1, "st_uid": 1000, "st_gid": 1000, "st_rdev": 0, "st_size": 9153, "st_blksize": 4096, "st_blocks": 24, "st_atime": 1634293139, "st_mtime": 1632486702, "st_ctime": 1632486702, "st_atime_ns": 958685043, "st_mtime_ns": 839359789, "st_ctime_ns": 839359789}, "hash": {"md5": "8e29c0d260293bc592200a4ef37729e5", "sha1": "fed552c1e74f54275ba4f1106a51a3349e12bbda", "sha256": "776f9da4bc9ba9062c8ab9b8c0a2ab91ad204d6f1e1a7734be050c5d83db2a48", "sha512": "4c547b2c1b0cb76b6e960c21d34e758cd467158f7681042d80d2b7afdde697fdd33fa694e4075a2584bf18caa58a55ec3b15c4b3c13dc59288a216837f4a8d82"}}\n\
 {}\n\
 {"end_date": "2022/11/15 17:08 CET", "end_marker": "fluentbit_end"}\n',
 
@@ -121,10 +121,14 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
       )
       self.assertEqual(request_dict[reference], data_stream.getData())
 
-  def string_to_ndarray(self, string):
+  def string_to_ndarray(self, reference, string):
     json_string_list = string.splitlines()[:-1]
     data_list = [json.loads(json_string) for json_string in json_string_list]
-    triplet_list = [(data['path'], data['hash']['sha256']) for data in data_list if 'path' in data and 'hash' in data and 'sha256' in data['hash']]
+    if reference == 'test_server':
+      triplet_list = [("/".join([''] + data['path'].split('/')[2:]), data['hash']['sha256']) for data in data_list if 'path' in data and 'hash' in data and 'sha256' in data['hash']]
+    else:
+      triplet_list = [(data['path'], data['hash']['sha256']) for data in data_list if 'path' in data and 'hash' in data and 'sha256' in data['hash']]
+
 
     data_mapping = self.portal.Base_getDataMapping()
     uid_list = []
@@ -137,7 +141,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
   def string_dict_to_ndarray_dict(self, string_dict):
     ndarray_dict = dict()
     for reference in string_dict:
-      ndarray_dict[reference] = self.string_to_ndarray(string_dict[reference])
+      ndarray_dict[reference] = self.string_to_ndarray(reference, string_dict[reference])
 
     return ndarray_dict
 

@@ -1,0 +1,227 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Parameter editor (XML Serialisation) </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Parameter editor (XML Read Only)</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init_readonly" />
+      <tr>
+        <td colspan="3"><b> Set URL for the software release </b></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@name='url_string']</td>
+        <td>${base_url}/web_site_module/hostingjs/hateoas/sample-software-schema/minimal_xml_demo/software.cfg</td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//textarea[@name='parameter_output']</td>
+        <td tal:content="python: '<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><instance><parameter id=&quot;simple-string&quot;>this is a simple string</parameter><parameter id=&quot;simple-string-with-enum&quot;>simple string B</parameter><parameter id=&quot;simple-boolean&quot;>true</parameter><parameter id=&quot;simple-string-with-text-area&quot;>this is a simple string on a text area</parameter><parameter id=&quot;simple-integer&quot;>1</parameter><parameter id=&quot;simple-integer-with-enum&quot;>7</parameter><parameter id=&quot;simple-numeric-integer&quot;>2</parameter><parameter id=&quot;simple-numeric-integer-enum&quot;>13</parameter><parameter id=&quot;simple-numeric-float&quot;>2</parameter><parameter id=&quot;simple-numeric-float-enum&quot;>1.25</parameter></instance>'"></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+      
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
+
+      <tr>
+        <td colspan="3"><b> Fill the simple string</b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name="//simple-string" and @type="text"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="//simple-string" and @type="text"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertValue</td>
+        <td>//input[@name="//simple-string" and @type="text"]</td>
+        <td>this is a simple string</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><b> Fill the string + enum</b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//select[@name="//simple-string-with-enum"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//select[@name="//simple-string-with-enum"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertValue</td>
+        <td>//select[@name="//simple-string-with-enum"]</td>
+        <td>simple string B</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><b> Fill the boolean</b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//select[@name="//simple-boolean"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//select[@name="//simple-boolean"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertValue</td>
+        <td>//select[@name="//simple-boolean"]</td>
+        <td>true</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><b> Fill the String on Text area</b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="//simple-string-with-text-area"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="//simple-string-with-text-area"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertValue</td>
+        <td>//textarea[@name="//simple-string-with-text-area"]</td>
+        <td>this is a simple string on a text area</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><b> Fill the simple integer</b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name="//simple-integer" and @type="number"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="//simple-integer" and @type="number"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertValue</td>
+        <td>//input[@name="//simple-integer" and @type="number"]</td>
+        <td>1</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><b> Fill the integer + enum</b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//select[@name="//simple-integer-with-enum"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//select[@name="//simple-integer-with-enum"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertValue</td>
+        <td>//select[@name="//simple-integer-with-enum"]</td>
+        <td>7</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><b> Fill the simple numeric (integer)</b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name="//simple-numeric-integer" and @type="number"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="//simple-numeric-integer" and @type="number"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertValue</td>
+        <td>//input[@name="//simple-numeric-integer" and @type="number"]</td>
+        <td>2</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><b> Fill the numeric integer + enum</b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//select[@name="//simple-numeric-integer-enum"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//select[@name="//simple-numeric-integer-enum"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertValue</td>
+        <td>//select[@name="//simple-numeric-integer-enum"]</td>
+        <td>13</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><b> Fill the simple numeric (float)</b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name="//simple-numeric-float" and @type="number" and @step="any"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="//simple-numeric-float" and @type="number"and @step="any"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertValue</td>
+        <td>//input[@name="//simple-numeric-float" and @type="number"and @step="any"]</td>
+        <td>2</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><b> Fill the numeric float + enum</b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//select[@name="//simple-numeric-float-enum"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//select[@name="//simple-numeric-float-enum"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertValue</td>
+        <td>//select[@name="//simple-numeric-float-enum"]</td>
+        <td>1.25</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+
+</html>

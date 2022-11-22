@@ -1,6 +1,7 @@
 <tal:block xmlns:tal="http://xml.zope.org/namespaces/tal"
            xmlns:metal="http://xml.zope.org/namespaces/metal">
 
+
   <tal:block metal:define-macro="basic_rx_tx_scenario">
     <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
     <tr>
@@ -27,36 +28,13 @@
     <tr>
       <td colspan="3"><b> Fill RX/TX </b></td>
     </tr>
-    <tr>
-      <td>waitForElementPresent</td>
-      <td>//input[@name="//tx_gain" and @type="number"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertElementPresent</td>
-      <td>//input[@name="//tx_gain" and @type="number"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>type</td>
-      <td>//input[@name="//tx_gain" and @type="number"]</td>
-      <td>78.0</td>
-    </tr>
-    <tr>
-      <td>waitForElementPresent</td>
-      <td>//input[@name="//rx_gain" and @type="number"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertElementPresent</td>
-      <td>//input[@name="//rx_gain" and @type="number"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>type</td>
-      <td>//input[@name="//rx_gain" and @type="number"]</td>
-      <td>78.0</td>
-    </tr>
+    <tal:block tal:define="name python: '//tx_gain'; value python: '78.0'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_number" />
+    </tal:block>
+
+    <tal:block tal:define="name python: '//rx_gain'; value python: '78.0'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_number" />
+    </tal:block>
     <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/click_proceed_and_wait_for_hash" />
     <tr>
       <td>waitForTextPresent</td>
@@ -186,8 +164,6 @@
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
 
-
-
     <tal:block tal:define="name python:'//imsi'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
@@ -227,6 +203,131 @@
       <td>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGluc3RhbmNlPgogICAgPHBhcmFtZXRlciBpZD0iXyI+ewogICAgInNpbV9hbGdvIjogInNvbWUgdmFsdWUiLAogICAgImltc2kiOiAic29tZSB2YWx1ZSIsCiAgICAib3BjIjogInNvbWUgdmFsdWUiLAogICAgImFtZiI6ICJzb21lIHZhbHVlIiwKICAgICJzcW4iOiAic29tZSB2YWx1ZSIsCiAgICAiayI6ICJzb21lIHZhbHVlIiwKICAgICJpbXB1IjogInNvbWUgdmFsdWUiLAogICAgImltcGkiOiAic29tZSB2YWx1ZSIKfTwvcGFyYW1ldGVyPgo8L2luc3RhbmNlPg==</td>
       <td></td>
     </tr>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="basic_rx_tx_scenario_readonly">
+
+    <tr>
+      <td>type</td>
+      <td>//textarea[@name='parameter_output']</td>
+      <td tal:content="python: '<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><instance><parameter id=&quot;_&quot;>{&quot;tx_gain&quot;: 78,&quot;rx_gain&quot;: 78}</parameter></instance>'"></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@name='software_type']</td>
+      <td tal:content="python: 'enb'"></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+    <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="eNB"]
+      </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="eNB"]
+      </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertValue</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]
+      </td>
+      <td>enb</td>
+    </tr>
+    <tr>
+      <td colspan="3"><b> Fill RX/TX </b></td>
+    </tr>
+
+    <tal:block tal:define="name python: '//tx_gain'; value python: '78'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_number" />
+    </tal:block>
+
+    <tal:block tal:define="name python: '//rx_gain'; value python: '78'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_number" />
+    </tal:block>
+  </tal:block>
+
+  <tal:block metal:define-macro="basic_gnb_sim_card_scenario_readonly">
+    <tr>
+      <td>type</td>
+      <td>//textarea[@name='parameter_output']</td>
+      <td tal:content="python: '<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><instance><parameter id=&quot;_&quot;>{&quot;sim_algo&quot;: &quot;some value&quot;,&quot;imsi&quot;: &quot;some value&quot;,&quot;opc&quot;: &quot;some value&quot;,&quot;amf&quot;: &quot;some value&quot;,&quot;sqn&quot;: &quot;some value&quot;,&quot;k&quot;: &quot;some value&quot;,&quot;impu&quot;: &quot;some value&quot;,&quot;impi&quot;: &quot;some value&quot;}</parameter></instance>'"></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@name='software_type']</td>
+      <td tal:content="python: 'gnb-epc'"></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@name='shared']</td>
+      <td tal:content="python: 'yes'"></td>
+    </tr>
+    
+    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+    <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="gNB-EPC Sim Card"]
+      </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="gNB-EPC Sim Card"]
+      </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertValue</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]
+      </td>
+      <td>gnb-epc</td>
+    </tr>
+
+    <tal:block tal:define="name python: '//sim_algo'; value python: 'some value'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//imsi'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//opc'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//amf'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//sqn'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//k'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//impu'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//impi'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+    </tal:block>
   </tal:block>
 
 

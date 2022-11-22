@@ -1,0 +1,32 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Parameter editor (gNB Simcard Simpler Test) </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Parameter editor (gNB Simcard Test)</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init_readonly" />
+      <tr>
+        <td colspan="3"><b> Set URL for the software release </b></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@name='url_string']</td>
+        <td>https://lab.nexedi.com/nexedi/slapos/raw/1.0.286/software/ors-amarisoft/software-tdd2600.cfg</td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSORSParameterCommonTemplate/macros/basic_rx_tx_scenario_readonly" />
+
+    </tbody>
+  </table>
+</body>
+
+</html>

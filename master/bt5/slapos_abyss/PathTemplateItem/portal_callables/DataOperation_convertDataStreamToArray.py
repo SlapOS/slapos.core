@@ -27,25 +27,34 @@ def getEndAndJsonList(start, in_data_stream, chunk_size = 4 * 1024 * 1024):
 
   return end, raw_data_string.splitlines(), is_end_of_scan
 
-def getTripletList(json_string_list, is_end_of_scan):
+def removeFirstPath(data):
+  data['path'] = "/".join([''] + data['path'].split('/')[2:])
+  return data
+
+def getTripletList(json_string_list, is_end_of_scan, node_image):
   if is_end_of_scan:
     # this lign deletes the "fluentbit_end" at the end of a scan
     json_string_list = json_string_list[:-1]
   tmp_data_list = []
   for json_string in json_string_list:
     tmp_data_list.append(json.loads(json_string))
+
+  # when server start with initramfs, it is mounted at sysroot which makes path starts with /sysroot instead of /
+  if node_image:
+    tmp_data_list = [removeFirstPath(x) for x in tmp_data_list if 'path' in x and 'hash' in x and 'sha256' in x['hash']]
+  else:
+    tmp_data_list = [x for x in tmp_data_list if 'path' in x and 'hash' in x and 'sha256' in x['hash']]
+
   data_list = []
   for data in tmp_data_list:
     in_list = False
-    if ('path' in data) and exclude_path_list:
-      for exclude_path in exclude_path_list:
-        if os.path.commonprefix([data['path'], exclude_path]) == exclude_path:
-          in_list = True
-          break
+    for exclude_path in exclude_path_list:
+      if os.path.commonprefix([data['path'], exclude_path]) == exclude_path:
+        in_list = True
+        break
     if not in_list:
       data_list.append(data)
   return [(data['path'], data['hash']['sha256']) for data in data_list if 'path' in data and 'hash' in data and 'sha256' in data['hash']]
-
 
 def getUidList(triplet_list, data_stream):
   uid_list = []
@@ -75,6 +84,11 @@ if not out_data_array.getCausality():
   out_data_array.setPublicationSectionList(resource_value.getPublicationSectionList())
 
 
+if 'file_system_image/node_image' in out_data_array.getPublicationSectionList():
+  node_image = True
+else:
+  node_image = False
+
 start = progress_indicator.getIntOffsetIndex()
 end = in_data_stream.getSize()
 if start >= end:
@@ -88,7 +102,7 @@ if start == 0:
   start_date = json.loads(json_string_list[0])["beginning_date"]
   out_data_array.edit(start_date = DateTime(start_date))
 
-triplet_list = getTripletList(json_string_list, is_end_of_scan)
+triplet_list = getTripletList(json_string_list, is_end_of_scan, node_image)
 uid_list = getUidList(triplet_list, in_data_stream)
 uid_ndarray = np.ndarray((len(uid_list),), 'int64', np.array(uid_list))
 

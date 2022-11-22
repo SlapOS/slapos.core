@@ -1,7 +1,5 @@
 erp5_authentication_policy
 erp5_administration
-erp5_credential
-erp5_project
 erp5_ooo_import
 erp5_odt_style
 erp5_ods_style
@@ -14,11 +12,6 @@ erp5_monaco_editor
 erp5_graph_editor
 slapos_accounting
 slapos_category
-slapos_cloud
-slapos_slap_tool
-slapos_crm
-slapos_pdm
-slapos_rss_style
 slapos_jio
 slapos_payzen
 slapos_upgrader

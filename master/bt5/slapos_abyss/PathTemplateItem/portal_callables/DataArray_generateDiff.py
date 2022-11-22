@@ -36,7 +36,7 @@ for predecessor in context.getPredecessorValueList(
         distribution_list = [x for x in parent_distribution.objectValues(sort_on='int_index')]
         index = distribution_list.index(distribution_property) + 1
         if index >= len(distribution_list):
-          context.setPublicationSectionList(context.getPublicationSectionList() + ['publication_section/file_system_image/diff_end'])
+          context.setPublicationSectionList(context.getPublicationSectionList() + ['publication_section/file_system_image/diff_end/different'])
           causality = context.getCausalityValue(portal_type='Data Product')
           if causality and context.portal_workflow.isTransitionPossible(causality, 'invalidate'):
             causality.invalidate(comment='Server has file modified: %s' % context.getRelativeUrl())
@@ -74,6 +74,7 @@ if reference_image:
     new_data_array = context.data_array_module.newContent(portal_type='Data Array')
     new_data_array.setArray(diff_array)
     new_data_array.edit(
+      title='diff of %s and %s' %(context.getTitle(), reference_image.getTitle()),
       predecessor_value_list=[context, reference_image],
       publication_section="file_system_image/node_image",
       causality = context.getCausality()
@@ -83,12 +84,12 @@ if reference_image:
     causality = context.getCausalityValue(portal_type='Data Product')
     if causality and context.portal_workflow.isTransitionPossible(causality, 'validate'):
       causality.validate(comment='Server is ok')
-    context.setPublicationSectionList(context.getPublicationSectionList() + ['publication_section/file_system_image/diff_end'])
+    context.setPublicationSectionList(context.getPublicationSectionList() + ['publication_section/file_system_image/diff_end/identical'])
 
 else:
   causality = context.getCausalityValue(portal_type='Data Product')
   if causality and context.portal_workflow.isTransitionPossible(causality, 'invalidate'):
-    causality.invalidate(comment='Server has file modified: %s' % context.getRelativeUrl())
-  context.setPublicationSectionList(context.getPublicationSectionList() + ['publication_section/file_system_image/diff_end'])
+    causality.invalidate(comment='No more reference to compare, Server has file modified: %s' % context.getRelativeUrl())
+  context.setPublicationSectionList(context.getPublicationSectionList() + ['publication_section/file_system_image/diff_end/different'])
 
 context.processFile()

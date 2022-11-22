@@ -314,8 +314,8 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
 
 
 
-    self.assertTrue('file_system_image/diff_end' in diff_4.getPublicationSectionList())
-    self.assertTrue('file_system_image/diff_end' in diff_5.getPublicationSectionList())
+    self.assertTrue('file_system_image/diff_end/different' in diff_4.getPublicationSectionList())
+    self.assertTrue('file_system_image/diff_end/different' in diff_5.getPublicationSectionList())
 
     self.assertTrue(diff_1.getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_6 = diff_1.getPredecessorRelatedValue(portal_type='Data Array')
@@ -339,7 +339,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     self.portal.portal_alarms.slapos_check_node_status.activeSense()
     self.tic()
     for i in [diff_6, diff_7, diff_8]:
-      self.assertTrue('file_system_image/diff_end' in i.getPublicationSectionList())
+      self.assertTrue('file_system_image/diff_end/different' in i.getPublicationSectionList())
 
 
   def test_compare_data_array_change_data_product_state(self):

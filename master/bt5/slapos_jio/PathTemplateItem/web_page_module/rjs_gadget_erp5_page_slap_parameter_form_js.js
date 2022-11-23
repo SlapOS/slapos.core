@@ -375,7 +375,8 @@
               render_subform({},
                 default_dict[key],
                 domsugar("div", {"class": "input"}),
-                path + "/" + key)
+                path + "/" + key,
+                editable)
             ]);
           } else {
             input = render_field({"type": "string", "textarea": true}, default_dict[key], false);
@@ -485,13 +486,15 @@
   }
 
   function collapseParameter(element) {
-    element.parentNode.querySelector("div").toggle(300);
+    element.parentNode.querySelectorAll("div.subfield").forEach(function (div, i) {
+      div.classList.toggle("display-none");
+    });
     element.classList.toggle("slapos-parameter-dict-key-colapse");
     return element;
   }
 
   function removeSubParameter(element) {
-    element.parentNone.parentNode.remove();
+    element.parentNode.parentNode.remove();
     return false;
   }
 
@@ -511,7 +514,7 @@
       text: input_text.value
     })]);
 
-    div = render_subform(subform_json, {}, div, element.name + "/" + input_text.value);
+    div = render_subform(subform_json, {}, div, element.name + "/" + input_text.value, gadget.state.editable);
     element.parentNode.parentNode.insertBefore(div, element.parentNode.parentNode.children[1]);
     return div;
   }
@@ -552,8 +555,8 @@
       throw new Error("Select not found.");
     }
 
-    to_hide.classList.add("hidden-button");
-    to_show.classList.remove("hidden-button");
+    to_hide.classList.add("display-none");
+    to_show.classList.remove("display-none");
 
     return g.changeState({
       display_step: DISPLAY_JSON_FORM,
@@ -567,8 +570,8 @@
     var e = g.element.querySelector("button.slapos-show-raw-parameter"),
       to_show = g.element.querySelector("button.slapos-show-form");
 
-    e.classList.add("hidden-button");
-    to_show.classList.remove("hidden-button");
+    e.classList.add("display-none");
+    to_show.classList.remove("display-none");
 
     return g.changeState({
       display_step: DISPLAY_RAW_XML,
@@ -685,11 +688,11 @@
 
     if (error_text) {
       if (show_raw_button !== null) {
-        show_raw_button.classList.add("hidden-button");
+        show_raw_button.classList.add("display-none");
       }
 
       if (show_form_button !== null) {
-        show_form_button.classList.remove("hidden-button");
+        show_form_button.classList.remove("display-none");
       }
 
       div_error = domsugar('div', {
@@ -753,11 +756,11 @@
     }
 
     if (to_hide !== null) {
-      to_hide.classList.add("hidden-button");
+      to_hide.classList.add("display-none");
     }
 
     if (to_show !== null) {
-      to_show.classList.remove("hidden-button");
+      to_show.classList.remove("display-none");
     }
     return gadget.loadSoftwareJSON(json_url)
       .push(function (json) {
@@ -961,7 +964,7 @@
 
         for (i = 0; i < div_list.length; i = i + 1) {
           // This should be replaced by a proper class hidden-div
-          div_list[i].style.display = 'none';
+          div_list[i].classList.add('display-none');
         }
 
         for (i = 0; i < label_list.length; i = i + 1) {

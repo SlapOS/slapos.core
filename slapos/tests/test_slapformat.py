@@ -638,12 +638,7 @@ class TestComputer(SlapformatMixin):
         "chmod('/instance_root/partition', 488)"
       ],
       self.test_result.bucket)
-    self.assertEqual([
-        'ip addr add ip/255.255.255.255 dev myinterface',
-        # 'ip addr list myinterface',
-        'ip addr add ip/ffff:ffff:ffff:ffff:: dev myinterface',
-        'ip -6 addr list myinterface',
-      ],
+    self.assertEqual([],
       self.fakeCallAndRead.external_command_list)
 
 

@@ -324,7 +324,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
             'slapos_crm',
             'slapos_payzen',
             'slapos_wechat',
-            'slapos_web',
             'slapos_web_deploy',
             'slapos_accounting',
             'slapos_jio',

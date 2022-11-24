@@ -250,6 +250,9 @@ getPartitionIpv6Range = getIpv6RangeFactory(1, '0')
 
 getTapIpv6Range = getIpv6RangeFactory(2, '1')
 
+getTunIpv6Range = getIpv6RangeFactory(3, '0')
+
+
 def lenNetmaskIpv6(netmask):
   """Convert string represented netmask to its integer prefix"""
   # Since version 0.10.7 of netifaces, the netmask is something like "ffff::/16",

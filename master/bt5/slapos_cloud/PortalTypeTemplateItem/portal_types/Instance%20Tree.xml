@@ -109,7 +109,9 @@
         <item>
             <key> <string>type_mixin</string> </key>
             <value>
-              <tuple/>
+              <tuple>
+                <string>SlapOSInstanceTreeMixin</string>
+              </tuple>
             </value>
         </item>
       </dictionary>

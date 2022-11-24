@@ -76,3 +76,6 @@ class SoftwareInstallation(Item, JSONType):
     }
     result.update()
     return json.dumps(result, indent=2)
+
+  def getSlapTimestamp(self):
+    return int(self.getModificationDate())

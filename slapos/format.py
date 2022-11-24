@@ -58,7 +58,7 @@ import six
 import lxml.etree
 import xml_marshaller.xml_marshaller
 
-from slapos.util import dumps, mkdir_p, ipv6FromBin, binFromIpv6, lenNetmaskIpv6
+from slapos.util import dumps, mkdir_p, ipv6FromBin, binFromIpv6, lenNetmaskIpv6, getPartitionIpv6Addr, getPartitionIpv6Range, getTapIpv6Range, netmaskFromLenIPv6
 import slapos.slap as slap
 from slapos import version
 from slapos import manager as slapmanager
@@ -243,7 +243,7 @@ class Computer(object):
   """Object representing the computer"""
 
   def __init__(self, reference, interface=None, addr=None, netmask=None,
-               ipv6_interface=None, software_user='slapsoft',
+               ipv6_interface=None, partition_has_ipv6_range=None, software_user='slapsoft',
                tap_gateway_interface=None, tap_ipv6=None,
                instance_root=None, software_root=None, instance_storage_home=None,
                partition_list=None, config=None):
@@ -260,6 +260,7 @@ class Computer(object):
     self.address = addr
     self.netmask = netmask
     self.ipv6_interface = ipv6_interface
+    self.partition_has_ipv6_range = partition_has_ipv6_range
     self.software_user = software_user
     self.tap_gateway_interface = tap_gateway_interface
     self.tap_ipv6 = tap_ipv6
@@ -410,7 +411,7 @@ class Computer(object):
       archive.writestr(saved_filename, xml_content, zipfile.ZIP_DEFLATED)
 
   @classmethod
-  def load(cls, path_to_xml, reference, ipv6_interface, tap_gateway_interface,
+  def load(cls, path_to_xml, reference, ipv6_interface, partition_has_ipv6_range, tap_gateway_interface,
            tap_ipv6, instance_root=None, software_root=None, config=None):
     """
     Create a computer object from a valid xml file.
@@ -431,6 +432,7 @@ class Computer(object):
         addr=dumped_dict['address'],
         netmask=dumped_dict['netmask'],
         ipv6_interface=ipv6_interface,
+        partition_has_ipv6_range=partition_has_ipv6_range,
         software_user=dumped_dict.get('software_user', 'slapsoft'),
         tap_gateway_interface=tap_gateway_interface,
         tap_ipv6=tap_ipv6,
@@ -467,6 +469,7 @@ class Computer(object):
         tun = Tun("slaptun" + str(partition_index), partition_index, partition_amount)
 
       address_list = partition_dict['address_list']
+      ipv6_range = partition_dict.get('ipv6_range', {})
       external_storage_list = partition_dict.get('external_storage_list', [])
 
       partition = Partition(
@@ -474,6 +477,7 @@ class Computer(object):
           path=partition_dict['path'],
           user=user,
           address_list=address_list,
+          ipv6_range=ipv6_range,
           tap=tap,
           tun=tun if config.create_tun else None,
           external_storage_list=external_storage_list,
@@ -562,7 +566,7 @@ class Computer(object):
     ####################
     if alter_network:
       if self.address is not None:
-        self.interface.addIPv6Address(self.address, self.netmask)
+        self.interface._addSystemAddress(self.address, self.netmask)
 
       if create_tap and self.tap_gateway_interface:
         gateway_addr_dict = getIfaceAddressIPv4(self.tap_gateway_interface)
@@ -570,6 +574,9 @@ class Computer(object):
                               gateway_addr_dict['netmask'],
                               len(self.partition_list))
         assert(len(self.partition_list) <= len(tap_address_list))
+
+      if self.partition_has_ipv6_range:
+        self.interface.allowUseInexistingIpv6Address()
 
       self._speedHackAddAllOldIpsToInterface()
 
@@ -614,12 +621,13 @@ class Computer(object):
             if self.tap_ipv6:
               if not partition.tap.ipv6_addr:
                 # create a new IPv6 randomly for the tap
-                ipv6_dict = self.interface.addIPv6Address(tap=partition.tap)
+                ipv6_dict = self.interface.addIPv6Address(partition_index, tap=partition.tap)
                 partition.tap.ipv6_addr = ipv6_dict['addr']
                 partition.tap.ipv6_netmask = ipv6_dict['netmask']
               else:
                 # make sure the tap has its IPv6
                 self.interface.addIPv6Address(
+                        partition_index=partition_index,
                         addr=partition.tap.ipv6_addr,
                         netmask=partition.tap.ipv6_netmask,
                         tap=partition.tap)
@@ -645,43 +653,62 @@ class Computer(object):
             partition.tun.createWithOwner(owner)
             partition.tun.createRoutes()
 
+          # Reconstructing partition's address
+          # There should be two addresses on each Computer Partition:
+          #  * local IPv4, took from slapformat:ipv4_local_network
+          #  * global IPv6
+          if not partition.address_list:
+            # generate new addresses
+            partition.address_list.append(self.interface.addIPv4LocalAddress())
+            partition_ipv6_dict = self.interface.addIPv6Address(partition_index)
+            # Avoid leaking prefixlen in dumped data because it is not loaded
+            # otherwise format dumps a different result after the first run
+            del partition_ipv6_dict['prefixlen']
+            partition.address_list.append(partition_ipv6_dict)
+          else:
+            # regenerate list of addresses
+            old_partition_address_list = partition.address_list
+            partition.address_list = []
+            if len(old_partition_address_list) != 2:
+              raise ValueError(
+                'There should be exactly 2 stored addresses. Got: %r' %
+                (old_partition_address_list,))
+            if not any(netaddr.valid_ipv6(q['addr'])
+                       for q in old_partition_address_list):
+              raise ValueError('No valid IPv6 address loaded from XML config')
+            if not any(netaddr.valid_ipv4(q['addr'])
+                       for q in old_partition_address_list):
+              raise ValueError('No valid IPv4 address loaded from XML config')
+
+            for address in old_partition_address_list:
+              if netaddr.valid_ipv6(address['addr']):
+                partition.address_list.append(self.interface.addIPv6Address(
+                  partition_index,
+                  address['addr'],
+                  address['netmask']))
+              elif netaddr.valid_ipv4(address['addr']):
+                partition.address_list.append(self.interface.addIPv4LocalAddress(
+                  address['addr']))
+              else:
+                # should never happen since there are exactly 1 valid IPv6 and 1
+                # valid IPv4 in old_partition_address_list
+                raise ValueError('Address %r is incorrect' % address['addr'])
+
+          # Reconstructing partition's IPv6 range
+          if self.partition_has_ipv6_range:
+            if not partition.ipv6_range:
+              # generate new IPv6 range
+              partition.ipv6_range = self.interface.generateIPv6Range(partition_index)
+            else:
+              if not netaddr.valid_ipv6(partition.ipv6_range['addr']):
+                raise ValueError('existing IPv6 range %r is incorrect', partition.ipv6_range['addr'])
+          else:
+            partition.ipv6_range = {}
+
         # Reconstructing partition's directory
         partition.createPath(alter_user)
         partition.createExternalPath(alter_user)
 
-        # Reconstructing partition's address
-        # There should be two addresses on each Computer Partition:
-        #  * local IPv4, took from slapformat:ipv4_local_network
-        #  * global IPv6
-        if not partition.address_list:
-          # regenerate
-          partition.address_list.append(self.interface.addIPv4LocalAddress())
-          partition.address_list.append(self.interface.addIPv6Address())
-        elif alter_network:
-          # regenerate list of addresses
-          old_partition_address_list = partition.address_list
-          partition.address_list = []
-          if len(old_partition_address_list) != 2:
-            raise ValueError(
-              'There should be exactly 2 stored addresses. Got: %r' %
-              (old_partition_address_list,))
-          if not any(netaddr.valid_ipv6(q['addr'])
-                     for q in old_partition_address_list):
-            raise ValueError('Not valid ipv6 addresses loaded')
-          if not any(netaddr.valid_ipv4(q['addr'])
-                     for q in old_partition_address_list):
-            raise ValueError('Not valid ipv6 addresses loaded')
-
-          for address in old_partition_address_list:
-            if netaddr.valid_ipv6(address['addr']):
-              partition.address_list.append(self.interface.addIPv6Address(
-                address['addr'],
-                address['netmask']))
-            elif netaddr.valid_ipv4(address['addr']):
-              partition.address_list.append(self.interface.addIPv4LocalAddress(
-                address['addr']))
-            else:
-              raise ValueError('Address %r is incorrect' % address['addr'])
     finally:
       for manager in self._manager_list:
         manager.formatTearDown(self)
@@ -693,13 +720,14 @@ class Partition(object):
   resource_file = ".slapos-resource"
 
   def __init__(self, reference, path, user, address_list,
-               tap, external_storage_list=[], tun=None):
+               ipv6_range, tap, tun=None, external_storage_list=[]):
     """
     Attributes:
       reference: String, the name of the partition.
       path: String, the path to the partition folder.
       user: User, the user linked to this partition.
       address_list: List of associated IP addresses.
+      ipv6_range: IPv6 range given to this partition (dict with 'addr' and 'netmask').
       tap: Tap, the tap interface linked to this partition e.g. used as a gateway for kvm
       tun: Tun interface used for special apps simulating ethernet connections
       external_storage_list: Base path list of folder to format for data storage
@@ -709,12 +737,13 @@ class Partition(object):
     self.path = str(path)
     self.user = user
     self.address_list = address_list or []
+    self.ipv6_range = ipv6_range or {}
     self.tap = tap
     self.tun = tun
     self.external_storage_list = []
 
   def __getinitargs__(self):
-    return (self.reference, self.path, self.user, self.address_list, self.tap, self.tun)
+    return (self.reference, self.path, self.user, self.address_list, self.ipv6_range, self.tap, self.tun)
 
   def createPath(self, alter_user=True):
     """
@@ -1072,13 +1101,10 @@ class Interface(object):
                            for q in netifaces.ifaddresses(interface_name)[af]
                            ]:
       # add an address
-      callAndRead(['ip', 'addr', 'add', address_string, 'dev', interface_name])
+      code, _ = callAndRead(['ip', 'addr', 'add', address_string, 'dev', interface_name])
 
-      # Fake success for local ipv4
-      if not ipv6:
-        return True
-
-      # wait few moments
+      if code != 0:
+        return False
       time.sleep(2)
 
     # Fake success for local ipv4
@@ -1132,7 +1158,28 @@ class Interface(object):
       # confirmed to be configured
       return dict(addr=addr, netmask=netmask)
 
-  def addIPv6Address(self, addr=None, netmask=None, tap=None):
+  def _generateRandomIPv6Addr(self, address_dict):
+    netmask = address_dict['netmask']
+    netmask_len = lenNetmaskIpv6(netmask)
+    r = random.randint(1, 65000)
+    addr = ':'.join(address_dict['addr'].split(':')[:-1] + ['%x' % r])
+    socket.inet_pton(socket.AF_INET6, address)
+    return dict(addr=addr, netmask=netmask)
+
+  def _generateRandomIPv6Range(self, address_dict, suffix):
+    prefixlen = lenNetmaskIpv6(address_dict['netmask'])
+    prefix = binFromIpv6(address_dict['addr'])[:prefixlen]
+    prefixlen += 16
+    if prefixlen >= 128:
+      msg = 'Address range %r is too small for IPv6 subranges'
+      self._logger.error(msg, address_dict)
+      raise AddressGenerationError('%s/%d' % (address_dict['addr'], prefixlen))
+    addr = ipv6FromBin(prefix
+      + bin(random.randint(1, 65000))[2:].zfill(16)
+      + suffix * (128 - prefixlen))
+    return dict(addr=addr, prefixlen=prefixlen, netmask=netmaskFromLenIPv6(prefixlen))
+
+  def addIPv6Address(self, partition_index, addr=None, netmask=None, tap=None):
     """
     Adds IPv6 address to interface.
 
@@ -1141,6 +1188,9 @@ class Interface(object):
     If addr is specified and does not exist on interface, try to add given
     address. If it is not possible (ex. because network changed), calculate new
     address.
+
+    If tap is specified, tap will get actually an IPv6 range (and not a single
+    address) 16 bits smaller than the range of the interface.
 
     Args:
       addr: Wished address to be added to interface.
@@ -1195,38 +1245,73 @@ class Interface(object):
             self._logger.warning('Impossible to add old public IPv6 %s. '
                 'Generating new IPv6 address.' % addr)
 
-    # Try 10 times to add address, raise in case if not possible
-    try_num = 10
-    netmask = address_dict['netmask']
+    # Try to use the IPv6 mapping based on partition index
+    address_dict['prefixlen'] = lenNetmaskIpv6(address_dict['netmask'])
     if tap:
-      netmask_len = lenNetmaskIpv6(netmask)
-      prefix = binFromIpv6(address_dict['addr'])[:netmask_len]
-      netmask_len += 16
-      # we generate a subnetwork for the tap
-      # the subnetwork has 16 bits more than the interface network
-      # make sure we have at least 2 IPs in the subnetwork
-      if netmask_len >= 128:
-        self._logger.error('Interface %s has netmask %s which is too big for generating IPv6 on taps.' % (interface_name, netmask))
-        raise AddressGenerationError(addr)
-      netmask = ipv6FromBin('1'*128) # the netmask of the tap itself is always 128 bits
+      result_addr = getTapIpv6Range(address_dict, partition_index)
+      # the netmask of the tap itself is always 128 bits
+      result_addr['netmask'] = netmaskFromLenIPv6(128)
+    else:
+      result_addr = getPartitionIpv6Addr(address_dict, partition_index)
+      result_addr['netmask'] = netmaskFromLenIPv6(result_addr.pop('prefixlen'))
+    if self._addSystemAddress(result_addr['addr'], result_addr['netmask'], tap=tap):
+      return result_addr
 
-    while try_num > 0:
+    # Try 10 times to add address, raise in case if not possible
+    for _ in range(10):
       if tap:
-        addr = ipv6FromBin(prefix
-          + bin(random.randint(1, 65000))[2:].zfill(16)
-          + '1' * (128 - netmask_len))
+        result_addr = self._generateRandomIPv6Range(address_dict, suffix='1')
+        # the netmask of the tap itself is always 128 bits
+        result_addr['netmask'] = netmaskFromLenIPv6(128)
       else:
-        addr = ':'.join(address_dict['addr'].split(':')[:-1] + ['%x' % (
-          random.randint(1, 65000), )])
-        socket.inet_pton(socket.AF_INET6, addr)
-      if (dict(addr=addr, netmask=netmask) not in
-            self.getGlobalScopeAddressList(tap=tap)):
-        # Checking the validity of the IPv6 address
-        if self._addSystemAddress(addr, netmask, tap=tap):
-          return dict(addr=addr, netmask=netmask)
-        try_num -= 1
+        result_addr = self._generateRandomIPv6Addr(address_dict)
+      # Checking the validity of the IPv6 address
+      if self._addSystemAddress(result_addr['addr'], result_addr['netmask'], tap=tap):
+        return result_addr
 
-    raise AddressGenerationError(addr)
+    raise AddressGenerationError(result_addr['addr'])
+
+  def generateIPv6Range(self, i):
+    """
+    Generate an IPv6 range included in the IPv6 range of the interface. The IPv6 range depends on the partition index i.
+
+    There is no need to actually add this range anywhere because allowUseInexistingIpv6Address() has already been called.
+
+    Returns:
+      dict(addr=address, netmask=netmask, network=addr/CIDR).
+
+    Raises:
+      ValueError: Couldn't construct valid address with existing
+          one's on the interface.
+      NoAddressOnInterface: There's no address on the interface to construct
+          an address with.
+    """
+    interface_name = self.ipv6_interface or self.name
+
+    # Getting one address of the interface as base of the next addresses
+    interface_addr_list = self.getGlobalScopeAddressList()
+    address_dict = interface_addr_list[0]
+    address_dict['prefixlen'] = lenNetmaskIpv6(address_dict['netmask'])
+    ipv6_range = getPartitionIpv6Range(address_dict, i)
+    ipv6_range['netmask'] = netmaskFromLenIPv6(ipv6_range['prefixlen'])
+    ipv6_range['network'] = '%(addr)s/%(prefixlen)d' % ipv6_range
+    return ipv6_range
+
+  def allowUseInexistingIpv6Address(self):
+    # This will allow the usage of unexisting IPv6 adrdresses.
+
+    # Getting the global IPv6 range of the computer
+    interface_addr_list = self.getGlobalScopeAddressList()
+    address_dict = interface_addr_list[0]
+    addr = address_dict['addr']
+    netmask = address_dict['netmask'].split('/')[1]
+
+    self._logger.debug('sysctl net.ipv6.ip_nonlocal_bind=1')
+    callAndRead(['sysctl', 'net.ipv6.ip_nonlocal_bind=1'])
+    _, result = callAndRead(['ip', '-6', 'route', 'show', 'table', 'local', '%s/%s' % (addr, netmask)])
+    if not 'dev lo' in result:
+      self._logger.debug(' ip -6 route add local %s/%s dev lo', addr, netmask)
+      callAndRead(['ip', '-6', 'route', 'add', 'local', '%s/%s' % (addr, netmask), 'dev', 'lo'])
 
 
 def parse_computer_definition(conf, definition_path):
@@ -1252,6 +1337,7 @@ def parse_computer_definition(conf, definition_path):
       addr=address,
       netmask=netmask,
       ipv6_interface=conf.ipv6_interface,
+      partition_has_ipv6_range=conf.partition_has_ipv6_range,
       software_user=computer_definition.get('computer', 'software_user'),
       tap_gateway_interface=conf.tap_gateway_interface,
       tap_ipv6=conf.tap_ipv6,
@@ -1266,6 +1352,10 @@ def parse_computer_definition(conf, definition_path):
     for a in computer_definition.get(section, 'address').split():
       address, netmask = a.split('/')
       address_list.append(dict(addr=address, netmask=netmask))
+    ipv6_range_network = computer_definition.get(section, 'ipv6_range')
+    addr, netmask = ipv6_range_network.split('/')
+    netmask = netmaskFromLenIPv6(int(netmask))
+    ipv6_range = {'addr' : address, 'netmask' : netmask, 'network' : ipv6_range_network}
     tap = Tap(computer_definition.get(section, 'network_interface'))
     tun = Tun("slaptun" + str(partition_number),
               partition_number,
@@ -1275,6 +1365,7 @@ def parse_computer_definition(conf, definition_path):
                                             computer_definition.get(section, 'pathname')),
                           user=user,
                           address_list=address_list,
+                          ipv6_range=ipv6_range,
                           tap=tap, tun=tun)
     partition_list.append(partition)
   computer.partition_list = partition_list
@@ -1292,6 +1383,7 @@ def parse_computer_xml(conf, xml_path):
     computer = Computer.load(xml_path,
                              reference=conf.computer_id,
                              ipv6_interface=conf.ipv6_interface,
+                             partition_has_ipv6_range=conf.partition_has_ipv6_range,
                              tap_gateway_interface=conf.tap_gateway_interface,
                              tap_ipv6=conf.tap_ipv6,
                              software_root=conf.software_root,
@@ -1310,6 +1402,7 @@ def parse_computer_xml(conf, xml_path):
       addr=None,
       netmask=None,
       ipv6_interface=conf.ipv6_interface,
+      partition_has_ipv6_range=conf.partition_has_ipv6_range,
       software_user=conf.software_user,
       tap_gateway_interface=conf.tap_gateway_interface,
       tap_ipv6=conf.tap_ipv6,
@@ -1336,6 +1429,7 @@ def parse_computer_xml(conf, xml_path):
           conf.partition_base_name, i)),
         user=User('%s%s' % (conf.user_base_name, i)),
         address_list=None,
+        ipv6_range=None,
         tap=Tap('%s%s' % (conf.tap_base_name, i)),
         tun=Tun('slaptun' + str(i), i, partition_amount) if conf.create_tun else None
     )
@@ -1357,6 +1451,7 @@ def write_computer_definition(conf, computer):
     for address in partition.address_list:
       address_list.append('/'.join([address['addr'], address['netmask']]))
     computer_definition.set(section, 'address', ' '.join(address_list))
+    computer_definition.set(section, 'ipv6_range', partition.ipv6_range['network'])
     computer_definition.set(section, 'user', partition.user.name)
     computer_definition.set(section, 'network_interface', partition.tap.name)
     computer_definition.set(section, 'pathname', partition.reference)
@@ -1422,6 +1517,7 @@ class FormatConfig(object):
   alter_network = 'True' # modifiable by cmdline
   interface_name = None
   ipv6_interface = None
+  partition_has_ipv6_range = True
   create_tap = True
   create_tun = False
   tap_base_name = None
@@ -1486,7 +1582,7 @@ class FormatConfig(object):
         raise UsageError(message)
 
     # Convert strings to booleans
-    for option in ['alter_network', 'alter_user', 'create_tap', 'create_tun', 'tap_ipv6']:
+    for option in ['alter_network', 'alter_user', 'partition_has_ipv6_range', 'create_tap', 'create_tun', 'tap_ipv6']:
       attr = getattr(self, option)
       if isinstance(attr, str):
         if attr.lower() == 'true':

@@ -301,7 +301,7 @@ class SlapformatMixin(unittest.TestCase):
       raise ValueError("{} already has logger attached".format(self.__class__.__name__))
     self.logger = logger
     self.partition = slapos.format.Partition('partition', '/part_path',
-      slapos.format.User('testuser'), [], None)
+      slapos.format.User('testuser'), [], None, None)
     global USER_LIST
     USER_LIST = []
     global GROUP_LIST
@@ -423,7 +423,8 @@ class TestComputer(SlapformatMixin):
         logger=self.logger, name='myinterface', ipv4_local_network='127.0.0.1/16'),
       partition_list=[
           slapos.format.Partition(
-            'partition', '/part_path', slapos.format.User('testuser'), [], tap=slapos.format.Tap('tap')),
+            'partition', '/part_path', slapos.format.User('testuser'), [],
+            ipv6_range=None, tap=slapos.format.Tap('tap')),
         ])
     global INTERFACE_DICT
     INTERFACE_DICT['myinterface'] = {
@@ -466,7 +467,8 @@ class TestComputer(SlapformatMixin):
         logger=self.logger, name='myinterface', ipv4_local_network='127.0.0.1/16'),
       partition_list=[
           slapos.format.Partition(
-            'partition', '/part_path', slapos.format.User('testuser'), [], tap=slapos.format.Tap('tap')),
+            'partition', '/part_path', slapos.format.User('testuser'), [],
+            ipv6_range=None, tap=slapos.format.Tap('tap')),
         ])
     global USER_LIST
     USER_LIST = ['testuser']
@@ -517,7 +519,7 @@ class TestComputer(SlapformatMixin):
       partition_list=[
           slapos.format.Partition(
             'partition', '/part_path', slapos.format.User('testuser'), [],
-            tap=slapos.format.Tap('tap')),
+            ipv6_range=None, tap=slapos.format.Tap('tap')),
         ])
     global USER_LIST
     USER_LIST = ['testuser']
@@ -577,7 +579,7 @@ class TestComputer(SlapformatMixin):
       partition_list=[
           slapos.format.Partition(
             'partition', '/part_path', slapos.format.User('testuser'), [],
-            tap=slapos.format.Tap('tap')),
+            ipv6_range=None, tap=slapos.format.Tap('tap')),
         ])
     global INTERFACE_DICT
     INTERFACE_DICT['myinterface'] = {
@@ -618,7 +620,7 @@ class TestComputer(SlapformatMixin):
       partition_list=[
           slapos.format.Partition(
             'partition', '/part_path', slapos.format.User('testuser'), [],
-            tap=slapos.format.Tap('tap')),
+            ipv6_range=None, tap=slapos.format.Tap('tap')),
         ])
     global INTERFACE_DICT
     INTERFACE_DICT['myinterface'] = {
@@ -660,7 +662,8 @@ class TestFormatDump(SlapformatMixin):
         logger=self.logger, name='myinterface', ipv4_local_network='127.0.0.1/16'),
       partition_list=[
           slapos.format.Partition(
-            'partition', 'part_path', slapos.format.User('testuser'), [], tap=slapos.format.Tap('tap')),
+            'partition', 'part_path', slapos.format.User('testuser'), [],
+            ipv6_range=None, tap=slapos.format.Tap('tap')),
         ])
     global USER_LIST
     USER_LIST = ['testuser']
@@ -745,7 +748,8 @@ class TestComputerWithCPUSet(SlapformatMixin):
         logger=self.logger, name='lo', ipv4_local_network='127.0.0.1/16'),
       partition_list=[
           slapos.format.Partition(
-            'partition', '/tmp/slapgrid/instance_root/part1', slapos.format.User('testuser'), [], tap=None),
+            'partition', '/tmp/slapgrid/instance_root/part1', slapos.format.User('testuser'), [],
+            ipv6_range=None, tap=None),
         ],
       config={
         "manager_list": "cpuset",

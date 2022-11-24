@@ -178,17 +178,24 @@ class SoftwareInstance(Item, JSONType):
     software_instance_dict['_instance_guid'] = instance_guid
     return software_instance_dict
 
+  def getSlapTimestamp(self):
+    compute_partition = self.getAggregateValue(portal_type="Compute Partition")
+    if compute_partition is None:
+      return int(self.getModificationDate())
+    timestamp = int(compute_partition.getModificationDate())
+
+    newtimestamp = int(self.getBangTimestamp(int(self.getModificationDate())))
+    if (newtimestamp > timestamp):
+      timestamp = newtimestamp
+    return timestamp
+
   @UnrestrictedMethod
   def _asParameterDict(self, shared_instance_sql_list=None):
     portal = self.getPortalObject()
     compute_partition = self.getAggregateValue(portal_type="Compute Partition")
     if compute_partition is None:
       raise ValueError("Instance isn't allocated to call _asParameterDict")
-    timestamp = int(compute_partition.getModificationDate())
-
-    newtimestamp = int(self.getBangTimestamp(int(self.getModificationDate())))
-    if (newtimestamp > timestamp):
-      timestamp = newtimestamp
+    timestamp = self.getSlapTimestamp()
 
     instance_tree = self.getSpecialiseValue()
 

@@ -3,4 +3,5 @@ Compute Node | SlapOSCacheMixin
 Compute Node | SlapOSComputeNodeMixin
 Compute Partition | SlapOSCacheMixin
 Compute Partition | SlapOSComputePartitionMixin
+Instance Tree | SlapOSInstanceTreeMixin
 Person | SlapOSCacheMixin

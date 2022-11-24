@@ -10,6 +10,9 @@
   <item>SlapOSCacheMixin</item>
   <item>SlapOSComputePartitionMixin</item>
  </portal_type>
+ <portal_type id="Instance Tree">
+  <item>SlapOSInstanceTreeMixin</item>
+ </portal_type>
  <portal_type id="Person">
   <item>SlapOSCacheMixin</item>
  </portal_type>

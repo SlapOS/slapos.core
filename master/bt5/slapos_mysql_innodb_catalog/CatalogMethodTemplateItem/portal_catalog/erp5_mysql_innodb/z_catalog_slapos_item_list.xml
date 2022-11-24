@@ -13,7 +13,8 @@
         <item>
             <key> <string>arguments_src</string> </key>
             <value> <string>uid\n
-getSlapState</string> </value>
+getSlapState\n
+getSlapTimestamp</string> </value>
         </item>
         <item>
             <key> <string>cache_time_</string> </key>
@@ -75,7 +76,7 @@ getSlapState</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string></string> </value>
+            <value> <string>z_catalog_slapos_item_list</string> </value>
         </item>
         <item>
             <key> <string>type</string> </key>

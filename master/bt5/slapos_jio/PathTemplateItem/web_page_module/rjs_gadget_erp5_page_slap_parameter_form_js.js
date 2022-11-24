@@ -790,7 +790,6 @@
     var serialisation = gadget.state.serialisation,
       json_url = gadget.state.json_url,
       parameter_xml = gadget.state.parameter_xml,
-      restricted_softwaretype = gadget.state.restricted_softwaretype,
       shared = gadget.state.shared,
       softwaretype = gadget.state.softwaretype,
       softwareindex = gadget.state.softwareindex,
@@ -823,7 +822,7 @@
           lowest_index = 999,
           lowest_option_index;
 
-        if (!editable || restricted_softwaretype === true) {
+        if (!editable || gadget.state.restricted_softwaretype === true) {
           input.classList.add("readonly");
           input["aria-disabled"] = "true";
           input["tab-index"] = "-1";
@@ -834,13 +833,16 @@
             // search by the lowest index
             for (option_index in json['software-type']) {
               if (json['software-type'].hasOwnProperty(option_index)) {
-                if (json['software-type'][option_index].index === undefined) {
-                  json['software-type'][option_index].index = 999;
-                }
+                if ((gadget.state.software_type_list.length === 0) ||
+                    (gadget.state.software_type_list.includes(option_index))) {
+                  if (json['software-type'][option_index].index === undefined) {
+                    json['software-type'][option_index].index = 999;
+                  }
 
-                if (json['software-type'][option_index].index < lowest_index) {
-                  lowest_index = json['software-type'][option_index].index;
-                  lowest_option_index = option_index;
+                  if (json['software-type'][option_index].index < lowest_index) {
+                    lowest_index = json['software-type'][option_index].index;
+                    lowest_option_index = option_index;
+                  }
                 }
               }
             }
@@ -848,63 +850,66 @@
 
           for (option_index in json['software-type']) {
             if (json['software-type'].hasOwnProperty(option_index)) {
+              if ((gadget.state.software_type_list.length === 0) ||
+                  (gadget.state.software_type_list.includes(option_index))) {
 
-              if (json['software-type'][option_index].shared === undefined) {
-                json['software-type'][option_index].shared = false;
-              }
-
-              option = domsugar("option", {
-                text: json['software-type'][option_index].title,
-                value: option_index
-              });
-              option['data-id'] = option_index;
-              option['data-index'] = 999;
-              option['data-shared'] = json['software-type'][option_index].shared;
-
-              if (json['software-type'][option_index]['software-type'] !== undefined) {
-                option.value = json['software-type'][option_index]['software-type'];
-              }
-
-              if (json['software-type'][option_index].index) {
-                option['data-index'] = json['software-type'][option_index].index;
-              }
-
-              if (option_index === lowest_option_index) {
-                option_selected = option.value;
-                option.selected = true;
-                option_selected_index = option_index;
-                if (json['software-type'][option_index].shared === true) {
-                  parameter_shared.value = true;
-                } else {
-                  parameter_shared.value = false;
+                if (json['software-type'][option_index].shared === undefined) {
+                  json['software-type'][option_index].shared = false;
                 }
-                if (shared === undefined) {
-                  shared = parameter_shared.value;
-                }
-              }
 
-              if ((option_selected_index === undefined) &&
-                  (option.value === option_selected) &&
-                  (Boolean(shared) === Boolean(json['software-type'][option_index].shared))) {
-                option.selected = true;
-                option_selected_index = option_index;
-                if (json['software-type'][option_index].shared === true) {
-                  parameter_shared.value = true;
-                } else {
-                  parameter_shared.value = false;
-                }
-              }
+                option = domsugar("option", {
+                  text: json['software-type'][option_index].title,
+                  value: option_index
+                });
+                option['data-id'] = option_index;
+                option['data-index'] = 999;
+                option['data-shared'] = json['software-type'][option_index].shared;
 
-              if (restricted_softwaretype === true) {
-                if (option.value === softwaretype) {
-                  if (Boolean(shared) === Boolean(json['software-type'][option_index].shared)) {
-                    selection_option_list.push(option);
-                    // We expect a single possible occurence per software type
-                    break;
+                if (json['software-type'][option_index]['software-type'] !== undefined) {
+                  option.value = json['software-type'][option_index]['software-type'];
+                }
+
+                if (json['software-type'][option_index].index) {
+                  option['data-index'] = json['software-type'][option_index].index;
+                }
+
+                if (option_index === lowest_option_index) {
+                  option_selected = option.value;
+                  option.selected = true;
+                  option_selected_index = option_index;
+                  if (json['software-type'][option_index].shared === true) {
+                    parameter_shared.value = true;
+                  } else {
+                    parameter_shared.value = false;
+                  }
+                  if (shared === undefined) {
+                    shared = parameter_shared.value;
                   }
                 }
-              } else {
-                selection_option_list.push(option);
+
+                if ((option_selected_index === undefined) &&
+                    (option.value === option_selected) &&
+                    (Boolean(shared) === Boolean(json['software-type'][option_index].shared))) {
+                  option.selected = true;
+                  option_selected_index = option_index;
+                  if (json['software-type'][option_index].shared === true) {
+                    parameter_shared.value = true;
+                  } else {
+                    parameter_shared.value = false;
+                  }
+                }
+
+                if (gadget.state.restricted_softwaretype === true) {
+                  if (option.value === softwaretype) {
+                    if (Boolean(shared) === Boolean(json['software-type'][option_index].shared)) {
+                      selection_option_list.push(option);
+                      // We expect a single possible occurence per software type
+                      break;
+                    }
+                  }
+                } else {
+                  selection_option_list.push(option);
+                }
               }
             }
           }
@@ -1069,8 +1074,9 @@
     })
 
     .declareMethod('render', function (options) {
-      var restricted_softwaretype, 
-      parameter_hash = options.value.parameter.parameter_hash,
+      var restricted_softwaretype = false,
+        software_type_list = [],
+        parameter_hash = options.value.parameter.parameter_hash,
         // XXX Do we directly get parameter_xml parameter?
         parameter_xml = options.value.parameter.parameter_xml;
 
@@ -1079,11 +1085,17 @@
         parameter_xml = atob(parameter_hash);
       }
 
+      if (options.value.parameter.software_type_list !== undefined) {
+        software_type_list = options.value.parameter.software_type_list;
+      }
+
       if (options.value.parameter.softwaretype !== undefined) {
         restricted_softwaretype = true;
-      } else {
-        restricted_softwaretype = false;
+        // exceptional situation where the default item must be in
+        // the list. 
+        software_type_list.push(options.value.parameter.softwaretype);
       }
+
 
       return this.changeState({
         // Not used parameters
@@ -1095,6 +1107,7 @@
         restricted_softwaretype: restricted_softwaretype,
         shared: options.value.parameter.shared,
         softwaretype: options.value.parameter.softwaretype,
+        software_type_list: software_type_list,
         softwareindex: options.value.parameter.softwareindex,
         editable: options.editable,
         // Force refresh in any case

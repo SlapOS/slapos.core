@@ -1003,6 +1003,7 @@ class Interface(object):
     self.name = str(name)
     self.ipv4_local_network = ipv4_local_network
     self.ipv6_interface = ipv6_interface or name
+    self._ipv6_ranges = set()
 
   # XXX no __getinitargs__, as instances of this class are never deserialized.
 
@@ -1077,7 +1078,6 @@ class Interface(object):
       address_string = '%s/%s' % (address, netmaskToPrefixIPv4(netmask))
       interface_name = self.name
 
-
     if tap:
       interface_name = tap.name
     # check if address is already took by any other interface
@@ -1151,6 +1151,25 @@ class Interface(object):
     else:
       # confirmed to be configured
       return dict(addr=addr, netmask=netmask)
+
+  def _checkIpv6Range(self, address, prefixlen):
+    network = str(netaddr.IPNetwork("%s/%d" % (address, prefixlen)).cidr)
+    if network in self._ipv6_ranges:
+      self._logger.warning(
+        "Address range %s/%d is already attributed", address, prefixlen)
+      return False
+    return True
+
+  def _reserveIpv6Range(self, address, prefixlen):
+    network = str(netaddr.IPNetwork("%s/%d" % (address, prefixlen)).cidr)
+    assert(network not in self._ipv6_ranges)
+    self._ipv6_ranges.add(network)
+
+  def _tryReserveIpv6Range(self, address, prefixlen):
+    if self._checkIpv6Range(address, prefixlen):
+      self._reserveIpv6Range(address, prefixlen)
+      return True
+    return False
 
   def _generateRandomIPv6Addr(self, address_dict):
     netmask = address_dict['netmask']
@@ -1247,9 +1266,12 @@ class Interface(object):
       result_addr['netmask'] = netmaskFromLenIPv6(128)
     else:
       result_addr = getPartitionIpv6Addr(address_dict, partition_index)
-      result_addr['netmask'] = netmaskFromLenIPv6(result_addr.pop('prefixlen'))
-    if self._addSystemAddress(result_addr['addr'], result_addr['netmask'], tap=tap):
-      return result_addr
+      result_addr['netmask'] = netmaskFromLenIPv6(result_addr['prefixlen'])
+    if not tap or self._checkIpv6Range(result_addr['addr'], result_addr['prefixlen']):
+      if self._addSystemAddress(result_addr['addr'], result_addr['netmask'], tap=tap):
+        if tap:
+          self._reserveIpv6Range(result_addr['addr'], result_addr['prefixlen'])
+        return result_addr
 
     # Try 10 times to add address, raise in case if not possible
     for _ in range(10):
@@ -1260,10 +1282,14 @@ class Interface(object):
       else:
         result_addr = self._generateRandomIPv6Addr(address_dict)
       # Checking the validity of the IPv6 address
-      if self._addSystemAddress(result_addr['addr'], result_addr['netmask'], tap=tap):
-        return result_addr
+      addr = result_addr['addr']
+      if not tap or self._checkIpv6Range(addr, result_addr['prefixlen']):
+        if self._addSystemAddress(addr, result_addr['netmask'], tap=tap):
+          if tap:
+            self._reserveIpv6Range(addr, result_addr['prefixlen'])
+          return result_addr
 
-    raise AddressGenerationError(result_addr['addr'])
+    raise AddressGenerationError(addr)
 
   def generateIPv6Range(self, i):
     """
@@ -1289,7 +1315,14 @@ class Interface(object):
     ipv6_range = getPartitionIpv6Range(address_dict, i)
     ipv6_range['netmask'] = netmaskFromLenIPv6(ipv6_range['prefixlen'])
     ipv6_range['network'] = '%(addr)s/%(prefixlen)d' % ipv6_range
-    return ipv6_range
+    if self._tryReserveIpv6Range(ipv6_range['addr'], ipv6_range['prefixlen']):
+      return ipv6_range
+    # Try 10 times to add address, raise in case if not possible
+    for _ in range(10):
+      ipv6_range = self._generateRandomIPv6Range(address_dict, suffix='0')
+      if self._tryReserveIpv6Range(ipv6_range['addr'], ipv6_range['prefixlen']):
+        return ipv6_range
+    raise AddressGenerationError(ipv6_range['addr'])
 
   def allowUseInexistingIpv6Address(self):
     # This will allow the usage of unexisting IPv6 adrdresses.

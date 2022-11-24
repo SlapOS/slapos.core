@@ -266,7 +266,6 @@
       input,
       default_value,
       default_used_list = [],
-      default_div,
       is_required;
 
     if (default_dict === undefined) {
@@ -277,7 +276,7 @@
       path = "/";
     }
 
-    if (editable && json_field.patternProperties !== undefined) {
+    if (json_field.patternProperties !== undefined) {
       if (json_field.patternProperties['.*'] !== undefined) {
 
         div = domsugar("div", {
@@ -285,31 +284,30 @@
           title: json_field.description
         });
 
-
-        div_input = domsugar("div", {
-          "class": "input"
-        }, [
-          domsugar('input', {
-            type: "text",
-            // Name is only meaningfull to automate tests
-            name: "ADD" + path
-          }),
-          domsugar('button', {
-            value: btoa(JSON.stringify(json_field.patternProperties['.*'])),
-            "class": "add-sub-form",
-            type: "button",
-            name: path,
-            text: "+"
-          })
-        ]);
-        div.appendChild(div_input);
+        if (editable) {
+          div_input = domsugar("div", {
+            "class": "input"
+          }, [
+            domsugar('input', {
+              type: "text",
+              // Name is only meaningfull to automate tests
+              name: "ADD" + path
+            }),
+            domsugar('button', {
+              value: btoa(JSON.stringify(json_field.patternProperties['.*'])),
+              "class": "add-sub-form",
+              type: "button",
+              name: path,
+              text: "+"
+            })
+          ]);
+          div.appendChild(div_input);
+        }
 
         for (default_value in default_dict) {
           if (default_dict.hasOwnProperty(default_value)) {
-            default_div = domsugar("div", {
-              "class": "slapos-parameter-dict-key"
-            }, [
-              domsugar('label', {
+            if (editable) {
+              label = domsugar('label', {
                 text: default_value,
                 'class': "slapos-parameter-dict-key"
               }, [
@@ -318,13 +316,20 @@
                   "class": "bt_close CLOSE" + path + "/" + default_value,
                   title: "Remove this parameter section."
                 })
-              ])
-            ]);
+              ]);
+            } else {
+              label = domsugar('label', {
+                text: default_value,
+                'class': "slapos-parameter-dict-key"
+              });
+            }
 
             div.appendChild(render_subform(
               json_field.patternProperties['.*'],
               default_dict[default_value],
-              default_div,
+              domsugar("div", {
+                "class": "slapos-parameter-dict-key"
+              }, [label]),
               path + "/" + default_value,
               editable
             ));
@@ -518,7 +523,6 @@
         convertOnMultiLevel(entry, json_dict[entry], multi_level_dict);
       }
     }
-
     return multi_level_dict;
   }
 

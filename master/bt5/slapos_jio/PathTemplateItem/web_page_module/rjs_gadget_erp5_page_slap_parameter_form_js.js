@@ -1069,13 +1069,20 @@
     })
 
     .declareMethod('render', function (options) {
-      var parameter_hash = options.value.parameter.parameter_hash,
+      var restricted_softwaretype, 
+      parameter_hash = options.value.parameter.parameter_hash,
         // XXX Do we directly get parameter_xml parameter?
         parameter_xml = options.value.parameter.parameter_xml;
 
       if (parameter_hash !== undefined) {
         // A JSON where provided via gadgetfield
         parameter_xml = atob(parameter_hash);
+      }
+
+      if (options.value.parameter.softwaretype !== undefined) {
+        restricted_softwaretype = true;
+      } else {
+        restricted_softwaretype = false;
       }
 
       return this.changeState({
@@ -1085,7 +1092,7 @@
         serialisation: options.serialisation,
         json_url: options.value.parameter.json_url,
         parameter_xml: parameter_xml,
-        restricted_softwaretype: options.value.parameter.restricted_softwaretype,
+        restricted_softwaretype: restricted_softwaretype,
         shared: options.value.parameter.shared,
         softwaretype: options.value.parameter.softwaretype,
         softwareindex: options.value.parameter.softwareindex,

@@ -65,6 +65,7 @@
     })
 
     .declareMethod("triggerSubmit", function () {
+      // @ts-ignore
       return this.element.querySelector('button[type="submit"]').click();
     })
 
@@ -72,10 +73,17 @@
       if (options.url_string === undefined) {
         options.url_string = "";
       }
+      if (options.editable === undefined) {
+        options.editable = true;
+      }
+      if (options.restricted_softwaretype === undefined) {
+        options.restricted_softwaretype = false;
+      }
       return this.changeState({
         "url_string": options.url_string,
-        "parameter_output": options.parameter_output
-      })
+        "parameter_output": options.parameter_output,
+        "restricted_softwaretype": options.restricted_softwaretype
+      });
     })
 
     .onStateChange(function onStateChange() {

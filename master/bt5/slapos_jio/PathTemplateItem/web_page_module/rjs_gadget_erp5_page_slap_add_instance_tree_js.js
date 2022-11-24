@@ -107,13 +107,10 @@
             parameter_dict = {
               'parameter' : {
                 'json_url':  doc.url_string.split('?')[0] + ".json",
-                //'json_url': "https://lab.node.vifib.com/nexedi/slapos/raw/master/software/kvm/software.cfg.json",
-                'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance/>'),
-                'restricted_softwaretype': false
+                'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance/>')
               }
             };
           if (options.software_type) {
-            parameter_dict["parameter"]['restricted_softwaretype'] = true;
             parameter_dict["parameter"]['softwaretype'] = options.software_type;
           }
           if (options.shared) {

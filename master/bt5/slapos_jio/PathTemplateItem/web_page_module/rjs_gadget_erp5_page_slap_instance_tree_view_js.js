@@ -226,8 +226,7 @@
                 'json_url': gadget.state.doc.url_string.split('?')[0] + ".json",
                 'softwaretype': gadget.state.doc.source_reference,
                 'shared': gadget.state.doc.root_slave ? 1 : 0,
-                'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance></instance>'),
-                'restricted_softwaretype': true
+                'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance></instance>')
               }
             };
           if (gadget.state.doc.text_content !== undefined) {

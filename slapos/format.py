@@ -1170,7 +1170,8 @@ class Interface(object):
         if dict_addr_netmask in interface_addr_list or \
            (tap and dict_addr_netmask in self.getGlobalScopeAddressList(tap=tap)):
           # confirmed to be configured
-          return dict_addr_netmask
+          # return without len to keep format stable, as the first time len is not included
+          return dict_addr_netmask_without_len
       if netmask == address_dict['netmask'] or \
          (tap and lenNetmaskIpv6(netmask) == 128):
         # same netmask, so there is a chance to add good one

@@ -58,7 +58,10 @@ import six
 import lxml.etree
 import xml_marshaller.xml_marshaller
 
-from slapos.util import dumps, mkdir_p, ipv6FromBin, binFromIpv6, lenNetmaskIpv6, getPartitionIpv6Addr, getPartitionIpv6Range, getTapIpv6Range, netmaskFromLenIPv6
+from slapos.util import (dumps, mkdir_p, ipv6FromBin, binFromIpv6,
+                        lenNetmaskIpv6, getPartitionIpv6Addr,
+                        getPartitionIpv6Range, getTapIpv6Range,
+                        getTunIpv6Range, netmaskFromLenIPv6)
 import slapos.slap as slap
 from slapos import version
 from slapos import manager as slapmanager
@@ -462,11 +465,25 @@ class Computer(object):
       else:
         tap = Tap(partition_dict['reference'])
 
-      if partition_dict.get('tun') is not None and partition_dict['tun'].get('ipv4_addr') is not None:
-        tun = Tun(partition_dict['tun']['name'], partition_index, partition_amount)
-        tun.ipv4_addr = partition_dict['tun']['ipv4_addr']
+      tun_dict = partition_dict.get('tun')
+      if tun_dict is None:
+        if config.create_tun:
+          tun = Tun("slaptun" + str(partition_index), partition_index, partition_amount, config.tun_ipv6)
+        else:
+          tun = None
       else:
-        tun = Tun("slaptun" + str(partition_index), partition_index, partition_amount)
+        ipv4_addr = tun_dict.get('ipv4_addr')
+        ipv6_addr = tun_dict.get('ipv6_addr')
+        needs_ipv6 = not ipv6_addr and config.tun_ipv6
+        tun = Tun(tun_dict['name'], partition_index, partition_amount, needs_ipv6)
+        if ipv4_addr:
+          tun.ipv4_addr = ipv4_addr
+          tun.ipv4_netmask = tun_dict['ipv4_netmask']
+          tun.ipv4_network = tun_dict['ipv4_network']
+        if ipv6_addr:
+          tun.ipv6_addr = ipv6_addr
+          tun.ipv6_netmask = tun_dict['ipv6_netmask']
+          tun.ipv6_network = tun_dict['ipv6_network']
 
       address_list = partition_dict['address_list']
       ipv6_range = partition_dict.get('ipv6_range', {})
@@ -479,7 +496,7 @@ class Computer(object):
           address_list=address_list,
           ipv6_range=ipv6_range,
           tap=tap,
-          tun=tun if config.create_tun else None,
+          tun=tun,
           external_storage_list=external_storage_list,
       )
 
@@ -651,7 +668,12 @@ class Computer(object):
           if partition.tun is not None:
             # create TUN interface per partition as well
             partition.tun.createWithOwner(owner)
-            partition.tun.createRoutes()
+            if partition.tun._needs_ipv6:
+              ipv6_dict = self.interface.generateIPv6Range(partition_index, tun=True)
+              partition.tun.ipv6_addr = ipv6_dict['addr']
+              partition.tun.ipv6_netmask = ipv6_dict['netmask']
+              partition.tun.ipv6_network = "%(addr)s/%(prefixlen)d" % ipv6_dict
+            #partition.tun.createRoutes()
 
           # Reconstructing partition's address
           # There should be two addresses on each Computer Partition:
@@ -954,13 +976,14 @@ class Tun(Tap):
   BASE_MASK = 12
   BASE_NETWORK = "172.16.0.0"
 
-  def __init__(self, name, sequence=None, partitions=None):
+  def __init__(self, name, sequence=None, partitions=None, needs_ipv6=False):
     """Create TUN interface with subnet according to the optional ``sequence`` number.
 
     :param name: name which will appear in ``ip list`` afterwards
     :param sequence: {int} position of this TUN among all ``partitions``
     """
     super(Tun, self).__init__(name)
+    self._needs_ipv6 = needs_ipv6
     if sequence is not None:
       assert 0 <= sequence < partitions, "0 <= {} < {}".format(sequence, partitions)
       # create base IPNetwork
@@ -985,9 +1008,11 @@ class Tun(Tap):
       if code == 0:
         # address added to the interface - wait
         time.sleep(1)
-    else:
-      raise RuntimeError("Cannot setup address on interface {}. "
-                         "Address is missing.".format(self.name))
+    if self.ipv6_network:
+      code, result = callAndRead(['ip', '-6', 'route', 'show', self.ipv6_network], raise_on_error=False)
+      if code != 0 or 'dev {}'.format(self.name) not in result:
+        callAndRead(['ip', '-6', 'route', 'add', self.ipv6_network, 'dev', self.name])
+
     # add iptables rule to accept connections from this interface
     chain_rule = ['INPUT', '-i', self.name, '-j', 'ACCEPT']
     code, _ = callAndRead(['iptables', '-C'] + chain_rule, raise_on_error=False)
@@ -1297,7 +1322,7 @@ class Interface(object):
 
     raise AddressGenerationError(addr)
 
-  def generateIPv6Range(self, i):
+  def generateIPv6Range(self, i, tun=False):
     """
     Generate an IPv6 range included in the IPv6 range of the interface. The IPv6 range depends on the partition index i.
 
@@ -1318,7 +1343,10 @@ class Interface(object):
     interface_addr_list = self.getGlobalScopeAddressList()
     address_dict = interface_addr_list[0]
     address_dict['prefixlen'] = lenNetmaskIpv6(address_dict['netmask'])
-    ipv6_range = getPartitionIpv6Range(address_dict, i)
+    if tun:
+      ipv6_range = getTunIpv6Range(address_dict, i)
+    else:
+      ipv6_range = getPartitionIpv6Range(address_dict, i)
     ipv6_range['netmask'] = netmaskFromLenIPv6(ipv6_range['prefixlen'])
     ipv6_range['network'] = '%(addr)s/%(prefixlen)d' % ipv6_range
     if self._tryReserveIpv6Range(ipv6_range['addr'], ipv6_range['prefixlen']):
@@ -1392,7 +1420,7 @@ def parse_computer_definition(conf, definition_path):
     tap = Tap(computer_definition.get(section, 'network_interface'))
     tun = Tun("slaptun" + str(partition_number),
               partition_number,
-              int(conf.partition_amount)) if conf.create_tun else None
+              int(conf.partition_amount, conf.tun_ipv6)) if conf.create_tun else None
     partition = Partition(reference=computer_definition.get(section, 'pathname'),
                           path=os.path.join(conf.instance_root,
                                             computer_definition.get(section, 'pathname')),
@@ -1464,7 +1492,7 @@ def parse_computer_xml(conf, xml_path):
         address_list=None,
         ipv6_range=None,
         tap=Tap('%s%s' % (conf.tap_base_name, i)),
-        tun=Tun('slaptun' + str(i), i, partition_amount) if conf.create_tun else None
+        tun=Tun('slaptun' + str(i), i, partition_amount, conf.tun_ipv6) if conf.create_tun else None
     )
     computer.partition_list.append(partition)
 
@@ -1552,11 +1580,12 @@ class FormatConfig(object):
   ipv6_interface = None
   partition_has_ipv6_range = True
   create_tap = True
-  create_tun = False
   tap_base_name = None
   tap_ipv6 = True
   tap_gateway_interface = ''
   ipv4_local_network = None
+  create_tun = False
+  tun_ipv6 = True
 
   # User options
   alter_user = 'True' # modifiable by cmdline
@@ -1615,7 +1644,7 @@ class FormatConfig(object):
         raise UsageError(message)
 
     # Convert strings to booleans
-    for option in ['alter_network', 'alter_user', 'partition_has_ipv6_range', 'create_tap', 'create_tun', 'tap_ipv6']:
+    for option in ['alter_network', 'alter_user', 'partition_has_ipv6_range', 'create_tap', 'create_tun', 'tap_ipv6', 'tun_ipv6']:
       attr = getattr(self, option)
       if isinstance(attr, str):
         if attr.lower() == 'true':

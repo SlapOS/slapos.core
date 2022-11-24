@@ -1,0 +1,55 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Parameter editor (Theia Simpler Test) </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Parameter editor (Theia Simpler Test)</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init_readonly" />
+      <tr>
+        <td colspan="3"><b> Set URL for the software release </b></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@name='url_string']</td>
+        <td>https://lab.nexedi.com/nexedi/slapos/raw/1.0.289/software/theia/software.cfg</td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//textarea[@name='parameter_output']</td>
+        <td tal:content="python: '<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><instance><parameter id=&quot;autorun&quot;>running</parameter></instance>'"></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
+
+      <tr>
+        <td colspan="3"><b>Assert parameter was loaded</b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//select[@name="//autorun" and contains(@class, "readonly")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//select[@name="//autorun" and contains(@class, "readonly")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertValue</td>
+        <td>//select[@name="//autorun" and contains(@class, "readonly")]</td>
+        <td>running</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+
+</html>

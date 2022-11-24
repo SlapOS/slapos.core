@@ -51,7 +51,7 @@
   display: inline-block;
 }
 
-button.hidden-button {
+.display-none {
   display: none;
 }
 
@@ -68,29 +68,14 @@ margin: 5px 0 10px; max-height: 250px; width: 80%;}
 
 .subfield {
   padding-left: 20px;
-}
-
-label.slapos-parameter-dict-key::before {
-  content: "Parameter Entry: ";
-}
-
-
-div.slapos-parameter-dict-key {
-  margin-top: 10px;
-  margin-left: 6px;
-}
-
-.subfield {
   padding-top: 3px;
 }
+
 textarea.slapos-parameter {
   width: 400px;
   height: 100px;
 }
 
-button.hidden-button {
-  display: none;
-}
 label.slapos-parameter-dict-key::before {
   content: "\25BC  Parameter Entry: ";
 }

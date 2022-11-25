@@ -1,0 +1,12 @@
+<base_category_list>
+ <portal_type id="Compute Node">
+  <item>publication_section</item>
+ </portal_type>
+ <portal_type id="Data Array">
+  <item>causality</item>
+  <item>predecessor</item>
+ </portal_type>
+ <portal_type id="Data Mapping Module">
+  <item>business_application</item>
+ </portal_type>
+</base_category_list>

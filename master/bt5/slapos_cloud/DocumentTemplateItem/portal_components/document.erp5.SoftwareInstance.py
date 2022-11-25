@@ -158,6 +158,8 @@ class SoftwareInstance(Item, JSONType):
       state = 'started'
     elif requested_state == "destroy_requested":
       state = 'destroyed'
+    elif requested_state == "draft":
+      state = 'draft'
     else:
       raise ValueError("Unknown slap state : %s" % requested_state)
 
@@ -332,6 +334,8 @@ class SoftwareInstance(Item, JSONType):
       state = 'started'
     elif requested_state == "destroy_requested":
       state = 'destroyed'
+    elif requested_state == "draft":
+      state = 'draft'
     else:
       raise ValueError("Unknown slap state : %s" % requested_state)
     # software instance has to define an xml parameter

@@ -30,6 +30,8 @@ if portal_type == "Software Instance":
     search_kw["strict_specialise_title"] = data_dict["root_instance_title"]
   if "state" in data_dict:
     search_kw["slap_state"] = reverse_slap_state_dict.get(data_dict["state"], "")
+  if "from_processing_timestamp" in data_dict:
+    search_kw["slap_date"] = ">= %s" % DateTime(data_dict["from_processing_timestamp"])
 
   result_list = [{
     "title": x.title,
@@ -64,6 +66,9 @@ elif portal_type == "Shared Instance":
     search_kw["strict_specialise_title"] = data_dict["root_instance_title"]
   if "state" in data_dict:
     search_kw["slap_state"] = reverse_slap_state_dict.get(data_dict["state"], "")
+  if "from_processing_timestamp" in data_dict:
+    search_kw["slap_date"] = ">= %s" % DateTime(data_dict["from_processing_timestamp"])
+
   result_list = [{
     "title": x.title,
     "reference": x.reference,

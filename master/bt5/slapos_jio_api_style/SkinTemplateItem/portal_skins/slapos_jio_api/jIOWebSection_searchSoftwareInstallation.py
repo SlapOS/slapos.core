@@ -1,7 +1,7 @@
 search_kw = {
   "portal_type": "Software Installation",
   "validation_state": "validated",
-  "select_list": ("aggregate_reference", "url_string", "slap_state", "portal_type"),
+  "select_list": ("aggregate_reference", "url_string", "slap_state", "portal_type", "slap_date"),
 }
 
 if "software_release_uri" in data_dict:
@@ -14,6 +14,7 @@ result_list = [{
   "compute_node_id": x.aggregate_reference,
   "state": "available" if x.slap_state == "start_requested" else "destroyed",
   "portal_type": x.portal_type,
+  "processing_timestamp": int(x.slap_date),
 } for x in context.getPortalObject().portal_catalog(**search_kw)]
 
 import json

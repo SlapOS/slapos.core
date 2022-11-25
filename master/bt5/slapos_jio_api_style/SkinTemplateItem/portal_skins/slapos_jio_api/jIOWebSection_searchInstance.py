@@ -17,7 +17,7 @@ if portal_type == "Software Instance":
   search_kw = {
     "portal_type": "Software Instance",
     "validation_state": "validated",
-    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "url_string")
+    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "url_string", "slap_date")
   }
 
   if "title" in data_dict:
@@ -38,13 +38,14 @@ if portal_type == "Software Instance":
     "state": slap_state_dict.get(x.slap_state, ""),
     "compute_partition_id": x.aggregate_reference,
     "software_release_uri": x.url_string,
+    "processing_timestamp": int(x.slap_date),
   } for x in portal.portal_catalog(**search_kw)]
 
 elif portal_type == "Shared Instance":
   search_kw = {
     "portal_type": "Slave Instance",
     "validation_state": "validated",
-    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference")
+    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "slap_date")
   }
   if "host_instance_reference" in data_dict:
     host_instance_list = portal.portal_catalog(
@@ -69,6 +70,7 @@ elif portal_type == "Shared Instance":
     "portal_type": "Shared Instance",
     "state": slap_state_dict.get(x.slap_state, ""),
     "compute_partition_id": x.aggregate_reference,
+    "processing_timestamp": int(x.slap_date),
     # Slave Instance don't have url_string cataloged. Selecting it return 0 result each time
     #"software_release_uri": x.url_string,
   } for x in portal.portal_catalog(**search_kw)]

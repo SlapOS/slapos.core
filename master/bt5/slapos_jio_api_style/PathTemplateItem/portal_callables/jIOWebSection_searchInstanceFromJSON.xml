@@ -70,6 +70,11 @@
                 "type": "string",\n
                 "description": "URL of the software release used by the software instance"\n
               },\n
+              "processing_timestamp": {\n
+                "title": "Processing Timestamp",\n
+                "type": "number",\n
+                "description": "Timestamp set by the master node to mark when it was last processed in the master node. If it has been processed on master, it needs reprocessing on the compute node."\n
+              },\n
               "portal_type": {\n
                 "title": "Portal Type",\n
                 "const": "Software Instance",\n
@@ -95,6 +100,11 @@
                 "type": "string",\n
                 "enum": ["started", "stopped", "destroyed"],\n
                 "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
+              },\n
+              "processing_timestamp": {\n
+                "title": "Processing Timestamp",\n
+                "type": "number",\n
+                "description": "Timestamp set by the master node to mark when it was last processed in the master node. If it has been processed on master, it needs reprocessing on the compute node."\n
               },\n
               "portal_type": {\n
                 "title": "Portal Type",\n

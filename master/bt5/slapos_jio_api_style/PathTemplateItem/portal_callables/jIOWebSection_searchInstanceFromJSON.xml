@@ -35,6 +35,16 @@
   "title": "allDocs: Response Payload",\n
   "description": "Payload returned by allDocs method.",\n
   "properties": {\n
+    "result_number": {\n
+      "title": "Result Number",\n
+      "type": "number",\n
+      "description": "Quantity of results found"\n
+    },\n
+    "max_result_number_allowed": {\n
+      "title": "Max Result Number",\n
+      "type": "number",\n
+      "description": "Highest number of result given by the system. To get the rest of the result you can use \'from_processing_timestamp\' parameter for pagination."\n
+    },\n
     "result_list": {\n
       "title": "Result List",\n
       "description": "Contains a representation of the items",\n

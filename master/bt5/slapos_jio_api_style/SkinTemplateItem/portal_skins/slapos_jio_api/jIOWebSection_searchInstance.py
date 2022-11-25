@@ -1,6 +1,9 @@
 portal_type = data_dict["portal_type"]
 portal = context.getPortalObject()
 
+# Hardcoded
+limit = 1000
+
 reverse_slap_state_dict = {
   "stopped": "stop_requested",
   "started": "start_requested",
@@ -17,7 +20,9 @@ if portal_type == "Software Instance":
   search_kw = {
     "portal_type": "Software Instance",
     "validation_state": "validated",
-    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "url_string", "slap_date")
+    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "url_string", "slap_date"),
+    "sort_on": ("slap_date", "ASC"),
+    "limit": limit
   }
 
   if "title" in data_dict:
@@ -47,7 +52,9 @@ elif portal_type == "Shared Instance":
   search_kw = {
     "portal_type": "Slave Instance",
     "validation_state": "validated",
-    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "slap_date")
+    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "slap_date"),
+    "sort_on": ("slap_date", "ASC"),
+    "limit": limit
   }
   if "host_instance_reference" in data_dict:
     host_instance_list = portal.portal_catalog(
@@ -89,5 +96,7 @@ else:
 import json
 return json.dumps({
   "$schema": json_form.absolute_url().strip() + "/getOutputJSONSchema",
-  "result_list": result_list
+  "result_list": result_list,
+  "result_number": len(result_list),
+  "max_result_number_allowed": limit,
 }, indent=2)

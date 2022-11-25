@@ -36,17 +36,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//input[@name="//simple-string" and @type="text"]</td>
+        <td>//input[@name="//simple-string" and @type="text" and @readonly="true"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//input[@name="//simple-string" and @type="text"]</td>
+        <td>//input[@name="//simple-string" and @type="text" and @readonly="true"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//input[@name="//simple-string" and @type="text"]</td>
+        <td>//input[@name="//simple-string" and @type="text" and @readonly="true"]</td>
         <td>this is a simple string</td>
       </tr>
 
@@ -55,17 +55,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//select[@name="//simple-string-with-enum"]</td>
+        <td>//select[@name="//simple-string-with-enum" and contains(@class, "readonly")]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//select[@name="//simple-string-with-enum"]</td>
+        <td>//select[@name="//simple-string-with-enum" and contains(@class, "readonly")]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//select[@name="//simple-string-with-enum"]</td>
+        <td>//select[@name="//simple-string-with-enum" and contains(@class, "readonly")]</td>
         <td>simple string B</td>
       </tr>
 
@@ -74,17 +74,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//select[@name="//simple-boolean"]</td>
+        <td>//select[@name="//simple-boolean" and contains(@class, "readonly")]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//select[@name="//simple-boolean"]</td>
+        <td>//select[@name="//simple-boolean" and contains(@class, "readonly")]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//select[@name="//simple-boolean"]</td>
+        <td>//select[@name="//simple-boolean" and contains(@class, "readonly")]</td>
         <td>true</td>
       </tr>
 
@@ -93,17 +93,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//textarea[@name="//simple-string-with-text-area"]</td>
+        <td>//textarea[@name="//simple-string-with-text-area" and @readonly="true"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//textarea[@name="//simple-string-with-text-area"]</td>
+        <td>//textarea[@name="//simple-string-with-text-area" and @readonly="true"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//textarea[@name="//simple-string-with-text-area"]</td>
+        <td>//textarea[@name="//simple-string-with-text-area" and @readonly="true"]</td>
         <td>this is a simple string on a text area</td>
       </tr>
 
@@ -112,17 +112,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//input[@name="//simple-integer" and @type="number"]</td>
+        <td>//input[@name="//simple-integer" and @type="number" and @readonly="true"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//input[@name="//simple-integer" and @type="number"]</td>
+        <td>//input[@name="//simple-integer" and @type="number" and @readonly="true"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//input[@name="//simple-integer" and @type="number"]</td>
+        <td>//input[@name="//simple-integer" and @type="number" and @readonly="true"]</td>
         <td>1</td>
       </tr>
 
@@ -131,17 +131,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//select[@name="//simple-integer-with-enum"]</td>
+        <td>//select[@name="//simple-integer-with-enum" and contains(@class, "readonly")]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//select[@name="//simple-integer-with-enum"]</td>
+        <td>//select[@name="//simple-integer-with-enum" and contains(@class, "readonly")]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//select[@name="//simple-integer-with-enum"]</td>
+        <td>//select[@name="//simple-integer-with-enum" and contains(@class, "readonly")]</td>
         <td>7</td>
       </tr>
 
@@ -150,17 +150,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//input[@name="//simple-numeric-integer" and @type="number"]</td>
+        <td>//input[@name="//simple-numeric-integer" and @type="number" and @readonly="true"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//input[@name="//simple-numeric-integer" and @type="number"]</td>
+        <td>//input[@name="//simple-numeric-integer" and @type="number" and @readonly="true"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//input[@name="//simple-numeric-integer" and @type="number"]</td>
+        <td>//input[@name="//simple-numeric-integer" and @type="number" and @readonly="true"]</td>
         <td>2</td>
       </tr>
 
@@ -169,17 +169,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//select[@name="//simple-numeric-integer-enum"]</td>
+        <td>//select[@name="//simple-numeric-integer-enum" and contains(@class, "readonly")]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//select[@name="//simple-numeric-integer-enum"]</td>
+        <td>//select[@name="//simple-numeric-integer-enum" and contains(@class, "readonly")]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//select[@name="//simple-numeric-integer-enum"]</td>
+        <td>//select[@name="//simple-numeric-integer-enum" and contains(@class, "readonly")]</td>
         <td>13</td>
       </tr>
 
@@ -188,17 +188,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//input[@name="//simple-numeric-float" and @type="number" and @step="any"]</td>
+        <td>//input[@name="//simple-numeric-float" and @type="number" and @step="any" and @readonly="true"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//input[@name="//simple-numeric-float" and @type="number"and @step="any"]</td>
+        <td>//input[@name="//simple-numeric-float" and @type="number"and @step="any" and @readonly="true"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//input[@name="//simple-numeric-float" and @type="number"and @step="any"]</td>
+        <td>//input[@name="//simple-numeric-float" and @type="number"and @step="any" and @readonly="true"]</td>
         <td>2</td>
       </tr>
 
@@ -207,17 +207,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//select[@name="//simple-numeric-float-enum"]</td>
+        <td>//select[@name="//simple-numeric-float-enum" and contains(@class, "readonly")]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//select[@name="//simple-numeric-float-enum"]</td>
+        <td>//select[@name="//simple-numeric-float-enum" and contains(@class, "readonly")]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//select[@name="//simple-numeric-float-enum"]</td>
+        <td>//select[@name="//simple-numeric-float-enum" and contains(@class, "readonly")]</td>
         <td>1.25</td>
       </tr>
     </tbody>

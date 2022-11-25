@@ -2,14 +2,14 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>Test Parameter editor (XML Serialisation) </title>
+  <title>Test Parameter editor (AllOf ReadOnly) </title>
 </head>
 
 <body>
   <table cellpadding="1" cellspacing="1" border="1">
     <thead>
       <tr>
-        <td rowspan="1" colspan="3">Test Parameter editor (JSON in XML Serialisation)</td>
+        <td rowspan="1" colspan="3">Test Parameter editor (AllOf ReadOnly)</td>
       </tr>
     </thead>
     <tbody>
@@ -20,17 +20,36 @@
       <tr>
         <td>type</td>
         <td>//input[@name='url_string']</td>
-        <td>${base_url}/web_site_module/hostingjs/hateoas/sample-software-schema/minimal_json_in_xml_demo/software.cfg</td>
+        <td>${base_url}/web_site_module/hostingjs/hateoas/sample-software-schema/simpledemo/software.cfg</td>
       </tr>
       <tr>
         <td>type</td>
         <td>//textarea[@name='parameter_output']</td>
         <td tal:content="python: '<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><instance><parameter id=&quot;_&quot;>{&quot;simple-string&quot;: &quot;this is a simple string&quot;,&quot;simple-string-with-enum&quot;: &quot;simple string B&quot;,&quot;simple-boolean&quot;: true,&quot;simple-string-with-text-area&quot;: &quot;this is a simple string on a text area&quot;,&quot;simple-integer&quot;: 1,&quot;simple-integer-with-enum&quot;: 7,&quot;simple-numeric-integer&quot;: 2,&quot;simple-numeric-integer-enum&quot;: 13,&quot;simple-numeric-float&quot;: 2,&quot;simple-numeric-float-enum&quot;: 1.25,&quot;simple-object&quot;: {    &quot;sample-object-string&quot;: &quot;this is a simple string on an object&quot;,    &quot;simple-object-with-integer&quot;: 99,    &quot;simple-object-with-integer-with-enum&quot;: 2},&quot;simple-object-dict&quot;: {    &quot;Example of Simple object&quot;: {        &quot;simple-object-dict-string-example&quot;: &quot;This an example of a string on an object&quot;,&quot;simple-object-dict-string-with-enum&quot;: &quot;String Sample A&quot;    }}}</parameter></instance>'"></td>
       </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@name='software_type']</td>
+        <td>jsondefault</td>
+      </tr>
+
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
-      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
 
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="JSON in XML"]
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="JSON in XML"]
+        </td>
+        <td></td>
+      </tr>
       <tr>
         <td colspan="3"><b> Fill the simple string</b></td>
       </tr>
@@ -45,7 +64,7 @@
         <td></td>
       </tr>
       <tr>
-        <td>type</td>
+        <td>assertValue</td>
         <td>//input[@name="//simple-string" and @type="text" and @readonly="true"]</td>
         <td>this is a simple string</td>
       </tr>
@@ -55,17 +74,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//select[@name="//simple-string-with-enum" and contains(@class, "readonly")]</td>
+        <td>//select[@name="//simple-string-with-enum"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//select[@name="//simple-string-with-enum" and contains(@class, "readonly")]</td>
+        <td>//select[@name="//simple-string-with-enum"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//select[@name="//simple-string-with-enum" and contains(@class, "readonly")]</td>
+        <td>//select[@name="//simple-string-with-enum"]</td>
         <td>simple string B</td>
       </tr>
 
@@ -74,17 +93,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//select[@name="//simple-boolean" and contains(@class, "readonly")]</td>
+        <td>//select[@name="//simple-boolean"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//select[@name="//simple-boolean" and contains(@class, "readonly")]</td>
+        <td>//select[@name="//simple-boolean"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//select[@name="//simple-boolean" and contains(@class, "readonly")]</td>
+        <td>//select[@name="//simple-boolean"]</td>
         <td>true</td>
       </tr>
 
@@ -93,17 +112,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//textarea[@name="//simple-string-with-text-area" and @readonly="true"]</td>
+        <td>//textarea[@name="//simple-string-with-text-area"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//textarea[@name="//simple-string-with-text-area" and @readonly="true"]</td>
+        <td>//textarea[@name="//simple-string-with-text-area"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//textarea[@name="//simple-string-with-text-area" and @readonly="true"]</td>
+        <td>//textarea[@name="//simple-string-with-text-area"]</td>
         <td>this is a simple string on a text area</td>
       </tr>
 
@@ -188,17 +207,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//input[@name="//simple-numeric-float" and @type="number" and @step="any" and @readonly="true"]</td>
+        <td>//input[@name="//simple-numeric-float" and @type="number" and @readonly="true" and @step="any"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//input[@name="//simple-numeric-float" and @type="number"and @step="any" and @readonly="true"]</td>
+        <td>//input[@name="//simple-numeric-float" and @type="number" and @readonly="true"and @step="any"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertValue</td>
-        <td>//input[@name="//simple-numeric-float" and @type="number"and @step="any" and @readonly="true"]</td>
+        <td>//input[@name="//simple-numeric-float" and @type="number" and @readonly="true"and @step="any"]</td>
         <td>2</td>
       </tr>
 
@@ -284,18 +303,18 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//input[@name="//simple-object-dict/Example of Simple object/simple-object-dict-string-example" and @readonly="true"]</td>
+        <td>//input[@name="//simple-object-dict/Example of Simple object/simple-object-dict-string-example"]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//input[@name="//simple-object-dict/Example of Simple object/simple-object-dict-string-example" and @readonly="true"]</td>
+        <td>//input[@name="//simple-object-dict/Example of Simple object/simple-object-dict-string-example"]</td>
         <td></td>
       </tr>
 
       <tr>
         <td>assertValue</td>
-        <td>//input[@name="//simple-object-dict/Example of Simple object/simple-object-dict-string-example" and @readonly="true"]</td>
+        <td>//input[@name="//simple-object-dict/Example of Simple object/simple-object-dict-string-example"]</td>
         <td>This an example of a string on an object</td>
       </tr>
 
@@ -306,7 +325,7 @@
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//select[@name="//simple-object-dict/Example of Simple object/simple-object-dict-string-with-enum"] and contains(@class, "readonly")</td>
+        <td>//select[@name="//simple-object-dict/Example of Simple object/simple-object-dict-string-with-enum" and contains(@class, "readonly")]</td>
         <td></td>
       </tr>
       <tr>

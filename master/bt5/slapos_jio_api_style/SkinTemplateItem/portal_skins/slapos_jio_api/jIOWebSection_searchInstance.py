@@ -58,7 +58,7 @@ elif portal_type == "Shared Instance":
         error_message="No matching instances with the provided reference has been found",
         error_code=404
       )
-    search_kw["strict_aggregate_uid"] = host_instance_list[0].getObject().getAggregateUid()
+    search_kw["strict_aggregate_uid"] = host_instance_list[0].getObject().getComputePartitionUid()
   if "root_instance_title" in data_dict:
     search_kw["strict_specialise_title"] = data_dict["root_instance_title"]
   if "state" in data_dict:

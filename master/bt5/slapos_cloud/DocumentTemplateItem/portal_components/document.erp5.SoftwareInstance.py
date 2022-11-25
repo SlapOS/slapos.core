@@ -367,3 +367,14 @@ class SoftwareInstance(Item, JSONType):
   security.declareProtected(Permissions.ModifyPortalContent, 'fromJSONText')
   def fromJSONText(self, json_content):
     return self.setJsonContent(json_content)
+
+  def getComputePartitionUid(self):
+    """
+    Get Compute Partition Uid.
+    Used by software instances as Compute Partition deosn't have access to Compute Node Module.
+    """
+    return self._getComputePartitionUid()
+
+  @UnrestrictedMethod
+  def _getComputePartitionUid(self):
+    return self.getAggregateUid()

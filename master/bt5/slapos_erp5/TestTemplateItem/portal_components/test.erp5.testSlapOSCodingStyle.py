@@ -358,7 +358,8 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_abyss/DataArray_generateDiff',
         'slapos_abyss/DataArray_getArrayFileInfoList',
         'slapos_abyss/DataProduct_createDataSupply',
-        'slapos_abyss/DataProduct_createDataTransformation'
+        'slapos_abyss/DataProduct_createDataTransformation',
+        'slapos_abyss/DataProduct_jumpToRelatedDataStream'
      ]
 
       SlapOSTestCaseMixin.afterSetUp(self)

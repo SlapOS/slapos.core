@@ -33,6 +33,7 @@ import hashlib
 import os
 import pkg_resources
 import pwd
+import select
 import stat
 import sys
 import logging
@@ -91,6 +92,29 @@ LOCALE_ENVIRONMENT_REMOVE_LIST = [
   'LC_TIME',
 ]
 
+
+class LineLogger(object):
+  """
+  Logger that takes chunks cut arbitrarily and logs them back line by line.
+  """
+  def __init__(self, logger):
+    self.logger = logger
+    self.current = ''
+
+  def update(self, data):
+    *lines, self.current = (self.current + data).splitlines()
+    for line in lines:
+      self.logger.info(line)
+    if data.endswith('\n'):
+      self.logger.info(self.current)
+      self.current = ''
+
+  def flush(self):
+    if self.current:
+      logger.info(self.current)
+      self.current = ''
+
+
 class SlapPopen(subprocess.Popen):
   """
   Almost normal subprocess with greedish features and logging.
@@ -123,19 +147,60 @@ class SlapPopen(subprocess.Popen):
     if debug:
       self.wait()
       self.output = '(output not captured in debug mode)'
+      self.error = '(error not captured in debug mode)'
       return
+
     self.stdin.flush()
     self.stdin.close()
     self.stdin = None
 
-    output_lines = []
-    for line in self.stdout:
-      if type(line) is not str:
-        line = line.decode(errors='replace')
-      output_lines.append(line)
-      logger.info(line.rstrip('\n'))
-    self.wait(timeout=timeout)
-    self.output = ''.join(output_lines)
+    stderr_fileno = stdout_fileno = None
+    buffers = {}
+    if kwargs['stdout'] is subprocess.PIPE:
+      line_logger = LineLogger(logger)
+      stdout_fileno = self.stdout.fileno()
+      buffers[stdout_fileno] = []
+    if kwargs['stderr'] is subprocess.PIPE:
+      stderr_fileno = self.stderr.fileno()
+      buffers[stderr_fileno] = []
+
+    poll = select.poll()
+    for fd in buffers.keys():
+      poll.register(fd)
+
+    active = len(buffers)
+    if timeout is not None:
+      deadline = time.time() + timeout
+    while active:
+      events = poll.poll(timeout)
+      if not events:
+        break
+      for fd, _ in events:
+        data = os.read(fd, 4096).decode('utf-8', 'replace')
+        if data:
+          if fd == stdout_fileno:
+            line_logger.update(data)
+          buffers[fd].append(data)
+        else:
+          if fd == stdout_fileno:
+            line_logger.flush()
+          poll.unregister(fd)
+          active -= 1
+      if timeout is not None:
+        timeout = deadline - time.time()
+        if timeout <= 0:
+          timeout = 0
+          break
+
+    try:
+      self.wait(timeout=timeout)
+    except subprocess.TimeoutExpired as e:
+      e.output = e.stdout = ''.join(buffers.get(stdout_fileno, ()))
+      e.stderr = ''.join(buffers.get(stderr_fileno, ()))
+      raise
+
+    self.output = ''.join(buffers.get(stdout_fileno, ()))
+    self.error = ''.join(buffers.get(stderr_fileno, ()))
 
 
 def md5digest(url):

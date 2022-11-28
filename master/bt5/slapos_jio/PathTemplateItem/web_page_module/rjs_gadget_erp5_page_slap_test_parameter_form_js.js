@@ -51,6 +51,7 @@
                 .push(function () {
                   return gadget.redirect({"command": "change",
                                     "options": {"url_string": doc.url_string,
+                                                "software_type": doc.software_type,
                                                 "parameter_output": doc.text_content}});
                 });
             }, function (error) {
@@ -73,16 +74,10 @@
       if (options.url_string === undefined) {
         options.url_string = "";
       }
-      if (options.editable === undefined) {
-        options.editable = true;
-      }
-      if (options.restricted_softwaretype === undefined) {
-        options.restricted_softwaretype = false;
-      }
       return this.changeState({
         "url_string": options.url_string,
         "parameter_output": options.parameter_output,
-        "restricted_softwaretype": options.restricted_softwaretype
+        "software_type_list": options.software_type
       });
     })
 
@@ -113,14 +108,16 @@
           parameter_dict = {
             'parameter' : {
               'json_url':  gadget.state.url_string.split('?')[0] + ".json",
-              'parameter_hash': parameter_hash,
-              'restricted_softwaretype': false
+              'parameter_hash': parameter_hash
             }
           };
+          if (gadget.state.software_type_list) {
+            parameter_dict.parameter.software_type_list = gadget.state.software_type_list.split(',');
+          }
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
-                "my_url_string": {
+                "your_url_string": {
                   "description": "Software Release Url",
                   "title": "Software Release URL",
                   "default": default_url,
@@ -143,6 +140,18 @@
                   "key": "text_content",
                   "hidden": gadget.state.url_string === "",
                   "type": "GadgetField"
+                },
+                "your_software_type": {
+                  "description": "",
+                  "title": "Software type",
+                  "default": gadget.state.software_type_list,
+                  "css_class": "",
+                  "required": 0,
+                  "editable": 1,
+                  "sandbox": "",
+                  "key": "software_type",
+                  "hidden": 1,
+                  "type": "StringField"
                 },
                 "your_parameter_output": {
                   "description": "",
@@ -167,8 +176,7 @@
                   "key": "parameter_hash",
                   "hidden": gadget.state.parameter_output === undefined,
                   "type": "StringField"
-                },
-                
+                }
               }},
               "_links": {
                 "type": {
@@ -180,14 +188,15 @@
             form_definition: {
               group_list: [[
                 "center",
-                [["my_url_string"], ["your_parameter_output"], ["your_parameter_hash"], ["your_text_content"]]
+                [["your_url_string"], ["your_parameter_output"], ["your_software_type"], ["your_parameter_hash"], ["your_text_content"]]
               ]]
             }
           })
             .push(function () {
               return gadget.getUrlFor({"command": "change",
                                        "options": {"url_string": undefined,
-                                                  "parameter_output": undefined}});
+                                                   "software_type": undefined,
+                                                   "parameter_output": undefined}});
             })
             .push(function (selection_url) {
               return gadget.updateHeader({

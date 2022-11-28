@@ -54,21 +54,14 @@ query = AndQuery(
           AndQuery(Query(publication_section_relative_url = 'publication_section/file_system_image/reference_image'),
                    Query(publication_section_relative_url = reference_distribution)))
 
-reference_image_list = context.portal_catalog(query=query)
-
-reference_image = None
-if reference_image_list:
-  # always take converted state one, which is the latest version
-  for last_one in reference_image_list:
-    if last_one.getSimulationState() == "converted":
-      break
-  reference_image = last_one
-
+reference_image_list = context.portal_catalog(query=query, sort_on=[('creation_date', 'descending')], limit=1)
 
 def getDiff(a1, a2):
   return np.setdiff1d(a1[:], a2[:])
 
-if reference_image:
+
+if reference_image_list:
+  reference_image = reference_image_list[0]
   diff_array = getDiff(context.getArray(), reference_image.getArray())
   if len(diff_array) != 0:
     new_data_array = context.data_array_module.newContent(portal_type='Data Array')

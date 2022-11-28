@@ -738,28 +738,22 @@ stderr_logfile_backups=1
         os.dup2(1, 2)
         dropPrivileges(uid, gid, logger=self.logger)
         os.dup2(err, 2)
-      try:
-        process = SlapPopen(
-          command,
-          preexec_fn=preexec_fn,
-          cwd=instance_path,
-          universal_newlines=True,
-          stdout=subprocess.PIPE,
-          stderr=subprocess.PIPE,
-          logger=self.logger,
-          timeout=timeout,
-        )
-        stderr = process.stderr.read()
-        if process.returncode == 2:
-          raise PromiseError(stderr)
-        elif process.returncode:
-          raise Exception(stderr)
-        elif stderr:
-          self.logger.warn('Unexpected promise runner output:\n%s', stderr)
-      except subprocess.TimeoutExpired:
-        killProcessTree(process.pid, self.logger)
-        # If this happens, it might be that the timeout margin is too small.
-        raise Exception('Promise runner timed out')
+      process = SlapPopen(
+        command,
+        preexec_fn=preexec_fn,
+        cwd=instance_path,
+        universal_newlines=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        logger=self.logger,
+        timeout=timeout,
+      )
+      if process.returncode == 2:
+        raise PromiseError(process.error)
+      elif process.returncode:
+        raise Exception(process.error)
+      elif process.error:
+        self.logger.warn('Unexpected promise runner output:\n%s', process.error)
 
     else:
       return PromiseLauncher(config=promise_config, logger=self.logger).run()

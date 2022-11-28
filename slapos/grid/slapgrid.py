@@ -749,13 +749,12 @@ stderr_logfile_backups=1
           logger=self.logger,
           timeout=timeout,
         )
-        stderr = process.stderr.read()
         if process.returncode == 2:
-          raise PromiseError(stderr)
+          raise PromiseError(process.error)
         elif process.returncode:
-          raise Exception(stderr)
-        elif stderr:
-          self.logger.warn('Unexpected promise runner output:\n%s', stderr)
+          raise Exception(process.error)
+        elif process.error:
+          self.logger.warn('Unexpected promise runner output:\n%s', process.error)
       except subprocess.TimeoutExpired:
         killProcessTree(process.pid, self.logger)
         # If this happens, it might be that the timeout margin is too small.

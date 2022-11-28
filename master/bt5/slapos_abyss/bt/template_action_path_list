@@ -4,3 +4,5 @@ Data Mapping | view
 Data Product | create_data_supply
 Data Product | create_data_transformation
 Data Product | exclude_path_view
+Data Product | jump_to_data_array
+Data Product | jump_to_data_stream

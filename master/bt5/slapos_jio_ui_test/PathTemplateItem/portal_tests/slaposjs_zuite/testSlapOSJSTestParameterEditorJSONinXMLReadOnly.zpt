@@ -306,7 +306,7 @@
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//select[@name="//simple-object-dict/Example of Simple object/simple-object-dict-string-with-enum"] and contains(@class, "readonly")</td>
+        <td>//select[@name="//simple-object-dict/Example of Simple object/simple-object-dict-string-with-enum" and contains(@class, "readonly")]</td>
         <td></td>
       </tr>
       <tr>

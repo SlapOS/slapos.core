@@ -1,4 +1,7 @@
 <allowed_content_type_list>
+ <portal_type id="Hash Document Record Module">
+  <item>Hash Document Record</item>
+ </portal_type>
  <portal_type id="Software Instance">
   <item>Software Instance Certificate Record</item>
  </portal_type>

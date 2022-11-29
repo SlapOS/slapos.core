@@ -65,17 +65,28 @@ class SoftwareInstallation(Item, JSONType):
     # software instance has to define an xml parameter
     status_dict = self.getAccessStatus()
     result = {
-      "$schema": self.getPortalObject().portal_types.restrictedTraverse(self.getPortalType()).absolute_url()
-        + "/getTextContent",
+      "$schema": self.getJSONSchemaUrl(),
       "reference": self.getReference().decode("UTF-8"),
       "software_release_uri": self.getUrlString(),
       "compute_node_id": self.getAggregateReference(),
       "state": state,
       "reported_state": status_dict.get("state"),
       "status_message": status_dict.get("text"),
+      "processing_timestamp": self.getSlapTimestamp(),
     }
     result.update()
     return json.dumps(result, indent=2)
 
   def getSlapTimestamp(self):
     return int(self.getModificationDate())
+
+  security.declareProtected(Permissions.AccessContentsInformation,
+    'getJSONSchemaUrl')
+  def getJSONSchemaUrl(self):
+    """
+    This is an attempt to provide stability to the Schema URL and by extension to asJSONText
+    """
+    portal = self.getPortalObject()
+    portal_type_path = portal.portal_types.restrictedTraverse(self.getPortalType())
+    base_url = portal.portal_preferences.getPreferredSlaposWebSiteUrl().strip("/")
+    return "/".join([base_url, portal_type_path.getRelativeUrl(), "getTextContent"])

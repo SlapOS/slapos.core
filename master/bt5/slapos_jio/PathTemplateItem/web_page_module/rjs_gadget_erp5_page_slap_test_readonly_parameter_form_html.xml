@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Web Script" module="erp5.portal_type"/>
+      <global name="Web Page" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -59,7 +58,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -70,8 +68,12 @@
             </value>
         </item>
         <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>text/html</string> </value>
+        </item>
+        <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_instance_tree_view.js</string> </value>
+            <value> <string>gadget_erp5_page_slap_test_readonly_parameter_form.html</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -81,7 +83,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_instance_tree_view_js</string> </value>
+            <value> <string>rjs_gadget_erp5_page_slap_test_readonly_parameter_form_html</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -89,7 +91,7 @@
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Web Script</string> </value>
+            <value> <string>Web Page</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
@@ -99,7 +101,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Instance Tree View</string> </value>
+            <value> <string>Gadget SlapOS Test Parameter Form</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -187,7 +189,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1508779428.24</float>
+                              <float>1669085170.19</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -236,7 +238,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1004.26872.6486.682</string> </value>
+                      <value> <string>1004.31622.50166.32017</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -254,7 +256,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1669310224.29</float>
+                              <float>1669085301.63</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -315,7 +317,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1508779404.08</float>
+                              <float>1669085149.81</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

@@ -15,11 +15,13 @@ else:
   mail_message.deliver()
   message = translateString("Your account is being activated. You will receive an e-mail when activation is complete.")
 
-url = "%s/login_form?portal_status_message=%s&%s" % (
+url = "%s/login_form?%s" % (
   context.getWebSectionValue().absolute_url(),
-  message,
-  make_query({"came_from": came_from})
+  make_query({
+    "portal_status_message": message,
+    "came_from": came_from
+  })
 )
-
 context.REQUEST.RESPONSE.setHeader('Location', url)
 context.REQUEST.RESPONSE.setStatus(303)
+return message

@@ -20,7 +20,6 @@
       </tr>
   </tal:block>
 
-
   <tal:block metal:define-macro="wait_software_type_selection_default">
     <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
     <tr>
@@ -68,7 +67,6 @@
 
   <tal:block metal:define-macro="init">
     <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/init" />
-    <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
     <tr>
       <td>open</td>
       <td>${base_url}/web_site_module/hostingjs/#/?page=slap_test_parameter_form</td>
@@ -83,6 +81,36 @@
     <tr>
       <td>assertElementPresent</td>
       <td>//input[@name='url_string']</td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="init_readonly">
+    <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/init" />
+    <tr>
+      <td>open</td>
+      <td>${base_url}/web_site_module/hostingjs/#/?page=slap_test_readonly_parameter_form</td>
+      <td></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@name='url_string']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//input[@name='url_string']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//textarea[@name='parameter_output']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//textarea[@name='parameter_output']</td>
       <td></td>
     </tr>
   </tal:block>
@@ -180,4 +208,60 @@
       <td tal:content="python: value"></td>
     </tr>
   </tal:block>
+
+  <tal:block metal:define-macro="assert_readonly_input_text">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\' and @readonly=\'true\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\' and @readonly=\'true\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertValue</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\' and @readonly=\'true\']' % name"></td>
+      <td tal:content="python: value"></td>
+    </tr>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="input_number">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'number\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'number\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'number\']' % name"></td>
+      <td tal:content="python: value"></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="assert_readonly_input_number">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'number\' and @readonly=\'true\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'number\' and @readonly=\'true\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertValue</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'number\' and @readonly=\'true\']' % name"></td>
+      <td tal:content="python: value"></td>
+    </tr>
+  </tal:block>
+
 </tal:block>

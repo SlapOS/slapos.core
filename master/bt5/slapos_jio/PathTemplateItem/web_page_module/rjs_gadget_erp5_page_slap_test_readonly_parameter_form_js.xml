@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -59,7 +58,14 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>categories</string> </key>
+            <value>
+              <tuple>
+                <string>contributor/person_module/1</string>
               </tuple>
             </value>
         </item>
@@ -70,8 +76,16 @@
             </value>
         </item>
         <item>
+            <key> <string>creators</string> </key>
+            <value>
+              <tuple>
+                <string>cedric.le.ninivin</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_instance_tree_view.js</string> </value>
+            <value> <string>gadget_erp5_page_slap_test_readonly_parameter_form.js</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -81,11 +95,32 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_instance_tree_view_js</string> </value>
+            <value> <string>rjs_gadget_erp5_page_slap_test_readonly_parameter_form_js</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
-            <value> <string>en</string> </value>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>modification_date</string> </key>
+            <value>
+              <object>
+                <klass>
+                  <global name="DateTime" module="DateTime.DateTime"/>
+                </klass>
+                <tuple>
+                  <none/>
+                </tuple>
+                <state>
+                  <tuple>
+                    <float>1455284351.49</float>
+                    <string>UTC</string>
+                  </tuple>
+                </state>
+              </object>
+            </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -99,11 +134,17 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Instance Tree View</string> </value>
+            <value> <string>SlapOS Test ReadOnly Parameter Form JS</string> </value>
+        </item>
+        <item>
+            <key> <string>url_string</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>003</string> </value>
+            <value> <string>001</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -187,7 +228,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1508779428.24</float>
+                              <float>1669084864.53</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -236,7 +277,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1004.26872.6486.682</string> </value>
+                      <value> <string>1004.32728.24062.25344</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -254,7 +295,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1669310224.29</float>
+                              <float>1669152031.46</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -315,7 +356,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1508779404.08</float>
+                              <float>1669084700.39</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

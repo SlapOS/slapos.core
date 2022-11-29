@@ -226,9 +226,7 @@
                 'json_url': gadget.state.doc.url_string.split('?')[0] + ".json",
                 'softwaretype': gadget.state.doc.source_reference,
                 'shared': gadget.state.doc.root_slave ? 1 : 0,
-                //'json_url': "https://lab.node.vifib.com/nexedi/slapos/raw/master/software/kvm/software.cfg.json",
-                'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance></instance>'),
-                'restricted_softwaretype': true
+                'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance></instance>')
               }
             };
           if (gadget.state.doc.text_content !== undefined) {
@@ -291,17 +289,6 @@
                       "required": 1,
                       "editable": 0,
                       "key": "slap_state_title",
-                      "hidden": 0,
-                      "type": "StringField"
-                    },
-                    "my_source_reference": {
-                      "description": "",
-                      "title": result[1][17],
-                      "default": gadget.state.doc.source_reference,
-                      "css_class": "",
-                      "required": 1,
-                      "editable": 0,
-                      "key": "source_reference",
                       "hidden": 0,
                       "type": "StringField"
                     },
@@ -488,7 +475,7 @@
                     [["my_slap_state_title"],  ['my_monitoring_status'], ['my_monitor_scope'], ['my_upgrade_scope'], ['my_source_project'], ['my_source']]
 
                   ], ["center",
-                      [["my_source_reference"], ["my_url_string"], ["my_list_image"]]
+                      [["my_url_string"], ["my_list_image"]]
                     ], [
                     "bottom",
                     [["ticket_listbox"], ["connection_listbox"], ["my_text_content"], ["listbox"]]

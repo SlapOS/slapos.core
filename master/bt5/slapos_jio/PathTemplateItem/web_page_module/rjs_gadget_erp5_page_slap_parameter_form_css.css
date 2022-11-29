@@ -4,10 +4,7 @@
   padding-top: 10px;
 }
 
-
-
-
-.subfield span {
+.subfield span:not(.slapos-parameter) {
   font-weight: normal;
   font-style: italic;
   padding-left: 7px;
@@ -22,11 +19,7 @@
   font-weight: 700;
 }
 
-
-
 .input button {margin-left: 10px;}
-
-
 
 .bt_close, .subfield .slapos-parameter-dict-key span.bt_close{
   padding: 0 6px;
@@ -62,7 +55,6 @@
   word-break: keep-all;
 }
 
-
 .non-editable > div.input {border: 1px solid rgb(201, 201, 201); padding: 5px; background: white; font-weight: normal;
 margin: 5px 0 10px; max-height: 250px; width: 80%;}
 
@@ -84,6 +76,7 @@ label.slapos-parameter-dict-key-colapse::before {
 }
 div.slapos-parameter-dict-key {
   margin-top: 10px;
+  margin-left: 6px;
   background: rgb(245, 245, 245);
   border: 1px solid rgb(230, 230, 230);
   padding: 5px;
@@ -91,7 +84,6 @@ div.slapos-parameter-dict-key {
 
 /* cleanup */
 fieldset > .subfield > label:not(.slapos-parameter-dict-key) {
-  font-size: 113%;
   color: rgb(112, 125, 136);
 }
 fieldset > div.subfield {
@@ -103,24 +95,30 @@ fieldset > div.subfield {
 .field input ~ span,
 .subfield input ~ span {
   position: relative;
-  top: -30px;
+  top: -27px;
   pointer-events: none;
   cursor: text;
 }
 .field input:not(:placeholder-shown) ~ span:not(.error),
-.subfield input:not(:placeholder-shown) ~ span:not(.error) {
+.subfield input:not(:placeholder-shown) ~ span:not(.error),
+.field select:not(:placeholder-shown) ~ span:not(.error),
+.subfield select:not(:placeholder-shown) ~ span:not(.error) {
   visibility: hidden;
 }
 .field input ~ span:not(.error),
-.subfield input ~ span:not(.error) {
+.subfield input ~ span:not(.error),
+.field select ~ span:not(.error),
+.subfield select ~ span:not(.error) {
   opacity: .7;
 }
 .field input:focus ~ span,
-.subfield input:focus ~ span {
+.subfield input:focus ~ span,
+.field select:focus ~ span,
+.subfield select:focus ~ span {
   visibility: hidden;
 }
 .subfield .input {
-  margin-bottom: -20px;
+  margin-bottom: -15px;
 }
 .subfield .error {
   float: right;
@@ -135,7 +133,6 @@ fieldset > div.subfield {
 .slapos-show-form {
   cursor: pointer;
   font-style: italic;
-  font-size: 14px;
   color: #000;
 }
 .slapos-show-form,
@@ -147,7 +144,6 @@ label.slapos-parameter-dict-key {
   text-transform: capitalize;
 }
 label.slapos-parameter-dict-key ~ div.input label {
-  font-size: 113%;
   color: rgb(112, 125, 136);
 }
 .slapos-parameter-dict-key label {
@@ -180,14 +176,20 @@ label.slapos-parameter-dict-key ~ div.input label {
   left: 4px;
 }
 
-  .subfield {
-    min-height: 5em;
-  }
-  .subfield select {
-    margin-bottom: 0;
-  }
-  .subfield .input select + span {
-    position: relative;
-    top: -1.9em;
-    opacity: .7;
-  }
+.subfield {
+  min-height: 5em;
+}
+.subfield select {
+  margin-bottom: 0;
+}
+.subfield .input select + span {
+  position: relative;
+  top: -1.9em;
+  opacity: .7;
+}
+
+select.readonly {
+  background: #EEE; 
+  pointer-events: none;
+  touch-action: none;
+}

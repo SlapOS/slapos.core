@@ -72,8 +72,8 @@
     );
   }
 
-  function render_selection(json_field, default_value, is_required) {
-    var property_dict = {size: 1},
+  function render_selection(json_field, default_value, is_required, editable) {
+    var input,
       option_list = [domsugar('option', {
         value: "",
         selected: (default_value === undefined)
@@ -81,7 +81,12 @@
       option_index,
       selected,
       is_selected = (default_value === undefined),
-      data_format = "string";
+      data_format = "string",
+      property_dict = {
+        size: 1,
+        "placeholder": " ",
+        "class": "slapos-parameter"
+      };
 
     if (json_field.type === "integer" || json_field.type === "number") {
       data_format = "number";
@@ -118,14 +123,27 @@
     if (is_required) {
       property_dict.required = true;
     }
-    return domsugar('select', property_dict, option_list);
+
+    input = domsugar('select', property_dict, option_list);
+    if (!editable) {
+      input.classList.add("readonly");
+      input["aria-disabled"] = "true";
+      input["tab-index"] = "-1";
+    }
+    return input;
   }
 
-  function render_selection_oneof(json_field, default_value, is_required) {
-    var option_list = [domsugar('option', {
-      value: "",
-      selected: (default_value === undefined)
-    })];
+  function render_selection_oneof(json_field, default_value, is_required, editable) {
+    var input,
+      option_list = [domsugar('option', {
+        value: "",
+        selected: (default_value === undefined)
+      })],
+      property_dict = {
+        size: 1,
+        "placeholder": " ",
+        "class": "slapos-parameter"
+      };
 
     json_field.oneOf.forEach(function (element) {
       if ((element['const'] !== undefined) && (element.title !== undefined)) {
@@ -143,14 +161,24 @@
         }));
       }
     });
-
-    return domsugar('select', {
-      size: 1
-    }, option_list);
+    if (is_required) {
+      property_dict.required = true;
+    }
+    input = domsugar('select', property_dict, option_list);
+    if (!editable) {
+      input.classList.add("readonly");
+      input["aria-disabled"] = "true";
+      input["tab-index"] = "-1";
+    }
+    return input;
   }
 
-  function render_textarea(json_field, default_value, data_format, is_required) {
-    var property_dict = {"data-format": data_format};
+  function render_textarea(json_field, default_value, data_format, is_required, editable) {
+    var input, property_dict = {
+      "data-format": data_format,
+      "placeholder": " ",
+      "class": "slapos-parameter"
+    };
     if (default_value !== undefined) {
       if (default_value instanceof Array) {
         property_dict.value = default_value.join("\n");
@@ -161,17 +189,23 @@
     if (is_required) {
       property_dict.required = true;
     }
-    return domsugar('textarea', property_dict);
+    input = domsugar('textarea', property_dict);
+    if (!editable) {
+      input.setAttribute('readonly', true);
+    }
+    return input;
   }
 
-  function render_field(json_field, default_value, is_required) {
-    var data_format, domsugar_input_dict = {};
+  function render_field(json_field, default_value, is_required, editable) {
+    var input,
+      data_format,
+      domsugar_input_dict = {"placeholder": " ", "class": "slapos-parameter"};
     if (json_field['enum'] !== undefined) {
-      return render_selection(json_field, default_value, is_required);
+      return render_selection(json_field, default_value, is_required, editable);
     }
 
     if (json_field.oneOf !== undefined) {
-      return render_selection_oneof(json_field, default_value, is_required);
+      return render_selection_oneof(json_field, default_value, is_required, editable);
     }
 
     if (json_field.type === "boolean") {
@@ -182,7 +216,7 @@
       if (default_value === "false") {
         default_value = false;
       }
-      return render_selection(json_field, default_value, is_required);
+      return render_selection(json_field, default_value, is_required, editable);
     }
 
     if (json_field.type === "array") {
@@ -192,11 +226,11 @@
           data_format = "array-number";
         }
       }
-      return render_textarea(json_field, default_value, data_format, is_required);
+      return render_textarea(json_field, default_value, data_format, is_required, editable);
     }
 
     if (json_field.type === "string" && json_field.textarea === true) {
-      return render_textarea(json_field, default_value, "string", is_required);
+      return render_textarea(json_field, default_value, "string", is_required, editable);
     }
 
     if (default_value !== undefined) {
@@ -217,11 +251,14 @@
     if (is_required) {
       domsugar_input_dict.required = true;
     }
-
-    return domsugar('input', domsugar_input_dict);
+    input = domsugar('input', domsugar_input_dict);
+    if (!editable) {
+      input.setAttribute('readonly', true);
+    }
+    return input;
   }
 
-  function render_subform(json_field, default_dict, root, path) {
+  function render_subform(json_field, default_dict, root, path, editable) {
     var div_input,
       key,
       div,
@@ -229,7 +266,6 @@
       input,
       default_value,
       default_used_list = [],
-      default_div,
       is_required;
 
     if (default_dict === undefined) {
@@ -248,31 +284,30 @@
           title: json_field.description
         });
 
-
-        div_input = domsugar("div", {
-          "class": "input"
-        }, [
-          domsugar('input', {
-            type: "text",
-            // Name is only meaningfull to automate tests
-            name: "ADD" + path
-          }),
-          domsugar('button', {
-            value: btoa(JSON.stringify(json_field.patternProperties['.*'])),
-            "class": "add-sub-form",
-            type: "button",
-            name: path,
-            text: "+"
-          })
-        ]);
-        div.appendChild(div_input);
+        if (editable) {
+          div_input = domsugar("div", {
+            "class": "input"
+          }, [
+            domsugar('input', {
+              type: "text",
+              // Name is only meaningfull to automate tests
+              name: "ADD" + path
+            }),
+            domsugar('button', {
+              value: btoa(JSON.stringify(json_field.patternProperties['.*'])),
+              "class": "add-sub-form",
+              type: "button",
+              name: path,
+              text: "+"
+            })
+          ]);
+          div.appendChild(div_input);
+        }
 
         for (default_value in default_dict) {
           if (default_dict.hasOwnProperty(default_value)) {
-            default_div = domsugar("div", {
-              "class": "slapos-parameter-dict-key"
-            }, [
-              domsugar('label', {
+            if (editable) {
+              label = domsugar('label', {
                 text: default_value,
                 'class': "slapos-parameter-dict-key"
               }, [
@@ -281,14 +316,22 @@
                   "class": "bt_close CLOSE" + path + "/" + default_value,
                   title: "Remove this parameter section."
                 })
-              ])
-            ]);
+              ]);
+            } else {
+              label = domsugar('label', {
+                text: default_value,
+                'class': "slapos-parameter-dict-key"
+              });
+            }
 
             div.appendChild(render_subform(
               json_field.patternProperties['.*'],
               default_dict[default_value],
-              default_div,
-              path + "/" + default_value
+              domsugar("div", {
+                "class": "slapos-parameter-dict-key"
+              }, [label]),
+              path + "/" + default_value,
+              editable
             ));
           }
         }
@@ -322,45 +365,46 @@
 
     for (key in json_field.properties) {
       if (json_field.properties.hasOwnProperty(key)) {
-        label = domsugar("label", {
-          'text': json_field.properties[key].title
-        });
-
-        is_required = false;
-        if ((Array.isArray(json_field.required)) && (json_field.required.includes(key))) {
-          is_required = true;
-        }
-        if (json_field.properties[key].type === 'object') {
-          label.setAttribute("class", "slapos-parameter-dict-key");
-          div_input = render_subform(json_field.properties[key],
-            default_dict[key],
-            domsugar("div", {"class": "input"}),
-            path + "/" + key);
-        } else {
-          input = render_field(
-            json_field.properties[key],
-            default_dict[key],
-            is_required
+        if (editable || default_dict[key] !== undefined) {
+          label = domsugar("label", {
+            'text': json_field.properties[key].title
+          });
+          is_required = false;
+          if ((Array.isArray(json_field.required)) && (json_field.required.includes(key))) {
+            is_required = true;
+          }
+          if (json_field.properties[key].type === 'object') {
+            label.setAttribute("class", "slapos-parameter-dict-key");
+            div_input = render_subform(json_field.properties[key],
+              default_dict[key],
+              domsugar("div", {"class": "input"}),
+              path + "/" + key,
+              editable);
+          } else {
+            input = render_field(
+              json_field.properties[key],
+              default_dict[key],
+              is_required,
+              editable
+            );
+            input.name = path + "/" + key;
+            div_input = domsugar("div", {"class": "input"}, [input]);
+          }
+          default_used_list.push(key);
+          if (json_field.properties[key]['default'] !== undefined) {
+            div_input.appendChild(
+              domsugar("span",
+                {'text': '(default = ' + json_field.properties[key]['default'] + ')'})
+            );
+          }
+          div_input.appendChild(domsugar("span", {'class': 'error'}));
+          root.appendChild(
+            domsugar("div", {
+              "class": "subfield",
+              title: json_field.properties[key].description
+            }, [label, div_input])
           );
-          input.name = path + "/" + key;
-          input.setAttribute("class", "slapos-parameter");
-          input.setAttribute("placeholder", " ");
-          div_input = domsugar("div", {"class": "input"}, [input]);
         }
-        default_used_list.push(key);
-        if (json_field.properties[key]['default'] !== undefined) {
-          div_input.appendChild(
-            domsugar("span",
-              {'text': '(default = ' + json_field.properties[key]['default'] + ')'})
-          );
-        }
-        div_input.appendChild(domsugar("span", {'class': 'error'}));
-        root.appendChild(
-          domsugar("div", {
-            "class": "subfield",
-            title: json_field.properties[key].description
-          }, [label, div_input])
-        );
       }
     }
     for (key in default_dict) {
@@ -379,10 +423,8 @@
                 editable)
             ]);
           } else {
-            input = render_field({"type": "string", "textarea": true}, default_dict[key], false);
+            input = render_field({"type": "string", "textarea": true}, default_dict[key], false, editable);
             input.name = path + "/" + key;
-            input.setAttribute("class", "slapos-parameter");
-            input.setAttribute("placeholder", " ");
             div = domsugar("div", {
               title: key,
               "class": "subfield"
@@ -481,7 +523,6 @@
         convertOnMultiLevel(entry, json_dict[entry], multi_level_dict);
       }
     }
-
     return multi_level_dict;
   }
 
@@ -683,6 +724,7 @@
     var fieldset,
       fieldset_list = g.element.querySelectorAll('fieldset'),
       div_error,
+      textarea,
       show_raw_button = g.element.querySelector("button.slapos-show-raw-parameter"),
       show_form_button = g.element.querySelector("button.slapos-show-form");
 
@@ -715,16 +757,20 @@
     } else {
       div_error = domsugar('div');
     }
+    textarea = domsugar('textarea', {
+      rows: "10",
+      cols: "80",
+      name: "text_content",
+      text: g.state.parameter_xml
+    });
+    if (!g.state.editable) {
+      textarea.setAttribute("readonly", true);
+    }
     fieldset = domsugar('fieldset', [
       domsugar('div', {
         'class': 'field'
       }, [
-        domsugar('textarea', {
-          rows: "10",
-          cols: "80",
-          name: "text_content",
-          text: g.state.parameter_xml
-        })
+        textarea
       ]),
       // div error
       div_error
@@ -744,10 +790,10 @@
     var serialisation = gadget.state.serialisation,
       json_url = gadget.state.json_url,
       parameter_xml = gadget.state.parameter_xml,
-      restricted_softwaretype = gadget.state.restricted_softwaretype,
       shared = gadget.state.shared,
       softwaretype = gadget.state.softwaretype,
       softwareindex = gadget.state.softwareindex,
+      editable = gadget.state.editable,
       to_hide = gadget.element.querySelector("button.slapos-show-form"),
       to_show = gadget.element.querySelector("button.slapos-show-raw-parameter");
 
@@ -776,18 +822,27 @@
           lowest_index = 999,
           lowest_option_index;
 
+        if (!editable || gadget.state.restricted_softwaretype === true) {
+          input.classList.add("readonly");
+          input["aria-disabled"] = "true";
+          input["tab-index"] = "-1";
+        }
+
         if (input.children.length === 0) {
           if (option_selected === undefined) {
             // search by the lowest index
             for (option_index in json['software-type']) {
               if (json['software-type'].hasOwnProperty(option_index)) {
-                if (json['software-type'][option_index].index === undefined) {
-                  json['software-type'][option_index].index = 999;
-                }
+                if ((gadget.state.software_type_list.length === 0) ||
+                    (gadget.state.software_type_list.includes(option_index))) {
+                  if (json['software-type'][option_index].index === undefined) {
+                    json['software-type'][option_index].index = 999;
+                  }
 
-                if (json['software-type'][option_index].index < lowest_index) {
-                  lowest_index = json['software-type'][option_index].index;
-                  lowest_option_index = option_index;
+                  if (json['software-type'][option_index].index < lowest_index) {
+                    lowest_index = json['software-type'][option_index].index;
+                    lowest_option_index = option_index;
+                  }
                 }
               }
             }
@@ -795,61 +850,66 @@
 
           for (option_index in json['software-type']) {
             if (json['software-type'].hasOwnProperty(option_index)) {
-              option = document.createElement("option");
-              if (json['software-type'][option_index]['software-type'] !== undefined) {
-                option.value = json['software-type'][option_index]['software-type'];
-              } else {
-                option.value = option_index;
-              }
+              if ((gadget.state.software_type_list.length === 0) ||
+                  (gadget.state.software_type_list.includes(option_index))) {
 
-              option['data-id'] = option_index;
-              option.textContent = json['software-type'][option_index].title;
-              if (json['software-type'][option_index].index) {
-                option['data-index'] = json['software-type'][option_index].index;
-              } else {
+                if (json['software-type'][option_index].shared === undefined) {
+                  json['software-type'][option_index].shared = false;
+                }
+
+                option = domsugar("option", {
+                  text: json['software-type'][option_index].title,
+                  value: option_index
+                });
+                option['data-id'] = option_index;
                 option['data-index'] = 999;
-              }
+                option['data-shared'] = json['software-type'][option_index].shared;
 
-              if (option_index === lowest_option_index) {
-                option_selected = option.value;
-                option.selected = true;
-                option_selected_index = option_index;
-                if (json['software-type'][option_index].shared === true) {
-                  parameter_shared.value = true;
-                } else {
-                  parameter_shared.value = false;
+                if (json['software-type'][option_index]['software-type'] !== undefined) {
+                  option.value = json['software-type'][option_index]['software-type'];
                 }
-                if (shared === undefined) {
-                  shared = parameter_shared.value;
+
+                if (json['software-type'][option_index].index) {
+                  option['data-index'] = json['software-type'][option_index].index;
                 }
-              }
 
-              if (json['software-type'][option_index].shared === undefined) {
-                json['software-type'][option_index].shared = false;
-              }
-
-              option['data-shared'] = json['software-type'][option_index].shared;
-
-              if ((option_selected_index === undefined) &&
-                  (option.value === option_selected) &&
-                  (Boolean(shared) === Boolean(json['software-type'][option_index].shared))) {
-                option.selected = true;
-                option_selected_index = option_index;
-                if (json['software-type'][option_index].shared === true) {
-                  parameter_shared.value = true;
-                } else {
-                  parameter_shared.value = false;
-                }
-              }
-
-              if (restricted_softwaretype === true) {
-                if (option.value === softwaretype) {
-                  if (Boolean(shared) === Boolean(json['software-type'][option_index].shared)) {
-                    selection_option_list.push(option);
+                if (option_index === lowest_option_index) {
+                  option_selected = option.value;
+                  option.selected = true;
+                  option_selected_index = option_index;
+                  if (json['software-type'][option_index].shared === true) {
+                    parameter_shared.value = true;
+                  } else {
+                    parameter_shared.value = false;
+                  }
+                  if (shared === undefined) {
+                    shared = parameter_shared.value;
                   }
                 }
-              } else {
-                selection_option_list.push(option);
+
+                if ((option_selected_index === undefined) &&
+                    (option.value === option_selected) &&
+                    (Boolean(shared) === Boolean(json['software-type'][option_index].shared))) {
+                  option.selected = true;
+                  option_selected_index = option_index;
+                  if (json['software-type'][option_index].shared === true) {
+                    parameter_shared.value = true;
+                  } else {
+                    parameter_shared.value = false;
+                  }
+                }
+
+                if (gadget.state.restricted_softwaretype === true) {
+                  if (option.value === softwaretype) {
+                    if (Boolean(shared) === Boolean(json['software-type'][option_index].shared)) {
+                      selection_option_list.push(option);
+                      // We expect a single possible occurence per software type
+                      break;
+                    }
+                  }
+                } else {
+                  selection_option_list.push(option);
+                }
               }
             }
           }
@@ -950,7 +1010,7 @@
             var fieldset_list = gadget.element.querySelectorAll('fieldset'),
               fieldset = document.createElement("fieldset");
 
-            fieldset = render_subform(json, parameter_dict, fieldset, undefined);
+            fieldset = render_subform(json, parameter_dict, fieldset, undefined, editable);
             fieldset_list[1].parentNode.replaceChild(
               fieldset,
               fieldset_list[1]
@@ -1014,7 +1074,9 @@
     })
 
     .declareMethod('render', function (options) {
-      var parameter_hash = options.value.parameter.parameter_hash,
+      var restricted_softwaretype = false,
+        software_type_list = [],
+        parameter_hash = options.value.parameter.parameter_hash,
         // XXX Do we directly get parameter_xml parameter?
         parameter_xml = options.value.parameter.parameter_xml;
 
@@ -1023,18 +1085,31 @@
         parameter_xml = atob(parameter_hash);
       }
 
+      if (options.value.parameter.software_type_list !== undefined) {
+        software_type_list = options.value.parameter.software_type_list;
+      }
+
+      if (options.value.parameter.softwaretype !== undefined) {
+        restricted_softwaretype = true;
+        // exceptional situation where the default item must be in
+        // the list. 
+        software_type_list.push(options.value.parameter.softwaretype);
+      }
+
+
       return this.changeState({
         // Not used parameters
-        // editable: options.editable,
         // hidden: options.hidden,
         // key: options.key,
         serialisation: options.serialisation,
         json_url: options.value.parameter.json_url,
         parameter_xml: parameter_xml,
-        restricted_softwaretype: options.value.parameter.restricted_softwaretype,
+        restricted_softwaretype: restricted_softwaretype,
         shared: options.value.parameter.shared,
         softwaretype: options.value.parameter.softwaretype,
+        software_type_list: software_type_list,
         softwareindex: options.value.parameter.softwareindex,
+        editable: options.editable,
         // Force refresh in any case
         render_timestamp: new Date().getTime()
       });
@@ -1057,6 +1132,7 @@
         return updateParameterForm(gadget);
       }
 
+      // @ts-ignore
       if (evt.target.className.indexOf("slapos-parameter") !== -1) {
         // getContent is protected by a mutex which prevent
         // onchangestate to be called in parallel
@@ -1069,14 +1145,17 @@
       // Only handle click on BUTTON element
       var gadget = this,
         queue,
+        // @ts-ignore
         tag_name = evt.target.tagName;
 
       if ((tag_name === 'LABEL') &&
+          // @ts-ignore
           (evt.target.className.indexOf("slapos-parameter-dict-key") !== -1)) {
         return collapseParameter(evt.target);
       }
 
       if ((tag_name === 'SPAN') &&
+          // @ts-ignore
           (evt.target.className.indexOf("bt_close") !== -1)) {
         return removeSubParameter(evt.target);
       }
@@ -1091,6 +1170,7 @@
       queue = gadget.getContent();
 
       if ((tag_name === 'BUTTON') &&
+          // @ts-ignore
           (evt.target.className.indexOf("slapos-show-form") !== -1)) {
         return queue
           .push(function () {
@@ -1099,6 +1179,7 @@
       }
 
       if ((tag_name === 'BUTTON') &&
+          // @ts-ignore
           (evt.target.className.indexOf("slapos-show-raw-parameter") !== -1)) {
         return queue
           .push(function () {
@@ -1131,6 +1212,9 @@
           if ((shared  !== null) && (shared.value === "true")) {
             gadget.state.shared = 1;
             content_dict.shared = 1;
+          }
+          if (!gadget.state.editable) {
+            return gadget.state.parameter_xml;
           }
           if (text_content !== null) {
             // Don't provide blank string since the parameter will not able to load

@@ -31,6 +31,7 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+import time
 import unittest
 
 import mock
@@ -168,6 +169,63 @@ class SlapPopenTestCase(unittest.TestCase):
         # close all fds open for the test
         for fd in (child_stdin_r, child_stdout_r, child_stdout_w, stdin_backup, stdout_backup):
           os.close(fd)
+
+  def test_stderr_no_stdout(self):
+    self.script.write(b'#!/bin/sh\n>&2 echo "hello"\nexit 123')
+    self.script.close()
+
+    logger = mock.MagicMock()
+    program = slapos.grid.utils.SlapPopen(
+        self.script.name,
+        stdout=None,
+        stderr=subprocess.PIPE,
+        logger=logger)
+
+    # error code, and error output are returned
+    self.assertEqual(123, program.returncode)
+    self.assertEqual('hello\n', program.error)
+    self.assertEqual('', program.output)
+
+    # no output, nothing is logged "live"
+    self.assertFalse(logger.info.called)
+
+  def test_stderr_and_stdout(self):
+    self.script.write(b'#!/bin/sh\n>&2 echo "hello"\necho "world"\nexit 123')
+    self.script.close()
+
+    logger = mock.MagicMock()
+    program = slapos.grid.utils.SlapPopen(
+        self.script.name,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        logger=logger)
+
+    # error code, stderr and stdout are returned
+    self.assertEqual(123, program.returncode)
+    self.assertEqual('hello\n', program.error)
+    self.assertEqual('world\n', program.output)
+
+    # only stdout is logged
+    logger.info.assert_called_once_with('world')
+
+  def test_timeout_stderr_and_stdout(self):
+    self.script.write(b'#!/bin/sh\n>&2 echo "hello"\necho "world"\n sleep 20')
+    self.script.close()
+
+    logger = mock.MagicMock()
+    start = time.time()
+    raised = False
+    try:
+      program = slapos.grid.utils.SlapPopen(
+          self.script.name,
+          stdout=subprocess.PIPE,
+          stderr=subprocess.PIPE,
+          timeout=1,
+          logger=logger)
+      raise AssertionError("SlapPopen did not raise TimeoutExpired")
+    except subprocess.TimeoutExpired as e:
+      self.assertEqual(e.stderr, 'hello\n')
+      self.assertEqual(e.output, 'world\n')
 
 
 class DummySystemExit(Exception):

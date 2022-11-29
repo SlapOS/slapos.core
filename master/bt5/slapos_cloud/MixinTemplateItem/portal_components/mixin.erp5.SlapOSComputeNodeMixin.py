@@ -329,3 +329,12 @@ class SlapOSComputeNodeMixin(object):
         self.getReference(), ', '.join([q.getRelativeUrl() for q \
           in software_installation_list])
       ))
+
+  def getJSONSchemaUrl(self):
+    """
+    This is an attempt to provide stability to the Schema URL and by extension to asJSONText
+    """
+    portal = self.getPortalObject()
+    portal_type_path = portal.portal_types.restrictedTraverse(self.getPortalType())
+    base_url = portal.portal_preferences.getPreferredSlaposWebSiteUrl().strip("/")
+    return "/".join([base_url, portal_type_path.getRelativeUrl(), "getTextContent"])

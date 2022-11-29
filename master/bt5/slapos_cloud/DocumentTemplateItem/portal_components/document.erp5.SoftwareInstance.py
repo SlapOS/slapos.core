@@ -320,6 +320,17 @@ class SoftwareInstance(Item, JSONType):
       self.setLastData(str(instance_reference_list), key=cache_reference)
 
   security.declareProtected(Permissions.AccessContentsInformation,
+    'getJSONSchemaUrl')
+  def getJSONSchemaUrl(self):
+    """
+    This is an attempt to provide stability to the Schema URL and by extension to asJSONText
+    """
+    portal = self.getPortalObject()
+    portal_type_path = portal.portal_types.restrictedTraverse("Software Instance")
+    base_url = portal.portal_preferences.getPreferredSlaposWebSiteUrl().strip("/")
+    return "/".join([base_url, portal_type_path.getRelativeUrl(), "getTextContent"])
+
+  security.declareProtected(Permissions.AccessContentsInformation,
     'asJSONText')
   def asJSONText(self):
     try:
@@ -340,8 +351,7 @@ class SoftwareInstance(Item, JSONType):
       raise ValueError("Unknown slap state : %s" % requested_state)
     # software instance has to define an xml parameter
     result = {
-      "$schema": self.getPortalObject().portal_types.restrictedTraverse("Software Instance").absolute_url()
-        + "/getTextContent",
+      "$schema": self.getJSONSchemaUrl(),
       "title": self.getTitle().decode("UTF-8"),
       "reference": self.getReference().decode("UTF-8"),
       "software_release_uri": self.getUrlString(),
@@ -356,7 +366,7 @@ class SoftwareInstance(Item, JSONType):
       "sla_parameters": self.getSlaXmlAsDict(),
       "compute_node_id": parameter_dict.get("slap_computer_id"),
       "compute_partition_id": parameter_dict.get("slap_computer_partition_id"),
-      "processing_timestamp": parameter_dict.get("timestamp"),
+      "processing_timestamp": self.getSlapTimestamp(),
       "access_status_message": self.getTextAccessStatus(),
       "portal_type": self.getPortalType(),
     }

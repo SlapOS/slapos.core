@@ -31,6 +31,7 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+import time
 import unittest
 
 import mock
@@ -168,6 +169,160 @@ class SlapPopenTestCase(unittest.TestCase):
         # close all fds open for the test
         for fd in (child_stdin_r, child_stdout_r, child_stdout_w, stdin_backup, stdout_backup):
           os.close(fd)
+
+  def test_stderr(self):
+    self.script.write(textwrap.dedent("""\
+      #!/bin/sh
+      >&2 echo "hello"
+      exit 123
+    """).encode())
+    self.script.close()
+
+    logger = mock.MagicMock()
+    program = slapos.grid.utils.SlapPopen(
+        self.script.name,
+        stdout=None,
+        stderr=subprocess.PIPE,
+        logger=logger)
+
+    # error code, and error output are returned
+    self.assertEqual(123, program.returncode)
+    self.assertEqual('hello\n', program.error)
+    self.assertEqual('', program.output)
+
+    # no output, nothing is logged "live"
+    self.assertFalse(logger.info.called)
+
+  def test_stdout_and_stderr(self):
+    self.script.write(textwrap.dedent("""\
+      #!/bin/sh
+      echo "hello"
+      >&2 echo "world"
+      exit 123
+    """).encode())
+    self.script.close()
+
+    logger = mock.MagicMock()
+    program = slapos.grid.utils.SlapPopen(
+        self.script.name,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        logger=logger)
+
+    # error code, stderr and stdout are returned
+    self.assertEqual(123, program.returncode)
+    self.assertEqual('hello\n', program.output)
+    self.assertEqual('world\n', program.error)
+
+    # only stdout is logged
+    logger.info.assert_called_once_with('hello')
+
+  def test_timeout_stdout_multiline(self):
+    self.script.write(textwrap.dedent("""\
+      #!/bin/sh
+      for i in $(seq 100)
+      do
+        echo .
+        sleep 0.1
+      done
+    """).encode())
+    self.script.close()
+
+    logger = mock.MagicMock()
+    start = time.time()
+    try:
+      program = slapos.grid.utils.SlapPopen(
+          self.script.name,
+          timeout=1,
+          logger=logger)
+      raise AssertionError("SlapPopen did not raise TimeoutExpired")
+    except subprocess.TimeoutExpired as e:
+      self.assertEqual(e.output, '.\n' * 10)
+
+    # the timeout was respected
+    self.assertTrue(time.time() - start < 2)
+
+    # each line before timeout is logged "live" as well
+    self.assertEqual(logger.info.call_args_list, [mock.call('.')] * 10)
+
+  def test_timeout_stdout_oneline(self):
+    self.script.write(textwrap.dedent("""\
+      #!/bin/sh
+      for i in $(seq 100)
+      do
+        echo -n .
+        sleep 0.1
+      done
+    """).encode())
+    self.script.close()
+
+    logger = mock.MagicMock()
+    start = time.time()
+    try:
+      program = slapos.grid.utils.SlapPopen(
+          self.script.name,
+          timeout=1,
+          logger=logger)
+      raise AssertionError("SlapPopen did not raise TimeoutExpired")
+    except subprocess.TimeoutExpired as e:
+      self.assertEqual(e.output, '.' * 10)
+
+    # the timeout was respected
+    self.assertTrue(time.time() - start < 2)
+
+    # endline is never reached, so nothing is logged "live"
+    self.assertFalse(logger.info.called)
+
+  def test_timeout_stdout_and_stderr(self):
+    self.script.write(textwrap.dedent("""\
+      #!/bin/sh
+      for i in $(seq 100)
+      do
+        >&2 echo -n -
+        echo -n .
+        sleep 0.1
+      done
+    """).encode())
+    self.script.close()
+
+    logger = mock.MagicMock()
+    start = time.time()
+    try:
+      program = slapos.grid.utils.SlapPopen(
+          self.script.name,
+          stdout=subprocess.PIPE,
+          stderr=subprocess.PIPE,
+          timeout=1,
+          logger=logger)
+      raise AssertionError("SlapPopen did not raise TimeoutExpired")
+    except subprocess.TimeoutExpired as e:
+      self.assertEqual(e.output, '.' * 10)
+      self.assertEqual(e.stderr, '-' * 10)
+
+    # the timeout was respected
+    self.assertTrue(time.time() - start < 2)
+
+    # endline is never reached, so nothing is logged "live"
+    self.assertFalse(logger.info.called)
+
+  def test_timeout_no_stdout_no_stderr(self):
+    self.script.write(b'#!/bin/sh\nsleep 20')
+    self.script.close()
+
+    logger = mock.MagicMock()
+    start = time.time()
+    try:
+      program = slapos.grid.utils.SlapPopen(
+          self.script.name,
+          timeout=1,
+          logger=logger)
+      raise AssertionError("SlapPopen did not raise TimeoutExpired")
+    except subprocess.TimeoutExpired as e:
+      self.assertEqual(e.output, '')
+      self.assertEqual(e.stderr, '')
+
+    # nothing is logged "live"
+    self.assertFalse(logger.info.called)
 
 
 class DummySystemExit(Exception):

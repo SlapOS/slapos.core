@@ -74,5 +74,13 @@ if not unpaid:
     "SimulationMovement_buildSlapOS",
     "SaleInvoiceTransaction_forceBuildSlapOSAccountingLineList")
   ).SaleInvoiceTransaction_setFakeGroupingReference()
+  payment.activate(
+    after_method_id=(
+      "immediateReindexObject",
+      "_updateSimulation",
+      "Delivery_manageBuildingCalculatingDelivery",
+      "SimulationMovement_buildSlapOS",
+      "SaleInvoiceTransaction_forceBuildSlapOSAccountingLineList")
+    ).SaleInvoiceTransaction_setFakeGroupingReference()
 
 return 'Done.'

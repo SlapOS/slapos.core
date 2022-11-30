@@ -289,19 +289,6 @@ return context.getParentValue()""")
 
   def test_AccountingTransactionModule_getUnpaidInvoiceList(self):
     person = self.makePerson(user=1)
-
-    payment_template = self.portal.restrictedTraverse(
-      self.portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
-    payment = payment_template.Base_createCloneDocument(batch_mode=1)
-
-    for line in payment.contentValues():
-      if line.getSource() == "account_module/payment_to_encash":
-        line.setQuantity(-1)
-      elif line.getSource() == "account_module/receivable":
-        line.setQuantity(1)
-
-    payment.confirm()
-    payment.start()
   
     template = self.portal.restrictedTraverse(
       self.portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate())
@@ -321,9 +308,6 @@ return context.getParentValue()""")
     cell.edit(quantity=1)
     cell.setPrice(1)
     
-    payment.setCausalityValue(current_invoice)
-    payment.setDestinationSectionValue(person)
-    
     current_invoice.plan()
     current_invoice.confirm()
     current_invoice.startBuilding()
@@ -331,16 +315,56 @@ return context.getParentValue()""")
     current_invoice.stop()
 
     self.tic()
+    current_invoice.Delivery_manageBuildingCalculatingDelivery()
+    self.tic()
+    current_invoice.SaleInvoiceTransaction_forceBuildSlapOSAccountingLineList()
+
+    self.tic()
     self.login(person.getUserId())
+    unpaid_invoice_list = self.portal.accounting_module.AccountingTransactionModule_getUnpaidInvoiceList()
     self.assertEqual(
-      self.portal.accounting_module.AccountingTransactionModule_getUnpaidInvoiceList(),
-      [current_invoice])
+      [i.getRelativeUrl() for i in unpaid_invoice_list],
+      [current_invoice.getRelativeUrl()])
 
     self.login()
+    payment_template = self.portal.restrictedTraverse(
+      self.portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
+    payment = payment_template.Base_createCloneDocument(batch_mode=1)
+
+    for line in payment.contentValues():
+      if line.getSource() == "account_module/payment_to_encash":
+        line.setQuantity(-1)
+      elif line.getSource() == "account_module/receivable":
+        line.setQuantity(1)
+
+    payment.confirm()
+    payment.start()
+    payment.setCausalityValue(current_invoice)
+    payment.setDestinationSectionValue(person)
+    
     payment.stop()
     self.tic()
 
+    is_lettered = False
+    letter = None
+    for line in current_invoice.contentValues():
+      if line.getSource() == "account_module/receivable":
+        is_lettered = True
+        letter = line.getGroupingReference()
+
+    self.assertTrue(is_lettered)
+
+    # is it groupped?
+    is_lettered = False
+    for line in payment.contentValues():
+      if line.getSource() == "account_module/receivable":
+        is_lettered = True
+        self.assertEqual(letter, line.getGroupingReference())
+    
+    self.assertTrue(is_lettered)
+ 
     self.login(person.getUserId())
+    unpaid_invoice_list = self.portal.accounting_module.AccountingTransactionModule_getUnpaidInvoiceList()
     self.assertEqual(
-      self.portal.accounting_module.AccountingTransactionModule_getUnpaidInvoiceList(),
+      [i.getRelativeUrl() for i in unpaid_invoice_list],
       [])

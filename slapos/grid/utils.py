@@ -193,6 +193,8 @@ class SlapPopen(subprocess.Popen):
       self.wait(timeout=timeout)
     except subprocess.TimeoutExpired as e:
       killProcessTree(self.pid, logger)
+      self.wait(timeout=10) # arbitrary timeout, wait until process is killed
+      self.poll() # set returncode (and avoid still-running warning)
       e.output = e.stdout = ''.join(buffers.get(stdout_fileno, ()))
       e.stderr = ''.join(buffers.get(stderr_fileno, ()))
       raise

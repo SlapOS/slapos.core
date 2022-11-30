@@ -198,6 +198,13 @@ class SlapPopen(subprocess.Popen):
       e.output = e.stdout = ''.join(buffers.get(stdout_fileno, ()))
       e.stderr = ''.join(buffers.get(stderr_fileno, ()))
       raise
+    finally:
+      for s in (self.stdout, self.stderr):
+        if s:
+          try:
+            s.close()
+          except OSError:
+            pass
 
     self.output = ''.join(buffers.get(stdout_fileno, ()))
     self.error = ''.join(buffers.get(stderr_fileno, ()))

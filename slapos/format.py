@@ -1671,6 +1671,8 @@ class FormatConfig(object):
         self.checkRequiredBinary(['groupadd', 'useradd', 'usermod', ['passwd', '-h']])
       if self.create_tap or self.alter_network:
         self.checkRequiredBinary(['ip'])
+      if self.create_tun:
+        self.checkRequiredBinary(['iptables'])
 
     # Check mandatory options
     for parameter in ('computer_id', 'instance_root', 'master_url',

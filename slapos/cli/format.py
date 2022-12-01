@@ -125,7 +125,7 @@ class FormatCommand(ConfigCommand):
         try:
             conf.setConfig()
         except UsageError as err:
-            sys.stderr.write(err.message + '\n')
+            sys.stderr.write(str(err) + '\n')
             sys.stderr.write("For help use --help\n")
             sys.exit(1)
 

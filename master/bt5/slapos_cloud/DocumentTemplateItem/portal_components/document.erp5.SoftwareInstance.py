@@ -189,6 +189,25 @@ class SoftwareInstance(Item, JSONType):
     newtimestamp = int(self.getBangTimestamp(int(self.getModificationDate())))
     if (newtimestamp > timestamp):
       timestamp = newtimestamp
+
+    # Check if any of the Shared instances hosted in the software instance have been reprocessed
+    # XXX In the current what shared instances are processed, they cannot be reprocessed if the
+    # host instance is not processed
+    if (self.getPortalType() == "Software Instance"):
+      shared_instance_sql_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
+        default_aggregate_uid=compute_partition.getUid(),
+        portal_type='Slave Instance',
+        validation_state="validated",
+        sort_on=(("slap_date", "DESC"),),
+        select_list=("slap_date",),
+        limit=1,
+        **{"slapos_item.slap_state": "start_requested"}
+      )
+      if shared_instance_sql_list:
+        most_recent_hosted_instance_timestamp = int(shared_instance_sql_list[0].slap_date)
+        if (most_recent_hosted_instance_timestamp > timestamp):
+          timestamp = most_recent_hosted_instance_timestamp
+
     return timestamp
 
   @UnrestrictedMethod

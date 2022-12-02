@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<ZopeData>
+  <record id="1" aka="AAAAAAAAAAE=">
+    <pickle>
+      <global name="JSON Form" module="erp5.portal_type"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>after_method_id</string> </key>
+            <value> <string>jIOWebSection_searchHashDocumentRecord</string> </value>
+        </item>
+        <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>application/json</string> </value>
+        </item>
+        <item>
+            <key> <string>default_reference</string> </key>
+            <value> <string>jIOWebSection_searchHashDocumentRecordFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>id</string> </key>
+            <value> <string>jIOWebSection_searchHashDocumentRecordFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>output_schema</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "allDocs: Response Payload",\n
+  "description": "Payload returned by allDocs method.",\n
+  "properties": {\n
+    "result_list": {\n
+      "title": "Result List",\n
+      "description": "Contains a representation of the items",\n
+      "type": "array",\n
+      "items": {\n
+        "type": "object",\n
+        "title": "Hash Document Record",\n
+        "properties": {\n
+          "reference": {\n
+            "title": "Hash Document Record Reference",\n
+            "description": "Unique identifier of the Hash Document Record",\n
+            "type": "string"\n
+          },\n
+          "timestamp": {\n
+            "title": "Timestamp",\n
+            "type": "number",\n
+            "description": "Timestamp of the time at which the hash table was constructed"\n
+          },\n
+          "portal_type": {\n
+            "title": "Portal Type",\n
+            "const": "Hash Document Record",\n
+            "type": "string"\n
+          }\n
+        }\n
+      }\n
+    }\n
+  }\n
+}</string> </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>JSON Form</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "$id": "hash-document-record-search-base-schema.json",\n
+  "title": "Search Hash Document Record",\n
+  "description": "Search Hash Document Record. Will only return the latest document available.",\n
+  "type": "object",\n
+  "properties": {\n
+    "node_id": {\n
+      "title": "Node ID",\n
+      "type": "string",\n
+      "description": "The Id of the compute node hosting the instance, example: COMP-1234 or reference of the Instance hosting"\n
+    },\n
+    "portal_type": {\n
+      "title": "Portal Type",\n
+      "const": "Hash Document Record",\n
+      "type": "string"\n
+    }\n
+  },\n
+  "required": ["portal_type"]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>version</string> </key>
+            <value> <string>001</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+</ZopeData>

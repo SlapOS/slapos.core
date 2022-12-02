@@ -9,8 +9,12 @@ result_list.sort()
 portal_type_path = portal.portal_types.restrictedTraverse("Hash Document Record")
 base_url = portal.portal_preferences.getPreferredSlaposWebSiteUrl().strip("/")
 
+reference = "%s-%s" % (context.getReference(), timestamp)
+
 data = {
   "$schema":  "/".join([base_url, portal_type_path.getRelativeUrl(), "getTextContent"]),
+  "portal_type": "",
+  "reference": reference,
   "node_id":context.getReference(),
   # Here it should not be hardcoded
   "document_hash_list": result_list,
@@ -20,7 +24,8 @@ data = {
 portal.hash_document_record_module.newContent(
   portal_type="Hash Document Record",
   aggregate=context.getRelativeUrl(),
-  title="%s-%s" % (context.getReference(), timestamp),
+  title=reference,
+  reference=reference,
   text_content=json.dumps(data)
 )
 

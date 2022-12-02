@@ -49,5 +49,11 @@ elif portal_type == "Software Instance Certificate Record":
         portal_type="Software Instance Certificate Record",
       )
 
+elif portal_type == "Hash Document Record":
+  if "reference" in data_dict:
+    return portal.portal_catalog.getResultValue(
+      portal_type="Hash Document Record",
+      reference=data_dict["reference"]
+    )
 
 return None

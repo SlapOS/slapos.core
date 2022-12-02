@@ -43,8 +43,8 @@
             <value> <string>{\n
   "$schema": "http://json-schema.org/draft-07/schema#",\n
   "$id": "software-instance-base-schema.json",\n
-  "title": "Software Instance",\n
-  "description": "Software Instance",\n
+  "title": "Hash Document Record",\n
+  "description": "Hash Document Record is used to list content of a Node. It can be a Compute Node or a Software Instance. It provides a list with the corresponding md5 and timestamp of the documents",\n
   "type": "object",\n
   "properties": {\n
     "$schema": {\n

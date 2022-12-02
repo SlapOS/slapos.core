@@ -6,7 +6,11 @@ active_process = portal.restrictedTraverse(active_process)
 result_list = [ json.loads(result.detail.decode('zlib')) for result in active_process.getResultList() ]
 result_list.sort()
 
+portal_type_path = portal.portal_types.restrictedTraverse("Hash Document Record")
+base_url = portal.portal_preferences.getPreferredSlaposWebSiteUrl().strip("/")
+
 data = {
+  "$schema":  "/".join([base_url, portal_type_path.getRelativeUrl(), "getTextContent"]),
   "node_id":context.getReference(),
   # Here it should not be hardcoded
   "document_hash_list": result_list,

@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Base Type" module="erp5.portal_type"/>
+      <global name="JSON Type" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -17,10 +17,6 @@
             <value>
               <none/>
             </value>
-        </item>
-        <item>
-            <key> <string>factory</string> </key>
-            <value> <string>addXMLObject</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
@@ -40,11 +36,81 @@
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Base Type</string> </value>
+            <value> <string>JSON Type</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "$id": "software-instance-base-schema.json",\n
+  "title": "Software Instance",\n
+  "description": "Software Instance",\n
+  "type": "object",\n
+  "properties": {\n
+    "$schema": {\n
+      "title": "Schema URL",\n
+      "type": "string",\n
+      "description": "URL of the response schema"\n
+    },\n
+    "node_id": {\n
+      "title": "Node Reference Reference",\n
+      "description": "Reference of the Node hosting these instances",\n
+      "type": "string",\n
+      "maxLength": 50\n
+    },\n
+    "timestamp": {\n
+      "title": "Timestamp",\n
+      "type": "number",\n
+      "description": "Timestamp of the time at which the hash table was constructed"\n
+    },\n
+    "document_hash_list": {\n
+      "title": "Document Hash List",\n
+      "type": "array",\n
+      "descritpion": "List of IPs usable by the Software Instance on the partition",\n
+      "items": {\n
+          "type": "object",\n
+          "properties": {\n
+            "reference": {\n
+              "title": "Instance Reference",\n
+              "description": "Reference of the instance",\n
+              "type": "string",\n
+              "maxLength": 50\n
+            },\n
+            "data-schema": {\n
+              "title": "Data Schema URL",\n
+              "type": "string",\n
+              "description": "URL of the current data schema"\n
+            },\n
+            "md5sum": {\n
+              "title": "md5sum",\n
+              "type": "string",\n
+              "description": "md5sum of the data"\n
+            },\n
+            "timestamp": {\n
+              "title": "Processing Timestamp",\n
+              "type": "number",\n
+              "description": "Timestamp set by the master node to mark when this instance was last processed in the master node. If it has been processed on master, it needs reprocessiing on the compute node."\n
+            },\n
+            "method": {\n
+              "title": "Method",\n
+              "type": "string",\n
+              "description": "Method used to calculate the hash"\n
+            }\n
+          }\n
+      }\n
+    },\n
+    "portal_type": {\n
+      "title": "Portal Type",\n
+      "const": "Hash Document Record",\n
+      "type": "string"\n
+    }\n
+  }\n
+}\n
+</string> </value>
         </item>
         <item>
             <key> <string>type_class</string> </key>
-            <value> <string>XMLObject</string> </value>
+            <value> <string>JSONType</string> </value>
         </item>
         <item>
             <key> <string>type_interface</string> </key>

@@ -7,7 +7,7 @@ result_list = [ json.loads(result.detail.decode('zlib')) for result in active_pr
 result_list.sort()
 
 data = {
-  "compute_node_id":context.getReference(),
+  "node_id":context.getReference(),
   # Here it should not be hardcoded
   "document_hash_list": result_list,
   "timestamp": timestamp

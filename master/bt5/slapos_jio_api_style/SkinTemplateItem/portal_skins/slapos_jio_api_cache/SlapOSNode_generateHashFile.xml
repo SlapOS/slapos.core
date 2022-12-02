@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>timestamp, active_process</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputeNode_aggregateHashFile</string> </value>
+            <value> <string>SlapOSNode_generateHashFile</string> </value>
         </item>
       </dictionary>
     </pickle>

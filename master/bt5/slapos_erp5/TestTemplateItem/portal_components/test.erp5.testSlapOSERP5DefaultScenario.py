@@ -237,23 +237,6 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
     self.tic()
 
-    builder = self.portal.portal_orders.slapos_payment_transaction_builder
-    for _ in range(500):
-      # build the aggregated payment
-      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-      self.tic()
-      # If there is something unbuild recall alarm.
-      if len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
-        break
-
-    # start the payzen payment
-    self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
-    self.tic()
-
-    # stabilise the payment deliveries and expand them
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
     # trigger the CRM interaction
     self.stepCallSlaposCrmCreateRegularisationRequestAlarm()
     self.tic()
@@ -468,23 +451,6 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
     self.tic()
 
-    builder = self.portal.portal_orders.slapos_payment_transaction_builder
-    for _ in range(500):
-      # build the aggregated payment
-      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-      self.tic()
-      # If there is something unbuild recall alarm.
-      if len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
-        break
-
-    # start the payzen payment
-    self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
-    self.tic()
-
-    # stabilise the payment deliveries and expand them
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
     # create the regularisation request
     self.stepCallSlaposCrmCreateRegularisationRequestAlarm()
     self.tic()
@@ -599,23 +565,6 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     # stop the invoices and solve them again
     self.stepCallSlaposStopConfirmedAggregatedSaleInvoiceTransactionAlarm()
     self.tic()
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    builder = self.portal.portal_orders.slapos_payment_transaction_builder
-    for _ in range(500):
-      # build the aggregated payment
-      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-      self.tic()
-      # If there is something unbuild recall alarm.
-      if len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
-        break
-
-    # start the payzen payment
-    self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
-    self.tic()
-
-    # stabilise the payment deliveries and expand them
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
     self.tic()
 

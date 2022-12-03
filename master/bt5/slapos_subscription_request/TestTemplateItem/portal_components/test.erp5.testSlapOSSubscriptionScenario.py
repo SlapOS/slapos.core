@@ -882,23 +882,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
     self.tic()
 
-    builder = self.portal.portal_orders.slapos_payment_transaction_builder
-    for _ in range(500):
-      # build the aggregated payment
-      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-      self.tic()
-      # If there is something unbuild recall alarm.
-      if not len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
-        break
-
-    # start the payzen payment
-    self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
-    self.tic()
-
-    # stabilise the payment deliveries and expand them
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
     # trigger the CRM interaction
     self.stepCallSlaposCrmCreateRegularisationRequestAlarm()
     self.tic()
@@ -1404,23 +1387,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     # stop the invoices and solve them again
     self.stepCallSlaposStopConfirmedAggregatedSaleInvoiceTransactionAlarm()
     self.tic()
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    builder = self.portal.portal_orders.slapos_payment_transaction_builder
-    for _ in range(500):
-      # build the aggregated payment
-      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-      self.tic()
-      # If there is something unbuild recall alarm.
-      if not len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
-        break
-
-    # start the payzen payment
-    self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
-    self.tic()
-
-    # stabilise the payment deliveries and expand them
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
     self.tic()
 

@@ -12,7 +12,7 @@ portal.portal_catalog.searchAndActivate(
       payment_mode_uid=[
         portal.portal_categories.payment_mode.payzen.getUid(),
         portal.portal_categories.payment_mode.wechat.getUid()],
-      method_id='PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped',
+      method_id='PaymentTransaction_cancelIfSaleInvoiceTransactionIsLettered',
       packet_size=1, # just one to minimise errors
       activate_kw={'tag': tag},
       **kw

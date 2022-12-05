@@ -338,9 +338,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
                       notification_message="subscription_request-payment-is-ready"):
     self.checkSubscriptionRequest(subscription_request, email,
                                   subscription_condition)
-    payment = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
-    self.assertNotEqual(payment, None)
-    self.assertEqual(payment.getSimulationState(), 'started')
+    invoice = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
+    self.assertNotEqual(invoice, None)
+    self.assertEqual(invoice.getSimulationState(), 'stopped')
 
     # Assert instance is allocated and without error
     self.assertEqual(True,
@@ -375,13 +375,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     person = subscription_request.getDestinationSectionValue()
     self.login(person.getUserId())
 
-    payment = self.portal.portal_catalog.getResultValue(
-      portal_type="Payment Transaction",
-      simulation_state="started")
-
-    sale_transaction_invoice = payment.getCausalityValue(
-      portal_type="Sale Invoice Transaction"
-    )
+    invoice_list = person.Entity_getOutstandingAmountList()
+    self.assertEqual(len(invoice_list), 1)
+    sale_transaction_invoice = invoice_list[0].getObject()
 
     self.logout()
     self.login()
@@ -447,8 +443,11 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     quantity = subscription_request.getQuantity()
     self.login(person.getUserId())
-    self.usePayzenManually(self.web_site, person.getUserId(), is_email_expected=False)
-
+    self.usePaymentManually(
+      self.web_site,
+      person.getUserId(),
+      is_email_expected=False, 
+      subscription_request=subscription_request)
 
     self.logout()
     self.login()
@@ -485,7 +484,10 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     quantity = subscription_request.getQuantity()
     self.login(person.getUserId())
-    self.usePayzenManually(self.web_site, person.getUserId())
+    self.usePaymentManually(
+      self.web_site,
+      person.getUserId(),
+      subscription_request=subscription_request)
 
     self.logout()
     self.login()
@@ -524,7 +526,11 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode("UNITTEST")
     
       self.login(person.getUserId())
-      self.useWechatManually(self.web_site, person.getUserId(), is_email_expected=False)
+      self.usePaymentManually(
+        self.web_site,
+        person.getUserId(),
+        is_email_expected=False,
+        subscription_request=subscription_request)
 
       self.logout()
       self.login()
@@ -556,7 +562,10 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode("UNITTEST")
     
       self.login(person.getUserId())
-      self.useWechatManually(self.web_site, person.getUserId())
+      self.usePaymentManually(
+        self.web_site,
+        person.getUserId(),
+        subscription_request=subscription_request)
 
       self.logout()
       self.login()
@@ -972,9 +981,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       "TestSubscriptionSkins Notification Message %s %s" % (
          subscription_request.getLanguage(), notification_message),
       mail_message.getTitle())
-    payment = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
-    self.assertEqual(payment.getSimulationState(), 'started')
-    invoice = payment.getCausalityValue()
+    invoice = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
+    self.assertEqual(invoice.getSimulationState(), 'stopped')
     self.assertTrue(invoice.getRelativeUrl() in \
                  mail_message.getTextContent())
     self.assertTrue(subscription_request.getDestinationSectionTitle() in \

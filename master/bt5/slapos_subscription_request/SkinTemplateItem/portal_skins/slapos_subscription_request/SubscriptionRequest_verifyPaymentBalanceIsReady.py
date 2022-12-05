@@ -25,12 +25,10 @@ for packing_list in portal.portal_catalog(
   ):
   for invoice in packing_list.getCausalityRelatedValueList(
     portal_type="Sale Invoice Transaction"):
-    for payment in invoice.getCausalityRelatedValueList(
-      portal_type=["Payment Transaction", "Sale Invoice Transaction"]):
-      if payment.getSimulationState() in ["stopped", "delivered", "started"]:
-        # Invoice is already paied so we just move foward
-        if not payment.checkConsistency():
-          return payment
+    
+    # XXX How to check if the invoice is ready to be payed
+    if invoice.getSimulationState() in ['stopped', 'delivered'] and \
+        not invoice.checkConsistency():
+      return invoice
 
-# Payment isn't ready
-return
+# Invoice inst ready to be payed

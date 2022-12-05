@@ -1,9 +1,9 @@
 portal = context.getPortalObject()
-payment = context.SubscriptionRequest_verifyPaymentBalanceIsReady()
+invoice = context.SubscriptionRequest_verifyPaymentBalanceIsReady()
 
-if payment is not None:
-  if payment.getSimulationState() in ['stopped', 'delivered']:
-    # Payment Transaction is payed
+if invoice is not None:
+  if invoice.SaleInvoiceTransaction_isLettered():
+    # Invoice is payed
     return True
   
   person = context.getDestinationSectionValue()
@@ -18,5 +18,5 @@ if payment is not None:
       not (person.Entity_statSlapOSOutstandingAmount() > 0)):
     return True
 
-# Payment Transaction isn't payed
+# Invoice isn't payed
 return False

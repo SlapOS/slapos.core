@@ -1,4 +1,24 @@
-# Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
+# -*- coding:utf-8 -*-
+##############################################################################
+#
+# Copyright (c) 2022 Nexedi SA and Contributors. All Rights Reserved.
+#
+# This program is Free Software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+##############################################################################
+
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 
 from DateTime import DateTime
@@ -830,25 +850,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     self.assertEqual("%s/already_registered" % payment.getRelativeUrl(),
                       redirect)
-
-class TestSlapOSPayzenSaleInvoiceTransaction_getSlapOSPaymentRelatedValue(
-                                                    SlapOSTestCaseMixinWithAbort):
-
-  def test_SaleInvoiceTransaction_getSlapOSPaymentRelatedValue(self):
-    invoice =  self.createPayzenSaleInvoiceTransaction()
-    self.tic()
-    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
-    self.assertNotEqual(None, payment)
-    self.assertEqual(payment.getSimulationState(), "started")
-    self.assertEqual(payment.getCausalityValue(), invoice)
-    self.assertEqual(payment.getPaymentModeUid(),
-      self.portal.portal_categories.payment_mode.payzen.getUid())
-
-    payment.setStartDate(DateTime())
-    payment.stop()
-    payment.immediateReindexObject()
-    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
-    self.assertEqual(None, payment)
 
 class TestSlapOSPayzenSaleInvoiceTransaction_createReversalPayzenTransaction(
                                                     SlapOSTestCaseMixinWithAbort):

@@ -614,15 +614,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       source="account_module/receivable",
       quantity=-3,
     )
-
-    payment = self.portal.accounting_module.newContent(
-      portal_type="Payment Transaction",
-      payment_mode=payment_mode,
-      causality_value=invoice,
-      destination_section=destination_section,
-      created_by_builder=1 # to prevent init script to create lines
-    )
-    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
     return invoice
 
 

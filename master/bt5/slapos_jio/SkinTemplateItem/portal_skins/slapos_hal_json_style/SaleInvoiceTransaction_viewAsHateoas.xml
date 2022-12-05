@@ -100,7 +100,6 @@
                         <string>my_resource_title</string>
                         <string>my_payment_transaction_external_id</string>
                         <string>my_payment_state</string>
-                        <string>my_payment_transaction</string>
                       </list>
                     </value>
                 </item>

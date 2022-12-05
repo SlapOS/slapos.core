@@ -12,8 +12,8 @@ subscription_request_list = portal.portal_catalog(
   creation_date=Query(creation_date=addToDate(DateTime(), to_add={'day': -20}), range="min"))
 
 for subscription_request in subscription_request_list:
-  first_period_payment = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
-  if first_period_payment is not None and first_period_payment.getSimulationState() == "started":
-    unpaid_list.append(first_period_payment)
+  first_invoice = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
+  if first_invoice is not None and not first_invoice.SaleInvoiceTransaction_isLettered():
+    unpaid_list.append(first_invoice)
 
 return unpaid_list

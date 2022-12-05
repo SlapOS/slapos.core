@@ -149,7 +149,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_crm_monitoring/Event_checkCustomerAsSourceOrDestinationConsistency',
         'slapos_crm_monitoring/SupportRequest_checkCausalitySourceDestinationConsistency',
         'slapos_crm_monitoring/SupportRequest_getLastEvent',
-        'slapos_crm/Person_getSubscriptionRequestFirstUnpaidPaymentList',
+        'slapos_crm/Person_getSubscriptionRequestFirstUnpaidInvoiceList',
         'slapos_crm/RegularisationRequest_afterClone',
         'slapos_crm/RegularisationRequest_getResourceItemList',
         'slapos_crm/RegularisationRequest_init',

@@ -42,19 +42,27 @@ else:
   elif context.getTotalPrice() == 0:
     result = "Free!"
   else:
-    # Check if there is an ongoing SlapOS payment
-    payment = context.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
-    if payment is None:
-      result = "Unpaid"
-    else:
+    result = "Pay Now"
+
+    # Search to know if there are some payment waiting for confirmation
+    payment = portal.portal_catalog.getResultValue(
+      portal_type="Payment Transaction",
+      simulation_state="started",
+      default_causality_uid=context.getUid(),
+      default_payment_mode_uid=[portal.portal_categories.payment_mode.payzen.getUid(),
+                                portal.portal_categories.payment_mode.wechat.getUid()],
+    )
+    if payment is not None:
       # Check if mapping exists
-      external_payment_id = person.Person_restrictMethodAsShadowUser(
-        shadow_document=person,
-        callable_object=payment.PaymentTransaction_getExternalPaymentId,
-        argument_list=[])[0]
-      if external_payment_id is None:
-        result = "Pay Now"
+      if person is not None:
+        external_payment_id = person.Person_restrictMethodAsShadowUser(
+          shadow_document=person,
+          callable_object=payment.PaymentTransaction_getExternalPaymentId,
+          argument_list=[])[0]
       else:
+        external_payment_id = payment.PaymentTransaction_getExternalPaymentId()
+
+      if external_payment_id is not None:
         result = "Waiting for payment confirmation"
 
 return result

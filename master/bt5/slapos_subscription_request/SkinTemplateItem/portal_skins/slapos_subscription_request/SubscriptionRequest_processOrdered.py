@@ -32,19 +32,17 @@ if instance_tree is not None:
     context.start(comment=comment)
     context.stop(comment=comment)
 
-first_period_payment = context.SubscriptionRequest_verifyPaymentBalanceIsReady()
-if not first_period_payment:
-  # Payment isn't available for the user
+invoice = context.SubscriptionRequest_verifyPaymentBalanceIsReady()
+if not invoice:
+  # Invoice isn't available for the user to Pay
   return "Skipped (Payment isn't ready)"
 
 if not context.SubscriptionRequest_verifyInstanceIsAllocated():
   # Only continue if instance is ready
   return "Skipped (Instance isn't ready)"
 
-invoice = first_period_payment.getCausalityValue()
-
 # Link to be sent is the invoice one
-if context.SubscriptionRequest_notifyPaymentIsReady(payment=invoice):
+if context.SubscriptionRequest_notifyPaymentIsReady(invoice):
   context.confirm(comment="Payment is ready for the user")
   return "Payment is ready for the user"
 

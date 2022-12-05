@@ -1,5 +1,4 @@
 image_module/wechat**
-portal_alarms/slapos_wechat_update_confirmed_payment
 portal_alarms/slapos_wechat_update_started_payment
 portal_integrations/slapos_wechat_test_integration
 portal_integrations/slapos_wechat_test_integration/Causality

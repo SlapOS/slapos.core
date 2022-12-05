@@ -1,7 +1,21 @@
-# -*- coding: utf-8 -*-
+# -*- coding:utf-8 -*-
 ##############################################################################
 #
-# Copyright (c) 2012 Nexedi SA and Contributors. All Rights Reserved.
+# Copyright (c) 2019 Nexedi SA and Contributors. All Rights Reserved.
+#
+# This program is Free Software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 ##############################################################################
 
@@ -649,8 +663,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       self.assertEqual(None, to_click_message)
 
   @changeSkin('RJS')
-  def useWechatManually(self, web_site, user_id, is_email_expected=True):
-
+  def usePaymentManually(self, web_site, user_id, is_email_expected=True, subscription_request=None):
     person = self.portal.portal_catalog.getResultValue(
       portal_type="Person",
       user_id=user_id)
@@ -658,37 +671,24 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertNotEqual(person, None)
     self.assertInvoiceNotification(person, is_email_expected)
 
-    # If you are using live test, be aware that the call of the alarm can be
-    # not enough for the number of objects on the site.
-    document_id = self.portal.portal_catalog.getResultValue(
-				portal_type="Payment Transaction",
-				simulation_state="started",
-        destination_section_uid=person.getUid()
-				).getId()
+    invoice_list = person.Entity_getOutstandingAmountList()
+    if subscription_request is not None:
+      expected_causality = subscription_request.getRelativeUrl()
+      filtered_invoice_list = []
+      for invoice in invoice_list:
+        spl = invoice.getCausalityValue()
+        if spl is not None and spl.getCausality() == expected_causality:
+          filtered_invoice_list.append(invoice)
+      
+      self.assertEqual(len(filtered_invoice_list), 1)
+      invoice_list = filtered_invoice_list
+    else:
+      self.assertEqual(len(invoice_list), 1)
 
+    document_id = invoice_list[0].getId()
     web_site.accounting_module[document_id].\
-      PaymentTransaction_redirectToManualWechatPayment()
-
-  @changeSkin('RJS')
-  def usePayzenManually(self, web_site, user_id, is_email_expected=True):
-    person = self.portal.portal_catalog.getResultValue(
-      portal_type="Person",
-      user_id=user_id)
-
-    self.assertNotEqual(person, None)
-    self.assertInvoiceNotification(person, is_email_expected)
-
-    # Pay to payzen...
-    # If you are using live test, be aware that the call of the alarm can be
-    # not enough for the number of objects on the site.
-    document_id = self.portal.portal_catalog.getResultValue(
-				portal_type="Payment Transaction",
-				simulation_state="started",
-        destination_section_uid=person.getUid()
-				).getId()
-
-    web_site.accounting_module[document_id].\
-      PaymentTransaction_redirectToManualPayzenPayment()
+      SaleInvoiceTransaction_redirectToManualSlapOSPayment()
+    self.tic()
 
   def assertSubscriptionStopped(self, person):
     self.login()

@@ -160,7 +160,7 @@
                   "title": result[1][5],
                   "default": {
                     state: gadget.state.doc.payment_state,
-                    payment_transaction: gadget.state.doc.payment_transaction
+                    jio_key: gadget.state.jio_key
                   },
                   "css_class": "",
                   "required": 1,

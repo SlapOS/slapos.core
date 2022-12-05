@@ -76,12 +76,12 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'PaymentTransaction_redirectToManualSlapOSPayment')]</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'SaleInvoiceTransaction_redirectToManualSlapOSPayment')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'PaymentTransaction_redirectToManualSlapOSPayment')]</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'SaleInvoiceTransaction_redirectToManualSlapOSPayment')]</td>
         <td></td>
       </tr>
       <tr>
@@ -165,12 +165,12 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'PaymentTransaction_redirectToManualSlapOSPayment')]</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'SaleInvoiceTransaction_redirectToManualSlapOSPayment')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'PaymentTransaction_redirectToManualSlapOSPayment')]</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'SaleInvoiceTransaction_redirectToManualSlapOSPayment')]</td>
         <td></td>
       </tr>
       <tr>
@@ -284,12 +284,12 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'PaymentTransaction_redirectToManualSlapOSPayment')]</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'SaleInvoiceTransaction_redirectToManualSlapOSPayment')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'PaymentTransaction_redirectToManualSlapOSPayment')]</td>
+        <td> //div[contains(@data-gadget-url, 'gadget_slapos_invoice_state.html')]//a[contains(@href, 'SaleInvoiceTransaction_redirectToManualSlapOSPayment')]</td>
         <td></td>
       </tr>
       <tr>

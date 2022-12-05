@@ -28,8 +28,15 @@ else:
     description = "The Compute Node %s (%s) has not contacted the server for more than 30 minutes" \
     "(last contact date: %s)" % (compute_node_title, reference, last_contact)
   else:
-    # Nothing to notify.
-    return  
+    check_method = getattr(context, 'ComputeNode_hasModifiedFile', None)
+    if check_method:
+      result = check_method()
+      if result:
+        ticket_title = "[MONITORING] Compute Node %s has modified file" % reference
+        description = "The Compute Node %s (%s) has modified file: %s" % (compute_node_title, reference, result.getRelativeUrl())
+    else:
+      # Nothing to notify.
+      return
 
 support_request = person.Base_getSupportRequestInProgress(
     title=ticket_title,

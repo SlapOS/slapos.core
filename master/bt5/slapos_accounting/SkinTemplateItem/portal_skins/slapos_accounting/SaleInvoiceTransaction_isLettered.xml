@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped</string> </value>
+            <value> <string>SaleInvoiceTransaction_isLettered</string> </value>
         </item>
       </dictionary>
     </pickle>

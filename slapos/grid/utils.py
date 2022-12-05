@@ -33,9 +33,9 @@ import hashlib
 import os
 import pkg_resources
 import pwd
+import select
 import stat
 import sys
-import threading
 import logging
 import psutil
 import time
@@ -93,24 +93,27 @@ LOCALE_ENVIRONMENT_REMOVE_LIST = [
 ]
 
 
-def logAndAccumulateOutput(process_stdout, buffer, logger):
-  """Read process output and place the output in `buffer`, logging the lines
-  one by one as they are emitted.
+class LineLogger(object):
   """
-  current_output = ''
-  while 1:
-    data = os.read(process_stdout.fileno(), 4096)
-    if not data:
-      return
-    data = data.decode('utf-8', 'replace')
-    buffer.append(data)
-    current_output += data
-    for current_output_line in current_output.splitlines(True):
-      if current_output_line.endswith('\n'):
-        logger.info(current_output_line.rstrip('\n'))
-        current_output = ''
-      else:
-        current_output = current_output_line
+  Logger that takes chunks cut arbitrarily and logs them back line by line.
+  """
+  def __init__(self, logger):
+    self.logger = logger
+    self.current = ''
+
+  def update(self, data):
+    lines = (self.current + data).splitlines()
+    self.current = lines.pop()
+    for line in lines:
+      self.logger.info(line)
+    if data.endswith('\n'):
+      self.logger.info(self.current)
+      self.current = ''
+
+  def flush(self):
+    if self.current:
+      self.logger.info(self.current)
+      self.current = ''
 
 
 class SlapPopen(subprocess.Popen):
@@ -145,24 +148,67 @@ class SlapPopen(subprocess.Popen):
     if debug:
       self.wait()
       self.output = '(output not captured in debug mode)'
+      self.error = '(error not captured in debug mode)'
       return
+
     self.stdin.flush()
     self.stdin.close()
     self.stdin = None
 
-    output_lines = []
+    stderr_fileno = stdout_fileno = None
+    buffers = {}
+    if kwargs['stdout'] is subprocess.PIPE:
+      line_logger = LineLogger(logger)
+      stdout_fileno = self.stdout.fileno()
+      buffers[stdout_fileno] = []
+    if kwargs['stderr'] is subprocess.PIPE:
+      stderr_fileno = self.stderr.fileno()
+      buffers[stderr_fileno] = []
 
-    # BBB: reading output in a separate thread is not needed on python 3,
-    # iterating on self.stdout seems enough.
-    t = threading.Thread(
-        target=logAndAccumulateOutput,
-        args=(self.stdout, output_lines, logger))
-    t.start()
+    poll = select.poll()
+    for fd in buffers:
+      poll.register(fd)
+
+    active = len(buffers)
+    if timeout is not None:
+      deadline = time.time() + timeout
+    while active:
+      for fd, _ in poll.poll(timeout):
+        data = os.read(fd, 4096).decode('utf-8', 'replace')
+        if data:
+          if fd == stdout_fileno:
+            line_logger.update(data)
+          buffers[fd].append(data)
+        else:
+          if fd == stdout_fileno:
+            line_logger.flush()
+          poll.unregister(fd)
+          active -= 1
+      if timeout is not None:
+        timeout = deadline - time.time()
+        if timeout <= 0:
+          timeout = 0
+          break
+
     try:
       self.wait(timeout=timeout)
+    except subprocess.TimeoutExpired as e:
+      for p in killProcessTree(self.pid, logger):
+        p.wait(timeout=10) # arbitrary timeout, wait until process is killed
+      self.poll() # set returncode (and avoid still-running warning)
+      e.output = e.stdout = ''.join(buffers.get(stdout_fileno, ()))
+      e.stderr = ''.join(buffers.get(stderr_fileno, ()))
+      raise
     finally:
-      t.join()
-    self.output = ''.join(output_lines)
+      for s in (self.stdout, self.stderr):
+        if s:
+          try:
+            s.close()
+          except OSError:
+            pass
+
+    self.output = ''.join(buffers.get(stdout_fileno, ()))
+    self.error = ''.join(buffers.get(stderr_fileno, ()))
 
 
 def md5digest(url):
@@ -449,7 +495,7 @@ def killProcessTree(pid, logger):
     process = psutil.Process(pid)
     process.suspend()
   except psutil.Error:
-    return
+    return ()
 
   process_list = [process]
   running_process_list = process.children(recursive=True)
@@ -469,3 +515,5 @@ def killProcessTree(pid, logger):
       process.kill()
     except psutil.Error as e:
       logger.debug("Process kill: %s" % e)
+
+  return process_list

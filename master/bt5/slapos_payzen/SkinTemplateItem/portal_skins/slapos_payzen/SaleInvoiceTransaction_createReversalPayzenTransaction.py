@@ -13,14 +13,9 @@ assert context.getTotalPrice() != 0
 assert context.getSpecialise() in ("sale_trade_condition_module/slapos_aggregated_trade_condition",
                                    "sale_trade_condition_module/slapos_aggregated_subscription_trade_condition")
 
-paid = True
-for line in context.getMovementList(portal.getPortalAccountingMovementTypeList()):
-  node_value = line.getSourceValue(portal_type='Account')
-  if node_value.getAccountType() == 'asset/receivable':
-    if not line.hasGroupingReference():
-      paid = False
-      break
-assert not paid
+
+# Dont create if the invoice is already paied
+assert not context.SaleInvoiceTransaction_isLettered()
 
 payment = portal.portal_catalog.getResultValue(
   portal_type="Payment Transaction",
@@ -28,17 +23,13 @@ payment = portal.portal_catalog.getResultValue(
   default_causality_uid=context.getUid(),
   default_payment_mode_uid=portal.portal_categories.payment_mode.payzen.getUid(),
 )
-assert payment is not None
-assert payment.getSimulationState() == 'started'
-assert payment.getPaymentMode() == 'payzen'
-assert payment.PaymentTransaction_getPayzenId()[1] is None
+if payment is not None and payment.PaymentTransaction_getPayzenId()[1] is None:
+  # The payment transaction will be cancelled by a proper alarm.
+  raise ValueError("Payment Transaction is waiting for External Payzen confirmation!")
 
 # Should be safe now to fix everything
 context.SaleInvoiceTransaction_resetPaymentMode()
-payment.edit(payment_mode=None)
 reversal_transaction = context.Base_createCloneDocument(batch_mode=1)
-payment.cancel(
-  comment="Reversal sale invoice transaction created %s" % reversal_transaction.getRelativeUrl())
 
 reversal_transaction.edit(
   title="Reversal Transaction for %s" % context.getTitle(),

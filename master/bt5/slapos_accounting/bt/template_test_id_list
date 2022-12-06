@@ -7,3 +7,4 @@ test.erp5.testSlapOSAccountingInteractionWorkflow
 test.erp5.testSlapOSAccountingSkins
 test.erp5.testSlapOSAccountingAlarm
 test.erp5.testSlapOSContractAlarm
+test.erp5.testSlapOSEntityCreatePayment

@@ -1,3 +1,7 @@
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
+
 portal = context.getObject()
 
 line_list = context.getMovementList(
@@ -9,6 +13,6 @@ if not len(line_list):
 
 source_list = [i.getRelativeUrl() for i in context.Base_getReceivableAccountList()]
 for line in line_list:
-  if line.gerSource() in source_list:
+  if line.getSource() in source_list:
     if line.hasGroupingReference():
       return line.getGroupingReference()

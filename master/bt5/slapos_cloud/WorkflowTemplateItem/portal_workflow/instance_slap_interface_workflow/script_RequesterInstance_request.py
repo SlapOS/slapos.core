@@ -28,6 +28,7 @@ else:
 
 # Instance can be moved from one requester to another
 # Prevent creating two instances with the same title
+instance_tree.serialize()
 tag = "%s_%s_inProgress" % (instance_tree.getUid(), software_title)
 if (portal.portal_activities.countMessageWithTag(tag) > 0):
   # The software instance is already under creation but can not be fetched from catalog

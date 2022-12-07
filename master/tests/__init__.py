@@ -19,7 +19,8 @@ slapos_bt_list = [
     'slapos_configurator',
     'slapos_mysql_innodb_catalog',
     'slapos_jio',
-    'slapos_jio_ui_test'
+    'slapos_jio_ui_test',
+    'slapos_abyss'
   ]
 
 class SlapOSCloud(SavedTestSuite, ProjectTestSuite):
@@ -58,7 +59,7 @@ class SlapOSCloud(SavedTestSuite, ProjectTestSuite):
 
   def run(self, full_test):
     test = ':' in full_test and full_test.split(':')[1] or full_test
-    if test in ('testSlapOSWendelinCoreTwo',):
+    if test in ('testSlapOSWendelinCoreTwo', 'testSlapOSAbyss'):
       return self.runUnitTest('--with_wendelin_core', '--activity_node=1', full_test)
     elif test.startswith('testFunctional'):
       return self._updateFunctionalTestResponse(self.runUnitTest(full_test))

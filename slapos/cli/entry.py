@@ -78,7 +78,7 @@ class SlapOSCommandManager(CommandManager):
             LOG.critical('slapos: the command %r does not exist or is not yet implemented.\n'
                          '\n'
                          'Available commands: %s\n\n'
-                         'Please find documentation and forum at http://community.slapos.org\n'
+                         'Please find documentation at https://slapos.nexedi.com\n'
                          'Please also make sure that the SlapOS Node package is up to date.',
                          ' '.join(argv),
                          ', '.join(sorted(repr(c) for c in self.commands)))

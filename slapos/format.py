@@ -61,7 +61,8 @@ import xml_marshaller.xml_marshaller
 from slapos.util import (dumps, mkdir_p, ipv6FromBin, binFromIpv6,
                         lenNetmaskIpv6, getPartitionIpv6Addr,
                         getPartitionIpv6Range, getTapIpv6Range,
-                        getTunIpv6Range, netmaskFromLenIPv6)
+                        getTunIpv6Range, netmaskFromLenIPv6,
+                        getIpv6RangeFirstAddr)
 import slapos.slap as slap
 from slapos import version
 from slapos import manager as slapmanager
@@ -650,12 +651,10 @@ class Computer(object):
                         tap=partition.tap)
 
               # construct ipv6_network (16 bit more than the computer network)
-              netmask_len = lenNetmaskIpv6(self.interface.getGlobalScopeAddressList()[0]['netmask']) + 16
-              prefix = binFromIpv6(partition.tap.ipv6_addr)[:netmask_len]
-              network_addr = ipv6FromBin(prefix)
-              partition.tap.ipv6_gateway = "{}1".format(network_addr) # address network::1 will be inside the VM
-              partition.tap.ipv6_gateway = ipv6FromBin(binFromIpv6(partition.tap.ipv6_gateway)) # correctly format the IPv6
-              partition.tap.ipv6_network = "{}/{}".format(network_addr, netmask_len)
+              prefixlen = lenNetmaskIpv6(self.interface.getGlobalScopeAddressList()[0]['netmask']) + 16
+              gateway_addr = getIpv6RangeFirstAddr(partition.tap.ipv6_addr, prefixlen)
+              partition.tap.ipv6_gateway = gateway_addr
+              partition.tap.ipv6_network = "{}/{}".format(gateway_addr, prefixlen)
             else:
               partition.tap.ipv6_addr = ''
               partition.tap.ipv6_netmask = ''
@@ -670,9 +669,11 @@ class Computer(object):
             partition.tun.createWithOwner(owner)
             if partition.tun._needs_ipv6:
               ipv6_dict = self.interface.generateIPv6Range(partition_index, tun=True)
-              partition.tun.ipv6_addr = ipv6_dict['addr']
+              prefixlen = ipv6_dict['prefixlen']
+              ipv6_addr = getIpv6RangeFirstAddr(ipv6_dict['addr'], prefixlen)
+              partition.tun.ipv6_addr = ipv6_addr
               partition.tun.ipv6_netmask = ipv6_dict['netmask']
-              partition.tun.ipv6_network = "%(addr)s/%(prefixlen)d" % ipv6_dict
+              partition.tun.ipv6_network = "%s/%d" % (ipv6_addr, prefixlen)
             partition.tun.createRoutes()
 
           # Reconstructing partition's address
@@ -1003,16 +1004,20 @@ class Tun(Tap):
     """Extend for physical addition of network address because TAP let this on external class."""
     if self.ipv4_network:
       # add an address
-      code, _ = callAndRead(['ip', 'addr', 'add', self.ipv4_network, 'dev', self.name],
-                            raise_on_error=False)
+      code, _ = callAndRead(
+        ['ip', 'addr', 'add', self.ipv4_network, 'dev', self.name],
+        raise_on_error=False)
       if code == 0:
         # address added to the interface - wait
         time.sleep(1)
     if self.ipv6_network:
-      code, result = callAndRead(['ip', '-6', 'route', 'show', self.ipv6_network], raise_on_error=False)
-      if code != 0 or 'dev {}'.format(self.name) not in result:
-        callAndRead(['ip', '-6', 'route', 'add', self.ipv6_network, 'dev', self.name])
-
+      # add an address
+      code, _ = callAndRead(
+        ['ip', 'addr', 'add', self.ipv6_network, 'dev', self.name],
+        raise_on_error=False)
+      if code == 0:
+        # address added to the interface - wait
+        time.sleep(1)
     # add iptables rule to accept connections from this interface
     chain_rule = ['INPUT', '-i', self.name, '-j', 'ACCEPT']
     code, _ = callAndRead(['iptables', '-C'] + chain_rule, raise_on_error=False)

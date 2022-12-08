@@ -253,6 +253,11 @@ getTapIpv6Range = getIpv6RangeFactory(2, '1')
 getTunIpv6Range = getIpv6RangeFactory(3, '0')
 
 
+def getIpv6RangeFirstAddr(addr, prefixlen):
+  addr_1 = "%s1" % ipv6FromBin(binFromIpv6(addr)[:prefixlen])
+  return ipv6FromBin(binFromIpv6(addr1) # correctly format the IPv6
+
+
 def lenNetmaskIpv6(netmask):
   """Convert string represented netmask to its integer prefix"""
   # Since version 0.10.7 of netifaces, the netmask is something like "ffff::/16",

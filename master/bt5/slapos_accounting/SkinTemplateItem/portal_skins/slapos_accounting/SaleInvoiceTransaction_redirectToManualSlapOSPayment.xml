@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>PaymentTransaction_redirectToManualSlapOSPayment</string> </value>
+            <value> <string>SaleInvoiceTransaction_redirectToManualSlapOSPayment</string> </value>
         </item>
       </dictionary>
     </pickle>

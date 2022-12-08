@@ -10,7 +10,7 @@ if not invoice_list:
 # For now consider a single value is passed, in future we intend to create
 # a single payment per invoice.
 current_invoice = invoice_list[0]
-payment_tag ="sale_invoice_transaction_create_payment_%s" % current_invoice.getUid()
+payment_tag = "sale_invoice_transaction_create_payment_%s" % current_invoice.getUid()
 if context.REQUEST.get(payment_tag, None) is not None:
   raise ValueError('This script was already called twice on the same transaction ')
 
@@ -21,8 +21,11 @@ context.serialize()
 quantity = 0
 for movement in current_invoice.searchFolder(
   portal_type='Sale Invoice Transaction Line',
-  default_source_uid=[i.uid for i in  context.Base_getReceivableAccountList()]):
+  default_source_uid=[i.uid for i in context.Base_getReceivableAccountList()]):
   quantity += movement.getQuantity()
+
+if quantity >= 0:
+  raise ValueError('You cannot generate Payment Transaction for zero or negative amounts.')
 
 current_payment = portal.accounting_module.newContent(
   portal_type="Payment Transaction",
@@ -57,12 +60,18 @@ current_payment.newContent(
   stop_date=current_invoice.getStopDate())
 
 comment = translateString("Initialised by Entity_createPaymentTransaction.")
-current_payment.confirm(comment=comment)
 
 # Reindex with a tag to ensure that there will be no generation while the object isn't
 # reindexed.
 payment_tag ="sale_invoice_transaction_create_payment_%s" % current_invoice.getUid()
 current_payment.activate(tag=payment_tag).immediateReindexObject()
+
+# Call script rather them call confirm(), since it would set security and fail whenever
+# start is called.
+current_payment.AccountingTransaction_setReference()
+
+comment = translateString("Initialised by Entity_createPaymentTransaction.")
+current_payment.start(comment=comment)
 
 # Set a flag on the request for prevent 2 calls on the same transaction
 context.REQUEST.set(payment_tag, 1)

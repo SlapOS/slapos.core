@@ -670,7 +670,11 @@ class Computer(object):
             partition.tun.createWithOwner(owner)
             if partition.tun._needs_ipv6:
               ipv6_dict = self.interface.generateIPv6Range(partition_index, tun=True)
-              partition.tun.ipv6_addr = ipv6_dict['addr']
+              ipv6_addr = ipv6_dict['addr']
+              prefixlen = ipv6_dict['prefixlen']
+              addr_1 = '%s1' % ipv6FromBin(binFromIpv6(ipv6_addr[:prefixlen]))
+              ipv6_dict['addr'] = addr_1
+              partition.tun.ipv6_addr = addr_1
               partition.tun.ipv6_netmask = ipv6_dict['netmask']
               partition.tun.ipv6_network = "%(addr)s/%(prefixlen)d" % ipv6_dict
             partition.tun.createRoutes()
@@ -1003,16 +1007,20 @@ class Tun(Tap):
     """Extend for physical addition of network address because TAP let this on external class."""
     if self.ipv4_network:
       # add an address
-      code, _ = callAndRead(['ip', 'addr', 'add', self.ipv4_network, 'dev', self.name],
-                            raise_on_error=False)
+      code, _ = callAndRead(
+        ['ip', 'addr', 'add', self.ipv4_network, 'dev', self.name],
+        raise_on_error=False)
       if code == 0:
         # address added to the interface - wait
         time.sleep(1)
     if self.ipv6_network:
-      code, result = callAndRead(['ip', '-6', 'route', 'show', self.ipv6_network], raise_on_error=False)
-      if code != 0 or 'dev {}'.format(self.name) not in result:
-        callAndRead(['ip', '-6', 'route', 'add', self.ipv6_network, 'dev', self.name])
-
+      # add an address
+      code, _ = callAndRead(
+        ['ip', 'addr', 'add', self.ipv6_network, 'dev', self.name],
+        raise_on_error=False)
+      if code == 0:
+        # address added to the interface - wait
+        time.sleep(1)
     # add iptables rule to accept connections from this interface
     chain_rule = ['INPUT', '-i', self.name, '-j', 'ACCEPT']
     code, _ = callAndRead(['iptables', '-C'] + chain_rule, raise_on_error=False)

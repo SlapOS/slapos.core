@@ -28,8 +28,13 @@ else:
     description = "The Compute Node %s (%s) has not contacted the server for more than 30 minutes" \
     "(last contact date: %s)" % (compute_node_title, reference, last_contact)
   else:
-    # Nothing to notify.
-    return  
+    data_array  = context.ComputeNode_hasModifiedFile()
+    if data_array:
+      ticket_title = "[MONITORING] Compute Node %s has modified file" % reference
+      description = "The Compute Node %s (%s) has modified file: %s" % (compute_node_title, reference, data_array.getRelativeUrl())
+    else:
+      # Nothing to notify.
+      return
 
 support_request = person.Base_getSupportRequestInProgress(
     title=ticket_title,

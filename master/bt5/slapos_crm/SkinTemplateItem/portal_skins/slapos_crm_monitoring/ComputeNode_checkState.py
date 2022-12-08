@@ -37,6 +37,12 @@ else:
     should_notify = True
     description = "The Compute Node %s (%s) has not contacted the server for more than 30 minutes" \
     "(last contact date: %s)" % (compute_node_title, reference, last_contact)
+  else:
+    data_array  = context.ComputeNode_hasModifiedFile()
+    if data_array:
+      should_notify = True
+      ticket_title = "[MONITORING] Compute Node %s has modified file" % reference
+      description = "The Compute Node %s (%s) has modified file: %s" % (compute_node_title, reference, data_array.getRelativeUrl())
 
 if not should_notify:
   # Since server is contacting, check for stalled processes

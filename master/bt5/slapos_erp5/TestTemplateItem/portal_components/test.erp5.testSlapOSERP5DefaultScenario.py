@@ -505,13 +505,10 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
 
 
     # Manually cancel the users invoice
-    payment = self.portal.portal_catalog.getResultValue(
-      portal_type="Payment Transaction",
-      destination_section_uid=person.getUid(),
-      simulation_state="started")
-
-    invoice = payment.getCausalityValue(portal_type="Sale Invoice Transaction")
-    invoice.SaleInvoiceTransaction_createReversalPayzenTransaction()
+    invoice_list = person.Entity_getOutstandingAmountList()
+    self.assertEqual(len(invoice_list), 1)
+    sale_transaction_invoice = invoice_list[0].getObject()
+    sale_transaction_invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction(batch_mode=1)
 
     self.tic()
 

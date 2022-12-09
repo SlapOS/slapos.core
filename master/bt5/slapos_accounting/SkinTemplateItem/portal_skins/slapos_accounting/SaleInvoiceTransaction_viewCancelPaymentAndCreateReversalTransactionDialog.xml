@@ -35,7 +35,11 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>SaleInvoiceTransaction_createSlapOSReversalTransaction</string> </value>
+            <value> <string>SaleInvoiceTransaction_createReversalSaleInvoiceTransaction</string> </value>
+        </item>
+        <item>
+            <key> <string>action_title</string> </key>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>

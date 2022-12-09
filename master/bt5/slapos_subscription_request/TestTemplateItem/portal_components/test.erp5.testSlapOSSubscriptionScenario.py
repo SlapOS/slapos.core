@@ -381,7 +381,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     self.logout()
     self.login()
-    sale_transaction_invoice.SaleInvoiceTransaction_createReversalPayzenTransaction()
+    sale_transaction_invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction(batch_mode=1)
 
   def checkSubscriptionRequestPayment(self, subscription_request, authAmount):
 

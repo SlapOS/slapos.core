@@ -22,7 +22,8 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 import difflib
 
-slapos_folder_list = """slapos_base
+slapos_folder_list = """slapos_abyss
+slapos_base
 slapos_contract
 slapos_subscription_request
 slapos_crm_monitoring
@@ -54,6 +55,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -69,8 +71,10 @@ erp5_corporate_identity"""
 common3_folder_list = """erp5_credential
 erp5_credential_oauth2
 erp5_crm
+erp5_data_notebook
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -81,7 +85,8 @@ erp5_gadget
 erp5_glossary
 erp5_graph_editor"""
 
-common_folder_list = """erp5_monaco_editor
+common_folder_list = """erp5_json_type
+erp5_monaco_editor
 erp5_multimedia
 erp5_notebook
 erp5_oauth
@@ -123,7 +128,9 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
-erp5_wechat_secure_payment"""
+erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook"""
 
 class TestSlaposSkinSelectionMixin(SlapOSTestCaseMixin):
   # Ignore these bt5 as they might be present on development instances
@@ -223,9 +230,11 @@ erp5_dms_web
 erp5_credential
 erp5_credential_oauth2
 erp5_crm
+erp5_data_notebook
 erp5_data_set
 erp5_deferred_style
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -358,12 +367,13 @@ erp5_integration
 erp5_invoicing
 erp5_jquery
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_km_widget_library
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
-""" % {'common_folder_list' : common_folder_list,
+""" % {'common_folder_list' : '\n'.join(common_folder_list.split('\n')[1:]),
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
        'slapos_folder_list': slapos_folder_list
@@ -866,6 +876,7 @@ erp5_interaction_drop
 erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request

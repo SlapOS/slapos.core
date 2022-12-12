@@ -342,7 +342,21 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.tic()
     current_invoice.Delivery_manageBuildingCalculatingDelivery()
     self.tic()
-    current_invoice.SaleInvoiceTransaction_forceBuildSlapOSAccountingLineList()
+    applied_rule = current_invoice.getCausalityRelated(portal_type="Applied Rule")
+    for sm in self.portal.portal_catalog(portal_type='Simulation Movement',
+                                        simulation_state=['draft', 'planned', None],
+                                        left_join_list=['delivery_uid'],
+                                        delivery_uid=None,
+                                        path="%%%s%%" % applied_rule):
+
+      if sm.getDelivery() is not None:
+        continue
+    
+      root_applied_rule = sm.getRootAppliedRule()
+      root_applied_rule_path = root_applied_rule.getPath()
+    
+      sm.getCausalityValue(portal_type='Business Link').build(
+        path='%s/%%' % root_applied_rule_path)
 
     self.tic()
     self.login(person.getUserId())
@@ -632,4 +646,173 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
   @withAbort
   def test_createReversalSaleInvoiceTransaction_wechat_ok_dont_autocancel(self):
     self.test_createReversalSaleInvoiceTransaction_ok_dont_autocancel(payment_mode='wechat')
-    
+
+  @withAbort
+  def test_AccountingTransaction_getPaymentState_draft_payment(self):
+    invoice = self.createSaleInvoiceTransaction()
+    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
+
+  @withAbort
+  def test_AccountingTransaction_getPaymentState_deleted_payment(self):
+    invoice = self.createSaleInvoiceTransaction()
+    invoice.delete()
+    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
+
+  @withAbort
+  def test_AccountingTransaction_getPaymentState_cancelled_payment(self):
+    invoice = self.createSaleInvoiceTransaction()
+    invoice.cancel()
+    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
+
+  @withAbort
+  def test_AccountingTransaction_getPaymentState_planned_payment(self):
+    invoice = self.createSaleInvoiceTransaction()
+    invoice.plan()
+    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
+
+  @withAbort
+  def test_AccountingTransaction_getPaymentState_confirmed_payment(self):
+    invoice = self.createSaleInvoiceTransaction()
+    invoice.setStartDate(DateTime())
+    invoice.confirm()
+    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
+
+  @withAbort
+  def test_AccountingTransaction_getPaymentState_started_payment(self):
+    invoice = self.createSaleInvoiceTransaction()
+    invoice.start()
+    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
+
+  @withAbort
+  def test_AccountingTransaction_getPaymentState_payzen_reversed_payment(self):
+    invoice =  self.createStoppedSaleInvoiceTransaction()
+    self.tic()
+    reversal = invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction(
+      batch_mode=1
+    )
+    self.tic()
+    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual(0, invoice.getTotalPrice() + reversal.getTotalPrice())
+
+  @withAbort
+  def test_AccountingTransaction_getPaymentState_wechat_reversed_payment(self):
+    invoice =  self.createStoppedSaleInvoiceTransaction(payment_mode='wechat')
+    self.tic()
+    reversal = invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction(
+      batch_mode=1
+    )
+    self.tic()
+    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual(0, invoice.getTotalPrice() + reversal.getTotalPrice())
+
+  def test_AccountingTransaction_getPaymentState_payzen_free_payment(self):
+    invoice =  self.createStoppedSaleInvoiceTransaction(price=0)
+    self.tic()
+    self.assertEqual("Free!", invoice.AccountingTransaction_getPaymentState())
+
+  def test_AccountingTransaction_getPaymentState_wechat_free_payment(self):
+    invoice =  self.createStoppedSaleInvoiceTransaction(price=0, payment_mode='wechat')
+    self.tic()
+    self.assertEqual("Free!", invoice.AccountingTransaction_getPaymentState())
+
+  def test_AccountingTransaction_getPaymentState_payzen_unpaid_payment(self):
+    invoice =  self.createStoppedSaleInvoiceTransaction()
+    # If payment is not indexed or not started the state should be Pay Now
+    self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
+
+  def test_AccountingTransaction_getPaymentState_wechat_unpaid_payment(self):
+    invoice =  self.createStoppedSaleInvoiceTransaction(payment_mode='wechat')
+    # If payment is not indexed or not started the state should be Pay Now
+    self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
+
+  def test_AccountingTransaction_getPaymentState_payzen_paynow_payment(self):
+    person = self.makePerson()
+    invoice =  self.createStoppedSaleInvoiceTransaction(
+      destination_section=person.getRelativeUrl())
+    self.tic()
+    self.login(person.getUserId())
+    self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
+
+  def test_AccountingTransaction_getPaymentState_wechat_paynow_payment(self):
+    person = self.makePerson()
+    invoice =  self.createStoppedSaleInvoiceTransaction(
+      destination_section=person.getRelativeUrl(),
+      payment_mode="wechat")
+    self.tic()
+    self.login(person.getUserId())
+    self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
+
+  def test_AccountingTransaction_getPaymentState_payzen_waiting_payment(self):
+    person = self.makePerson()
+    invoice =  self.createStoppedSaleInvoiceTransaction(
+      destination_section=person.getRelativeUrl())
+
+    payment = self.portal.accounting_module.newContent(
+      portal_type="Payment Transaction",
+      payment_mode='payzen',
+      causality_value=invoice,
+      destination_section=invoice.getDestinationSection(),
+      created_by_builder=1 # to prevent init script to create lines
+    )
+    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
+    payment.PaymentTransaction_generatePayzenId()
+    self.tic()
+    self.login(person.getUserId())
+    self.assertEqual("Waiting for payment confirmation",
+                      invoice.AccountingTransaction_getPaymentState())
+
+  def test_AccountingTransaction_getPaymentState_wechat_waiting_payment(self):
+    person = self.makePerson()
+    invoice =  self.createStoppedSaleInvoiceTransaction(
+      destination_section=person.getRelativeUrl(),
+      payment_mode='wechat')
+
+    payment = self.portal.accounting_module.newContent(
+      portal_type="Payment Transaction",
+      payment_mode='wechat',
+      causality_value=invoice,
+      destination_section=invoice.getDestinationSection(),
+      created_by_builder=1 # to prevent init script to create lines
+    )
+    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
+    payment.PaymentTransaction_generateWechatId()
+    self.tic()
+    self.login(person.getUserId())
+    self.assertEqual("Waiting for payment confirmation",
+                      invoice.AccountingTransaction_getPaymentState())
+
+  def test_AccountingTransaction_getPaymentState_payzen_papaid_payment(self):
+    invoice = self.createStoppedSaleInvoiceTransaction()
+    self.tic()
+    for line in invoice.getMovementList(self.portal.getPortalAccountingMovementTypeList()):
+      node_value = line.getSourceValue(portal_type='Account')
+      if node_value.getAccountType() == 'asset/receivable':
+        line.setGroupingReference("TEST%s" % self.new_id)
+    self.assertEqual("Paid",
+                      invoice.AccountingTransaction_getPaymentState())
+
+  def test_AccountingTransaction_getPaymentState_wechat_paid_payment(self):
+    invoice =  self.createStoppedSaleInvoiceTransaction(payment_mode='wechat')
+    self.tic()
+    for line in invoice.getMovementList(self.portal.getPortalAccountingMovementTypeList()):
+      node_value = line.getSourceValue(portal_type='Account')
+      if node_value.getAccountType() == 'asset/receivable':
+        line.setGroupingReference("TEST%s" % self.new_id)
+    self.assertEqual("Paid",
+                      invoice.AccountingTransaction_getPaymentState())
+
+  def test_AccountingTransaction_getPaymentState_wire_transfer_paid_payment(self):
+    invoice =  self.createStoppedSaleInvoiceTransaction(payment_mode='wire_transfer')
+    self.tic()
+    for line in invoice.getMovementList(self.portal.getPortalAccountingMovementTypeList()):
+      node_value = line.getSourceValue(portal_type='Account')
+      if node_value.getAccountType() == 'asset/receivable':
+        line.setGroupingReference("TEST%s" % self.new_id)
+    self.assertEqual("Paid",
+                      invoice.AccountingTransaction_getPaymentState())
+
+  def test_Base_getReceivableAccountList(self):
+    account_list = self.portal.Base_getReceivableAccountList()
+
+    self.assertIn('account_module/receivable',
+      [i.getRelativeUrl() for i in account_list])

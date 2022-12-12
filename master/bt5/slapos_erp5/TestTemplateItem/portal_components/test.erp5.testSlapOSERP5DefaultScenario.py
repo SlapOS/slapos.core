@@ -280,6 +280,7 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
         default_source_project_uid=person.getUid()
     )
 
+    self.assertNotEqual(ticket, None)
     event = self.portal.portal_catalog.getResultValue(
       portal_type='Mail Message',
       default_resource_uid=self.portal.service_module[service_id].getUid(),
@@ -341,18 +342,7 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
 
     payment_list = invoice.getCausalityRelatedValueList(
         portal_type='Payment Transaction')
-    self.assertEqual(1, len(payment_list))
-
-    payment = payment_list[0].getObject()
-
-    causality_list = payment.getCausalityValueList()
-    self.assertSameSet([invoice], causality_list)
-
-    self.assertEqual('cancelled', payment.getSimulationState())
-    self.assertEqual('draft', payment.getCausalityState())
-
-    self.assertEqual(-1 * payment.PaymentTransaction_getTotalPayablePrice(),
-        invoice.getTotalPrice())
+    self.assertEqual(0, len(payment_list))
 
     # Check reverse invoice
     reverse_invoice_list = invoice.getCausalityRelatedValueList(

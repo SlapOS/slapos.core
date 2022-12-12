@@ -557,18 +557,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     payment_list = invoice.getCausalityRelatedValueList(
         portal_type='Payment Transaction')
-    self.assertEqual(1, len(payment_list))
-
-    payment = payment_list[0].getObject()
-
-    causality_list = payment.getCausalityValueList()
-    self.assertSameSet([invoice], causality_list)
-
-    self.assertEqual('started', payment.getSimulationState())
-    self.assertEqual('draft', payment.getCausalityState())
-
-    self.assertEqual(-1 * payment.PaymentTransaction_getTotalPayablePrice(),
-        invoice.getTotalPrice())
+    self.assertEqual(0, len(payment_list))
 
   def assertPersonDocumentCoverage(self, person):
     self.login()
@@ -672,6 +661,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertInvoiceNotification(person, is_email_expected)
 
     invoice_list = person.Entity_getOutstandingAmountList()
+
+    self.login() 
     if subscription_request is not None:
       expected_causality = subscription_request.getRelativeUrl()
       filtered_invoice_list = []
@@ -685,6 +676,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     else:
       self.assertEqual(len(invoice_list), 1)
 
+    self.login(user_id)
     document_id = invoice_list[0].getId()
     web_site.accounting_module[document_id].\
       SaleInvoiceTransaction_redirectToManualSlapOSPayment()

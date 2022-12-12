@@ -45,14 +45,6 @@ class TestSlapOSCurrency_getIntegrationMapping(SlapOSTestCaseMixinWithAbort):
 
 class TestSlapOSAccountingTransaction_updateStartDate(SlapOSTestCaseMixinWithAbort):
 
-  def createPaymentTransaction(self):
-    new_id = self.generateNewId()
-    return self.portal.accounting_module.newContent(
-      portal_type='Payment Transaction',
-      title="Transaction %s" % new_id,
-      reference="TESTTRANS-%s" % new_id,
-      )
-
   def test_date_changed(self):
     date = DateTime("2001/01/01")
     payment_transaction = self.createPaymentTransaction()
@@ -677,85 +669,6 @@ class TestSlapOSPayzenBase_getPayzenServiceRelativeUrl(SlapOSTestCaseMixinWithAb
     result = self.portal.Base_getPayzenServiceRelativeUrl()
     self.assertEqual(result, 'portal_secure_payments/slapos_payzen_test')
 
-class TestSlapOSPayzenAccountingTransaction_getPaymentState(
-                                                    SlapOSTestCaseMixinWithAbort):
-
-  def test_AccountingTransaction_getPaymentState_draft_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_deleted_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.delete()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_cancelled_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.cancel()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_planned_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.plan()
-    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_confirmed_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.setStartDate(DateTime())
-    invoice.confirm()
-    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_started_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.start()
-    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_reversed_payment(self):
-    invoice =  self.createPayzenSaleInvoiceTransaction()
-    self.tic()
-    reversal = invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction()
-    self.tic()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-    self.assertEqual(0, invoice.getTotalPrice() + reversal.getTotalPrice())
-
-  def test_AccountingTransaction_getPaymentState_free_payment(self):
-    invoice =  self.createPayzenSaleInvoiceTransaction(price=0)
-    self.tic()
-    self.assertEqual("Free!", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_unpaid_payment(self):
-    invoice =  self.createPayzenSaleInvoiceTransaction()
-    # If payment is not indexed or not started the state should be unpaid
-    self.assertEqual("Unpaid", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_paynow_payment(self):
-    person = self.makePerson()
-    invoice =  self.createPayzenSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl())
-    self.tic()
-    self.login(person.getUserId())
-    self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_waiting_payment(self):
-    person = self.makePerson()
-    invoice =  self.createPayzenSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl())
-    self.tic()
-    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
-    payment.PaymentTransaction_generatePayzenId()
-    self.login(person.getUserId())
-    self.assertEqual("Waiting for payment confirmation",
-                      invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_paid_payment(self):
-    invoice =  self.createPayzenSaleInvoiceTransaction()
-    self.tic()
-    for line in invoice.getMovementList(self.portal.getPortalAccountingMovementTypeList()):
-      node_value = line.getSourceValue(portal_type='Account')
-      if node_value.getAccountType() == 'asset/receivable':
-        line.setGroupingReference("TEST%s" % self.new_id)
-    self.assertEqual("Paid", invoice.AccountingTransaction_getPaymentState())
-
 class TestSlapOSPayzenPaymentTransaction_redirectToManualPayzenPayment(
                                                     SlapOSTestCaseMixinWithAbort):
 
@@ -800,11 +713,19 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
   def test_PaymentTransaction_redirectToManualPayzenPayment_redirect(self):
     person = self.makePerson()
-    invoice =  self.createPayzenSaleInvoiceTransaction(
+    invoice =  self.createStoppedSaleInvoiceTransaction(
       destination_section=person.getRelativeUrl())
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
-    payment.setResourceValue(self.portal.currency_module.EUR)
+    payment = self.portal.accounting_module.newContent(
+      portal_type="Payment Transaction",
+      payment_mode='payzen',
+      causality_value=invoice,
+      destination_section=invoice.getDestinationSection(),
+      resource_value=self.portal.currency_module.EUR,
+      created_by_builder=1 # to prevent init script to create lines
+    )
+    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
+
     self.tic()
     self.login(person.getUserId())
     self._simulatePaymentTransaction_getVADSUrlDict()
@@ -830,15 +751,32 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
                  "%s/return" % (payment_transaction_url)]:
       self.assertTrue(item in text_content,
         "%s not in %s" % (item, text_content))
+    self.tic()
 
+    system_event_list = payment.getDestinationRelatedValueList(portal_type="Payzen Event")
+    self.assertEqual(len(system_event_list), 1)
+
+    self.assertEqual(
+      system_event_list[0].getDestinationSection(),
+      invoice.getDestinationSection())
+    self.assertEqual(
+      len(system_event_list[0].contentValues(portal_type="Payzen Event Message")), 1)
 
   def test_PaymentTransaction_redirectToManualPayzenPayment_already_registered(self):
     person = self.makePerson()
-    invoice =  self.createPayzenSaleInvoiceTransaction(
+    invoice =  self.createStoppedSaleInvoiceTransaction(
       destination_section=person.getRelativeUrl())
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
-    payment.setResourceValue(self.portal.currency_module.EUR)
+    payment = self.portal.accounting_module.newContent(
+      portal_type="Payment Transaction",
+      payment_mode='payzen',
+      causality_value=invoice,
+      destination_section=invoice.getDestinationSection(),
+      resource_value=self.portal.currency_module.EUR,
+      created_by_builder=1 # to prevent init script to create lines
+    )
+    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
+
     payment.PaymentTransaction_generatePayzenId()
     self.tic()
     self.login(person.getUserId())
@@ -850,3 +788,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     self.assertEqual("%s/already_registered" % payment.getRelativeUrl(),
                       redirect)
+
+    system_event_list = payment.getDestinationRelatedValueList(portal_type="Payzen Event")
+    self.assertEqual(len(system_event_list), 0)

@@ -534,85 +534,6 @@ class TestSlapOSWechatBase_getWechatServiceRelativeUrl(SlapOSTestCaseMixinWithAb
     result = self.portal.Base_getWechatServiceRelativeUrl()
     self.assertEqual(result, 'portal_secure_payments/slapos_wechat_test')
 
-class TestSlapOSWechatAccountingTransaction_getPaymentState(
-                                                    SlapOSTestCaseMixinWithAbort):
-
-  def test_AccountingTransaction_getPaymentState_draft_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_deleted_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.delete()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_cancelled_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.cancel()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_planned_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.plan()
-    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_confirmed_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.setStartDate(DateTime())
-    invoice.confirm()
-    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_started_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.start()
-    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_reversed_payment(self):
-    invoice =  self.createWechatSaleInvoiceTransaction()
-    self.tic()
-    reversal = invoice.SaleInvoiceTransaction_createReversalWechatTransaction()
-    self.tic()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-    self.assertEqual(0, invoice.getTotalPrice() + reversal.getTotalPrice())
-
-  def test_AccountingTransaction_getPaymentState_free_payment(self):
-    invoice =  self.createWechatSaleInvoiceTransaction(price=0)
-    self.tic()
-    self.assertEqual("Free!", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_unpaid_payment(self):
-    invoice =  self.createWechatSaleInvoiceTransaction()
-    # If payment is not indexed or not started the state should be unpaid
-    self.assertEqual("Unpaid", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_paynow_payment(self):
-    person = self.makePerson()
-    invoice =  self.createWechatSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl())
-    self.tic()
-    self.login(person.getUserId())
-    self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_waiting_payment(self):
-    person = self.makePerson()
-    invoice =  self.createWechatSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl())
-    self.tic()
-    payment = invoice.SaleInvoiceTransaction_getWechatPaymentRelatedValue()
-    payment.PaymentTransaction_generateWechatId()
-    self.login(person.getUserId())
-    self.assertEqual("Waiting for payment confirmation",
-                      invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_paid_payment(self):
-    invoice =  self.createWechatSaleInvoiceTransaction()
-    self.tic()
-    for line in invoice.getMovementList(self.portal.getPortalAccountingMovementTypeList()):
-      node_value = line.getSourceValue(portal_type='Account')
-      if node_value.getAccountType() == 'asset/receivable':
-        line.setGroupingReference("TEST%s" % self.new_id)
-    self.assertEqual("Paid", invoice.AccountingTransaction_getPaymentState())
-
 class TestSlapOSWechatPaymentTransaction_redirectToManualWechatPayment(
                                                     SlapOSTestCaseMixinWithAbort):
 
@@ -657,11 +578,19 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
   def test_PaymentTransaction_redirectToManualWechatPayment_redirect(self):
     person = self.makePerson()
-    invoice =  self.createWechatSaleInvoiceTransaction(
+    invoice =  self.createStoppedSaleInvoiceTransaction(
+      payment_mode="wechat",
       destination_section=person.getRelativeUrl())
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getWechatPaymentRelatedValue()
-    payment.setResourceValue(self.portal.currency_module.EUR)
+    payment = self.portal.accounting_module.newContent(
+      portal_type="Payment Transaction",
+      payment_mode='wechat',
+      causality_value=invoice,
+      destination_section=invoice.getDestinationSection(),
+      resource_value=self.portal.currency_module.CNY,
+      created_by_builder=1 # to prevent init script to create lines
+    )
+    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
     payment_transaction_id = payment.getId()
 
     self.tic()
@@ -693,11 +622,19 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
   def test_PaymentTransaction_redirectToManualWechatPayment_redirect_with_website(self):
     person = self.makePerson()
-    invoice =  self.createWechatSaleInvoiceTransaction(
+    invoice =  self.createStoppedSaleInvoiceTransaction(
+      payment_mode="wechat",
       destination_section=person.getRelativeUrl())
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getWechatPaymentRelatedValue()
-    payment.setResourceValue(self.portal.currency_module.EUR)
+    payment = self.portal.accounting_module.newContent(
+      portal_type="Payment Transaction",
+      payment_mode='wechat',
+      causality_value=invoice,
+      destination_section=invoice.getDestinationSection(),
+      resource_value=self.portal.currency_module.CNY,
+      created_by_builder=1 # to prevent init script to create lines
+    )
+    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
     payment_transaction_id = payment.getId()
     web_site = self.portal.web_site_module.newContent(portal_type='Web Site')
 
@@ -725,11 +662,20 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
   def test_PaymentTransaction_redirectToManualWechatPayment_already_registered(self):
     person = self.makePerson()
-    invoice =  self.createWechatSaleInvoiceTransaction(
+    invoice =  self.createStoppedSaleInvoiceTransaction(
+      payment_mode="wechat",
       destination_section=person.getRelativeUrl())
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getWechatPaymentRelatedValue()
-    payment.setResourceValue(self.portal.currency_module.EUR)
+    payment = self.portal.accounting_module.newContent(
+      portal_type="Payment Transaction",
+      payment_mode='wechat',
+      causality_value=invoice,
+      destination_section=invoice.getDestinationSection(),
+      resource_value=self.portal.currency_module.CNY,
+      created_by_builder=1 # to prevent init script to create lines
+    )
+    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
+
     payment.PaymentTransaction_generateWechatId()
     self.tic()
     self.login(person.getUserId())
@@ -741,3 +687,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     self.assertEqual("%s/already_registered" % payment.getRelativeUrl(),
                       redirect)
+
+    system_event_list = payment.getDestinationRelatedValueList(portal_type="Payzen Event")
+    self.assertEqual(len(system_event_list), 0)

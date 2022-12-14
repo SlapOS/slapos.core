@@ -694,9 +694,11 @@
                 field_name = field_name.split("/").slice(0, -1).join("/");
                 input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
               }
-              div = input_field.parentNode;
-              div.setAttribute("class", "slapos-parameter error-input");
-              div.querySelector("span.error").textContent = validation.errors[error_index].error;
+              if (input_field !== null) {
+                div = input_field.parentNode;
+                div.setAttribute("class", "slapos-parameter error-input");
+                div.querySelector("span.error").textContent = validation.errors[error_index].error;
+              }
             } else if (error_dict.keyword === "required") {
               // Specific use case for required
               field_name = "/" + error_dict.key;

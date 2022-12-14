@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.8.5 (2022-12-14)
+------------------
+ * slapos: Update SlapOS website's url
+ * slapgrid: fix stalling problem when launching promise with SlapPopen
+
 1.8.4 (2022-10-11)
 ------------------
  * service list, service info: output json

@@ -19,7 +19,7 @@ object_list = []
 for (idx, brain) in enumerate(portal.portal_simulation.getInventoryList(
     mirror_section_uid=context.getUid(),
     simulation_state=('stopped', 'delivered'),
-    node_uid=[x.uid for x in context.Base_getReceivableAccountList()],
+    node_uid=[x.uid for x in context.Base_getReceivableAccountList()] or -1,
     **params )):
 
   # XXX rewrap inventory list brain because they don't have a valid "uid" and cannot be used

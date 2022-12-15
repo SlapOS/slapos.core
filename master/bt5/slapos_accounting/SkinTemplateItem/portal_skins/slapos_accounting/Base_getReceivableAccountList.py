@@ -2,4 +2,5 @@
 portal = context.getPortalObject()
 return portal.account_module.searchFolder(
   strict_account_type_uid=portal.portal_categories.account_type.asset.receivable.getUid(),
+  validation_state='validated',
 )

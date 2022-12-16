@@ -228,7 +228,7 @@ class SlapPopenTestCase(unittest.TestCase):
       for i in $(seq 100)
       do
         echo .
-        sleep 0.1
+        sleep 0.5
       done
     """).encode())
     self.script.close()
@@ -238,13 +238,13 @@ class SlapPopenTestCase(unittest.TestCase):
     with self.assertRaises(subprocess.TimeoutExpired) as cm:
       program = slapos.grid.utils.SlapPopen(
           self.script.name,
-          timeout=1,
+          timeout=5,
           logger=logger)
 
     # the timeout was respected
     elapsed = time.time() - start
-    self.assertLess(elapsed, 5)
-    self.assertGreaterEqual(elapsed, 1)
+    self.assertLess(elapsed, 10)
+    self.assertGreaterEqual(elapsed, 5)
 
     # the output before timeout is captured
     self.assertEqual(cm.exception.output, '.\n' * 10)
@@ -258,7 +258,7 @@ class SlapPopenTestCase(unittest.TestCase):
       for i in $(seq 100)
       do
         echo -n .
-        sleep 0.1
+        sleep 0.5
       done
     """).encode())
     self.script.close()
@@ -268,13 +268,13 @@ class SlapPopenTestCase(unittest.TestCase):
     with self.assertRaises(subprocess.TimeoutExpired) as cm:
       program = slapos.grid.utils.SlapPopen(
           self.script.name,
-          timeout=1,
+          timeout=5,
           logger=logger)
 
     # the timeout was respected
     elapsed = time.time() - start
-    self.assertLess(elapsed, 5)
-    self.assertGreaterEqual(elapsed, 1)
+    self.assertLess(elapsed, 10)
+    self.assertGreaterEqual(elapsed, 5)
 
     # the output before timeout is captured
     self.assertEqual(cm.exception.output, '.' * 10)
@@ -289,7 +289,7 @@ class SlapPopenTestCase(unittest.TestCase):
       do
         >&2 echo -n -
         echo -n .
-        sleep 0.1
+        sleep 0.5
       done
     """).encode())
     self.script.close()
@@ -301,13 +301,13 @@ class SlapPopenTestCase(unittest.TestCase):
           self.script.name,
           stdout=subprocess.PIPE,
           stderr=subprocess.PIPE,
-          timeout=1,
+          timeout=5,
           logger=logger)
 
     # the timeout was respected
     elapsed = time.time() - start
-    self.assertLess(elapsed, 5)
-    self.assertGreaterEqual(elapsed, 1)
+    self.assertLess(elapsed, 10)
+    self.assertGreaterEqual(elapsed, 5)
 
     # the output before timeout is captured
     self.assertEqual(cm.exception.output, '.' * 10)

@@ -13,7 +13,7 @@
       </tr>
     </thead>
     <tbody>
-      <tal:block tal:define="global web_site_id python: 'renderjs_runner'">
+      <tal:block tal:define="global web_site_id python: 'renderjs_oss'">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init_base" />
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/set_default_available_language"/>
         <!-- Logout  -->

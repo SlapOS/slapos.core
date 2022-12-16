@@ -35,7 +35,7 @@ class TestSlapOSHostingJSPrecacheManifestList(SlapOSTestCaseMixinWithAbort):
     return self.portal.restrictedTraverse(reference, None) is not None
 
   def test(self):
-    self.web_site = self.portal.web_site_module.renderjs_runner
+    self.web_site = self.portal.web_site_module.renderjs_oss
     self.changeSkin('Hal')
     manifest_script = getattr(self.web_site, self.manifest_script_id)
     failure_list = []

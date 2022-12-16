@@ -12,7 +12,7 @@
         <td rowspan="1" colspan="3">Test RenderJS UI</td>
       </tr>
     </thead>
-    <tbody tal:define="web_site_id python: 'renderjs_runner'">
+    <tbody tal:define="web_site_id python: 'renderjs_oss'">
       <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/init" />
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/set_default_available_language"/>
       <tr>
@@ -21,7 +21,7 @@
       <tr>
         <td>open</td>
         <td
-          tal:content="python: '${base_url}/web_site_module/renderjs_runner?ignore_layout:int=1&editable_mode:int=1'">
+          tal:content="python: '${base_url}/web_site_module/renderjs_oss?ignore_layout:int=1&editable_mode:int=1'">
         </td>
         <td></td>
       </tr>

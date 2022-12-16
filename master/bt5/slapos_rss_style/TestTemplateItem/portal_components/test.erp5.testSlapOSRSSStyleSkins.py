@@ -1074,7 +1074,7 @@ class TestBase_getTicketUrl(TestRSSSyleSkinsMixin):
     self.assertIn("%s/#/" % self.portal.absolute_url(),
                   ticket.Base_getTicketUrl())
 
-    web_site = self.portal.web_site_module.renderjs_runner
+    web_site = self.portal.web_site_module.renderjs_oss
     self.assertIn("%s/#/" % web_site.absolute_url(),
                   web_site.support_request_module[ticket.getId()].Base_getTicketUrl())
 
@@ -1105,7 +1105,7 @@ class TestSlapOSSaleInvoiceTransaction_getRSSTitleAndDescription(TestRSSSyleSkin
       invoice.SaleInvoiceTransaction_getRSSDescription())
 
     invoice_via_website = \
-      self.portal.web_site_module.renderjs_runner.accounting_module[invoice.getId()]
+      self.portal.web_site_module.renderjs_oss.accounting_module[invoice.getId()]
     self.assertEqual(
       invoice_via_website.SaleInvoiceTransaction_getRSSTitle(),
       "[RenderJS Runner] %s %s" % (text, invoice.getReference()))

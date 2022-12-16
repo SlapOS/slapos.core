@@ -1113,6 +1113,128 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
     self.assertEqual(event.getDestination(), ticket.getSourceSection())
     self.assertEqual(event.getSource(), person.getRelativeUrl())
 
+  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None',
+  'assert reference == "slapos-crm-compute_node_check_stalled_instance_state.notification", reference\n' \
+  'return context.restrictedTraverse(' \
+  'context.REQUEST["test_ComputeNode_checkState_stalled_instance"])')
+  def test_ComputeNode_checkState_stalled_instance(self):
+    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
+    self._makeComplexComputeNode()
+
+    person = compute_node.getSourceAdministrationValue()
+
+    self.portal.REQUEST['test_ComputeNode_checkState_stalled_instance'] = \
+        self._makeNotificationMessage(compute_node.getReference())
+
+    # Computer is getting access
+    compute_node.setAccessStatus("")
+
+    try:
+      self.pinDateTime(DateTime()-1.1)
+      self.start_requested_software_instance.setAccessStatus("")
+    finally:
+      self.unpinDateTime()
+
+    compute_node.ComputeNode_checkState()
+    self.tic()
+
+    ticket_title = "[MONITORING] Compute Node %s has a stalled instance process" % compute_node.getReference()
+    ticket = self._getGeneratedSupportRequest(compute_node.getUid(), ticket_title)
+    self.assertNotEqual(ticket, None)
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertEqual(event.getTitle(), ticket.getTitle())
+    self.assertIn(compute_node.getReference(), event.getTextContent())
+    self.assertEqual(event.getDestination(), ticket.getSourceSection())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
+
+
+  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None',
+  'assert reference == "slapos-crm-compute_node_check_stalled_software_state.notification", reference\n' \
+  'return context.restrictedTraverse(' \
+  'context.REQUEST["test_ComputeNode_checkState_stalled_software"])')
+  def test_ComputeNode_checkState_stalled_software(self):
+    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
+    self._makeComplexComputeNode()
+
+    person = compute_node.getSourceAdministrationValue()
+
+    self.portal.REQUEST['test_ComputeNode_checkState_stalled_software'] = \
+        self._makeNotificationMessage(compute_node.getReference())
+
+    # Computer is getting access, also internal instance
+    compute_node.setAccessStatus("")
+    self.start_requested_software_instance.setAccessStatus("")
+
+    try:
+      self.pinDateTime(DateTime()-1.1)
+      self.start_requested_software_installation.setAccessStatus("")
+    finally:
+      self.unpinDateTime()
+
+    compute_node.ComputeNode_checkState()
+    self.tic()
+
+    ticket_title = "[MONITORING] Compute Node %s has a stalled software process" % compute_node.getReference()
+    ticket = self._getGeneratedSupportRequest(compute_node.getUid(), ticket_title)
+    self.assertNotEqual(ticket, None)
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertEqual(event.getTitle(), ticket.getTitle())
+    self.assertIn(compute_node.getReference(), event.getTextContent())
+    self.assertEqual(event.getDestination(), ticket.getSourceSection())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
+
+
+
+  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None',
+  'assert reference == "slapos-crm-compute_node_check_stalled_instance_state.notification", reference\n' \
+  'return context.restrictedTraverse(' \
+  'context.REQUEST["test_ComputeNode_checkState_stalled_instance"])')
+  def test_ComputeNode_checkState_stalled_instance_single(self):
+    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
+    self._makeComplexComputeNode()
+
+    person = compute_node.getSourceAdministrationValue()
+
+    self.portal.REQUEST['test_ComputeNode_checkState_stalled_instance'] = \
+        self._makeNotificationMessage(compute_node.getReference())
+
+    # Computer is getting access
+    compute_node.setAccessStatus("")
+
+    try:
+      self.pinDateTime(DateTime()-1.1)
+      self.start_requested_software_instance.setAccessStatus("")
+      self.start_requested_software_installation.setAccessStatus("")
+    finally:
+      self.unpinDateTime()
+
+    compute_node.ComputeNode_checkState()
+    self.tic()
+
+    ticket_title = "[MONITORING] Compute Node %s has a stalled instance process" % compute_node.getReference()
+    ticket = self._getGeneratedSupportRequest(compute_node.getUid(), ticket_title)
+    self.assertNotEqual(ticket, None)
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertEqual(event.getTitle(), ticket.getTitle())
+    self.assertIn(compute_node.getReference(), event.getTextContent())
+    self.assertEqual(event.getDestination(), ticket.getSourceSection())
+    self.assertEqual(event.getSource(), person.getRelativeUrl())
+
 class TestSlapOSInstanceTree_createSupportRequestEvent(SlapOSTestCaseMixin):
 
   def _makeNotificationMessage(self, reference):

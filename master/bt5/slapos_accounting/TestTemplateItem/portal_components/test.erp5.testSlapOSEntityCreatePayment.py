@@ -1,13 +1,27 @@
-# -*- coding: utf-8 -*-
+# -*- coding:utf-8 -*-
 ##############################################################################
 #
-# Copyright (c) 2012 Nexedi SA and Contributors. All Rights Reserved.
+# Copyright (c) 2022 Nexedi SA and Contributors. All Rights Reserved.
+#
+# This program is Free Software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 ##############################################################################
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
-class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
+class TestSlapOSEntityCreatePaymentMixin(SlapOSTestCaseMixin):
   
   def sumReceivable(self, payment_transaction):
     quantity = .0
@@ -22,7 +36,7 @@ class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
   def assertPayment(self, payment, invoice):
     self.assertEqual(self.sumReceivable(invoice), payment\
         .PaymentTransaction_getTotalPayablePrice())
-    self.assertEqual('confirmed', payment.getSimulationState())
+    self.assertEqual('started', payment.getSimulationState())
     self.assertSameSet([], payment.checkConsistency())
     self.assertSameSet([invoice], payment.getCausalityValueList())
     self.assertSameSet([], payment.getCausalityRelatedValueList(
@@ -63,19 +77,14 @@ class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
         'destination/account_module/payable',
         'source/account_module/receivable'])
 
-  def emptyBuild(self, **kw):
-    delivery_list = self._build(**kw)
-    self.assertSameSet([], delivery_list)
-    return delivery_list
+  def fullBuild(self, person, invoice_list):
+    payment = person.Entity_createPaymentTransaction(invoice_list)
+    self.assertNotEqual(None, payment)
+    return payment
 
-  def fullBuild(self, **kw):
-    delivery_list = self._build(**kw)
-    self.assertNotEqual([], delivery_list)
-    return delivery_list
-
-  def _build(self, **kw):
-    return self.portal.portal_orders.slapos_payment_transaction_builder.build(
-        **kw)
+  def resetPaymentTag(self, invoice):
+    payment_tag = "sale_invoice_transaction_create_payment_%s" % invoice.getUid()
+    invoice.REQUEST.set(payment_tag, None)
 
   def _test(self):
     person = self.portal.person_module.template_member\
@@ -87,12 +96,8 @@ class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
     invoice.confirm()
     invoice.stop()
     self.tic()
-    payment_list = self.fullBuild(uid=invoice.getUid())
+    payment = self.fullBuild(person, [invoice])
     self.tic()
-
-    self.assertEqual(1, len(payment_list))
-
-    payment = payment_list[0].getObject()
     self.assertPayment(payment, invoice)
 
   def _test_twice(self):
@@ -105,13 +110,13 @@ class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
     invoice.confirm()
     invoice.stop()
     self.tic()
-    payment_list = self.fullBuild(uid=invoice.getUid())
+    payment = self.fullBuild(person, [invoice])
+    self.assertPayment(payment, invoice)
     self.tic()
-    self.emptyBuild(uid=invoice.getUid())
+    self.resetPaymentTag(invoice)
 
-    self.assertEqual(1, len(payment_list))
-
-    payment = payment_list[0].getObject()
+    # Create twice, generate 2 payments
+    payment = self.fullBuild(person, [invoice])
     self.assertPayment(payment, invoice)
 
   def _test_twice_transaction(self):
@@ -124,13 +129,9 @@ class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
     invoice.confirm()
     invoice.stop()
     self.tic()
-    payment_list = self.fullBuild(uid=invoice.getUid())
-    self.emptyBuild(uid=invoice.getUid())
+    payment = self.fullBuild(person, [invoice])
+    self.assertRaises(ValueError, person.Entity_createPaymentTransaction, [invoice])
     self.tic()
-
-    self.assertEqual(1, len(payment_list))
-
-    payment = payment_list[0].getObject()
     self.assertPayment(payment, invoice)
 
   def _test_twice_indexation(self):
@@ -143,17 +144,18 @@ class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
     invoice.confirm()
     invoice.stop()
     self.tic()
-    payment_list = self.fullBuild(uid=invoice.getUid())
+    payment = self.fullBuild(person, [invoice])
     self.commit()
-    # the payment transaction is immediately indexed
-    self.assertEqual(1, len(payment_list))
+    # Request was over, so emulate start a new one
+    self.resetPaymentTag(invoice)
 
-    self.emptyBuild(uid=invoice.getUid())
+    # Should we take into account that a payment is ongoing?
+    payment2 = self.fullBuild(person, [invoice])
+
     self.tic()
-
-
-    payment = payment_list[0].getObject()
     self.assertPayment(payment, invoice)
+    self.assertPayment(payment2, invoice)
+    
 
   def _test_cancelled_payment(self):
     person = self.portal.person_module.template_member\
@@ -165,18 +167,13 @@ class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
     invoice.confirm()
     invoice.stop()
     self.tic()
-    payment_list = self.fullBuild(uid=invoice.getUid())
-    payment_list[0].cancel()
+    payment = self.fullBuild(person, [invoice])
+    payment.cancel()
     self.tic()
-    self.portal.REQUEST.set("sale_invoice_transaction_order_builder_%s" % invoice.getUid(), None)
+    self.resetPaymentTag(invoice)
 
-    payment_list = self.fullBuild(uid=invoice.getUid())
+    payment = self.fullBuild(person, [invoice])
     self.tic()
-    self.emptyBuild(uid=invoice.getUid())
-
-    self.assertEqual(1, len(payment_list))
-
-    payment = payment_list[0].getObject()
     self.assertPayment(payment, invoice)
 
   def _test_two_invoices(self):
@@ -195,7 +192,8 @@ class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
     invoice_2.confirm()
     invoice_2.stop()
     self.tic()
-    payment_list = self.fullBuild(uid=[invoice_1.getUid(), invoice_2.getUid()])
+    payment_list = [self.fullBuild(person, [invoice_1]),
+                    self.fullBuild(person, [invoice_2])]
     self.tic()
 
     self.assertEqual(2, len(payment_list))
@@ -236,21 +234,17 @@ class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
     invoice.confirm()
     invoice.stop()
     self.tic()
-    payment_list = self.fullBuild(uid=[invoice.getUid()])
+    payment = self.fullBuild(person, [invoice])
     self.tic()
-
-    self.assertEqual(1, len(payment_list))
-
-    payment = payment_list[0].getObject()
     self.assertPayment(payment, invoice)
 
-class TestSlapOSPaymentTransactionOrderBuilder(TestSlapOSPaymentTransactionOrderBuilderMixin):
-  payment_mode = "payzen"
+class TestSlapOSEntityCreatePayment(TestSlapOSEntityCreatePaymentMixin):
+  payment_mode = "wire_transfer"
 
-  test = TestSlapOSPaymentTransactionOrderBuilderMixin._test
-  test_twice = TestSlapOSPaymentTransactionOrderBuilderMixin._test_twice
-  test_twice_transaction = TestSlapOSPaymentTransactionOrderBuilderMixin._test_twice_transaction
-  test_twice_indexation = TestSlapOSPaymentTransactionOrderBuilderMixin._test_twice_indexation
-  test_cancelled_payment = TestSlapOSPaymentTransactionOrderBuilderMixin._test_cancelled_payment
-  test_two_invoices = TestSlapOSPaymentTransactionOrderBuilderMixin._test_two_invoices
-  test_two_lines = TestSlapOSPaymentTransactionOrderBuilderMixin._test_two_lines
+  test = TestSlapOSEntityCreatePaymentMixin._test
+  test_twice = TestSlapOSEntityCreatePaymentMixin._test_twice
+  test_twice_transaction = TestSlapOSEntityCreatePaymentMixin._test_twice_transaction
+  test_twice_indexation = TestSlapOSEntityCreatePaymentMixin._test_twice_indexation
+  test_cancelled_payment = TestSlapOSEntityCreatePaymentMixin._test_cancelled_payment
+  test_two_invoices = TestSlapOSEntityCreatePaymentMixin._test_two_invoices
+  test_two_lines = TestSlapOSEntityCreatePaymentMixin._test_two_lines

@@ -1,7 +1,28 @@
-# -*- coding: utf-8 -*-
+# -*- coding:utf-8 -*-
 ##############################################################################
 #
-# Copyright (c) 2012 Nexedi SA and Contributors. All Rights Reserved.
+# Copyright (c) 2002-2018 Nexedi SA and Contributors. All Rights Reserved.
+#
+# WARNING: This program as such is intended to be used by professional
+# programmers who take the whole responsibility of assessing all potential
+# consequences resulting from its eventual inadequacies and bugs
+# End users who are looking for a ready-to-use solution with commercial
+# guarantees and support are strongly adviced to contract a Free Software
+# Service Company
+#
+# This program is Free Software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 ##############################################################################
        
@@ -1411,14 +1432,14 @@ class TestSlapOSCancelSaleTnvoiceTransactionPaiedPaymentListAlarm(SlapOSTestCase
     self.tic()
 
     self.assertNotEqual(
-        'Not visited by PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped',
+        'Not visited by PaymentTransaction_cancelIfSaleInvoiceTransactionIsLettered',
         payment_transaction.getTitle())
 
-  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped')
+  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsLettered')
   def test_payment_is_draft_payzen(self):
     self._test_payment_is_draft(payment_mode="payzen")
 
-  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped')
+  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsLettered')
   def test_payment_is_draft_wechat(self):
     self._test_payment_is_draft(payment_mode="wechat")
 
@@ -1440,14 +1461,14 @@ class TestSlapOSCancelSaleTnvoiceTransactionPaiedPaymentListAlarm(SlapOSTestCase
     self.tic()
 
     self.assertNotEqual(
-        'Not visited by PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped',
+        'Not visited by PaymentTransaction_cancelIfSaleInvoiceTransactionisLettered',
         payment_transaction.getTitle())
 
-  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped')
+  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionisLettered')
   def test_payment_is_stopped_payzen(self):
     self._test_payment_is_stopped(payment_mode="payzen")
 
-  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped')
+  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionisLettered')
   def test_payment_is_stopped_wechat(self):
     self._test_payment_is_stopped(payment_mode="wechat")
 
@@ -1469,14 +1490,13 @@ class TestSlapOSCancelSaleTnvoiceTransactionPaiedPaymentListAlarm(SlapOSTestCase
     self.tic()
 
     self.assertNotEqual(
-        'Visited by PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped',
+        'Visited by PaymentTransaction_cancelIfSaleInvoiceTransactionisLettered',
         payment_transaction.getTitle())
 
-  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped')
+  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionisLettered')
   def test_payment_is_started_payzen(self):
     self._test_payment_is_started(payment_mode="payzen")
 
-  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped')
+  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionisLettered')
   def test_payment_is_started_wechat(self):
     self._test_payment_is_started(payment_mode="wechat")
-

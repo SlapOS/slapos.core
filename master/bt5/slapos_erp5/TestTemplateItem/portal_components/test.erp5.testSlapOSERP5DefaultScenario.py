@@ -1,7 +1,21 @@
-# -*- coding: utf-8 -*-
+# -*- coding:utf-8 -*-
 ##############################################################################
 #
-# Copyright (c) 2012 Nexedi SA and Contributors. All Rights Reserved.
+# Copyright (c) 2022 Nexedi SA and Contributors. All Rights Reserved.
+#
+# This program is Free Software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 ##############################################################################
 
@@ -237,23 +251,6 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
     self.tic()
 
-    builder = self.portal.portal_orders.slapos_payment_transaction_builder
-    for _ in range(500):
-      # build the aggregated payment
-      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-      self.tic()
-      # If there is something unbuild recall alarm.
-      if len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
-        break
-
-    # start the payzen payment
-    self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
-    self.tic()
-
-    # stabilise the payment deliveries and expand them
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
     # trigger the CRM interaction
     self.stepCallSlaposCrmCreateRegularisationRequestAlarm()
     self.tic()
@@ -266,10 +263,10 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
       self.assertPersonDocumentCoverage(person)
 
     self.login(public_person.getUserId())
-    self.usePayzenManually(self.web_site, public_person.getUserId())
+    self.usePaymentManually(self.web_site, public_person.getUserId())
 
     self.login(friend_person.getUserId())
-    self.usePayzenManually(self.web_site, friend_person.getUserId())
+    self.usePaymentManually(self.web_site, friend_person.getUserId())
 
 class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
 
@@ -283,6 +280,7 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
         default_source_project_uid=person.getUid()
     )
 
+    self.assertNotEqual(ticket, None)
     event = self.portal.portal_catalog.getResultValue(
       portal_type='Mail Message',
       default_resource_uid=self.portal.service_module[service_id].getUid(),
@@ -344,18 +342,7 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
 
     payment_list = invoice.getCausalityRelatedValueList(
         portal_type='Payment Transaction')
-    self.assertEqual(1, len(payment_list))
-
-    payment = payment_list[0].getObject()
-
-    causality_list = payment.getCausalityValueList()
-    self.assertSameSet([invoice], causality_list)
-
-    self.assertEqual('cancelled', payment.getSimulationState())
-    self.assertEqual('draft', payment.getCausalityState())
-
-    self.assertEqual(-1 * payment.PaymentTransaction_getTotalPayablePrice(),
-        invoice.getTotalPrice())
+    self.assertEqual(0, len(payment_list))
 
     # Check reverse invoice
     reverse_invoice_list = invoice.getCausalityRelatedValueList(
@@ -468,23 +455,6 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
     self.tic()
 
-    builder = self.portal.portal_orders.slapos_payment_transaction_builder
-    for _ in range(500):
-      # build the aggregated payment
-      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-      self.tic()
-      # If there is something unbuild recall alarm.
-      if len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
-        break
-
-    # start the payzen payment
-    self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
-    self.tic()
-
-    # stabilise the payment deliveries and expand them
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
     # create the regularisation request
     self.stepCallSlaposCrmCreateRegularisationRequestAlarm()
     self.tic()
@@ -525,13 +495,10 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
 
 
     # Manually cancel the users invoice
-    payment = self.portal.portal_catalog.getResultValue(
-      portal_type="Payment Transaction",
-      destination_section_uid=person.getUid(),
-      simulation_state="started")
-
-    invoice = payment.getCausalityValue(portal_type="Sale Invoice Transaction")
-    invoice.SaleInvoiceTransaction_createReversalPayzenTransaction()
+    invoice_list = person.Entity_getOutstandingAmountList()
+    self.assertEqual(len(invoice_list), 1)
+    sale_transaction_invoice = invoice_list[0].getObject()
+    sale_transaction_invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction(batch_mode=1)
 
     self.tic()
 
@@ -599,23 +566,6 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     # stop the invoices and solve them again
     self.stepCallSlaposStopConfirmedAggregatedSaleInvoiceTransactionAlarm()
     self.tic()
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    builder = self.portal.portal_orders.slapos_payment_transaction_builder
-    for _ in range(500):
-      # build the aggregated payment
-      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-      self.tic()
-      # If there is something unbuild recall alarm.
-      if len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
-        break
-
-    # start the payzen payment
-    self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
-    self.tic()
-
-    # stabilise the payment deliveries and expand them
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
     self.tic()
 

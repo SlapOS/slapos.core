@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>REQUEST=None</string> </value>
+            <value> <string>at_date=None, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SaleInvoiceTransaction_createReversalWechatTransaction</string> </value>
+            <value> <string>Entity_getOutstandingAmountList</string> </value>
         </item>
       </dictionary>
     </pickle>

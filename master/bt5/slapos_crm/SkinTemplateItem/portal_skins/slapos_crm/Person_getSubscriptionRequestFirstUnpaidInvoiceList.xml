@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>web_site=None</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>PaymentTransaction_redirectToManualSlapOSPayment</string> </value>
+            <value> <string>Person_getSubscriptionRequestFirstUnpaidInvoiceList</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -534,85 +534,6 @@ class TestSlapOSWechatBase_getWechatServiceRelativeUrl(SlapOSTestCaseMixinWithAb
     result = self.portal.Base_getWechatServiceRelativeUrl()
     self.assertEqual(result, 'portal_secure_payments/slapos_wechat_test')
 
-class TestSlapOSWechatAccountingTransaction_getPaymentState(
-                                                    SlapOSTestCaseMixinWithAbort):
-
-  def test_AccountingTransaction_getPaymentState_draft_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_deleted_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.delete()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_cancelled_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.cancel()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_planned_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.plan()
-    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_confirmed_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.setStartDate(DateTime())
-    invoice.confirm()
-    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_started_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.start()
-    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_reversed_payment(self):
-    invoice =  self.createWechatSaleInvoiceTransaction()
-    self.tic()
-    reversal = invoice.SaleInvoiceTransaction_createReversalWechatTransaction()
-    self.tic()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-    self.assertEqual(0, invoice.getTotalPrice() + reversal.getTotalPrice())
-
-  def test_AccountingTransaction_getPaymentState_free_payment(self):
-    invoice =  self.createWechatSaleInvoiceTransaction(price=0)
-    self.tic()
-    self.assertEqual("Free!", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_unpaid_payment(self):
-    invoice =  self.createWechatSaleInvoiceTransaction()
-    # If payment is not indexed or not started the state should be unpaid
-    self.assertEqual("Unpaid", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_paynow_payment(self):
-    person = self.makePerson()
-    invoice =  self.createWechatSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl())
-    self.tic()
-    self.login(person.getUserId())
-    self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_waiting_payment(self):
-    person = self.makePerson()
-    invoice =  self.createWechatSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl())
-    self.tic()
-    payment = invoice.SaleInvoiceTransaction_getWechatPaymentRelatedValue()
-    payment.PaymentTransaction_generateWechatId()
-    self.login(person.getUserId())
-    self.assertEqual("Waiting for payment confirmation",
-                      invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_paid_payment(self):
-    invoice =  self.createWechatSaleInvoiceTransaction()
-    self.tic()
-    for line in invoice.getMovementList(self.portal.getPortalAccountingMovementTypeList()):
-      node_value = line.getSourceValue(portal_type='Account')
-      if node_value.getAccountType() == 'asset/receivable':
-        line.setGroupingReference("TEST%s" % self.new_id)
-    self.assertEqual("Paid", invoice.AccountingTransaction_getPaymentState())
-
 class TestSlapOSWechatPaymentTransaction_redirectToManualWechatPayment(
                                                     SlapOSTestCaseMixinWithAbort):
 
@@ -657,11 +578,19 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
   def test_PaymentTransaction_redirectToManualWechatPayment_redirect(self):
     person = self.makePerson()
-    invoice =  self.createWechatSaleInvoiceTransaction(
+    invoice =  self.createStoppedSaleInvoiceTransaction(
+      payment_mode="wechat",
       destination_section=person.getRelativeUrl())
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getWechatPaymentRelatedValue()
-    payment.setResourceValue(self.portal.currency_module.EUR)
+    payment = self.portal.accounting_module.newContent(
+      portal_type="Payment Transaction",
+      payment_mode='wechat',
+      causality_value=invoice,
+      destination_section=invoice.getDestinationSection(),
+      resource_value=self.portal.currency_module.CNY,
+      created_by_builder=1 # to prevent init script to create lines
+    )
+    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
     payment_transaction_id = payment.getId()
 
     self.tic()
@@ -693,11 +622,19 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
   def test_PaymentTransaction_redirectToManualWechatPayment_redirect_with_website(self):
     person = self.makePerson()
-    invoice =  self.createWechatSaleInvoiceTransaction(
+    invoice =  self.createStoppedSaleInvoiceTransaction(
+      payment_mode="wechat",
       destination_section=person.getRelativeUrl())
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getWechatPaymentRelatedValue()
-    payment.setResourceValue(self.portal.currency_module.EUR)
+    payment = self.portal.accounting_module.newContent(
+      portal_type="Payment Transaction",
+      payment_mode='wechat',
+      causality_value=invoice,
+      destination_section=invoice.getDestinationSection(),
+      resource_value=self.portal.currency_module.CNY,
+      created_by_builder=1 # to prevent init script to create lines
+    )
+    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
     payment_transaction_id = payment.getId()
     web_site = self.portal.web_site_module.newContent(portal_type='Web Site')
 
@@ -725,11 +662,20 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
   def test_PaymentTransaction_redirectToManualWechatPayment_already_registered(self):
     person = self.makePerson()
-    invoice =  self.createWechatSaleInvoiceTransaction(
+    invoice =  self.createStoppedSaleInvoiceTransaction(
+      payment_mode="wechat",
       destination_section=person.getRelativeUrl())
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getWechatPaymentRelatedValue()
-    payment.setResourceValue(self.portal.currency_module.EUR)
+    payment = self.portal.accounting_module.newContent(
+      portal_type="Payment Transaction",
+      payment_mode='wechat',
+      causality_value=invoice,
+      destination_section=invoice.getDestinationSection(),
+      resource_value=self.portal.currency_module.CNY,
+      created_by_builder=1 # to prevent init script to create lines
+    )
+    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
+
     payment.PaymentTransaction_generateWechatId()
     self.tic()
     self.login(person.getUserId())
@@ -742,164 +688,5 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.assertEqual("%s/already_registered" % payment.getRelativeUrl(),
                       redirect)
 
-class TestSlapOSWechatSaleInvoiceTransaction_getWechatPaymentRelatedValue(
-                                                    SlapOSTestCaseMixinWithAbort):
-
-  def test_SaleInvoiceTransaction_getWechatPaymentRelatedValue(self):
-    invoice =  self.createWechatSaleInvoiceTransaction()
-    self.tic()
-    payment = invoice.SaleInvoiceTransaction_getWechatPaymentRelatedValue()
-    self.assertNotEqual(None, payment)
-    self.assertEqual(payment.getSimulationState(), "started")
-    self.assertEqual(payment.getCausalityValue(), invoice)
-    self.assertEqual(payment.getPaymentModeUid(),
-      self.portal.portal_categories.payment_mode.wechat.getUid())
-
-    payment.setStartDate(DateTime())
-    payment.stop()
-    payment.immediateReindexObject()
-    payment = invoice.SaleInvoiceTransaction_getWechatPaymentRelatedValue()
-    self.assertEqual(None, payment)
-
-class TestSlapOSWechatSaleInvoiceTransaction_createReversalWechatTransaction(
-                                                    SlapOSTestCaseMixinWithAbort):
-
-  def test_createReversalWechatTransaction_REQUEST_disallowed(self):
-    self.assertRaises(
-      Unauthorized,
-      self.portal.SaleInvoiceTransaction_createReversalWechatTransaction,
-      REQUEST={})
-
-  def test_createReversalWechatTransaction_bad_portal_type(self):
-    self.assertRaises(
-      AssertionError,
-      self.portal.SaleInvoiceTransaction_createReversalWechatTransaction)
-
-  def test_createReversalWechatTransaction_bad_payment_mode(self):
-    invoice = self.createWechatSaleInvoiceTransaction()
-    invoice.edit(payment_mode="cash")
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalWechatTransaction)
-
-  def test_createReversalWechatTransaction_bad_state(self):
-    invoice = self.createWechatSaleInvoiceTransaction()
-    self.portal.portal_workflow._jumpToStateFor(invoice, 'delivered')
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalWechatTransaction)
-
-  def test_createReversalWechatTransaction_zero_price(self):
-    invoice = self.createWechatSaleInvoiceTransaction()
-    invoice.manage_delObjects(invoice.contentIds())
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalWechatTransaction)
-
-  def test_createReversalWechatTransaction_wrong_trade_condition(self):
-    invoice = self.createWechatSaleInvoiceTransaction()
-    invoice.edit(specialise=None)
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalWechatTransaction)
-
-  def test_createReversalWechatTransaction_paid(self):
-    invoice = self.createWechatSaleInvoiceTransaction()
-    line = invoice.contentValues(portal_type="Sale Invoice Transaction Line")[0]
-    line.edit(grouping_reference="azerty")
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalWechatTransaction)
-
-  def test_createReversalWechatTransaction_no_payment(self):
-    invoice = self.createWechatSaleInvoiceTransaction()
-    # Do not reindex payment. portal_catalog will not find it.
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalWechatTransaction)
-
-  def test_createReversalWechatTransaction_no_wechat_payment(self):
-    invoice = self.createWechatSaleInvoiceTransaction()
-    self.tic()
-    payment = invoice.getCausalityRelatedValue()
-    payment.edit(payment_mode="cash")
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalWechatTransaction)
-
-  def test_createReversalWechatTransaction_no_payment_state(self):
-    invoice = self.createWechatSaleInvoiceTransaction()
-    self.tic()
-    payment = invoice.getCausalityRelatedValue()
-    self.portal.portal_workflow._jumpToStateFor(payment, 'cancelled')
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalWechatTransaction)
-
-  def test_createReversalWechatTransaction_registered_payment(self):
-    invoice = self.createWechatSaleInvoiceTransaction()
-    self.tic()
-    payment = invoice.getCausalityRelatedValue()
-    payment.PaymentTransaction_generateWechatId()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalWechatTransaction)
-
-  def test_createReversalWechatTransaction_ok(self):
-    invoice = self.createWechatSaleInvoiceTransaction()
-    self.tic()
-    payment = invoice.getCausalityRelatedValue()
-    reversale_invoice = invoice.\
-      SaleInvoiceTransaction_createReversalWechatTransaction()
-
-    self.assertEqual(invoice.getPaymentMode(""), "")
-    self.assertEqual(payment.getPaymentMode(""), "")
-    self.assertEqual(payment.getSimulationState(), "cancelled")
-    self.assertEqual(reversale_invoice.getTitle(),
-                     "Reversal Transaction for %s" % invoice.getTitle())
-    self.assertEqual(reversale_invoice.getDescription(),
-                     "Reversal Transaction for %s" % invoice.getTitle())
-    self.assertEqual(reversale_invoice.getCausality(),
-                     invoice.getRelativeUrl())
-    self.assertEqual(reversale_invoice.getSimulationState(), "stopped")
-    self.assertEqual(invoice.getSimulationState(), "stopped")
-
-    invoice_line_id = invoice.contentValues(portal_type="Invoice Line")[0].getId()
-    transaction_line_id = invoice.contentValues(
-      portal_type="Sale Invoice Transaction Line")[0].getId()
-
-    self.assertEqual(invoice[invoice_line_id].getQuantity(),
-                     -reversale_invoice[invoice_line_id].getQuantity())
-    self.assertEqual(reversale_invoice[invoice_line_id].getQuantity(), 2)
-
-    self.assertEqual(invoice[transaction_line_id].getQuantity(),
-                     -reversale_invoice[transaction_line_id].getQuantity())
-    self.assertEqual(reversale_invoice[transaction_line_id].getQuantity(), 3)
-    self.assertEqual(len(invoice.getMovementList()), 2)
-
-    # Both invoice should have a grouping reference
-    self.assertNotEqual(invoice[transaction_line_id].getGroupingReference(""),
-                        "")
-    self.assertEqual(
-      invoice[transaction_line_id].getGroupingReference("1"),
-      reversale_invoice[transaction_line_id].getGroupingReference("2"))
-
-    # All references should be regenerated
-    self.assertNotEqual(invoice.getReference(""),
-                        reversale_invoice.getReference(""))
-    self.assertNotEqual(invoice.getSourceReference(""),
-                        reversale_invoice.getSourceReference(""))
-    self.assertNotEqual(invoice.getDestinationReference(""),
-                        reversale_invoice.getDestinationReference(""))
-
-    # Another trade condition
-    self.assertEqual(
-      reversale_invoice.getSpecialise(),
-      "sale_trade_condition_module/slapos_manual_accounting_trade_condition")
-    self.tic()
-
+    system_event_list = payment.getDestinationRelatedValueList(portal_type="Payzen Event")
+    self.assertEqual(len(system_event_list), 0)

@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>PaymentTransaction_startWechatPayment</string> </value>
+            <value> <string>PaymentTransaction_cancelIfSaleInvoiceTransactionIsLettered</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -567,13 +567,13 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       reference="TESTTRANS-%s" % new_id,
       )
 
-  def createSaleInvoiceTransaction(self):
+  def createSaleInvoiceTransaction(self, **kw):
     new_id = self.generateNewId()
     return self.portal.accounting_module.newContent(
       portal_type='Sale Invoice Transaction',
       title="Invoice %s" % new_id,
       reference="TESTSIT-%s" % new_id,
-      )
+      **kw)
 
   def createPayzenEvent(self):
     return self.portal.system_event_module.newContent(
@@ -585,16 +585,11 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         portal_type='Wechat Event',
         reference='PAY-%s' % self.generateNewId())
 
-  def createPayzenSaleInvoiceTransaction(self, destination_section=None, price=2, payment_mode="payzen"):
-    new_title = self.generateNewId()
-    new_reference = self.generateNewId()
+  def createStoppedSaleInvoiceTransaction(self, destination_section=None, price=2, payment_mode="payzen"):
     new_source_reference = self.generateNewId()
     new_destination_reference = self.generateNewId()
-    invoice = self.portal.accounting_module.newContent(
-      portal_type="Sale Invoice Transaction",
-      title=new_title,
+    invoice = self.createSaleInvoiceTransaction(
       start_date=DateTime(),
-      reference=new_reference,
       source_reference=new_source_reference,
       destination_reference=new_destination_reference,
       destination_section=destination_section,
@@ -614,22 +609,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       source="account_module/receivable",
       quantity=-3,
     )
-
-    payment = self.portal.accounting_module.newContent(
-      portal_type="Payment Transaction",
-      payment_mode=payment_mode,
-      causality_value=invoice,
-      destination_section=destination_section,
-      created_by_builder=1 # to prevent init script to create lines
-    )
-    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
     return invoice
-
-
-  def createWechatSaleInvoiceTransaction(self, destination_section=None, price=2):
-    return self.createPayzenSaleInvoiceTransaction(destination_section=destination_section,
-                                                   price=price,
-                                                   payment_mode='wechat')
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()

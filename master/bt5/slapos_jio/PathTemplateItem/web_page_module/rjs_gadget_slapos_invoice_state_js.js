@@ -14,16 +14,15 @@
         link;
       return gadget.getTranslationDict(['Pay Now'])
         .push(function (translation_dict) {
-          if ((gadget.state.payment_transaction !== null) &&
-              (gadget.state.payment_transaction !== undefined)) {
+          if (gadget.state.payment_state === 'Pay Now') {
             link = domsugar("li", {},
               [
                 domsugar("a", {
                   class: "ui-btn ui-first-child ui-btn-icon-center",
                   text: translation_dict["Pay Now"],
                   href: gadget.state.hateoas_url +
-                    gadget.state.payment_transaction +
-                    "/PaymentTransaction_redirectToManualSlapOSPayment"
+                    gadget.state.jio_key +
+                    "/SaleInvoiceTransaction_redirectToManualSlapOSPayment"
                 })
               ]);
           } else {
@@ -41,7 +40,7 @@
       return gadget.getSetting("hateoas_url")
         .push(function (hateoas_url) {
           return gadget.changeState({
-            payment_transaction: options.value.payment_transaction,
+            jio_key: options.value.jio_key,
             payment_state: options.value.state,
             hateoas_url: hateoas_url
           });

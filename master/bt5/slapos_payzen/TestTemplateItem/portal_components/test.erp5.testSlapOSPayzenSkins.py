@@ -1,4 +1,24 @@
-# Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
+# -*- coding:utf-8 -*-
+##############################################################################
+#
+# Copyright (c) 2022 Nexedi SA and Contributors. All Rights Reserved.
+#
+# This program is Free Software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+##############################################################################
+
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 
 from DateTime import DateTime
@@ -24,14 +44,6 @@ class TestSlapOSCurrency_getIntegrationMapping(SlapOSTestCaseMixinWithAbort):
 
 
 class TestSlapOSAccountingTransaction_updateStartDate(SlapOSTestCaseMixinWithAbort):
-
-  def createPaymentTransaction(self):
-    new_id = self.generateNewId()
-    return self.portal.accounting_module.newContent(
-      portal_type='Payment Transaction',
-      title="Transaction %s" % new_id,
-      reference="TESTTRANS-%s" % new_id,
-      )
 
   def test_date_changed(self):
     date = DateTime("2001/01/01")
@@ -657,85 +669,6 @@ class TestSlapOSPayzenBase_getPayzenServiceRelativeUrl(SlapOSTestCaseMixinWithAb
     result = self.portal.Base_getPayzenServiceRelativeUrl()
     self.assertEqual(result, 'portal_secure_payments/slapos_payzen_test')
 
-class TestSlapOSPayzenAccountingTransaction_getPaymentState(
-                                                    SlapOSTestCaseMixinWithAbort):
-
-  def test_AccountingTransaction_getPaymentState_draft_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_deleted_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.delete()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_cancelled_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.cancel()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_planned_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.plan()
-    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_confirmed_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.setStartDate(DateTime())
-    invoice.confirm()
-    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_started_payment(self):
-    invoice = self.createSaleInvoiceTransaction()
-    invoice.start()
-    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_reversed_payment(self):
-    invoice =  self.createPayzenSaleInvoiceTransaction()
-    self.tic()
-    reversal = invoice.SaleInvoiceTransaction_createReversalPayzenTransaction()
-    self.tic()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
-    self.assertEqual(0, invoice.getTotalPrice() + reversal.getTotalPrice())
-
-  def test_AccountingTransaction_getPaymentState_free_payment(self):
-    invoice =  self.createPayzenSaleInvoiceTransaction(price=0)
-    self.tic()
-    self.assertEqual("Free!", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_unpaid_payment(self):
-    invoice =  self.createPayzenSaleInvoiceTransaction()
-    # If payment is not indexed or not started the state should be unpaid
-    self.assertEqual("Unpaid", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_paynow_payment(self):
-    person = self.makePerson()
-    invoice =  self.createPayzenSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl())
-    self.tic()
-    self.login(person.getUserId())
-    self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_waiting_payment(self):
-    person = self.makePerson()
-    invoice =  self.createPayzenSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl())
-    self.tic()
-    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
-    payment.PaymentTransaction_generatePayzenId()
-    self.login(person.getUserId())
-    self.assertEqual("Waiting for payment confirmation",
-                      invoice.AccountingTransaction_getPaymentState())
-
-  def test_AccountingTransaction_getPaymentState_paid_payment(self):
-    invoice =  self.createPayzenSaleInvoiceTransaction()
-    self.tic()
-    for line in invoice.getMovementList(self.portal.getPortalAccountingMovementTypeList()):
-      node_value = line.getSourceValue(portal_type='Account')
-      if node_value.getAccountType() == 'asset/receivable':
-        line.setGroupingReference("TEST%s" % self.new_id)
-    self.assertEqual("Paid", invoice.AccountingTransaction_getPaymentState())
-
 class TestSlapOSPayzenPaymentTransaction_redirectToManualPayzenPayment(
                                                     SlapOSTestCaseMixinWithAbort):
 
@@ -780,11 +713,19 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
   def test_PaymentTransaction_redirectToManualPayzenPayment_redirect(self):
     person = self.makePerson()
-    invoice =  self.createPayzenSaleInvoiceTransaction(
+    invoice =  self.createStoppedSaleInvoiceTransaction(
       destination_section=person.getRelativeUrl())
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
-    payment.setResourceValue(self.portal.currency_module.EUR)
+    payment = self.portal.accounting_module.newContent(
+      portal_type="Payment Transaction",
+      payment_mode='payzen',
+      causality_value=invoice,
+      destination_section=invoice.getDestinationSection(),
+      resource_value=self.portal.currency_module.EUR,
+      created_by_builder=1 # to prevent init script to create lines
+    )
+    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
+
     self.tic()
     self.login(person.getUserId())
     self._simulatePaymentTransaction_getVADSUrlDict()
@@ -810,15 +751,32 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
                  "%s/return" % (payment_transaction_url)]:
       self.assertTrue(item in text_content,
         "%s not in %s" % (item, text_content))
+    self.tic()
 
+    system_event_list = payment.getDestinationRelatedValueList(portal_type="Payzen Event")
+    self.assertEqual(len(system_event_list), 1)
+
+    self.assertEqual(
+      system_event_list[0].getDestinationSection(),
+      invoice.getDestinationSection())
+    self.assertEqual(
+      len(system_event_list[0].contentValues(portal_type="Payzen Event Message")), 1)
 
   def test_PaymentTransaction_redirectToManualPayzenPayment_already_registered(self):
     person = self.makePerson()
-    invoice =  self.createPayzenSaleInvoiceTransaction(
+    invoice =  self.createStoppedSaleInvoiceTransaction(
       destination_section=person.getRelativeUrl())
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
-    payment.setResourceValue(self.portal.currency_module.EUR)
+    payment = self.portal.accounting_module.newContent(
+      portal_type="Payment Transaction",
+      payment_mode='payzen',
+      causality_value=invoice,
+      destination_section=invoice.getDestinationSection(),
+      resource_value=self.portal.currency_module.EUR,
+      created_by_builder=1 # to prevent init script to create lines
+    )
+    self.portal.portal_workflow._jumpToStateFor(payment, 'started')
+
     payment.PaymentTransaction_generatePayzenId()
     self.tic()
     self.login(person.getUserId())
@@ -831,164 +789,5 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.assertEqual("%s/already_registered" % payment.getRelativeUrl(),
                       redirect)
 
-class TestSlapOSPayzenSaleInvoiceTransaction_getSlapOSPaymentRelatedValue(
-                                                    SlapOSTestCaseMixinWithAbort):
-
-  def test_SaleInvoiceTransaction_getSlapOSPaymentRelatedValue(self):
-    invoice =  self.createPayzenSaleInvoiceTransaction()
-    self.tic()
-    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
-    self.assertNotEqual(None, payment)
-    self.assertEqual(payment.getSimulationState(), "started")
-    self.assertEqual(payment.getCausalityValue(), invoice)
-    self.assertEqual(payment.getPaymentModeUid(),
-      self.portal.portal_categories.payment_mode.payzen.getUid())
-
-    payment.setStartDate(DateTime())
-    payment.stop()
-    payment.immediateReindexObject()
-    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
-    self.assertEqual(None, payment)
-
-class TestSlapOSPayzenSaleInvoiceTransaction_createReversalPayzenTransaction(
-                                                    SlapOSTestCaseMixinWithAbort):
-
-  def test_createReversalPayzenTransaction_REQUEST_disallowed(self):
-    self.assertRaises(
-      Unauthorized,
-      self.portal.SaleInvoiceTransaction_createReversalPayzenTransaction,
-      REQUEST={})
-
-  def test_createReversalPayzenTransaction_bad_portal_type(self):
-    self.assertRaises(
-      AssertionError,
-      self.portal.SaleInvoiceTransaction_createReversalPayzenTransaction)
-
-  def test_createReversalPayzenTransaction_bad_payment_mode(self):
-    invoice = self.createPayzenSaleInvoiceTransaction()
-    invoice.edit(payment_mode="cash")
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalPayzenTransaction)
-
-  def test_createReversalPayzenTransaction_bad_state(self):
-    invoice = self.createPayzenSaleInvoiceTransaction()
-    self.portal.portal_workflow._jumpToStateFor(invoice, 'delivered')
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalPayzenTransaction)
-
-  def test_createReversalPayzenTransaction_zero_price(self):
-    invoice = self.createPayzenSaleInvoiceTransaction()
-    invoice.manage_delObjects(invoice.contentIds())
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalPayzenTransaction)
-
-  def test_createReversalPayzenTransaction_wrong_trade_condition(self):
-    invoice = self.createPayzenSaleInvoiceTransaction()
-    invoice.edit(specialise=None)
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalPayzenTransaction)
-
-  def test_createReversalPayzenTransaction_paid(self):
-    invoice = self.createPayzenSaleInvoiceTransaction()
-    line = invoice.contentValues(portal_type="Sale Invoice Transaction Line")[0]
-    line.edit(grouping_reference="azerty")
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalPayzenTransaction)
-
-  def test_createReversalPayzenTransaction_no_payment(self):
-    invoice = self.createPayzenSaleInvoiceTransaction()
-    # Do not reindex payment. portal_catalog will not find it.
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalPayzenTransaction)
-
-  def test_createReversalPayzenTransaction_no_payzen_payment(self):
-    invoice = self.createPayzenSaleInvoiceTransaction()
-    self.tic()
-    payment = invoice.getCausalityRelatedValue()
-    payment.edit(payment_mode="cash")
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalPayzenTransaction)
-
-  def test_createReversalPayzenTransaction_no_payment_state(self):
-    invoice = self.createPayzenSaleInvoiceTransaction()
-    self.tic()
-    payment = invoice.getCausalityRelatedValue()
-    self.portal.portal_workflow._jumpToStateFor(payment, 'cancelled')
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalPayzenTransaction)
-
-  def test_createReversalPayzenTransaction_registered_payment(self):
-    invoice = self.createPayzenSaleInvoiceTransaction()
-    self.tic()
-    payment = invoice.getCausalityRelatedValue()
-    payment.PaymentTransaction_generatePayzenId()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalPayzenTransaction)
-
-  def test_createReversalPayzenTransaction_ok(self):
-    invoice = self.createPayzenSaleInvoiceTransaction()
-    self.tic()
-    payment = invoice.getCausalityRelatedValue()
-    reversale_invoice = invoice.\
-      SaleInvoiceTransaction_createReversalPayzenTransaction()
-
-    self.assertEqual(invoice.getPaymentMode(""), "")
-    self.assertEqual(payment.getPaymentMode(""), "")
-    self.assertEqual(payment.getSimulationState(), "cancelled")
-    self.assertEqual(reversale_invoice.getTitle(),
-                     "Reversal Transaction for %s" % invoice.getTitle())
-    self.assertEqual(reversale_invoice.getDescription(),
-                     "Reversal Transaction for %s" % invoice.getTitle())
-    self.assertEqual(reversale_invoice.getCausality(),
-                     invoice.getRelativeUrl())
-    self.assertEqual(reversale_invoice.getSimulationState(), "stopped")
-    self.assertEqual(invoice.getSimulationState(), "stopped")
-
-    invoice_line_id = invoice.contentValues(portal_type="Invoice Line")[0].getId()
-    transaction_line_id = invoice.contentValues(
-      portal_type="Sale Invoice Transaction Line")[0].getId()
-
-    self.assertEqual(invoice[invoice_line_id].getQuantity(),
-                     -reversale_invoice[invoice_line_id].getQuantity())
-    self.assertEqual(reversale_invoice[invoice_line_id].getQuantity(), 2)
-
-    self.assertEqual(invoice[transaction_line_id].getQuantity(),
-                     -reversale_invoice[transaction_line_id].getQuantity())
-    self.assertEqual(reversale_invoice[transaction_line_id].getQuantity(), 3)
-    self.assertEqual(len(invoice.getMovementList()), 2)
-
-    # Both invoice should have a grouping reference
-    self.assertNotEqual(invoice[transaction_line_id].getGroupingReference(""),
-                        "")
-    self.assertEqual(
-      invoice[transaction_line_id].getGroupingReference("1"),
-      reversale_invoice[transaction_line_id].getGroupingReference("2"))
-
-    # All references should be regenerated
-    self.assertNotEqual(invoice.getReference(""),
-                        reversale_invoice.getReference(""))
-    self.assertNotEqual(invoice.getSourceReference(""),
-                        reversale_invoice.getSourceReference(""))
-    self.assertNotEqual(invoice.getDestinationReference(""),
-                        reversale_invoice.getDestinationReference(""))
-
-    # Another trade condition
-    self.assertEqual(
-      reversale_invoice.getSpecialise(),
-      "sale_trade_condition_module/slapos_manual_accounting_trade_condition")
-    self.tic()
-
+    system_event_list = payment.getDestinationRelatedValueList(portal_type="Payzen Event")
+    self.assertEqual(len(system_event_list), 0)

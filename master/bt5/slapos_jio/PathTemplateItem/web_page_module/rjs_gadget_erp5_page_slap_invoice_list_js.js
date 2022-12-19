@@ -53,6 +53,7 @@
             }
             if (1 || (result.data.rows[i].hasOwnProperty("id"))) {
               value = result.data.rows[i].value.AccountingTransaction_getPaymentStateAsHateoas;
+              value.jio_key = result.data.rows[i].id;
               result.data.rows[i].value.AccountingTransaction_getPaymentStateAsHateoas = {
                 field_gadget_param : {
                   css_class: "",

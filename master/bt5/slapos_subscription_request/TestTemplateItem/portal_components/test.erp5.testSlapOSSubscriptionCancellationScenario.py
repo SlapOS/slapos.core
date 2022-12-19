@@ -170,20 +170,6 @@ class TestSlapOSSubscriptionCancellationScenario(TestSlapOSSubscriptionScenarioM
     self.assertEqual(invoice.getSimulationState(), "stopped")
     self.assertEqual(invoice.getCausalityState(), "solved")
 
-    builder = self.portal.portal_orders.slapos_payment_transaction_builder
-    for _ in range(500):
-      # build the aggregated payment
-      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-      self.tic()
-      # If there is something unbuild recall alarm, this is mostly for 
-      # live tests with date on the development sites.
-      if not len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
-        break
-
-    # start the payzen payment
-    self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
-    self.tic()
-
     self.invokeBasicSimulationAlarmList()
 
     # Call alarm to check payment and invoice and move foward to planned.

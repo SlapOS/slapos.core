@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>**kw</string> </value>
+            <value> <string>web_site=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SaleInvoiceTransaction_getSlapOSPaymentRelated</string> </value>
+            <value> <string>SaleInvoiceTransaction_redirectToManualSlapOSPayment</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>*args, **kwargs</string> </value>
+            <value> <string>invoice_list, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>OrderBuilder_generateUnrelatedInvoiceList</string> </value>
+            <value> <string>Entity_createPaymentTransaction</string> </value>
         </item>
       </dictionary>
     </pickle>

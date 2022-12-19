@@ -25,7 +25,7 @@ notification_mapping_dict = {
   'name': recipient.getTitle(),
   'subscription_title': context.getTitle(),
   # Possible more actions goes here
-  'payment_relative_relative_url': payment.getRelativeUrl()}
+  'payment_relative_relative_url': invoice.getRelativeUrl()}
 
 # Preserve HTML else convert to text
 if notification_message.getContentType() == "text/html":

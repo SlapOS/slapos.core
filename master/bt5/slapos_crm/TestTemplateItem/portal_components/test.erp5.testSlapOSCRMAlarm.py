@@ -27,6 +27,52 @@ from DateTime import DateTime
 
 class TestSlapOSCRMCreateRegularisationRequest(SlapOSTestCaseMixin):
 
+  def createFinalInvoice(self, person):
+    template = self.portal.restrictedTraverse(
+      self.portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate())
+    current_invoice = template.Base_createCloneDocument(batch_mode=1)
+
+    current_invoice.edit(
+        destination_value=person,
+        destination_section_value=person,
+        destination_decision_value=person,
+        start_date=DateTime('2019/10/20'),
+        stop_date=DateTime('2019/10/20'),
+        title='Fake Invoice for Demo User Functional',
+        price_currency="currency_module/EUR",
+        reference='1')
+
+    cell = current_invoice["1"]["movement_0"]
+    cell.edit(quantity=1)
+    cell.setPrice(1)
+    
+    current_invoice.plan()
+    current_invoice.confirm()
+    current_invoice.startBuilding()
+    current_invoice.reindexObject()
+    current_invoice.stop()
+
+    self.tic()
+    current_invoice.Delivery_manageBuildingCalculatingDelivery()
+    self.tic()
+    applied_rule = current_invoice.getCausalityRelated(portal_type="Applied Rule")
+    for sm in self.portal.portal_catalog(portal_type='Simulation Movement',
+                                        simulation_state=['draft', 'planned', None],
+                                        left_join_list=['delivery_uid'],
+                                        delivery_uid=None,
+                                        path="%%%s%%" % applied_rule):
+
+      if sm.getDelivery() is not None:
+        continue
+    
+      root_applied_rule = sm.getRootAppliedRule()
+      root_applied_rule_path = root_applied_rule.getPath()
+    
+      sm.getCausalityValue(portal_type='Business Link').build(
+        path='%s/%%' % root_applied_rule_path)
+
+    return current_invoice
+
   def test_alarm_expected_person(self):
     new_id = self.generateNewId()
     person = self.portal.person_module.newContent(
@@ -35,14 +81,7 @@ class TestSlapOSCRMCreateRegularisationRequest(SlapOSTestCaseMixin):
       )
     person.validate()
 
-    payment = self.portal.accounting_module.newContent(
-      portal_type='Payment Transaction',
-      title="Payment Transaction for TestSlapOSCRMCreateRegularisationRequest  person %s" % new_id,
-      destination_section=person.getRelativeUrl(),
-      start_date=DateTime()
-      )
-    payment.confirm()
-    payment.start()
+    self.createFinalInvoice(person)
 
     self.tic()
     alarm = self.portal.portal_alarms.\
@@ -56,16 +95,8 @@ class TestSlapOSCRMCreateRegularisationRequest(SlapOSTestCaseMixin):
       title="Test person %s" % new_id
       )
     person.validate()
+    self.createFinalInvoice(person)
     person.invalidate()
-
-    payment = self.portal.accounting_module.newContent(
-      portal_type='Payment Transaction',
-      title="Payment Transaction for TestSlapOSCRMCreateRegularisationRequest  person %s" % new_id,
-      destination_section=person.getRelativeUrl(),
-      start_date=DateTime()
-      )
-    payment.confirm()
-    payment.start()
 
     self.tic()
     alarm = self.portal.portal_alarms.\
@@ -79,23 +110,31 @@ class TestSlapOSCRMCreateRegularisationRequest(SlapOSTestCaseMixin):
       title="Test person %s" % new_id
       )
     person.validate()
+    current_invoice = self.createFinalInvoice(person)
+    payment_template = self.portal.restrictedTraverse(
+      self.portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
+    payment = payment_template.Base_createCloneDocument(batch_mode=1)
 
-    payment = self.portal.accounting_module.newContent(
-      portal_type='Payment Transaction',
-      title="Payment Transaction for TestSlapOSCRMCreateRegularisationRequest  person %s" % new_id,
-      destination_section=person.getRelativeUrl(),
-      start_date=DateTime()
-      )
+    for line in payment.contentValues():
+      if line.getSource() == "account_module/payment_to_encash":
+        line.setQuantity(-1)
+      elif line.getSource() == "account_module/receivable":
+        line.setQuantity(1)
+
     payment.confirm()
     payment.start()
+    payment.setCausalityValue(current_invoice)
+    payment.setDestinationSectionValue(person)
+    
     payment.stop()
+    self.tic()
 
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_create_regularisation_request
     self._test_alarm_not_visited(alarm, person, "Person_checkToCreateRegularisationRequest")
 
-  def test_alarm_payment_confirmed(self):
+  def test_alarm_payment_started(self):
     new_id = self.generateNewId()
     person = self.portal.person_module.newContent(
       portal_type='Person',
@@ -103,18 +142,26 @@ class TestSlapOSCRMCreateRegularisationRequest(SlapOSTestCaseMixin):
       )
     person.validate()
 
-    payment = self.portal.accounting_module.newContent(
-      portal_type='Payment Transaction',
-      title="Payment Transaction for TestSlapOSCRMCreateRegularisationRequest  person %s" % new_id,
-      destination_section=person.getRelativeUrl(),
-      start_date=DateTime()
-      )
+    current_invoice = self.createFinalInvoice(person)
+    payment_template = self.portal.restrictedTraverse(
+      self.portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
+    payment = payment_template.Base_createCloneDocument(batch_mode=1)
+
+    for line in payment.contentValues():
+      if line.getSource() == "account_module/payment_to_encash":
+        line.setQuantity(-1)
+      elif line.getSource() == "account_module/receivable":
+        line.setQuantity(1)
+
     payment.confirm()
+    payment.start()
+    payment.setCausalityValue(current_invoice)
+    payment.setDestinationSectionValue(person)
 
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_create_regularisation_request
-    self._test_alarm_not_visited(alarm, person, "Person_checkToCreateRegularisationRequest")
+    self._test_alarm(alarm, person, "Person_checkToCreateRegularisationRequest")
 
 
 class TestSlapOSCrmInvalidateSuspendedRegularisationRequest(SlapOSTestCaseMixinWithAbort):

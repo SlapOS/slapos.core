@@ -59,6 +59,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
       slapos_jio/PathTemplateItem/web_site_module/hostingjs.xml
       slapos_jio/PathTemplateItem/web_page_module/rjs_gadget_slapos_translation_data_js.js
       slapos_jio/PathTemplateItem/web_page_module/rjs_gadget_slapos_translation_data_js.xml
+      slapos_jio/PathTemplateItem/web_site_module/renderjs_oss.xml
 
       # Modified by subprojects during tests
       slapos_crm/PathTemplateItem/sale_trade_condition_module/slapos_ticket_trade_condition.xml

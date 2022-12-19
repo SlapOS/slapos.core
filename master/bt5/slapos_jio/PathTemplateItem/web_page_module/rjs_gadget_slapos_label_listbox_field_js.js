@@ -1,7 +1,7 @@
-/*globals window, document, rJS, JSON */
+/*globals window, document, rJS, JSON, domsugar */
 /*jslint indent: 2, nomen: true, maxlen: 80*/
 
-(function (window, document, rJS, JSON) {
+(function (window, document, rJS, JSON, domsugar) {
   "use strict";
 
   rJS(window)
@@ -9,28 +9,33 @@
       return {};
     })
     .declareMethod("render", function (options) {
-      var gadget = this, a, pre, value;
-      return gadget.getElement()
-        .push(function (element) {
-          value = options.value;
-          if (typeof options.value === "string") {
-            if (options.value.startsWith("http://") ||
-                 options.value.startsWith("https://")) {
-              a = document.createElement('a');
-              a.setAttribute("href", options.value);
-              a.setAttribute("target", "_blank");
-              a.innerText = options.value;
-              value = a.outerHTML;
-            } else if (options.value.indexOf("\n") !== -1) {
-              pre = document.createElement('pre');
-              pre.innerText = options.value;
-              value = pre.outerHTML;
-            }
-            element.innerHTML = value;
-          } else {
-            element.innerHTML = JSON.stringify(value);
-          }
-          return element;
+      var gadget = this,
+        a,
+        pre,
+        value = options.value,
+        element = gadget.element;
+      if (typeof value === "string") {
+        if (value.startsWith("http://") ||
+             value.startsWith("https://")) {
+          domsugar(element, [
+            domsugar('a', {
+              href: value,
+              target: '_blank',
+              text: value
+            })
+          ]);
+        // } else if (options.value.indexOf("\n") !== -1) {
+        } else {
+          domsugar(element, [
+            domsugar('pre', {
+              text: value
+            })
+          ]);
+        }
+      } else {
+        domsugar(element, {
+          text: JSON.stringify(value)
         });
+      }
     });
-}(window, document, rJS, JSON));
+}(window, document, rJS, JSON, domsugar));

@@ -352,8 +352,13 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_erp5/OAuthTool_checkGoogleConnectorExistenceConsistency',
         'slapos_erp5/WebSiteModule_checkShacacheConstraint',
         'slapos_erp5/SystemPreference_checkConversionServerConsistency',
-        'slapos_erp5/SystemPreference_checkSystemPreferenceConsistency']
-      
+        'slapos_erp5/SystemPreference_checkSystemPreferenceConsistency',
+        'slapos_abyss/ComputeNode_jumpToRelatedDataStream',
+        'slapos_abyss/DataAnalysis_executeDataOperation',
+        'slapos_abyss/DataArray_getArrayFileInfoList',
+        'slapos_abyss/ERP5Site_createDataAnalysisList',
+        'slapos_abyss/IngestionPolicy_getSlaposIngestionOperationAndParameterDict']
+
       SlapOSTestCaseMixin.afterSetUp(self)
 
     def getBusinessTemplateList(self):

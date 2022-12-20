@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.8.6 (unreleased)
+------------------
+ * console: fix namespace problems when using slapos console with scripts
+
 1.8.5 (2022-12-14)
 ------------------
  * slapos: Update SlapOS website's url

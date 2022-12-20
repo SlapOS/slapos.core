@@ -802,6 +802,29 @@ print(request('software_release', 'instance').getInstanceParameterDict()['parame
       mock_request.assert_called_once_with(
           'software_release', 'instance')
 
+  def test_console_script_global_namespace(self):
+    script = textwrap.dedent('''\
+      from __future__ import print_function
+      variable = 'OK'
+      def f():
+        print('slapos short-hand names',
+           'OK' if supply is not None and request is not None else 'PROBLEM')
+        # namespace behave normally:
+        print('non local variables', variable)
+        print('builtins', 'OK' if str is not None else 'PROBLEM')
+      f()
+      ''')
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py') as script_file, \
+          patch.object(sys, 'stderr', StringIO()) as stderr, \
+         self._test_console() as (app, config_file, _, stdout):
+      script_file.write(script)
+      script_file.flush()
+      app.run(('console', '--cfg', config_file, script_file.name))
+      self.assertNotIn('ERROR', stderr.getvalue())
+      self.assertIn('slapos short-hand names OK', stdout.getvalue())
+      self.assertIn('non local variables OK', stdout.getvalue())
+      self.assertIn('builtins OK', stdout.getvalue())
+
   def test_console_script__file__(self):
     with self._test_console() as (app, config_file, _, stdout),\
       tempfile.NamedTemporaryFile('w') as script:

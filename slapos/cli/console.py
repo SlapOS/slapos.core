@@ -95,7 +95,7 @@ class ConsoleCommand(ClientConfigCommand):
             with open(args.script_file) as f:
                 code = compile(f.read(), args.script_file, 'exec')
                 local['__file__'] = args.script_file
-                return exec_(code, globals(), local)
+                return exec_(code, local, local)
 
         if not any([args.python, args.ipython, args.bpython]):
             args.ipython = True

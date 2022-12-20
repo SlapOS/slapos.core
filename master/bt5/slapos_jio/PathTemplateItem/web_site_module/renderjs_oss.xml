@@ -7,6 +7,24 @@
     <pickle>
       <dictionary>
         <item>
+            <key> <string>_Access_contents_information_Permission</string> </key>
+            <value>
+              <tuple>
+                <string>Anonymous</string>
+                <string>Assignee</string>
+                <string>Assignor</string>
+                <string>Associate</string>
+                <string>Auditor</string>
+                <string>Authenticated</string>
+                <string>Author</string>
+                <string>Manager</string>
+                <string>Member</string>
+                <string>Owner</string>
+                <string>Reviewer</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>_Add_portal_content_Permission</string> </key>
             <value>
               <tuple>
@@ -49,7 +67,24 @@
                 <string>Assignee</string>
                 <string>Assignor</string>
                 <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>_View_Permission</string> </key>
+            <value>
+              <tuple>
+                <string>Anonymous</string>
+                <string>Assignee</string>
+                <string>Assignor</string>
+                <string>Associate</string>
+                <string>Auditor</string>
+                <string>Authenticated</string>
+                <string>Author</string>
+                <string>Manager</string>
+                <string>Member</string>
                 <string>Owner</string>
+                <string>Reviewer</string>
               </tuple>
             </value>
         </item>
@@ -597,9 +632,7 @@ WebSection_getRenderJSRunnerAccessPagePrecacheManifestList</string> </value>
                 <dictionary>
                   <item>
                       <key> <string>action</string> </key>
-                      <value>
-                        <none/>
-                      </value>
+                      <value> <string>publish</string> </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
@@ -625,7 +658,7 @@ WebSection_getRenderJSRunnerAccessPagePrecacheManifestList</string> </value>
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1671151441.91</float>
+                              <float>1671565044.09</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -634,7 +667,7 @@ WebSection_getRenderJSRunnerAccessPagePrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>validation_state</string> </key>
-                      <value> <string>embedded</string> </value>
+                      <value> <string>published</string> </value>
                   </item>
                 </dictionary>
               </list>

@@ -29,18 +29,18 @@ import unittest
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 from Products.ERP5Type.tests.ERP5TypeFunctionalTestCase import ERP5TypeFunctionalTestCase
 
-class TestSlapOSRenderJSRunnerUIHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
+class TestSlapOSRenderJSOSSUIHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
   foreground = 0
-  run_only = "slapos_renderjs_runner_zuite"
+  run_only = "slapos_renderjs_oss_zuite"
 
   def afterSetUp(self):
     ERP5TypeFunctionalTestCase.afterSetUp(self)
     SlapOSTestCaseMixin.afterSetUp(self)
     # Ensuring the default available language is "en" for English UI test
-    self.getPortalObject().web_site_module.renderjs_runner.setDefaultAvailableLanguage('en')
+    self.getPortalObject().web_site_module.renderjs_oss.setDefaultAvailableLanguage('en')
     self.tic()
 
 def test_suite():
   suite = unittest.TestSuite()
-  suite.addTest(unittest.makeSuite(TestSlapOSRenderJSRunnerUIHalStyle))
+  suite.addTest(unittest.makeSuite(TestSlapOSRenderJSOSSUIHalStyle))
   return suite

@@ -1,3 +1,4 @@
+portal_alarms/slapos_update_jio_api_revision_template
 portal_callables/ComputeNode_getFromJSON
 portal_callables/ComputeNode_updateFromJSON
 portal_callables/HashDocumentRecord_getFromJSON

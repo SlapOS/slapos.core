@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SlaveInstance_getjIOAPIRevisionHash</string> </value>
+            <value> <string>SlaveInstance_calculatejIOAPIRevisionHash</string> </value>
         </item>
       </dictionary>
     </pickle>

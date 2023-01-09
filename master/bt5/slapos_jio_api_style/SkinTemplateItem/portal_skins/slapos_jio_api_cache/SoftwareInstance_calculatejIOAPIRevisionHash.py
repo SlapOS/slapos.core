@@ -1,4 +1,4 @@
-if context.getValidationState() != "validated":
+if context.getValidationState() != "validated" or context.getSlapState() == "draft":
   return None
 import json
 import hashlib

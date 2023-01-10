@@ -41,11 +41,11 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
  
 
     self.expected_zh_individual_price_without_tax = 1888
-    self.expected_zh_individual_price_with_tax = 1906.88
-    self.expected_zh_reservation_fee = 189.88
+    self.expected_zh_individual_price_with_tax = 1888
+    self.expected_zh_reservation_fee = 188.00
     self.expected_zh_reservation_fee_without_tax = 188
     self.expected_zh_reservation_quantity_tax = 188
-    self.expected_zh_reservation_tax = 1.88
+    self.expected_zh_reservation_tax = 0
  
     self.expected_notification_language = "en"
     self.expected_source = self.expected_slapos_organisation

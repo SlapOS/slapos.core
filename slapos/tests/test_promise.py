@@ -340,8 +340,12 @@ class RunPromise(GenericPromise):
     with self.assertRaises(TypeError) as exc:
       promise_module = promise_process._loadPromiseModule()
       promise = promise_module.RunPromise({})
-    self.assertEqual(str(exc.exception),
-      "Can't instantiate abstract class RunPromise with abstract methods sense")
+
+    expected_assertion_message = "Can't instantiate abstract class RunPromise with abstract method sense"
+    if sys.version_info < (3, 9):
+      expected_assertion_message = "Can't instantiate abstract class RunPromise with abstract methods sense"
+
+    self.assertEqual(str(exc.exception), expected_assertion_message)
 
   def test_promise_extra_config(self):
     promise_name = 'my_promise_extra.py'

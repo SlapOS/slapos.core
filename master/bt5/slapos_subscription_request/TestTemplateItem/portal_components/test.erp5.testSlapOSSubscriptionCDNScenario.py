@@ -34,11 +34,11 @@ class TestSlapOSSubscriptionCDNScenarioMixin(TestSlapOSSubscriptionScenarioMixin
     self.expected_price_currency = "currency_module/EUR"
 
     self.expected_zh_individual_price_without_tax = 40
-    self.expected_zh_individual_price_with_tax = 40.4
-    self.expected_zh_reservation_fee = 8.08
+    self.expected_zh_individual_price_with_tax = 40
+    self.expected_zh_reservation_fee = 8.0
     self.expected_zh_reservation_fee_without_tax = 8.0
     self.expected_zh_reservation_quantity_tax = 8.0
-    self.expected_zh_reservation_tax = 0.08
+    self.expected_zh_reservation_tax = 0
 
     self.resource_variation_reference = "CDN"
   

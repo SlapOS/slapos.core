@@ -118,7 +118,7 @@
                 </tuple>
                 <state>
                   <tuple>
-                    <float>1648684800.0</float>
+                    <float>1622160000.0</float>
                     <string>UTC</string>
                   </tuple>
                 </state>
@@ -135,7 +135,7 @@
                 </tuple>
                 <state>
                   <tuple>
-                    <float>2524608000.0</float>
+                    <float>1648684800.0</float>
                     <string>UTC</string>
                   </tuple>
                 </state>
@@ -144,7 +144,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_aggregated_subscription_trade_condition</string> </value>
+            <value> <string>slapos_legacy_aggregated_subscription_trade_condition_2022</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -282,7 +282,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>rafael.monnerat</string> </value>
+                      <value> <string>superrafael</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -296,7 +296,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1002.11023.15578.35225</string> </value>
+                      <value> <string>1005.7476.35887.65160</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -314,7 +314,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1671482181.01</float>
+                              <float>1673384019.39</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -345,7 +345,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <string>rafael.monnerat</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -367,7 +367,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1636134432.35</float>
+                              <float>1671482192.84</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

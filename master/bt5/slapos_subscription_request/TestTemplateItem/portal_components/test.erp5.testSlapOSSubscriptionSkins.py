@@ -513,9 +513,9 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
 
     for line in current_payment.contentValues():
       if line.getSource() == "account_module/payment_to_encash":
-        self.assertEqual(line.getQuantity(), -189.88*quantity)
+        self.assertEqual(line.getQuantity(), -188*quantity)
       if line.getSource() == "account_module/receivable":
-        self.assertEqual(line.getQuantity(), 189.88*quantity)
+        self.assertEqual(line.getQuantity(), 188*quantity)
 
   @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment

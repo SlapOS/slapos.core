@@ -73,7 +73,7 @@ for movement in movement_list:
   if movement.getResource() == 'service_module/slapos_instance_subscription':
     if movement.getPriceCurrency() == "currency_module/CNY":
       # reduce tax from there directly
-      temp_movement.edit(price=movement.getPrice(0.0)/1.01)
+      temp_movement.edit(price=movement.getPrice(0.0))
     else:
       # reduce tax from there directly
       temp_movement.edit(price=movement.getPrice(0.0)/1.2)

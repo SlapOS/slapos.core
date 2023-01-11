@@ -2,7 +2,7 @@
 """
 bt5_update_catalog_list = ('erp5_ingestion_mysql_innodb_catalog',
                            'slapos_cloud', 'erp5_accounting',
-                           'erp5_movement_table_catalog')
+                           'erp5_movement_table_catalog', 'erp5_wendelin')
 
 bt5_installation_list = bt5_update_catalog_list + \
                   ('slapos_configurator', 'slapos_erp5',

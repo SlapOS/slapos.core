@@ -34,7 +34,14 @@ credential_update_module
 currency_module
 currency_module/CNY
 currency_module/EUR
+data_array_module
+data_ingestion_module
+data_mapping_module
+data_operation_module
 data_set_module
+data_stream_module
+data_supply_module
+data_transformation_module
 document_ingestion_module
 event_module
 event_module/slapos_crm_web_message_template

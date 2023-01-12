@@ -387,6 +387,7 @@ class SoftwareInstance(Item, JSONType):
       "compute_partition_id": parameter_dict.get("slap_computer_partition_id"),
       "processing_timestamp": self.getSlapTimestamp(),
       "access_status_message": self.getTextAccessStatus(),
+      "api_revision": self.getJIOAPIRevision(),
       "portal_type": self.getPortalType(),
     }
     self.REQUEST.response.setHeader('Cache-Control',

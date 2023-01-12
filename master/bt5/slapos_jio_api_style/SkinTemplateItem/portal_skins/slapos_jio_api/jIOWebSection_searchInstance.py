@@ -20,8 +20,8 @@ if portal_type == "Software Instance":
   search_kw = {
     "portal_type": "Software Instance",
     "validation_state": "validated",
-    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "url_string", "slap_date"),
-    "sort_on": ("slap_date", "ASC"),
+    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "url_string", "jio_api_revision.revision"),
+    "sort_on": ("jio_api_revision.revision", "ASC"),
     "limit": limit
   }
 
@@ -35,9 +35,8 @@ if portal_type == "Software Instance":
     search_kw["strict_specialise_title"] = data_dict["root_instance_title"]
   if "state" in data_dict:
     search_kw["slap_state"] = reverse_slap_state_dict.get(data_dict["state"], "")
-  if "from_processing_timestamp" in data_dict:
-    search_kw["slap_date"] = ">= %s" % DateTime(data_dict["from_processing_timestamp"])
-
+  if "from_api_revision" in data_dict:
+    search_kw["jio_api_revision.revision"] = "> %s" % data_dict["from_api_revision"]
   result_list = [{
     "title": x.title,
     "reference": x.reference,
@@ -45,15 +44,15 @@ if portal_type == "Software Instance":
     "state": slap_state_dict.get(x.slap_state, ""),
     "compute_partition_id": x.aggregate_reference,
     "software_release_uri": x.url_string,
-    "processing_timestamp": int(x.slap_date),
+    "api_revision": x.revision,
   } for x in portal.portal_catalog(**search_kw)]
 
 elif portal_type == "Shared Instance":
   search_kw = {
     "portal_type": "Slave Instance",
     "validation_state": "validated",
-    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "slap_date"),
-    "sort_on": ("slap_date", "ASC"),
+    "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "jio_api_revision.revision"),
+    "sort_on": ("jio_api_revision.revision", "ASC"),
     "limit": limit
   }
   if "host_instance_reference" in data_dict:
@@ -73,8 +72,8 @@ elif portal_type == "Shared Instance":
     search_kw["strict_specialise_title"] = data_dict["root_instance_title"]
   if "state" in data_dict:
     search_kw["slap_state"] = reverse_slap_state_dict.get(data_dict["state"], "")
-  if "from_processing_timestamp" in data_dict:
-    search_kw["slap_date"] = ">= %s" % DateTime(data_dict["from_processing_timestamp"])
+  if "from_api_revision" in data_dict:
+    search_kw["jio_api_revision.revision"] = "> %s" % data_dict["from_api_revision"]
 
   result_list = [{
     "title": x.title,
@@ -82,7 +81,7 @@ elif portal_type == "Shared Instance":
     "portal_type": "Shared Instance",
     "state": slap_state_dict.get(x.slap_state, ""),
     "compute_partition_id": x.aggregate_reference,
-    "processing_timestamp": int(x.slap_date),
+    "api_revision": x.revision,
     # Slave Instance don't have url_string cataloged. Selecting it return 0 result each time
     #"software_release_uri": x.url_string,
   } for x in portal.portal_catalog(**search_kw)]

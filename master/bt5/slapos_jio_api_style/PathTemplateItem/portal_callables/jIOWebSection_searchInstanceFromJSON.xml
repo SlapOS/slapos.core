@@ -80,10 +80,10 @@
                 "type": "string",\n
                 "description": "URL of the software release used by the software instance"\n
               },\n
-              "processing_timestamp": {\n
-                "title": "Processing Timestamp",\n
-                "type": "number",\n
-                "description": "Timestamp set by the master node to mark when it was last processed in the master node. If it has been processed on master, it needs reprocessing on the compute node."\n
+              "api_revision": {\n
+                "title": "API Revision",\n
+                "type": "string",\n
+                "description": "The API Revision is set by the master node to mark when the element was last processed. It is incremental. If revision has changed, critical data has been updated"\n
               },\n
               "portal_type": {\n
                 "title": "Portal Type",\n
@@ -111,10 +111,10 @@
                 "enum": ["started", "stopped", "destroyed"],\n
                 "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
               },\n
-              "processing_timestamp": {\n
-                "title": "Processing Timestamp",\n
-                "type": "number",\n
-                "description": "Timestamp set by the master node to mark when it was last processed in the master node. If it has been processed on master, it needs reprocessing on the compute node."\n
+              "api_revision": {\n
+                "title": "API Revision",\n
+                "type": "string",\n
+                "description": "The API Revision is set by the master node to mark when the element was last processed. It is incremental. If revision has changed, critical data has been updated"\n
               },\n
               "portal_type": {\n
                 "title": "Portal Type",\n
@@ -171,10 +171,10 @@
           "enum": ["started", "stopped", "destroyed"],\n
           "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
         },\n
-        "from_processing_timestamp": {\n
-          "title": "From Processing Timestamp",\n
-          "type": "number",\n
-          "description": "Filter by processing timestamp. Returns the list of elements having a processing timestamp higher or equal to the one inputed. The Processing Timestamp is set by the master node to mark when the element was last processed. If it has been processed on master, it needs reprocessing on the compute node."\n
+        "from_api_revision": {\n
+          "title": "From API Revision",\n
+          "type": "string",\n
+          "description": "Filter by API Revision. Returns the list of elements having an api revision higher or equal to the one inputed. The API Revision is set by the master node to mark when the element was last processed. It is incremental. If revision has changed, critical data has been updated"\n
         },\n
         "portal_type": {\n
           "title": "Portal Type",\n
@@ -208,10 +208,10 @@
           "enum": ["started", "stopped", "destroyed"],\n
           "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
         },\n
-        "from_processing_timestamp": {\n
-          "title": "From Processing Timestamp",\n
-          "type": "number",\n
-          "description": "Filter by processing timestamp. Returns the list of elements having a processing timestamp higher or equal to the one inputed. The Processing Timestamp is set by the master node to mark when the element was last processed. If it has been processed on master, it needs reprocessing on the compute node."\n
+        "from_api_revision": {\n
+          "title": "From API Revision",\n
+          "type": "string",\n
+          "description": "Filter by API Revision. Returns the list of elements having an api revision higher or equal to the one inputed. The API Revision is set by the master node to mark when the element was last processed. It is incremental. If revision has changed, critical data has been updated"\n
         },\n
         "portal_type": {\n
           "title": "Portal Type",\n

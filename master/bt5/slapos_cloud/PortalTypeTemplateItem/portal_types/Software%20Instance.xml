@@ -193,6 +193,11 @@
       "type": "number",\n
       "description": "Timestamp set by the master node to mark when it was last processed in the master node. If it has been processed on master, it needs reprocessiing on the compute node."\n
     },\n
+    "api_revision": {\n
+      "title": "API Revision",\n
+      "type": "string",\n
+      "description": "The API Revision is set by the master node to mark when the element was last processed. It is incremental. If revision has changed, critical data has been updated"\n
+    },\n
     "access_status_message": {\n
       "title": "Access Status",\n
       "type": "string",\n
@@ -222,6 +227,7 @@
             <value>
               <tuple>
                 <string>SlapOSCacheMixin</string>
+                <string>JIOAPIRevisionMixin</string>
               </tuple>
             </value>
         </item>

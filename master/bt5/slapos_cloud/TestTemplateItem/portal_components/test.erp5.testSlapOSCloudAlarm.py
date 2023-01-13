@@ -429,14 +429,15 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
         'Visited by SoftwareInstance_tryToGarbageCollect',
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
-class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
+class TestSlapOSComputeNode_checkAndUpdateCapacityScope(SlapOSTestCaseMixin):
+  allocation_scope_to_test = 'open/public'
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self.compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
     self.compute_node.edit(
-        allocation_scope='open/public',
+        allocation_scope=self.allocation_scope_to_test,
         reference='TESTC-%s' % self.generateNewId(),
     )
     self.compute_node.edit(capacity_scope='open')
@@ -548,11 +549,29 @@ class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
     self.assertEqual("Compute Node reported an error",
         self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_ComputeNode_checkAndUpdateCapacityScope_with_error_non_public(self):
-    self.compute_node.setAccessStatus('#error not ok')
-    self.compute_node.edit(allocation_scope='open/personal')
-    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('open', self.compute_node.getCapacityScope())
+class TestSlapOSComputeNode_checkAndUpdateCapacityScopeSubscription(TestSlapOSComputeNode_checkAndUpdateCapacityScope):
+  allocation_scope_to_test = 'open/subscription'
+
+class TestSlapOSComputeNode_checkAndUpdateCapacityScopePersonal(TestSlapOSComputeNode_checkAndUpdateCapacityScope):
+  allocation_scope_to_test = 'open/personal'
+
+class TestSlapOSComputeNode_checkAndUpdateCapacityScopeFriend(TestSlapOSComputeNode_checkAndUpdateCapacityScope):
+  allocation_scope_to_test = 'open/friend'
+
+class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
+
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    self.compute_node = self.portal.compute_node_module.template_compute_node\
+        .Base_createCloneDocument(batch_mode=1)
+    self.compute_node.edit(
+        allocation_scope='open/public',
+        reference='TESTC-%s' % self.generateNewId(),
+    )
+    self.compute_node.edit(capacity_scope='open')
+    self.compute_node.validate()
+    self.compute_node.setAccessStatus("#access ok")
+    transaction.commit()
 
   def _simulateComputeNode_checkAndUpdateCapacityScope(self):
     script_name = 'ComputeNode_checkAndUpdateCapacityScope'
@@ -584,8 +603,20 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
         'Visited by ComputeNode_checkAndUpdateCapacityScope',
         self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_alarm_non_public(self):
+  def test_alarm_subscription(self):
+    self.compute_node.edit(allocation_scope='open/subscription')
+    self.test_alarm()
+
+  def test_alarm_personal(self):
     self.compute_node.edit(allocation_scope='open/personal')
+    self.test_alarm()
+
+  def test_alarm_friend(self):
+    self.compute_node.edit(allocation_scope='open/friend')
+    self.test_alarm()
+
+  def test_alarm_closed(self):
+    self.compute_node.edit(allocation_scope='close/outdated')
     self.tic()
     self._simulateComputeNode_checkAndUpdateCapacityScope()
     try:

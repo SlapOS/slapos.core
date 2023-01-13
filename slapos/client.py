@@ -101,8 +101,11 @@ def init(conf, logger):
   def shorthandSupply(*args, **kwargs):
     # XXX-Cedric Implement computer_group support
     return slap.registerSupply().supply(*args, **kwargs)
+  def shorthandGetInformation(*args, **kwargs):
+    return slap.registerOpenOrder().getInformation(*args, **kwargs)
   local['request'] = shorthandRequest
   local['supply'] = shorthandSupply
+  local['getInformation'] = shorthandGetInformation
   local['product'] = SoftwareProductCollection(logger, slap)
 
   return local

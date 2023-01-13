@@ -37,6 +37,19 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
     self.commit()
     self.assertEqual(compute_node.getCapacityScope(), 'close')
     self.assertEqual(compute_node.getMonitorScope(), 'enabled')
+    self.commit()
+    compute_node.edit(allocation_scope=None)
+    self.commit()
+    
+    compute_node.edit(capacity_scope="open", monitor_scope='enabled')
+    self.commit()
+
+    compute_node.edit(allocation_scope=allocation_scope)
+    self.commit()
+
+    self.assertEqual(compute_node.getCapacityScope(), 'open')
+    self.assertEqual(compute_node.getMonitorScope(), 'enabled')
+
     return compute_node
 
   def test_ComputeNode_setAllocationScope_public_no_source_adm(self):
@@ -82,6 +95,18 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
     compute_node.edit(allocation_scope='open/personal')
 
     self.commit()
+    self.assertEqual(compute_node.getCapacityScope(), 'close')
+    self.assertEqual(compute_node.getMonitorScope(), 'disabled')
+    self.commit()
+    compute_node.edit(allocation_scope=None)
+    self.commit()
+    
+    compute_node.edit(capacity_scope="open")
+    self.commit()
+
+    compute_node.edit(allocation_scope='open/personal')
+    self.commit()
+
     self.assertEqual(compute_node.getCapacityScope(), 'open')
     self.assertEqual(compute_node.getMonitorScope(), 'disabled')
     return compute_node
@@ -132,6 +157,18 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
     compute_node.edit(allocation_scope='open/friend')
 
     self.commit()
+    self.assertEqual(compute_node.getCapacityScope(), 'close')
+    self.assertEqual(compute_node.getMonitorScope(), 'enabled')
+    self.commit()
+    compute_node.edit(allocation_scope=None)
+    self.commit()
+    
+    compute_node.edit(capacity_scope="open")
+    self.commit()
+
+    compute_node.edit(allocation_scope='open/friend')
+    self.commit()
+
     self.assertEqual(compute_node.getCapacityScope(), 'open')
     self.assertEqual(compute_node.getMonitorScope(), 'enabled')
     return compute_node
@@ -179,6 +216,19 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
     compute_node.edit(allocation_scope=allocation_scope)
 
     self.commit()
+    self.assertEqual(compute_node.getCapacityScope(), 'close')
+    self.assertEqual(compute_node.getMonitorScope(), 'disabled')
+
+    self.commit()
+    compute_node.edit(allocation_scope=None)
+    self.commit()
+    
+    compute_node.edit(capacity_scope="open")
+    self.commit()
+
+    compute_node.edit(allocation_scope=allocation_scope)
+    self.commit()
+
     self.assertEqual(compute_node.getCapacityScope(), 'close')
     self.assertEqual(compute_node.getMonitorScope(), 'disabled')
     return compute_node

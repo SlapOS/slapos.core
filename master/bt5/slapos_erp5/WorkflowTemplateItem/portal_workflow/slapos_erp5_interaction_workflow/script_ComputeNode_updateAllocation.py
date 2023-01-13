@@ -1,26 +1,20 @@
 compute_node = state_object["object"]
 allocation_scope = compute_node.getAllocationScope()
 
-if allocation_scope in ['open/public', 'open/subscription']:
-  # Public compute_node capacity is handle by an alarm
-  capacity_scope = 'close'
-  monitor_scope = 'enabled'
-elif allocation_scope == 'open/friend':
-  # Capacity is not handled for 'private' compute_nodes
-  capacity_scope = 'open'
+edit_kw = {}
+
+if compute_node.getCapacityScope() is None:
+  edit_kw['capacity_scope'] = 'close'
+
+if allocation_scope in ['open/public', 'open/subscription', 'open/friend']:
   monitor_scope = 'enabled'
 elif allocation_scope == 'open/personal':
-  capacity_scope = 'open'
-  # Keep the same.
   monitor_scope = compute_node.getMonitorScope("disabled")
 else:
   monitor_scope = 'disabled'
-  capacity_scope = 'close'
+  edit_kw['capacity_scope'] = 'close'
 
-edit_kw = {
-  'capacity_scope': capacity_scope,
-  'monitor_scope': monitor_scope
-}
+edit_kw['monitor_scope'] = monitor_scope
 
 self_person = compute_node.getSourceAdministrationValue(portal_type="Person")
 if self_person is None:

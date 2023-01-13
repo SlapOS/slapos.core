@@ -22,7 +22,6 @@
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixin, SlapOSTestCaseMixinWithAbort
-from unittest import skip
 from DateTime import DateTime
 
 class TestSlapOSCRMCreateRegularisationRequest(SlapOSTestCaseMixin):
@@ -543,34 +542,6 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     self._test_alarm_check_compute_node_state_not_selected(
       allocation_scope='closed/termination')
 
-
-class TestSlapOSCrmMonitoringCheckComputeNodeAllocationScope(SlapOSTestCaseMixinWithAbort):
-
-  def test_alarm_not_allowed_allocation_scope_OpenPublic(self):
-    self._makeComputeNode()
-    self.compute_node.edit(allocation_scope = 'open/public')
-    self.tic()
-    alarm = self.portal.portal_alarms.\
-          slapos_crm_check_update_allocation_scope
-    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkAndUpdateAllocationScope")
-
-
-  def test_alarm_not_allowed_allocation_scope_OpenFriend(self):
-    self._makeComputeNode()
-    self.compute_node.edit(allocation_scope = 'open/friend')
-    self.tic()
-    alarm = self.portal.portal_alarms.\
-          slapos_crm_check_update_allocation_scope
-    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkAndUpdateAllocationScope")
-
-  def test_alarm_not_allowed_allocationScope_open_personal(self):
-    self._makeComputeNode()
-    self.compute_node.edit(allocation_scope = 'open/personal')
-    self.tic()
-    alarm = self.portal.portal_alarms.\
-          slapos_crm_check_update_allocation_scope
-    self._test_alarm_not_visited(alarm, self.compute_node, "ComputeNode_checkAndUpdateAllocationScope")
-
 class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCaseMixinWithAbort):
 
   def test_alarm_run_on_open_public(self):
@@ -649,70 +620,6 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
 
   def test_alarm_not_run_on_close_termination(self):
     self._test_alarm_not_run_on_close('close/termination')
-
-class TestSlapOSCrmMonitoringCheckComputeNodePersonalAllocationScope(SlapOSTestCaseMixinWithAbort):
-
-  def test_alarm_allowed_allocation_scope_OpenPersonal_old_compute_node(self):
-    self._makeComputeNode()
-    def getCreationDate(self):
-      return DateTime() - 31
-    self.compute_node.edit(allocation_scope = 'open/personal')
-
-    from Products.ERP5Type.Base import Base
-
-    self._simulateScript("ComputeNode_checkAndUpdatePersonalAllocationScope")
-    original_get_creation = Base.getCreationDate
-    Base.getCreationDate = getCreationDate
-
-    self.tic()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_update_personal_allocation_scope.activeSense()
-      self.tic()
-    finally:
-      Base.getCreationDate = original_get_creation
-      self._dropScript('ComputeNode_checkAndUpdatePersonalAllocationScope')
-
-    self.assertEqual('Visited by ComputeNode_checkAndUpdatePersonalAllocationScope',
-      self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
-
-  @skip('compute node creation date is not indexed')
-  def test_alarm_allowed_allocation_scope_OpenPersonal_recent_compute_node(self):
-    self._makeComputeNode()
-    def getCreationDate(self):
-      return DateTime() - 28
-    self.compute_node.edit(allocation_scope = 'open/personal')
-
-    from Products.ERP5Type.Base import Base
-
-    self._simulateScript("ComputeNode_checkAndUpdatePersonalAllocationScope")
-    original_get_creation = Base.getCreationDate
-    Base.getCreationDate = getCreationDate
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_update_personal_allocation_scope.activeSense()
-      self.tic()
-    finally:
-      Base.getCreationDate = original_get_creation
-      self._dropScript('ComputeNode_checkAndUpdatePersonalAllocationScope')
-
-    self.assertNotEqual('Visited by ComputeNode_checkAndUpdatePersonalAllocationScope',
-      self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
-
-  def test_alarm_allowed_allocation_scope_OpenPersonal_already_closed(self):
-    self._makeComputeNode()
-    self.compute_node.edit(allocation_scope = 'open/oudated')
-
-    self._simulateScript("ComputeNode_checkAndUpdatePersonalAllocationScope")
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_update_personal_allocation_scope.activeSense()
-      self.tic()
-    finally:
-      self._dropScript('ComputeNode_checkAndUpdatePersonalAllocationScope')
-
-    self.assertNotEqual('Visited by ComputeNode_checkAndUpdatePersonalAllocationScope',
-      self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
 class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
 

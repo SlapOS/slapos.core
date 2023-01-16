@@ -147,8 +147,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     server.edit(
         allocation_scope='open/public')
     self.assertEqual('open/public', server.getAllocationScope())
-    self.assertEqual('close', server.getCapacityScope())
-    server.edit(capacity_scope='open')
+    self.assertEqual('open', server.getCapacityScope())
     self.tic()
 
   @changeSkin('RJS')
@@ -156,8 +155,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     server.edit(
         allocation_scope='open/subscription')
     self.assertEqual('open/subscription', server.getAllocationScope())
-    self.assertEqual('close', server.getCapacityScope())
-    server.edit(capacity_scope='open')
+    self.assertEqual('open', server.getCapacityScope())
     self.tic()
 
   @changeSkin('RJS')

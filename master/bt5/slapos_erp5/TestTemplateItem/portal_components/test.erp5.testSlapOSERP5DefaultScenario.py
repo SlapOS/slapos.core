@@ -54,6 +54,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     personal_server_id = self.requestComputeNode(personal_server_title)
     personal_server = self.portal.portal_catalog.getResultValue(
         portal_type='Compute Node', reference=personal_server_id)
+    self.setAccessToMemcached(personal_server)
     self.assertNotEqual(None, personal_server)
     self.setServerOpenPersonal(personal_server)
 
@@ -61,6 +62,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     friend_server_id = self.requestComputeNode(friend_server_title)
     friend_server = self.portal.portal_catalog.getResultValue(
         portal_type='Compute Node', reference=friend_server_id)
+    self.setAccessToMemcached(friend_server)
     self.assertNotEqual(None, friend_server)
     self.setServerOpenFriend(friend_server)
 
@@ -392,7 +394,6 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     self.assertOpenSaleOrderCoverage(public_reference)
 
     # generate simulation for open order
-
     self.stepCallUpdateOpenOrderSimulationAlarm()
     self.tic()
 

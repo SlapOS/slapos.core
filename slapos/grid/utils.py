@@ -33,7 +33,6 @@ import hashlib
 import os
 import pkg_resources
 import pwd
-import selectors
 import stat
 import sys
 import logging
@@ -41,8 +40,10 @@ import psutil
 import time
 
 if sys.version_info >= (3,):
+  import selectors
   import subprocess
 else:
+  import selectors34 as selectors
   import subprocess32 as subprocess
 
 

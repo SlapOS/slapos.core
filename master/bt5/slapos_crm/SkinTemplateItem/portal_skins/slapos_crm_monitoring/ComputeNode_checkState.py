@@ -5,7 +5,7 @@ person = context.getSourceAdministrationValue(portal_type="Person")
 if not person or \
    context.getMonitorScope() == "disabled" or \
    portal.ERP5Site_isSupportRequestCreationClosed():
-  return 
+  return
 
 if context.getAllocationScope("open").startswith("close"):
   context.setMonitorScope("disabled")
@@ -101,7 +101,7 @@ if not should_notify:
       # Ignore if there isnt any data on it
       continue
     
-    last_contact = max(DateTime(instance_access_status.get('created_at')), last_contact)
+    last_contact = max(DateTime(installation_access_status.get('created_at')), last_contact)
     if (now - DateTime(installation_access_status.get('created_at'))) < 1.01:
       should_notify = False
       description = ""

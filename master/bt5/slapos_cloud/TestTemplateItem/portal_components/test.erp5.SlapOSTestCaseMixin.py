@@ -78,6 +78,34 @@ def withAbort(func):
       self.abort()
   return wrapped
 
+
+class TemporaryAlarmScript(object):
+  """
+  Context manager for temporary python scripts
+  """
+  def __init__(self, portal, script_name, fake_return=""):
+    self.script_name = script_name
+    self.portal = portal
+    self.fake_return = fake_return
+
+  def __enter__(self):
+    if self.script_name in self.portal.portal_skins.custom.objectIds():
+      raise ValueError('Precondition failed: %s exists in custom' % self.script_name)
+    createZODBPythonScript(self.portal.portal_skins.custom,
+                        self.script_name,
+                        '*args, **kwargs',
+                        '# Script body\n'
+"""portal_workflow = context.portal_workflow
+portal_workflow.doActionFor(context, action='edit_action', comment='Visited by %s')
+return %s""" % (self.script_name, self.fake_return ))
+    transaction.commit()
+
+  def __exit__(self, exc_type, exc_value, traceback):
+    if self.script_name in self.portal.portal_skins.custom.objectIds():
+      self.portal.portal_skins.custom.manage_delObjects(self.script_name)
+    transaction.commit()
+
+
 class SlapOSTestCaseMixin(testSlapOSMixin):
 
   expected_html_payzen_redirect_page = None

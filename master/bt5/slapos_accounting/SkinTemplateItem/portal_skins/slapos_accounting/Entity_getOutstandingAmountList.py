@@ -12,6 +12,9 @@ params = dict()
 if at_date:
   params['at_date'] = at_date
 
+if parent_portal_type:
+  params['parent_portal_type'] = parent_portal_type
+
 params['grouping_reference'] = None
 
 object_list = []

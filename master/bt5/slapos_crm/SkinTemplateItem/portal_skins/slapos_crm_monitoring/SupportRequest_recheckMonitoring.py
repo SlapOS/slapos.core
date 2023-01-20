@@ -58,29 +58,6 @@ if aggregate_portal_type == "Compute Node":
       if is_instance_stalled and len(instance_list):
         return "Process instance stalled, last contact was %s" % last_contact
 
-    # Since server is contacting, check for stalled software releases processes
-    is_software_stalled = True
-    last_contact = None
-    software_installation_list = portal.portal_catalog(
-      portal_type='Software Installation',
-      default_aggregate_uid=document.getUid(),
-      validation_state='validated')
-
-    # Test if server didnt process the internal softwares releases for more them 24h
-    for installation in software_installation_list:
-      installation_access_status = installation.getAccessStatus()
-      if installation_access_status.get('no_data', None):
-        # Ignore if there isnt any data on it
-        continue
-
-      last_contact = max(DateTime(installation_access_status.get('created_at')), last_contact)
-      if (now - DateTime(installation_access_status.get('created_at'))) < 1.01:
-        is_software_stalled = False
-        break
-
-    if is_software_stalled and len(software_installation_list):
-      return "Process instance stalled, last contact was %s" % last_contact
-
     return "All OK, latest contact: %s " % last_contact
   else:
     return "Problem, latest contact: %s" % last_contact

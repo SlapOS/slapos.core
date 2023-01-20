@@ -16,7 +16,6 @@ compute_node_title = context.getTitle()
 
 node_ticket_title = "[MONITORING] Lost contact with compute_node %s" % reference
 instance_ticket_title = "[MONITORING] Compute Node %s has a stalled instance process" % reference
-software_ticket_title = "[MONITORING] Compute Node %s has a stalled software process" % reference
 ticket_title = node_ticket_title
 
 description = ""
@@ -62,7 +61,6 @@ if not should_notify:
 
     if instance_list:
       should_notify = True
-      description = "The Compute Node %s (%s) didnt process its instances for more them 24 hours, last contact: %s"
 
     for instance in instance_list:
       instance_access_status = instance.getAccessStatus()
@@ -74,36 +72,11 @@ if not should_notify:
       last_contact = max(DateTime(instance_access_status.get('created_at')), last_contact)
       if (now - DateTime(instance_access_status.get('created_at'))) < 1.05:
         should_notify = False
-        description = ""
         break
 
-if not should_notify:
-  ticket_title = software_ticket_title
-  notification_message_reference = 'slapos-crm-compute_node_check_stalled_software_state.notification'
-  last_contact = "No Contact Information"
-
-  # Since server is contacting, check for stalled software releases processes
-  software_installation_list = portal.portal_catalog(
-    portal_type='Software Installation',
-    default_aggregate_uid=context.getUid(),
-    validation_state='validated')
-
-  if software_installation_list:
-    should_notify = True
-    description = "The Compute Node %s (%s) didnt process its software releases for more them 24 hours, last contact %s"
-
-  # Test if server didnt process the internal softwares releases for more them 24h
-  for installation in software_installation_list:
-    installation_access_status = installation.getAccessStatus()
-    if installation_access_status.get('no_data', None):
-      # Ignore if there isnt any data on it
-      continue
-
-    last_contact = max(DateTime(installation_access_status.get('created_at')), last_contact)
-    if (now - DateTime(installation_access_status.get('created_at'))) < 1.01:
-      should_notify = False
-      description = ""
-      break
+    if should_notify:
+      description = "The Compute Node %s (%s) didnt process its instances for more them 24 hours, last contact: %s" % (
+        context.getTitle(), context.getReference(), last_contact)
 
 if should_notify:
   support_request = person.Base_getSupportRequestInProgress(
@@ -117,7 +90,7 @@ if should_notify:
 
   if support_request is None:
     person.notify(support_request_title=ticket_title,
-      support_request_description=description % (context.getTitle(), reference, last_contact),
+      support_request_description=description,
       aggregate=context.getRelativeUrl())
 
     support_request_relative_url = context.REQUEST.get("support_request_relative_url")
@@ -134,7 +107,7 @@ if should_notify:
     reference=notification_message_reference)
 
   if notification_message is None:
-    message = """%s""" % (description % (context.getTitle(), reference, last_contact))
+    message = """%s""" % description
   else:
     mapping_dict = {'compute_node_title':context.getTitle(),
                     'compute_node_id':reference,

@@ -83,6 +83,16 @@
       "description": "Last Message received for the Software Installation",\n
       "type": "string"\n
     },\n
+    "processing_timestamp": {\n
+      "title": "Processing Timestamp",\n
+      "type": "number",\n
+      "description": "Timestamp set by the master node to mark when it was last processed in the master node. If it has been processed on master, it needs reprocessing on the compute node."\n
+    },\n
+    "api_revision": {\n
+      "title": "API Revision",\n
+      "type": "string",\n
+      "description": "The API Revision is set by the master node to mark when the element was last processed. It is incremental. If revision has changed, critical data has been updated"\n
+    },\n
     "portal_type": {\n
       "title": "Portal Type",\n
       "const": "Software Installation",\n
@@ -106,6 +116,7 @@
             <key> <string>type_mixin</string> </key>
             <value>
               <tuple>
+                <string>JIOAPIRevisionMixin</string>
                 <string>SlapOSCacheMixin</string>
               </tuple>
             </value>

@@ -1,4 +1,5 @@
 Catalog Tool | SlapOSCatalogToolCacheMixin
+Compute Node | JIOAPIRevisionMixin
 Compute Node | SlapOSCacheMixin
 Compute Node | SlapOSComputeNodeMixin
 Compute Partition | SlapOSCacheMixin
@@ -6,4 +7,5 @@ Compute Partition | SlapOSComputePartitionMixin
 Instance Tree | SlapOSInstanceTreeMixin
 Person | SlapOSCacheMixin
 Slave Instance | JIOAPIRevisionMixin
+Software Installation | JIOAPIRevisionMixin
 Software Instance | JIOAPIRevisionMixin

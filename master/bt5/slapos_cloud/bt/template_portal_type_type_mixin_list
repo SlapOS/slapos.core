@@ -5,3 +5,5 @@ Compute Partition | SlapOSCacheMixin
 Compute Partition | SlapOSComputePartitionMixin
 Instance Tree | SlapOSInstanceTreeMixin
 Person | SlapOSCacheMixin
+Slave Instance | JIOAPIRevisionMixin
+Software Instance | JIOAPIRevisionMixin

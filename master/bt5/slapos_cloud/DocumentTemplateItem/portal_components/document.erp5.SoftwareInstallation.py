@@ -73,6 +73,7 @@ class SoftwareInstallation(Item, JSONType):
       "reported_state": status_dict.get("state"),
       "status_message": status_dict.get("text"),
       "processing_timestamp": self.getSlapTimestamp(),
+      "api_revision": self.getJIOAPIRevision(),
     }
     result.update()
     return json.dumps(result, indent=2)

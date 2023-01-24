@@ -594,7 +594,7 @@ class Computer(object):
         assert(len(self.partition_list) <= len(tap_address_list))
 
       if self.partition_has_ipv6_range:
-        self.interface.allowUseInexistingIpv6Address()
+        self.interface.allowNonlocalBind()
 
       self._speedHackAddAllOldIpsToInterface()
 
@@ -725,6 +725,7 @@ class Computer(object):
             else:
               if not netaddr.valid_ipv6(partition.ipv6_range['addr']):
                 raise ValueError('existing IPv6 range %r is incorrect', partition.ipv6_range['addr'])
+            self.interface.addLocalRouteIpv6Range(partition.ipv6_range)
           else:
             partition.ipv6_range = {}
 
@@ -1331,8 +1332,6 @@ class Interface(object):
     """
     Generate an IPv6 range included in the IPv6 range of the interface. The IPv6 range depends on the partition index i.
 
-    There is no need to actually add this range anywhere because allowUseInexistingIpv6Address() has already been called.
-
     Returns:
       dict(addr=address, netmask=netmask, network=addr/CIDR).
 
@@ -1363,21 +1362,22 @@ class Interface(object):
         return ipv6_range
     raise AddressGenerationError(ipv6_range['addr'])
 
-  def allowUseInexistingIpv6Address(self):
-    # This will allow the usage of unexisting IPv6 adrdresses.
-
-    # Getting the global IPv6 range of the computer
-    interface_addr_list = self.getGlobalScopeAddressList()
-    address_dict = interface_addr_list[0]
-    addr = address_dict['addr']
-    netmask = address_dict['netmask'].split('/')[1]
-
+  def allowNonlocalBind(self):
+    # This will allow the usage of unexisting IPv6 adresses.
     self._logger.debug('sysctl net.ipv6.ip_nonlocal_bind=1')
     callAndRead(['sysctl', 'net.ipv6.ip_nonlocal_bind=1'])
-    _, result = callAndRead(['ip', '-6', 'route', 'show', 'table', 'local', '%s/%s' % (addr, netmask)])
+
+  def addLocalRouteIpv6Range(self, ipv6_range):
+    # Add the IPv6 range to local route table
+
+    # This will allow using the addresses in the range
+    # even if they are not added anywhere.
+    network = ipv6_range['network']
+
+    _, result = callAndRead(['ip', '-6', 'route', 'show', 'table', 'local', network])
     if not 'dev lo' in result:
-      self._logger.debug(' ip -6 route add local %s/%s dev lo', addr, netmask)
-      callAndRead(['ip', '-6', 'route', 'add', 'local', '%s/%s' % (addr, netmask), 'dev', 'lo'])
+      self._logger.debug(' ip -6 route add local %s dev lo', network)
+      callAndRead(['ip', '-6', 'route', 'add', 'local', network, 'dev', 'lo'])
 
 
 def parse_computer_definition(conf, definition_path):

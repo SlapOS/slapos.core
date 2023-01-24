@@ -35,6 +35,16 @@
   "title": "allDocs: Response Payload",\n
   "description": "Payload returned by allDocs method.",\n
   "properties": {\n
+    "next_page_request": {\n
+      "title": "Next Page Request",\n
+      "description": "Use the content of this object with all docs to get to the next page of this research",\n
+      "type": "object"\n
+    },\n
+    "current_page_full": {\n
+      "title": "Current Page Full",\n
+      "description": "If set to true, the current page has the max quantity of results for one page, the next page might contain more results.",\n
+      "type": "boolean"\n
+    },\n
     "result_list": {\n
       "title": "Result List",\n
       "description": "Contains a representation of the items",\n
@@ -43,6 +53,26 @@
         "type": "object",\n
         "title": "Item",\n
         "properties": {\n
+          "get_parameters": {\n
+            "title": "Get Parameters",\n
+            "description": "Copy Paste the content of this object in order to get the object",\n
+            "type": "object",\n
+            "software_release_uri": {\n
+              "title": "Software Release URI",\n
+              "type": "string",\n
+              "format": "uri-reference"\n
+            },\n
+            "compute_node_id": {\n
+              "title": "Compute Node ID",\n
+              "type": "string",\n
+              "description": "The Id of the compute node, example: COMP-1234"\n
+            },\n
+            "portal_type": {\n
+              "title": "Portal Type",\n
+              "const": "Software Installation",\n
+              "type": "string"\n
+            }\n
+          },\n
           "software_release_uri": {\n
             "title": "Software Release URI",\n
             "type": "string",\n
@@ -62,6 +92,11 @@
             "title": "Processing Timestamp",\n
             "type": "number",\n
             "description": "Timestamp set by the master node to mark when it was last processed in the master node. If it has been processed on master, it needs reprocessing on the compute node."\n
+          },\n
+          "api_revision": {\n
+            "title": "API Revision",\n
+            "type": "string",\n
+            "description": "The API Revision is set by the master node to mark when the element was last processed. It is incremental. If revision has changed, critical data has been updated"\n
           },\n
           "state": {\n
             "title": "Requested State",\n
@@ -98,6 +133,11 @@
       "title": "Compute Node ID",\n
       "type": "string",\n
       "description": "The Id of the compute node, example: COMP-1234"\n
+    },\n
+    "from_api_revision": {\n
+      "title": "From API Revision",\n
+      "type": "string",\n
+      "description": "Filter by API Revision. Returns the list of elements having an api revision higher or equal to the one inputed. The API Revision is set by the master node to mark when the element was last processed. It is incremental. If revision has changed, critical data has been updated"\n
     },\n
     "portal_type": {\n
       "title": "Portal Type",\n

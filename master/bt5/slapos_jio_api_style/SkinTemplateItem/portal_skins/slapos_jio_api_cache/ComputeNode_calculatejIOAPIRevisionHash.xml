@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Base_zSelectMissingJIOAPIRevisionObjectList</string> </value>
+            <value> <string>ComputeNode_calculatejIOAPIRevisionHash</string> </value>
         </item>
       </dictionary>
     </pickle>

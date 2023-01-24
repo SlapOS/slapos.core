@@ -45,6 +45,10 @@ if portal_type == "Software Instance":
     "compute_partition_id": x.aggregate_reference,
     "software_release_uri": x.url_string,
     "api_revision": x.revision,
+    "get_parameters": {
+      "portal_type": x.portal_type,
+      "reference": x.reference,
+    },
   } for x in portal.portal_catalog(**search_kw)]
 
 elif portal_type == "Shared Instance":
@@ -78,10 +82,14 @@ elif portal_type == "Shared Instance":
   result_list = [{
     "title": x.title,
     "reference": x.reference,
-    "portal_type": "Shared Instance",
+    "portal_type": "Software Instance",
     "state": slap_state_dict.get(x.slap_state, ""),
     "compute_partition_id": x.aggregate_reference,
     "api_revision": x.revision,
+    "get_parameters": {
+      "portal_type": "Software Instance",
+      "reference": x.reference,
+    },
     # Slave Instance don't have url_string cataloged. Selecting it return 0 result each time
     #"software_release_uri": x.url_string,
   } for x in portal.portal_catalog(**search_kw)]
@@ -92,10 +100,13 @@ else:
     error_message="You Reached code that was not recheable",
   )
 
+if result_list:
+  data_dict["from_api_revision"] = result_list[-1]["api_revision"]
+
 import json
 return json.dumps({
   "$schema": json_form.absolute_url().strip() + "/getOutputJSONSchema",
   "result_list": result_list,
-  "result_number": len(result_list),
-  "max_result_number_allowed": limit,
+  "next_page_request": data_dict,
+  "current_page_full": len(result_list) == limit,
 }, indent=2)

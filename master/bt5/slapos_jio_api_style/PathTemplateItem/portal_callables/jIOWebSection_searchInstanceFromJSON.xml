@@ -35,15 +35,15 @@
   "title": "allDocs: Response Payload",\n
   "description": "Payload returned by allDocs method.",\n
   "properties": {\n
-    "result_number": {\n
-      "title": "Result Number",\n
-      "type": "number",\n
-      "description": "Quantity of results found"\n
+    "current_page_full": {\n
+      "title": "Current Page Full",\n
+      "description": "If set to true, the current page has the max quantity of results for one page, the next page might contain more results.",\n
+      "type": "boolean"\n
     },\n
-    "max_result_number_allowed": {\n
-      "title": "Max Result Number",\n
-      "type": "number",\n
-      "description": "Highest number of result given by the system. To get the rest of the result you can use \'from_processing_timestamp\' parameter for pagination."\n
+    "next_page_request": {\n
+      "title": "Next Page Request",\n
+      "description": "Use the content of this object with all docs to get to the next page of this research",\n
+      "type": "object"\n
     },\n
     "result_list": {\n
       "title": "Result List",\n
@@ -55,6 +55,23 @@
             "type": "object",\n
             "title": "Software Instance",\n
             "properties": {\n
+              "get_parameters": {\n
+                "title": "Get Parameters",\n
+                "description": "Copy Paste the content of this object in order to get the object",\n
+                "type": "object",\n
+                "properties": {\n
+                  "reference": {\n
+                    "title": "Software Instance Id/Reference",\n
+                    "type": "string",\n
+                    "description": "The unique reference of the Software Instance, example: SOFTINST-1234"\n
+                  },\n
+                  "portal_type": {\n
+                    "title": "Portal Type",\n
+                    "const": "Software Instance",\n
+                    "type": "string"\n
+                  }\n
+                },\n
+              },\n
               "reference": {\n
                 "title": "Software Instance Reference",\n
                 "description": "Unique identifier of the Software Instance",\n
@@ -96,6 +113,23 @@
             "type": "object",\n
             "title": "Shared Instance",\n
             "properties": {\n
+              "get_parameters": {\n
+                "title": "Get Parameters",\n
+                "description": "Copy Paste the content of this object in order to get the object",\n
+                "type": "object",\n
+                "properties": {\n
+                  "reference": {\n
+                    "title": "Software Instance Id/Reference",\n
+                    "type": "string",\n
+                    "description": "The unique reference of the Software Instance, example: SOFTINST-1234"\n
+                  },\n
+                  "portal_type": {\n
+                    "title": "Portal Type",\n
+                    "const": "Software Instance",\n
+                    "type": "string"\n
+                  }\n
+                },\n
+              },\n
               "reference": {\n
                 "title": "Software Instance Reference",\n
                 "description": "Unique identifier of the Software Instance",\n

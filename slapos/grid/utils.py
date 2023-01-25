@@ -33,7 +33,6 @@ import hashlib
 import os
 import pkg_resources
 import pwd
-import select
 import stat
 import sys
 import logging
@@ -41,8 +40,10 @@ import psutil
 import time
 
 if sys.version_info >= (3,):
+  import selectors
   import subprocess
 else:
+  import selectors34 as selectors
   import subprocess32 as subprocess
 
 
@@ -155,49 +156,46 @@ class SlapPopen(subprocess.Popen):
     self.stdin.close()
     self.stdin = None
 
-    stderr_fileno = stdout_fileno = None
     buffers = {}
     if kwargs['stdout'] is subprocess.PIPE:
       line_logger = LineLogger(logger)
-      stdout_fileno = self.stdout.fileno()
-      buffers[stdout_fileno] = []
+      buffers[self.stdout] = []
     if kwargs['stderr'] is subprocess.PIPE:
-      stderr_fileno = self.stderr.fileno()
-      buffers[stderr_fileno] = []
-
-    poll = select.poll()
-    for fd in buffers:
-      poll.register(fd)
-
-    active = len(buffers)
-    if timeout is not None:
-      deadline = time.time() + timeout
-    while active:
-      for fd, _ in poll.poll(timeout):
-        data = os.read(fd, 4096).decode('utf-8', 'replace')
-        if data:
-          if fd == stdout_fileno:
-            line_logger.update(data)
-          buffers[fd].append(data)
-        else:
-          if fd == stdout_fileno:
-            line_logger.flush()
-          poll.unregister(fd)
-          active -= 1
-      if timeout is not None:
-        timeout = deadline - time.time()
-        if timeout <= 0:
-          timeout = 0
-          break
+      buffers[self.stderr] = []
 
     try:
-      self.wait(timeout=timeout)
+      with selectors.DefaultSelector() as selector:
+        for fileobj in buffers:
+          selector.register(fileobj, selectors.EVENT_READ)
+
+        if timeout is not None:
+          deadline = time.time() + timeout
+
+        while selector.get_map():
+          for key, _ in selector.select(timeout):
+            data = os.read(key.fd, 4096).decode('utf-8', 'replace')
+            if data:
+              if key.fileobj == self.stdout:
+                line_logger.update(data)
+              buffers[key.fileobj].append(data)
+            else:
+              if key.fileobj == self.stdout:
+                line_logger.flush()
+              selector.unregister(key.fileobj)
+              key.fileobj.close()
+          if timeout is not None:
+            timeout = deadline - time.time()
+            if timeout <= 0:
+              timeout = 0
+              break
+
+        self.wait(timeout=timeout)
     except subprocess.TimeoutExpired as e:
       for p in killProcessTree(self.pid, logger):
         p.wait(timeout=10) # arbitrary timeout, wait until process is killed
       self.poll() # set returncode (and avoid still-running warning)
-      e.output = e.stdout = ''.join(buffers.get(stdout_fileno, ()))
-      e.stderr = ''.join(buffers.get(stderr_fileno, ()))
+      e.output = e.stdout = ''.join(buffers.get(self.stdout, ()))
+      e.stderr = ''.join(buffers.get(self.stderr, ()))
       raise
     finally:
       for s in (self.stdout, self.stderr):
@@ -207,8 +205,8 @@ class SlapPopen(subprocess.Popen):
           except OSError:
             pass
 
-    self.output = ''.join(buffers.get(stdout_fileno, ()))
-    self.error = ''.join(buffers.get(stderr_fileno, ()))
+    self.output = ''.join(buffers.get(self.stdout, ()))
+    self.error = ''.join(buffers.get(self.stderr, ()))
 
 
 def md5digest(url):

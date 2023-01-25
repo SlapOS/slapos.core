@@ -80,6 +80,7 @@ setup(name=name,
           'distro',
           'subprocess32; python_version<"3"',
           'enum34; python_version<"3"',
+          'selectors34; python_version<"3"', # used by SlapPopen (grid/utils)
           'ipaddress; python_version<"3"',  # used by whitelistfirewall
         ] + additional_install_requires,
       extras_require=extras_require,

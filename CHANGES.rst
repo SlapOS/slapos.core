@@ -1,8 +1,9 @@
 Changes
 =======
 
-1.8.6 (unreleased)
+1.8.6 (2023-01-25)
 ------------------
+ * slappopen: fix select-based timeout reads
  * console: fix namespace problems when using slapos console with scripts
 
 1.8.5 (2022-12-14)

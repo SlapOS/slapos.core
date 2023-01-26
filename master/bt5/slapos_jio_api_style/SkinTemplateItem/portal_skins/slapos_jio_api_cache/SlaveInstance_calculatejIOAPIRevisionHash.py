@@ -1,1 +1,0 @@
-return context.SoftwareInstance_calculatejIOAPIRevisionHash()

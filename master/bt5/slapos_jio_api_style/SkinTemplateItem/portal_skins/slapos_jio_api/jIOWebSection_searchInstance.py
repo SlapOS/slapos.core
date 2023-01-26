@@ -4,6 +4,9 @@ portal = context.getPortalObject()
 # Hardcoded
 limit = 1000
 
+web_section = context.getWebSectionValue()
+web_section = web_section.getRelativeUrl() if web_section else context.REQUEST.get("web_section_relative_url", None)
+
 reverse_slap_state_dict = {
   "stopped": "stop_requested",
   "started": "start_requested",
@@ -20,6 +23,7 @@ if portal_type == "Software Instance":
   search_kw = {
     "portal_type": "Software Instance",
     "validation_state": "validated",
+    "jio_api_revision.web_section": web_section,
     "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "url_string", "jio_api_revision.revision"),
     "sort_on": ("jio_api_revision.revision", "ASC"),
     "limit": limit
@@ -55,6 +59,7 @@ elif portal_type == "Shared Instance":
   search_kw = {
     "portal_type": "Slave Instance",
     "validation_state": "validated",
+    "jio_api_revision.web_section": web_section,
     "select_list": ("title", "reference", "portal_type", "slap_state", "aggregate_reference", "jio_api_revision.revision"),
     "sort_on": ("jio_api_revision.revision", "ASC"),
     "limit": limit

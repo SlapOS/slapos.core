@@ -387,9 +387,13 @@ class SoftwareInstance(Item, JSONType):
       "compute_partition_id": parameter_dict.get("slap_computer_partition_id"),
       "processing_timestamp": self.getSlapTimestamp(),
       "access_status_message": self.getTextAccessStatus(),
-      "api_revision": self.getJIOAPIRevision(),
       "portal_type": self.getPortalType(),
     }
+    web_section = self.getWebSectionValue()
+    web_section = web_section.getRelativeUrl() if web_section else self.REQUEST.get("web_section_relative_url", None)
+    if web_section:
+      result["api_revision"] = self.getJIOAPIRevision(web_section)
+
     self.REQUEST.response.setHeader('Cache-Control',
                                     'private, max-age=0, must-revalidate')
     self.REQUEST.response.setHeader('Vary',

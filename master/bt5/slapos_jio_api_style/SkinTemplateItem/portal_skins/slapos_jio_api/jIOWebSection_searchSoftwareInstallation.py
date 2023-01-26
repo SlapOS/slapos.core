@@ -1,8 +1,12 @@
 # Hardcoded
 limit = 1000
+web_section = context.getWebSectionValue()
+web_section = web_section.getRelativeUrl() if web_section else context.REQUEST.get("web_section_relative_url", None)
+
 search_kw = {
   "portal_type": "Software Installation",
   "validation_state": "validated",
+  "jio_api_revision.web_section": web_section,
   "select_list": ("aggregate_reference", "url_string", "slap_state", "portal_type", "slap_date", "jio_api_revision.revision"),
   "sort_on": ("jio_api_revision.revision", "ASC"),
   "limit": limit,

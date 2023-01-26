@@ -1,9 +1,13 @@
 # Hardcoded
 limit = 1000
+web_section = context.getWebSectionValue()
+web_section = web_section.getRelativeUrl() if web_section else context.REQUEST.get("web_section_relative_url", None)
+
 search_kw = {
   "portal_type": "Compute Node",
   "validation_state": "validated",
   "select_list": ("title", "reference", "portal_type", "jio_api_revision.revision"),
+  "jio_api_revision.web_section": web_section,
   "sort_on": ("jio_api_revision.revision", "ASC"),
   "limit": limit,
 }

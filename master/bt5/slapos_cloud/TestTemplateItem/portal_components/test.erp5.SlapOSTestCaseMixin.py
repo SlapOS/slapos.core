@@ -117,6 +117,13 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       instance_template.manage_delObjects(		 
         ids=[i.getId() for i in instance_template.objectValues()])
 
+    # XXX Validate business process and trade conditions used in the test.
+    slapos_aggregated_business_process = self.portal.business_process_module.slapos_aggregated_business_process
+    if slapos_aggregated_business_process.getValidationState() == 'draft':
+      slapos_aggregated_business_process.validate()
+    for trade_condition in self.portal.sale_trade_condition_module.contentValues():
+      if trade_condition.getReference() and trade_condition.getValidationState() == 'draft':
+        trade_condition.validate()
 
   def beforeDumpExpectedConfiguration(self):
     """Overwrite this function on project context to tweak production focus tests"""

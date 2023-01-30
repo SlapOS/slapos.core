@@ -124,6 +124,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     for trade_condition in self.portal.sale_trade_condition_module.contentValues():
       if trade_condition.getReference() and trade_condition.getValidationState() == 'draft':
         trade_condition.validate()
+    self.tic()
 
   def beforeDumpExpectedConfiguration(self):
     """Overwrite this function on project context to tweak production focus tests"""

@@ -5,7 +5,7 @@ person = context.getSourceAdministrationValue(portal_type="Person")
 if not person or \
    context.getMonitorScope() == "disabled" or \
    portal.ERP5Site_isSupportRequestCreationClosed():
-  return 
+  return
 
 if context.getAllocationScope("open").startswith("close"):
   context.setMonitorScope("disabled")
@@ -16,7 +16,6 @@ compute_node_title = context.getTitle()
 
 node_ticket_title = "[MONITORING] Lost contact with compute_node %s" % reference
 instance_ticket_title = "[MONITORING] Compute Node %s has a stalled instance process" % reference
-software_ticket_title = "[MONITORING] Compute Node %s has a stalled software process" % reference
 ticket_title = node_ticket_title
 
 description = ""
@@ -54,58 +53,30 @@ if not should_notify:
   compute_partition_uid_list = [
     x.getUid() for x in context.contentValues(portal_type="Compute Partition")
     if x.getSlapState() == 'busy']
-  
+
   if compute_partition_uid_list:
     instance_list = portal.portal_catalog(
       portal_type='Software Instance',
       default_aggregate_uid=compute_partition_uid_list)
-  
+
     if instance_list:
       should_notify = True
-      description = "The Compute Node %s (%s) didnt process its instances for more them 24 hours" % (
-                  compute_node_title, reference)
-    
+
     for instance in instance_list:
       instance_access_status = instance.getAccessStatus()
       if instance_access_status.get('no_data', None):
         # Ignore if there isnt any data
         continue
-    
+
       # At lest one partition contacted in the last 24h30min.
       last_contact = max(DateTime(instance_access_status.get('created_at')), last_contact)
-      if (now - DateTime(instance_access_status.get('created_at'))) < 1.01:
+      if (now - DateTime(instance_access_status.get('created_at'))) < 1.05:
         should_notify = False
-        description = ""
         break
 
-if not should_notify:
-  ticket_title = software_ticket_title
-  notification_message_reference = 'slapos-crm-compute_node_check_stalled_software_state.notification'
-  last_contact = "No Contact Information"
-
-  # Since server is contacting, check for stalled software releases processes
-  software_installation_list = portal.portal_catalog(
-    portal_type='Software Installation',
-    default_aggregate_uid=context.getUid(),
-    validation_state='validated')
-
-  if software_installation_list:
-    should_notify = True
-    description = "The Compute Node %s (%s) didnt process its software releases for more them 24 hours" % (
-                compute_node_title, reference)
-
-  # Test if server didnt process the internal softwares releases for more them 24h
-  for installation in software_installation_list:
-    installation_access_status = installation.getAccessStatus()
-    if installation_access_status.get('no_data', None):
-      # Ignore if there isnt any data on it
-      continue
-    
-    last_contact = max(DateTime(instance_access_status.get('created_at')), last_contact)
-    if (now - DateTime(installation_access_status.get('created_at'))) < 1.01:
-      should_notify = False
-      description = ""
-      break
+    if should_notify:
+      description = "The Compute Node %s (%s) didnt process its instances for more them 24 hours, last contact: %s" % (
+        context.getTitle(), context.getReference(), last_contact)
 
 if should_notify:
   support_request = person.Base_getSupportRequestInProgress(
@@ -119,22 +90,22 @@ if should_notify:
 
   if support_request is None:
     person.notify(support_request_title=ticket_title,
-                support_request_description=description,
-                aggregate=context.getRelativeUrl())
-  
+      support_request_description=description,
+      aggregate=context.getRelativeUrl())
+
     support_request_relative_url = context.REQUEST.get("support_request_relative_url")
     if support_request_relative_url is None:
       return
 
     support_request = portal.restrictedTraverse(support_request_relative_url)
-  
+
   if support_request is None:
     return
 
   # Send Notification message
   notification_message = portal.portal_notifications.getDocumentValue(
     reference=notification_message_reference)
-  
+
   if notification_message is None:
     message = """%s""" % description
   else:
@@ -143,9 +114,9 @@ if should_notify:
                     'last_contact':last_contact}
     message = notification_message.asText(
               substitution_method_parameter_dict={'mapping_dict': mapping_dict})
-  
+
   event = support_request.SupportRequest_getLastEvent(ticket_title)
   if event is None:
     support_request.notify(message_title=ticket_title, message=message)
-  
+
   return support_request

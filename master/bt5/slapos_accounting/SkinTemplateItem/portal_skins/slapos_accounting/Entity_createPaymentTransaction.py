@@ -31,10 +31,10 @@ current_payment = portal.accounting_module.newContent(
   portal_type="Payment Transaction",
   causality=current_invoice.getRelativeUrl(),
   source_section=current_invoice.getSourceSection(),
-  destination_section=current_invoice.getDestinationSection(),
   resource=current_invoice.getResource(),
   price_currency=current_invoice.getResource(),
   specialise=current_invoice.getSpecialise(),
+  destination_section=current_invoice.getDestinationSection(),
   payment_mode=current_invoice.getPaymentMode(),
   start_date=current_invoice.getStartDate(),
   stop_date=current_invoice.getStopDate(),
@@ -66,12 +66,8 @@ comment = translateString("Initialised by Entity_createPaymentTransaction.")
 payment_tag ="sale_invoice_transaction_create_payment_%s" % current_invoice.getUid()
 current_payment.activate(tag=payment_tag).immediateReindexObject()
 
-# Call script rather them call confirm(), since it would set security and fail whenever
-# start is called.
-current_payment.AccountingTransaction_setReference()
-
 comment = translateString("Initialised by Entity_createPaymentTransaction.")
-current_payment.start(comment=comment)
+current_payment.PaymentTransaction_start(comment=comment)
 
 # Set a flag on the request for prevent 2 calls on the same transaction
 context.REQUEST.set(payment_tag, 1)

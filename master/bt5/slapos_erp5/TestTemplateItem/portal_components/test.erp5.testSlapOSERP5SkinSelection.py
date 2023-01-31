@@ -44,6 +44,7 @@ common2_folder_list = """erp5_accounting_l10n_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
+erp5_oauth2_resource
 erp5_upgrader
 erp5_access_tab
 erp5_access_token

@@ -40,6 +40,7 @@ import json
 from contextlib import closing
 from six.moves import BaseHTTPServer
 from six.moves import urllib_parse
+from http.server import HTTPServer
 
 from ..grid.utils import getPythonExecutableFromSoftwarePath
 
@@ -142,7 +143,7 @@ class ManagedHTTPServer(ManagedResource):
     """
     logger = self._cls.logger
 
-    class ErrorLoggingHTTPServer(BaseHTTPServer.HTTPServer):
+    class ErrorLoggingThreadedHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
       def handle_error(self, request , client_addr):
         # redirect errors to log
         logger.info("Error processing request from %s", client_addr, exc_info=True)
@@ -154,7 +155,7 @@ class ManagedHTTPServer(ManagedResource):
         self.hostname,
         self.port,
     )
-    server = ErrorLoggingHTTPServer(
+    server = ErrorLoggingThreadedHTTPServer(
         (self.hostname, self.port),
         self.RequestHandler,
     )

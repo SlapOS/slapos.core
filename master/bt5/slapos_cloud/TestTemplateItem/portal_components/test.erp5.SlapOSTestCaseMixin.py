@@ -666,35 +666,23 @@ return %s""" % (script_name, fake_return ))
       self.portal.portal_skins.custom.manage_delObjects(script_name)
     transaction.commit()
 
-  def assertScriptVisited(self, document, script_name):
+  def _test_alarm(self, alarm, document, script_name):
+    self.tic()
+    with TemporaryAlarmScript(self.portal, script_name):
+      alarm.activeSense()
+      self.tic()
     self.assertEqual(
         'Visited by %s' % script_name,
         document.workflow_history['edit_workflow'][-1]['comment'])
 
-  def assertScriptNotVisited(self, document, script_name):
+  def _test_alarm_not_visited(self, alarm, document, script_name):
+    self.tic()
+    with TemporaryAlarmScript(self.portal, script_name):
+      alarm.activeSense()
+      self.tic()
     self.assertNotEqual(
         'Visited by %s' % script_name,
         document.workflow_history['edit_workflow'][-1]['comment'])
-
-  def _test_alarm(self, alarm, document, script_name):
-    self.tic()
-    self._simulateScript(script_name)
-    try:
-      alarm.activeSense()
-      self.tic()
-    finally:
-      self._dropScript(script_name)
-    self.assertScriptVisited(document, script_name)
-
-  def _test_alarm_not_visited(self, alarm, document, script_name):
-    self.tic()
-    self._simulateScript(script_name)
-    try:
-      alarm.activeSense()
-      self.tic()
-    finally:
-      self._dropScript(script_name)
-    self.assertScriptNotVisited(document, script_name)
 
   def restoreAccountingTemplatesOnPreferences(self):
     self.login()

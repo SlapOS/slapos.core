@@ -423,6 +423,7 @@ class Partition(object):
                instance_storage_home='',
                ipv4_global_network='',
                buildout_debug=False,
+               partition_timeout=None,
                ):
     """Initialisation of class parameters"""
     self.buildout = buildout
@@ -443,6 +444,7 @@ class Partition(object):
     self.software_release_url = software_release_url
     self.instance_storage_home = instance_storage_home
     self.ipv4_global_network = ipv4_global_network
+    self.partition_timeout = partition_timeout
 
     self.key_file = ''
     self.cert_file = ''
@@ -701,7 +703,8 @@ class Partition(object):
     utils.launchBuildout(path=self.instance_path,
                          buildout_binary=buildout_binary,
                          logger=self.logger,
-                         debug=self.buildout_debug)
+                         debug=self.buildout_debug,
+                         timeout=self.partition_timeout)
     self.generateSupervisorConfigurationFile()
     self.createRetentionLockDelay()
     self.instance_python = getPythonExecutableFromSoftwarePath(self.software_path)

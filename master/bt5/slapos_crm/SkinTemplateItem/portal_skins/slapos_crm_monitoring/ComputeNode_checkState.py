@@ -75,7 +75,7 @@ if not should_notify:
         break
 
     if should_notify:
-      description = "The Compute Node %s (%s) didnt process its instances for more them 24 hours, last contact: %s" % (
+      description = "The Compute Node %s (%s) didnt process its instances for more than 24 hours, last contact: %s" % (
         context.getTitle(), context.getReference(), last_contact)
 
 if should_notify:

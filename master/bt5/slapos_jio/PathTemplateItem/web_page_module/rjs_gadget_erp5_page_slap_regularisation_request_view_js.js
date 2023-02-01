@@ -26,7 +26,7 @@
 
     .allowPublicAcquisition("jio_allDocs", function (param_list) {
       var gadget = this;
-      // This code can cause problems if it is used more them once per
+      // This code can cause problems if it is used more than once per
       // page
       param_list[0].sort_on = [["modification_date", "ascending"]];
       param_list[0].select_list = ["uid", "title", "text_content",

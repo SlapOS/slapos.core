@@ -12,7 +12,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Check and create a Ticket when an instance is partially allocated for more them 4 hours.</string> </value>
+            <value> <string>Check and create a Ticket when an instance is partially allocated for more than 4 hours.</string> </value>
         </item>
         <item>
             <key> <string>enabled</string> </key>
@@ -93,7 +93,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Check partially allocated Instance for more them 4 hours</string> </value>
+            <value> <string>Check partially allocated Instance for more than 4 hours</string> </value>
         </item>
       </dictionary>
     </pickle>

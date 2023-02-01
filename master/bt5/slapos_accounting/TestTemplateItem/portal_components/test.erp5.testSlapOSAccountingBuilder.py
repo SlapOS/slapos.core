@@ -188,7 +188,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
     self.portal.portal_workflow._jumpToStateFor(delivery_1, 'delivered')
     self.portal.portal_workflow._jumpToStateFor(delivery_1, 'calculating')
     if delivery_1.getCausalityState() == 'draft':
-      # There are more them one workflow that has calculating state
+      # There are more than one workflow that has calculating state
       delivery_1.startBuilding()
 
     delivery_line_1 = delivery_1.newContent(
@@ -221,7 +221,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
     self.portal.portal_workflow._jumpToStateFor(delivery_2, 'delivered')
     self.portal.portal_workflow._jumpToStateFor(delivery_2, 'calculating')
     if delivery_2.getCausalityState() == 'draft':
-      # There are more them one workflow that has calculating state
+      # There are more than one workflow that has calculating state
       delivery_2.startBuilding()
 
     delivery_line_2 = delivery_2.newContent(
@@ -494,7 +494,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
     self.portal.portal_workflow._jumpToStateFor(delivery_1, 'delivered')
     self.portal.portal_workflow._jumpToStateFor(delivery_1, 'calculating')
     if delivery_1.getCausalityState() == 'draft':
-      # There are more them one workflow that has calculating state
+      # There are more than one workflow that has calculating state
       delivery_1.startBuilding()
 
     delivery_line_1 = delivery_1.newContent(
@@ -527,7 +527,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
     self.portal.portal_workflow._jumpToStateFor(delivery_2, 'delivered')
     self.portal.portal_workflow._jumpToStateFor(delivery_2, 'calculating')
     if delivery_2.getCausalityState() == 'draft':
-      # There are more them one workflow that has calculating state
+      # There are more than one workflow that has calculating state
       delivery_2.startBuilding()
 
     delivery_line_2 = delivery_2.newContent(
@@ -764,7 +764,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
     self.portal.portal_workflow._jumpToStateFor(delivery_1, 'delivered')
     self.portal.portal_workflow._jumpToStateFor(delivery_1, 'calculating')
     if delivery_1.getCausalityState() == 'draft':
-      # There are more them one workflow that has calculating state
+      # There are more than one workflow that has calculating state
       delivery_1.startBuilding()
 
     delivery_line_1 = delivery_1.newContent(
@@ -796,7 +796,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
     self.portal.portal_workflow._jumpToStateFor(delivery_2, 'delivered')
     self.portal.portal_workflow._jumpToStateFor(delivery_2, 'calculating')
     if delivery_2.getCausalityState() == 'draft':
-      # There are more them one workflow that has calculating state
+      # There are more than one workflow that has calculating state
       delivery_2.startBuilding()
 
     delivery_line_2 = delivery_2.newContent(

@@ -397,6 +397,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_multimedia',
       'erp5_corporate_identity',
       'erp5_officejs',
+      'erp5_oauth2_resource',
       'erp5_notebook',
       'erp5_smart_assistant',
       'erp5_interaction_drop',

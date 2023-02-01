@@ -260,6 +260,12 @@ def create_slapgrid_object(options, logger):
   software_min_free_space = human2bytes(op.get('software_min_free_space', '1000M'))
   instance_min_free_space = human2bytes(op.get('instance_min_free_space', '1000M'))
 
+  # Nicely check and convert partition_timeout, in order to support slapos.cfg
+  # provided, which is string and command line, which is int, and in the same
+  # time resort to proper None as default - no timeout
+  partition_timeout = op.get('partition_timeout', op.get('partition-timeout'))
+  if partition_timeout is not None:
+    partition_timeout = int(partition_timeout)
   return Slapgrid(software_root=op['software_root'],
                   instance_root=op['instance_root'],
                   shared_part_list=op.get('shared_part_list', ''),
@@ -307,7 +313,8 @@ def create_slapgrid_object(options, logger):
                   ipv4_global_network=op.get('ipv4_global_network'),
                   firewall_conf=op.get('firewall'),
                   config=options,
-                  force_stop=op.get('force_stop', False))
+                  force_stop=op.get('force_stop', False),
+                  partition_timeout=partition_timeout)
 
 
 def check_required_only_partitions(existing, required):
@@ -370,6 +377,7 @@ class Slapgrid(object):
                buildout_debug=False,
                shared_part_list='',
                force_stop=False,
+               partition_timeout=None,
                ):
     """Makes easy initialisation of class parameters"""
     # Parses arguments
@@ -413,6 +421,7 @@ class Slapgrid(object):
     self.buildout = buildout
     self.buildout_debug = buildout_debug
     self.promise_timeout = promise_timeout
+    self.partition_timeout = partition_timeout
     self.develop = develop
     if software_release_filter_list is not None:
       self.software_release_filter_list = \
@@ -1180,6 +1189,7 @@ stderr_logfile_backups=1
       instance_min_free_space=self.instance_min_free_space,
       instance_storage_home=self.instance_storage_home,
       ipv4_global_network=self.ipv4_global_network,
+      partition_timeout=self.partition_timeout
     )
 
     # let managers modify current partition

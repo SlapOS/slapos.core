@@ -402,7 +402,7 @@ def bootstrapBuildout(path, logger, buildout=None,
 
 def launchBuildout(path, buildout_binary, logger,
                    additional_buildout_parameter_list=None,
-                   debug=False):
+                   debug=False, timeout=None):
   """ Launches buildout."""
   if additional_buildout_parameter_list is None:
     additional_buildout_parameter_list = []
@@ -431,13 +431,16 @@ def launchBuildout(path, buildout_binary, logger,
     logger.debug('Set umask from %03o to %03o' % (umask, SAFE_UMASK))
     logger.debug('Invoking: %r in directory %r' % (' '.join(invocation_list),
       path))
+    if timeout is not None:
+      logger.debug('Launching buildout with %ss timeout', timeout)
     process_handler = SlapPopen(invocation_list,
                                 preexec_fn=lambda: dropPrivileges(uid, gid, logger=logger),
                                 cwd=path,
                                 env=getCleanEnvironment(logger=logger,
                                                         home_path=path),
                                 debug=debug,
-                                logger=logger)
+                                logger=logger,
+                                timeout=timeout)
     if process_handler.returncode is None or process_handler.returncode != 0:
       message = 'Failed to run buildout profile in directory %r' % path
       logger.error(message)

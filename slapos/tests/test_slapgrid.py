@@ -442,46 +442,85 @@ class ComputerForTest(object):
       if (url.path == '/api/allDocs/'):
         if content["portal_type"] == "Software Installation":
           return json.dumps({
+            "current_page_full": False,
+            "next_page_request": {
+              "portal_type": "Software Installation",
+              "compute_node_id": content["compute_node_id"],
+            },
             "result_list": [{
               "software_release_uri": x.name,
               "portal_type": "Software Installation",
               "compute_node_id": content["compute_node_id"],
-              "state": x.requested_state
+              "state": x.requested_state,
+              "api_revision": "12121",
+              "get_parameters": {
+                "software_release_uri": x.name,
+                "portal_type": "Software Installation",
+                "compute_node_id": content["compute_node_id"],
+              }
             } for x in self.software_list]
           })
         if content["portal_type"] == "Software Instance":
           if "compute_node_id" in content:
             if "compute_partition_id" in content:
               return json.dumps({
+                "current_page_full": False,
+                "next_page_request": {
+                  "portal_type": "Software Instance",
+                  "compute_partition_id": content["compute_partition_id"],
+                },
                 "result_list": [{
                   "software_release_uri": x.software.name if x.software else None,
                   "reference": x.name,
                   "title": x.name,
                   "portal_type": "Software Instance",
                   "compute_partition_id": x.name,
-                  "state": x.requested_state
+                  "state": x.requested_state,
+                  "api_revision": "12132",
+                  "get_parameters": {
+                    "portal_type": "Software Instance",
+                    "reference": x.name,
+                  }
                 } for x in self.instance_list if x.name == content["compute_partition_id"]]
               })
             else:
               return json.dumps({
+                "current_page_full": False,
+                "next_page_request": {
+                  "portal_type": "Software Instance",
+                  "compute_node_id": content["compute_node_id"],
+                },
                 "result_list": [{
                   "software_release_uri": x.software.name if x.software else None,
                   "reference": x.name,
                   "title": x.name,
                   "portal_type": "Software Instance",
                   "compute_partition_id": x.name,
-                  "state": x.requested_state
+                  "state": x.requested_state,
+                  "get_parameters": {
+                    "portal_type": "Software Instance",
+                    "reference": x.name,
+                  }
                 } for x in self.instance_list]
               })
           elif "root_instance_title" in content:
             return json.dumps({
+              "current_page_full": False,
+              "next_page_request": {
+                "portal_type": "Software Instance",
+                "root_instance_title": content["root_instance_title"],
+              },
               "result_list": [{
                 "software_release_uri": x.software.name if x.software else None,
                 "reference": x.name,
                 "title": x.name,
                 "portal_type": "Software Instance",
                 "compute_partition_id": x.name,
-                "state": x.requested_state
+                "state": x.requested_state,
+                "get_parameters": {
+                  "portal_type": "Software Instance",
+                  "reference": x.name,
+                },
               } for x in self.instance_list] + [
                 {
                 "software_release_uri": "foo.cfg",
@@ -489,7 +528,11 @@ class ComputerForTest(object):
                 "title": "related_instance",
                 "portal_type": "Software Instance",
                 "compute_partition_id": "related_instance",
-                "state": "stopped"
+                "state": "stopped",
+                "get_parameters": {
+                  "portal_type": "Software Instance",
+                  "reference": "related_instance",
+                }
               }
               ]
             })

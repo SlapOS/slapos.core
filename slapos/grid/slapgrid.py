@@ -1127,10 +1127,7 @@ stderr_logfile_backups=1
       }).get("result_list", [])
       for instance_result in related_instance_list:
         if instance_result["reference"] != computer_partition["reference"]:
-          instance = self.slap.jio_api_connector.get({
-            "portal_type": "Software Instance",
-            "reference": instance_result["reference"],
-          })
+          instance = self.slap.jio_api_connector.get(instance_result["get_parameters"])
           hosting_ip_list = hosting_ip_list + instance["ip_list"]
     else:
       hosting_ip_list = computer_partition["slap_partition"].getFullHostingIpAddressList()
@@ -1609,10 +1606,7 @@ stderr_logfile_backups=1
       # even if something is terribly wrong while processing an instance, it
       # won't prevent processing other ones.
       if not self.api_backward_compatibility:
-        computer_partition = self.slap.jio_api_connector.get({
-          "portal_type": "Software Instance",
-          "reference": computer_partition["reference"]
-        })
+        computer_partition = self.slap.jio_api_connector.get(computer_partition["get_parameters"])
       try:
         # Process the partition itself
         self.processComputerPartition(computer_partition)
@@ -1685,10 +1679,7 @@ stderr_logfile_backups=1
     promise_error_partition_list = []
     for computer_partition in computer_partition_list:
       if not self.api_backward_compatibility:
-        computer_partition = self.slap.jio_api_connector.get({
-          "portal_type": "Software Instance",
-          "reference": computer_partition["reference"]
-        })
+        computer_partition = self.slap.jio_api_connector.get(computer_partition["get_parameters"])
       try:
         # Process the partition itself
         self.processPromise(computer_partition)
@@ -2001,10 +1992,7 @@ stderr_logfile_backups=1
             software_path = None
 
           if not self.api_backward_compatibility:
-            computer_partition = self.slap.jio_api_connector.get({
-              "portal_type": "Software Instance",
-              "reference": computer_partition["reference"]
-            })
+            computer_partition = self.slap.jio_api_connector.get(computer_partition["get_parameters"])
 
           local_partition = Partition(
             software_path=software_path,

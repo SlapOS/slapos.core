@@ -50,9 +50,13 @@ class FakeCallAndStore(object):
   """
   def __init__(self):
     self.called = False
+    self.args = []
+    self.kwargs = {}
 
   def __call__(self, *args, **kwargs):
     self.called = True
+    self.args = args
+    self.kwargs = kwargs
 
 class FakeCallAndNoop(object):
   """
@@ -131,6 +135,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
       partition_id=None,
       slap_computer_partition=None,
       retention_delay=None,
+      partition_timeout=None
   ):
     """
     Create a partition, and return a Partition object created
@@ -172,6 +177,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
       software_release_url=software_release_url,
       buildout=self.buildout,
       logger=logging.getLogger(),
+      partition_timeout=partition_timeout,
     )
 
     partition.updateSupervisor = FakeCallAndNoop
@@ -376,6 +382,24 @@ class TestPartitionSlapObject(MasterMixin, unittest.TestCase):
   def tearDown(self):
     MasterMixin.tearDown(self)
     Partition.generateSupervisorConfigurationFile = originalPartitionGenerateSupervisorConfigurationFile
+
+  def test_partition_timeout_default(self):
+    software = self.createSoftware()
+
+    partition = self.createPartition(software.url)
+    partition.install()
+
+    self.assertTrue(utils.launchBuildout.called)
+    self.assertEqual(utils.launchBuildout.kwargs['timeout'], None)
+
+  def test_partition_timeout_passed(self):
+    software = self.createSoftware()
+
+    partition = self.createPartition(software.url, partition_timeout=123)
+    partition.install()
+
+    self.assertTrue(utils.launchBuildout.called)
+    self.assertEqual(utils.launchBuildout.kwargs['timeout'], 123)
 
   def test_instance_is_deploying_if_software_release_exists(self):
     """

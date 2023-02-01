@@ -4511,3 +4511,24 @@ For help, use -c -h"""):
         supervisord_new_socket_path,
         supervisord_legacy_socket_path,
     )
+
+
+class TestSlapgridPartitionTimeoutWithMaster(MasterMixin, unittest.TestCase):
+  def _test(self, partition_timeout, delay, result):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+      instance.software.setBuildout('#!/bin/sh\nsleep %s' % (delay,))
+      self.setSlapgrid(develop=False, force_stop=False)
+      self.grid.partition_timeout = partition_timeout
+      self.assertEqual(result, self.grid.processComputerPartitionList())
+
+  def test_timeouted(self):
+    self._test(1, 2, 1)
+
+  def test_finished(self):
+    self._test(2, 1, 0)
+
+  def test_default(self):
+    self._test(None, 2, 0)

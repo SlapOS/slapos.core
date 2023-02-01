@@ -85,6 +85,9 @@ class SlapgridCommand(ConfigCommand):
                         type=int,
                         help='Promise timeout in seconds'
                              ' (default: %(default)s)')
+        ap.add_argument('--partition-timeout',
+                        type=int,
+                        help='Partition timeout in seconds (optional)')
         ap.add_argument('--now',
                         action='store_true',
                         help='Launch slapgrid without delay. Default behavior.')

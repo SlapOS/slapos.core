@@ -402,7 +402,7 @@ def bootstrapBuildout(path, logger, buildout=None,
 
 def launchBuildout(path, buildout_binary, logger,
                    additional_buildout_parameter_list=None,
-                   debug=False):
+                   debug=False, timeout=None):
   """ Launches buildout."""
   if additional_buildout_parameter_list is None:
     additional_buildout_parameter_list = []
@@ -437,7 +437,8 @@ def launchBuildout(path, buildout_binary, logger,
                                 env=getCleanEnvironment(logger=logger,
                                                         home_path=path),
                                 debug=debug,
-                                logger=logger)
+                                logger=logger,
+                                timeout=timeout)
     if process_handler.returncode is None or process_handler.returncode != 0:
       message = 'Failed to run buildout profile in directory %r' % path
       logger.error(message)

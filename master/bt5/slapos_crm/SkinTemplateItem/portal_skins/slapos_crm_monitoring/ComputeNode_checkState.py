@@ -7,10 +7,6 @@ if not person or \
    portal.ERP5Site_isSupportRequestCreationClosed():
   return
 
-if context.getAllocationScope("open").startswith("close"):
-  context.setMonitorScope("disabled")
-  return
-
 reference = context.getReference()
 compute_node_title = context.getTitle()
 

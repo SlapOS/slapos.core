@@ -219,7 +219,15 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     self.tic()
     
     up_decision = instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual(up_decision, None)
+    self.assertNotEqual(up_decision, None)
+    self.assertEqual(up_decision.getSimulationState(), 'planned')
+    
+    self.assertEqual(up_decision.UpgradeDecision_getAggregateValue("Instance Tree").\
+                      getReference(), instance_tree.getReference())
+
+    self.assertEqual(software_release2.getUrlString(),
+      up_decision.UpgradeDecision_getAggregateValue("Software Release").\
+                              getUrlString())
 
   def testInstanceTree_createUpgradeDecision_create_once_transaction(self):
     person = self._makePerson()

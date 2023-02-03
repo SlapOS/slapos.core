@@ -1,4 +1,23 @@
-# Copyright (c) 2013 Nexedi SA and Contributors. All Rights Reserved.
+# -*- coding:utf-8 -*-
+##############################################################################
+#
+# Copyright (c) 2002-2013 Nexedi SA and Contributors. All Rights Reserved.
+#
+# This program is Free Software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
 class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
@@ -55,33 +74,49 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
       upgrade_decision,
       'UpgradeDecision_notifyDelivered')
 
-  def _test_alarm_compute_node_create_upgrade_decision(self, allocation_scope):
+  def _test_alarm_compute_node_create_upgrade_decision(self, allocation_scope, upgrade_scope):
     compute_node = self._makeComputeNode(allocation_scope=allocation_scope)[0]
+    compute_node.setUpgradeScope(upgrade_scope)
     self._test_alarm(
       self.portal.portal_alarms.slapos_pdm_compute_node_create_upgrade_decision,
       compute_node,
       'ComputeNode_checkAndCreateUpgradeDecision')
 
-  def test_alarm_compute_node_create_upgrade_decision_public(self):
-    self._test_alarm_compute_node_create_upgrade_decision('open/public')
+  def _test_alarm_compute_node_create_upgrade_decision_not_visited(self, allocation_scope, upgrade_scope):
+    compute_node = self._makeComputeNode(allocation_scope=allocation_scope)[0]
+    compute_node.setUpgradeScope(upgrade_scope)
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_pdm_compute_node_create_upgrade_decision,
+      compute_node,
+      'ComputeNode_checkAndCreateUpgradeDecision')
 
-  def test_alarm_compute_node_create_upgrade_decision_personal(self):
-    self._test_alarm_compute_node_create_upgrade_decision('open/personal')
 
-  def test_alarm_compute_node_create_upgrade_decision_friend(self):
-    self._test_alarm_compute_node_create_upgrade_decision('open/friend')
+  def test_alarm_compute_node_create_upgrade_decision_auto(self):
+    self._test_alarm_compute_node_create_upgrade_decision('open/public', 'auto')
+    self._test_alarm_compute_node_create_upgrade_decision('open/personal', 'auto')
+    self._test_alarm_compute_node_create_upgrade_decision('open/friend', 'auto')
+    self._test_alarm_compute_node_create_upgrade_decision('open/subscription', 'auto')
+    self._test_alarm_compute_node_create_upgrade_decision('close/outdated', 'auto')
+    self._test_alarm_compute_node_create_upgrade_decision('close/maintanance', 'auto')
+    self._test_alarm_compute_node_create_upgrade_decision('close/termination', 'auto')
 
-  def test_alarm_compute_node_create_upgrade_decision_subscription(self):
-    self._test_alarm_compute_node_create_upgrade_decision('open/subscription')
+  def test_alarm_compute_node_create_upgrade_decision_ask_confirmation(self):
+    self._test_alarm_compute_node_create_upgrade_decision('open/public', 'confirmation')
+    self._test_alarm_compute_node_create_upgrade_decision('open/personal', 'confirmation')
+    self._test_alarm_compute_node_create_upgrade_decision('open/friend', 'confirmation')
+    self._test_alarm_compute_node_create_upgrade_decision('open/subscription', 'confirmation')
+    self._test_alarm_compute_node_create_upgrade_decision('close/outdated', 'confirmation')
+    self._test_alarm_compute_node_create_upgrade_decision('close/maintanance', 'confirmation')
+    self._test_alarm_compute_node_create_upgrade_decision('close/termination', 'confirmation')
 
-  def test_alarm_compute_node_create_upgrade_decision_subscription(self):
-    self._test_alarm_compute_node_create_upgrade_decision('close/outdated')
-
-  def test_alarm_compute_node_create_upgrade_decision_subscription(self):
-    self._test_alarm_compute_node_create_upgrade_decision('close/maintanance')
-
-  def test_alarm_compute_node_create_upgrade_decision_subscription(self):
-    self._test_alarm_compute_node_create_upgrade_decision('close/termination')
+  def test_alarm_compute_node_create_upgrade_decision_never(self):
+    self._test_alarm_compute_node_create_upgrade_decision_not_visited('open/public', 'never')
+    self._test_alarm_compute_node_create_upgrade_decision_not_visited('open/personal', 'never')
+    self._test_alarm_compute_node_create_upgrade_decision_not_visited('open/friend', 'never')
+    self._test_alarm_compute_node_create_upgrade_decision_not_visited('open/subscription', 'never')
+    self._test_alarm_compute_node_create_upgrade_decision_not_visited('close/outdated', 'never')
+    self._test_alarm_compute_node_create_upgrade_decision_not_visited('close/maintanance', 'never')
+    self._test_alarm_compute_node_create_upgrade_decision_not_visited('close/termination', 'never')
 
   def test_alarm_instance_tree_create_upgrade_decision(self):
     instance_tree = self._makeInstanceTree()

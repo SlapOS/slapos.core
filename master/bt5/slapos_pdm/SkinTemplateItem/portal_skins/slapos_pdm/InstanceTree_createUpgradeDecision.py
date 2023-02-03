@@ -40,9 +40,6 @@ if slave_upgrade:
     if url_string != instance_tree.getUrlString():
       newer_release = context.portal_catalog.getResultValue(portal_type='Software Release', url_string=url_string)
 else:
-  if not partition.getParentValue().getAllocationScopeUid() in [category.getUid() \
-      for category in portal.portal_categories.allocation_scope.open.objectValues()]:
-    return
   newer_release = instance_tree.\
                   InstanceTree_getUpgradableSoftwareRelease()
 if newer_release is None:

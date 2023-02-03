@@ -83,21 +83,27 @@ class TemporaryAlarmScript(object):
   """
   Context manager for temporary python scripts
   """
-  def __init__(self, portal, script_name, fake_return=""):
+  def __init__(self, portal, script_name, fake_return="", attribute=None):
     self.script_name = script_name
     self.portal = portal
     self.fake_return = fake_return
+    self.attribute = attribute
 
   def __enter__(self):
     if self.script_name in self.portal.portal_skins.custom.objectIds():
       raise ValueError('Precondition failed: %s exists in custom' % self.script_name)
+    if self.attribute is None:
+      content = """portal_workflow = context.portal_workflow
+portal_workflow.doActionFor(context, action='edit_action', comment='Visited by %s')
+return %s""" % (self.script_name, self.fake_return)
+    else:
+      content = """portal_workflow = context.portal_workflow
+context.edit(%s='Visited by %s')
+return %s""" % (self.attribute, self.script_name, self.fake_return)
     createZODBPythonScript(self.portal.portal_skins.custom,
                         self.script_name,
                         '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by %s')
-return %s""" % (self.script_name, self.fake_return ))
+                        '# Script body\n' + content)
     transaction.commit()
 
   def __exit__(self, exc_type, exc_value, traceback):
@@ -648,23 +654,31 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       resource='foo/bar',
       )
 
-  def _test_alarm(self, alarm, document, script_name):
+  def _test_alarm(self, alarm, document, script_name, attribute=None):
     self.tic()
-    with TemporaryAlarmScript(self.portal, script_name):
+    with TemporaryAlarmScript(self.portal, script_name, attribute=attribute):
       alarm.activeSense()
       self.tic()
+    if attribute is None:
+      content = document.workflow_history['edit_workflow'][-1]['comment']
+    else:
+      content = document.getProperty(attribute)
     self.assertEqual(
         'Visited by %s' % script_name,
-        document.workflow_history['edit_workflow'][-1]['comment'])
+        content)
 
-  def _test_alarm_not_visited(self, alarm, document, script_name):
+  def _test_alarm_not_visited(self, alarm, document, script_name, attribute=None):
     self.tic()
-    with TemporaryAlarmScript(self.portal, script_name):
+    with TemporaryAlarmScript(self.portal, script_name, attribute=attribute):
       alarm.activeSense()
       self.tic()
+    if attribute is None:
+      content = document.workflow_history['edit_workflow'][-1]['comment']
+    else:
+      content = document.getProperty(attribute)
     self.assertNotEqual(
         'Visited by %s' % script_name,
-        document.workflow_history['edit_workflow'][-1]['comment'])
+        content)
 
   def restoreAccountingTemplatesOnPreferences(self):
     self.login()

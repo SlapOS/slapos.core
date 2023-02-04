@@ -19,6 +19,8 @@
 #
 ##############################################################################
 
+import six
+import six.moves.urllib.parse
 from erp5.component.test.testSlapOSCloudSecurityGroup import TestSlapOSSecurityMixin
 from erp5.component.test.SlapOSTestCaseMixin import changeSkin
 import re
@@ -65,7 +67,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     email = '%s@example.com' % reference
 
-    request = self.web_site.hateoas.connection.WebSection_newCredentialRequest(
+    redirect_url = self.web_site.hateoas.connection.WebSection_newCredentialRequest(
       reference=reference,
       default_email_text=email,
       first_name="Joe",
@@ -77,9 +79,12 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       default_address_street_address="Av Pelinca",
       default_address_zip_code="28480",
     )
-
-    self.assertIn('Thank you for your registration. You will receive an email to activate your account.', request)
-
+    parsed_url = six.moves.urllib.parse.urlparse(redirect_url)
+    self.assertEqual(parsed_url.path.split('/')[-1], 'login_form')
+    self.assertEqual(
+      sorted(six.iteritems(dict(six.moves.urllib.parse.parse_qsl(parsed_url.query)))), [
+        ('portal_status_message', 'Thank you for your registration. You will receive an email to activate your account.'),
+    ])
     self.tic()
 
     to_click_message = findMessage(email, 'You have requested one user')

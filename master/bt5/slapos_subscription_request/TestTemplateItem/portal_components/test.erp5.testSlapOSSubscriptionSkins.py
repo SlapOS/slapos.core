@@ -18,6 +18,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 ##############################################################################
+
+import six
+import six.moves.urllib.parse
+
 from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixinWithAbort, simulate
 from zExceptions import Unauthorized
@@ -310,13 +314,19 @@ class Test0SubscriptionRequestModule_requestSubscriptionProxy(TestSubscriptionSk
     self.tic()
     module = self.portal.web_site_module.hostingjs.subscription_request_module
 
-    response = module.SubscriptionRequestModule_requestSubscriptionProxy(
+    redirect_url = module.SubscriptionRequestModule_requestSubscriptionProxy(
       email=email, subscription_reference=subscription_reference,
       confirmation_required=True, user_input_dict=user_input_dict)
 
-    self.assertTrue(
-      response.endswith(
-        "order_confirmation?field_your_reservation_name=Member Template&field_your_reservation_email=%s&field_your_reservation_number_of_machines=1&field_your_reservation_network=test_subscription_reference" % email), response)
+    parsed_url = six.moves.urllib.parse.urlparse(redirect_url)
+    self.assertEqual(parsed_url.path.split('/')[-1], 'order_confirmation')
+    self.assertEqual(
+      sorted(six.iteritems(dict(six.moves.urllib.parse.parse_qsl(parsed_url.query)))), [
+        ('field_your_reservation_email', email),
+        ('field_your_reservation_name', 'Member Template'),
+        ('field_your_reservation_network', 'test_subscription_reference'),
+        ('field_your_reservation_number_of_machines', '1'),
+    ])
 
     # Missing tests XXXX 
 class TestSubscriptionRequest_applyCondition(TestSubscriptionSkinsMixin):

@@ -3,18 +3,17 @@ allocation_scope = compute_node.getAllocationScope()
 
 edit_kw = {}
 
-if compute_node.getCapacityScope() is None:
+# Automatically close the capacity whenever the allocation scope
+# changes, and let the alarm update it later, whenever the 
+# allocation scope is open.
+if compute_node.getCapacityScope() != "close":
   edit_kw['capacity_scope'] = 'close'
 
-if allocation_scope in ['open/public', 'open/subscription', 'open/friend']:
-  monitor_scope = 'enabled'
-elif allocation_scope == 'open/personal':
-  monitor_scope = compute_node.getMonitorScope("disabled")
-else:
-  monitor_scope = 'disabled'
-  edit_kw['capacity_scope'] = 'close'
+if compute_node.getMonitorScope() is None:
+  edit_kw['monitor_scope'] = 'enabled'
 
-edit_kw['monitor_scope'] = monitor_scope
+if allocation_scope == "close/forever":
+  edit_kw['monitor_scope'] = 'disabled'
 
 self_person = compute_node.getSourceAdministrationValue(portal_type="Person")
 if self_person is None:

@@ -1276,6 +1276,7 @@ class TestSlapOSUpdateOpenSaleOrderPeriod(SlapOSTestCaseMixin):
     open_order = self.createOpenOrder()
     open_order.OpenSaleOrder_updatePeriod()
 
+  @simulateByEditWorkflowMark('Person_storeOpenSaleOrderJournal')
   def test_updatePeriod_validated(self):
     open_order = self.createOpenOrder()
     person = self.portal.person_module.template_member\
@@ -1284,14 +1285,12 @@ class TestSlapOSUpdateOpenSaleOrderPeriod(SlapOSTestCaseMixin):
       destination_decision_value=person,
     )
 
-    script_name = "Person_storeOpenSaleOrderJournal"
-    self._simulateScript(script_name)
-    try:
-      open_order.OpenSaleOrder_updatePeriod()
-    finally:
-      self._dropScript(script_name)
-    self.assertScriptVisited(person, script_name)
+    open_order.OpenSaleOrder_updatePeriod()
+    self.assertEqual(
+        'Visited by Person_storeOpenSaleOrderJournal',
+        person.workflow_history['edit_workflow'][-1]['comment'])
 
+  @simulateByEditWorkflowMark('Person_storeOpenSaleOrderJournal')
   def test_updatePeriod_invalidated(self):
     open_order = self.createOpenOrder()
     person = self.portal.person_module.template_member\
@@ -1300,14 +1299,11 @@ class TestSlapOSUpdateOpenSaleOrderPeriod(SlapOSTestCaseMixin):
       destination_decision_value=person,
     )
     open_order.invalidate()
+    open_order.OpenSaleOrder_updatePeriod()
 
-    script_name = "Person_storeOpenSaleOrderJournal"
-    self._simulateScript(script_name)
-    try:
-      open_order.OpenSaleOrder_updatePeriod()
-    finally:
-      self._dropScript(script_name)
-    self.assertScriptNotVisited(person, script_name)
+    self.assertNotEqual(
+        'Visited by Person_storeOpenSaleOrderJournal',
+        person.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm(self):
     open_order = self.createOpenOrder()

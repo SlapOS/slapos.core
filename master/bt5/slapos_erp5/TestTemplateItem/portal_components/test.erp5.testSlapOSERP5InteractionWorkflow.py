@@ -47,7 +47,7 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
     compute_node.edit(allocation_scope=allocation_scope)
     self.commit()
 
-    self.assertEqual(compute_node.getCapacityScope(), 'open')
+    self.assertEqual(compute_node.getCapacityScope(), 'close')
     self.assertEqual(compute_node.getMonitorScope(), 'enabled')
 
     return compute_node
@@ -96,7 +96,7 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
 
     self.commit()
     self.assertEqual(compute_node.getCapacityScope(), 'close')
-    self.assertEqual(compute_node.getMonitorScope(), 'disabled')
+    self.assertEqual(compute_node.getMonitorScope(), 'enabled')
     self.commit()
     compute_node.edit(allocation_scope=None)
     self.commit()
@@ -107,8 +107,8 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
     compute_node.edit(allocation_scope='open/personal')
     self.commit()
 
-    self.assertEqual(compute_node.getCapacityScope(), 'open')
-    self.assertEqual(compute_node.getMonitorScope(), 'disabled')
+    self.assertEqual(compute_node.getCapacityScope(), 'close')
+    self.assertEqual(compute_node.getMonitorScope(), 'enabled')
     return compute_node
 
   def test_ComputeNode_setAllocationScope_personal(self):
@@ -169,7 +169,7 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
     compute_node.edit(allocation_scope='open/friend')
     self.commit()
 
-    self.assertEqual(compute_node.getCapacityScope(), 'open')
+    self.assertEqual(compute_node.getCapacityScope(), 'close')
     self.assertEqual(compute_node.getMonitorScope(), 'enabled')
     return compute_node
 
@@ -205,7 +205,8 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
   def _test_ComputeNode_setAllocationScope_closed(self,
                                               source_administration=None,
                                               allocation_scope="close/forever",
-                                              subject_list=None):
+                                              subject_list=None,
+                                              monitor_scope='enabled'):
     compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
                   capacity_scope=None,
                   monitor_scope=None,
@@ -217,7 +218,7 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
 
     self.commit()
     self.assertEqual(compute_node.getCapacityScope(), 'close')
-    self.assertEqual(compute_node.getMonitorScope(), 'disabled')
+    self.assertEqual(compute_node.getMonitorScope(), monitor_scope)
 
     self.commit()
     compute_node.edit(allocation_scope=None)
@@ -230,12 +231,12 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
     self.commit()
 
     self.assertEqual(compute_node.getCapacityScope(), 'close')
-    self.assertEqual(compute_node.getMonitorScope(), 'disabled')
+    self.assertEqual(compute_node.getMonitorScope(), monitor_scope)
     return compute_node
 
 
   def test_ComputeNode_setAllocationScope_closed_forever_no_source_adm(self):
-    self._test_ComputeNode_setAllocationScope_closed()
+    self._test_ComputeNode_setAllocationScope_closed(monitor_scope='disabled')
 
   def test_ComputeNode_setAllocationScope_closed_forever_with_source_adm(self):
     person = self.makePerson()
@@ -243,7 +244,7 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
     self.assertNotIn(person.getDefaultEmailCoordinateText(), [None, ""])
 
     compute_node = self._test_ComputeNode_setAllocationScope_closed(
-      source_administration=person.getRelativeUrl())
+      source_administration=person.getRelativeUrl(), monitor_scope='disabled')
 
     self.assertEqual(compute_node.getSubjectList(), [person.getDefaultEmailCoordinateText()])
     self.assertEqual(compute_node.getDestinationSectionList(),

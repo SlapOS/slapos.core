@@ -209,6 +209,10 @@ return True""" )
         self.software_instance.getUrlString())
     self.compute_node.edit(allocation_scope='open/personal',
       source_administration=self.person_user.getRelativeUrl())
+    self.compute_node.setAccessStatus("#access ok")
+    self.tic()
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual(self.compute_node.getCapacityScope(), 'open')
     self.tic()
 
     self.assertEqual(None, self.software_instance.getAggregateValue(
@@ -226,6 +230,10 @@ return True""" )
         self.partition)
     self.compute_node.edit(allocation_scope='open/personal',
       source_administration=self.person_user.getRelativeUrl())
+    self.compute_node.setAccessStatus("#access ok")
+    self.tic()
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual(self.compute_node.getCapacityScope(), 'open')
     self.tic()
 
     self.assertEqual(None, self.software_instance.getAggregateValue(
@@ -259,6 +267,10 @@ return True""" )
       source_administration=person_user.getRelativeUrl(),
       destination_section=self.person_user.getRelativeUrl(),
       allocation_scope='open/friend')
+    self.compute_node.setAccessStatus("#access ok")
+    self.tic()
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual(self.compute_node.getCapacityScope(), 'open')
     self.tic()
 
     self.assertEqual(None, self.software_instance.getAggregateValue(
@@ -292,6 +304,10 @@ return True""" )
       source_administration=person_user.getRelativeUrl(),
       destination_section=self.person_user.getRelativeUrl(),
       allocation_scope='open/friend')
+    self.compute_node.setAccessStatus("#access ok")
+    self.tic()
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual(self.compute_node.getCapacityScope(), 'open')
     self.tic()
 
     self.assertEqual(None, self.software_instance.getAggregateValue(

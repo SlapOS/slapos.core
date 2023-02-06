@@ -147,6 +147,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     server.edit(
         allocation_scope='open/public')
     self.assertEqual('open/public', server.getAllocationScope())
+    # Called by alarm
+    server.ComputeNode_checkAndUpdateCapacityScope()
     self.assertEqual('open', server.getCapacityScope())
     self.tic()
 
@@ -155,6 +157,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     server.edit(
         allocation_scope='open/subscription')
     self.assertEqual('open/subscription', server.getAllocationScope())
+    # Called by alarm
+    server.ComputeNode_checkAndUpdateCapacityScope()
     self.assertEqual('open', server.getCapacityScope())
     self.tic()
 
@@ -163,6 +167,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     server.edit(
         allocation_scope='open/personal', subject_list=[])
     self.assertEqual('open/personal', server.getAllocationScope())
+    # Called by alarm
+    server.ComputeNode_checkAndUpdateCapacityScope()
     self.assertEqual('open', server.getCapacityScope())
     self.tic()
 
@@ -173,6 +179,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     server.edit(
         allocation_scope='open/friend', subject_list=friend_list)
     self.assertEqual('open/friend', server.getAllocationScope())
+    # Called by alarm
+    server.ComputeNode_checkAndUpdateCapacityScope()
     self.assertEqual('open', server.getCapacityScope())
     self.assertSameSet(friend_list, server.getSubjectList())
     self.tic()

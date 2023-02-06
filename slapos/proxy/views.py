@@ -731,18 +731,14 @@ def getAllocatedSlaveInstance(slave_reference, requested_computer_id):
   """
   Look for existence of instance, if so return the
   corresponding partition dict, else return None
-  """
-  args = []
-  a = args.append
+
   # XXX: Scope currently depends on instance which requests slave.
   # Meaning that two different instances requesting the same slave will
   # result in two different allocated slaves.
-  table = 'slave'
-  q = 'SELECT * FROM %s WHERE reference=? and computer_reference=?'
-  a(slave_reference)
-  a(requested_computer_id)
-  # XXX: check there is only one result
-  return execute_db(table, q, args, one=True)
+  """
+  return execute_db('slave',
+    'SELECT * FROM %s WHERE reference is ? AND computer_reference is ?',
+    (slave_reference, requested_computer_id), one=True)
 
 def getRootPartition(reference):
   """Climb the partitions tree up by 'requested_by' link to get the root partition."""

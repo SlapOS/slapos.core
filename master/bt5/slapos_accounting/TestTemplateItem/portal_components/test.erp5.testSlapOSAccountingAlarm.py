@@ -1347,18 +1347,6 @@ class TestSlapOSReindexOpenSaleOrder(SlapOSTestCaseMixin):
     )
     return open_order
 
-  def _simulateScript(self, script_name, fake_return="False"):
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        'uid=None,*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-document = context.portal_catalog.getResultValue(uid=uid)
-portal_workflow.doActionFor(document, action='edit_action', comment='Visited by %s') """ % script_name )
-    transaction.commit()
-
   def test_alarm(self):
     open_order = self.createOpenOrder()
     self.tic()

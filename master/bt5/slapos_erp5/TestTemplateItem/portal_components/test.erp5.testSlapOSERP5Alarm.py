@@ -1,32 +1,12 @@
 # Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
-import transaction
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 
-from Products.ERP5Type.tests.utils import createZODBPythonScript
 from DateTime import DateTime
 from zExceptions import Unauthorized
 
 class TestSlapOSERP5CleanupActiveProcess(SlapOSTestCaseMixinWithAbort):
 
-  def _simulateActiveProcess_deleteSelf(self):
-    script_name = 'ActiveProcess_deleteSelf'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""description = '%s\\nVisited by ActiveProcess_deleteSelf' % context.getDescription()
-context.edit(description=description)""")
-    transaction.commit()
-
-  def _dropActiveProcess_deleteSelf(self):
-    script_name = 'ActiveProcess_deleteSelf'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
-  def check_cleanup_active_process_alarm(self, date, assert_method):
+  def check_cleanup_active_process_alarm(self, date, test_method):
     def verify_getCreationDate_call(*args, **kwargs):
       return date
     ActiveProcessClass = self.portal.portal_types.getPortalTypeClass(
@@ -44,6 +24,13 @@ context.edit(description=description)""")
       )
     self.assertEqual(active_process.getCreationDate(), date)
 
+    test_method(
+      self.portal.portal_alarms.slapos_erp5_cleanup_active_process,
+      active_process,
+      'ActiveProcess_deleteSelf',
+      attribute='description'
+    )
+    """
     self.tic()
     self._simulateActiveProcess_deleteSelf()
     try:
@@ -56,13 +43,13 @@ context.edit(description=description)""")
 
     assert_method(active_process.getDescription('').\
         endswith("Visited by ActiveProcess_deleteSelf"),
-        active_process.getDescription(''))
+        active_process.getDescription(''))"""
 
   def test_alarm_old_active_process(self):
-    self.check_cleanup_active_process_alarm(DateTime() - 22, self.assertTrue)
+    self.check_cleanup_active_process_alarm(DateTime() - 22, self._test_alarm)
 
   def test_alarm_new_active_process(self):
-    self.check_cleanup_active_process_alarm(DateTime() - 20, self.assertFalse)
+    self.check_cleanup_active_process_alarm(DateTime() - 20, self._test_alarm_not_visited)
 
 
 class TestSlapOSERP5ActiveProcess_deleteSelf(SlapOSTestCaseMixinWithAbort):

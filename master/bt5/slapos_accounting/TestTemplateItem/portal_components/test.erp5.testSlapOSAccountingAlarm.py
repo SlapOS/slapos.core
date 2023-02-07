@@ -1276,6 +1276,7 @@ class TestSlapOSUpdateOpenSaleOrderPeriod(SlapOSTestCaseMixin):
     open_order = self.createOpenOrder()
     open_order.OpenSaleOrder_updatePeriod()
 
+  @simulateByEditWorkflowMark('Person_storeOpenSaleOrderJournal')
   def test_updatePeriod_validated(self):
     open_order = self.createOpenOrder()
     person = self.portal.person_module.template_member\
@@ -1284,14 +1285,12 @@ class TestSlapOSUpdateOpenSaleOrderPeriod(SlapOSTestCaseMixin):
       destination_decision_value=person,
     )
 
-    script_name = "Person_storeOpenSaleOrderJournal"
-    self._simulateScript(script_name)
-    try:
-      open_order.OpenSaleOrder_updatePeriod()
-    finally:
-      self._dropScript(script_name)
-    self.assertScriptVisited(person, script_name)
+    open_order.OpenSaleOrder_updatePeriod()
+    self.assertEqual(
+        'Visited by Person_storeOpenSaleOrderJournal',
+        person.workflow_history['edit_workflow'][-1]['comment'])
 
+  @simulateByEditWorkflowMark('Person_storeOpenSaleOrderJournal')
   def test_updatePeriod_invalidated(self):
     open_order = self.createOpenOrder()
     person = self.portal.person_module.template_member\
@@ -1300,14 +1299,11 @@ class TestSlapOSUpdateOpenSaleOrderPeriod(SlapOSTestCaseMixin):
       destination_decision_value=person,
     )
     open_order.invalidate()
+    open_order.OpenSaleOrder_updatePeriod()
 
-    script_name = "Person_storeOpenSaleOrderJournal"
-    self._simulateScript(script_name)
-    try:
-      open_order.OpenSaleOrder_updatePeriod()
-    finally:
-      self._dropScript(script_name)
-    self.assertScriptNotVisited(person, script_name)
+    self.assertNotEqual(
+        'Visited by Person_storeOpenSaleOrderJournal',
+        person.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm(self):
     open_order = self.createOpenOrder()
@@ -1351,39 +1347,46 @@ class TestSlapOSReindexOpenSaleOrder(SlapOSTestCaseMixin):
     )
     return open_order
 
-  def _simulateScript(self, script_name, fake_return="False"):
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        'uid=None,*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-document = context.portal_catalog.getResultValue(uid=uid)
-portal_workflow.doActionFor(document, action='edit_action', comment='Visited by %s') """ % script_name )
-    transaction.commit()
-
   def test_alarm(self):
     open_order = self.createOpenOrder()
     self.tic()
     # Jut wait a bit so the line has a different timestamp > 1 sec.
     time.sleep(1)
-    open_order.newContent(portal_type="Open Sale Order Line")
+    open_order_line = open_order.newContent(portal_type="Open Sale Order Line")
     self.tic()
-    script_name = "OpenSaleOrder_reindexIfIndexedBeforeLine"
-    alarm = self.portal.portal_alarms.slapos_reindex_open_sale_order
-    
-    self._test_alarm(
-      alarm, open_order, script_name)
+
+    order = self.portal.portal_catalog(
+      uid=open_order.getUid(),
+      select_dict={'indexation_timestamp': None})[0]
+
+    line = self.portal.portal_catalog(
+      uid=open_order_line.getUid(),
+      select_dict={'indexation_timestamp': None})[0]
+
+    self.assertTrue(order.indexation_timestamp < line.indexation_timestamp)
+    self.portal.portal_alarms.slapos_reindex_open_sale_order.activeSense()
+    self.tic()
+    order = self.portal.portal_catalog(
+      uid=open_order.getUid(),
+      select_dict={'indexation_timestamp': None})[0]
+
+    line = self.portal.portal_catalog(
+      uid=open_order_line.getUid(),
+      select_dict={'indexation_timestamp': None})[0]
+
+    self.assertTrue(order.indexation_timestamp > line.indexation_timestamp, 
+      "%s %s" % (order.indexation_timestamp, line.indexation_timestamp))
 
   def test_alarm_no_line(self):
     open_order = self.createOpenOrder()
     self.tic()
-    script_name = "OpenSaleOrder_reindexIfIndexedBeforeLine"
-    alarm = self.portal.portal_alarms.slapos_reindex_open_sale_order
-    
-    self._test_alarm_not_visited(
-      alarm, open_order, script_name)
+    # Rather them test the alarm with fake script, directly
+    # test the ERP5Site_zGetOpenOrderWithModifiedLineUid code.
+    open_order_with_modified_line_uid_list = [i.uid for i in \
+       self.portal.ERP5Site_zGetOpenOrderWithModifiedLineUid()]
+
+    self.assertNotIn(open_order.getUid(), open_order_with_modified_line_uid_list)
+
 
 class TestSlapOSGeneratePackingListFromTioXML(SlapOSTestCaseMixin):
 

@@ -641,7 +641,7 @@ class TestSlapOSCorePersonRequestComputeNode(SlapOSTestCaseMixin):
     self.assertEqual('COMP-%s' % (previous_id + 1), compute_node.getReference())
     self.assertEqual('validated', compute_node.getValidationState())
     self.assertEqual('open/personal', compute_node.getAllocationScope())
-    self.assertEqual('open', compute_node.getCapacityScope())
+    self.assertEqual('close', compute_node.getCapacityScope())
 
   def test_request_notReindexedCompute(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
@@ -682,7 +682,7 @@ class TestSlapOSCorePersonRequestComputeNode(SlapOSTestCaseMixin):
     self.assertEqual('COMP-%s' % (previous_id + 1), compute_node.getReference())
     self.assertEqual('validated', compute_node.getValidationState())
     self.assertEqual('open/personal', compute_node.getAllocationScope())
-    self.assertEqual('open', compute_node.getCapacityScope())
+    self.assertEqual('close', compute_node.getCapacityScope())
 
     self.tic()
 
@@ -708,7 +708,7 @@ class TestSlapOSCorePersonRequestComputeNode(SlapOSTestCaseMixin):
     self.assertEqual('COMP-%s' % (previous_id + 1), compute_node.getReference())
     self.assertEqual('validated', compute_node.getValidationState())
     self.assertEqual('open/personal', compute_node.getAllocationScope())
-    self.assertEqual('open', compute_node.getCapacityScope())
+    self.assertEqual('close', compute_node.getCapacityScope())
 
     # and now another one
     person.requestComputeNode(compute_node_title=compute_node_title2)
@@ -735,7 +735,7 @@ class TestSlapOSCorePersonRequestComputeNode(SlapOSTestCaseMixin):
     self.assertEqual('COMP-%s' % (previous_id + 2), compute_node2.getReference())
     self.assertEqual('validated', compute_node2.getValidationState())
     self.assertEqual('open/personal', compute_node2.getAllocationScope())
-    self.assertEqual('open', compute_node2.getCapacityScope())
+    self.assertEqual('close', compute_node2.getCapacityScope())
 
   def test_request_duplicatedComputeNode(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()

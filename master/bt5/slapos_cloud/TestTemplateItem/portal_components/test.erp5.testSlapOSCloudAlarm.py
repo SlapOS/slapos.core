@@ -1,7 +1,6 @@
 # Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
 import transaction
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
-from Products.ERP5Type.tests.utils import createZODBPythonScript
 import time
 from zExceptions import Unauthorized
 from DateTime import DateTime
@@ -67,47 +66,21 @@ class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(
     self.assertFalse(self.instance_tree.getTitle() in
         self.instance_tree.getSuccessorTitleList())
 
-  def _simulateInstanceTree_assertSuccessor(self):
-    script_name = 'InstanceTree_assertSuccessor'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by InstanceTree_assertSuccessor') """ )
-    transaction.commit()
-
-  def _dropInstanceTree_assertSuccessor(self):
-    script_name = 'InstanceTree_assertSuccessor'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
   def test_alarm_renamed(self):
     self.software_instance.edit(title=self.generateNewSoftwareTitle())
-    self.tic()
-    self._simulateInstanceTree_assertSuccessor()
-    try:
-      self.portal.portal_alarms.slapos_assert_instance_tree_successor.activeSense()
-      self.tic()
-    finally:
-      self._dropInstanceTree_assertSuccessor()
-    self.assertEqual(
-        'Visited by InstanceTree_assertSuccessor',
-        self.instance_tree.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_assert_instance_tree_successor,
+      self.instance_tree,
+      'InstanceTree_assertSuccessor'
+    )
 
   def test_alarm_not_renamed(self):
-    self._simulateInstanceTree_assertSuccessor()
-    try:
-      self.portal.portal_alarms.slapos_assert_instance_tree_successor.activeSense()
-      self.tic()
-    finally:
-      self._dropInstanceTree_assertSuccessor()
-    self.assertNotEqual(
-        'Visited by InstanceTree_assertSuccessor',
-        self.instance_tree.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_assert_instance_tree_successor,
+      self.instance_tree,
+      'InstanceTree_assertSuccessor'
+    )
+
 
 class TestSlapOSFreeComputePartitionAlarm(SlapOSTestCaseMixin):
 
@@ -170,16 +143,12 @@ class TestSlapOSFreeComputePartitionAlarm(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
         'destroy_requested')
     self.software_instance.invalidate()
-    self.tic()
-    self._simulateScript('SoftwareInstance_tryToUnallocatePartition')
-    try:
-      self.portal.portal_alarms.slapos_free_compute_partition.activeSense()
-      self.tic()
-    finally:
-      self._dropScript('SoftwareInstance_tryToUnallocatePartition')
-    self.assertEqual(
-        'Visited by SoftwareInstance_tryToUnallocatePartition',
-        self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
+
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_free_compute_partition,
+      self.software_instance,
+      'SoftwareInstance_tryToUnallocatePartition'
+    )
 
   def test_alarm_unallocated(self):
     self._makeComputeNode()
@@ -187,16 +156,12 @@ class TestSlapOSFreeComputePartitionAlarm(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
         'destroy_requested')
     self.software_instance.invalidate()
-    self.tic()
-    self._simulateScript('SoftwareInstance_tryToUnallocatePartition')
-    try:
-      self.portal.portal_alarms.slapos_free_compute_partition.activeSense()
-      self.tic()
-    finally:
-      self._dropScript('SoftwareInstance_tryToUnallocatePartition')
-    self.assertNotEqual(
-        'Visited by SoftwareInstance_tryToUnallocatePartition',
-        self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
+
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_free_compute_partition,
+      self.software_instance,
+      'SoftwareInstance_tryToUnallocatePartition'
+    )
 
   def test_alarm_validated(self):
     self._makeComputeNode()
@@ -204,31 +169,23 @@ class TestSlapOSFreeComputePartitionAlarm(SlapOSTestCaseMixin):
     self.partition.markBusy()
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
         'destroy_requested')
-    self.tic()
-    self._simulateScript('SoftwareInstance_tryToUnallocatePartition')
-    try:
-      self.portal.portal_alarms.slapos_free_compute_partition.activeSense()
-      self.tic()
-    finally:
-      self._dropScript('SoftwareInstance_tryToUnallocatePartition')
-    self.assertNotEqual(
-        'Visited by SoftwareInstance_tryToUnallocatePartition',
-        self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
+
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_free_compute_partition,
+      self.software_instance,
+      'SoftwareInstance_tryToUnallocatePartition'
+    )
 
   def test_alarm_start_requested(self):
     self._makeComputeNode()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
-    self.tic()
-    self._simulateScript('SoftwareInstance_tryToUnallocatePartition')
-    try:
-      self.portal.portal_alarms.slapos_free_compute_partition.activeSense()
-      self.tic()
-    finally:
-      self._dropScript('SoftwareInstance_tryToUnallocatePartition')
-    self.assertNotEqual(
-        'Visited by SoftwareInstance_tryToUnallocatePartition',
-        self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
+
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_free_compute_partition,
+      self.software_instance,
+      'SoftwareInstance_tryToUnallocatePartition'
+    )
 
 class TestSlapOSFreeComputePartitionAlarmWithSlave(SlapOSTestCaseMixin):
   def afterSetUp(self):
@@ -372,62 +329,30 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
     self.assertEqual(sub_instance.getSlapState(), 'destroy_requested')
     self.assertEqual(sub_instance.getValidationState(), 'validated')
 
-  def _simulateSoftwareInstance_tryToGarbageCollect(self):
-    script_name = 'SoftwareInstance_tryToGarbageCollect'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by SoftwareInstance_tryToGarbageCollect') """ )
-    transaction.commit()
-
-  def _dropSoftwareInstance_tryToGarbageCollect(self):
-    script_name = 'SoftwareInstance_tryToGarbageCollect'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
   def test_alarm(self):
     self.instance_tree.archive()
-    self.tic()
-    self._simulateScript('SoftwareInstance_tryToGarbageCollect')
-    try:
-      self.portal.portal_alarms.slapos_garbage_collect_destroyed_root_tree.activeSense()
-      self.tic()
-    finally:
-      self._dropScript('SoftwareInstance_tryToGarbageCollect')
-    self.assertEqual(
-        'Visited by SoftwareInstance_tryToGarbageCollect',
-        self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_garbage_collect_destroyed_root_tree,
+      self.software_instance,
+      'SoftwareInstance_tryToGarbageCollect'
+    )
 
   def test_alarm_invalidated(self):
     self.instance_tree.archive()
     self.software_instance.invalidate()
-    self.tic()
-    self._simulateScript('SoftwareInstance_tryToGarbageCollect')
-    try:
-      self.portal.portal_alarms.slapos_garbage_collect_destroyed_root_tree.activeSense()
-      self.tic()
-    finally:
-      self._dropScript('SoftwareInstance_tryToGarbageCollect')
-    self.assertNotEqual(
-        'Visited by SoftwareInstance_tryToGarbageCollect',
-        self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_garbage_collect_destroyed_root_tree,
+      self.software_instance,
+      'SoftwareInstance_tryToGarbageCollect'
+    )
 
   def test_alarm_not_archived(self):
-    self.tic()
-    self._simulateScript('SoftwareInstance_tryToGarbageCollect')
-    try:
-      self.portal.portal_alarms.slapos_garbage_collect_destroyed_root_tree.activeSense()
-      self.tic()
-    finally:
-      self._dropScript('SoftwareInstance_tryToGarbageCollect')
-    self.assertNotEqual(
-        'Visited by SoftwareInstance_tryToGarbageCollect',
-        self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_garbage_collect_destroyed_root_tree,
+      self.software_instance,
+      'SoftwareInstance_tryToGarbageCollect'
+    )
+
 
 class TestSlapOSComputeNode_checkAndUpdateCapacityScope(SlapOSTestCaseMixin):
   allocation_scope_to_test = 'open/public'
@@ -573,35 +498,12 @@ class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
     self.compute_node.setAccessStatus("#access ok")
     transaction.commit()
 
-  def _simulateComputeNode_checkAndUpdateCapacityScope(self):
-    script_name = 'ComputeNode_checkAndUpdateCapacityScope'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by ComputeNode_checkAndUpdateCapacityScope') """ )
-    transaction.commit()
-
-  def _dropComputeNode_checkAndUpdateCapacityScope(self):
-    script_name = 'ComputeNode_checkAndUpdateCapacityScope'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
   def test_alarm(self):
-    self.tic()
-    self._simulateComputeNode_checkAndUpdateCapacityScope()
-    try:
-      self.portal.portal_alarms.slapos_update_compute_node_capacity_scope.activeSense()
-      self.tic()
-    finally:
-      self._dropComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual(
-        'Visited by ComputeNode_checkAndUpdateCapacityScope',
-        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_update_compute_node_capacity_scope,
+      self.compute_node,
+      'ComputeNode_checkAndUpdateCapacityScope'
+    )
 
   def test_alarm_subscription(self):
     self.compute_node.edit(allocation_scope='open/subscription')
@@ -615,31 +517,21 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
     self.compute_node.edit(allocation_scope='open/friend')
     self.test_alarm()
 
-  def test_alarm_closed(self):
-    self.compute_node.edit(allocation_scope='close/outdated')
-    self.tic()
-    self._simulateComputeNode_checkAndUpdateCapacityScope()
-    try:
-      self.portal.portal_alarms.slapos_update_compute_node_capacity_scope.activeSense()
-      self.tic()
-    finally:
-      self._dropComputeNode_checkAndUpdateCapacityScope()
-    self.assertNotEqual(
-        'Visited by ComputeNode_checkAndUpdateCapacityScope',
-        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
+  def test_alarm_non_public(self):
+    self.compute_node.edit(allocation_scope='close')
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_update_compute_node_capacity_scope,
+      self.compute_node,
+      'ComputeNode_checkAndUpdateCapacityScope'
+    )
 
   def test_alarm_invalidated(self):
     self.compute_node.invalidate()
-    self.tic()
-    self._simulateComputeNode_checkAndUpdateCapacityScope()
-    try:
-      self.portal.portal_alarms.slapos_update_compute_node_capacity_scope.activeSense()
-      self.tic()
-    finally:
-      self._dropComputeNode_checkAndUpdateCapacityScope()
-    self.assertNotEqual(
-        'Visited by ComputeNode_checkAndUpdateCapacityScope',
-        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_update_compute_node_capacity_scope,
+      self.compute_node,
+      'ComputeNode_checkAndUpdateCapacityScope'
+    )
 
 class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
 
@@ -711,29 +603,20 @@ class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
 
   def test_alarm(self):
     instance = self.createInstance()
-    self._simulateScript('SoftwareInstance_tryToStopCollect')
-    try:
-      self.portal.portal_alarms.slapos_stop_collect_instance.activeSense()
-      self.tic()
-    finally:
-      self._dropScript('SoftwareInstance_tryToStopCollect')
-    self.assertEqual(
-        'Visited by SoftwareInstance_tryToStopCollect',
-        instance.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_stop_collect_instance,
+      instance,
+      'SoftwareInstance_tryToStopCollect'
+    )
 
   def test_alarm_invalidated(self):
     instance = self.createInstance()
     instance.invalidate()
-    self.tic()
-    self._simulateScript('SoftwareInstance_tryToStopCollect')
-    try:
-      self.portal.portal_alarms.slapos_stop_collect_instance.activeSense()
-      self.tic()
-    finally:
-      self._dropScript('SoftwareInstance_tryToStopCollect')
-    self.assertNotEqual(
-        'Visited by SoftwareInstance_tryToStopCollect',
-        instance.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_stop_collect_instance,
+      instance,
+      'SoftwareInstance_tryToStopCollect'
+    )
 
 class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 
@@ -946,45 +829,31 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 
   def test_alarm(self):
     instance = self.createInstance()
-    self.tic()
-    self._simulateScript("SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree")
-    try:
-      self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree.activeSense()
-      self.tic()
-    finally:
-      self._dropScript('SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree')
-    self.assertEqual(
-        'Visited by SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree',
-        instance.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree,
+      instance,
+      'SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree'
+    )
 
   def test_alarm_invalidated(self):
     instance = self.createInstance()
     instance.invalidate()
-    self.tic()
-    self._simulateScript("SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree")
-    try:
-      self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree.activeSense()
-      self.tic()
-    finally:
-      self._dropScript('SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree')
-    self.assertNotEqual(
-        'Visited by SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree',
-        instance.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree,
+      instance,
+      'SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree'
+    )
 
   def test_alarm_allocated(self):
     instance = self.createInstance()
     partition = self.createComputePartition()
     instance.edit(aggregate_value=partition)
-    self.tic()
-    self._simulateScript("SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree")
-    try:
-      self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree.activeSense()
-      self.tic()
-    finally:
-      self._dropScript('SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree')
-    self.assertNotEqual(
-        'Visited by SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree',
-        instance.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree,
+      instance,
+      'SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree'
+    )
+
 
 class TestSlapOSGarbageCollectUnlinkedInstanceAlarm(SlapOSTestCaseMixin):
 
@@ -1042,24 +911,6 @@ class TestSlapOSGarbageCollectUnlinkedInstanceAlarm(SlapOSTestCaseMixin):
     self.assertEqual(self.instance_tree.getRelativeUrl(),
                     sub_instance.getSpecialise())  
     return sub_instance
-
-  def _simulateSoftwareInstance_tryToGarbageUnlinkedInstance(self):
-    script_name = 'SoftwareInstance_tryToGarbageUnlinkedInstance'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by SoftwareInstance_tryToGarbageUnlinkedInstance') """ )
-    transaction.commit()
-
-  def _dropSoftwareInstance_tryToGarbageUnlinkedInstance(self):
-    script_name = 'SoftwareInstance_tryToGarbageUnlinkedInstance'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
 
   def test_SoftwareInstance_tryToGarbageUnlinkedInstance(self):
     instance = self.createInstance()
@@ -1190,28 +1041,19 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     instance0 = self.doRequestInstance(instance, 'instance0')
     self.assertEqual(instance.getSuccessorReference(),
                       instance0.getReference())
-    self._simulateSoftwareInstance_tryToGarbageUnlinkedInstance()
-    try:
-      self.portal.portal_alarms.slapos_garbage_collect_destroy_unlinked_instance.activeSense()
-      self.tic()
-    finally:
-      self._dropSoftwareInstance_tryToGarbageUnlinkedInstance()
-    self.assertNotEqual(
-        'Visited by SoftwareInstance_tryToGarbageUnlinkedInstance',
-        instance0.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_garbage_collect_destroy_unlinked_instance,
+      instance0,
+      'SoftwareInstance_tryToGarbageUnlinkedInstance'
+    )
 
     # Remove successor link
     instance.edit(successor_list=[])
-    self._simulateSoftwareInstance_tryToGarbageUnlinkedInstance()
-    self.tic()
-    try:
-      self.portal.portal_alarms.slapos_garbage_collect_destroy_unlinked_instance.activeSense()
-      self.tic()
-    finally:
-      self._dropSoftwareInstance_tryToGarbageUnlinkedInstance()
-    self.assertEqual(
-        'Visited by SoftwareInstance_tryToGarbageUnlinkedInstance',
-        instance0.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_garbage_collect_destroy_unlinked_instance,
+      instance0,
+      'SoftwareInstance_tryToGarbageUnlinkedInstance'
+    )
 
   def test_alarm_search_inlinked_instance_slave(self):
     instance = self.createInstance()
@@ -1220,17 +1062,19 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     self.tic()
     slave_instance0 = self.doRequestInstance(instance, 'slaveInstance0', True)
     self.assertEqual(instance.getSuccessorTitle(), 'slaveInstance0')
-    self._simulateSoftwareInstance_tryToGarbageUnlinkedInstance()
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_garbage_collect_destroy_unlinked_instance,
+      slave_instance0,
+      'SoftwareInstance_tryToGarbageUnlinkedInstance'
+    )
+
     instance.edit(successor_list=[])
-    self.tic()
-    try:
-      self.portal.portal_alarms.slapos_garbage_collect_destroy_unlinked_instance.activeSense()
-      self.tic()
-    finally:
-      self._dropSoftwareInstance_tryToGarbageUnlinkedInstance()
-    self.assertEqual(
-        'Visited by SoftwareInstance_tryToGarbageUnlinkedInstance',
-        slave_instance0.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_garbage_collect_destroy_unlinked_instance,
+      slave_instance0,
+      'SoftwareInstance_tryToGarbageUnlinkedInstance'
+    )
+
 
 class TestSlapOSInvalidateDestroyedInstance(SlapOSTestCaseMixin):
 
@@ -1301,24 +1145,6 @@ class TestSlapOSInvalidateDestroyedInstance(SlapOSTestCaseMixin):
     self.assertEqual(instance.getValidationState(), "validated")
     self.assertEqual(instance.getSlapState(), "destroy_requested")
 
-  def _simulateSoftwareInstance_tryToInvalidateIfDestroyed(self):
-    script_name = 'SoftwareInstance_tryToInvalidateIfDestroyed'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by SoftwareInstance_tryToInvalidateIfDestroyed') """ )
-    transaction.commit()
-
-  def _dropSoftwareInstance_tryToInvalidateIfDestroyed(self):
-    script_name = 'SoftwareInstance_tryToInvalidateIfDestroyed'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
   def test_alarm_software_instance_allocated(self):
     instance = self.createSoftwareInstance()
     partition = self.createComputePartition()
@@ -1327,16 +1153,11 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
     self.tic()
 
-    self._simulateSoftwareInstance_tryToInvalidateIfDestroyed()
-    try:
-      self.portal.portal_alarms.slapos_cloud_invalidate_destroyed_instance.\
-          activeSense()
-      self.tic()
-    finally:
-      self._dropSoftwareInstance_tryToInvalidateIfDestroyed()
-    self.assertNotEqual(
-        'Visited by SoftwareInstance_tryToInvalidateIfDestroyed',
-        instance.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_cloud_invalidate_destroyed_instance,
+      instance,
+      'SoftwareInstance_tryToInvalidateIfDestroyed'
+    )
 
   def test_alarm_software_instance_invalidated(self):
     instance = self.createSoftwareInstance()
@@ -1345,16 +1166,11 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
     self.tic()
 
-    self._simulateSoftwareInstance_tryToInvalidateIfDestroyed()
-    try:
-      self.portal.portal_alarms.slapos_cloud_invalidate_destroyed_instance.\
-          activeSense()
-      self.tic()
-    finally:
-      self._dropSoftwareInstance_tryToInvalidateIfDestroyed()
-    self.assertNotEqual(
-        'Visited by SoftwareInstance_tryToInvalidateIfDestroyed',
-        instance.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_cloud_invalidate_destroyed_instance,
+      instance,
+      'SoftwareInstance_tryToInvalidateIfDestroyed'
+    )
 
   def test_alarm_software_instance_matching(self):
     instance = self.createSoftwareInstance()
@@ -1363,13 +1179,8 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
     self.tic()
 
-    self._simulateSoftwareInstance_tryToInvalidateIfDestroyed()
-    try:
-      self.portal.portal_alarms.slapos_cloud_invalidate_destroyed_instance.\
-          activeSense()
-      self.tic()
-    finally:
-      self._dropSoftwareInstance_tryToInvalidateIfDestroyed()
-    self.assertEqual(
-        'Visited by SoftwareInstance_tryToInvalidateIfDestroyed',
-        instance.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_cloud_invalidate_destroyed_instance,
+      instance,
+      'SoftwareInstance_tryToInvalidateIfDestroyed'
+    )

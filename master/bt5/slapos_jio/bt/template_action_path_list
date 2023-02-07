@@ -6,8 +6,6 @@ Compute Node | new_ticket
 Compute Node | request_certificate_action
 Compute Node | revoke_certificate
 Compute Node | slaposjs_view
-Compute Node | update_allocation_scope
-Compute Node | update_category
 Computer Network Module | slaposjs_view
 Computer Network | slaposjs_view
 ERP5 Login | slaposjs_view

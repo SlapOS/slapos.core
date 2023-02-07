@@ -502,6 +502,19 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
           slapos_crm_check_compute_node_state
     self._test_alarm(alarm, self.compute_node, "ComputeNode_checkState")
 
+  def _test_alarm_check_compute_node_state_selected(self, allocation_scope,
+                                                 monitor_scope=None):
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope=allocation_scope)
+    self.tic()
+    if monitor_scope is not None:
+      self.compute_node.edit(monitor_scope=monitor_scope)
+      self.tic()
+
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_compute_node_state
+    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkState")
+
   def _test_alarm_check_compute_node_state_not_selected(self, allocation_scope,
                                                  monitor_scope=None):
     self._makeComputeNode()
@@ -532,15 +545,15 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
 
   def test_alarm_check_compute_node_state_closed_forever_compute_node(self):
     self._test_alarm_check_compute_node_state_not_selected(
-      allocation_scope='closed/forever')
+      allocation_scope='close/forever')
 
   def test_alarm_check_compute_node_state_closed_mantainence_compute_node(self):
-    self._test_alarm_check_compute_node_state_not_selected(
-      allocation_scope='closed/maintenance')
+    self._test_alarm_check_compute_node_state_selected(
+      allocation_scope='close/maintenance')
 
   def test_alarm_check_compute_node_state_closed_termination_compute_node(self):
-    self._test_alarm_check_compute_node_state_not_selected(
-      allocation_scope='closed/termination')
+    self._test_alarm_check_compute_node_state_selected(
+      allocation_scope='close/termination')
 
 class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCaseMixinWithAbort):
 
@@ -601,25 +614,48 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
           slapos_crm_check_software_installation_state
     self._test_alarm_not_visited(alarm, self.compute_node, "ComputeNode_checkSoftwareInstallationState")
 
-  def _test_alarm_not_run_on_close(self, allocation_scope):
+  def _test_alarm_not_run_on_close(self, allocation_scope, monitor_scope=None):
     self._makeComputeNode()
     self.compute_node.edit(allocation_scope=allocation_scope)
     self.tic()
+    if monitor_scope is not None:
+      self.compute_node.edit(monitor_scope=monitor_scope)
+      self.tic()
+
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_software_installation_state
     self._test_alarm_not_visited(alarm, self.compute_node, "ComputeNode_checkSoftwareInstallationState")
+
+  def _test_alarm_run_on_close(self, allocation_scope,):
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope=allocation_scope)
+    self.tic()
+
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_software_installation_state
+    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkSoftwareInstallationState")
 
   def test_alarm_not_run_on_close_forever(self):
     self._test_alarm_not_run_on_close('close/forever')
 
   def test_alarm_not_run_on_close_maintainence(self):
-    self._test_alarm_not_run_on_close('close/maintenence')
+    self._test_alarm_not_run_on_close('close/maintenence', monitor_scope="disabled")
 
   def test_alarm_not_run_on_close_outdated(self):
-    self._test_alarm_not_run_on_close('close/outdated')
+    self._test_alarm_not_run_on_close('close/outdated', monitor_scope="disabled")
 
   def test_alarm_not_run_on_close_termination(self):
-    self._test_alarm_not_run_on_close('close/termination')
+    self._test_alarm_not_run_on_close('close/termination', monitor_scope="disabled")
+
+  def test_alarm_run_on_close_maintainence(self):
+    self._test_alarm_run_on_close('close/maintenence')
+
+  def test_alarm_run_on_close_outdated(self):
+    self._test_alarm_run_on_close('close/outdated')
+
+  def test_alarm_run_on_close_termination(self):
+    self._test_alarm_run_on_close('close/termination')
+
 
 class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
 

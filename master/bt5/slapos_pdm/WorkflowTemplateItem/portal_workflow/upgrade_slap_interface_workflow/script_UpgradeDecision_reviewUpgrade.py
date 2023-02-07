@@ -31,11 +31,11 @@ if instance_tree is not None:
 compute_node = upgrade_decision.UpgradeDecision_getAggregateValue("Compute Node")
 if compute_node is not None:
   if compute_node.getUpgradeScope() in ['never', 'disabled']:
-    upgrade_decision.cancel("Upgrade scope was disabled on the related Instance Tree")
+    upgrade_decision.cancel("Upgrade scope was disabled on the related Compute Node")
     return
 
-  elif compute_node.getAllocationScope() in ["closed/forever", "closed/termination"]:
-    upgrade_decision.cancel(comment="Compute Node is closed.")
+  elif compute_node.getAllocationScope() == "close/forever":
+    upgrade_decision.cancel(comment="Compute Node is close forever.")
     return
 
   already_deployed = len(portal.portal_catalog(limit=1,

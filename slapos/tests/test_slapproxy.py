@@ -563,16 +563,16 @@ class TestRequest(MasterMixin):
 
   def test_two_request_one_partition_free(self):
     """
-    Since slapproxy does not implement scope, providing two partition_id
-    values will still succeed, even if only one partition is available.
+    Since slapproxy implements scope, providing two partition_id
+    values will fail when only one partition is available.
     """
     self.format_for_number_of_partitions(1)
     self.assertIsInstance(self.request('http://sr//', None,
                                        'MyFirstInstance', 'slappart2'),
                           slapos.slap.ComputerPartition)
-    self.assertIsInstance(self.request('http://sr//', None,
-                                       'MyFirstInstance', 'slappart3'),
-                          slapos.slap.ComputerPartition)
+    rv = self._requestComputerPartition('http://sr//', None,
+                                       'MyFirstInstance', 'slappart3')
+    self.assertEqual(rv._status_code, 404)
 
   def test_two_request_two_partition_free(self):
     """
@@ -754,13 +754,13 @@ class TestRequest(MasterMixin):
 
   def test_two_different_request_from_two_partition(self):
     """
-    Since slapproxy does not implement scope, two request with
-    different partition_id will still return the same partition.
+    Since slapproxy implement scope, two request with
+    different partition_id will return different partitions.
     """
     self.format_for_number_of_partitions(2)
-    self.assertEqual(
-        dict(self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__, _connection_helper=None),
-        dict(self.request('http://sr//', None, 'MyFirstInstance', 'slappart3').__dict__, _connection_helper=None))
+    self.assertNotEqual(
+        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').getId(),
+        self.request('http://sr//', None, 'MyFirstInstance', 'slappart3').getId())
 
   def test_two_different_request_from_one_partition(self):
     """
@@ -769,8 +769,8 @@ class TestRequest(MasterMixin):
     """
     self.format_for_number_of_partitions(2)
     self.assertNotEqual(
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__,
-        self.request('http://sr//', None, 'frontend', 'slappart2').__dict__)
+        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').getId(),
+        self.request('http://sr//', None, 'frontend', 'slappart2').getId())
 
   def test_request_with_nonascii_parameters(self):
     """

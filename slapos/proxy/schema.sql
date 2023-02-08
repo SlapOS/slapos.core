@@ -1,4 +1,4 @@
---version:16
+--version:17
 CREATE TABLE IF NOT EXISTS local_software_release_root%(version)s (
   path VARCHAR(255)
 );

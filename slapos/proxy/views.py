@@ -196,6 +196,16 @@ def _upgradeDatabaseIfNeeded():
       placeholders = ':'+', :'.join(row.keys())
       query = 'INSERT OR REPLACE INTO %s (%s) VALUES (%s)' % ('%s', columns, placeholders)
       execute_db(table, query, row)
+
+  if int(current_schema_version) <= 16:
+    # Fill partition_root field in partition table
+    for row in execute_db('partition', 'SELECT * from %s'):
+      row['root_partition'] = getRootPartitionId(row['requested_by'])
+      columns = ', '.join(row.keys())
+      placeholders = ':'+', :'.join(row.keys())
+      query = 'INSERT OR REPLACE INTO %s (%s) VALUES (%s)' % ('%s', columns, placeholders)
+      execute_db('partition', query, row)
+
   # then drop old tables
   for previous_table in previous_table_list:
     g.db.execute("DROP table %s" % previous_table)

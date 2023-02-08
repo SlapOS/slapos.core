@@ -762,6 +762,22 @@ class TestRequest(MasterMixin):
         self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').getId(),
         self.request('http://sr//', None, 'MyFirstInstance', 'slappart3').getId())
 
+  def test_diamond_instance_tree(self):
+    """
+    Two requests with same reference in the same
+    instance tree will return the same partition.
+    A --------> B    #
+     \           \   #
+      \--> C ---> D  #
+    """
+    self.format_for_number_of_partitions(4)
+    a = self.request('http://sr//', None, 'A', None)
+    b = self.request('http://sr//', None, 'B', a.getId())
+    c = self.request('http://sr//', None, 'C', a.getId())
+    self.assertEqual(
+        self.request('http://sr//', None, 'D', b.getId()).getId(),
+        self.request('http://sr//', None, 'D', c.getId()).getId())
+
   def test_two_different_request_from_one_partition(self):
     """
     Two different request from same partition

@@ -555,6 +555,10 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     self._test_alarm_check_compute_node_state_selected(
       allocation_scope='close/termination')
 
+  def test_alarm_check_compute_node_state_closed_noallocation_compute_node(self):
+    self._test_alarm_check_compute_node_state_selected(
+      allocation_scope='close/noallocation')
+
 class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCaseMixinWithAbort):
 
   def test_alarm_run_on_open_public(self):
@@ -647,6 +651,9 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
   def test_alarm_not_run_on_close_termination(self):
     self._test_alarm_not_run_on_close('close/termination', monitor_scope="disabled")
 
+  def test_alarm_not_run_on_close_noallocation(self):
+    self._test_alarm_not_run_on_close('close/noallocation', monitor_scope="disabled")
+
   def test_alarm_run_on_close_maintainence(self):
     self._test_alarm_run_on_close('close/maintenence')
 
@@ -655,6 +662,9 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
 
   def test_alarm_run_on_close_termination(self):
     self._test_alarm_run_on_close('close/termination')
+
+  def test_alarm_run_on_close_noallocation(self):
+    self._test_alarm_run_on_close('close/noallocation')
 
 
 class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):

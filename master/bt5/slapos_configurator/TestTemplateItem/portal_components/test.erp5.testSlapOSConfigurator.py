@@ -39,7 +39,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     self.portal.portal_ids.fixConsistency()
     self.assertEqual(self.portal.portal_ids.checkConsistency(), [])
     self.assertEqual(self.portal.person_module.getIdGenerator(),
-                        "_generatePerDayId")
+                        "_generatePerDayNodeNumberId")
 
   def testConfiguredShacacheWebSite(self):
     """ Make sure Shacache WebSite is setuped by Alarm
@@ -56,12 +56,15 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     """ Make sure Conversion Server was configured well,
         invoking checkConsistency """
     pref_tool = self.portal.portal_preferences
-    self.assertEqual(pref_tool.checkConsistency(), [])
+    self.portal.portal_preferences.fixConsistency()
+    consistency_list = pref_tool.checkConsistency()
+    self.assertEqual(len(consistency_list), 1)
+    self.assertEqual(str(consistency_list[0].message), 'The System Preference subscription assignment should have a destination_project')
 
     # Check if configuration is properly set:
-    self.assertEqual(
-      pref_tool.slapos_default_system_preference.SystemPreference_checkSystemPreferenceConsistency(),
-      [])
+    consistency_list = pref_tool.slapos_default_system_preference.SystemPreference_checkSystemPreferenceConsistency()
+    self.assertEqual(len(consistency_list), 1)
+    self.assertEqual(str(consistency_list[0]), 'The System Preference subscription assignment should have a destination_project')
 
   def testConfiguredCertificateAuthoringConstraint(self):
     """Make sure Certificate Authoring was configured well,
@@ -93,8 +96,9 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
         well configured."""
     # set preference
     preference_tool = self.portal.portal_preferences
-    conversion_url = ["https://cloudooo.erp5.net/"]
-    self.assertEqual(preference_tool.getPreferredDocumentConversionServerUrlList(), conversion_url)
+    conversion_url = ["https://cloudooo.erp5.net/",
+                      "https://cloudooo1.erp5.net/"]
+    self.assertSameSet(preference_tool.getPreferredDocumentConversionServerUrlList(), conversion_url)
 
   def testConfiguredCertificateAuthoring(self):
     """ Make sure Certificate Authoting is
@@ -147,12 +151,12 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     """
     module_list = [module.getId() for module in self.portal.objectValues() 
                      if getattr(module, "getIdGenerator", None) is not None and \
-                                        module.getIdGenerator() == "_generatePerDayId"]
+                                        module.getIdGenerator() == "_generatePerDayNodeNumberId"]
     expected_module_list = [
        'access_token_module',
        'account_module',
        'accounting_module',
-       'bug_module',
+       'allocation_supply_module',
        'business_configuration_module',
        'business_process_module',
        'campaign_module',
@@ -174,7 +178,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'document_module',
        'event_module',
        'external_source_module',
-       'glossary_module',
        'hosting_subscription_module',
        'instance_tree_module',
        'image_module',
@@ -200,7 +203,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'person_module',
        'portal_activities',
        'portal_simulation',
-       'portal_callables',
        'product_module',
        'project_module',
        'purchase_order_module',
@@ -223,18 +225,12 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'sale_trade_condition_module',
        'service_module',
        'service_report_module',
-       'smart_assistant_file_module',
-       'smart_assistant_image_module',
-       'smart_assistant_sound_module',
-       'smart_assistant_text_module',
        'software_installation_module',
        'software_instance_module',
        'software_licence_module',
        'software_product_module',
        'software_publication_module',
        'software_release_module',
-       'sound_module',
-       'subscription_condition_module',
        'subscription_request_module',
        'support_request_module',
        'system_event_module',
@@ -243,7 +239,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'test_page_module',
        'transformation_module',
        'upgrade_decision_module',
-       'video_module',
        'web_page_module',
        'web_site_module',
        'data_descriptor_module',
@@ -276,8 +271,8 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
 
     self.assertSameSet(module_list, expected_module_list)
 
-    self.assertEqual(self.portal.portal_simulation.getIdGenerator(), "_generatePerDayId")    
-    self.assertEqual(self.portal.portal_activities.getIdGenerator(), "_generatePerDayId")
+    self.assertEqual(self.portal.portal_simulation.getIdGenerator(), "_generatePerDayNodeNumberId")    
+    self.assertEqual(self.portal.portal_activities.getIdGenerator(), "_generatePerDayNodeNumberId")
 
   def testConfiguredBusinessTemplateList(self):
     """ Make sure Installed business Templates are

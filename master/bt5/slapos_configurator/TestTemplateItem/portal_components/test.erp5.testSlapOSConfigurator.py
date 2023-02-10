@@ -86,7 +86,8 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
         well configured """
     # set preference
     preference_tool = self.portal.portal_preferences
-    conversion_url = ["https://cloudooo.erp5.net/"]
+    conversion_url = ["https://cloudooo.erp5.net/",
+                      "https://cloudooo1.erp5.net/"]
     self.assertEqual(preference_tool.getPreferredDocumentConversionServerUrlList(), conversion_url)
 
   def testConfiguredCertificateAuthoring(self):
@@ -136,6 +137,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'access_token_module',
        'account_module',
        'accounting_module',
+       'allocation_supply_module',
        'bug_module',
        'business_configuration_module',
        'business_process_module',
@@ -207,18 +209,12 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'sale_trade_condition_module',
        'service_module',
        'service_report_module',
-       'smart_assistant_file_module',
-       'smart_assistant_image_module',
-       'smart_assistant_sound_module',
-       'smart_assistant_text_module',
        'software_installation_module',
        'software_instance_module',
        'software_licence_module',
        'software_product_module',
        'software_publication_module',
        'software_release_module',
-       'sound_module',
-       'subscription_condition_module',
        'subscription_request_module',
        'support_request_module',
        'system_event_module',
@@ -227,7 +223,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'test_page_module',
        'transformation_module',
        'upgrade_decision_module',
-       'video_module',
        'web_page_module',
        'web_site_module',
        'data_descriptor_module',

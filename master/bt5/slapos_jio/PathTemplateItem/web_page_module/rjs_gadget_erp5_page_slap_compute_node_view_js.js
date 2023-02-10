@@ -120,7 +120,8 @@
           "Monitoring Status",
           "Supplied Softwares",
           "Compute Node:",
-          "Associated Tickets"
+          "Associated Tickets",
+          "Closed by user"
         ];
 
       // Follow up changeState API but it is requires to actually
@@ -171,6 +172,7 @@
                                 [results[2][14], 'close/termination'],
                                 [results[2][15], 'close/forever'],
                                 [results[2][16], 'close/outdated'],
+                                [results[2][33], 'close/noallocation'],
                                 [results[2][17], 'open/friend'],
                                 [results[2][18], 'open/personal'],
                                 [results[2][19], 'open/public'],

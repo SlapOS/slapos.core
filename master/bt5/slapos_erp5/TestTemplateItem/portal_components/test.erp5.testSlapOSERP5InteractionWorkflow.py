@@ -303,3 +303,21 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
     self.assertEqual(compute_node.getSubjectList(), [person.getDefaultEmailCoordinateText()])
     self.assertEqual(compute_node.getDestinationSectionList(),
      [person.getRelativeUrl()])
+
+  def test_ComputeNode_setAllocationScope_closed_noallocation_no_source_adm(self):
+    self._test_ComputeNode_setAllocationScope_closed(
+      allocation_scope="close/noallocation",
+    )
+
+  def test_ComputeNode_setAllocationScope_closed_noallocation_with_source_adm(self):
+    person = self.makePerson()
+    self.tic()
+    self.assertNotIn(person.getDefaultEmailCoordinateText(), [None, ""])
+
+    compute_node = self._test_ComputeNode_setAllocationScope_closed(
+      allocation_scope="close/noallocation",
+      source_administration=person.getRelativeUrl())
+
+    self.assertEqual(compute_node.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(compute_node.getDestinationSectionList(),
+     [person.getRelativeUrl()])

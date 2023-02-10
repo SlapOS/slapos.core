@@ -408,6 +408,7 @@ class Partition(object):
   def __init__(self,
                software_path,
                instance_path,
+               shared_part_list,
                supervisord_partition_configuration_path,
                supervisord_socket,
                computer_partition,
@@ -431,6 +432,7 @@ class Partition(object):
     self.logger = logger
     self.software_path = software_path
     self.instance_path = instance_path
+    self.shared_part_list = shared_part_list
     self.run_path = os.path.join(self.instance_path, 'etc', 'run')
     self.service_path = os.path.join(self.instance_path, 'etc', 'service')
     self.prerm_path = os.path.join(self.instance_path, 'etc', 'prerm')
@@ -639,6 +641,7 @@ class Partition(object):
             'cert_file': self.cert_file,
             'storage_home': self.instance_storage_home,
             'global_ipv4_network_prefix': self.ipv4_global_network,
+            'shared_part_list': '  '.join(self.shared_part_list.strip().splitlines(True))
         }
     with open(config_location, 'w') as f:
       f.write(buildout_text)

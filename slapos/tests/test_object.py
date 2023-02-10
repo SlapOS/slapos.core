@@ -33,6 +33,8 @@ import unittest
 import shutil
 import tempfile
 
+from six.moves.configparser import ConfigParser
+
 from slapos.slap import ComputerPartition as SlapComputerPartition
 
 from slapos.grid.SlapObject import Partition, Software
@@ -135,7 +137,8 @@ class MasterMixin(BasicMixin, unittest.TestCase):
       partition_id=None,
       slap_computer_partition=None,
       retention_delay=None,
-      partition_timeout=None
+      partition_timeout=None,
+      shared_part_list='',
   ):
     """
     Create a partition, and return a Partition object created
@@ -166,6 +169,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     partition = Partition(
       software_path=software_path,
       instance_path=instance_path,
+      shared_part_list=shared_part_list,
       supervisord_partition_configuration_path=os.path.join(
           supervisor_configuration_path, partition_id),
       supervisord_socket=os.path.join(
@@ -413,6 +417,18 @@ class TestPartitionSlapObject(MasterMixin, unittest.TestCase):
 
     self.assertTrue(utils.launchBuildout.called)
 
+  def test_instance_is_deploying_if_software_release_exists(self):
+    """
+    Test that slapgrid deploys an instance if its Software Release exists and
+    instance.cfg in the Software Release exists.
+    """
+    software = self.createSoftware()
+
+    partition = self.createPartition(software.url)
+    partition.install()
+
+    self.assertTrue(utils.launchBuildout.called)
+
   def test_backward_compatibility_instance_is_deploying_if_template_cfg_is_used(self):
     """
     Backward compatibility test, for old software releases.
@@ -454,6 +470,29 @@ class TestPartitionSlapObject(MasterMixin, unittest.TestCase):
 
     # XXX: What should it raise?
     self.assertRaises(IOError, partition.install)
+
+  def test_buildout_tail_contains_shared_parts(self):
+    """
+    Check that shared-part-list in included in buildout tail.
+    """
+    software = self.createSoftware()
+
+    partition = self.createPartition(
+      software.url,
+      shared_part_list='bogus/shared/part')
+    partition.install()
+
+    buildout_cfg = os.path.join(partition.instance_path, 'buildout.cfg')
+
+    config = ConfigParser()
+    config.read(buildout_cfg)
+
+    self.assertTrue(config.has_option('slap-connection', 'shared-part-list'))
+    self.assertEqual(
+      config.get('slap-connection', 'shared-part-list').strip(),
+      'bogus/shared/part'
+    )
+
 
 class TestPartitionSupervisorConfig(MasterMixin, unittest.TestCase):
 

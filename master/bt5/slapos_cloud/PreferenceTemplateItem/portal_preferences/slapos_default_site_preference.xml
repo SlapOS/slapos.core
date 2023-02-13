@@ -144,9 +144,11 @@ It\'s the lowest priority one; ie. managers can create higher priority preferenc
             <value>
               <object>
                 <klass>
-                  <global id="1.1" name="DateTime" module="DateTime.DateTime"/>
+                  <global id="1.1" name="_reconstructor" module="copy_reg"/>
                 </klass>
                 <tuple>
+                  <global id="1.2" name="DateTime" module="DateTime.DateTime"/>
+                  <global id="1.3" name="object" module="__builtin__"/>
                   <none/>
                 </tuple>
                 <state>
@@ -164,6 +166,8 @@ It\'s the lowest priority one; ie. managers can create higher priority preferenc
               <object>
                 <klass> <reference id="1.1"/> </klass>
                 <tuple>
+                  <reference id="1.2"/>
+                  <reference id="1.3"/>
                   <none/>
                 </tuple>
                 <state>
@@ -278,19 +282,19 @@ It\'s the lowest priority one; ie. managers can create higher priority preferenc
         </item>
         <item>
             <key> <string>preferred_document_file_name_regular_expression</string> </key>
-            <value> <string encoding="cdata"><![CDATA[
+            <value> <string encoding="cdata">
 
-(?P<reference>[A-Z&é@{]{3,7})-(?P<language>[a-z]{2})-(?P<version>[0-9]{3})
+(?P&lt;reference&gt;[A-Z&amp;é@{]{3,7})-(?P&lt;language&gt;[a-z]{2})-(?P&lt;version&gt;[0-9]{3})
 
-]]></string> </value>
+</string> </value>
         </item>
         <item>
             <key> <string>preferred_document_reference_regular_expression</string> </key>
-            <value> <string encoding="cdata"><![CDATA[
+            <value> <string encoding="cdata">
 
-(?P<reference>[A-Z&é@{]{3,7})(-(?P<language>[a-z]{2}))?(-(?P<version>[0-9]{3}))?
+(?P&lt;reference&gt;[A-Z&amp;é@{]{3,7})(-(?P&lt;language&gt;[a-z]{2}))?(-(?P&lt;version&gt;[0-9]{3}))?
 
-]]></string> </value>
+</string> </value>
         </item>
         <item>
             <key> <string>preferred_event_assessment_form_id</string> </key>

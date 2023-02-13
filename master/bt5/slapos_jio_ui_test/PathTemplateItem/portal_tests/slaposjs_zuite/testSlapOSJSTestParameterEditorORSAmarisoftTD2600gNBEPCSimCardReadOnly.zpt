@@ -23,7 +23,7 @@
         <td>https://lab.nexedi.com/nexedi/slapos/raw/1.0.286/software/ors-amarisoft/software-tdd2600.cfg</td>
       </tr>
 
-      <tal:block metal:use-macro="here/Zuite_SlapOSORSParameterCommonTemplate/macros/basic_rx_tx_scenario_readonly" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSORSParameterCommonTemplate/macros/basic_gnb_sim_card_scenario_readonly" />
 
     </tbody>
   </table>

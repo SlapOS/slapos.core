@@ -853,7 +853,8 @@
           for (option_index in json['software-type']) {
             if (json['software-type'].hasOwnProperty(option_index)) {
               if ((gadget.state.software_type_list.length === 0) ||
-                  (gadget.state.software_type_list.includes(option_index))) {
+                  (gadget.state.software_type_list.includes(option_index)) ||
+                  (gadget.state.software_type_list.includes(json['software-type'][option_index]['software-type']))) {
 
                 if (json['software-type'][option_index].shared === undefined) {
                   json['software-type'][option_index].shared = false;

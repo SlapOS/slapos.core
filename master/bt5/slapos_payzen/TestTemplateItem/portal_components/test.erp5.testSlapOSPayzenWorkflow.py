@@ -1,9 +1,9 @@
 # Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 
+import lxml.html
 from DateTime import DateTime
 from Products.ERP5Type.tests.utils import createZODBPythonScript
-import difflib
 
 HARDCODED_PRICE = -99.6
 
@@ -196,7 +196,17 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     data_dict['action'] = 'https://secure.payzen.eu/vads-payment/'
 
 
-    expected_html_page = \
+    expected_html_page = lxml.html.tostring(lxml.html.fromstring(
+      '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '
+      '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n'\
+      '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n'\
+      '<head>\n'\
+      '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n'\
+      '  <meta http-equiv="Content-Script-Type" content="text/javascript" />\n'\
+      '  <meta http-equiv="Content-Style-Type" content="text/css" />\n'\
+      '  <title>title</title>\n'\
+      '</head>\n'\
+      '<body onload="document.payment.submit();">\n'\
       '<form method="POST'\
       '" id="payment" name="payment"\n      action="%(action)s">\n\n  <input '\
       'type="hidden" name="vads_url_return"\n         value="'\
@@ -222,17 +232,19 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       ' <input type="hidden" name="vads_amount" value="%(vads_amount)s">\n\n\n'\
       '  <input type="hidden" name="vads_version" value="V2">\n\n\n  <input type="'\
       'hidden" name="vads_action_mode"\n         value="INTERACTIVE">\n\n<center>\n '\
-      ' <input type="submit" value="Click to pay">\n</center>\n</form>' % data_dict
+      ' <input type="submit" value="Click to pay">\n</center>\n</form>'\
+      '</body></html>' % data_dict),
+      method='c14n')
 
     # Event message state
     event_message_list = event.contentValues(portal_type="Payzen Event Message")
     self.assertEqual(len(event_message_list), 1)
     message = event_message_list[0]
     self.assertEqual(message.getTitle(), 'Shown Page')
-    self.assertIn(expected_html_page, message.getTextContent(),
-      '\n'.join([q for q in difflib.unified_diff(expected_html_page.split('\n'),
-        message.getTextContent().split('\n'))]))
-    self.assertIn('onload="document.payment.submit();"', message.getTextContent())
+
+    message_text_content = lxml.html.tostring(
+      lxml.html.fromstring(message.getTextContent()), method='c14n')
+    self.assertEqual(message_text_content, expected_html_page)
 
   def test_updateStatus_noAccountingTransaction(self):
     event = self.createPayzenEvent()

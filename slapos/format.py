@@ -1304,6 +1304,14 @@ class Interface(object):
           self._reserveIpv6Range(result_addr['addr'], result_addr['prefixlen'])
         return result_addr
 
+    self._logger.warning(
+      "Falling back to random address selection for partition %s"
+      " because %s/%s is already taken" % (
+        '%s tap' % partition_index if tap else partition_index,
+        result_addr['addr'],
+        result_addr['prefixlen'],
+      ))
+
     # Try 10 times to add address, raise in case if not possible
     for _ in range(10):
       if tap:
@@ -1349,6 +1357,14 @@ class Interface(object):
     ipv6_range['network'] = '%(addr)s/%(prefixlen)d' % ipv6_range
     if self._tryReserveIpv6Range(ipv6_range['addr'], ipv6_range['prefixlen']):
       return ipv6_range
+
+    self._logger.warning(
+      "Falling back to random IPv6 range selection for partition %s"
+      " because %s is already taken" % (
+        '%s tun' % i if tun else i,
+        ipv6_range['network'],
+      ))
+
     # Try 10 times to add address, raise in case if not possible
     for _ in range(10):
       ipv6_range = self._generateRandomIPv6Range(address_dict, suffix='0')

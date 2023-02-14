@@ -233,6 +233,18 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     self.assertEqual(message.getTitle(), 'Shown Page')
     message_text_content = lxml.html.tostring(
       lxml.html.fromstring(message.getTextContent()), method='c14n')
+
+    import os
+    from Products.ERP5Type.tests.runUnitTest import log_directory
+    if log_directory:
+      with open(os.path.join(log_directory, '%s-expected_html_page.html' % self.id()), 'wb') as f:
+        f.write(expected_html_page.encode('utf-8'))
+      with open(os.path.join(log_directory, '%s-message_text_content.html' % self.id()), 'wb') as f:
+        f.write(message.getTextContent().encode('utf-8'))
+      with open(os.path.join(log_directory, '%s-c14n-message_text_content.html' % self.id()), 'wb') as f:
+        f.write(message_text_content.encode('utf-8'))
+    self.assertIn(expected_html_page, message_text_content)
+
     self.assertIn(expected_html_page, message_text_content,
       '\n'.join([q for q in difflib.unified_diff(expected_html_page.split('\n'),
         message_text_content.split('\n'))]))

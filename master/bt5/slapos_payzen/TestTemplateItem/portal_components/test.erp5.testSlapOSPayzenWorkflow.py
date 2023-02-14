@@ -1,9 +1,9 @@
 # Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 
+import lxml.html
 from DateTime import DateTime
 from Products.ERP5Type.tests.utils import createZODBPythonScript
-import difflib
 
 HARDCODED_PRICE = -99.6
 
@@ -195,44 +195,96 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     self.portal.portal_secure_payments.slapos_payzen_test._getFieldList(data_dict)
     data_dict['action'] = 'https://secure.payzen.eu/vads-payment/'
 
+    expected_html_page = lxml.html.tostring(
+      lxml.html.fromstring(
+'''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<title>title</title>
+</head>
+<body onload="document.payment.submit();">
 
-    expected_html_page = \
-      '<form method="POST'\
-      '" id="payment" name="payment"\n      action="%(action)s">\n\n  <input '\
-      'type="hidden" name="vads_url_return"\n         value="'\
-      '%(vads_url_return)s">\n\n\n  <input type="hidden" name="vads_site_id" '\
-      'value="%(vads_site_id)s">\n\n\n  <input type="hidden" name="vads_url_e'\
-      'rror"\n         value="%(vads_url_error)s">\n\n\n  <input type="hidden'\
-      '" name="vads_trans_id" value="%(vads_trans_id)s">\n\n\n  '\
-      '<input type="hidden" name="vads_url_success"\n         value="'\
-      '%(vads_url_success)s">\n\n\n  <input type="hidden" name="vads_order_id'\
-      '"\n         value="%(vads_order_id)s">\n\n\n  <input type="hidden" name="vads_url_refe'\
-      'rral"\n         value="%(vads_url_referral)s">\n\n\n  <input type="hid'\
-      'den" name="vads_page_action"\n         value="PAYMENT">\n\n\n  <input '\
-      'type="hidden" name="vads_trans_date"\n         value="'\
-      '%(vads_trans_date)s">\n\n\n  <input type="hidden" name="vads_url_refus'\
-      'ed"\n         value="%(vads_url_refused)s">\n\n\n  <input type="hidden'\
-      '" name="vads_url_cancel"\n         value="%(vads_url_cancel)s">\n\n\n '\
-      ' <input type="hidden" name="vads_ctx_mode" value="TEST">\n\n\n  <input '\
-      'type="hidden" name="vads_payment_config"\n         value="SINGLE">\n\n'\
-      '\n  <input type="hidden" name="vads_contrib" value="ERP5">\n\n\n  <inp'\
-      'ut type="hidden" name="signature"\n         value="%(signature)s">\n\n'\
-      '\n  <input type="hidden" name="vads_language" value="%(vads_language)s">\n\n\n  <inpu'\
-      't type="hidden" name="vads_currency" value="%(vads_currency)s">\n\n\n '\
-      ' <input type="hidden" name="vads_amount" value="%(vads_amount)s">\n\n\n'\
-      '  <input type="hidden" name="vads_version" value="V2">\n\n\n  <input type="'\
-      'hidden" name="vads_action_mode"\n         value="INTERACTIVE">\n\n<center>\n '\
-      ' <input type="submit" value="Click to pay">\n</center>\n</form>' % data_dict
+<form action="%(action)s" id="payment" method="POST" name="payment">
+
+  <input name="signature" type="hidden" value="%(signature)s"></input>
+
+
+  <input name="vads_action_mode" type="hidden" value="INTERACTIVE"></input>
+
+
+  <input name="vads_amount" type="hidden" value="%(vads_amount)s"></input>
+
+
+  <input name="vads_contrib" type="hidden" value="ERP5"></input>
+
+
+  <input name="vads_ctx_mode" type="hidden" value="TEST"></input>
+
+
+  <input name="vads_currency" type="hidden" value="%(vads_currency)s"></input>
+
+
+  <input name="vads_language" type="hidden" value="%(vads_language)s"></input>
+
+
+  <input name="vads_order_id" type="hidden" value="%(vads_order_id)s"></input>
+
+
+  <input name="vads_page_action" type="hidden" value="PAYMENT"></input>
+
+
+  <input name="vads_payment_config" type="hidden" value="SINGLE"></input>
+
+
+  <input name="vads_site_id" type="hidden" value="%(vads_site_id)s"></input>
+
+
+  <input name="vads_trans_date" type="hidden" value="%(vads_trans_date)s"></input>
+
+
+  <input name="vads_trans_id" type="hidden" value="%(vads_trans_id)s"></input>
+
+
+  <input name="vads_url_cancel" type="hidden" value="%(vads_url_cancel)s"></input>
+
+
+  <input name="vads_url_error" type="hidden" value="%(vads_url_error)s"></input>
+
+
+  <input name="vads_url_referral" type="hidden" value="%(vads_url_referral)s"></input>
+
+
+  <input name="vads_url_refused" type="hidden" value="%(vads_url_refused)s"></input>
+
+
+  <input name="vads_url_return" type="hidden" value="%(vads_url_return)s"></input>
+
+
+  <input name="vads_url_success" type="hidden" value="%(vads_url_success)s"></input>
+
+
+  <input name="vads_version" type="hidden" value="V2"></input>
+
+
+<center>
+  <input type="submit" value="Click to pay"></input>
+</center>
+</form>
+</body>
+</html>''' % data_dict), method='c14n')
 
     # Event message state
     event_message_list = event.contentValues(portal_type="Payzen Event Message")
     self.assertEqual(len(event_message_list), 1)
     message = event_message_list[0]
     self.assertEqual(message.getTitle(), 'Shown Page')
-    self.assertIn(expected_html_page, message.getTextContent(),
-      '\n'.join([q for q in difflib.unified_diff(expected_html_page.split('\n'),
-        message.getTextContent().split('\n'))]))
-    self.assertIn('onload="document.payment.submit();"', message.getTextContent())
+
+    message_text_content = lxml.html.tostring(
+      lxml.html.fromstring(message.getTextContent()), method='c14n')
+    self.assertEqual(message_text_content, expected_html_page)
 
   def test_updateStatus_noAccountingTransaction(self):
     event = self.createPayzenEvent()

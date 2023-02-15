@@ -197,7 +197,7 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
 
     expected_html_page = lxml.html.tostring(
       lxml.html.fromstring(
-'''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n'\
+'''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -206,6 +206,7 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
 <title>title</title>
 </head>
 <body onload="document.payment.submit();">
+
 <form action="%(action)s" id="payment" method="POST" name="payment">
 
   <input name="signature" type="hidden" value="%(signature)s"></input>
@@ -272,8 +273,9 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
   <input type="submit" value="Click to pay"></input>
 </center>
 </form>
-</body>
-</html>''' % data_dict), method='c14n')
+
+
+</body></html>''' % data_dict), method='c14n')
 
     # Event message state
     event_message_list = event.contentValues(portal_type="Payzen Event Message")
@@ -283,6 +285,12 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
 
     message_text_content = lxml.html.tostring(
       lxml.html.fromstring(message.getTextContent()), method='c14n')
+    # XXX
+    print('message.getTextContent()')
+    print(message.getTextContent())
+    print('message_text_content')
+    print(message_text_content)
+
     self.assertEqual(message_text_content, expected_html_page)
 
   def test_updateStatus_noAccountingTransaction(self):

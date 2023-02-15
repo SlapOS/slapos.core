@@ -6,6 +6,22 @@ if REQUEST is not None:
 portal = context.getPortalObject()
 
 web_site = context.getWebSiteValue()
+if email in ["", None]:
+  error = "Email must be provided"
+  base_url = context.getWebSectionValue().absolute_url()
+  redirect_url = "%s?field_your_reservation_name=%s&field_your_reservation_email=%s&field_your_reservation_number_of_machines=%s&field_your_reservation_network=%s&field_your_reservation_invitation_token=%s&portal_status_message=%s" % (
+      base_url,
+      user_input_dict['name'],
+      email,
+      user_input_dict["amount"],
+      subscription_reference,
+      token,
+      error
+      )
+  return context.REQUEST.RESPONSE.redirect(redirect_url)
+
+
+
 if token:
   error = ""
   try:

@@ -480,9 +480,6 @@ class TestSlapOSComputeNode_checkAndUpdateCapacityScopeSubscription(TestSlapOSCo
 class TestSlapOSComputeNode_checkAndUpdateCapacityScopePersonal(TestSlapOSComputeNode_checkAndUpdateCapacityScope):
   allocation_scope_to_test = 'open/personal'
 
-class TestSlapOSComputeNode_checkAndUpdateCapacityScopeFriend(TestSlapOSComputeNode_checkAndUpdateCapacityScope):
-  allocation_scope_to_test = 'open/friend'
-
 class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
@@ -511,10 +508,6 @@ class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
 
   def test_alarm_personal(self):
     self.compute_node.edit(allocation_scope='open/personal')
-    self.test_alarm()
-
-  def test_alarm_friend(self):
-    self.compute_node.edit(allocation_scope='open/friend')
     self.test_alarm()
 
   def test_alarm_non_public(self):

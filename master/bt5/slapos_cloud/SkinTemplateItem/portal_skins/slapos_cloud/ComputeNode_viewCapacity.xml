@@ -104,7 +104,6 @@
                     <value>
                       <list>
                         <string>my_allocation_scope</string>
-                        <string>my_subject_list</string>
                         <string>my_translated_validation_state_title</string>
                       </list>
                     </value>

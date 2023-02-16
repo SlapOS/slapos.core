@@ -206,23 +206,6 @@ class TestComputeNode(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(compute_node, self.user_id, ['Owner'])
     self.assertRoles(compute_node, compute_node.getUserId(), ['Assignor'])
 
-    # open/friend
-    friend_reference = 'TESTPERSON-%s' % self.generateNewId()
-    friend_person = self.portal.person_module.newContent(portal_type='Person',
-        reference=friend_reference)
-    compute_node.edit(allocation_scope='open/friend',
-        destination_section=friend_person.getRelativeUrl()
-    )
-    compute_node.updateLocalRolesOnSecurityGroups()
-    shadow_friend_user_id = 'SHADOW-%s' % friend_person.getUserId()
-    self.assertSecurityGroup(compute_node,
-        [self.user_id, 'G-COMPANY', shadow_friend_user_id,
-         person.getUserId(), compute_node.getUserId()], False)
-    self.assertRoles(compute_node, shadow_friend_user_id, ['Auditor'])
-    self.assertRoles(compute_node, self.user_id, ['Owner'])
-    self.assertRoles(compute_node, compute_node.getUserId(), ['Assignor'])
-
-
   def test_selfComputeNode(self):
     reference = 'TESTCOMP-%s' % self.generateNewId()
     compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',

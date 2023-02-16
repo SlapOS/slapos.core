@@ -58,14 +58,6 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     self.assertNotEqual(None, personal_server)
     self.setServerOpenPersonal(personal_server)
 
-    friend_server_title = 'Friend Server for %s' % owner_reference
-    friend_server_id = self.requestComputeNode(friend_server_title)
-    friend_server = self.portal.portal_catalog.getResultValue(
-        portal_type='Compute Node', reference=friend_server_id)
-    self.setAccessToMemcached(friend_server)
-    self.assertNotEqual(None, friend_server)
-    self.setServerOpenFriend(friend_server)
-
     # and install some software on them
     public_server_software = self.generateNewSoftwareReleaseUrl()
     self.supplySoftware(public_server, public_server_software)
@@ -73,14 +65,9 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     personal_server_software = self.generateNewSoftwareReleaseUrl()
     self.supplySoftware(personal_server, personal_server_software)
 
-    friend_server_software = self.generateNewSoftwareReleaseUrl()
-    self.supplySoftware(friend_server, friend_server_software)
-
     # format the compute_nodes
     self.formatComputeNode(public_server)
     self.formatComputeNode(personal_server)
-    self.formatComputeNode(friend_server)
-
 
     # join as the another visitor and request software instance on public
     # compute_node
@@ -100,68 +87,55 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
         public_server_software, public_instance_type,
         public_server)
 
-    # join as owner friend and request a software instance on compute_node
+    # join as other person and request a software instance on compute_node
     # configured by owner
 
     self.logout()
-    friend_reference = 'friend-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, friend_reference)
+    other_reference = 'other-%s' % self.generateNewId()
+    self.joinSlapOS(self.web_site, other_reference)
     self.login()
-    friend_person = self.portal.portal_catalog.getResultValue(
-        portal_type='ERP5 Login', reference=friend_reference).getParentValue()
-    friend_email = friend_person.getDefaultEmailText()
+    other_person = self.portal.portal_catalog.getResultValue(
+        portal_type='ERP5 Login', reference=other_reference).getParentValue()
 
-    # allow friend to alloce on friendly compute_node
+    # allow other to alloce on public compute_node
     self.login(owner_person.getUserId())
-    self.setServerOpenFriend(friend_server, [friend_email])
 
-    friend_instance_title = 'Friend title %s' % self.generateNewId()
-    friend_instance_type = 'friend_type'
-    self.checkInstanceAllocation(friend_person.getUserId(), friend_reference,
-        friend_instance_title, friend_server_software, friend_instance_type,
-        friend_server)
+    other_instance_title = 'Other title %s' % self.generateNewId()
+    other_instance_type = 'other_type'
+    self.checkInstanceAllocation(other_person.getUserId(), other_reference,
+        other_instance_title, public_server_software, other_instance_type,
+        public_server)
 
-    # check that friend is able to request slave instance matching the
+    # check that other person is able to request slave instance matching the
     # public's compute_node software instance
-    friend_slave_instance_title = 'Friend slave title %s' % self.\
+    other_slave_instance_title = 'Other slave title %s' % self.\
         generateNewId()
-    self.checkSlaveInstanceAllocation(friend_person.getUserId(),
-        friend_reference, friend_slave_instance_title, public_server_software,
+    self.checkSlaveInstanceAllocation(other_person.getUserId(),
+        other_reference, other_slave_instance_title, public_server_software,
         public_instance_type, public_server)
 
-    # turn public guy to a friend and check that he can allocate slave
-    # instance on instance provided by friend
+    # turn public guy to a other person and check that he can allocate slave
+    # instance on instance provided by other person
 
     self.login()
     public_person = self.portal.portal_catalog.getResultValue(
       portal_type='ERP5 Login', reference=public_reference).getParentValue()
-    public_email = public_person.getDefaultEmailText()
-    self.login(owner_person.getUserId())
-    self.setServerOpenFriend(friend_server, [friend_email, public_email])
-
-    public_slave_instance_title = 'Public slave title %s' % self\
-        .generateNewId()
-    self.checkSlaveInstanceAllocation(public_person.getUserId(),
-        public_reference, public_slave_instance_title, friend_server_software,
-        friend_instance_type, friend_server)
 
     # now deallocate the slaves
-    self.checkSlaveInstanceUnallocation(public_person.getUserId(),
-        public_reference, public_slave_instance_title, friend_server_software,
-        friend_instance_type, friend_server)
-
-    self.checkSlaveInstanceUnallocation(friend_person.getUserId(),
-        friend_reference, friend_slave_instance_title, public_server_software,
-        public_instance_type, public_server)
+    self.login(owner_person.getUserId())
+    self.checkSlaveInstanceUnallocation(other_person.getUserId(),
+        other_reference, other_slave_instance_title, public_server_software,
+        other_instance_type, public_server)
 
     # and the instances
     self.checkInstanceUnallocation(public_person.getUserId(),
         public_reference, public_instance_title,
         public_server_software, public_instance_type, public_server)
 
-    self.checkInstanceUnallocation(friend_person.getUserId(),
-        friend_reference, friend_instance_title,
-        friend_server_software, friend_instance_type, friend_server)
+    self.checkInstanceUnallocation(other_person.getUserId(),
+       other_reference, other_instance_title,
+       public_server_software, other_instance_type, public_server
+)
 
     # and uninstall some software on them
     self.logout()
@@ -170,15 +144,12 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
                         state='destroyed')
     self.supplySoftware(personal_server, personal_server_software,
                         state='destroyed')
-    self.supplySoftware(friend_server, friend_server_software,
-                        state='destroyed')
 
     self.logout()
     # Uninstall from compute_node
     self.login()
     self.simulateSlapgridSR(public_server)
     self.simulateSlapgridSR(personal_server)
-    self.simulateSlapgridSR(friend_server)
 
     # check the Open Sale Order coverage
     self.stepCallSlaposRequestUpdateInstanceTreeOpenSaleOrderAlarm()
@@ -187,7 +158,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     self.login()
 
     self.assertOpenSaleOrderCoverage(owner_reference)
-    self.assertOpenSaleOrderCoverage(friend_reference)
+    self.assertOpenSaleOrderCoverage(other_reference)
     self.assertOpenSaleOrderCoverage(public_reference)
 
     # generate simulation for open order
@@ -258,7 +229,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     self.tic()
 
     # check final document state
-    for person_reference in (owner_reference, friend_reference,
+    for person_reference in (owner_reference, other_reference,
         public_reference):
       person = self.portal.portal_catalog.getResultValue(
         portal_type='ERP5 Login', reference=person_reference).getParentValue()
@@ -267,8 +238,8 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     self.login(public_person.getUserId())
     self.usePaymentManually(self.web_site, public_person.getUserId())
 
-    self.login(friend_person.getUserId())
-    self.usePaymentManually(self.web_site, friend_person.getUserId())
+    self.login(other_person.getUserId())
+    self.usePaymentManually(self.web_site, other_person.getUserId())
 
 class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
 

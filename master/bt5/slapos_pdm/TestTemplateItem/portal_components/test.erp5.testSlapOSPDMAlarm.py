@@ -94,29 +94,30 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
   def test_alarm_compute_node_create_upgrade_decision_auto(self):
     self._test_alarm_compute_node_create_upgrade_decision('open/public', 'auto')
     self._test_alarm_compute_node_create_upgrade_decision('open/personal', 'auto')
-    self._test_alarm_compute_node_create_upgrade_decision('open/friend', 'auto')
     self._test_alarm_compute_node_create_upgrade_decision('open/subscription', 'auto')
     self._test_alarm_compute_node_create_upgrade_decision('close/outdated', 'auto')
     self._test_alarm_compute_node_create_upgrade_decision('close/maintanance', 'auto')
     self._test_alarm_compute_node_create_upgrade_decision('close/termination', 'auto')
+    self._test_alarm_compute_node_create_upgrade_decision('close/noallocation', 'auto')
 
   def test_alarm_compute_node_create_upgrade_decision_ask_confirmation(self):
     self._test_alarm_compute_node_create_upgrade_decision('open/public', 'confirmation')
     self._test_alarm_compute_node_create_upgrade_decision('open/personal', 'confirmation')
-    self._test_alarm_compute_node_create_upgrade_decision('open/friend', 'confirmation')
     self._test_alarm_compute_node_create_upgrade_decision('open/subscription', 'confirmation')
     self._test_alarm_compute_node_create_upgrade_decision('close/outdated', 'confirmation')
     self._test_alarm_compute_node_create_upgrade_decision('close/maintanance', 'confirmation')
     self._test_alarm_compute_node_create_upgrade_decision('close/termination', 'confirmation')
+    self._test_alarm_compute_node_create_upgrade_decision('close/noallocation', 'confirmation')
+
 
   def test_alarm_compute_node_create_upgrade_decision_never(self):
     self._test_alarm_compute_node_create_upgrade_decision_not_visited('open/public', 'never')
     self._test_alarm_compute_node_create_upgrade_decision_not_visited('open/personal', 'never')
-    self._test_alarm_compute_node_create_upgrade_decision_not_visited('open/friend', 'never')
     self._test_alarm_compute_node_create_upgrade_decision_not_visited('open/subscription', 'never')
     self._test_alarm_compute_node_create_upgrade_decision_not_visited('close/outdated', 'never')
     self._test_alarm_compute_node_create_upgrade_decision_not_visited('close/maintanance', 'never')
     self._test_alarm_compute_node_create_upgrade_decision_not_visited('close/termination', 'never')
+    self._test_alarm_compute_node_create_upgrade_decision_not_visited('close/noallocation', 'never')
 
   def test_alarm_instance_tree_create_upgrade_decision(self):
     instance_tree = self._makeInstanceTree()

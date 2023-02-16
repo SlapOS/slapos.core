@@ -172,19 +172,6 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertEqual('open', server.getCapacityScope())
     self.tic()
 
-  @changeSkin('RJS')
-  def setServerOpenFriend(self, server, friend_list=None):
-    if friend_list is None:
-      friend_list = []
-    server.edit(
-        allocation_scope='open/friend', subject_list=friend_list)
-    self.assertEqual('open/friend', server.getAllocationScope())
-    # Called by alarm
-    server.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('open', server.getCapacityScope())
-    self.assertSameSet(friend_list, server.getSubjectList())
-    self.tic()
-
   def formatComputeNode(self, compute_node, partition_count=10):
     compute_node_dict = dict(
       software_root='/opt',

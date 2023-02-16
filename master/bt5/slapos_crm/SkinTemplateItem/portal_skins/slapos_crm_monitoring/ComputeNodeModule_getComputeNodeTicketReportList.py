@@ -5,9 +5,6 @@ from Products.ERP5Type.Document import newTempBase
 public_category_uid = portal.restrictedTraverse(
   "portal_categories/allocation_scope/open/public", None).getUid()
 
-friend_category_uid = portal.restrictedTraverse(
-  "portal_categories/allocation_scope/open/friend", None).getUid()
-
 personal_category_uid = portal.restrictedTraverse(
   "portal_categories/allocation_scope/open/personal", None).getUid()
 
@@ -24,7 +21,7 @@ def checkForError(reference):
     return 1
 
 for compute_node in portal.portal_catalog(
-  default_allocation_scope_uid = [personal_category_uid, public_category_uid, friend_category_uid],
+  default_allocation_scope_uid = [personal_category_uid, public_category_uid],
   select_list={"reference": None},
   **kw):
 

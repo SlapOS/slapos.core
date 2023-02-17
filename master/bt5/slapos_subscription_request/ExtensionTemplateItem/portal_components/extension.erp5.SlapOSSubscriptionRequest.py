@@ -44,6 +44,9 @@ def SubscriptionRequest_searchExistingUserByEmail(self, email, REQUEST=None):
     raise Unauthorized
   portal = self.getPortalObject()
 
+  if email in ["", None]:
+    return
+
   erp5_login_list = portal.portal_catalog.unrestrictedSearchResults(
     portal_type="ERP5 Login",
     reference=email,

@@ -33,7 +33,7 @@
         }
       }
 
-      return domsugar(div, {class: 'annotated_help'}, [annotated_message];
+      return domsugar(div, {class: 'annotated_help'}, [annotated_message]);
     })
 
     .declareMethod("render", function (options) {

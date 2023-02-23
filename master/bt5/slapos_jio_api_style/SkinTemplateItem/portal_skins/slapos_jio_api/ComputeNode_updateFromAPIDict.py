@@ -42,7 +42,8 @@ def compareAndUpdateAddressList(partition, partition_ip_list):
   if to_delete_ip_id_list:
     partition.deleteContent(to_delete_ip_id_list)
 
-
+if "bang_status_message" in data_dict:
+  context.reportComputeNodeBang(comment=data_dict["bang_status_message"])
 
 # Getting existing partitions
 existing_partition_dict = {}
@@ -51,7 +52,7 @@ for c in context.contentValues(portal_type="Compute Partition"):
 
 # update compute_node data
 edit_kw = {}
-quantity = len(data_dict['compute_partition_list'])
+quantity = len(data_dict.get('compute_partition_list', []))
 if context.getQuantity() != quantity:
   edit_kw['quantity'] = quantity
 
@@ -59,7 +60,7 @@ if edit_kw:
   context.edit(**edit_kw)
 
 expected_partition_dict = {}
-for send_partition in data_dict['compute_partition_list']:
+for send_partition in data_dict.get('compute_partition_list', []):
   partition = existing_partition_dict.get(send_partition['partition_id'], None)
   expected_partition_dict[send_partition['partition_id']] = True
   if partition is None:

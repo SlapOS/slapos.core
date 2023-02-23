@@ -1,4 +1,5 @@
 portal_type = data_dict["portal_type"]
+import urllib
 
 portal = context.getPortalObject()
 if portal_type == "Software Installation":
@@ -7,7 +8,7 @@ if portal_type == "Software Installation":
       data_dict["compute_node_id"],
     )
     if compute_node:
-      return compute_node.getSoftwareInstallationFromUrl(data_dict["software_release_uri"])
+      return compute_node.getSoftwareInstallationFromUrl(urllib.unquote(data_dict["software_release_uri"]))
 
 elif portal_type == "Compute Node":
   if "compute_node_id" in data_dict:

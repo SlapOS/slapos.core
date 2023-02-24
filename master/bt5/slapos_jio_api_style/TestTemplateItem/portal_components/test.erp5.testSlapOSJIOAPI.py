@@ -33,6 +33,7 @@ from App.Common import rfc1123_date
 import os
 import tempfile
 import time
+import urllib
 
 # blurb to make nice XML comparisions
 import xml.dom.ext.reader.Sax
@@ -43,7 +44,6 @@ import hashlib
 import json
 from binascii import hexlify
 from OFS.Traversable import NotFound
-
 
 def hashData(data):
   return hexlify(hashlib.sha1(json.dumps(data, sort_keys=True)).digest())
@@ -122,6 +122,7 @@ class TestSlapOSJIOAPIMixin(SlapOSTestCaseMixin):
     self.compute_node_id = self.compute_node.getReference()
     self.compute_node_user_id = self.compute_node.getUserId()
     self.pinDateTime(DateTime())
+    self.callUpdateRevisionAndTic()
 
   def getAPIStateFromSlapState(self, state):
     state_dict = {
@@ -131,25 +132,25 @@ class TestSlapOSJIOAPIMixin(SlapOSTestCaseMixin):
     }
     return state_dict.get(state, None)
 
-  def getToApi(self, json_data):
+  def getToApi(self, data_dict):
     self.portal.REQUEST.set("live_test", True)
-    self.portal.REQUEST.set("BODY", json_data)
-    return self.web_site.api.get()
+    self.portal.REQUEST.set("BODY", json.dumps(data_dict))
+    return json_loads_byteified(self.web_site.api.get())
 
-  def putToApi(self, json_data):
+  def putToApi(self, data_dict):
     self.portal.REQUEST.set("live_test", True)
-    self.portal.REQUEST.set("BODY", json_data)
-    return self.web_site.api.put()
+    self.portal.REQUEST.set("BODY", json.dumps(data_dict))
+    return json_loads_byteified(self.web_site.api.put())
 
-  def postToApi(self, json_data):
+  def postToApi(self, data_dict):
     self.portal.REQUEST.set("live_test", True)
-    self.portal.REQUEST.set("BODY", json_data)
-    return self.web_site.api.post()
+    self.portal.REQUEST.set("BODY", json.dumps(data_dict))
+    return json_loads_byteified(self.web_site.api.post())
 
-  def allDocsToApi(self, json_data):
+  def allDocsToApi(self, data_dict):
     self.portal.REQUEST.set("live_test", True)
-    self.portal.REQUEST.set("BODY", json_data)
-    return self.web_site.api.allDocs()
+    self.portal.REQUEST.set("BODY", json.dumps(data_dict))
+    return json_loads_byteified(self.web_site.api.allDocs())
 
   def callUpdateRevision(self):
     self.portal.portal_alarms.slapos_update_jio_api_revision_template.activeSense()
@@ -162,162 +163,6 @@ class TestSlapOSJIOAPIMixin(SlapOSTestCaseMixin):
     self.unpinDateTime()
     self._cleaupREQUEST()
 
-
-class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSJIOAPIMixin):
-  def deactivated_test_activate_getFullComputerInformation_first_access(self):
-    self._makeComplexComputeNode(with_slave=True)
-    self.portal.REQUEST['disable_isTestRun'] = True
-    self.tic()
-
-    self.login(self.compute_node_user_id)
-    self.portal_slap.getFullComputerInformation(self.compute_node_id)
-    
-    # First access.
-    # Cache has been filled by interaction workflow
-    # (luckily, it seems the cache is filled after everything is indexed)
-    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
-    self.commit()
-    first_etag = self.compute_node._calculateRefreshEtag()
-    first_body_fingerprint = hashData(
-      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
-    )
-    self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
-    self.assertEqual(first_etag, response.headers.get('etag'))
-    self.assertEqual(first_body_fingerprint, hashData(response.body))
-    self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
-
-    # Trigger the compute_node reindexation
-    # This should trigger a new etag, but the body should be the same
-    self.compute_node.reindexObject()
-    self.commit()
-
-    # Second access
-    # Check that the result is stable, as the indexation timestamp is not changed yet
-    current_activity_count = len(self.portal.portal_activities.getMessageList())
-    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
-    self.commit()
-    self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
-    self.assertEqual(first_etag, response.headers.get('etag'))
-    self.assertEqual(first_body_fingerprint, hashData(response.body))
-    self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
-
-    self.tic()
-
-    # Third access, new calculation expected
-    # The retrieved informations comes from the cache
-    # But a new cache modification activity is triggered
-    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
-    self.commit()
-    self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
-    second_etag = self.compute_node._calculateRefreshEtag()
-    second_body_fingerprint = hashData(
-      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
-    )
-    self.assertNotEqual(first_etag, second_etag)
-    # The indexation timestamp does not impact the response body
-    self.assertEqual(first_body_fingerprint, second_body_fingerprint)
-    self.assertEqual(first_etag, response.headers.get('etag'))
-    self.assertEqual(first_body_fingerprint, hashData(response.body))
-    self.assertEqual(1, len(self.portal.portal_activities.getMessageList()))
-
-    # Execute the cache modification activity
-    self.tic()
-
-    # 4th access
-    # The new etag value is now used
-    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
-    self.commit()
-    self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
-    self.assertEqual(second_etag, response.headers.get('etag'))
-    self.assertEqual(first_body_fingerprint, hashData(response.body))
-    self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
-
-    # Edit the instance
-    # This should trigger a new etag and a new body
-    self.stop_requested_software_instance.edit(text_content=self.generateSafeXml())
-    self.commit()
-
-    # 5th access
-    # Check that the result is stable, as the indexation timestamp is not changed yet
-    current_activity_count = len(self.portal.portal_activities.getMessageList())
-    # Edition does not impact the etag
-    self.assertEqual(second_etag, self.compute_node._calculateRefreshEtag())
-    third_body_fingerprint = hashData(
-      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
-    )
-    # The edition impacts the response body
-    self.assertNotEqual(first_body_fingerprint, third_body_fingerprint)
-    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
-    self.commit()
-    self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
-    self.assertEqual(second_etag, response.headers.get('etag'))
-    self.assertEqual(first_body_fingerprint, hashData(response.body))
-    self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
-
-    self.tic()
-
-    # 6th, the instance edition triggered an interaction workflow
-    # which updated the cache
-    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
-    self.commit()
-    self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
-    third_etag = self.compute_node._calculateRefreshEtag()
-    self.assertNotEqual(second_etag, third_etag)
-    self.assertEqual(third_etag, response.headers.get('etag'))
-    self.assertEqual(third_body_fingerprint, hashData(response.body))
-    self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
-
-    # Remove the slave link to the partition
-    # Compute Node should loose permission to access the slave instance
-    self.start_requested_slave_instance.setAggregate('')
-    self.commit()
-
-    # 7th access
-    # Check that the result is stable, as the indexation timestamp is not changed yet
-    current_activity_count = len(self.portal.portal_activities.getMessageList())
-    # Edition does not impact the etag
-    self.assertEqual(third_etag, self.compute_node._calculateRefreshEtag())
-    # The edition does not impact the response body yet, as the aggregate relation
-    # is not yet unindex
-    self.assertEqual(third_body_fingerprint, hashData(
-      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
-    ))
-    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
-    self.commit()
-    self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
-    self.assertEqual(third_etag, response.headers.get('etag'))
-    self.assertEqual(third_body_fingerprint, hashData(response.body))
-    self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
-
-    self.tic()
-
-    # 8th access
-    # changing the aggregate relation trigger the partition reindexation
-    # which trigger cache modification activity
-    # So, we should get the correct cached value
-    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
-    self.commit()
-    self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
-    fourth_etag = self.compute_node._calculateRefreshEtag()
-    fourth_body_fingerprint = hashData(
-      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
-    )
-    self.assertNotEqual(third_etag, fourth_etag)
-    # The indexation timestamp does not impact the response body
-    self.assertNotEqual(third_body_fingerprint, fourth_body_fingerprint)
-    self.assertEqual(fourth_etag, response.headers.get('etag'))
-    self.assertEqual(fourth_body_fingerprint, hashData(response.body))
-    self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
-
-
 class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
   def test_01_getFullComputerInformation(self):
     self._makeComplexComputeNode(with_slave=True)
@@ -329,10 +174,10 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
 
     self.login(self.compute_node_user_id)
     self.maxDiff = None
-    instance_list_response = json_loads_byteified(self.allDocsToApi(json.dumps({
+    instance_list_response = self.allDocsToApi({
       "compute_node_id": self.compute_node_id,
       "portal_type": "Software Instance",
-    })))
+    })
     response =  self.portal.REQUEST.RESPONSE
     self.assertEqual(200, response.getStatus())
     self.assertEqual('application/json',
@@ -369,9 +214,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
       instance = instance_list[i]
       # Get instance as "user"
       self.login(self.compute_node_user_id)
-      instance_dict = json_loads_byteified(self.getToApi(json.dumps(
-        instance_resut_dict["get_parameters"]
-      )))
+      instance_dict = self.getToApi(instance_resut_dict["get_parameters"])
       response =  self.portal.REQUEST.RESPONSE
       self.assertEqual(200, response.getStatus())
       self.assertEqual('application/json',
@@ -407,490 +250,300 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
         "portal_type": instance.getPortalType(),
       }, instance_dict)
 
-  def deactivated_test_not_accessed_getComputerStatus(self):
-    self.login(self.compute_node_user_id)
-    created_at = rfc1123_date(DateTime())
-    since = created_at
-    response = self.portal_slap.getComputerStatus(self.compute_node_id)
-    self.assertEqual(200, response.status)
-    self.assertEqual('public, max-age=60, stale-if-error=604800',
-        response.headers.get('cache-control'))
-    self.assertEqual('REMOTE_USER',
-        response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
-    self.assertEqual('text/xml; charset=utf-8',
-        response.headers.get('content-type'))
-    # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
-
-    expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>created_at</string>
-    <string>%(created_at)s</string>
-    <string>no_data</string>
-    <int>1</int>
-    <string>since</string>
-    <string>%(since)s</string>
-    <string>state</string>
-    <string/>
-    <string>text</string>
-    <string>#error no data found for %(compute_node_id)s</string>
-    <string>user</string>
-    <string>SlapOS Master</string>
-  </dictionary>
-</marshal>
-""" % dict(
-  created_at=created_at,
-  since=since,
-  compute_node_id=self.compute_node_id
-)
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-
-  def deactivated_test_accessed_getComputerStatus(self):
-    self.login(self.compute_node_user_id)
-
-    self.portal_slap.getFullComputerInformation(self.compute_node_id)
-    created_at = rfc1123_date(DateTime())
-    since = created_at
-    response = self.portal_slap.getComputerStatus(self.compute_node_id)
-    self.assertEqual(200, response.status)
-    self.assertEqual('public, max-age=60, stale-if-error=604800',
-        response.headers.get('cache-control'))
-    self.assertEqual('REMOTE_USER',
-        response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
-    self.assertEqual('text/xml; charset=utf-8',
-        response.headers.get('content-type'))
-
-    # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
-
-    expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>created_at</string>
-    <string>%(created_at)s</string>
-    <string>no_data_since_15_minutes</string>
-    <int>0</int>
-    <string>no_data_since_5_minutes</string>
-    <int>0</int>
-    <string>since</string>
-    <string>%(since)s</string>
-    <string>state</string>
-    <string/>
-    <string>text</string>
-    <string>#access %(compute_node_id)s</string>
-    <string>user</string>
-    <string>%(compute_node_id)s</string>
-  </dictionary>
-</marshal>
-""" % dict(
-  created_at=created_at,
-  since=since,
-  compute_node_id=self.compute_node_id
-)
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-
-  def assertComputeNodeBangSimulator(self, args, kwargs):
-    stored = eval(open(self.compute_node_bang_simulator).read()) #pylint: disable=eval-used
-    # do the same translation magic as in workflow
-    kwargs['comment'] = kwargs.pop('comment')
-    self.assertEqual(stored,
-      [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'reportComputeNodeBang'}])
-
-  def deactivated_test_computerBang(self):
+  def test_02_computerBang(self):
     self._makeComplexComputeNode()
-    self.compute_node_bang_simulator = tempfile.mkstemp()[1]
+    self.callUpdateRevisionAndTic()
+
+    self.called_banged_kw = ""
+    def calledBang(*args, **kw):
+      self.called_banged_kw = kw
+    start_date = DateTime()
+
     try:
+      reportComputeNodeBang = self.compute_node.__class__.reportComputeNodeBang
+      self.compute_node.__class__.reportComputeNodeBang = calledBang
       self.login(self.compute_node_user_id)
-      self.compute_node.reportComputeNodeBang = Simulator(
-        self.compute_node_bang_simulator, 'reportComputeNodeBang')
       error_log = 'Please bang me'
-      response = self.portal_slap.computerBang(self.compute_node_id,
-        error_log)
-      self.assertEqual('None', response)
-      # We do not assert getComputerStatus on this test, since
-      # the change of the timestamp is part of reportComputeNodeBang
-      
-      self.assertComputeNodeBangSimulator((), {'comment': error_log})
+      response = self.putToApi({
+        "compute_node_id": self.compute_node_id,
+        "portal_type": "Compute Node",
+        "bang_status_message": error_log,
+      })
+      self.assertEqual(self.called_banged_kw, {"comment": error_log})
+      self.assertEqual(response["compute_node_id"], self.compute_node.getReference())      
+      self.assertEqual(response["success"], "Done")      
+      self.assertEqual(response["portal_type"], "Compute Node")
+      self.assertTrue(response["$schema"].endswith("ComputeNode_updateFromJSON/getOutputJSONSchema"))      
+      self.assertTrue(DateTime(response["date"]) >= start_date)
     finally:
-      if os.path.exists(self.compute_node_bang_simulator):
-        os.unlink(self.compute_node_bang_simulator)
+      self.compute_node.__class__.reportComputeNodeBang = reportComputeNodeBang
 
-  def assertLoadComputeNodeConfigurationFromXML(self, args, kwargs):
-    stored = eval(open(self.compute_node_load_configuration_simulator).read()) #pylint: disable=eval-used
-    # do the same translation magic as in workflow
-    self.assertEqual(stored,
-      [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'ComputeNode_updateFromDict'}])
+  def test_03_not_accessed_getSoftwareInstallationStatus(self):
+    """
+    xXXX TODO Cedric Make sure we can create and modifiy when using weird url strings
+    """
 
-  def deactivated_test_loadComputerConfigurationFromXML(self):
-    self.compute_node_load_configuration_simulator = tempfile.mkstemp()[1]
-    try:
-      self.login(self.compute_node_user_id)
-      self.compute_node.ComputeNode_updateFromDict = Simulator(
-        self.compute_node_load_configuration_simulator, 'ComputeNode_updateFromDict')
-
-      compute_node_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>reference</string>
-    <string>%(compute_node_reference)s</string>
-  </dictionary>
-</marshal>
-""" % {'compute_node_reference': self.compute_node.getReference()}
-
-      response = self.portal_slap.loadComputerConfigurationFromXML(
-        compute_node_xml)
-      self.assertEqual('Content properly posted.', response)
-      self.assertLoadComputeNodeConfigurationFromXML(
-        ({'reference': self.compute_node.getReference()},), {})
-    finally:
-      if os.path.exists(self.compute_node_load_configuration_simulator):
-        os.unlink(self.compute_node_load_configuration_simulator)
-  
-  def deactivated_test_not_accessed_getSoftwareInstallationStatus(self):
     self._makeComplexComputeNode()
-    self.compute_node_bang_simulator = tempfile.mkstemp()[1]
+    self.callUpdateRevisionAndTic()
+
     self.login(self.compute_node_user_id)
-    created_at = rfc1123_date(DateTime())
-    since = created_at
     software_installation = self.start_requested_software_installation
     url_string = software_installation.getUrlString()
-    response = self.portal_slap.getSoftwareInstallationStatus(url_string,
-                            self.compute_node_id)
-    self.assertEqual(200, response.status)
-    self.assertEqual('public, max-age=60, stale-if-error=604800',
-        response.headers.get('cache-control'))
-    self.assertEqual('REMOTE_USER',
-        response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
-    self.assertEqual('text/xml; charset=utf-8',
+    software_dict = self.getToApi({
+      "portal_type": "Software Installation",
+      "software_release_uri": urllib.quote(url_string),
+      "compute_node_id": self.compute_node_id,
+    })
+    response =  self.portal.REQUEST.RESPONSE
+    self.assertEqual(200, response.getStatus())
+    self.assertEqual('application/json',
         response.headers.get('content-type'))
-    # check returned XML
-    xml_fp = StringIO.StringIO()
 
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
+    status_dict = software_installation.getAccessStatus()
+    expected_dict = {
+      "$schema": software_installation.getJSONSchemaUrl(),
+      "reference": software_installation.getReference(),
+      "software_release_uri": software_installation.getUrlString(),
+      "compute_node_id": software_installation.getAggregateReference(),
+      "state": "available",
+      "reported_state": status_dict.get("state"),
+      "status_message": status_dict.get("text"),
+      "processing_timestamp": software_installation.getSlapTimestamp(),
+      "api_revision": software_installation.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+    }
 
-    expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>created_at</string>
-    <string>%(created_at)s</string>
-    <string>no_data</string>
-    <int>1</int>
-    <string>since</string>
-    <string>%(since)s</string>
-    <string>state</string>
-    <string/>
-    <string>text</string>
-    <string>#error no data found for %(reference)s</string>
-    <string>user</string>
-    <string>SlapOS Master</string>
-  </dictionary>
-</marshal>
-""" % dict(
-  created_at=created_at,
-  since=since,
-  reference=software_installation.getReference()
-)
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertEqual(expected_dict, software_dict)
     
 
-  def deactivated_test_destroyedSoftwareRelease_noSoftwareInstallation(self):
+  def test_04_destroyedSoftwareRelease_noSoftwareInstallation(self):
     self.login(self.compute_node_user_id)
-    self.assertRaises(NotFound,
-        self.portal_slap.destroyedSoftwareRelease,
-        "http://example.org/foo", self.compute_node_id)
+    start_time = DateTime()
+    software_release_uri = "http://example.org/foo"
+    response_dict = self.putToApi(
+      {
+        "software_release_uri": software_release_uri,
+        "compute_node_id": self.compute_node_id,
+        "reported_state": "destroyed",
+        "portal_type": "Software Installation",
+      }
+    )
+    response =  self.portal.REQUEST.RESPONSE
+    self.assertEqual(400, response.getStatus())
+    self.assertEqual('application/json',
+        response.headers.get('content-type'))
+    self.assertEqual('404', response_dict["status"])
+    self.assertEqual(
+      str("No software release %r found on compute_node %r" % (software_release_uri, self.compute_node.getReference())),
+      response_dict["message"]
+    )
+    self.assertTrue(response_dict["$schema"].endswith("/error-response-schema.json"))
+    self.login()
+    error_log = self.portal.restrictedTraverse(
+      "error_record_module/%s" % response_dict["debug_id"]
+    )
+    self.assertTrue(error_log.getCreationDate() >= start_time)
+    self.assertTrue(software_release_uri in error_log.getTextContent())
 
-  def deactivated_test_destroyedSoftwareRelease_noDestroyRequested(self):
+  def test_05_destroyedSoftwareRelease_noDestroyRequested(self):
     self._makeComplexComputeNode()
-    self.login(self.compute_node_user_id)
-    self.assertRaises(NotFound,
-        self.portal_slap.destroyedSoftwareRelease,
-        self.start_requested_software_installation.getUrlString(),
-        self.compute_node_id)
+    self.callUpdateRevisionAndTic()
 
-  def deactivated_test_destroyedSoftwareRelease_destroyRequested(self):
-    self._makeComplexComputeNode()
+    start_time = DateTime()
+    software_installation = self.start_requested_software_installation
+    software_release_uri = software_installation.getUrlString()
     self.login(self.compute_node_user_id)
+    response_dict = self.putToApi(
+      {
+        "software_release_uri": urllib.quote(software_release_uri),
+        "compute_node_id": self.compute_node_id,
+        "reported_state": "destroyed",
+        "portal_type": "Software Installation",
+      }
+    )
+    response =  self.portal.REQUEST.RESPONSE
+    self.assertEqual(400, response.getStatus())
+    self.assertEqual('application/json',
+        response.headers.get('content-type'))
+    self.assertEqual(400, response_dict["status"])
+    self.assertEqual(
+      "Reported state is destroyed but requested state is not destroyed",
+      response_dict["message"]
+    )
+    self.assertTrue(response_dict["$schema"].endswith("/error-response-schema.json"))
+    self.login()
+    error_log = self.portal.restrictedTraverse(
+      "error_record_module/%s" % response_dict["debug_id"]
+    )
+    self.assertTrue(error_log.getCreationDate() >= start_time)
+    self.assertTrue(urllib.quote(software_release_uri) in error_log.getTextContent())
+
+  def test_06_destroyedSoftwareRelease_destroyRequested(self):
+    self._makeComplexComputeNode()
+    self.callUpdateRevisionAndTic()
+    start_date = DateTime()
+
     destroy_requested = self.destroy_requested_software_installation
     self.assertEqual(destroy_requested.getValidationState(), "validated")
-    self.portal_slap.destroyedSoftwareRelease(
-        destroy_requested.getUrlString(), self.compute_node_id)
+    software_release_uri = destroy_requested.getUrlString()
+    response_dict = self.putToApi(
+      {
+        "software_release_uri": urllib.quote(software_release_uri),
+        "compute_node_id": self.compute_node_id,
+        "reported_state": "destroyed",
+        "portal_type": "Software Installation",
+      }
+    )
+    response =  self.portal.REQUEST.RESPONSE
+    self.assertEqual(200, response.getStatus())
+    self.assertEqual('application/json',
+        response.headers.get('content-type'))
     self.assertEqual(destroy_requested.getValidationState(), "invalidated")
+    self.assertEqual(response_dict["compute_node_id"], self.compute_node.getReference())      
+    self.assertEqual(response_dict["software_release_uri"], software_release_uri)      
+    self.assertEqual(response_dict["success"], "Done")      
+    self.assertEqual(response_dict["portal_type"], "Software Installation")
+    self.assertTrue(response_dict["$schema"].endswith("SoftwareInstallation_updateFromJSON/getOutputJSONSchema"))      
+    self.assertTrue(DateTime(response_dict["date"]) >= start_date)
 
-  def deactivated_test_availableSoftwareRelease(self):
+
+
+  def test_07_availableSoftwareRelease(self):
     self._makeComplexComputeNode()
-    self.compute_node_bang_simulator = tempfile.mkstemp()[1]
-    self.login(self.compute_node_user_id)
+    self.callUpdateRevisionAndTic()
+    start_date = DateTime()
+
     software_installation = self.start_requested_software_installation
-    url_string = software_installation.getUrlString()
-    response = self.portal_slap.availableSoftwareRelease(
-                  url_string, self.compute_node_id)
-    self.assertEqual('None', response)
-    created_at = rfc1123_date(DateTime())
-    since = created_at
-    response = self.portal_slap.getSoftwareInstallationStatus(
-                      url_string, self.compute_node_id)
-    # check returned XML
-    xml_fp = StringIO.StringIO()
+    self.assertEqual(software_installation.getValidationState(), "validated")
+    software_release_uri = software_installation.getUrlString()
+    response_dict = self.putToApi(
+      {
+        "software_release_uri": urllib.quote(software_release_uri),
+        "compute_node_id": self.compute_node_id,
+        "reported_state": "available",
+        "portal_type": "Software Installation",
+      }
+    )
+    response =  self.portal.REQUEST.RESPONSE
+    self.assertEqual(200, response.getStatus())
+    self.assertEqual('application/json',
+        response.headers.get('content-type'))
+    self.assertEqual(response_dict["compute_node_id"], self.compute_node.getReference())      
+    self.assertEqual(response_dict["software_release_uri"], software_release_uri)      
+    self.assertEqual(response_dict["success"], "Done")      
+    self.assertEqual(response_dict["portal_type"], "Software Installation")
+    self.assertTrue(response_dict["$schema"].endswith("SoftwareInstallation_updateFromJSON/getOutputJSONSchema"))      
+    self.assertTrue(DateTime(response_dict["date"]) >= start_date)
 
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
-    expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>created_at</string>
-    <string>%(created_at)s</string>
-    <string>no_data_since_15_minutes</string>
-    <int>0</int>
-    <string>no_data_since_5_minutes</string>
-    <int>0</int>
-    <string>since</string>
-    <string>%(since)s</string>
-    <string>state</string>
-    <string>available</string>
-    <string>text</string>
-    <string>#access software release %(url_string)s available</string>
-    <string>user</string>
-    <string>%(compute_node_id)s</string>
-  </dictionary>
-</marshal>
-""" % dict(
-    created_at=created_at,
-    since=since,
-    url_string=url_string,
-    compute_node_id=self.compute_node_id,
-  )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    software_dict = self.getToApi({
+      "portal_type": "Software Installation",
+      "software_release_uri": urllib.quote(software_release_uri),
+      "compute_node_id": self.compute_node_id,
+    })
+    response =  self.portal.REQUEST.RESPONSE
+    expected_dict = {
+      "$schema": software_installation.getJSONSchemaUrl(),
+      "reference": software_installation.getReference(),
+      "software_release_uri": software_release_uri,
+      "compute_node_id": software_installation.getAggregateReference(),
+      "state": "available",
+      "reported_state": "available",
+      "status_message": "#access software release %s available" % software_release_uri,
+      "processing_timestamp": software_installation.getSlapTimestamp(),
+      "api_revision": software_installation.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+    }
+    self.assertEqual(expected_dict, software_dict)
 
-  def deactivated_test_buildingSoftwareRelease(self):
+  def test_08_buildingSoftwareRelease(self):
     self._makeComplexComputeNode()
-    self.compute_node_bang_simulator = tempfile.mkstemp()[1]
-    self.login(self.compute_node_user_id)
+    self.callUpdateRevisionAndTic()
+    start_date = DateTime()
+
     software_installation = self.start_requested_software_installation
-    url_string = software_installation.getUrlString()
-    response = self.portal_slap.buildingSoftwareRelease(
-                  url_string, self.compute_node_id)
-    self.assertEqual('None', response)
-    created_at = rfc1123_date(DateTime())
-    since = created_at
-    response = self.portal_slap.getSoftwareInstallationStatus(
-                      url_string, self.compute_node_id)
-    # check returned XML
-    xml_fp = StringIO.StringIO()
+    self.assertEqual(software_installation.getValidationState(), "validated")
+    software_release_uri = software_installation.getUrlString()
+    response_dict = self.putToApi(
+      {
+        "software_release_uri": urllib.quote(software_release_uri),
+        "compute_node_id": self.compute_node_id,
+        "reported_state": "building",
+        "portal_type": "Software Installation",
+      }
+    )
+    response =  self.portal.REQUEST.RESPONSE
+    self.assertEqual(200, response.getStatus())
+    self.assertEqual('application/json',
+        response.headers.get('content-type'))
+    self.assertEqual(response_dict["compute_node_id"], self.compute_node.getReference())      
+    self.assertEqual(response_dict["software_release_uri"], software_release_uri)      
+    self.assertEqual(response_dict["success"], "Done")      
+    self.assertEqual(response_dict["portal_type"], "Software Installation")
+    self.assertTrue(response_dict["$schema"].endswith("SoftwareInstallation_updateFromJSON/getOutputJSONSchema"))      
+    self.assertTrue(DateTime(response_dict["date"]) >= start_date)
 
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
-    expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>created_at</string>
-    <string>%(created_at)s</string>
-    <string>no_data_since_15_minutes</string>
-    <int>0</int>
-    <string>no_data_since_5_minutes</string>
-    <int>0</int>
-    <string>since</string>
-    <string>%(since)s</string>
-    <string>state</string>
-    <string>building</string>
-    <string>text</string>
-    <string>#building software release %(url_string)s</string>
-    <string>user</string>
-    <string>%(compute_node_id)s</string>
-  </dictionary>
-</marshal>
-""" % dict(
-    created_at=created_at,
-    since=since,
-    url_string=url_string,
-    compute_node_id=self.compute_node_id,
-  )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    software_dict = self.getToApi({
+      "portal_type": "Software Installation",
+      "software_release_uri": urllib.quote(software_release_uri),
+      "compute_node_id": self.compute_node_id,
+    })
+    response =  self.portal.REQUEST.RESPONSE
+    expected_dict = {
+      "$schema": software_installation.getJSONSchemaUrl(),
+      "reference": software_installation.getReference(),
+      "software_release_uri": software_release_uri,
+      "compute_node_id": software_installation.getAggregateReference(),
+      "state": "available",
+      "reported_state": "building",
+      "status_message": "#building software release %s" % software_release_uri,
+      "processing_timestamp": software_installation.getSlapTimestamp(),
+      "api_revision": software_installation.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+    }
+    self.assertEqual(expected_dict, software_dict)
 
-  def deactivated_test_softwareReleaseError(self):
+  def test_09_softwareReleaseError(self):
     self._makeComplexComputeNode()
-    self.compute_node_bang_simulator = tempfile.mkstemp()[1]
-    self.login(self.compute_node_user_id)
+    self.callUpdateRevisionAndTic()
+    start_date = DateTime()
+
     software_installation = self.start_requested_software_installation
-    url_string = software_installation.getUrlString()
-    response = self.portal_slap.softwareReleaseError(
-                  url_string, self.compute_node_id, 'error log')
-    self.assertEqual('None', response)
-    created_at = rfc1123_date(DateTime())
-    since = created_at
-    response = self.portal_slap.getSoftwareInstallationStatus(
-                      url_string, self.compute_node_id)
-    # check returned XML
-    xml_fp = StringIO.StringIO()
+    self.assertEqual(software_installation.getValidationState(), "validated")
+    software_release_uri = software_installation.getUrlString()
+    response_dict = self.putToApi(
+      {
+        "software_release_uri": urllib.quote(software_release_uri),
+        "compute_node_id": self.compute_node_id,
+        "portal_type": "Software Installation",
+        "error_status": 'error log',
+      }
+    )
+    response =  self.portal.REQUEST.RESPONSE
+    self.assertEqual(200, response.getStatus())
+    self.assertEqual('application/json',
+        response.headers.get('content-type'))
+    self.assertEqual(response_dict["compute_node_id"], self.compute_node.getReference())      
+    self.assertEqual(response_dict["software_release_uri"], software_release_uri)      
+    self.assertEqual(response_dict["success"], "Done")      
+    self.assertEqual(response_dict["portal_type"], "Software Installation")
+    self.assertTrue(response_dict["$schema"].endswith("SoftwareInstallation_updateFromJSON/getOutputJSONSchema"))      
+    self.assertTrue(DateTime(response_dict["date"]) >= start_date)
 
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
-    expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>created_at</string>
-    <string>%(created_at)s</string>
-    <string>no_data_since_15_minutes</string>
-    <int>0</int>
-    <string>no_data_since_5_minutes</string>
-    <int>0</int>
-    <string>since</string>
-    <string>%(since)s</string>
-    <string>state</string>
-    <string/>
-    <string>text</string>
-    <string>#error while installing %(url_string)s</string>
-    <string>user</string>
-    <string>%(compute_node_id)s</string>
-  </dictionary>
-</marshal>
-""" % dict(
-    created_at=created_at,
-    since=since,
-    url_string=url_string,
-    compute_node_id=self.compute_node_id,
-  )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-
-  def deactivated_test_useComputer_wrong_xml(self):
-    self.login(self.compute_node_user_id)
-    response = self.portal_slap.useComputer(
-        self.compute_node_id, "foobar")
-    self.assertEqual(400, response.status)
-    self.assertEqual("", response.body)
-
-  def assertReportComputeNodeConsumption(self, args, kwargs):
-    stored = eval(open(self.compute_node_use_compute_node_simulator).read()) #pylint: disable=eval-used
-    # do the same translation magic as in workflow
-    self.assertEqual(stored,
-      [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'ComputeNode_reportComputeNodeConsumption'}])
-
-  def deactivated_test_useComputer_expected_xml(self):
-    self.compute_node_use_compute_node_simulator = tempfile.mkstemp()[1]
-    try:
-      self.login(self.compute_node_user_id)
-      self.compute_node.ComputeNode_reportComputeNodeConsumption = Simulator(
-        self.compute_node_use_compute_node_simulator,
-        'ComputeNode_reportComputeNodeConsumption')
-  
-      consumption_xml = """<?xml version='1.0' encoding='utf-8'?>
-<journal>
-<transaction type="Sale Packing List">
-<title>Resource consumptions</title>
-<start_date></start_date>
-<stop_date></stop_date>
-<reference>testusagé</reference>
-<currency></currency>
-<payment_mode></payment_mode>
-<category></category>
-<arrow type="Administration">
-<source></source>
-<destination></destination>
-</arrow>
-<movement>
-<resource>CPU Consumption</resource>
-<title>Title Sale Packing List Line 1</title>
-<reference>slappart0</reference>
-<quantity>42.42</quantity>
-<price>0.00</price>
-<VAT>None</VAT>
-<category>None</category>
-</movement>
-</transaction>
-</journal>"""
-  
-      response = self.portal_slap.useComputer(
-        self.compute_node_id, consumption_xml)
-      self.assertEqual(200, response.status)
-      self.assertEqual("OK", response.body)
-      self.assertReportComputeNodeConsumption(
-        ("testusagé", consumption_xml,), {})
-    finally:
-      if os.path.exists(self.compute_node_use_compute_node_simulator):
-        os.unlink(self.compute_node_use_compute_node_simulator)
-
-  def deactivated_test_useComputer_empty_reference(self):
-    self.compute_node_use_compute_node_simulator = tempfile.mkstemp()[1]
-    try:
-      self.login(self.compute_node_user_id)
-      self.compute_node.ComputeNode_reportComputeNodeConsumption = Simulator(
-        self.compute_node_use_compute_node_simulator,
-        'ComputeNode_reportComputeNodeConsumption')
-  
-      consumption_xml = """<?xml version='1.0' encoding='utf-8'?>
-<journal>
-<transaction type="Sale Packing List">
-<title>Resource consumptions</title>
-<start_date></start_date>
-<stop_date></stop_date>
-<reference></reference>
-<currency></currency>
-<payment_mode></payment_mode>
-<category></category>
-<arrow type="Administration">
-<source></source>
-<destination></destination>
-</arrow>
-<movement>
-<resource>CPU Consumption</resource>
-<title>Title Sale Packing List Line 1</title>
-<reference>slappart0</reference>
-<quantity>42.42</quantity>
-<price>0.00</price>
-<VAT>None</VAT>
-<category>None</category>
-</movement>
-</transaction>
-</journal>"""
-  
-      response = self.portal_slap.useComputer(
-        self.compute_node_id, consumption_xml)
-      self.assertEqual(200, response.status)
-      self.assertEqual("OK", response.body)
-      self.assertReportComputeNodeConsumption(
-        ("", consumption_xml,), {})
-    finally:
-      if os.path.exists(self.compute_node_use_compute_node_simulator):
-        os.unlink(self.compute_node_use_compute_node_simulator)
-
+    software_dict = self.getToApi({
+      "portal_type": "Software Installation",
+      "software_release_uri": urllib.quote(software_release_uri),
+      "compute_node_id": self.compute_node_id,
+    })
+    response =  self.portal.REQUEST.RESPONSE
+    expected_dict = {
+      "$schema": software_installation.getJSONSchemaUrl(),
+      "reference": software_installation.getReference(),
+      "software_release_uri": software_release_uri,
+      "compute_node_id": software_installation.getAggregateReference(),
+      "state": "available",
+      "reported_state": "",
+      "status_message": "#error while installing %s" % software_release_uri,
+      "processing_timestamp": software_installation.getSlapTimestamp(),
+      "api_revision": software_installation.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+    }
+    self.assertEqual(expected_dict, software_dict)
 
 class TestSlapOSSlapToolInstanceAccess(TestSlapOSJIOAPIMixin):
   def deactivated_test_getComputerPartitionCertificate(self):

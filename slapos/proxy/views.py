@@ -714,6 +714,11 @@ def forwardRequestToExternalMaster(master_url, request_form):
   partition._master_url = master_url # type: ignore
   partition._connection_helper = None
   partition._software_release_document = request_form['software_release'] # type: ignore
+
+  if partition._request_dict is not None:
+    # ResourceNotReady
+    abort(408)
+
   return dumps(partition)
 
 def getAllocatedInstance(partition_reference):

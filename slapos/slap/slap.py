@@ -469,7 +469,7 @@ class ComputerPartition(SlapRequester):
     self._updateTransactionFile(partition_reference=None)
 
   def __getinitargs__(self):
-    return (self._computer_id, self._partition_id, )
+    return (self._computer_id, self._partition_id, self._request_dict)
 
   def _updateTransactionFile(self, partition_reference=None):
     """

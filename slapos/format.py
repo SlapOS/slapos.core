@@ -961,12 +961,6 @@ class Tun(Tap):
                          "Address is missing.".format(self.name))
     # create routes
     super(Tun, self).createRoutes()
-    # add iptables rule to accept connections from this interface
-    chain_rule = ['INPUT', '-i', self.name, '-j', 'ACCEPT']
-    code, _ = callAndRead(['iptables', '-C'] + chain_rule, raise_on_error=False)
-    if code == 0:
-      # 0 means the rule does not exits so we are free to insert it
-      callAndRead(['iptables', '-I'] + chain_rule)
 
 
 class Interface(object):

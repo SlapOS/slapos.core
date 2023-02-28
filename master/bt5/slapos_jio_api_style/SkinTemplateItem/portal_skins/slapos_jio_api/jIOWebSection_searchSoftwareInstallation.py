@@ -13,7 +13,8 @@ search_kw = {
 }
 
 if "software_release_uri" in data_dict:
-  search_kw["url_string"] = data_dict["software_release_uri"]
+  import urllib
+  search_kw["url_string"] = urllib.unquote(data_dict["software_release_uri"])
 if "compute_node_id" in data_dict:
   search_kw["strict_aggregate_reference"] = data_dict["compute_node_id"]
 if "from_api_revision" in data_dict:

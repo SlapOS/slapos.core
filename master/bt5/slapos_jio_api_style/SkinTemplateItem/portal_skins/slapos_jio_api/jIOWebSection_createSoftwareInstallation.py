@@ -10,9 +10,9 @@ if not compute_node:
     error_message="Compute Node not found",
     error_name="COMPUTE-NODE-NOT-FOUND",
   )
-
+import urllib
 compute_node.requestSoftwareRelease(
-  software_release_url=data_dict["software_release_uri"],
+  software_release_url=urllib.unquote(data_dict["software_release_uri"]),
   state=data_dict.get("state", "available"),
 )
 

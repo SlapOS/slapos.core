@@ -28,18 +28,10 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
 from DateTime import DateTime
-from App.Common import rfc1123_date
 
-import os
-import tempfile
 import time
 import urllib
 
-# blurb to make nice XML comparisions
-import xml.dom.ext.reader.Sax
-import xml.dom.ext
-import StringIO
-import difflib
 import hashlib
 import json
 from binascii import hexlify
@@ -692,14 +684,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJIOAPIMixin):
       "portal_type": "Slave Instance",
     }, instance_dict)
 
-  def assertInstanceUpdateConnectionSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_update_connection_simulator).read()) #pylint: disable=eval-used
-    # do the same translation magic as in workflow
-    kwargs['connection_xml'] = kwargs.pop('connection_xml')
-    self.assertEqual(stored,
-      [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'updateConnection'}])
-
   def test_13_setConnectionXml_withSlave(self):
     # XXX CLN No idea how to deal with ascii
     self._makeComplexComputeNode(with_slave=True)
@@ -1212,881 +1196,304 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJIOAPIMixin):
     self.person_user_id = person.getUserId()
     TestSlapOSJIOAPIMixin.afterSetUp(self)
 
-  def deactivated_test_not_accessed_getComputerStatus(self):
-    self.login(self.person_user_id)
-    created_at = rfc1123_date(DateTime())
-    since = created_at
-    response = self.portal_slap.getComputerStatus(self.compute_node_id)
-    self.assertEqual(200, response.status)
-    self.assertEqual('public, max-age=60, stale-if-error=604800',
-        response.headers.get('cache-control'))
-    self.assertEqual('REMOTE_USER',
-        response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
-    self.assertEqual('text/xml; charset=utf-8',
-        response.headers.get('content-type'))
-    # check returned XML
-    xml_fp = StringIO.StringIO()
+  def test_30_computerBang(self):
+    self.called_banged_kw = ""
+    def calledBang(*args, **kw):
+      self.called_banged_kw = kw
+    start_date = DateTime()
 
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
-
-    expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>created_at</string>
-    <string>%(created_at)s</string>
-    <string>no_data</string>
-    <int>1</int>
-    <string>since</string>
-    <string>%(since)s</string>
-    <string>state</string>
-    <string/>
-    <string>text</string>
-    <string>#error no data found for %(compute_node_id)s</string>
-    <string>user</string>
-    <string>SlapOS Master</string>
-  </dictionary>
-</marshal>
-""" % dict(
-  created_at=created_at,
-  since=since,
-  compute_node_id=self.compute_node_id
-)
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-
-  def deactivated_test_accessed_getComputerStatus(self):
-    self.login(self.compute_node_user_id)
-    self.portal_slap.getFullComputerInformation(self.compute_node_id)
-    self.login(self.person_user_id)
-    created_at = rfc1123_date(DateTime())
-    since = created_at
-    response = self.portal_slap.getComputerStatus(self.compute_node_id)
-    self.assertEqual(200, response.status)
-    self.assertEqual('public, max-age=60, stale-if-error=604800',
-        response.headers.get('cache-control'))
-    self.assertEqual('REMOTE_USER',
-        response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
-    self.assertEqual('text/xml; charset=utf-8',
-        response.headers.get('content-type'))
-
-    # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
-
-    expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>created_at</string>
-    <string>%(created_at)s</string>
-    <string>no_data_since_15_minutes</string>
-    <int>0</int>
-    <string>no_data_since_5_minutes</string>
-    <int>0</int>
-    <string>since</string>
-    <string>%(since)s</string>
-    <string>state</string>
-    <string/>
-    <string>text</string>
-    <string>#access %(compute_node_id)s</string>
-    <string>user</string>
-    <string>%(compute_node_id)s</string>
-  </dictionary>
-</marshal>
-""" % dict(
-  created_at=created_at,
-  since=since,
-  compute_node_id=self.compute_node_id
-)
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-
-  def assertComputeNodeBangSimulator(self, args, kwargs):
-    stored = eval(open(self.compute_node_bang_simulator).read()) #pylint: disable=eval-used
-    # do the same translation magic as in workflow
-    kwargs['comment'] = kwargs.pop('comment')
-    self.assertEqual(stored,
-      [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'reportComputeNodeBang'}])
-
-  def deactivated_test_computerBang(self):
-    self.login(self.person_user_id)
-    self.compute_node_bang_simulator = tempfile.mkstemp()[1]
     try:
-      self.compute_node.reportComputeNodeBang = Simulator(
-        self.compute_node_bang_simulator, 'reportComputeNodeBang')
+      reportComputeNodeBang = self.compute_node.__class__.reportComputeNodeBang
+      self.compute_node.__class__.reportComputeNodeBang = calledBang
+      self.login(self.person_user_id)
       error_log = 'Please bang me'
-      response = self.portal_slap.computerBang(self.compute_node_id,
-        error_log)
-      self.assertEqual('None', response)
-      # We do not assert getComputerStatus on this test, since
-      # the change of the timestamp is part of reportComputeNodeBang
-      
-      self.assertComputeNodeBangSimulator((), {'comment': error_log})
+      response = self.putToApi({
+        "compute_node_id": self.compute_node_id,
+        "portal_type": "Compute Node",
+        "bang_status_message": error_log,
+      })
+      self.assertEqual(self.called_banged_kw, {"comment": error_log})
+      self.assertEqual(response["compute_node_id"], self.compute_node.getReference())      
+      self.assertEqual(response["success"], "Done")      
+      self.assertEqual(response["portal_type"], "Compute Node")
+      self.assertTrue(response["$schema"].endswith("ComputeNode_updateFromJSON/getOutputJSONSchema"))      
+      self.assertTrue(DateTime(response["date"]) >= start_date)
     finally:
-      if os.path.exists(self.compute_node_bang_simulator):
-        os.unlink(self.compute_node_bang_simulator)
+      self.compute_node.__class__.reportComputeNodeBang = reportComputeNodeBang
 
-  def deactivated_test_getComputerPartitionStatus(self):
-    self._makeComplexComputeNode()
+  def test_31_getInstanceWithSharedInstance(self, with_slave=True):
+    self._makeComplexComputeNode(person=self.person, with_slave=with_slave)
+    instance = self.start_requested_software_instance
     self.login(self.person_user_id)
-    partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Compute Partition').getReference()
-    created_at = rfc1123_date(DateTime())
-    since = created_at
-    self.login(self.start_requested_software_instance.getUserId())
-    response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
-      partition_id)
-    self.assertEqual(200, response.status)
-    self.assertEqual( 'public, max-age=60, stale-if-error=604800',
-        response.headers.get('cache-control'))
-    self.assertEqual('REMOTE_USER',
-        response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
-    self.assertEqual('text/xml; charset=utf-8',
+    instance_dict = self.getToApi({
+      "portal_type": "Software Instance",
+      "reference": instance.getReference()
+    })
+    response =  self.portal.REQUEST.RESPONSE
+    self.assertEqual(200, response.getStatus())
+    self.assertEqual('application/json',
         response.headers.get('content-type'))
-    # check returned XML
-    xml_fp = StringIO.StringIO()
+    # Check Data is correct
+    self.login()
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    self.assertEqual({
+      "$schema": instance.getJSONSchemaUrl(),
+      "title": instance.getTitle(),
+      "reference": instance.getReference(),
+      "software_release_uri": instance.getUrlString(),
+      "software_type": instance.getSourceReference(),
+      "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+      "connection_parameters": instance.getConnectionXmlAsDict(),
+      "parameters": instance.getInstanceXmlAsDict(),
+      "shared": False,
+      "root_instance_title": instance.getSpecialiseValue().getTitle(),
+      "ip_list": 
+        [
+          [
+            x.getNetworkInterface(''),
+            x.getIpAddress()
+          ] for x in partition.contentValues(portal_type='Internet Protocol Address')
+        ],
+      "full_ip_list": [],
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      "processing_timestamp": instance.getSlapTimestamp(),
+      "access_status_message": instance.getTextAccessStatus(),
+      "api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+      "portal_type": instance.getPortalType(),
+    }, instance_dict)
 
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
-    expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>created_at</string>
-    <string>%(created_at)s</string>
-    <string>no_data</string>
-    <int>1</int>
-    <string>since</string>
-    <string>%(since)s</string>
-    <string>state</string>
-    <string/>
-    <string>text</string>
-    <string>#error no data found for %(instance_guid)s</string>
-    <string>user</string>
-    <string>SlapOS Master</string>
-  </dictionary>
-</marshal>
-""" % dict(
-  created_at=created_at,
-  since=since,
-  instance_guid=self.start_requested_software_instance.getReference(),
-)
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+  def test_31_bis_getInstance(self):
+    self.test_31_getInstanceWithSharedInstance(with_slave=False)
 
-  def deactivated_test_getComputerPartitionStatus_visited(self):
+
+  def test_32_softwareInstanceBang(self):
     self._makeComplexComputeNode(person=self.person)
-    self.login(self.person_user_id)
-    partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Compute Partition').getReference()
-    created_at = rfc1123_date(DateTime())
-    since = created_at
-    self.login(self.start_requested_software_instance.getUserId())
-    self.portal_slap.registerComputerPartition(self.compute_node_id, partition_id)
-    self.login(self.person_user_id)
-    response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
-      partition_id)
-    self.assertEqual(200, response.status)
-    self.assertEqual( 'public, max-age=60, stale-if-error=604800',
-        response.headers.get('cache-control'))
-    self.assertEqual('REMOTE_USER',
-        response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
-    self.assertEqual('text/xml; charset=utf-8',
-        response.headers.get('content-type'))
-    # check returned XML
-    xml_fp = StringIO.StringIO()
+    self.called_instance_bang = ""
+    def calledBanged(*args, **kw):
+      self.called_instance_bang = kw
 
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
-    expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>created_at</string>
-    <string>%(created_at)s</string>
-    <string>no_data</string>
-    <int>1</int>
-    <string>since</string>
-    <string>%(since)s</string>
-    <string>state</string>
-    <string/>
-    <string>text</string>
-    <string>#error no data found for %(instance_guid)s</string>
-    <string>user</string>
-    <string>SlapOS Master</string>
-  </dictionary>
-</marshal>
-""" % dict(
-  created_at=created_at,
-  since=since,
-  instance_guid=self.start_requested_software_instance.getReference(),
-  compute_node_id=self.compute_node_id,
-  partition_id=partition_id
-)
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-
-  def deactivated_test_registerComputerPartition_withSlave(self):
-    self._makeComplexComputeNode(person=self.person, with_slave=True)
-    partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Compute Partition').getReference()
-    self.login(self.person_user_id)
-    response = self.portal_slap.registerComputerPartition(self.compute_node_id, partition_id)
-    self.assertEqual(200, response.status)
-    self.assertEqual( 'public, max-age=1, stale-if-error=604800',
-        response.headers.get('cache-control'))
-    self.assertEqual('REMOTE_USER',
-        response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
-    self.assertEqual('text/xml; charset=utf-8',
-        response.headers.get('content-type'))
-    # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
-    expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <object id='i2' module='slapos.slap.slap' class='ComputerPartition'>
-    <tuple>
-      <string>%(compute_node_id)s</string>
-      <string>partition1</string>
-    </tuple>
-    <dictionary id='i3'>
-      <string>_computer_id</string>
-      <string>%(compute_node_id)s</string>
-      <string>_connection_dict</string>
-      <dictionary id='i4'/>
-      <string>_filter_dict</string>
-      <dictionary id='i5'>
-        <string>paramé</string>
-        <string>%(sla)s</string>
-      </dictionary>
-      <string>_instance_guid</string>
-      <string>%(instance_guid)s</string>
-      <string>_need_modification</string>
-      <int>1</int>
-      <string>_parameter_dict</string>
-      <dictionary id='i6'>
-        <string>full_ip_list</string>
-        <list id='i7'/>
-        <string>instance_title</string>
-        <string>%(instance_title)s</string>
-        <string>ip_list</string>
-        <list id='i8'>
-          <tuple>
-            <string/>
-            <string>ip_address_1</string>
-          </tuple>
-        </list>
-        <string>paramé</string>
-        <string>%(param)s</string>
-        <string>root_instance_short_title</string>
-        <string/>
-        <string>root_instance_title</string>
-        <string>%(root_instance_title)s</string>
-        <string>slap_computer_id</string>
-        <string>%(compute_node_id)s</string>
-        <string>slap_computer_partition_id</string>
-        <string>partition1</string>
-        <string>slap_software_release_url</string>
-        <string>%(software_release_url)s</string>
-        <string>slap_software_type</string>
-        <string>%(software_type)s</string>
-        <string>slave_instance_list</string>
-        <list id='i9'>
-          <dictionary id='i10'>
-            <string>connection-parameter-hash</string>
-            <string>4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945</string>
-            <string>paramé</string>
-            <string>%(slave_1_param)s</string>
-            <string>slap_software_type</string>
-            <string>%(slave_1_software_type)s</string>
-            <string>slave_reference</string>
-            <string>%(slave_1_instance_guid)s</string>
-            <string>slave_title</string>
-            <string>%(slave_1_title)s</string>
-            <string>timestamp</string>
-            <int>%(timestamp)s</int>
-          </dictionary>
-        </list>
-        <string>timestamp</string>
-        <string>%(timestamp)s</string>
-      </dictionary>
-      <string>_partition_id</string>
-      <string>partition1</string>
-      <string>_request_dict</string>
-      <none/>
-      <string>_requested_state</string>
-      <string>started</string>
-      <string>_software_release_document</string>
-      <object id='i11' module='slapos.slap.slap' class='SoftwareRelease'>
-        <tuple>
-          <string>%(software_release_url)s</string>
-          <string>%(compute_node_id)s</string>
-        </tuple>
-        <dictionary id='i12'>
-          <string>_computer_guid</string>
-          <string>%(compute_node_id)s</string>
-          <string>_software_instance_list</string>
-          <list id='i13'/>
-          <string>_software_release</string>
-          <string>%(software_release_url)s</string>
-        </dictionary>
-      </object>
-      <string>_synced</string>
-      <bool>1</bool>
-    </dictionary>
-  </object>
-</marshal>
-""" % dict(
-  compute_node_id=self.compute_node_id,
-  param=self.start_requested_software_instance.getInstanceXmlAsDict()['paramé'],
-  sla=self.start_requested_software_instance.getSlaXmlAsDict()['paramé'],
-  software_release_url=self.start_requested_software_instance.getUrlString(),
-  timestamp=int(self.start_requested_software_instance.getModificationDate()),
-  instance_guid=self.start_requested_software_instance.getReference(),
-  instance_title=self.start_requested_software_instance.getTitle(),
-  root_instance_title=self.start_requested_software_instance.getSpecialiseValue().getTitle(),
-  software_type=self.start_requested_software_instance.getSourceReference(),
-  slave_1_param=self.start_requested_slave_instance.getInstanceXmlAsDict()['paramé'],
-  slave_1_software_type=self.start_requested_slave_instance.getSourceReference(),
-  slave_1_instance_guid=self.start_requested_slave_instance.getReference(),
-  slave_1_title=self.start_requested_slave_instance.getTitle(),
-)
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-
-  def deactivated_test_registerComputerPartition(self):
-    self._makeComplexComputeNode(person=self.person)
-    partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Compute Partition').getReference()
-    self.login(self.person_user_id)
-    response = self.portal_slap.registerComputerPartition(self.compute_node_id, partition_id)
-    self.assertEqual(200, response.status)
-    self.assertEqual( 'public, max-age=1, stale-if-error=604800',
-        response.headers.get('cache-control'))
-    self.assertEqual('REMOTE_USER',
-        response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
-    self.assertEqual('text/xml; charset=utf-8',
-        response.headers.get('content-type'))
-    # check returned XML
-    xml_fp = StringIO.StringIO()
-
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
-    expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <object id='i2' module='slapos.slap.slap' class='ComputerPartition'>
-    <tuple>
-      <string>%(compute_node_id)s</string>
-      <string>partition1</string>
-    </tuple>
-    <dictionary id='i3'>
-      <string>_computer_id</string>
-      <string>%(compute_node_id)s</string>
-      <string>_connection_dict</string>
-      <dictionary id='i4'/>
-      <string>_filter_dict</string>
-      <dictionary id='i5'>
-        <string>paramé</string>
-        <string>%(sla)s</string>
-      </dictionary>
-      <string>_instance_guid</string>
-      <string>%(instance_guid)s</string>
-      <string>_need_modification</string>
-      <int>1</int>
-      <string>_parameter_dict</string>
-      <dictionary id='i6'>
-        <string>full_ip_list</string>
-        <list id='i7'/>
-        <string>instance_title</string>
-        <string>%(instance_title)s</string>
-        <string>ip_list</string>
-        <list id='i8'>
-          <tuple>
-            <string/>
-            <string>ip_address_1</string>
-          </tuple>
-        </list>
-        <string>paramé</string>
-        <string>%(param)s</string>
-        <string>root_instance_short_title</string>
-        <string/>
-        <string>root_instance_title</string>
-        <string>%(root_instance_title)s</string>
-        <string>slap_computer_id</string>
-        <string>%(compute_node_id)s</string>
-        <string>slap_computer_partition_id</string>
-        <string>partition1</string>
-        <string>slap_software_release_url</string>
-        <string>%(software_release_url)s</string>
-        <string>slap_software_type</string>
-        <string>%(software_type)s</string>
-        <string>slave_instance_list</string>
-        <list id='i9'/>
-        <string>timestamp</string>
-        <string>%(timestamp)s</string>
-      </dictionary>
-      <string>_partition_id</string>
-      <string>partition1</string>
-      <string>_request_dict</string>
-      <none/>
-      <string>_requested_state</string>
-      <string>started</string>
-      <string>_software_release_document</string>
-      <object id='i10' module='slapos.slap.slap' class='SoftwareRelease'>
-        <tuple>
-          <string>%(software_release_url)s</string>
-          <string>%(compute_node_id)s</string>
-        </tuple>
-        <dictionary id='i11'>
-          <string>_computer_guid</string>
-          <string>%(compute_node_id)s</string>
-          <string>_software_instance_list</string>
-          <list id='i12'/>
-          <string>_software_release</string>
-          <string>%(software_release_url)s</string>
-        </dictionary>
-      </object>
-      <string>_synced</string>
-      <bool>1</bool>
-    </dictionary>
-  </object>
-</marshal>
-""" % dict(
-  compute_node_id=self.compute_node_id,
-  param=self.start_requested_software_instance.getInstanceXmlAsDict()['paramé'],
-  sla=self.start_requested_software_instance.getSlaXmlAsDict()['paramé'],
-  software_release_url=self.start_requested_software_instance.getUrlString(),
-  timestamp=int(self.start_requested_software_instance.getModificationDate()),
-  instance_guid=self.start_requested_software_instance.getReference(),
-  instance_title=self.start_requested_software_instance.getTitle(),
-  root_instance_title=self.start_requested_software_instance.getSpecialiseValue().getTitle(),
-  software_type=self.start_requested_software_instance.getSourceReference()
-)
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-
-  def assertInstanceBangSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_bang_simulator).read()) #pylint: disable=eval-used
-    # do the same translation magic as in workflow
-    kwargs['comment'] = kwargs.pop('comment')
-    self.assertEqual(stored,
-      [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'bang'}])
-
-  def deactivated_test_softwareInstanceBang(self):
-    self._makeComplexComputeNode(person=self.person)
-    self.instance_bang_simulator = tempfile.mkstemp()[1]
+    instance = self.start_requested_software_instance
+    error_log = 'Please bang me'
     try:
-      partition_id = self.start_requested_software_instance.getAggregateValue(
-          portal_type='Compute Partition').getReference()
+      bang = instance.__class__.bang
+      instance.__class__.bang = calledBanged
       self.login(self.person_user_id)
-      self.start_requested_software_instance.bang = Simulator(
-        self.instance_bang_simulator, 'bang')
       error_log = 'Please bang me'
-      response = self.portal_slap.softwareInstanceBang(self.compute_node_id,
-        partition_id, error_log)
-      self.assertEqual('OK', response)
-      created_at = rfc1123_date(DateTime())
-      since = created_at
-      response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
-        partition_id)
-      # check returned XML
-      xml_fp = StringIO.StringIO()
-
-      xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-          stream=xml_fp)
-      xml_fp.seek(0)
-      got_xml = xml_fp.read()
-      expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>created_at</string>
-    <string>%(created_at)s</string>
-    <string>no_data_since_15_minutes</string>
-    <int>0</int>
-    <string>no_data_since_5_minutes</string>
-    <int>0</int>
-    <string>since</string>
-    <string>%(since)s</string>
-    <string>state</string>
-    <string/>
-    <string>text</string>
-    <string>#error bang called</string>
-    <string>user</string>
-    <string>%(person_reference)s</string>
-  </dictionary>
-</marshal>
-""" % dict(
-    created_at=created_at,
-    since=since,
-    person_reference=self.person_reference,
-  )
-      self.assertEqual(expected_xml, got_xml,
-          '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-      self.assertInstanceBangSimulator((), {'comment': error_log, 'bang_tree': True})
+      self.callInstancePutToApiAndCheck({
+        "reference": instance.getReference(),
+        "portal_type": "Software Instance",
+        "reported_state": "bang",
+        "status_message": error_log,
+      })
+      self.assertEqual(
+        self.called_instance_bang,
+        {'bang_tree': True, 'comment': 'Please bang me'}
+      )
     finally:
-      if os.path.exists(self.instance_bang_simulator):
-        os.unlink(self.instance_bang_simulator)
+      instance.__class__.bang = bang
 
-  def assertInstanceRenameSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_rename_simulator).read()) #pylint: disable=eval-used
-    # do the same translation magic as in workflow
-    self.assertEqual(stored,
-      [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'rename'}])
+    instance_dict = self.getToApi({
+      "portal_type": "Software Instance",
+      "reference": instance.getReference(),
+    })
+    response =  self.portal.REQUEST.RESPONSE
+    self.assertEqual(200, response.getStatus())
+    self.assertEqual('application/json',
+        response.headers.get('content-type'))
+    self.assertEqual(
+      instance_dict["access_status_message"],
+      "#error bang called"
+    )
 
-  def deactivated_test_softwareInstanceRename(self):
+  def test_33_softwareInstanceRename(self):
     self._makeComplexComputeNode(person=self.person)
-    self.instance_rename_simulator = tempfile.mkstemp()[1]
+    new_name = 'new me'
+
+    self.called_instance_rename = ""
+    def calledRename(*args, **kw):
+      self.called_instance_rename = kw
+
+    instance = self.start_requested_software_instance
     try:
-      partition_id = self.start_requested_software_instance.getAggregateValue(
-          portal_type='Compute Partition').getReference()
+      rename = instance.__class__.rename
+      instance.__class__.rename = calledRename
       self.login(self.person_user_id)
-      self.start_requested_software_instance.rename = Simulator(
-        self.instance_rename_simulator, 'rename')
-      new_name = 'new me'
-      response = self.portal_slap.softwareInstanceRename(new_name, self.compute_node_id,
-        partition_id)
-      self.assertEqual('None', response)
-      self.assertInstanceRenameSimulator((), {
-          'comment': 'Rename %s into %s' % (self.start_requested_software_instance.getTitle(),
-            new_name), 'new_name': new_name})
+      self.callInstancePutToApiAndCheck({
+        "reference": instance.getReference(),
+        "portal_type": "Software Instance",
+        "title": new_name,
+      })
+      self.assertEqual(self.called_instance_rename,
+        {
+          'comment': 'Rename %s into %s' % (
+            instance.getTitle(),
+            new_name
+          ),
+          'new_name': new_name
+        }
+      )
+
     finally:
-      if os.path.exists(self.instance_rename_simulator):
-        os.unlink(self.instance_rename_simulator)
+      instance.__class__.rename = rename
 
-  def assertInstanceRequestSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_request_simulator).read()) #pylint: disable=eval-used
-    # do the same translation magic as in workflow
-    self.assertEqual(stored,
-      [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'requestSoftwareInstance'}])
+  def test_34_request_withSlave(self):
+    self.called_instance_request = ""
+    def calledRequestInstance(*args, **kw):
+      self.called_instance_request = kw
 
-  def deactivated_test_request_withSlave(self):
-    self.instance_request_simulator = tempfile.mkstemp()[1]
     try:
+      requestSoftwareInstance = self.person.__class__.requestSoftwareInstance
+      self.person.__class__.requestSoftwareInstance = calledRequestInstance
       self.login(self.person_user_id)
-      self.person.requestSoftwareInstance = Simulator(
-        self.instance_request_simulator, 'requestSoftwareInstance')
-      response = self.portal_slap.requestComputerPartition(
-          software_release='req_release',
-          software_type='req_type',
-          partition_reference='req_reference',
-          partition_parameter_xml='<marshal><dictionary id="i2"/></marshal>',
-          filter_xml='<marshal><dictionary id="i2"/></marshal>',
-          state='<marshal><string>started</string></marshal>',
-          shared_xml='<marshal><bool>1</bool></marshal>',
-          )
-      self.assertEqual(408, response.status)
-      self.assertEqual('private',
-          response.headers.get('cache-control'))
-      self.assertInstanceRequestSimulator((), {
+      response_dict = self.postToApi({
+        "portal_type": "Software Instance",
+        "software_release_uri": "req_release",
+        "software_type": "req_type",
+        "title": "req_reference",
+        "shared": True,
+      })
+      response =  self.portal.REQUEST.RESPONSE
+      self.assertEqual(400, response.getStatus())
+      self.assertEqual('application/json',
+        response.headers.get('content-type'))
+      self.assertEqual(self.called_instance_request, {
           'instance_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
           'software_title': 'req_reference',
           'software_release': 'req_release',
           'state': 'started',
           'sla_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
           'software_type': 'req_type',
-          'shared': True})
+          'shared': True
+      })
+      self.assertTrue(response_dict.pop("$schema").endswith("error-response-schema.json"))
+      response_dict.pop("debug_id")
+      self.assertEqual(response_dict, {
+        'message': 'Software Instance Not Ready',
+        'name': 'SoftwareInstanceNotReady',
+        'status': 102
+      })
     finally:
-      if os.path.exists(self.instance_request_simulator):
-        os.unlink(self.instance_request_simulator)
+      self.person.__class__.requestSoftwareInstance = requestSoftwareInstance
 
-  def deactivated_test_request(self):
-    self.instance_request_simulator = tempfile.mkstemp()[1]
+  def test_35_request(self):
+    self.called_instance_request = ""
+    def calledRequestInstance(*args, **kw):
+      self.called_instance_request = kw
+
     try:
+      requestSoftwareInstance = self.person.__class__.requestSoftwareInstance
+      self.person.__class__.requestSoftwareInstance = calledRequestInstance
       self.login(self.person_user_id)
-      self.person.requestSoftwareInstance = Simulator(
-        self.instance_request_simulator, 'requestSoftwareInstance')
-      response = self.portal_slap.requestComputerPartition(
-          software_release='req_release',
-          software_type='req_type',
-          partition_reference='req_reference',
-          partition_parameter_xml='<marshal><dictionary id="i2"/></marshal>',
-          filter_xml='<marshal><dictionary id="i2"/></marshal>',
-          state='<marshal><string>started</string></marshal>',
-          shared_xml='<marshal><bool>0</bool></marshal>',
-          )
-      self.assertEqual(408, response.status)
-      self.assertEqual('private',
-          response.headers.get('cache-control'))
-      self.assertInstanceRequestSimulator((), {
+      response_dict = self.postToApi({
+        "portal_type": "Software Instance",
+        "software_release_uri": "req_release",
+        "software_type": "req_type",
+        "title": "req_reference",
+      })
+      response =  self.portal.REQUEST.RESPONSE
+      self.assertEqual(400, response.getStatus())
+      self.assertEqual('application/json',
+        response.headers.get('content-type'))
+      self.assertEqual(self.called_instance_request, {
           'instance_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
           'software_title': 'req_reference',
           'software_release': 'req_release',
           'state': 'started',
           'sla_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
           'software_type': 'req_type',
-          'shared': False})
+          'shared': False
+      })
+      self.assertTrue(response_dict.pop("$schema").endswith("error-response-schema.json"))
+      response_dict.pop("debug_id")
+      self.assertEqual(response_dict, {
+        'message': 'Software Instance Not Ready',
+        'name': 'SoftwareInstanceNotReady',
+        'status': 102
+      })
     finally:
-      if os.path.exists(self.instance_request_simulator):
-        os.unlink(self.instance_request_simulator)
+      self.person.__class__.requestSoftwareInstance = requestSoftwareInstance
 
-  def deactivated_test_request_allocated_instance(self):
+  def test_36_request_allocated_instance(self):
     self.tic()
     self.person.edit(
       default_email_coordinate_text="%s@example.org" % self.person.getReference(),
       career_role='member',
     )
     self._makeComplexComputeNode(person=self.person)
-    self.start_requested_software_instance.updateLocalRolesOnSecurityGroups()
+    instance = self.start_requested_software_instance
+    instance.updateLocalRolesOnSecurityGroups()
     self.tic()
     self.login(self.person_user_id)
-    response = self.portal_slap.requestComputerPartition(
-      software_release=self.start_requested_software_instance.getUrlString(),
-      software_type=self.start_requested_software_instance.getSourceReference(),
-      partition_reference=self.start_requested_software_instance.getTitle(),
-      partition_parameter_xml='<marshal><dictionary id="i2"/></marshal>',
-      filter_xml='<marshal><dictionary id="i2"/></marshal>',
-      state='<marshal><string>started</string></marshal>',
-      shared_xml='<marshal><bool>0</bool></marshal>',
-      )
-    self.assertEqual(type(response), str)
-    # check returned XML
-    xml_fp = StringIO.StringIO()
+    instance_dict = self.postToApi({
+      "portal_type": "Software Instance",
+      "software_release_uri": instance.getUrlString(),
+      "software_type": instance.getSourceReference(),
+      "title": instance.getTitle(),
+    })
 
-    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response),
-        stream=xml_fp)
-    xml_fp.seek(0)
-    got_xml = xml_fp.read()
-    expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <object id='i2' module='slapos.slap.slap' class='SoftwareInstance'>
-    <tuple/>
-    <dictionary id='i3'>
-      <string>_connection_dict</string>
-      <dictionary id='i4'/>
-      <string>_filter_dict</string>
-      <dictionary id='i5'/>
-      <string>_instance_guid</string>
-      <string>%(instance_guid)s</string>
-      <string>_parameter_dict</string>
-      <dictionary id='i6'/>
-      <string>_requested_state</string>
-      <string>%(state)s</string>
-      <string>full_ip_list</string>
-      <list id='i7'/>
-      <string>instance_title</string>
-      <string>%(instance_title)s</string>
-      <string>ip_list</string>
-      <list id='i8'>
-        <tuple>
-          <string/>
-          <string>%(ip)s</string>
-        </tuple>
-      </list>
-      <string>root_instance_short_title</string>
-      <string/>
-      <string>root_instance_title</string>
-      <string>%(root_instance_title)s</string>
-      <string>slap_computer_id</string>
-      <string>%(compute_node_id)s</string>
-      <string>slap_computer_partition_id</string>
-      <string>%(partition_id)s</string>
-      <string>slap_software_release_url</string>
-      <string>%(url_string)s</string>
-      <string>slap_software_type</string>
-      <string>%(type)s</string>
-      <string>slave_instance_list</string>
-      <list id='i9'/>
-      <string>timestamp</string>
-      <string>%(timestamp)s</string>
-    </dictionary>
-  </object>
-</marshal>
-""" % dict(
-    instance_guid=self.start_requested_software_instance.getReference(),
-    instance_title=self.start_requested_software_instance.getTitle(),
-    root_instance_title=self.start_requested_software_instance.getSpecialiseTitle(),
-    state="started",
-    url_string=self.start_requested_software_instance.getUrlString(),
-    type=self.start_requested_software_instance.getSourceReference(),
-    timestamp=int(self.start_requested_software_instance.getModificationDate()),
-    compute_node_id=self.compute_node_id,
-    partition_id=self.start_requested_software_instance.getAggregateId(),
-    ip=self.start_requested_software_instance.getAggregateValue()\
-               .getDefaultNetworkAddressIpAddress(),
-  )
-    self.assertEqual(expected_xml, got_xml,
-      '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'),
-                                                 got_xml.split('\n'))]))
+    response =  self.portal.REQUEST.RESPONSE
+    self.assertEqual(201, response.getStatus())
+    self.assertEqual('application/json',
+        response.headers.get('content-type'))
+    # Check Data is correct
+    self.login()
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    self.assertEqual({
+      "$schema": instance.getJSONSchemaUrl(),
+      "title": instance.getTitle(),
+      "reference": instance.getReference(),
+      "software_release_uri": instance.getUrlString(),
+      "software_type": instance.getSourceReference(),
+      "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+      "connection_parameters": instance.getConnectionXmlAsDict(),
+      "parameters": instance.getInstanceXmlAsDict(),
+      "shared": False,
+      "root_instance_title": instance.getSpecialiseValue().getTitle(),
+      "ip_list": 
+        [
+          [
+            x.getNetworkInterface(''),
+            x.getIpAddress()
+          ] for x in partition.contentValues(portal_type='Internet Protocol Address')
+        ],
+      "full_ip_list": [],
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      "processing_timestamp": instance.getSlapTimestamp(),
+      "access_status_message": instance.getTextAccessStatus(),
+      "api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+      "portal_type": instance.getPortalType(),
+    }, instance_dict)
 
-  def assertSupplySimulator(self, args, kwargs):
-    stored = eval(open(self.compute_node_supply_simulator).read()) #pylint: disable=eval-used
-    # do the same translation magic as in workflow
-    kwargs['software_release_url'] = kwargs.pop('software_release_url')
-    kwargs['state'] = kwargs.pop('state')
-    self.assertEqual(stored,
-      [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'requestSoftwareRelease'}])
+  def test_37_ComputeNodeSupply(self):
+    self.called_software_supply = ""
+    def calledSoftwareSupply(*args, **kw):
+      self.called_software_supply = kw
 
-  def deactivated_test_ComputeNodeSupply(self):
-    self.compute_node_supply_simulator = tempfile.mkstemp()[1]
     try:
       self.login(self.person_user_id)
-      self.compute_node.requestSoftwareRelease = Simulator(
-        self.compute_node_supply_simulator, 'requestSoftwareRelease')
+      requestSoftwareRelease = self.compute_node.__class__.requestSoftwareRelease
+      self.compute_node.__class__.requestSoftwareRelease = calledSoftwareSupply
       software_url = 'live_test_url_%s' % self.generateNewId()
-      response = self.portal_slap.supplySupply(
-          software_url,
-          self.compute_node_id,
-          state='destroyed')
-      self.assertEqual('None', response)
-      self.assertSupplySimulator((), {
+      self.postToApi({
+        "portal_type": "Software Installation",
+        "compute_node_id": self.compute_node.getReference(),
+        "software_release_uri": urllib.quote(software_url)
+      })
+      response =  self.portal.REQUEST.RESPONSE
+      self.assertEqual(201, response.getStatus())
+      self.assertEqual('application/json',
+          response.headers.get('content-type'))
+      self.assertEqual(self.called_software_supply, {
         'software_release_url': software_url,
-        'state': 'destroyed'})
+        'state': 'available'})
     finally:
-      if os.path.exists(self.compute_node_supply_simulator):
-        os.unlink(self.compute_node_supply_simulator)
+      self.compute_node.__class__.requestSoftwareRelease = requestSoftwareRelease
 
-  def assertRequestComputeNodeSimulator(self, args, kwargs):
-    stored = eval(open(self.compute_node_request_compute_node_simulator).read()) #pylint: disable=eval-used
-    # do the same translation magic as in workflow
-    kwargs['compute_node_title'] = kwargs.pop('compute_node_title')
-    self.assertEqual(stored,
-      [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'requestComputeNode'}])
-
-  def deactivated_test_requestComputeNode(self):
-    self.compute_node_request_compute_node_simulator = tempfile.mkstemp()[1]
-    try:
-      self.login(self.person_user_id)
-      self.person.requestComputeNode = Simulator(
-        self.compute_node_request_compute_node_simulator, 'requestComputeNode')
-
-      compute_node_id = 'Foo Compute Node'
-      compute_node_reference = 'live_comp_%s' % self.generateNewId()
-      self.portal.REQUEST.set('compute_node_reference', compute_node_reference)
-      response = self.portal_slap.requestComputer(compute_node_id)
-
-      # check returned XML
-      xml_fp = StringIO.StringIO()
-
-      xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response),
-          stream=xml_fp)
-      xml_fp.seek(0)
-      got_xml = xml_fp.read()
-      expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <object id='i2' module='slapos.slap.slap' class='Computer'>
-    <tuple>
-      <string>%(compute_node_id)s</string>
-    </tuple>
-    <dictionary id='i3'>
-      <string>_computer_id</string>
-      <string>%(compute_node_id)s</string>
-    </dictionary>
-  </object>
-</marshal>
-""" % {'compute_node_id': compute_node_reference}
-
-      self.assertEqual(expected_xml, got_xml,
-          '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-      self.assertRequestComputeNodeSimulator((), {'compute_node_title': compute_node_id})
-    finally:
-      if os.path.exists(self.compute_node_request_compute_node_simulator):
-        os.unlink(self.compute_node_request_compute_node_simulator)
-
-  def assertGenerateComputeNodeCertificateSimulator(self, args, kwargs):
-    stored = eval(open(self.generate_compute_node_certificate_simulator).read()) #pylint: disable=eval-used
-    # do the same translation magic as in workflow
-    self.assertEqual(stored,
-      [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'generateComputerCertificate'}])
-
-  def deactivated_test_generateComputerCertificate(self):
-    self.generate_compute_node_certificate_simulator = tempfile.mkstemp()[1]
-    try:
-      self.login(self.person_user_id)
-      self.compute_node.generateCertificate = Simulator(
-        self.generate_compute_node_certificate_simulator, 
-        'generateComputerCertificate')
-
-      compute_node_certificate = 'live_\ncertificate_%s' % self.generateNewId()
-      compute_node_key = 'live_\nkey_%s' % self.generateNewId()
-      self.portal.REQUEST.set('compute_node_certificate', compute_node_certificate)
-      self.portal.REQUEST.set('compute_node_key', compute_node_key)
-      response = self.portal_slap.generateComputerCertificate(self.compute_node_id)
-
-      # check returned XML
-      xml_fp = StringIO.StringIO()
-
-      xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response),
-          stream=xml_fp)
-      xml_fp.seek(0)
-      got_xml = xml_fp.read()
-      expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>certificate</string>
-    <string>%(compute_node_certificate)s</string>
-    <string>key</string>
-    <string>%(compute_node_key)s</string>
-  </dictionary>
-</marshal>
-""" % {'compute_node_key': compute_node_key, 'compute_node_certificate': compute_node_certificate}
-
-      self.assertEqual(expected_xml, got_xml,
-          '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-      self.assertGenerateComputeNodeCertificateSimulator((), {})
-    finally:
-      if os.path.exists(self.generate_compute_node_certificate_simulator):
-        os.unlink(self.generate_compute_node_certificate_simulator)
-
-  def assertRevokeComputeNodeCertificateSimulator(self, args, kwargs):
-    stored = eval(open(self.revoke_compute_node_certificate_simulator).read()) #pylint: disable=eval-used
-    # do the same translation magic as in workflow
-    self.assertEqual(stored,
-      [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'revokeComputerCertificate'}])
-
-  def deactivated_test_revokeComputerCertificate(self):
-    self.revoke_compute_node_certificate_simulator = tempfile.mkstemp()[1]
-    try:
-      self.login(self.person_user_id)
-      self.compute_node.revokeCertificate = Simulator(
-        self.revoke_compute_node_certificate_simulator,
-        'revokeComputerCertificate')
-
-      response = self.portal_slap.revokeComputerCertificate(self.compute_node_id)
-      self.assertEqual('None', response)
-      self.assertRevokeComputeNodeCertificateSimulator((), {})
-    finally:
-      if os.path.exists(self.revoke_compute_node_certificate_simulator):
-        os.unlink(self.revoke_compute_node_certificate_simulator)
-
-  def deactivated_test_getHateoasUrl_NotConfigured(self):
+  def test_38_getHateoasUrl_NotConfigured(self):
     for preference in \
       self.portal.portal_catalog(portal_type="System Preference"):
       preference = preference.getObject()
@@ -2096,7 +1503,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJIOAPIMixin):
     self.login(self.person_user_id)
     self.assertRaises(NotFound, self.portal_slap.getHateoasUrl)
 
-  def deactivated_test_getHateoasUrl(self):
+  def test_39_getHateoasUrl(self):
     for preference in \
       self.portal.portal_catalog(portal_type="System Preference"):
       preference = preference.getObject()
@@ -2107,3 +1514,25 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJIOAPIMixin):
     response = self.portal_slap.getHateoasUrl()
     self.assertEqual(200, response.status)
     self.assertEqual('foo', response.body)
+
+  def test_40_getJIOAPIUrl_NotConfigured(self):
+    for preference in \
+      self.portal.portal_catalog(portal_type="System Preference"):
+      preference = preference.getObject()
+      if preference.getPreferenceState() == 'global':
+        preference.setPreferredJioApiUrl('')
+    self.tic()
+    self.login(self.person_user_id)
+    self.assertRaises(NotFound, self.portal_slap.getJIOAPIUrl)
+
+  def test_41_getJIOAPIUrl(self):
+    for preference in \
+      self.portal.portal_catalog(portal_type="System Preference"):
+      preference = preference.getObject()
+      if preference.getPreferenceState() == 'global':
+        preference.setPreferredJioApiUrl('bar')
+    self.tic()
+    self.login(self.person_user_id)
+    response = self.portal_slap.getJIOAPIUrl()
+    self.assertEqual(200, response.status)
+    self.assertEqual('bar', response.body)

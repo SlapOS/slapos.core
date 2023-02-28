@@ -41,8 +41,8 @@ try:
   filter_kw = data_dict.get("sla_parameters", {})
 
   partition_reference = data_dict.get("title")
-
-  kw = dict(software_release=data_dict.get("software_release_uri"),
+  import urllib
+  kw = dict(software_release=urllib.unquote(data_dict.get("software_release_uri")),
             software_type=data_dict.get("software_type", "RootSoftwareInstance"),
             software_title=partition_reference,
             instance_xml=castToStr(partition_parameter),

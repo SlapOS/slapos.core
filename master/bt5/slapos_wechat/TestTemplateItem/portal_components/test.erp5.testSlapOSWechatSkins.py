@@ -589,17 +589,22 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
   def test_PaymentTransaction_redirectToManualWechatPayment_redirect(self):
     self.portal.portal_secure_payments.slapos_wechat_test.setReference("PSERV-Wechat-Test")
-    person = self.makePerson()
+    project = self.addProject()
+    person = self.makePerson(project)
     invoice =  self.createStoppedSaleInvoiceTransaction(
       payment_mode="wechat",
-      destination_section=person.getRelativeUrl())
+      destination_section_value=person,
+      destination_project_value=project
+    )
     self.tic()
     payment = self.portal.accounting_module.newContent(
       portal_type="Payment Transaction",
       payment_mode='wechat',
       causality_value=invoice,
       destination_section=invoice.getDestinationSection(),
+      destination_project_value=project,
       resource_value=self.portal.currency_module.CNY,
+      ledger="automated",
       created_by_builder=1 # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(payment, 'started')
@@ -634,17 +639,22 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
   def test_PaymentTransaction_redirectToManualWechatPayment_redirect_with_website(self):
     self.portal.portal_secure_payments.slapos_wechat_test.setReference("PSERV-Wechat-Test")
-    person = self.makePerson()
+    project = self.addProject()
+    person = self.makePerson(project)
     invoice =  self.createStoppedSaleInvoiceTransaction(
       payment_mode="wechat",
-      destination_section=person.getRelativeUrl())
+      destination_section_value=person,
+      destination_project_value=project
+    )
     self.tic()
     payment = self.portal.accounting_module.newContent(
       portal_type="Payment Transaction",
       payment_mode='wechat',
       causality_value=invoice,
       destination_section=invoice.getDestinationSection(),
+      destination_project_value=project,
       resource_value=self.portal.currency_module.CNY,
+      ledger="automated",
       created_by_builder=1 # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(payment, 'started')
@@ -674,17 +684,22 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
 
   def test_PaymentTransaction_redirectToManualWechatPayment_already_registered(self):
-    person = self.makePerson()
+    project = self.addProject()
+    person = self.makePerson(project)
     invoice =  self.createStoppedSaleInvoiceTransaction(
       payment_mode="wechat",
-      destination_section=person.getRelativeUrl())
+      destination_section_value=person,
+      destination_project_value=project
+    )
     self.tic()
     payment = self.portal.accounting_module.newContent(
       portal_type="Payment Transaction",
       payment_mode='wechat',
       causality_value=invoice,
       destination_section=invoice.getDestinationSection(),
+      destination_project_value=project,
       resource_value=self.portal.currency_module.CNY,
+      ledger="automated",
       created_by_builder=1 # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(payment, 'started')

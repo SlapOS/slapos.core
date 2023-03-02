@@ -7,4 +7,5 @@ assert "WebSite_viewResetPassword" in last_message[2]
 message = last_message[2].replace("\n", " ")
 for _word in message.split(" "):
   if "WebSite_viewResetPassword?reset_key" in _word:
+    container.REQUEST.REPONSE.setHeader('Content-Type', 'text/html')
     return "<a href='%s' name='reset_password'>Reset Password link sent by mail </a>" % _word.strip()

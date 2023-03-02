@@ -82,7 +82,14 @@ def do_info(logger, conf, local):
     software_schema = SoftwareReleaseSchema(
         instance._software_release_url,
         getattr(instance, '_software_type', None))
-    connection_parameter_dict = xml2dict(instance._connection_dict)
+    if type(instance._connection_dict) == list:
+        # this is slapos master connection dict
+        connection_parameter_dict = {}
+        for param in instance._connection_dict:
+            connection_parameter_dict[param['connection_key']] = param['connection_value']
+    else:
+        # this is slapproxy connection dict
+        connection_parameter_dict = xml2dict(instance._connection_dict)
     try:
         software_serialisation = software_schema.getSerialisation()
     except UndefinedSerializationError:

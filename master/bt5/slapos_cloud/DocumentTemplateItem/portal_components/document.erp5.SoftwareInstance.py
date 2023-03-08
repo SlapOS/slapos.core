@@ -181,6 +181,10 @@ class SoftwareInstance(Item, JSONType):
     return software_instance_dict
 
   def getSlapTimestamp(self):
+    return self._getSlapTimestamp()
+
+  @UnrestrictedMethod
+  def _getSlapTimestamp(self):
     compute_partition = self.getAggregateValue(portal_type="Compute Partition")
     if compute_partition is None:
       return int(self.getModificationDate())
@@ -198,13 +202,16 @@ class SoftwareInstance(Item, JSONType):
         default_aggregate_uid=compute_partition.getUid(),
         portal_type='Slave Instance',
         validation_state="validated",
-        sort_on=(("slap_date", "DESC"),),
-        select_list=("slap_date",),
+        sort_on=(("jio_api_revision.revision", "DESC"),),
+        select_list=('jio_api_revision.revision',),
         limit=1,
         **{"slapos_item.slap_state": "start_requested"}
       )
       if shared_instance_sql_list:
-        most_recent_hosted_instance_timestamp = int(shared_instance_sql_list[0].slap_date)
+        shared_instance = shared_instance_sql_list[0].getObject()
+        most_recent_hosted_instance_timestamp = int(
+          shared_instance.getBangTimestamp(int(shared_instance.getModificationDate()))
+        )
         if (most_recent_hosted_instance_timestamp > timestamp):
           timestamp = most_recent_hosted_instance_timestamp
 
@@ -222,20 +229,21 @@ class SoftwareInstance(Item, JSONType):
 
     ip_list = []
     full_ip_list = []
-    for internet_protocol_address in compute_partition.contentValues(portal_type='Internet Protocol Address'):
-      # XXX - There is new values, and we must keep compatibility
-      address_tuple = (
-          internet_protocol_address.getNetworkInterface('').decode("UTF-8"),
-          internet_protocol_address.getIpAddress().decode("UTF-8"))
-      if internet_protocol_address.getGatewayIpAddress('') and \
-        internet_protocol_address.getNetmask(''):
-        address_tuple = address_tuple + (
-              internet_protocol_address.getGatewayIpAddress().decode("UTF-8"),
-              internet_protocol_address.getNetmask().decode("UTF-8"),
-              internet_protocol_address.getNetworkAddress('').decode("UTF-8"))
-        full_ip_list.append(address_tuple)
-      else:
-        ip_list.append(address_tuple)
+    if (self.getPortalType() == "Software Instance"):
+      for internet_protocol_address in compute_partition.contentValues(portal_type='Internet Protocol Address'):
+        # XXX - There is new values, and we must keep compatibility
+        address_tuple = (
+            internet_protocol_address.getNetworkInterface('').decode("UTF-8"),
+            internet_protocol_address.getIpAddress().decode("UTF-8"))
+        if internet_protocol_address.getGatewayIpAddress('') and \
+          internet_protocol_address.getNetmask(''):
+          address_tuple = address_tuple + (
+                internet_protocol_address.getGatewayIpAddress().decode("UTF-8"),
+                internet_protocol_address.getNetmask().decode("UTF-8"),
+                internet_protocol_address.getNetworkAddress('').decode("UTF-8"))
+          full_ip_list.append(address_tuple)
+        else:
+          ip_list.append(address_tuple)
 
     shared_instance_list = []
     if (self.getPortalType() == "Software Instance"):

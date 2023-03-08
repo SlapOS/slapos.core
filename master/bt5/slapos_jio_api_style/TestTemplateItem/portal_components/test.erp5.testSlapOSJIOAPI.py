@@ -155,7 +155,8 @@ class TestSlapOSJIOAPIMixin(SlapOSTestCaseMixin):
     start_date = DateTime().HTML4()
     response_dict = self.putToApi(data_dict)
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % response_dict)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
     self.assertEqual(response_dict["compute_node_id"], data_dict["compute_node_id"])      
@@ -169,7 +170,8 @@ class TestSlapOSJIOAPIMixin(SlapOSTestCaseMixin):
     start_date = DateTime().HTML4()
     response_dict = self.putToApi(data_dict)
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % response_dict)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
     self.assertTrue(response_dict.pop("$schema").endswith("SoftwareInstance_updateFromJSON/getOutputJSONSchema"))      
@@ -200,7 +202,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
       "portal_type": "Software Instance",
     })
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % instance_list_response)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
 
@@ -237,7 +240,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
       self.login(self.compute_node_user_id)
       instance_dict = self.getToApi(instance_resut_dict["get_parameters"])
       response =  self.portal.REQUEST.RESPONSE
-      self.assertEqual(200, response.getStatus())
+      if 200 != response.getStatus():
+        raise ValueError("Unexpected Result %s" % instance_dict)
       self.assertEqual('application/json',
           response.headers.get('content-type'))
       # Check Data is correct
@@ -315,7 +319,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
       "compute_node_id": self.compute_node_id,
     })
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % software_dict)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
 
@@ -347,7 +352,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
       }
     )
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(400, response.getStatus())
+    if 400 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % response_dict)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
     self.assertEqual('404', response_dict["status"])
@@ -379,6 +385,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
       }
     )
     response =  self.portal.REQUEST.RESPONSE
+    if 400 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % response_dict)
     self.assertEqual(400, response.getStatus())
     self.assertEqual('application/json',
         response.headers.get('content-type'))
@@ -527,7 +535,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJIOAPIMixin):
       "reference": self.start_requested_software_instance.getReference(),
     })
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % certificate_dict)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
     self.assertTrue(
@@ -550,7 +559,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJIOAPIMixin):
       "portal_type": "Software Instance",
     })
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % instance_list_response)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
 
@@ -580,7 +590,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJIOAPIMixin):
     self.login(instance.getUserId())
     instance_dict = self.getToApi(instance_resut_dict["get_parameters"])
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % instance_dict)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
     # Check Data is correct
@@ -629,7 +640,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJIOAPIMixin):
       "portal_type": "Shared Instance",
     })
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % shared_instance_list_response)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
 
@@ -656,12 +668,14 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJIOAPIMixin):
 
     instance_dict = self.getToApi(shared_instance_list_response["result_list"][0]["get_parameters"])
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % instance_dict)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
     # Check Data is correct
     self.login()
     partition = instance.getAggregateValue(portal_type="Compute Partition")
+    self.maxDiff = None
     self.assertEqual({
       "$schema": instance.getJSONSchemaUrl(),
       "title": shared_instance.getTitle(),
@@ -761,7 +775,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJIOAPIMixin):
       "reference": instance.getReference(),
     })
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % instance_dict)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
     self.assertEqual(
@@ -786,7 +801,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJIOAPIMixin):
       "reference": instance.getReference(),
     })
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % instance_dict)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
     self.assertEqual(
@@ -845,7 +861,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJIOAPIMixin):
       "reference": instance.getReference(),
     })
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % instance_dict)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
     self.assertEqual(
@@ -920,7 +937,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJIOAPIMixin):
         "compute_partition_id": partition_id,
       })
       response =  self.portal.REQUEST.RESPONSE
-      self.assertEqual(400, response.getStatus())
+      if 400 != response.getStatus():
+        raise ValueError("Unexpected Result %s" % response_dict)
       self.assertEqual('application/json',
         response.headers.get('content-type'))
       self.assertEqual(self.called_instance_request, {
@@ -964,7 +982,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJIOAPIMixin):
         "compute_partition_id": partition_id,
       })
       response =  self.portal.REQUEST.RESPONSE
-      self.assertEqual(400, response.getStatus())
+      if 400 != response.getStatus():
+        raise ValueError("Unexpected Result %s" % response_dict)
       self.assertEqual('application/json',
         response.headers.get('content-type'))
       self.assertEqual(self.called_instance_request, {
@@ -1009,7 +1028,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJIOAPIMixin):
         "compute_partition_id": partition_id,
       })
       response =  self.portal.REQUEST.RESPONSE
-      self.assertEqual(400, response.getStatus())
+      if 400 != response.getStatus():
+        raise ValueError("Unexpected Result %s" % response_dict)
       self.assertEqual('application/json',
         response.headers.get('content-type'))
       self.assertEqual(self.called_instance_request, {
@@ -1230,7 +1250,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJIOAPIMixin):
       "reference": instance.getReference()
     })
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % instance_dict)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
     # Check Data is correct
@@ -1299,7 +1320,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJIOAPIMixin):
       "reference": instance.getReference(),
     })
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(200, response.getStatus())
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % instance_dict)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
     self.assertEqual(
@@ -1355,7 +1377,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJIOAPIMixin):
         "shared": True,
       })
       response =  self.portal.REQUEST.RESPONSE
-      self.assertEqual(400, response.getStatus())
+      if 400 != response.getStatus():
+        raise ValueError("Unexpected Result %s" % response_dict)
       self.assertEqual('application/json',
         response.headers.get('content-type'))
       self.assertEqual(self.called_instance_request, {
@@ -1393,7 +1416,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJIOAPIMixin):
         "title": "req_reference",
       })
       response =  self.portal.REQUEST.RESPONSE
-      self.assertEqual(400, response.getStatus())
+      if 400 != response.getStatus():
+        raise ValueError("Unexpected Result %s" % response_dict)
       self.assertEqual('application/json',
         response.headers.get('content-type'))
       self.assertEqual(self.called_instance_request, {
@@ -1434,7 +1458,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJIOAPIMixin):
     })
 
     response =  self.portal.REQUEST.RESPONSE
-    self.assertEqual(201, response.getStatus())
+    if 201 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % instance_dict)
     self.assertEqual('application/json',
         response.headers.get('content-type'))
     # Check Data is correct
@@ -1478,13 +1503,14 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJIOAPIMixin):
       requestSoftwareRelease = self.compute_node.__class__.requestSoftwareRelease
       self.compute_node.__class__.requestSoftwareRelease = calledSoftwareSupply
       software_url = 'live_test_url_%s' % self.generateNewId()
-      self.postToApi({
+      response_dict = self.postToApi({
         "portal_type": "Software Installation",
         "compute_node_id": self.compute_node.getReference(),
         "software_release_uri": urllib.quote(software_url)
       })
       response =  self.portal.REQUEST.RESPONSE
-      self.assertEqual(201, response.getStatus())
+      if 201 != response.getStatus():
+        raise ValueError("Unexpected Result %s" % response_dict)
       self.assertEqual('application/json',
           response.headers.get('content-type'))
       self.assertEqual(self.called_software_supply, {

@@ -205,6 +205,59 @@ def ipv6FromBin(ip, suffix=''):
   return socket.inet_ntop(socket.AF_INET6,
     struct.pack('>QQ', int(ip[:64], 2), int(ip[64:], 2)))
 
+def getPartitionIpv6Addr(ipv6_range, partition_index):
+  """
+  from a IPv6 range in the form
+  {
+    'addr' : addr,
+    'prefixlen' : CIDR
+  }
+  returns the IPv6 addr
+  addr::(partition_index+2) (address 1 is is used by re6st)
+  """
+  addr = ipv6_range['addr']
+  prefixlen = ipv6_range['prefixlen']
+  prefix = binFromIpv6(addr)[:prefixlen]
+  return dict(addr=ipv6FromBin(prefix + bin(partition_index+2)[2:].zfill(128 - prefixlen)), prefixlen=prefixlen)
+
+def getIpv6RangeFactory(k, s):
+  def getIpv6Range(ipv6_range, partition_index):
+    """
+    from a IPv6 range in the form
+    {
+      'addr' : addr,
+      'prefixlen' : CIDR
+    }
+    returns the IPv6 range
+    {
+      'addr' : addr:(k*(2^14) + partition_index+1)
+      'prefixlen' : CIDR+16
+    }
+    """
+    addr = ipv6_range['addr']
+    prefixlen = ipv6_range['prefixlen']
+    prefix = binFromIpv6(addr)[:prefixlen]
+    # we generate a subnetwork for the partition
+    # the subnetwork has 16 bits more than our IPv6 range
+    # make sure we have at least 2 IPs in the subnetwork
+    prefixlen += 16
+    if prefixlen >= 128:
+      raise ValueError('The IPv6 range has prefixlen {} which is too big for generating IPv6 range for partitions.'.format(prefixlen))
+    return dict(addr=ipv6FromBin(prefix + bin((k << 14) + partition_index+1)[2:].zfill(16) + s * (128 - prefixlen)), prefixlen=prefixlen)
+  return getIpv6Range
+
+getPartitionIpv6Range = getIpv6RangeFactory(1, '0')
+
+getTapIpv6Range = getIpv6RangeFactory(2, '1')
+
+getTunIpv6Range = getIpv6RangeFactory(3, '0')
+
+
+def getIpv6RangeFirstAddr(addr, prefixlen):
+  addr_1 = "%s1" % ipv6FromBin(binFromIpv6(addr)[:prefixlen])
+  return ipv6FromBin(binFromIpv6(addr_1)) # correctly format the IPv6
+
+
 def lenNetmaskIpv6(netmask):
   """Convert string represented netmask to its integer prefix"""
   # Since version 0.10.7 of netifaces, the netmask is something like "ffff::/16",
@@ -214,6 +267,10 @@ def lenNetmaskIpv6(netmask):
     return netaddr.IPAddress(netmask).netmask_bits()
   except ValueError:
     return netaddr.IPNetwork(netmask).prefixlen
+
+def netmaskFromLenIPv6(netmask_len):
+  """ opposite of lenNetmaskIpv6"""
+  return ipv6FromBin('1' * netmask_len)
 
 # Used for Python 2-3 compatibility
 if str is bytes:

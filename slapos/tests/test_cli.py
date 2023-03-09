@@ -1,4 +1,4 @@
-##############################################################################
+
 #
 # Copyright (c) 2013 Vifib SARL and Contributors. All Rights Reserved.
 #
@@ -40,7 +40,7 @@ import pkg_resources
 from contextlib import contextmanager
 from mock import patch, create_autospec
 import mock
-from slapos.util import sqlite_connect, bytes2str, UndefinedSerializationError
+from slapos.util import sqlite_connect, bytes2str, UndefinedSerializationError, dict2xml
 from slapos.slap.slap import DEFAULT_SOFTWARE_TYPE
 
 import slapos.cli.console
@@ -617,45 +617,81 @@ class TestCliList(CliMixin):
 class TestCliInfo(CliMixin):
 
   def test_info_xml_serialisation(self, _):
-    self._test_info_output(
-      slapos.slap.SoftwareInstance(
-        _software_release_url='SR1',
-        _requested_state='mystate',
-        _connection_dict=
-        '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="myconnectionparameter">value1</parameter>\n</instance>\n',
-        _parameter_dict={'myinstanceparameter': 'value2'}))
+    self._test_info_output(self._make_fake_instance())
 
   def test_info_json_in_serialisation(self, _):
-    self._test_info_output(
-      slapos.slap.SoftwareInstance(
-        _software_release_url='SR1',
-        _requested_state='mystate',
-        _connection_dict=
-        '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="_">{"myconnectionparameter": "value1"}</parameter>\n</instance>\n',
-        _parameter_dict={'myinstanceparameter': 'value2'}))
+    self._test_info_output(self._make_fake_instance(xml=False))
 
-  def _test_info_output(self, instance):
+  def test_info_status_none(self, _):
+    self._test_info_output(
+      self._make_fake_instance(
+        news=[{'text': 'toto'}]),
+      status='none')
+
+  def test_info_status_green(self, _):
+    self._test_info_output(
+      self._make_fake_instance(
+        news=[{'text': '#access'}, {'text': 'toto'}]),
+      status='green')
+
+  def test_info_status_red(self, _):
+    self._test_info_output(
+      self._make_fake_instance(
+        news=[{'text': '#error'}, {'text': 'toto'}]),
+      status='red')
+
+  def test_info_status_orange(self, _):
+    self._test_info_output(
+      self._make_fake_instance(
+        news=[{'text': '#error'}, {'text': '#access'}, {'text': 'toto'}]),
+      status='orange')
+
+  def test_info_news(self, _):
+    news=[{'text': 'toto'}]
+    self._test_info_output(
+      self._make_fake_instance(
+        news=news),
+      status='none',
+      news=news)
+
+  def _make_fake_instance(self, xml=True, news=None):
+    conn = {'myconnectionparameter': 'value1'}
+    if xml:
+      conn_params = dict2xml(conn)
+    else:
+      conn_params = '<instance>\n  <parameter id="_">%s</parameter>\n</instance>' % json.dumps(conn)
+    instance = slapos.slap.SoftwareInstance(
+      _software_release_url='SR1',
+      _requested_state='mystate',
+      _connection_dict=conn_params,
+      _parameter_dict={'myinstanceparameter': 'value2'})
+    if news:
+      instance._news = {'instance': news}
+    return instance
+
+  def _test_info_output(self, instance, status="unsupported", news=None):
     """
     Test "slapos service info" command output.
     """
     setattr(self.conf, 'reference', 'instance1')
+    setattr(self.conf, 'news', bool(news))
     with patch.object(slapos.slap.OpenOrder, 'getInformation',
                       return_value=instance):
       slapos.cli.info.do_info(self.logger, self.conf, self.local)
 
     if six.PY3:
-      self.logger.info.assert_called_once_with(
-        textwrap.dedent('''\
-        {
-          "software-url": "SR1",
-          "instance-state": "mystate",
-          "instance-parameters": {
-            "myinstanceparameter": "value2"
-          },
-          "connection-parameters": {
-            "myconnectionparameter": "value1"
-          }
-        }'''))
+      expected = {
+        "software-url": instance._software_release_url,
+        "instance-state": instance._requested_state,
+        "instance-parameters": instance._parameter_dict,
+        "connection-parameters": {
+          "myconnectionparameter": "value1"
+        },
+        "status": status
+      }
+      if news:
+        expected['news'] = news
+      self.logger.info.assert_called_once_with(json.dumps(expected, indent=2))
 
   def test_unknownReference(self, _):
     """

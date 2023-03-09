@@ -1,6 +1,15 @@
 Changes
 =======
 
+1.9.0 (2023-03-09)
+------------------
+ * format: add IPv6 range for partitions and tun
+ * cli/service info: support connection dict from SlapOS Master
+ * slapgrid: Add shared-parts-list to slap-connection
+ * proxy: Fix unready forwarded requests causing crash
+ * format: remove unneeded call to iptables for tun creation
+ * slapgrid: Implement partition timeout parameter (add "partition-timeout" option)
+
 1.8.6 (2023-01-25)
 ------------------
  * slappopen: fix select-based timeout reads

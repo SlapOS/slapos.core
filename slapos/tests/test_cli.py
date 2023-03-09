@@ -654,7 +654,8 @@ class TestCliInfo(CliMixin):
           },
           "connection-parameters": {
             "myconnectionparameter": "value1"
-          }
+          },
+          "status": "unavailable"
         }'''))
 
   def test_unknownReference(self, _):

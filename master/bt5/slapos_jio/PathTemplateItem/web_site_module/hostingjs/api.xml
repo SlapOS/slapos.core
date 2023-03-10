@@ -58,9 +58,13 @@
             <value>
               <object>
                 <klass>
-                  <global name="MultiHook" module="ZPublisher.BeforeTraverse"/>
+                  <global name="_reconstructor" module="copy_reg"/>
                 </klass>
-                <tuple/>
+                <tuple>
+                  <global name="MultiHook" module="ZPublisher.BeforeTraverse"/>
+                  <global name="object" module="__builtin__"/>
+                  <none/>
+                </tuple>
                 <state>
                   <dictionary>
                     <item>
@@ -210,6 +214,25 @@
             <value> <string>jIO Web Section</string> </value>
         </item>
         <item>
+            <key> <string>revision_hash_calculation_method_per_type</string> </key>
+            <value>
+              <tuple>
+                <string>Software Instance | SoftwareInstance_calculatejIOAPIRevisionHash</string>
+                <string>Slave Instance | SoftwareInstance_calculatejIOAPIRevisionHash</string>
+                <string>Compute Node | ComputeNode_calculatejIOAPIRevisionHash</string>
+                <string>Software Installation | SoftwareInstallation_calculatejIOAPIRevisionHash</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>select_missing_revision_object_list_method</string> </key>
+            <value> <string>Base_zSelectMissingJIOAPIRevisionObjectList</string> </value>
+        </item>
+        <item>
+            <key> <string>select_updatable_revision_object_list_method</string> </key>
+            <value> <string>Base_zSelectUpdatableJIOAPIRevisionObjectList</string> </value>
+        </item>
+        <item>
             <key> <string>short_title</string> </key>
             <value>
               <none/>
@@ -336,9 +359,11 @@
                       <value>
                         <object>
                           <klass>
-                            <global name="DateTime" module="DateTime.DateTime"/>
+                            <global name="_reconstructor" module="copy_reg"/>
                           </klass>
                           <tuple>
+                            <global name="DateTime" module="DateTime.DateTime"/>
+                            <global name="object" module="__builtin__"/>
                             <none/>
                           </tuple>
                           <state>
@@ -378,7 +403,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -392,7 +417,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>996.1884.65387.15291</string> </value>
+                      <value> <string>1006.62592.17123.16913</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -403,14 +428,16 @@
                       <value>
                         <object>
                           <klass>
-                            <global name="DateTime" module="DateTime.DateTime"/>
+                            <global name="_reconstructor" module="copy_reg"/>
                           </klass>
                           <tuple>
+                            <global name="DateTime" module="DateTime.DateTime"/>
+                            <global name="object" module="__builtin__"/>
                             <none/>
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1636452774.64</float>
+                              <float>1678462096.8</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

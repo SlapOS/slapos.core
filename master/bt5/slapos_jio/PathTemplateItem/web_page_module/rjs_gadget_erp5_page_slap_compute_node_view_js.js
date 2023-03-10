@@ -105,14 +105,14 @@
           "Closed for termination",
           "Closed forever",
           "Closed outdated",
-          "Open for Friends only",
-          "Open for Personal use only",
+          "Open for Friends only", // Not used anymore
+          "Open",
           "Open Public",
           "Open for Subscribers only",
           "Network",
           "Allocation Scope",
           "Monitoring",
-          "Your Friends email",
+          "Your Friends email", // Not used anymore
           "Upgrade",
           "The name of a document in ERP5",
           "Current Site",
@@ -167,17 +167,23 @@
                                 [results[2][10], 'auto'],
                                 [results[2][11], 'ask_confirmation'],
                                 [results[2][12], 'never']],
+            supported_allocation_scope_list = ['',
+                                'close/maintenance',
+                                'close/termination',
+                                'close/forever',
+                                'close/outdated',
+                                'close/noallocation',
+                                'open/personal'],
             allocation_scope_list = [['', ''],
                                 [results[2][13], 'close/maintenance'],
                                 [results[2][14], 'close/termination'],
                                 [results[2][15], 'close/forever'],
                                 [results[2][16], 'close/outdated'],
                                 [results[2][33], 'close/noallocation'],
-                                [results[2][17], 'open/friend'],
-                                [results[2][18], 'open/personal'],
-                                [results[2][19], 'open/public'],
-                                [results[2][20], 'open/subscription']],
+                                [results[2][18], 'open/personal']],
             i,
+            hidden_allocation_scope = {'open/public': results[2][19],
+                                       'open/subscription': results[2][20]},
             len = results[1].data.total_rows;
 
 
@@ -188,6 +194,17 @@
             ]);
           }
 
+          if (!supported_allocation_scope_list.includes(
+              gadget.state.doc.allocation_scope
+            ) && hidden_allocation_scope.keys().includes(
+              gadget.state.doc.allocation_scope
+            )) {
+            allocation_scope_list.push(
+              [hidden_allocation_scope[gadget.state.doc.allocation_scope],
+                gadget.state.doc.allocation_scope
+                ]
+            );
+          }
           return form_gadget.render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -248,17 +265,6 @@
                   "key": "monitor_scope",
                   "hidden": 0,
                   "type": "ListField"
-                },
-                "my_subject_list": {
-                  "description": "",
-                  "title": results[2][24],
-                  "default": gadget.state.doc.subject_list,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "subject_list",
-                  "hidden": (gadget.state.doc.allocation_scope === "open/friend") ? 0 : 1,
-                  "type": "LinesField"
                 },
                 "my_upgrade_scope": {
                   "description": "",
@@ -364,8 +370,7 @@
               ], [
                 "right",
                 [["my_source"], ["my_source_project"], ["my_monitor_scope"],
-                  ["my_upgrade_scope"], ["my_allocation_scope"],
-                  ["my_subject_list"]]
+                  ["my_upgrade_scope"], ["my_allocation_scope"]]
               ], [
                 "bottom",
                 [["ticket_listbox"], ["listbox"]]

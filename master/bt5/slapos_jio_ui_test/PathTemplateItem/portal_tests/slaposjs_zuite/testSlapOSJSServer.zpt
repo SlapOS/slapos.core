@@ -543,34 +543,10 @@
       <tr>
         <td>select</td>
         <td>//select[@id="allocation_scope"]</td>
-        <td tal:content="python: '%s' % (here.Base_translateString('Open for Friends only', lang=lang))"></td>
+        <td tal:content="python: '%s' % (here.Base_translateString('Open', lang=lang))"></td>
       </tr>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/save" />
-
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//textarea[@id="subject_list"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//textarea[@id="subject_list"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>type</td>
-        <td>//textarea[@id="subject_list"]</td>
-        <td>demo@user.com</td>
-      </tr>
-
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/save" />
-
-      <tr>
-        <td>assertValue</td>
-        <td>//textarea[@id="subject_list"]</td>
-        <td>demo@user.com</td>
-      </tr>
 
       <tal:block define="menu_item python: 'Servers'; header menu_item">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />

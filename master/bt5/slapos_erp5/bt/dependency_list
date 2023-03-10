@@ -13,6 +13,7 @@ erp5_graph_editor
 slapos_accounting
 slapos_category
 slapos_jio
+slapos_jio_api_style
 slapos_payzen
 slapos_upgrader
 slapos_subscription_request

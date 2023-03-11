@@ -16,6 +16,84 @@ vads_url_return = 'http://example.org/return'
 
 class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
 
+  slapos_payzen_html = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <title>title</title>
+</head>
+<body onload="document.payment.submit();">
+<form action="%(action)s" id="payment" method="POST" name="payment">
+
+  <input name="signature" type="hidden" value="%(signature)s"></input>
+
+
+  <input name="vads_action_mode" type="hidden" value="INTERACTIVE"></input>
+
+
+  <input name="vads_amount" type="hidden" value="%(vads_amount)s"></input>
+
+
+  <input name="vads_contrib" type="hidden" value="ERP5"></input>
+
+
+  <input name="vads_ctx_mode" type="hidden" value="TEST"></input>
+
+
+  <input name="vads_currency" type="hidden" value="%(vads_currency)s"></input>
+
+
+  <input name="vads_language" type="hidden" value="%(vads_language)s"></input>
+
+
+  <input name="vads_order_id" type="hidden" value="%(vads_order_id)s"></input>
+
+
+  <input name="vads_page_action" type="hidden" value="PAYMENT"></input>
+
+
+  <input name="vads_payment_config" type="hidden" value="SINGLE"></input>
+
+
+  <input name="vads_site_id" type="hidden" value="%(vads_site_id)s"></input>
+
+
+  <input name="vads_trans_date" type="hidden" value="%(vads_trans_date)s"></input>
+
+
+  <input name="vads_trans_id" type="hidden" value="%(vads_trans_id)s"></input>
+
+
+  <input name="vads_url_cancel" type="hidden" value="%(vads_url_cancel)s"></input>
+
+
+  <input name="vads_url_error" type="hidden" value="%(vads_url_error)s"></input>
+
+
+  <input name="vads_url_referral" type="hidden" value="%(vads_url_referral)s"></input>
+
+
+  <input name="vads_url_refused" type="hidden" value="%(vads_url_refused)s"></input>
+
+
+  <input name="vads_url_return" type="hidden" value="%(vads_url_return)s"></input>
+
+
+  <input name="vads_url_success" type="hidden" value="%(vads_url_success)s"></input>
+
+
+  <input name="vads_version" type="hidden" value="V2"></input>
+
+<center>
+  <input type="submit" value="Click to pay"></input>
+</center>
+</form>
+</body>
+</html>'''
+
+
   def _simulatePaymentTransaction_getTotalPayablePrice(self):
     script_name = 'PaymentTransaction_getTotalPayablePrice'
     if script_name in self.portal.portal_skins.custom.objectIds():
@@ -195,84 +273,13 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     self.portal.portal_secure_payments.slapos_payzen_test._getFieldList(data_dict)
     data_dict['action'] = 'https://secure.payzen.eu/vads-payment/'
 
+    if getattr(self, "custom_slapos_payzen_html", None):
+      slapos_payzen_html = self.custom_slapos_payzen_html
+    else:
+      slapos_payzen_html = self.slapos_payzen_html
+
     expected_html_page = lxml.html.tostring(
-      lxml.html.fromstring(
-'''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta http-equiv="Content-Script-Type" content="text/javascript" />
-  <meta http-equiv="Content-Style-Type" content="text/css" />
-  <title>title</title>
-</head>
-<body onload="document.payment.submit();">
-<form action="%(action)s" id="payment" method="POST" name="payment">
-
-  <input name="signature" type="hidden" value="%(signature)s"></input>
-
-
-  <input name="vads_action_mode" type="hidden" value="INTERACTIVE"></input>
-
-
-  <input name="vads_amount" type="hidden" value="%(vads_amount)s"></input>
-
-
-  <input name="vads_contrib" type="hidden" value="ERP5"></input>
-
-
-  <input name="vads_ctx_mode" type="hidden" value="TEST"></input>
-
-
-  <input name="vads_currency" type="hidden" value="%(vads_currency)s"></input>
-
-
-  <input name="vads_language" type="hidden" value="%(vads_language)s"></input>
-
-
-  <input name="vads_order_id" type="hidden" value="%(vads_order_id)s"></input>
-
-
-  <input name="vads_page_action" type="hidden" value="PAYMENT"></input>
-
-
-  <input name="vads_payment_config" type="hidden" value="SINGLE"></input>
-
-
-  <input name="vads_site_id" type="hidden" value="%(vads_site_id)s"></input>
-
-
-  <input name="vads_trans_date" type="hidden" value="%(vads_trans_date)s"></input>
-
-
-  <input name="vads_trans_id" type="hidden" value="%(vads_trans_id)s"></input>
-
-
-  <input name="vads_url_cancel" type="hidden" value="%(vads_url_cancel)s"></input>
-
-
-  <input name="vads_url_error" type="hidden" value="%(vads_url_error)s"></input>
-
-
-  <input name="vads_url_referral" type="hidden" value="%(vads_url_referral)s"></input>
-
-
-  <input name="vads_url_refused" type="hidden" value="%(vads_url_refused)s"></input>
-
-
-  <input name="vads_url_return" type="hidden" value="%(vads_url_return)s"></input>
-
-
-  <input name="vads_url_success" type="hidden" value="%(vads_url_success)s"></input>
-
-
-  <input name="vads_version" type="hidden" value="V2"></input>
-
-<center>
-  <input type="submit" value="Click to pay"></input>
-</center>
-</form>
-</body>
-</html>''' % data_dict), method='c14n')
+      lxml.html.fromstring(slapos_payzen_html % data_dict), method='c14n')
 
     # Event message state
     event_message_list = event.contentValues(portal_type="Payzen Event Message")

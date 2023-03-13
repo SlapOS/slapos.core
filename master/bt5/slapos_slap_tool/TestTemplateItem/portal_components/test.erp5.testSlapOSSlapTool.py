@@ -276,6 +276,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
           <tuple>
             <string>%(compute_node_id)s</string>
             <string>partition4</string>
+            <none/>
           </tuple>
           <dictionary id="i6">
             <string>_computer_id</string>
@@ -296,6 +297,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
           <tuple>
             <string>%(compute_node_id)s</string>
             <string>partition3</string>
+            <none/>
           </tuple>
           <dictionary id="i8">
             <string>_access_status</string>
@@ -372,6 +374,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
           <tuple>
             <string>%(compute_node_id)s</string>
             <string>partition2</string>
+            <none/>
           </tuple>
           <dictionary id="i19">
             <string>_access_status</string>
@@ -448,6 +451,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
           <tuple>
             <string>%(compute_node_id)s</string>
             <string>partition1</string>
+            <none/>
           </tuple>
           <dictionary id="i30">
             <string>_access_status</string>
@@ -1172,6 +1176,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
           <tuple>
             <string>%(compute_node_id)s</string>
             <string>partition1</string>
+            <none/>
           </tuple>
           <dictionary id="i6">
             <string>_access_status</string>
@@ -1409,6 +1414,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <tuple>
       <string>%(compute_node_id)s</string>
       <string>partition1</string>
+      <none/>
     </tuple>
     <dictionary id="i3">
       <string>_computer_id</string>
@@ -1539,6 +1545,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <tuple>
       <string>%(compute_node_id)s</string>
       <string>partition1</string>
+      <none/>
     </tuple>
     <dictionary id="i3">
       <string>_computer_id</string>
@@ -2710,6 +2717,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <tuple>
       <string>%(compute_node_id)s</string>
       <string>partition1</string>
+      <none/>
     </tuple>
     <dictionary id="i3">
       <string>_computer_id</string>
@@ -2840,6 +2848,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <tuple>
       <string>%(compute_node_id)s</string>
       <string>partition1</string>
+      <none/>
     </tuple>
     <dictionary id="i3">
       <string>_computer_id</string>

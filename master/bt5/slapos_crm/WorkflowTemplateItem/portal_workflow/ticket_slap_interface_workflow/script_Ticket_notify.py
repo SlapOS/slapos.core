@@ -43,6 +43,10 @@ event.edit(
   destination=ticket.getSource(),
   follow_up=ticket.getRelativeUrl(),
 )
+# If the template is a Mail Template it will just sent the
+# email to its destination. If it is an Web Message it will
+# just ignore.
+event.start(send_mail=True)
 event.stop()
 event.deliver()
 

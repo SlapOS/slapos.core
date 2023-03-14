@@ -13,4 +13,13 @@
  <portal_type id="Person">
   <item>SlapOSCacheMixin</item>
  </portal_type>
+ <portal_type id="Slave Instance">
+  <item>SlapOSCacheMixin</item>
+ </portal_type>
+ <portal_type id="Software Installation">
+  <item>SlapOSCacheMixin</item>
+ </portal_type>
+ <portal_type id="Software Instance">
+  <item>SlapOSCacheMixin</item>
+ </portal_type>
 </type_mixin>

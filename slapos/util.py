@@ -221,7 +221,11 @@ def getPartitionIpv6Addr(ipv6_range, partition_index):
   return dict(addr=ipv6FromBin(prefix + bin(partition_index+2)[2:].zfill(128 - prefixlen)), prefixlen=prefixlen)
 
 def getIpv6RangeFactory(k, s):
-  def getIpv6Range(ipv6_range, partition_index):
+  """
+  k in (1, 2, 3)
+  s in ('0', '1')
+  """
+  def getIpv6Range(ipv6_range, partition_index, prefixshift):
     """
     from a IPv6 range in the form
     {
@@ -230,20 +234,23 @@ def getIpv6RangeFactory(k, s):
     }
     returns the IPv6 range
     {
-      'addr' : addr:(k*(2^14) + partition_index+1)
-      'prefixlen' : CIDR+16
+      'addr' : addr:(k*(2^(prefixshift-2)) + partition_index+1)
+      'prefixlen' : CIDR+prefixshift
     }
     """
     addr = ipv6_range['addr']
     prefixlen = ipv6_range['prefixlen']
     prefix = binFromIpv6(addr)[:prefixlen]
+    n = prefixshift
     # we generate a subnetwork for the partition
     # the subnetwork has 16 bits more than our IPv6 range
     # make sure we have at least 2 IPs in the subnetwork
-    prefixlen += 16
+    prefixlen += n
     if prefixlen >= 128:
       raise ValueError('The IPv6 range has prefixlen {} which is too big for generating IPv6 range for partitions.'.format(prefixlen))
-    return dict(addr=ipv6FromBin(prefix + bin((k << 14) + partition_index+1)[2:].zfill(16) + s * (128 - prefixlen)), prefixlen=prefixlen)
+    return dict(
+      addr=ipv6FromBin(prefix + bin((k << (n-2)) + partition_index+1)[2:].zfill(n) + s * (128 - prefixlen)),
+      prefixlen=prefixlen)
   return getIpv6Range
 
 getPartitionIpv6Range = getIpv6RangeFactory(1, '0')

@@ -1024,7 +1024,7 @@ class Tun(Tap):
 class Interface(object):
   """Represent a network interface on the system"""
 
-  def __init__(self, logger, name, ipv4_local_network, ipv6_interface=None):
+  def __init__(self, logger, name, ipv4_local_network, ipv6_interface=None, ipv6_prefixshift=16):
     """
     Attributes:
         name: String, the name of the interface
@@ -1035,6 +1035,8 @@ class Interface(object):
     self.ipv4_local_network = ipv4_local_network
     self.ipv6_interface = ipv6_interface or name
     self._ipv6_ranges = set()
+
+    self.ipv6_prefixshift = ipv6_prefixshift
 
   # XXX no __getinitargs__, as instances of this class are never deserialized.
 
@@ -1292,7 +1294,7 @@ class Interface(object):
     # Try to use the IPv6 mapping based on partition index
     address_dict['prefixlen'] = lenNetmaskIpv6(address_dict['netmask'])
     if tap:
-      result_addr = getTapIpv6Range(address_dict, partition_index)
+      result_addr = getTapIpv6Range(address_dict, partition_index, self.ipv6_prefixshift)
       # the netmask of the tap itself is always 128 bits
       result_addr['netmask'] = netmaskFromLenIPv6(128)
     else:
@@ -1303,6 +1305,17 @@ class Interface(object):
         if tap:
           self._reserveIpv6Range(result_addr['addr'], result_addr['prefixlen'])
         return result_addr
+
+    if self._ipv6_prefixshift != 16:
+      self._logger.error(
+        "Address %s/%s for partition %s is already taken;"
+        " aborting because IPv6 prefixshift is %s != 16" % (
+          result_addr['addr'],
+          result_addr['prefixlen'],
+          '%s tap' % partition_index if tap else partition_index,
+          self._ipv6_prefixshift,
+      ))
+      raise AddressGenerationError(addr)
 
     self._logger.warning(
       "Falling back to random address selection for partition %s"
@@ -1350,13 +1363,23 @@ class Interface(object):
     address_dict = interface_addr_list[0]
     address_dict['prefixlen'] = lenNetmaskIpv6(address_dict['netmask'])
     if tun:
-      ipv6_range = getTunIpv6Range(address_dict, i)
+      ipv6_range = getTunIpv6Range(address_dict, i, self.ipv6_prefixshift)
     else:
-      ipv6_range = getPartitionIpv6Range(address_dict, i)
+      ipv6_range = getPartitionIpv6Range(address_dict, i, self.ipv6_prefixshift)
     ipv6_range['netmask'] = netmaskFromLenIPv6(ipv6_range['prefixlen'])
     ipv6_range['network'] = '%(addr)s/%(prefixlen)d' % ipv6_range
     if self._tryReserveIpv6Range(ipv6_range['addr'], ipv6_range['prefixlen']):
       return ipv6_range
+
+    if self._ipv6_prefixshift != 16:
+      self._logger.error(
+        "Address % for partition %s is already taken;"
+        " aborting because IPv6 prefixshift is %s != 16" % (
+          ipv6_range['network'],
+          '%s tun' % i if tun else i,
+          self._ipv6_prefixshift,
+      ))
+      raise AddressGenerationError(ipv6_range['addr'])
 
     self._logger.warning(
       "Falling back to random IPv6 range selection for partition %s"
@@ -1406,7 +1429,8 @@ def parse_computer_definition(conf, definition_path):
     interface = Interface(logger=conf.logger,
                           name=conf.interface_name,
                           ipv4_local_network=conf.ipv4_local_network,
-                          ipv6_interface=conf.ipv6_interface)
+                          ipv6_interface=conf.ipv6_interface,
+                          ipv6_prefixshift=conf.ipv6_prefixshift)
   computer = Computer(
       reference=conf.computer_id,
       interface=interface,
@@ -1455,7 +1479,8 @@ def parse_computer_xml(conf, xml_path):
   interface = Interface(logger=conf.logger,
                         name=conf.interface_name,
                         ipv4_local_network=conf.ipv4_local_network,
-                        ipv6_interface=conf.ipv6_interface)
+                        ipv6_interface=conf.ipv6_interface,
+                        ipv6_prefixshift=conf.ipv6_prefixshift)
 
   if os.path.exists(xml_path):
     conf.logger.debug('Loading previous computer data from %r' % xml_path)
@@ -1597,6 +1622,7 @@ class FormatConfig(object):
   interface_name = None
   ipv6_interface = None
   partition_has_ipv6_range = True
+  ipv6_prefixshift = 16
   create_tap = True
   tap_base_name = None
   tap_ipv6 = True
@@ -1696,6 +1722,15 @@ class FormatConfig(object):
           self.logger.fatal('File %r does not exist or is not readable.' %
               file_location)
           sys.exit(1)
+
+    # Sanity check for prefixshift
+    self.ipv6_prefixshift = ipv6_prefixshift = int(self.ipv6_prefixshift)
+    if (1 << ipv6_prefixshift) < 4 * int(self.partition_amount):
+        # Each partition needs at least 4 IPv6, for IPv6 address, range, tap and tun
+        self.logger.fatal(
+            'ipv6_prefixshift %s is too small for partition_amount %s',
+            ipv6_prefixshift, self.partition_amount)
+        sys.exit(1)
 
     self.logger.debug('Started.')
     if self.dry_run:

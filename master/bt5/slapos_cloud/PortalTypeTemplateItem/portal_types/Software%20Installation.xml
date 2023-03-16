@@ -83,11 +83,6 @@
       "description": "Last Message received for the Software Installation",\n
       "type": "string"\n
     },\n
-    "processing_timestamp": {\n
-      "title": "Processing Timestamp",\n
-      "type": "number",\n
-      "description": "Timestamp set by the master node to mark when it was last processed in the master node. If it has been processed on master, it needs reprocessing on the compute node."\n
-    },\n
     "api_revision": {\n
       "title": "API Revision",\n
       "type": "string",\n

@@ -66,13 +66,11 @@ class SoftwareInstallation(Item, JSONType):
     status_dict = self.getAccessStatus()
     result = {
       "$schema": self.getJSONSchemaUrl(),
-      "reference": self.getReference().decode("UTF-8") if self.getReference() else "",
       "software_release_uri": self.getUrlString(),
       "compute_node_id": self.getAggregateReference(),
       "state": state,
       "reported_state": status_dict.get("state"),
       "status_message": status_dict.get("text"),
-      "processing_timestamp": self.getSlapTimestamp(),
     }
     web_section = self.getWebSectionValue()
     web_section = web_section.getRelativeUrl() if web_section else self.REQUEST.get("web_section_relative_url", None)

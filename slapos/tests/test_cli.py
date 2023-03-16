@@ -682,7 +682,7 @@ class TestCliInfo(CliMixin):
     if six.PY3:
       expected = {
         "software-url": instance._software_release_url,
-        "instance-state": instance._requested_state,
+        "requested-state": instance._requested_state,
         "instance-parameters": instance._parameter_dict,
         "connection-parameters": {
           "myconnectionparameter": "value1"

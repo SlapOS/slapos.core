@@ -188,7 +188,7 @@ class TestSlapOSJIOAPIMixin(SlapOSTestCaseMixin):
     self._cleaupREQUEST()
 
 class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
-  def test_01_getFullComputerInformation(self):
+  def test_01_getFullComputerInformationInstanceList(self):
     self._makeComplexComputeNode(with_slave=True)
     self.callUpdateRevisionAndTic()
 
@@ -274,6 +274,72 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
         "api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
         "portal_type": instance.getPortalType(),
       }, instance_dict)
+
+  def test_01_bis_getFullComputerInformationSoftwareList(self):
+    self._makeComplexComputeNode(with_slave=True)
+    self.callUpdateRevisionAndTic()
+
+    self.login(self.compute_node_user_id)
+    software_list_response = self.allDocsToApi({
+      "compute_node_id": self.compute_node_id,
+      "portal_type": "Software Installation",
+    })
+    response =  self.portal.REQUEST.RESPONSE
+    if 200 != response.getStatus():
+      raise ValueError("Unexpected Result %s" % software_list_response)
+    self.assertEqual('application/json',
+        response.headers.get('content-type'))
+
+    self.assertTrue(software_list_response["$schema"].endswith("jIOWebSection_searchSoftwareInstallationFromJSON/getOutputJSONSchema"))
+    result_list = software_list_response["result_list"]
+    self.assertEqual(2, len(result_list))
+
+
+    software_list = [self.start_requested_software_installation, self.destroy_requested_software_installation]
+    # This is the expected instance list, it is sorted by api_revision 
+    software_list.sort(key=lambda x: x.getJIOAPIRevision(self.web_site.api.getRelativeUrl()))
+
+    # Check result_list match instance_list=
+    expected_software_list = []
+    for software in software_list:
+      expected_software_list.append({
+        "api_revision": software.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+        "get_parameters": {
+          "portal_type": "Software Installation",
+          "software_release_uri": urllib.quote(software.getUrlString()),
+          "compute_node_id": self.compute_node_id
+        },
+        "portal_type": "Software Installation",
+        "software_release_uri": software.getUrlString(),
+        "state": "available" if software.getSlapState() == "start_requested" else "destroyed",
+        "compute_node_id": self.compute_node_id,
+      })
+    self.assertEqual(expected_software_list, software_list_response["result_list"])
+
+    for i in range(len(expected_software_list)):
+      software_resut_dict = expected_software_list[i]
+      software = software_list[i]
+      # Get instance as "user"
+      self.login(self.compute_node_user_id)
+      software_dict = self.getToApi(software_resut_dict["get_parameters"])
+      response =  self.portal.REQUEST.RESPONSE
+      if 200 != response.getStatus():
+        raise ValueError("Unexpected Result %s" % software_dict)
+      self.assertEqual('application/json',
+          response.headers.get('content-type'))
+      # Check Data is correct
+      self.maxDiff = None
+      status_dict = software.getAccessStatus()
+      self.assertEqual({
+        "$schema": software.getJSONSchemaUrl(),
+        "api_revision": software.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+        "portal_type": "Software Installation",
+        "software_release_uri": software.getUrlString(),
+        "state": "available" if software.getSlapState() == "start_requested" else "destroyed",
+        "compute_node_id": self.compute_node_id,
+        "reported_state": status_dict.get("state"),
+        "status_message": status_dict.get("text"),
+        }, software_dict)
 
   def test_02_computerBang(self):
     self._makeComplexComputeNode()

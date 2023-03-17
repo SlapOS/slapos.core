@@ -71,6 +71,7 @@ class SoftwareInstallation(Item, JSONType):
       "state": state,
       "reported_state": status_dict.get("state"),
       "status_message": status_dict.get("text"),
+      "portal_type": "Software Installation",
     }
     web_section = self.getWebSectionValue()
     web_section = web_section.getRelativeUrl() if web_section else self.REQUEST.get("web_section_relative_url", None)

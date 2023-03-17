@@ -217,19 +217,22 @@ class testSlapOSMixin(ERP5TypeTestCase):
       response_dict = self.portal.portal_configurator._next(
                             business_configuration, {})
 
-    self.tic() 
+    self.logMessage('SlapOS launchConfigurator configurator set up ...\n')
+    self.tic(verbose=True, delay=2 * 60 * 60)
     self.portal.portal_configurator.startInstallation(
                  business_configuration,REQUEST=self.portal.REQUEST)
 
     self.portal.portal_types.resetDynamicDocumentsOnceAtTransactionBoundary()
     # Delay 2 hours
-    self.tic(verbose=True, delay=2 * 60 * 60)
+    self.logMessage('SlapOS launchConfigurator start Configuration ...\n')
+    self.tic(verbose=True, delay=4 * 60 * 60)
 
     # Set post upgrade configurations for the tests
     preference_tool = self.portal.portal_preferences.portal_preferences
     preference_tool.slapos_default_system_preference.setPreferredHateoasUrl("http://dummy/")
     preference_tool.slapos_default_system_preference.setPreferredAuthenticationPolicyEnabled(True)
 
+    self.logMessage('SlapOS launchConfigurator set Preferences ...\n')
     self.tic()
     self.clearCache()
 

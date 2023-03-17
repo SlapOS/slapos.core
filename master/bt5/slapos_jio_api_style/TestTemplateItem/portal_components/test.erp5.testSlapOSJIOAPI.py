@@ -393,13 +393,12 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
     status_dict = software_installation.getAccessStatus()
     expected_dict = {
       "$schema": software_installation.getJSONSchemaUrl(),
-      "reference": software_installation.getReference(),
       "software_release_uri": software_installation.getUrlString(),
       "compute_node_id": software_installation.getAggregateReference(),
       "state": "available",
       "reported_state": status_dict.get("state"),
       "status_message": status_dict.get("text"),
-      "processing_timestamp": software_installation.getSlapTimestamp(),
+      "portal_type": "Software Installation",
       "api_revision": software_installation.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
     }
 
@@ -510,13 +509,12 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
     })
     expected_dict = {
       "$schema": software_installation.getJSONSchemaUrl(),
-      "reference": software_installation.getReference(),
       "software_release_uri": software_release_uri,
       "compute_node_id": software_installation.getAggregateReference(),
       "state": "available",
       "reported_state": "available",
       "status_message": "#access software release %s available" % software_release_uri,
-      "processing_timestamp": software_installation.getSlapTimestamp(),
+      "portal_type": "Software Installation",
       "api_revision": software_installation.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
     }
     self.assertEqual(expected_dict, software_dict)
@@ -545,13 +543,12 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
     })
     expected_dict = {
       "$schema": software_installation.getJSONSchemaUrl(),
-      "reference": software_installation.getReference(),
       "software_release_uri": software_release_uri,
       "compute_node_id": software_installation.getAggregateReference(),
       "state": "available",
       "reported_state": "building",
       "status_message": "#building software release %s" % software_release_uri,
-      "processing_timestamp": software_installation.getSlapTimestamp(),
+      "portal_type": "Software Installation",
       "api_revision": software_installation.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
     }
     self.assertEqual(expected_dict, software_dict)
@@ -580,13 +577,12 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJIOAPIMixin):
     })
     expected_dict = {
       "$schema": software_installation.getJSONSchemaUrl(),
-      "reference": software_installation.getReference(),
       "software_release_uri": software_release_uri,
       "compute_node_id": software_installation.getAggregateReference(),
       "state": "available",
       "reported_state": "",
       "status_message": "#error while installing %s" % software_release_uri,
-      "processing_timestamp": software_installation.getSlapTimestamp(),
+      "portal_type": "Software Installation",
       "api_revision": software_installation.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
     }
     self.assertEqual(expected_dict, software_dict)

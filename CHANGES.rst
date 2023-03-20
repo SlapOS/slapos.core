@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.9.1 (unreleased)
+------------------
+ * node promise: support --only-cp argument
+
 1.9.0 (2023-03-09)
 ------------------
  * format: add IPv6 range for partitions and tun

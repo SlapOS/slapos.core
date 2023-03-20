@@ -1084,6 +1084,7 @@ def hateoas_partitions(partition_reference):
   partition = execute_db('partition', 'SELECT * FROM %s WHERE partition_reference=?', [partition_reference], one=True)
   if partition is None:
     abort(404)
+  # my_slap_state corresponds to requested_state, not slap_state.
   return {
     '_embedded': {
       '_view': {
@@ -1100,7 +1101,7 @@ def hateoas_partitions(partition_reference):
         'my_slap_state': {
           'type': 'StringField',
           'key': 'slap_state',
-          'default': partition['slap_state'],
+          'default': partition['requested_state'],
         },
         'my_text_content': {
           'type': 'StringField',

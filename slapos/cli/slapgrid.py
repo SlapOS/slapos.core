@@ -181,9 +181,17 @@ class ReportCommand(SlapgridCommand):
     pidfile_option_name = 'pidfile_report'
 
 class PromiseCommand(SlapgridCommand):
-   """run only promises to test the parition state"""
+    """run only promises to test the partition state"""
 
-   method_name = 'processPromiseList'
-   default_pidfile = '/opt/slapos/slapgrid-cp.pid'
-   pidfile_option_name = 'pidfile_instance'
+    method_name = 'processPromiseList'
+    default_pidfile = '/opt/slapos/slapgrid-cp.pid'
+    pidfile_option_name = 'pidfile_instance'
 
+    def get_parser(self, prog_name):
+        ap = super(PromiseCommand, self).get_parser(prog_name)
+
+        ap.add_argument('--only-cp', '--only',
+                        help='Run promise for a single or a list of computer partitions '
+                             '(ie.:slappartX, slappartY), '
+                             'this option will make all other computer partitions be ignored.')
+        return ap

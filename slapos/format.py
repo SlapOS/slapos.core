@@ -1128,7 +1128,11 @@ class Interface(object):
                            for q in netifaces.ifaddresses(interface_name)[af]
                            ]:
       # add an address
-      code, _ = callAndRead(['ip', 'addr', 'add', address_string, 'dev', interface_name])
+      command = ['ip', 'addr', 'add', address_string, 'dev', interface_name]
+      if tap and ipv6:
+        # taps are routed manually via the first address in the range
+        command.append('noprefixroute')
+      code, _ = callAndRead(command)
 
       if code != 0:
         return False
@@ -1295,11 +1299,9 @@ class Interface(object):
     address_dict['prefixlen'] = lenNetmaskIpv6(address_dict['netmask'])
     if tap:
       result_addr = getTapIpv6Range(address_dict, partition_index, self.ipv6_prefixshift)
-      # the netmask of the tap itself is always 128 bits
-      result_addr['netmask'] = netmaskFromLenIPv6(128)
     else:
       result_addr = getPartitionIpv6Addr(address_dict, partition_index)
-      result_addr['netmask'] = netmaskFromLenIPv6(result_addr['prefixlen'])
+    result_addr['netmask'] = netmaskFromLenIPv6(result_addr['prefixlen'])
     if not tap or self._checkIpv6Range(result_addr['addr'], result_addr['prefixlen']):
       if self._addSystemAddress(result_addr['addr'], result_addr['netmask'], tap=tap):
         if tap:
@@ -1329,8 +1331,6 @@ class Interface(object):
     for _ in range(10):
       if tap:
         result_addr = self._generateRandomIPv6Range(address_dict, suffix='1')
-        # the netmask of the tap itself is always 128 bits
-        result_addr['netmask'] = netmaskFromLenIPv6(128)
       else:
         result_addr = self._generateRandomIPv6Addr(address_dict)
       # Checking the validity of the IPv6 address

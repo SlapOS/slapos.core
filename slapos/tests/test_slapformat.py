@@ -495,7 +495,7 @@ class TestComputer(SlapformatMixin):
     self.assertEqual([
         'ip tuntap add dev tap mode tap user testuser',
         'ip link set tap up',
-        'ip addr add ip/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff dev tap',
+        'ip addr add ip/ffff:ffff:ffff:ffff:ffff:: dev tap noprefixroute',
         'ip -6 addr list tap',
         'ip -6 route show ip',
         'ip -6 route add ip dev tap',
@@ -550,7 +550,7 @@ class TestComputer(SlapformatMixin):
     self.assertEqual([
         'ip tuntap add dev tap mode tap user testuser',
         'ip link set tap up',
-        'ip addr add ip/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff dev tap',
+        'ip addr add ip/ffff:ffff:ffff:ffff:ffff:ffff:: dev tap noprefixroute',
         'ip -6 addr list tap',
         'ip route show 10.8.0.2',
         'ip route add 10.8.0.2 dev tap',

@@ -54,6 +54,10 @@ class InfoCommand(ClientConfigCommand):
         ap.add_argument('reference',
                         help='Your instance reference')
 
+        ap.add_argument('--news',
+                        action='store_true',
+                        help='Include raw news in output')
+
         return ap
 
     def take_action(self, args):
@@ -98,14 +102,32 @@ def do_info(logger, conf, local):
         if '_' in connection_parameter_dict:
             connection_parameter_dict = json.loads(connection_parameter_dict['_'])
 
-    logger.info(
-        json.dumps(
-            {
-              'software-url': instance._software_release_url,
-              'instance-state': instance._requested_state,
-              'instance-parameters': instance._parameter_dict,
-              'connection-parameters': connection_parameter_dict,
-            },
-            indent=2,
-        )
-    )
+
+    info = {
+        'software-url': instance._software_release_url,
+        'requested-state': instance._requested_state,
+        'instance-parameters': instance._parameter_dict,
+        'connection-parameters': connection_parameter_dict,
+    }
+
+    try:
+        news = instance._news['instance']
+    except (AttributeError, KeyError):
+        info['status'] = 'unsupported'
+    else:
+      # 2 bits : 00 -> none, 01 -> green, 10 -> red, 11 -> orange
+      status = 0b00
+      for e in news:
+          text = e.get('text', '')
+          if text.startswith('#access'):
+              status |= 0b01
+          elif text.startswith('#error'):
+              status |= 0b10
+          if status == 0b11:
+              break
+      info['status'] = ('none', 'green', 'red', 'orange')[status]
+      if conf.news:
+          info['news'] = news
+
+    logger.info(json.dumps(info, indent=2))
+

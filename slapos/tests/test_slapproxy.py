@@ -1298,9 +1298,10 @@ class TestCliInformation(CliMasterMixin):
       json.loads(output0),
       {
         "software-url": "http://sr0//",
-        "instance-state": "busy",
+        "requested-state": "started",
         "instance-parameters": {},
         "connection-parameters": {},
+        "status": "unsupported",
       },
     )
     output1 = self.cliDoSlapos(('service', 'info', 'MyInstance1'), stderr=subprocess.DEVNULL)
@@ -1308,9 +1309,10 @@ class TestCliInformation(CliMasterMixin):
       json.loads(output1),
       {
         "software-url": "http://sr1//",
-        "instance-state": "busy",
+        "requested-state": "started",
         "instance-parameters": {"couscous": "hello"},
         "connection-parameters": {},
+        "status": "unsupported",
       },
     )
     try:

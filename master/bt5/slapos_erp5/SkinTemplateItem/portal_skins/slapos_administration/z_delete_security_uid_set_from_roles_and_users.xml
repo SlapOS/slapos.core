@@ -14,7 +14,7 @@
         </item>
         <item>
             <key> <string>arguments_src</string> </key>
-            <value> <string>security_uid</string> </value>
+            <value> <string>uid</string> </value>
         </item>
         <item>
             <key> <string>cache_time_</string> </key>

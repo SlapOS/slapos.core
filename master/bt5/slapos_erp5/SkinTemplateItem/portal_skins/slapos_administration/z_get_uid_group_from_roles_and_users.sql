@@ -1,0 +1,1 @@
+SELECT distinct(uid) from roles_and_users

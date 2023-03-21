@@ -1,4 +1,4 @@
 DELETE FROM
   roles_and_users
 WHERE
-  uid = <dtml-sqlvar expr="security_uid" type="string">
+  uid = <dtml-sqlvar expr="uid" type="string">

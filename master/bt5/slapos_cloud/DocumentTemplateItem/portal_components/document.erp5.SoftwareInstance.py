@@ -183,6 +183,9 @@ class SoftwareInstance(Item, JSONType):
   def getSlapTimestamp(self):
     return self._getSlapTimestamp()
 
+  def useRevision(self):
+    return getattr(self, "use_jio_api_revision", False)
+
   @UnrestrictedMethod
   def _getSlapTimestamp(self):
     compute_partition = self.getAggregateValue(portal_type="Compute Partition")
@@ -198,22 +201,31 @@ class SoftwareInstance(Item, JSONType):
     # XXX In the current what shared instances are processed, they cannot be reprocessed if the
     # host instance is not processed
     if (self.getPortalType() == "Software Instance"):
-      shared_instance_sql_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-        default_aggregate_uid=compute_partition.getUid(),
-        portal_type='Slave Instance',
-        validation_state="validated",
-        sort_on=(("jio_api_revision.revision", "DESC"),),
-        select_list=('jio_api_revision.revision',),
-        limit=1,
-        **{"slapos_item.slap_state": "start_requested"}
-      )
-      if shared_instance_sql_list:
-        shared_instance = shared_instance_sql_list[0].getObject()
-        most_recent_hosted_instance_timestamp = int(
-          shared_instance.getBangTimestamp(int(shared_instance.getModificationDate()))
+      shared_instance_sql_list = []
+      if self.useRevision():
+        shared_instance_sql_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
+          default_aggregate_uid=compute_partition.getUid(),
+          portal_type='Slave Instance',
+          validation_state="validated",
+          sort_on=(("jio_api_revision.revision", "DESC"),),
+          select_list=('jio_api_revision.revision',),
+          limit=1,
+          **{"slapos_item.slap_state": "start_requested"}
         )
-        if (most_recent_hosted_instance_timestamp > timestamp):
-          timestamp = most_recent_hosted_instance_timestamp
+      else:
+        shared_instance_sql_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
+          default_aggregate_uid=compute_partition.getUid(),
+          portal_type='Slave Instance',
+          validation_state="validated",
+          **{"slapos_item.slap_state": "start_requested"}
+        )
+      for shared_instance in shared_instance_sql_list:
+        shared_instance = _assertACI(shared_instance.getObject())
+        # XXX Use catalog to filter more efficiently
+        if shared_instance.getSlapState() == "start_requested":
+          newtimestamp = int(shared_instance.getBangTimestamp(int(shared_instance.getModificationDate())))
+          if (newtimestamp > timestamp):
+            timestamp = newtimestamp
 
     return timestamp
 
@@ -397,10 +409,11 @@ class SoftwareInstance(Item, JSONType):
       "access_status_message": self.getTextAccessStatus(),
       "portal_type": self.getPortalType(),
     }
-    web_section = self.getWebSectionValue()
-    web_section = web_section.getRelativeUrl() if web_section else self.REQUEST.get("web_section_relative_url", None)
-    if web_section:
-      result["api_revision"] = self.getJIOAPIRevision(web_section)
+    if self.useRevision():
+      web_section = self.getWebSectionValue()
+      web_section = web_section.getRelativeUrl() if web_section else self.REQUEST.get("web_section_relative_url", None)
+      if web_section:
+        result["api_revision"] = self.getJIOAPIRevision(web_section)
 
     self.REQUEST.response.setHeader('Cache-Control',
                                     'private, max-age=0, must-revalidate')

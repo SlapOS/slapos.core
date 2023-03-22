@@ -1,9 +1,14 @@
 Changes
 =======
 
-1.9.1 (unreleased)
+1.9.1 (2023-03-22)
 ------------------
+ * format: use correct IPv6 prefix for tap
+ * format: allow customising IPv6 range sizes
  * node promise: support --only-cp argument
+ * proxy: Fix hateoas for requested state
+ * cli/info: Rename instance-state as requested-state
+ * cli/info: Include news digest in output
 
 1.9.0 (2023-03-09)
 ------------------

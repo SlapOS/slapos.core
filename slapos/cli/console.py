@@ -27,6 +27,7 @@
 #
 ##############################################################################
 
+import sys
 import textwrap
 
 from slapos.cli.config import ClientConfigCommand
@@ -81,8 +82,8 @@ class ConsoleCommand(ClientConfigCommand):
                            action='store_true',
                            help='Use plain Python shell')
 
-        shell.add_argument('script_file', nargs='?',
-                          help='Script to run')
+        shell.add_argument('script_file_and_arguments', nargs='*',
+                          help='Script to run, with arguments', default=[])
 
         return ap
 
@@ -91,10 +92,12 @@ class ConsoleCommand(ClientConfigCommand):
         conf = ClientConfig(args, configp)
         local = init(conf, self.app.log)
 
-        if args.script_file:
-            with open(args.script_file) as f:
-                code = compile(f.read(), args.script_file, 'exec')
-                local['__file__'] = args.script_file
+        if args.script_file_and_arguments:
+            script_file = args.script_file_and_arguments[0]
+            with open(script_file) as f:
+                code = compile(f.read(), script_file, 'exec')
+                local['__file__'] = script_file
+                sys.argv = args.script_file_and_arguments
                 return exec_(code, local, local)
 
         if not any([args.python, args.ipython, args.bpython]):

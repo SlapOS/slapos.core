@@ -654,6 +654,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     self.tic()
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
+    default_array = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])[-1]
     self.portal.portal_alarms.wendelin_handle_analysis.activeSense()
     self.tic()
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
@@ -661,6 +662,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     self.assertTrue(self.portal.compute_node_module['node_debian10'].ComputeNode_hasModifiedFile() is None)
     self.portal.portal_alarms.wendelin_handle_analysis.activeSense()
     self.tic()
+    modified_array = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])[-1]
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
@@ -670,7 +672,30 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     # no more database to compare
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
-    self.assertTrue(self.portal.compute_node_module['node_debian10'].ComputeNode_hasModifiedFile() is not None)
+    data_array = self.portal.compute_node_module['node_debian10'].ComputeNode_hasModifiedFile()
+    self.assertTrue(data_array is not None)
+    data_array.invalidate()
+    self.tic()
+    self.assertTrue(self.portal.compute_node_module['node_debian10'].ComputeNode_hasModifiedFile() is None)
+    modified_array.DataArray_declareAsDefaultData(batch=1)
+    self.tic()
+    self.assertEqual(modified_array.getValidationState(), 'validated')
+    self.assertEqual(default_array.getValidationState(), 'invalidated')
+    # still the same
+    modified_array.DataArray_declareAsDefaultData(batch=1)
+    self.tic()
+    self.assertEqual(modified_array.getValidationState(), 'validated')
+    self.assertEqual(default_array.getValidationState(), 'invalidated')
+    # ingest again, this time as default array is changed, it should has no more difference
+    self._ingestData(request_dict)
+    self.tic()
+    self.portal.portal_alarms.wendelin_handle_analysis.activeSense()
+    self.tic()
+    self.portal.portal_alarms.slapos_process_data_array.activeSense()
+    self.tic()
+    self.assertTrue('file_system_image/diff_end/identical' in self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])[-1].getPublicationSectionList())
+    self.assertTrue(self.portal.compute_node_module['node_debian10'].ComputeNode_hasModifiedFile() is None)
+
 
 
   def test_data_processing_check_value_in_data_array(self):

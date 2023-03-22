@@ -3,4 +3,5 @@ Compute Node | create_data_transformation
 Compute Node | jump_to_data_array
 Compute Node | jump_to_data_stream
 Compute Node | operating_system_file_info_view
+Data Array | declare_as_default_data
 Data Array | mapped_content

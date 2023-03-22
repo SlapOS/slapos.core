@@ -36,11 +36,6 @@
   "description": "Response when the software installation is updated",\n
   "type": "object",\n
   "properties": {\n
-    "software_release_uri": {\n
-      "title": "Software Release URI",\n
-      "type": "string",\n
-      "format": "uri-reference"\n
-    },\n
     "compute_node_id": {\n
       "title": "Compute Node ID",\n
       "type": "string",\n

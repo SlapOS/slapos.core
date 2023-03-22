@@ -38,8 +38,7 @@
   "properties": {\n
     "software_release_uri": {\n
       "title": "Software Release URI",\n
-      "type": "string",\n
-      "format": "uri-reference"\n
+      "type": "string"\n
     },\n
     "compute_node_id": {\n
       "title": "Compute Node ID",\n
@@ -82,8 +81,7 @@
       "properties": {\n
         "software_release_uri": {\n
           "title": "Software Release URI",\n
-          "type": "string",\n
-          "format": "uri-reference"\n
+          "type": "string"\n
         },\n
         "compute_node_id": {\n
           "title": "Compute Node ID",\n

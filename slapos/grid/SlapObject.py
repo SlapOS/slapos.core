@@ -708,7 +708,7 @@ class Partition(object):
                          logger=self.logger,
                          debug=self.buildout_debug,
                          timeout=self.partition_timeout)
-    self.generateSupervisorConfigurationFile()
+    self.updateSupervisorConfiguration()
     self.createRetentionLockDelay()
     self.instance_python = getPythonExecutableFromSoftwarePath(self.software_path)
 
@@ -734,8 +734,6 @@ class Partition(object):
     if len(runner_list) == 0 and len(service_list) == 0:
       self.logger.warning('No runners nor services found for partition %r' %
           self.partition_id)
-      if os.path.exists(self.supervisord_partition_configuration_path):
-        os.unlink(self.supervisord_partition_configuration_path)
     else:
       partition_id = self.computer_partition.getId()
       group_partition_template = bytes2str(pkg_resources.resource_string(__name__,
@@ -759,9 +757,22 @@ class Partition(object):
       updateFile(self.supervisord_partition_configuration_path,
                  self.supervisor_configuration_group +
                  self.partition_supervisor_configuration)
+      self.updateSupervisor()
+    else:
+      self.removeSupervisorConfigurationFile()
+
+  def removeSupervisorConfigurationFile(self):
+    """
+      Remove supervisord configuration file if it exists and update supervisord
+    """
+    try:
+      os.unlink(self.supervisord_partition_configuration_path)
+    except OSError as e:
+      if e.errno != errno.ENOENT:
+        raise
     self.updateSupervisor()
 
-  def generateSupervisorConfigurationFile(self):
+  def updateSupervisorConfiguration(self):
     """
       update supervisord with new processes
     """
@@ -856,9 +867,7 @@ class Partition(object):
       # Cleanup all Data storage location of this partition
       
 
-      if os.path.exists(self.supervisord_partition_configuration_path):
-        os.remove(self.supervisord_partition_configuration_path)
-      self.updateSupervisor()
+      self.removeSupervisorConfigurationFile()
     except IOError as exc:
       raise IOError("I/O error while freeing partition (%s): %s" % (self.instance_path, exc))
 

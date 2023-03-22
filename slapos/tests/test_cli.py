@@ -874,6 +874,15 @@ print(request('software_release', 'instance').getInstanceParameterDict()['parame
       app.run(('console', '--cfg', config_file, script.name))
       self.assertIn('OK __file__ is set to script', stdout.getvalue())
 
+  def test_console_script_and_args(self):
+    with self._test_console() as (app, config_file, mock_request, stdout), \
+      tempfile.NamedTemporaryFile('w') as script:
+    script.write('import sys; print(sys.argv)')
+    script.flush()
+    app.run(('console', '--cfg', config_file, script.name, 'arg1', 'arg2'))
+    self.assertEqual(
+      stdout.getvalue().strip(), str([script.name, 'arg1', 'arg2']))
+
 
 class TestCliComplete(CliMixin):
   def test_complete_bash(self):

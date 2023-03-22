@@ -71,23 +71,6 @@ def json_loads_byteified(json_text):
     ignore_dicts=True
   )
 
-class Simulator:
-  def __init__(self, outfile, method):
-    self.outfile = outfile
-    self.method = method
-
-  def __call__(self, *args, **kwargs):
-    """Simulation Method"""
-    old = open(self.outfile, 'r').read()
-    if old:
-      l = eval(old) #pylint: disable=eval-used
-    else:
-      l = []
-    l.append({'recmethod': self.method,
-      'recargs': args,
-      'reckwargs': kwargs})
-    open(self.outfile, 'w').write(repr(l))
-
 class TestSlapOSJIOAPIMixin(SlapOSTestCaseMixin):
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)

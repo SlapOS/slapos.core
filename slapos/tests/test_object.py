@@ -87,7 +87,7 @@ original_upload_network_cached = networkcache.upload_network_cached
 originalBootstrapBuildout = utils.bootstrapBuildout
 originalLaunchBuildout = utils.launchBuildout
 originalUploadSoftwareRelease = Software.uploadSoftwareRelease
-originalPartitionGenerateSupervisorConfigurationFile = Partition.generateSupervisorConfigurationFile
+originalPartitionUpdateSupervisorConfiguration = Partition.updateSupervisorConfiguration
 
 class MasterMixin(BasicMixin, unittest.TestCase):
   """
@@ -378,14 +378,14 @@ class TestPartitionSlapObject(MasterMixin, unittest.TestCase):
   def setUp(self):
     MasterMixin.setUp(self)
 
-    Partition.generateSupervisorConfigurationFile = FakeCallAndNoop()
+    Partition.updateSupervisorConfiguration = FakeCallAndNoop()
     utils.bootstrapBuildout = FakeCallAndNoop()
 
     utils.launchBuildout = FakeCallAndStore()
 
   def tearDown(self):
     MasterMixin.tearDown(self)
-    Partition.generateSupervisorConfigurationFile = originalPartitionGenerateSupervisorConfigurationFile
+    Partition.updateSupervisorConfiguration = originalPartitionUpdateSupervisorConfiguration
 
   def test_partition_timeout_default(self):
     software = self.createSoftware()
@@ -544,13 +544,13 @@ class TestPartitionSupervisorConfig(MasterMixin, unittest.TestCase):
 class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
   def setUp(self):
     MasterMixin.setUp(self)
-    Partition.generateSupervisorConfigurationFile = FakeCallAndNoop()
+    Partition.updateSupervisorConfiguration = FakeCallAndNoop()
     utils.bootstrapBuildout = FakeCallAndNoop()
     utils.launchBuildout = FakeCallAndStore()
 
   def tearDown(self):
     MasterMixin.tearDown(self)
-    Partition.generateSupervisorConfigurationFile = originalPartitionGenerateSupervisorConfigurationFile
+    Partition.updateSupervisorConfiguration = originalPartitionUpdateSupervisorConfiguration
 
   def test_retention_lock_delay_creation(self):
     delay = 42
@@ -640,13 +640,13 @@ class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
 class TestPartitionDestructionUnwritable(MasterMixin, unittest.TestCase):
   def setUp(self):
     MasterMixin.setUp(self)
-    Partition.generateSupervisorConfigurationFile = FakeCallAndNoop()
+    Partition.updateSupervisorConfiguration = FakeCallAndNoop()
     utils.bootstrapBuildout = FakeCallAndNoop()
     utils.launchBuildout = FakeCallAndStore()
 
   def tearDown(self):
     MasterMixin.tearDown(self)
-    Partition.generateSupervisorConfigurationFile = originalPartitionGenerateSupervisorConfigurationFile
+    Partition.updateSupervisorConfiguration = originalPartitionUpdateSupervisorConfiguration
 
   def test(self):
     software = self.createSoftware()

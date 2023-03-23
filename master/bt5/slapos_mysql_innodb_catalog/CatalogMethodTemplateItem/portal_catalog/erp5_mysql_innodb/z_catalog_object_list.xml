@@ -14,6 +14,7 @@
             <key> <string>arguments_src</string> </key>
             <value> <string>uid\n
 security_uid\n
+function_security_uid\n
 group_security_uid\n
 shadow_security_uid\n
 computer_security_uid\n

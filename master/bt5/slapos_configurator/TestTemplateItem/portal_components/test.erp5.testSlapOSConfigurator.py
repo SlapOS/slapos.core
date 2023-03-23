@@ -409,6 +409,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'slapos_cloud',
       'slapos_slap_tool',
       'slapos_category',
+      'slapos_jio_api_style',
       'slapos_rss_style',
       'slapos_pdm',
       'slapos_crm',

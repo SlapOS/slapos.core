@@ -353,8 +353,27 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_erp5/OAuthTool_checkGoogleConnectorExistenceConsistency',
         'slapos_erp5/WebSiteModule_checkShacacheConstraint',
         'slapos_erp5/SystemPreference_checkConversionServerConsistency',
-        'slapos_erp5/SystemPreference_checkSystemPreferenceConsistency']
-      
+        'slapos_erp5/SystemPreference_checkSystemPreferenceConsistency',
+        'slapos_jio_api_cache/Base_postAsJSONResultToActiveProcess',
+        'slapos_jio_api_cache/Base_zSelectMissingJIOAPIRevisionInstanceList',
+        'slapos_jio_api_cache/Base_zSelectMissingJIOAPIRevisionObjectList',
+        'slapos_jio_api_cache/Base_zSelectMissingJIOAPIRevisionSoftwareAndComputeList',
+        'slapos_jio_api_cache/ComputeNode_calculatejIOAPIRevisionHash',
+        'slapos_jio_api_cache/SlapOSNode_aggregateHashFile',
+        'slapos_jio_api_cache/SlapOSNode_generateHashFile',
+        'slapos_jio_api_cache/SoftwareInstallation_calculatejIOAPIRevisionHash',
+        'slapos_jio_api_cache/SoftwareInstance_calculatejIOAPIRevisionHash',
+        'slapos_jio_api/ComputeNode_approveComputer',
+        'slapos_jio_api/ComputeNode_updateFromAPIDict',
+        'slapos_jio_api/SoftwareInstallation_updateFromDict',
+        'slapos_jio_api/SoftwareInstanceCertificateRecord_getSoftwareInstanceCertificatesAsJSON',
+        'slapos_jio_api/SoftwareInstance_updateFromDict',
+        'slapos_jio_api/jIOWebSection_createComputeNode',
+        'slapos_jio_api/jIOWebSection_createSoftwareInstallation',
+        'slapos_jio_api/jIOWebSection_getObjectFromData',
+        'slapos_jio_api/jIOWebSection_requestSoftwareInstance',
+        'slapos_jio_api/jIOWebSection_searchComputeNode',
+        'slapos_jio_api/jIOWebSection_searchHashDocumentRecord',]
       SlapOSTestCaseMixin.afterSetUp(self)
 
     def getBusinessTemplateList(self):

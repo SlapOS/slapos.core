@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.9.2 (2023-03-24)
+------------------
+ * console: support args when passing a script file
+ * format: fix sapos node format at boot time
+ * client: add getInformation shorthand method
+
 1.9.1 (2023-03-22)
 ------------------
  * format: use correct IPv6 prefix for tap

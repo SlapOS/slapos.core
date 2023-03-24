@@ -1291,13 +1291,14 @@ class TestCliInformation(CliMasterMixin):
   def test_service_info(self):
     self.format_for_number_of_partitions(3)
     self.request('http://sr0//', None, 'MyInstance0', None)
-    self.request('http://sr1//', None, 'MyInstance1', None, partition_parameter_kw={'couscous': 'hello'})
+    self.request('http://sr1//', "MyType1", 'MyInstance1', None, partition_parameter_kw={'couscous': 'hello'})
     self.request('http://sr2//', None, 'MyInstance2', 'slappart0')
     output0 = self.cliDoSlapos(('service', 'info', 'MyInstance0'), stderr=subprocess.DEVNULL)
     self.assertEqual(
       json.loads(output0),
       {
         "software-url": "http://sr0//",
+        "software-type": "default",
         "requested-state": "started",
         "instance-parameters": {},
         "connection-parameters": {},
@@ -1309,6 +1310,7 @@ class TestCliInformation(CliMasterMixin):
       json.loads(output1),
       {
         "software-url": "http://sr1//",
+        "software-type": "MyType1",
         "requested-state": "started",
         "instance-parameters": {"couscous": "hello"},
         "connection-parameters": {},

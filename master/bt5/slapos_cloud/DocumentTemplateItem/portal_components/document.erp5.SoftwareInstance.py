@@ -413,7 +413,9 @@ class SoftwareInstance(Item, JSONType):
       web_section = self.getWebSectionValue()
       web_section = web_section.getRelativeUrl() if web_section else self.REQUEST.get("web_section_relative_url", None)
       if web_section:
-        result["api_revision"] = self.getJIOAPIRevision(web_section)
+        revision = self.getJIOAPIRevision(web_section)
+        if revision:
+          result["api_revision"] = revision
 
     self.REQUEST.response.setHeader('Cache-Control',
                                     'private, max-age=0, must-revalidate')

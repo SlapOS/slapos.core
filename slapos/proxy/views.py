@@ -1118,6 +1118,11 @@ def hateoas_partitions(partition_reference):
           'key': 'software_release',
           'default': partition['software_release'],
         },
+        'my_source_reference': {
+          'type': 'StringField',
+          'key': 'software_release',
+          'default': partition['software_type'],
+        },
       },
     },
     '_links': {

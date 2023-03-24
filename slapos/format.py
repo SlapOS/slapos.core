@@ -584,7 +584,7 @@ class Computer(object):
     ####################
     if alter_network:
       if self.address is not None:
-        self.interface._addSystemAddress(self.address, self.netmask)
+        self.interface.addIPv6Address(self.address, self.netmask)
 
       if create_tap and self.tap_gateway_interface:
         gateway_addr_dict = getIfaceAddressIPv4(self.tap_gateway_interface)

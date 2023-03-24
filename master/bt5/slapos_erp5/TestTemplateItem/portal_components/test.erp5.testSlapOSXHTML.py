@@ -40,7 +40,7 @@ class TestSlapOSXHTML(SlapOSTestCaseMixin, testXHTML.TestXHTML):
                           'erp5_corporate_identity_web',
                           'erp5_notebook', 'erp5_officejs_notebook',
                           'erp5_web_js_style_ui', 'slapos_hal_json_style',
-                          'erp5_wendelin_notebook')
+                          'erp5_wendelin_notebook', 'erp5_json_form_react_jsonschema_form',)
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     # Live tests all uses the same request. For now we remove cell from

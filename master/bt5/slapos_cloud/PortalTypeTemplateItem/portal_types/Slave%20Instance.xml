@@ -102,14 +102,6 @@
               <tuple/>
             </value>
         </item>
-        <item>
-            <key> <string>type_mixin</string> </key>
-            <value>
-              <tuple>
-                <string>SlapOSCacheMixin</string>
-              </tuple>
-            </value>
-        </item>
       </dictionary>
     </pickle>
   </record>

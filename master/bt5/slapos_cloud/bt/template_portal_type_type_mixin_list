@@ -4,3 +4,6 @@ Compute Node | SlapOSComputeNodeMixin
 Compute Partition | SlapOSCacheMixin
 Compute Partition | SlapOSComputePartitionMixin
 Person | SlapOSCacheMixin
+Slave Instance | SlapOSCacheMixin
+Software Installation | SlapOSCacheMixin
+Software Instance | SlapOSCacheMixin

@@ -1312,14 +1312,14 @@ class Interface(object):
           self._reserveIpv6Range(result_addr['addr'], result_addr['prefixlen'])
         return result_addr
 
-    if self._ipv6_prefixshift != 16:
+    if self.ipv6_prefixshift != 16:
       self._logger.error(
         "Address %s/%s for partition %s is already taken;"
         " aborting because IPv6 prefixshift is %s != 16" % (
           result_addr['addr'],
           result_addr['prefixlen'],
           '%s tap' % partition_index if tap else partition_index,
-          self._ipv6_prefixshift,
+          self.ipv6_prefixshift,
       ))
       raise AddressGenerationError(addr)
 
@@ -1375,13 +1375,13 @@ class Interface(object):
     if self._tryReserveIpv6Range(ipv6_range['addr'], ipv6_range['prefixlen']):
       return ipv6_range
 
-    if self._ipv6_prefixshift != 16:
+    if self.ipv6_prefixshift != 16:
       self._logger.error(
         "Address % for partition %s is already taken;"
         " aborting because IPv6 prefixshift is %s != 16" % (
           ipv6_range['network'],
           '%s tun' % i if tun else i,
-          self._ipv6_prefixshift,
+          self.ipv6_prefixshift,
       ))
       raise AddressGenerationError(ipv6_range['addr'])
 

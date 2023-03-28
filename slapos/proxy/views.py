@@ -1100,7 +1100,7 @@ def hateoas_partitions(partition_reference):
         },
         'my_slap_state': {
           'type': 'StringField',
-          'key': 'slap_state',
+          'key': 'requested_state',
           'default': partition['requested_state'],
         },
         'my_text_content': {

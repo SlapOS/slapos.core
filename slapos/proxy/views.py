@@ -1095,32 +1095,32 @@ def hateoas_partitions(partition_reference):
         },
         'my_reference': {
           'type': 'StringField',
-          'key': 'partition_reference',
+          'key': 'field_my_reference',
           'default': partition['partition_reference'],
         },
         'my_slap_state': {
           'type': 'StringField',
-          'key': 'requested_state',
+          'key': 'field_my_slap_state',
           'default': partition['requested_state'],
         },
         'my_text_content': {
           'type': 'StringField',
-          'key': 'xml',
+          'key': 'field_my_text_content',
           'default': partition['xml'],
         },
         'my_connection_parameter_list': {
           'type': 'StringField',
-          'key': 'connection_xml',
+          'key': 'field_my_connection_parameter_list',
           'default': partition['connection_xml'],
         },
         'my_url_string': {
           'type': 'StringField',
-          'key': 'software_release',
+          'key': 'field_my_url_string',
           'default': partition['software_release'],
         },
         'my_source_reference': {
           'type': 'StringField',
-          'key': 'software_type',
+          'key': 'field_my_source_reference',
           'default': partition['software_type'],
         },
       },

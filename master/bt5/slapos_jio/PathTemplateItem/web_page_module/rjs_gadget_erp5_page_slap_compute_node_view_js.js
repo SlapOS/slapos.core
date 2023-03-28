@@ -26,17 +26,18 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, len = result.data.total_rows;
+          var i, value, value_jio_key, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
             if (1 || (result.data.rows[i].value.SoftwareInstallation_getNewsDict)) {
               value = result.data.rows[i].value.SoftwareInstallation_getNewsDict;
+              value_jio_key = result.data.rows[i].id;
               result.data.rows[i].value.SoftwareInstallation_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
                   "default": {
-                    jio_key: value,
+                    jio_key: value_jio_key,
                     result: value,
                     portal_type: "Software Installation"},
                   key: "status",

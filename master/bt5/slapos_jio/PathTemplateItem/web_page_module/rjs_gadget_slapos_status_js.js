@@ -1,7 +1,7 @@
-/*globals console, window, rJS, i18n, domsugar */
+/*globals console, window, rJS, domsugar, JSON */
 /*jslint indent: 2, nomen: true, maxlen: 80 */
 
-(function (window, rJS, domsugar) {
+(function (window, rJS, domsugar, JSON) {
   "use strict";
   var gadget_klass = rJS(window);
 
@@ -338,7 +338,7 @@
 
     .onLoop(function () {
       var gadget = this;
-      if (gadget.state.jio_key) {
+      if (typeof gadget.state.jio_key === 'string' && gadget.state.jio_key !== '') {
         return gadget.jio_get(gadget.state.jio_key)
           .push(function (result) {
             var state_dict = result.news || {};
@@ -346,6 +346,10 @@
             return gadget.changeState(state_dict);
           });
       }
+      throw new Error(
+        'jio_key dont contains a proper value: ' +
+          JSON.stringify(gadget.state.jio_key)
+      );
     }, 300000)
 
     .onStateChange(function () {
@@ -360,4 +364,4 @@
       return this.changeState(state_dict);
     });
 
-}(window, rJS, domsugar));
+}(window, rJS, domsugar, JSON));

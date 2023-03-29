@@ -19,6 +19,7 @@ slapos_bt_list = [
     'slapos_configurator',
     'slapos_mysql_innodb_catalog',
     'slapos_jio',
+    'slapos_jio_api_style',
     'slapos_jio_ui_test',
     'slapos_abyss'
   ]

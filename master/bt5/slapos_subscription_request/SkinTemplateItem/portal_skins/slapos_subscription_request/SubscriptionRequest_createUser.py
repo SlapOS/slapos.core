@@ -14,7 +14,6 @@ if person is not None:
 
 # Already has login with this.
 person = context.SubscriptionRequest_searchExistingUserByEmail(email)
-
 if person is not None:
   return person, False
 
@@ -23,20 +22,19 @@ person = portal.person_module.newContent(
   portal_type="Person",
   first_name=name)
 
-password = [random.choice(string.upper(string.ascii_letters)),
-            random.choice(string.lower(string.ascii_letters)),
-            random.choice(string.digits),
-            random.choice("$!*#%$.;:,")]
+for role in ['member', 'subscriber']:
+  person.newContent(
+    portal_type='Assignment',
+    title = '%s Assignment' % (role.capitalize()),
+    role = role).open(comment="Created by Subscription Request")
 
-chars = string.ascii_letters + string.digits + '!@#$%^&*()'
-password.extend([random.choice(chars) for _ in range(26)])
-
+password = list("".join([context.Person_generatePassword(15, 5, 4) for _ in range(random.randint(2, 4))]))
 random.shuffle(password)
 
 login = person.newContent(
   portal_type="ERP5 Login",
-  reference=person.getUserId(),
-  password=''.join(password))
+  reference="%s-FIRST-SUBSCRIBER-LOGIN" % person.getUserId(),
+  password="".join(password))
 
 login.validate()
 

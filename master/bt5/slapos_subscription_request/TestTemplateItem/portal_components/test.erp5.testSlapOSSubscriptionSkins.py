@@ -294,7 +294,7 @@ class TestSubscriptionRequest_createUser(TestSubscriptionSkinsMixin):
     erp5_login = [i for i in person.searchFolder(portal_type="ERP5 Login")][0]
     self.assertEqual(person.getValidationState(), "draft")
     self.assertEqual(erp5_login.getValidationState(), "validated")
-    self.assertEqual(erp5_login.getReference(), person.getUserId())
+    self.assertEqual(erp5_login.getReference(), person.getUserId() + "-FIRST-SUBSCRIBER-LOGIN")
 
 
 class Test0SubscriptionRequestModule_requestSubscriptionProxy(TestSubscriptionSkinsMixin):
@@ -388,7 +388,8 @@ class TestSubscriptionRequest_applyCondition(TestSubscriptionSkinsMixin):
 
 class SubscriptionRequest_boostrapUserAccount(TestSubscriptionSkinsMixin):
 
-  @simulate('SubscriptionRequest_sendAcceptedNotification', 'reference, password',"""assert reference == context.getDefaultEmailText()
+  @simulate('SubscriptionRequest_sendAcceptedNotification', 'reference, password',"""
+assert reference == context.getDefaultEmailText(), "%s != %s" % (reference, context.getDefaultEmailText())
 assert password""")
   def test_bootstrap_user(self):
     email = "abc%s@nexedi.com" % self.new_id
@@ -405,7 +406,7 @@ assert password""")
 
     subscription_request.plan()
     self.assertEqual(len(person.searchFolder(portal_type="Assignment",
-                                              validation_state="open")), 0)
+                                              validation_state="open")), 2)
 
     subscription_request.SubscriptionRequest_boostrapUserAccount()
 
@@ -430,7 +431,7 @@ assert password""")
 
     erp5_login = login_list[0]
     self.assertEqual(erp5_login.getReference(), email)
-    self.assertNotEqual(erp5_login.getPassword(), None)
+    self.assertNotEqual(erp5_login.getPassword(), None) 
     self.assertNotEqual(erp5_login.getPassword(), "")
 
     self.assertEqual(erp5_login.getValidationState(), "validated")
@@ -795,7 +796,7 @@ class TestSubscriptionRequest_sendAcceptedNotification(TestSubscriptionSkinsMixi
     self.assertEqual(event.getContentType(),'text/html')
 
     self.assertEqual(
-      event.getTextContent(),'%s %s' % (person.getTitle(), person.getUserId()))
+      event.getTextContent(),'%s %s-FIRST-SUBSCRIBER-LOGIN' % (person.getTitle(), person.getUserId()))
 
 
   def test_send_notification_with_password(self):
@@ -824,7 +825,7 @@ class TestSubscriptionRequest_sendAcceptedNotification(TestSubscriptionSkinsMixi
     self.assertEqual(event.getContentType(),'text/html')
 
     self.assertEqual(
-      event.getTextContent(),'%s %s password' % (person.getTitle(), person.getUserId()))
+      event.getTextContent(),'%s %s password' % (person.getTitle(), person.getUserId() + "-FIRST-SUBSCRIBER-LOGIN"))
 
 
 class TestSubscriptionRequest_notifyInstanceIsReady(TestSubscriptionSkinsMixin):

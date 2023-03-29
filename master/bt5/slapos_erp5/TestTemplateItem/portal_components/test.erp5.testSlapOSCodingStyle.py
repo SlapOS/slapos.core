@@ -298,6 +298,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_administration/z_get_used_user_security_uid_list',
         'slapos_administration/z_refresh_roles_and_users',
         'slapos_administration/z_search_unindexed_security_uid',
+        'slapos_administration/z_get_uid_group_from_roles_and_users',
         'slapos_administration/SoftwareInstance_renewCertificate',
         'slapos_core/Base_updateSlapOSLocalRolesOnSecurityGroups',
         'slapos_core/ComputeNode_getSecurityCategoryFromAllocationScope',

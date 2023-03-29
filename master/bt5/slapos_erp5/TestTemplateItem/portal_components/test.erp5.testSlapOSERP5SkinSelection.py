@@ -24,6 +24,7 @@ import difflib
 
 slapos_folder_list = """slapos_abyss
 slapos_base
+slapos_jio_api
 slapos_contract
 slapos_subscription_request
 slapos_crm_monitoring
@@ -52,6 +53,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_jio_sql_revision
 erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
@@ -179,6 +181,7 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -217,6 +220,7 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -272,6 +276,7 @@ erp5_interaction_drop
 slapos_deploy_theme
 erp5_web_hal_json
 erp5_web_renderjs_ui
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -308,6 +313,7 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -349,6 +355,7 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -390,6 +397,7 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -427,6 +435,7 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -465,6 +474,7 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -502,6 +512,7 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -539,6 +550,7 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 slapos_rss_style
@@ -577,6 +589,7 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -616,6 +629,7 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -657,6 +671,7 @@ erp5_interaction_drop
 slapos_hal_json_style
 erp5_web_hal_json
 erp5_web_renderjs_ui
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -697,6 +712,7 @@ erp5_interaction_drop
 erp5_hal_json_restricted_style
 erp5_hal_json_style
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -734,6 +750,7 @@ erp5_font
 erp5_interaction_drop
 erp5_hal_json_style
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -770,6 +787,7 @@ slapos_disaster_recovery
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -806,6 +824,7 @@ slapos_disaster_recovery
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -842,6 +861,7 @@ slapos_disaster_recovery
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -879,10 +899,12 @@ slapos_disaster_recovery
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 slapos_abyss
 slapos_base
+slapos_jio_api
 slapos_contract
 slapos_subscription_request
 slapos_crm_monitoring
@@ -931,6 +953,7 @@ slapos_disaster_recovery
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -967,6 +990,7 @@ slapos_disaster_recovery
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -1003,6 +1027,7 @@ slapos_disaster_recovery
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -1039,6 +1064,7 @@ slapos_disaster_recovery
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
@@ -1078,6 +1104,7 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
+slapos_jio_api_cache
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s

@@ -39,6 +39,9 @@ import subprocess
 import tarfile
 import tempfile
 import time
+
+from collections import defaultdict
+
 from six.moves import xmlrpc_client as xmlrpclib, range
 from six.moves.configparser import ConfigParser
 
@@ -64,8 +67,13 @@ REQUIRED_COMPUTER_PARTITION_PERMISSION = 0o750
 CP_STORAGE_FOLDER_NAME = 'DATA'
 
 # XXX not very clean. this is changed when testing
-PROGRAM_PARTITION_TEMPLATE = bytes2str(pkg_resources.resource_string(__name__,
-            'templates/program_partition_supervisord.conf.in'))
+PROGRAM_PARTITION_TEMPLATE = bytes2str(
+  pkg_resources.resource_string(
+    __name__, 'templates/program_partition_supervisord.conf.in'))
+
+GROUP_PARTITION_TEMPLATE = bytes2str(
+  pkg_resources.resource_string(
+    __name__, 'templates/group_partition_supervisord.conf.in'))
 
 
 def free_space(path, fn):
@@ -409,7 +417,7 @@ class Partition(object):
                software_path,
                instance_path,
                shared_part_list,
-               supervisord_partition_configuration_path,
+               supervisord_partition_configuration_dir,
                supervisord_socket,
                computer_partition,
                computer_id,
@@ -436,8 +444,8 @@ class Partition(object):
     self.run_path = os.path.join(self.instance_path, 'etc', 'run')
     self.service_path = os.path.join(self.instance_path, 'etc', 'service')
     self.prerm_path = os.path.join(self.instance_path, 'etc', 'prerm')
-    self.supervisord_partition_configuration_path = \
-        supervisord_partition_configuration_path
+    self.supervisord_partition_configuration_dir = \
+        supervisord_partition_configuration_dir
     self.supervisord_socket = supervisord_socket
     self.computer_partition = computer_partition
     self.computer_id = computer_id
@@ -524,53 +532,24 @@ class Partition(object):
     gid = stat_info.st_gid
     return (uid, gid)
 
-  def addProgramToGroup(self, partition_id, program_id, name, command,
-                        as_user=True):
-    if as_user:
-      uid, gid = self.getUserGroupId()
-    else:
-      uid, gid = 0, 0
-    self.partition_supervisor_configuration += '\n' + \
-      PROGRAM_PARTITION_TEMPLATE % {
-        'program_id': '{}_{}'.format(partition_id, program_id),
-        'program_directory': self.instance_path,
-        'program_command': command,
-        'program_name': name,
-        'instance_path': self.instance_path,
-        'user_id': uid,
-        'group_id': gid,
-        # As supervisord has no environment to inherit, setup a minimalistic one
-        'HOME': pwd.getpwuid(uid).pw_dir,
-        'USER': pwd.getpwuid(uid).pw_name,
-      }
+  def getGroupIdFromSuffix(self, suffix=None):
+    partition_id = self.partition_id
+    return '%s-%s' % (partition_id, suffix) if suffix else partition_id
 
-  def addCustomGroup(self, group_suffix, partition_id, program_list):
-    group_partition_template = bytes2str(pkg_resources.resource_string(__name__,
-      'templates/group_partition_supervisord.conf.in'))
-    group_id = '{}-{}'.format(partition_id, group_suffix)
+  def addProgramToGroup(self, suffix, program_id, name, command, as_user=True):
+    group = self.getGroupIdFromSuffix(suffix)
+    self.supervisor_conf[group][program_id] = (name, command, as_user)
 
-    self.supervisor_configuration_group += group_partition_template % {
-      'instance_id': group_id,
-      'program_list': ','.join(['{}_{}'.format(group_id, program_id)
-                                for program_id in program_list]),
-    }
+  def addServicesToGroup(self, runner_list, path, extension=''):
+    self.addServicesToCustomGroup(None, runner_list, path, extension)
 
-    return group_id
-
-  def addServiceToGroup(self, partition_id, runner_list, path, extension=''):
+  def addServicesToCustomGroup(self, suffix, runner_list, path, extension=''):
+    """Add new services to supervisord that belong to specific group"""
     for runner in runner_list:
       program_id = runner
       program_name = runner + extension
       program_command = os.path.join(path, runner)
-      self.addProgramToGroup(partition_id, program_id, program_name,
-                             program_command)
-
-  def addServiceToCustomGroup(self, group_suffix, partition_id, runner_list,
-      path, extension=''):
-    """Add new services to supervisord that belong to specific group"""
-    group_id = self.addCustomGroup(group_suffix, partition_id,
-                                   runner_list)
-    return self.addServiceToGroup(group_id, runner_list, path, extension)
+      self.addProgramToGroup(suffix, program_id, program_name, program_command)
 
   def updateSymlink(self, sr_symlink, software_path):
     if os.path.lexists(sr_symlink):
@@ -586,7 +565,7 @@ class Partition(object):
     installs the software partition with the help of buildout
     """
     self.logger.info("Installing Computer Partition %s..."
-        % self.computer_partition.getId())
+        % self.partition_id)
 
     self.check_free_space()
 
@@ -723,8 +702,7 @@ class Partition(object):
     """
     runner_list = []
     service_list = []
-    self.partition_supervisor_configuration = ""
-    self.supervisor_configuration_group = ""
+    self.supervisor_conf = defaultdict(dict)
     if os.path.exists(self.run_path):
       if os.path.isdir(self.run_path):
         runner_list = sorted(os.listdir(self.run_path))
@@ -735,70 +713,92 @@ class Partition(object):
       self.logger.warning('No runners nor services found for partition %r' %
           self.partition_id)
     else:
-      partition_id = self.computer_partition.getId()
-      group_partition_template = bytes2str(pkg_resources.resource_string(__name__,
-          'templates/group_partition_supervisord.conf.in'))
-      self.supervisor_configuration_group = group_partition_template % {
-          'instance_id': partition_id,
-          'program_list': ','.join(['_'.join([partition_id, runner])
-                                    for runner in runner_list + service_list])
-      }
       # Same method to add to service and run
-      self.addServiceToGroup(partition_id, runner_list, self.run_path)
-      self.addServiceToGroup(partition_id, service_list, self.service_path,
-                             extension=WATCHDOG_MARK)
+      self.addServicesToGroup(runner_list, self.run_path)
+      self.addServicesToGroup(
+        service_list, self.service_path, extension=WATCHDOG_MARK)
 
-  def writeSupervisorConfigurationFile(self):
+  def writeSupervisorConfigurationFiles(self):
     """
-      Write supervisord configuration file and update supervisord
+      Write supervisord configuration files and update supervisord
     """
-    if self.supervisor_configuration_group and \
-        self.partition_supervisor_configuration:
-      updateFile(self.supervisord_partition_configuration_path,
-                 self.supervisor_configuration_group +
-                 self.partition_supervisor_configuration)
+    remaining = set(
+      f for f in os.listdir(self.supervisord_partition_configuration_dir)
+      if f.startswith(self.partition_id)
+    )
+    for group, programs in self.supervisor_conf.items():
+      filename = '%s.conf' % group
+      filepath = os.path.join(
+        self.supervisord_partition_configuration_dir, filename)
+      supervisor_conf = GROUP_PARTITION_TEMPLATE % {
+        'instance_id': group,
+        'program_list': ','.join('%s_%s' % (group, p) for p in programs.keys()),
+      }
+      for program_id, (name, command, as_user) in programs.items():
+        uid, gid = self.getUserGroupId() if as_user else (0, 0)
+        supervisor_conf += '\n' + \
+          PROGRAM_PARTITION_TEMPLATE % {
+            'program_id': '%s_%s' % (group, program_id),
+            'program_directory': self.instance_path,
+            'program_command': command,
+            'program_name': name,
+            'instance_path': self.instance_path,
+            'user_id': uid,
+            'group_id': gid,
+            # As supervisord has no environment to inherit, setup a minimalistic one
+            'HOME': pwd.getpwuid(uid).pw_dir,
+            'USER': pwd.getpwuid(uid).pw_name,
+          }
+      remaining.discard(filename)
+      updateFile(filepath, supervisor_conf)
+    for filename in remaining:
+      filepath = os.path.join(
+        self.supervisord_partition_configuration_dir, filename)
+      os.unlink(filepath)
+    if self.supervisor_conf or remaining:
       self.updateSupervisor()
-    else:
-      self.removeSupervisorConfigurationFile()
 
-  def removeSupervisorConfigurationFile(self):
+  def removeSupervisorConfigurationFiles(self):
     """
-      Remove supervisord configuration file if it exists and update supervisord
+      Remove supervisord configuration files if any exist and update supervisord
     """
-    try:
-      os.unlink(self.supervisord_partition_configuration_path)
-    except OSError as e:
-      if e.errno != errno.ENOENT:
-        raise
-    self.updateSupervisor()
+    filenames = [
+      f for f in os.listdir(self.supervisord_partition_configuration_dir)
+      if f.startswith(self.partition_id)
+    ]
+    for filename in filenames:
+      filepath = os.path.join(
+        self.supervisord_partition_configuration_dir, filename)
+      os.unlink(filepath)
+    if filenames:
+      self.updateSupervisor()
 
   def updateSupervisorConfiguration(self):
     """
       update supervisord with new processes
     """
     self.generateSupervisorConfiguration()
-    self.writeSupervisorConfigurationFile()
+    self.writeSupervisorConfigurationFiles()
 
   def start(self):
     """Asks supervisord to start the instance. If this instance is not
     installed, we install it.
     """
-    partition_id = self.computer_partition.getId()
+    partition_id = self.partition_id
     try:
       with self.getSupervisorRPC() as supervisor:
         supervisor.startProcessGroup(partition_id, False)
     except xmlrpclib.Fault as exc:
       if exc.faultString.startswith('BAD_NAME:'):
-        self.logger.info("Nothing to start on %s..." %
-                         self.computer_partition.getId())
+        self.logger.info("Nothing to start on %s..." % partition_id)
       else:
         raise
     else:
-      self.logger.info("Requested start of %s..." % self.computer_partition.getId())
+      self.logger.info("Requested start of %s..." % partition_id)
 
   def stop(self):
     """Asks supervisord to stop the instance."""
-    partition_id = self.computer_partition.getId()
+    partition_id = self.partition_id
     try:
       with self.getSupervisorRPC() as supervisor:
         supervisor.stopProcessGroup(partition_id, False)
@@ -808,13 +808,13 @@ class Partition(object):
       else:
         raise
     else:
-      self.logger.info("Requested stop of %s..." % self.computer_partition.getId())
+      self.logger.info("Requested stop of %s..." % partition_id)
 
   def destroy(self):
     """Destroys the partition and makes it available for subsequent use."
     """
     self.logger.info("Destroying Computer Partition %s..."
-        % self.computer_partition.getId())
+        % self.partition_id)
 
     self.createRetentionLockDate()
     if not self.checkRetentionIsAuthorized():
@@ -867,7 +867,7 @@ class Partition(object):
       # Cleanup all Data storage location of this partition
       
 
-      self.removeSupervisorConfigurationFile()
+      self.removeSupervisorConfigurationFiles()
     except IOError as exc:
       raise IOError("I/O error while freeing partition (%s): %s" % (self.instance_path, exc))
 

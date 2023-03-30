@@ -3030,13 +3030,17 @@ exit 0
       stat_info = os.stat(partition.partition_path)
       uid = stat_info.st_uid
       gid = stat_info.st_gid
-      supervisor_conf_file = os.path.join(self.instance_root,
+      partition_supervisor_conf_file = os.path.join(self.instance_root,
                                           'etc/supervisord.conf.d',
                                           '%s.conf' % partition.name)
-      self.assertTrue(os.path.exists(supervisor_conf_file))
+      prerm_supervisor_conf_file = os.path.join(self.instance_root,
+                                          'etc/supervisord.conf.d',
+                                          '%s-prerm.conf' % partition.name)
+      self.assertFalse(os.path.exists(partition_supervisor_conf_file))
+      self.assertTrue(os.path.exists(prerm_supervisor_conf_file))
       regex_user = r"user=(\d+)"
       regex_group = r"group=(\d+)"
-      with open(supervisor_conf_file) as f:
+      with open(prerm_supervisor_conf_file) as f:
         config = f.read()
         # search user uid in conf file
         result = re.search(regex_user, config, re.DOTALL)
@@ -3113,8 +3117,8 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
 
     self.computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.partition = self.computer.instance_list[0]
-    self.instance_supervisord_config_path = os.path.join(
-      self.instance_root, 'etc/supervisord.conf.d/0.conf')
+    self.socat_supervisord_config_path = os.path.join(
+      self.instance_root, 'etc/supervisord.conf.d/0-socat.conf')
 
     self.port_redirect_path = os.path.join(self.partition.partition_path,
                                            slapmanager.portredir.Manager.port_redirect_filename)
@@ -3122,8 +3126,8 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
   def _mock_requests(self):
     return httmock.HTTMock(self.computer.request_handler)
 
-  def _read_instance_supervisord_config(self):
-    with open(self.instance_supervisord_config_path) as f:
+  def _read_socat_supervisord_config(self):
+    with open(self.socat_supervisord_config_path) as f:
       return f.read()
 
   def _setup_instance(self, config):
@@ -3151,9 +3155,9 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertIn('socat-tcp-{}'.format(1234), partition_supervisord_config)
-      self.assertIn('socat TCP4-LISTEN:1234,fork TCP4:127.0.0.1:4321', partition_supervisord_config)
+      socat_supervisord_config = self._read_socat_supervisord_config()
+      self.assertIn('socat-tcp-{}'.format(1234), socat_supervisord_config)
+      self.assertIn('socat TCP4-LISTEN:1234,fork TCP4:127.0.0.1:4321', socat_supervisord_config)
 
   def test_ipv6_port_redirection(self):
     with self._mock_requests():
@@ -3166,9 +3170,9 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertIn('socat-tcp-{}'.format(1234), partition_supervisord_config)
-      self.assertIn('socat TCP4-LISTEN:1234,fork TCP6:[::1]:4321', partition_supervisord_config)
+      socat_supervisord_config = self._read_socat_supervisord_config()
+      self.assertIn('socat-tcp-{}'.format(1234), socat_supervisord_config)
+      self.assertIn('socat TCP4-LISTEN:1234,fork TCP6:[::1]:4321', socat_supervisord_config)
 
   def test_udp_port_redirection(self):
     with self._mock_requests():
@@ -3182,9 +3186,9 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertIn('socat-udp-{}'.format(1234), partition_supervisord_config)
-      self.assertIn('socat UDP4-LISTEN:1234,fork UDP4:127.0.0.1:4321', partition_supervisord_config)
+      socat_supervisord_config = self._read_socat_supervisord_config()
+      self.assertIn('socat-udp-{}'.format(1234), socat_supervisord_config)
+      self.assertIn('socat UDP4-LISTEN:1234,fork UDP4:127.0.0.1:4321', socat_supervisord_config)
 
   def test_portredir_config_change(self):
     # We want the partition to just get updated, not recreated
@@ -3200,9 +3204,9 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertIn('socat-tcp-{}'.format(1234), partition_supervisord_config)
-      self.assertIn('socat TCP4-LISTEN:1234,fork TCP4:127.0.0.1:4321', partition_supervisord_config)
+      socat_supervisord_config = self._read_socat_supervisord_config()
+      self.assertIn('socat-tcp-{}'.format(1234), socat_supervisord_config)
+      self.assertIn('socat TCP4-LISTEN:1234,fork TCP4:127.0.0.1:4321', socat_supervisord_config)
 
       # Remove the port binding from config
       with open(self.port_redirect_path, 'w+') as f:
@@ -3219,9 +3223,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       self.assertEqual(self.partition.state, 'started')
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertNotIn('socat-tcp-{}'.format(1234), partition_supervisord_config)
-      self.assertNotIn('socat TCP4-LISTEN:1234,fork TCP4:127.0.0.1:4321', partition_supervisord_config)
+      self.assertFalse(os.path.exists(self.socat_supervisord_config_path))
 
   def test_port_redirection_config_bad_source_port(self):
     with self._mock_requests():
@@ -3234,9 +3236,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertNotIn('socat-tcp-bad', partition_supervisord_config)
-      self.assertNotIn('socat TCP4-LISTEN:bad,fork TCP4:127.0.0.1:4321', partition_supervisord_config)
+      self.assertFalse(os.path.exists(self.socat_supervisord_config_path))
 
   def test_port_redirection_config_bad_dest_port(self):
     with self._mock_requests():
@@ -3249,9 +3249,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertNotIn('socat-tcp-1234', partition_supervisord_config)
-      self.assertNotIn('socat TCP4-LISTEN:1234,fork TCP4:127.0.0.1:wolf', partition_supervisord_config)
+      self.assertFalse(os.path.exists(self.socat_supervisord_config_path))
 
   def test_port_redirection_config_bad_source_address(self):
     with self._mock_requests():
@@ -3265,9 +3263,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertNotIn('socat-tcp-1234', partition_supervisord_config)
-      self.assertNotIn('socat TCP4-LISTEN:1234,bind=bad,fork TCP4:127.0.0.1:4321', partition_supervisord_config)
+      self.assertFalse(os.path.exists(self.socat_supervisord_config_path))
 
   def test_port_redirection_config_bad_dest_address(self):
     with self._mock_requests():
@@ -3280,9 +3276,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertNotIn('socat-tcp-1234', partition_supervisord_config)
-      self.assertNotIn('socat TCP4-LISTEN:1234,fork TCP4:wolf:4321', partition_supervisord_config)
+      self.assertFalse(os.path.exists(self.socat_supervisord_config_path))
 
   def test_port_redirection_config_bad_redir_type(self):
     with self._mock_requests():
@@ -3296,9 +3290,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertNotIn('socat-htcpcp-1234', partition_supervisord_config)
-      self.assertNotIn('socat HTCPCP4-LISTEN:1234,fork HTCPCP4:127.0.0.1:4321', partition_supervisord_config)
+      self.assertFalse(os.path.exists(self.socat_supervisord_config_path))
 
 
 class TestSlapgridWithDevPermLsblk(MasterMixin, unittest.TestCase):

@@ -73,11 +73,9 @@ class Manager(object):
       group_suffix = "prerm"
       logger.info("Adding pre-delete scripts to supervisord...")
       partition.generateSupervisorConfiguration()
-      partition.addServiceToCustomGroup(group_suffix,
-                                        partition_id,
-                                        wrapper_list,
-                                        partition.prerm_path)
-      partition.writeSupervisorConfigurationFile()
+      partition.addServicesToCustomGroup(
+        group_suffix, wrapper_list, partition.prerm_path)
+      partition.writeSupervisorConfigurationFiles()
 
       # check the state of all process, if the process is not started yes, start it
       with partition.getSupervisorRPC() as supervisor:

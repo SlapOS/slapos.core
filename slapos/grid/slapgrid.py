@@ -1077,9 +1077,8 @@ stderr_logfile_backups=1
       software_path=software_path,
       instance_path=instance_path,
       shared_part_list=self.shared_part_list,
-      supervisord_partition_configuration_path=os.path.join(
-        _getSupervisordConfigurationDirectory(self.instance_root),
-        computer_partition_id + '.conf'),
+      supervisord_partition_configuration_dir=(
+        _getSupervisordConfigurationDirectory(self.instance_root)),
       supervisord_socket=self.supervisord_socket,
       computer_partition=computer_partition,
       computer_id=self.computer_id,
@@ -1174,9 +1173,8 @@ stderr_logfile_backups=1
       software_path=software_path,
       instance_path=instance_path,
       shared_part_list=self.shared_part_list,
-      supervisord_partition_configuration_path=os.path.join(
-        _getSupervisordConfigurationDirectory(self.instance_root), '%s.conf' %
-        computer_partition_id),
+      supervisord_partition_configuration_dir=(
+        _getSupervisordConfigurationDirectory(self.instance_root)),
       supervisord_socket=self.supervisord_socket,
       computer_partition=computer_partition,
       computer_id=self.computer_id,
@@ -1836,9 +1834,8 @@ stderr_logfile_backups=1
             instance_path=os.path.join(self.instance_root,
                 computer_partition.getId()),
             shared_part_list=self.shared_part_list,
-            supervisord_partition_configuration_path=os.path.join(
-              _getSupervisordConfigurationDirectory(self.instance_root), '%s.conf' %
-              computer_partition_id),
+            supervisord_partition_configuration_dir=(
+              _getSupervisordConfigurationDirectory(self.instance_root)),
             supervisord_socket=self.supervisord_socket,
             computer_partition=computer_partition,
             computer_id=self.computer_id,

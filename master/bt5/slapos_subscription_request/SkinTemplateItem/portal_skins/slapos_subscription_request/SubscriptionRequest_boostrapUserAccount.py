@@ -53,7 +53,7 @@ if not login_list:
 
 login = login_list[0]
 # Let's reset password if the user is his first login.
-if not open_assignment_list and person.getUserId() == login_list[0].getReference():
+if "%s-FIRST-SUBSCRIBER-LOGIN" % person.getUserId() == login_list[0].getReference():
   login.invalidate()
   login.setReference(person.getDefaultEmailText())
   reference = person.getDefaultEmailText()

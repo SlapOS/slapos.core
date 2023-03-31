@@ -1659,3 +1659,84 @@ class TestBase_getAttentionPointList(TestSlapOSHalJsonStyleMixin):
     attention_point_list = json.loads(
       support_request_module.Base_getAttentionPointList())
     self.assertEqual(attention_point_list, [])
+
+class TestInstanceTree_getFastInputDict(TestSlapOSHalJsonStyleMixin):
+
+  def afterSetUp(self):
+    self.instance_tree = self.portal.instance_tree_module.newContent(
+      portal_type="Instance Tree"
+    )
+    self.software_instance = self.portal.software_instance_module.newContent(
+      portal_type="Software Instance"
+    )
+    TestSlapOSHalJsonStyleMixin.afterSetUp(self)
+
+  def testInstanceTree_getFastInputDict_noUrlString(self):
+    self.assertEqual({},
+      self.instance_tree.InstanceTree_getFastInputDict())
+    
+  def testInstanceTree_getFastInputDict_re6st_no_instance(self):
+    self.instance_tree.setUrlString(
+      self.portal.software_release_module.re6st.getUrlString())
+    self.assertEqual({},
+      self.instance_tree.InstanceTree_getFastInputDict())
+
+  def testInstanceTree_getFastInputDict_frontend_no_instance(self):
+    self.instance_tree.setUrlString(
+      self.portal.software_release_module.frontend.getUrlString())
+    self.assertEqual({},
+      self.instance_tree.InstanceTree_getFastInputDict())
+
+  def testInstanceTree_getFastInputDict_slave_re6st(self):
+    self.instance_tree.setRootSlave(True)
+    self.instance_tree.setUrlString(
+      self.portal.software_release_module.re6st.getUrlString())
+    slave_instance = self.portal.software_instance_module.newContent(
+      portal_type="Slave Instance",
+      specialise_value=self.instance_tree
+    )
+    self.instance_tree.setSuccessorValue(slave_instance)
+    self.assertEqual({},
+      self.instance_tree.InstanceTree_getFastInputDict())
+
+  def testInstanceTree_getFastInputDict_slave_frontend(self):
+    self.instance_tree.setRootSlave(True)
+    slave_instance = self.portal.software_instance_module.newContent(
+      portal_type="Slave Instance",
+      specialise_value=self.instance_tree
+    )
+    self.instance_tree.setSuccessorValue(slave_instance)
+    self.instance_tree.setUrlString(
+      self.portal.software_release_module.frontend.getUrlString())
+    self.assertEqual({},
+      self.instance_tree.InstanceTree_getFastInputDict())
+
+  def testInstanceTree_getFastInputDict_re6st(self):
+    self.instance_tree.setUrlString(
+      self.portal.software_release_module.re6st.getUrlString())
+    software_instance = self.portal.software_instance_module.newContent(
+      portal_type="Software Instance",
+      specialise_value=self.instance_tree,
+      reference="TESTSOFTINST-%s" % self.generateNewId()
+    )
+    self.instance_tree.setSuccessorValue(software_instance)
+    self.instance_tree.setUrlString(
+      self.portal.software_release_module.re6st.getUrlString())
+    self.assertEqual({
+      'enabled': True,
+      'sla_xml': '<parameter id="instance_guid">%s</parameter>' % software_instance.getReference()
+    }, self.instance_tree.InstanceTree_getFastInputDict())
+
+  def testInstanceTree_getFastInputDict_frontend(self):
+    software_instance = self.portal.software_instance_module.newContent(
+      portal_type="Software Instance",
+      specialise_value=self.instance_tree,
+      reference="TESTSOFTINST-%s" % self.generateNewId()
+    )
+    self.instance_tree.setSuccessorValue(software_instance)
+    self.instance_tree.setUrlString(
+      self.portal.software_release_module.frontend.getUrlString())
+    self.assertEqual({
+      'enabled': True,
+      'sla_xml': '<parameter id="instance_guid">%s</parameter>' % software_instance.getReference()
+    }, self.instance_tree.InstanceTree_getFastInputDict())

@@ -53,6 +53,8 @@ if sys.version_info < (2, 6):
   warnings.warn('Used python version (%s) is old and has problems with'
       ' IPv6 connections' % sys.version.split('\n')[0])
 
+import requests
+
 from lxml import etree
 
 from slapos import manager as slapmanager
@@ -69,7 +71,8 @@ from slapos.grid.SlapObject import Software, Partition
 from slapos.grid.svcbackend import (launchSupervisord,
                                     createSupervisordConfiguration,
                                     _getSupervisordConfigurationDirectory,
-                                    _getSupervisordSocketPath)
+                                    _getSupervisordSocketPath,
+                                    getSupervisorRPC)
 from slapos.grid.utils import (md5digest,
                               dropPrivileges,
                               SlapPopen,
@@ -90,6 +93,7 @@ COMPUTER_PARTITION_STOPPED_STATE = 'stopped'
 SLAPGRID_SUCCESS = 0
 SLAPGRID_FAIL = 1
 SLAPGRID_PROMISE_FAIL = 2
+SLAPGRID_OFFLINE_SUCCESS = 3
 PROMISE_TIMEOUT = 20
 
 COMPUTER_PARTITION_TIMESTAMP_FILENAME = '.timestamp'
@@ -1423,6 +1427,12 @@ stderr_logfile_backups=1
     return filtered_computer_partition_list
 
   def processComputerPartitionList(self):
+    try:
+      return self.processComputerPartitionListOnline()
+    except requests.exceptions.HTTPError:
+      return self.processComputerPartitionListOffline()
+
+  def processComputerPartitionListOnline(self):
     """
     Will start supervisord and process each Computer Partition.
     """
@@ -1448,6 +1458,10 @@ stderr_logfile_backups=1
       try:
         # Process the partition itself
         self.processComputerPartition(computer_partition)
+
+      # Handle connection loss at the next level
+      except requests.exceptions.HTTPError:
+        raise
 
       # Send log before exiting
       except (SystemExit, KeyboardInterrupt):
@@ -1504,6 +1518,20 @@ stderr_logfile_backups=1
     if not clean_run_promise:
       return SLAPGRID_PROMISE_FAIL
     return SLAPGRID_SUCCESS
+
+  def processComputerPartitionListOffline(self):
+    self.logger.info('Processing computer partitions offline...')
+    try:
+      supervisord_socket_path = _getSupervisordSocketPath(
+        self.instance_root,
+        self.logger
+      )
+      with getSupervisorRPC(supervisord_socket_path) as supervisor:
+        supervisor.startAllProcesses(False)
+    except Exception:
+      self.logger.exception('Error in offline mode while starting partitions:')
+      return SLAPGRID_FAIL
+    return SLAPGRID_OFFLINE_SUCCESS
 
   def processPromiseList(self):
     """

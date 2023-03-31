@@ -388,7 +388,8 @@ class ComputerForTest(object):
                software_root,
                instance_root,
                instance_amount=1,
-               software_amount=1):
+               software_amount=1,
+               status_code=200):
     """
     Will set up instances, software and sequence
     """
@@ -397,6 +398,7 @@ class ComputerForTest(object):
     self.software_amount = software_amount
     self.software_root = software_root
     self.instance_root = instance_root
+    self.status_code = status_code
     self.ip_address_list = [
             ('interface1', '10.0.8.3'),
             ('interface2', '10.0.8.4'),
@@ -425,18 +427,18 @@ class ComputerForTest(object):
             and 'computer_id' in qs):
       slap_computer = self.getComputer(qs['computer_id'][0])
       return {
-              'status_code': 200,
+              'status_code': self.status_code,
               'content': dumps(slap_computer)
               }
     elif url.path == '/getHostingSubscriptionIpList':
       ip_address_list = self.ip_address_list
       return {
-              'status_code': 200,
+              'status_code': self.status_code,
               'content': dumps(ip_address_list)
               }
     elif url.path == '/getComputerPartitionCertificate':
       return {
-              'status_code': 200,
+              'status_code': self.status_code,
               'content': dumps({'certificate': 'SLAPOS_cert', 'key': 'SLAPOS_key'})
               }
     if req.method == 'POST' and 'computer_partition_id' in qs:
@@ -445,17 +447,17 @@ class ComputerForTest(object):
       instance.header_list.append(req.headers)
       if url.path == '/startedComputerPartition':
         instance.state = 'started'
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/stoppedComputerPartition':
         instance.state = 'stopped'
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/destroyedComputerPartition':
         instance.state = 'destroyed'
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/softwareInstanceBang':
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == "/updateComputerPartitionRelatedInstanceList":
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/softwareInstanceError':
         instance.error_log = '\n'.join(
             [
@@ -465,18 +467,18 @@ class ComputerForTest(object):
             ]
         )
         instance.error = True
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
 
     elif req.method == 'POST' and 'url' in qs:
       # XXX hardcoded to first software release!
       software = self.software_list[0]
       software.sequence.append(url.path)
       if url.path == '/availableSoftwareRelease':
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/buildingSoftwareRelease':
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/destroyedSoftwareRelease':
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/softwareReleaseError':
         software.error_log = '\n'.join(
             [
@@ -486,7 +488,7 @@ class ComputerForTest(object):
             ]
         )
         software.error = True
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
 
     else:
       return {'status_code': 500}
@@ -1021,6 +1023,69 @@ exit 1
                         '/stoppedComputerPartition'])
       self.assertEqual('stopped', instance.state)
 
+  def test_one_partition_started_no_master(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, status_code=503)
+    with httmock.HTTMock(computer.request_handler):
+      partition = computer.instance_list[0]
+      partition.requested_state = 'started'
+      partition.software.setBuildout()
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_OFFLINE_SUCCESS)
+      self.assertInstanceDirectoryListEqual(['0'])
+      six.assertCountEqual(self, os.listdir(partition.partition_path), []) # buildout hasn't run
+      six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
+      self.assertEqual(computer.sequence, ['/getFullComputerInformation'])
+      self.assertEqual(partition.state, None)
+
+  def test_one_partition_started_after_master_connection_loss(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    partition = computer.instance_list[0]
+    partition.requested_state = 'started'
+    partition.software.setBuildout()
+    run_path = os.path.join(partition.partition_path, 'etc', 'run')
+    os.makedirs(run_path)
+    with open(os.path.join(run_path, 'runner'), 'w') as f:
+      f.write("#!/bin/sh\necho 'Working'\ntouch 'runner_worked'")
+      os.fchmod(f.fileno(), 0o755)
+
+    runner_worked_file = os.path.join(partition.partition_path, 'runner_worked')
+    def assertRunnerWorked():
+      for _ in range(50):
+        if os.path.exists(runner_worked_file):
+          break
+        time.sleep(0.1)
+      else:
+        self.assertTrue(os.path.exists(runner_worked_file))
+
+    with httmock.HTTMock(computer.request_handler):
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertInstanceDirectoryListEqual(['0'])
+      assertRunnerWorked()
+      six.assertCountEqual(self, os.listdir(partition.partition_path),
+                            ['.slapgrid', '.0_runner.log', 'buildout.cfg', 'etc',
+                             'runner_worked', 'software_release', 'worked',
+                             '.slapos-retention-lock-delay'])
+      runner_log_path = os.path.join(partition.partition_path, '.0_runner.log')
+      with open(runner_log_path) as f:
+        runner_log = f.read()
+      self.assertEqual(runner_log, 'Working\n')
+      self.assertEqual(partition.state, 'started')
+
+    computer.status_code = 503 # connection loss
+    os.unlink(runner_worked_file)
+
+    with httmock.HTTMock(computer.request_handler):
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_OFFLINE_SUCCESS)
+      self.assertInstanceDirectoryListEqual(['0'])
+      assertRunnerWorked()
+      with open(runner_log_path) as f:
+        runner_log = f.read()
+      self.assertEqual(runner_log, 'Working\n' * 2)
+      self.assertEqual(computer.sequence, [
+        '/getFullComputerInformation',
+        '/getComputerPartitionCertificate',
+        '/startedComputerPartition',
+        '/getComputerPartitionCertificate' # /getFullComputerInformation is cached
+      ])
 
 class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
 

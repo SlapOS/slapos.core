@@ -687,7 +687,6 @@ class Partition(object):
                          logger=self.logger,
                          debug=self.buildout_debug,
                          timeout=self.partition_timeout)
-    self.updateSupervisorConfiguration()
     self.createRetentionLockDelay()
     self.instance_python = getPythonExecutableFromSoftwarePath(self.software_path)
 
@@ -784,6 +783,7 @@ class Partition(object):
     """Asks supervisord to start the instance. If this instance is not
     installed, we install it.
     """
+    self.updateSupervisorConfiguration()
     partition_id = self.partition_id
     try:
       with self.getSupervisorRPC() as supervisor:
@@ -799,15 +799,16 @@ class Partition(object):
   def stop(self):
     """Asks supervisord to stop the instance."""
     partition_id = self.partition_id
+    filename = partition_id + '.conf'
+    filepath = os.path.join(
+      self.supervisord_partition_configuration_dir, filename)
     try:
-      with self.getSupervisorRPC() as supervisor:
-        supervisor.stopProcessGroup(partition_id, False)
-    except xmlrpclib.Fault as exc:
-      if exc.faultString.startswith('BAD_NAME:'):
-        self.logger.info('Partition %s not known in supervisord, ignoring' % partition_id)
-      else:
+      os.unlink(filepath)
+    except OSError as e:
+      if e.errno != errno.ENOENT:
         raise
     else:
+      self.updateSupervisor()
       self.logger.info("Requested stop of %s..." % partition_id)
 
   def destroy(self):

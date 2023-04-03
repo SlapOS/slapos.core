@@ -662,6 +662,7 @@ class TestCliInfo(CliMixin):
       conn_params = '<instance>\n  <parameter id="_">%s</parameter>\n</instance>' % json.dumps(conn)
     instance = slapos.slap.SoftwareInstance(
       _software_release_url='SR1',
+      _source_reference='mytype',
       _requested_state='mystate',
       _connection_dict=conn_params,
       _parameter_dict={'myinstanceparameter': 'value2'})
@@ -682,6 +683,7 @@ class TestCliInfo(CliMixin):
     if six.PY3:
       expected = {
         "software-url": instance._software_release_url,
+        "software-type": instance._source_reference,
         "requested-state": instance._requested_state,
         "instance-parameters": instance._parameter_dict,
         "connection-parameters": {

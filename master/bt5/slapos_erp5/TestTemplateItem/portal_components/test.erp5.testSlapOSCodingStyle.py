@@ -255,6 +255,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_hal_json_style/Person_getAssignmentDestinationList',
         'slapos_hal_json_style/Person_getCloudContractRelated',
         'slapos_hal_json_style/Person_requestComputeNode',
+        'slapos_hal_json_style/Person_requestComputer',
         'slapos_hal_json_style/Person_requestHateoasInstanceTree',
         'slapos_hal_json_style/Person_requestSupport',
         'slapos_hal_json_style/Project_acceptInvitation',

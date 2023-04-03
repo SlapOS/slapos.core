@@ -1029,18 +1029,35 @@ class TestBase_getComputeNodeToken(TestSlapOSHalJsonStyleMixin):
     self.login(person.getUserId())
     token_dict = json.loads(base.Base_getComputeNodeToken())
 
-    self.assertSameSet(token_dict.keys(), ['access_token', 'command_line',
-                                    'slapos_master_web', 'slapos_master_api'])
+    self.assertSameSet(
+      token_dict.keys(), 
+      [
+        'compute_node_id', 'certificate_url_access', 
+        'initialisation_comand', '$schema',
+        'access_token',
+        'command_line',
+        'slapos_master_api',
+        'slapos_master_web',
+      ]
+    )
 
+    self.assertEqual(token_dict['initialisation_comand'], "wget https://deploy.erp5.net/slapos ; bash slapos")
     self.assertEqual(token_dict['command_line'], "wget https://deploy.erp5.net/slapos ; bash slapos")
-    self.assertIn("%s-" % (DateTime().strftime("%Y%m%d")) , token_dict['access_token'])
+    self.assertIn("%s-" % (DateTime().strftime("%Y%m%d")) , token_dict['certificate_url_access'])
     self.assertEqual(token_dict['slapos_master_api'], "https://slap.vifib.com")
     self.assertEqual(token_dict['slapos_master_web'], slapos_master_web_url)
-    
-    self.login()
-    token = self.portal.access_token_module[token_dict["access_token"]]
 
-    self.assertIn("/Person_requestComputer", token.getUrlString())
+    compute_node = self.portal.compute_node_module.restrictedTraverse(token_dict["access_token"].split("/")[-2].encode())
+    self.assertEqual(token_dict['compute_node_id'], compute_node.getReference())
+    self.assertTrue(token_dict['$schema'].endswith("portal_types/Compute%20Node/getTextContent"))
+   
+    self.login()
+    token = self.portal.access_token_module[token_dict["access_token"].split("/")[-1]]
+
+    self.assertIn(
+      "%s/ComputeNode_approveComputer" % compute_node.getRelativeUrl(),
+      token.getUrlString()
+    )
 
     self.assertEqual(token.getAgentValue(), person)
     self.assertEqual("One Time Restricted Access Token", token.getPortalType())

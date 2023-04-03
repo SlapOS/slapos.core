@@ -6,7 +6,7 @@ if context.getRootSlave():
   return {}
 
 for sr_string in ['software/re6stnet/', 'software/caddy-frontend/']:
-  if sr_string in context.getUrlString(''):
+  if context.getSuccessorReference() is not None and sr_string in context.getUrlString(''):
     return {
       'enabled': True,
       'sla_xml': '<parameter id="instance_guid">%s</parameter>' % context.getSuccessorReference()

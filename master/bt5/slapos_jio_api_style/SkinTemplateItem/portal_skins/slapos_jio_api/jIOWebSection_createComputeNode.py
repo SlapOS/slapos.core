@@ -38,15 +38,12 @@ response.setHeader('Content-Type', "application/json")
 return json.dumps({
   "$schema": context.getPortalObject().portal_types.restrictedTraverse(compute_node.getPortalType()).absolute_url()
     + "/getTextContent",
-  "title" : compute_node.getTitle(),
-  "id" : compute_node.getRelativeUrl(),
-  "reference": compute_node.getReference(),
+  "compute_node_id" : compute_node.getReference(),
   "access_token": "V2/" + compute_node.getId() + "/" + access_token_id,
   "certificate_url_access": request_url,
   "initialisation_comand": compute_node_install_command_line,
   "slapos_master_web": slapos_master_web_url,
   "slapos_master_api": slapos_master_api,
-  "modification_date": compute_node.getModificationDate().HTML4(),
   # Kept for backward compatibility
   "command_line": compute_node_install_command_line,
 }, indent=2)

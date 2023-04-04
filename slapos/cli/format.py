@@ -125,4 +125,4 @@ class FormatCommand(ConfigCommand):
 
         tracing_monkeypatch(conf)
 
-        do_format(conf=conf)
+        return do_format(conf=conf)

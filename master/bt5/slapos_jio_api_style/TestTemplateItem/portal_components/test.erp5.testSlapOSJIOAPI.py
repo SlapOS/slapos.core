@@ -1288,6 +1288,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJIOAPIMixin):
 
   def test_31_getInstanceWithSharedInstance(self, with_slave=True):
     self._makeComplexComputeNode(person=self.person, with_slave=with_slave)
+    self.callUpdateRevisionAndTic()
     instance = self.start_requested_software_instance
     self.login(self.person_user_id)
     instance_dict = self.getToApi({
@@ -1493,6 +1494,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJIOAPIMixin):
     self._makeComplexComputeNode(person=self.person)
     instance = self.start_requested_software_instance
     instance.updateLocalRolesOnSecurityGroups()
+    self.callUpdateRevision()
     self.tic()
     self.login(self.person_user_id)
     instance_dict = self.postToApi({

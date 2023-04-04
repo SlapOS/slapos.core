@@ -40,7 +40,10 @@ from netaddr import valid_ipv4, valid_ipv6
 from slapos.cli.command import check_root_user
 from slapos.cli.entry import SlapOSApp
 from slapos.cli.config import ConfigCommand
-from slapos.format import isGlobalScopeAddress
+from slapos.format import (
+  isGlobalScopeAddress, FORMAT_SUCCESS,
+  FORMAT_FAILURE, FORMAT_OFFLINE_SUCCESS
+)
 from slapos.util import string_to_boolean
 import argparse
 import logging
@@ -65,10 +68,7 @@ def _runBang(app):
     Launch slapos node format.
     """
     logger.info("[BOOT] Invoking slapos node bang...")
-    result = app.run(['node', 'bang', '-m', 'Reboot'])
-    if result == 1:
-      return 0
-    return 1
+    return app.run(['node', 'bang', '-m', 'Reboot'])
 
 
 def _runFormat(app):
@@ -76,10 +76,7 @@ def _runFormat(app):
     Launch slapos node format.
     """
     logger.info("[BOOT] Invoking slapos node format...")
-    result = app.run(['node', 'format', '--now', '--verbose'])
-    if result == 1:
-      return 0
-    return 1
+    return app.run(['node', 'format', '--now', '--verbose'])
 
 
 def _ping(hostname):
@@ -139,6 +136,16 @@ def _ping_hostname(hostname):
       is_ready = _ping6(hostname)
 
 
+def _ping_master(master_hostname):
+  if valid_ipv4(master_hostname):
+    _test_ping(master_hostname)
+  elif valid_ipv6(master_hostname):
+    _test_ping6(master_hostname)
+  else:
+    # hostname
+    _ping_hostname(master_hostname)
+
+
 def _waitIpv6Ready(ipv6_interface):
   """
     test if ipv6 is ready on ipv6_interface
@@ -153,6 +160,7 @@ def _waitIpv6Ready(ipv6_interface):
     logger.error("[BOOT] No IPv6 found on interface %r, "
           "try again in 5 seconds...", ipv6_interface)
     sleep(5)
+
 
 class BootCommand(ConfigCommand):
     """
@@ -196,23 +204,31 @@ class BootCommand(ConfigCommand):
         if ipv6_interface is not None:
             _waitIpv6Ready(ipv6_interface)
 
-        # Check that node can ping master
-        if valid_ipv4(master_hostname):
-            _test_ping(master_hostname)
-        elif valid_ipv6(master_hostname):
-            _test_ping6(master_hostname)
-        else:
-            # hostname
-            _ping_hostname(master_hostname)
-
         app = SlapOSApp()
-        # Make sure slapos node format returns ok
-        while not _runFormat(app):
-            logger.error("[BOOT] Fail to format, try again in 15 seconds...")
-            sleep(15)
+        while True:
+            # Make sure slapos node format returns ok
+            result = _runFormat(app)
+
+            if result == FORMAT_FAILURE:
+                logger.error("[BOOT] Fail to format, try again in 15 seconds...")
+                sleep(15)
+                continue
+
+            if result == FORMAT_OFFLINE_SUCCESS:
+                logger.error(
+                    "[BOOT] Fail to post format information"
+                    ", try again when connection to master is up..."
+                )
+                sleep(15)
+                _ping_master(master_hostname)
+                continue
+
+            # Ensure node can ping master
+            _ping_master(master_hostname)
+            break
 
         # Make sure slapos node bang returns ok
-        while not _runBang(app):
+        while _runBang(app):
             logger.error("[BOOT] Fail to bang, try again in 15 seconds...")
             sleep(15)
 

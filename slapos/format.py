@@ -58,6 +58,8 @@ import six
 import lxml.etree
 import xml_marshaller.xml_marshaller
 
+from requests.exceptions import HTTPError
+
 from slapos.util import (dumps, mkdir_p, ipv6FromBin, binFromIpv6,
                         lenNetmaskIpv6, getPartitionIpv6Addr,
                         getPartitionIpv6Range, getTapIpv6Range,
@@ -66,6 +68,11 @@ from slapos.util import (dumps, mkdir_p, ipv6FromBin, binFromIpv6,
 import slapos.slap as slap
 from slapos import version
 from slapos import manager as slapmanager
+
+
+FORMAT_SUCCESS = 0
+FORMAT_FAILURE = 1
+FORMAT_OFFLINE_SUCCESS = 2
 
 
 logger = logging.getLogger("slapos.format")
@@ -1579,39 +1586,50 @@ def random_delay(conf):
 
 
 def do_format(conf):
-  random_delay(conf)
+  try:
+    random_delay(conf)
 
-  if conf.input_definition_file:
-    computer = parse_computer_definition(conf, conf.input_definition_file)
-  else:
-    # no definition file, figure out computer
-    computer = parse_computer_xml(conf, conf.computer_xml)
+    if conf.input_definition_file:
+      computer = parse_computer_definition(conf, conf.input_definition_file)
+    else:
+      # no definition file, figure out computer
+      computer = parse_computer_xml(conf, conf.computer_xml)
 
-  computer.instance_storage_home = conf.instance_storage_home
-  conf.logger.info('Updating computer')
-  address = computer.getAddress()
-  computer.address = address['addr']
-  computer.netmask = address['netmask']
+    computer.instance_storage_home = conf.instance_storage_home
+    conf.logger.info('Updating computer')
+    address = computer.getAddress()
+    computer.address = address['addr']
+    computer.netmask = address['netmask']
 
-  if conf.output_definition_file:
-    write_computer_definition(conf, computer)
+    if conf.output_definition_file:
+      write_computer_definition(conf, computer)
 
-  computer.format(alter_user=conf.alter_user,
-                     alter_network=conf.alter_network,
-                     create_tap=conf.create_tap)
+    computer.format(alter_user=conf.alter_user,
+                      alter_network=conf.alter_network,
+                      create_tap=conf.create_tap)
 
-  if getattr(conf, 'certificate_repository_path', None):
-    mkdir_p(conf.certificate_repository_path, mode=0o700)
+    if getattr(conf, 'certificate_repository_path', None):
+      mkdir_p(conf.certificate_repository_path, mode=0o700)
 
-  computer.update()
-  # Dumping and sending to the erp5 the current configuration
-  if not conf.dry_run:
-    computer.dump(path_to_xml=conf.computer_xml,
-                  path_to_json=conf.computer_json,
-                  logger=conf.logger)
-  conf.logger.info('Posting information to %r' % conf.master_url)
-  computer.send(conf)
-  conf.logger.info('slapos successfully prepared the computer.')
+    computer.update()
+    # Dumping and sending to the erp5 the current configuration
+    if not conf.dry_run:
+      computer.dump(path_to_xml=conf.computer_xml,
+                    path_to_json=conf.computer_json,
+                    logger=conf.logger)
+    conf.logger.info('Posting information to %r' % conf.master_url)
+    try:
+      computer.send(conf)
+      return FORMAT_SUCCESS
+    except Exception:
+      conf.logger.exception('failed to transfer information to %r' % conf.master_url)
+      return FORMAT_OFFLINE_SUCCESS
+    finally:
+      conf.logger.info('slapos successfully prepared the computer.')
+  except Exception:
+    conf.logger.exception('slapos failed to prepare the computer.')
+    return FORMAT_FAILURE
+
 
 
 class FormatConfig(object):

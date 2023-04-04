@@ -13,5 +13,4 @@ test.erp5.testSlapOSCloudConstraint
 test.erp5.testSlapOSCloudUpgrader
 test.erp5.testSlapOSCloudShadow
 test.erp5.SlapOSTestCaseMixin
-test.erp5.SlapOSTestCaseDefaultScenarioMixin
 test.erp5.testSlapOSCloud

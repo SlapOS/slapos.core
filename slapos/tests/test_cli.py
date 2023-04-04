@@ -436,8 +436,9 @@ class TestCliBoot(CliMixin):
 
       # run slapos node boot
       app = slapos.cli.entry.SlapOSApp()
+      fake = mock.Mock(return_value=mock.Mock(**{'run.return_value': 0}))
       with patch('slapos.cli.boot.check_root_user', return_value=True) as check_root_user,\
-          patch('slapos.cli.boot.SlapOSApp') as SlapOSApp,\
+          patch('slapos.cli.boot.SlapOSApp', new=fake) as SlapOSApp,\
           patch('slapos.cli.boot.ConfigCommand.config_path', return_value=slapos_conf.name), \
           patch(
               'slapos.cli.boot.netifaces.ifaddresses',
@@ -477,8 +478,8 @@ class TestCliBoot(CliMixin):
         patch('slapos.cli.format.check_root_user', return_value=True),\
         patch('slapos.cli.format.logging.FileHandler', return_value=logging.NullHandler()),\
         patch('slapos.cli.bang.check_root_user', return_value=True),\
-        patch('slapos.cli.format.do_format', side_effect=[Exception, Exception, None]) as do_format,\
-        patch('slapos.cli.bang.do_bang', side_effect=[Exception, Exception, None]) as do_bang:
+        patch('slapos.cli.format.do_format', side_effect=[Exception, Exception, 0]) as do_format,\
+        patch('slapos.cli.bang.do_bang', side_effect=[Exception, Exception, 0]) as do_bang:
 
       app.run(('node', 'boot'))
 

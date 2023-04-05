@@ -490,6 +490,18 @@
           });
         })
         .push(function () {
+          var fast_input_dict = {
+            command: "display",
+            options: {
+              page: "slap_intent",
+              intent: "request",
+              shared: 1,
+              sofware_type: gadget.state.doc.source_reference,
+              software_release:  gadget.state.doc.url_string,
+              sla_xml: gadget.state.doc.fast_input_dict.sla_xml,
+              strict: "True"
+            }
+          };
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {editable: true}}),
             gadget.getUrlFor({command: "change", options: {"page": "slap_add_related_ticket"}}),
@@ -498,7 +510,8 @@
             gadget.getUrlFor({command: "change", options: {"page": "slap_destroy_instance_tree"}}),
             gadget.getUrlFor({command: "change", options: {page: "slap_rss_ticket"}}),
             gadget.getUrlFor({command: 'history_previous'}),
-            gadget.getUrlFor({command: "change", options: {page: "slap_transfer_instance_tree"}})
+            gadget.getUrlFor({command: "change", options: {page: "slap_transfer_instance_tree"}}),
+            gadget.getUrlFor(fast_input_dict)
           ]);
         })
         .push(function (url_list) {
@@ -516,6 +529,9 @@
           }
           if (gadget.state.doc.slap_state === "stop_requested") {
             header_dict.start_url = url_list[2];
+          }
+          if (gadget.state.doc.fast_input_dict.enabled !== undefined) {
+            header_dict.fast_input_url = url_list[8];
           }
           if (!gadget.state.editable) {
             header_dict.edit_content = url_list[0];

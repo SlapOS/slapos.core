@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>software_product_reference=None, software_release_url=None, strict=None</string> </value>
+            <value> <string>**kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SoftwareProduct_getSortedSoftwareReleaseList</string> </value>
+            <value> <string>InstanceTree_getFastInputDict</string> </value>
         </item>
       </dictionary>
     </pickle>

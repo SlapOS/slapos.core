@@ -14,6 +14,9 @@ if software_product_reference is None:
     )
   if not software_release:
     return []
+  
+  if strict:
+    return [software_release]
 
   software_product_reference = software_release.getAggregateReference()
   if not software_product_reference:

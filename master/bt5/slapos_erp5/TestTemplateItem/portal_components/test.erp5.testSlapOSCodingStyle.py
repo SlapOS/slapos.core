@@ -68,7 +68,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
 
       CodingStyleTestCase.coverage_ignore_path_list = [
         'erp5_interaction_drop/InvoiceTransaction_postGeneration',
-        'erp5_interaction_drop/OpenOrderLine_updateSimulation',
         'slapos_cloud/AlarmTool_checkComputeNodeMigrationConsistency',
         'slapos_cloud/AlarmTool_checkInstanceTreeMigrationConsistency',
         'slapos_cloud/AlarmTool_checkPredecessorToSuccessorMigrationConsistency',

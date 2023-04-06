@@ -133,11 +133,9 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_crm_monitoring/ComputeNodeModule_getComputeNodeTicketReportList',
         'slapos_crm_monitoring/ComputeNodeModule_getComputeNodeTicketReportSectionList',
         'slapos_crm_monitoring/ComputeNode_checkInstanceOnCloseAllocation',
-        'slapos_crm_monitoring/ComputeNode_getRelatedSupportRequestList',
         'slapos_crm_monitoring/InstanceTreeModule_getResilienceUsageReportList',
         'slapos_crm_monitoring/InstanceTreeModule_getResilienceUsageReportSectionList',
         'slapos_crm_monitoring/InstanceTreeModule_getUsageReportList',
-        'slapos_crm_monitoring/Person_hasRequiredRole',
         'slapos_crm_monitoring/SiteMessage_setSlapOSUserSourceAndDestinatationList',
         'slapos_crm_monitoring/SupportRequestModule_exportMonitoringOPMLDescriptionList',
         'slapos_crm_monitoring/SupportRequestModule_getInstanceMessageList',
@@ -174,7 +172,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_simulation/SimulationMovement_testPaymentSimulationRule',
         'slapos_simulation/SimulationMovement_testTradeModelSimulationRule',
         'slapos_accounting/Base_testSlapOSValidTradeCondition',
-        'slapos_accounting/ERP5Site_zGetOpenOrderWithModifiedLineUid',
         'slapos_accounting/OrderBuilder_generateSlapOSAggregatedMovementList',
         'slapos_accounting/OrderBuilder_selectSlapOSAggregatedDeliveryList',
         'slapos_accounting/PaymentTransaction_getExternalPaymentId',
@@ -250,7 +247,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_hal_json_style/Organisation_hasItem',
         'slapos_hal_json_style/PasswordTool_changeUserPassword',
         'slapos_hal_json_style/PaymentTransaction_redirectToManualFreePayment',
-        'slapos_hal_json_style/PaymentTransaction_redirectToManualSlapOSPayment',
         'slapos_hal_json_style/Person_getAssignmentDestinationList',
         'slapos_hal_json_style/Person_getCloudContractRelated',
         'slapos_hal_json_style/Person_requestComputeNode',
@@ -278,7 +274,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_administration/ActivityTool_zGetDateForSQLQueueMessage',
         'slapos_administration/Base_checkStoredBrokenState',
         'slapos_administration/ERP5Site_adjustProductionClone',
-        'slapos_administration/ERP5Site_assertDumpedConfiguration',
         'slapos_administration/ERP5Site_cleanUnusedSecurityUid',
         'slapos_administration/ERP5Site_getSecurityUidStat',
         'slapos_administration/ERP5Site_updateAllLocalRolesOnSecurityGroupsForSlapOS',
@@ -333,7 +328,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_disaster_recovery/ERP5Site_recoverFromRestoration',
         'slapos_disaster_recovery/ERP5Site_reindexOrUnindexDocumentList',
         'slapos_disaster_recovery/ERP5Site_unindexDeletedDocumentList',
-        'slapos_base/Base_acceptContractInvitation',
         'slapos_base/ERP5Login_isLoginBlocked',
         'slapos_base/ERP5Login_isPasswordExpired',
         'slapos_base/Login_getFastExpirationReferenceList',
@@ -362,6 +356,38 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
       # This method is not used to install business templates in live test, but
       # we define it for CodingStyleTestCase.test_PythonSourceCode
       return ('erp5_administration', )
+
+
+    def test_ReviewPythonScriptTestCoverageIgnoreList(self):
+      content_dict = {}
+      for test_component in self.portal.portal_components.searchFolder(
+          portal_type='Test Component'):
+        if "Slap" not in test_component.getId() or \
+            "testSlapOSCodingStyle" in test_component.getId():
+          continue
+        content_dict[test_component.getId()] = test_component.getTextContent()
+
+      self.assertNotEqual(len(content_dict), 0)
+
+      skin_id_set = set()
+      for business_template in self._getTestedBusinessTemplateValueList():
+        skin_id_set.update(business_template.getTemplateSkinIdList())
+
+      skin_id_list = list(skin_id_set)
+      message_list = []
+      for skin_path in self.coverage_ignore_path_list:
+        skin_id, document_id = skin_path.split("/")
+        if skin_id in skin_id_list:
+          try:
+            document = self.portal.portal_skins[skin_id][document_id]
+            for _, content in content_dict.iteritems():
+              if document.getId() in content:
+                message_list.append(skin_path)
+                break
+          except KeyError:
+            message_list.append(skin_path)
+
+      self.assertEqual([], message_list)
 
     def test_PythonScriptTestCoverage(self):
       content_dict = {}

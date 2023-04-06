@@ -19,7 +19,7 @@
 #
 ##############################################################################
 
-from erp5.component.test.SlapOSTestCaseDefaultScenarioMixin import DefaultScenarioMixin
+from erp5.component.test.SlapOSTestCaseDefaultScenarioMixin import DefaultScenarioMixin, DefaultScenarioMixinSlapTool
 from erp5.component.test.SlapOSTestCaseMixin import changeSkin
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 
@@ -1622,9 +1622,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     try:
       self.login(self.normal_user.getUserId())
       self.personRequestInstanceNotReady(
-        software_release=self.subscription_condition.getUrlString(),
+        software_release_uri=self.subscription_condition.getUrlString(),
         software_type="default",
-        partition_reference="_test_subscription_scenario_with_existing_user_extra_instance",
+        title="_test_subscription_scenario_with_existing_user_extra_instance",
       )
   
       self.non_subscription_related_instance_amount = 1
@@ -1838,3 +1838,9 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # Messages are in english, when subscribed via english website. Even if the chinese language is
     # defined at user level.
     self._test_subscription_scenario_with_existing_user(amount=1, language="zh")
+
+class TestSlapOSSubscriptionScenarioSlapTool(
+  TestSlapOSSubscriptionScenario,
+  DefaultScenarioMixinSlapTool
+):
+  pass

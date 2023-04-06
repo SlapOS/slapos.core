@@ -20,6 +20,7 @@
 ##############################################################################
 
 from erp5.component.test.testSlapOSSubscriptionScenario import TestSlapOSSubscriptionScenarioMixin
+from erp5.component.test.SlapOSTestCaseDefaultScenarioMixin import DefaultScenarioMixinSlapTool
 
 class TestSlapOSSubscriptionCDNScenarioMixin(TestSlapOSSubscriptionScenarioMixin):
 
@@ -66,18 +67,18 @@ class TestSlapOSSubscriptionCDNScenarioMixin(TestSlapOSSubscriptionScenarioMixin
 
     self.login(self.admin_user.getUserId())
     self.personRequestInstanceNotReady(
-      software_release=self.subscription_condition.getUrlString(),
+      software_release_uri=self.subscription_condition.getUrlString(),
       software_type=self.subscription_condition.getSourceReference(),
-      partition_reference="InstanceForSlave%s" % self.new_id
+      title="InstanceForSlave%s" % self.new_id
     )
 
     self.stepCallSlaposAllocateInstanceAlarm()
     self.tic()
 
     self.personRequestInstance(
-      software_release=self.subscription_condition.getUrlString(),
+      software_release_uri=self.subscription_condition.getUrlString(),
       software_type=self.subscription_condition.getSourceReference(),
-      partition_reference="InstanceForSlave%s" % self.new_id
+      title="InstanceForSlave%s" % self.new_id
     )
 
     # now instantiate it on compute_node and set some nice connection dict
@@ -117,3 +118,9 @@ class TestSlapOSSubscriptionCDNScenario(TestSlapOSSubscriptionCDNScenarioMixin):
     # Messages are in chinese, when subscribed via chinese website. Even if the english language is
     # english
     self._test_subscription_scenario_with_existing_user(amount=1, language="zh")
+
+class TestSlapOSSubscriptionCDNScenarioSlapTool(
+  TestSlapOSSubscriptionCDNScenario,
+  DefaultScenarioMixinSlapTool
+):
+  pass

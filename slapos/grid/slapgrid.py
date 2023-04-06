@@ -43,6 +43,7 @@ import json
 import shutil
 import six
 import errno
+import pwd
 
 if six.PY3:
   import subprocess
@@ -73,7 +74,8 @@ from slapos.grid.svcbackend import (launchSupervisord,
 from slapos.grid.utils import (md5digest,
                               dropPrivileges,
                               SlapPopen,
-                              updateFile)
+                              updateFile,
+                              getCleanEnvironment)
 from slapos.grid.promise import PromiseLauncher, PromiseError
 from slapos.grid.promise.generic import PROMISE_LOG_FOLDER_NAME
 from slapos.human import human2bytes
@@ -754,6 +756,8 @@ stderr_logfile_backups=1
         command,
         preexec_fn=preexec_fn,
         cwd=instance_path,
+        env=getCleanEnvironment(self.logger,
+          home_path=pwd.getpwuid(uid).pw_dir),
         universal_newlines=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -1694,7 +1698,8 @@ stderr_logfile_backups=1
           process_handler = SlapPopen(invocation_list,
                                       preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
                                       cwd=os.path.join(instance_path, 'etc', 'report'),
-                                      env=None,
+                                      env=getCleanEnvironment(self.logger,
+                                        home_path=pwd.getpwuid(uid).pw_dir),
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.STDOUT,
                                       logger=self.logger)

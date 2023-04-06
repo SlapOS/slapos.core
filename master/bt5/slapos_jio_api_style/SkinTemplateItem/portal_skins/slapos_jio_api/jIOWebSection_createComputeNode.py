@@ -11,7 +11,6 @@ if person is None:
 
 request_kw = dict(
   compute_node_title=data_dict.get("title", None),
-  approve_registration=False,
 )
 person.requestComputeNode(**request_kw)
 compute_node = context.restrictedTraverse(context.REQUEST.get('compute_node'))

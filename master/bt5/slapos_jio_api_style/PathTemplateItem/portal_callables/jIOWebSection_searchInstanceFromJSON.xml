@@ -70,7 +70,7 @@
                     "const": "Software Instance",\n
                     "type": "string"\n
                   }\n
-                },\n
+                }\n
               },\n
               "reference": {\n
                 "title": "Software Instance Reference",\n

@@ -49,7 +49,7 @@ def SubscriptionRequest_searchExistingUserByEmail(self, email, REQUEST=None):
 
   erp5_login_list = portal.portal_catalog.unrestrictedSearchResults(
     portal_type="ERP5 Login",
-    reference=email,
+    reference={'query': email, 'key': 'ExactMatch'},
     validation_state="validated")
 
   if len(erp5_login_list):
@@ -58,7 +58,7 @@ def SubscriptionRequest_searchExistingUserByEmail(self, email, REQUEST=None):
   # Already has login with this.
   person_list = portal.portal_catalog.unrestrictedSearchResults(
     portal_type="Person",
-    default_email_text=email,
+    default_email_text={'query': email, 'key': 'ExactMatch'},
     validation_state="validated")
 
   if len(person_list):

@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseDefaultScenarioMixin import DefaultScenarioMixin
+from erp5.component.test.SlapOSTestCaseDefaultScenarioMixin import DefaultScenarioMixin, DefaultScenarioMixinSlapTool
 from DateTime import DateTime
 import re
 
@@ -571,3 +571,6 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
 
     # check final document state
     self.assertPersonDocumentCoverage(person)
+
+class TestSlapOSDefaultScenarioSlapTool(TestSlapOSDefaultScenario, DefaultScenarioMixinSlapTool):
+  pass

@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>data_dict, form_reference</string> </value>
+            <value> <string>data_dict, form_reference, approve_registration=True</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

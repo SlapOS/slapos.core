@@ -690,7 +690,7 @@ class Computer(object):
             partition_ipv6_dict = self.interface.addIPv6Address(partition_index)
             # Avoid leaking prefixlen in dumped data because it is not loaded
             # otherwise format dumps a different result after the first run
-            del partition_ipv6_dict['prefixlen']
+            partition_ipv6_dict.pop('prefixlen', None)
             partition.address_list.append(partition_ipv6_dict)
           else:
             # regenerate list of addresses

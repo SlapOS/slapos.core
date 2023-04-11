@@ -1214,10 +1214,9 @@ class Interface(object):
 
   def _generateRandomIPv6Addr(self, address_dict):
     netmask = address_dict['netmask']
-    netmask_len = lenNetmaskIpv6(netmask)
     r = random.randint(1, 65000)
     addr = ':'.join(address_dict['addr'].split(':')[:-1] + ['%x' % r])
-    socket.inet_pton(socket.AF_INET6, address)
+    socket.inet_pton(socket.AF_INET6, addr)
     return dict(addr=addr, netmask=netmask)
 
   def _generateRandomIPv6Range(self, address_dict, suffix):

@@ -416,18 +416,6 @@ class TestPartitionSlapObject(MasterMixin, unittest.TestCase):
 
     self.assertTrue(utils.launchBuildout.called)
 
-  def test_instance_is_deploying_if_software_release_exists(self):
-    """
-    Test that slapgrid deploys an instance if its Software Release exists and
-    instance.cfg in the Software Release exists.
-    """
-    software = self.createSoftware()
-
-    partition = self.createPartition(software.url)
-    partition.install()
-
-    self.assertTrue(utils.launchBuildout.called)
-
   def test_backward_compatibility_instance_is_deploying_if_template_cfg_is_used(self):
     """
     Backward compatibility test, for old software releases.

@@ -1915,6 +1915,50 @@ echo %s; echo %s; exit 42""" % (line1, line2))
       self.assertFalse(os.path.exists(promise_ran))
       self.assertFalse(instance.sequence)
 
+  def test_supervisor_partition_files_removed_on_stop(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 2, 1)
+    with httmock.HTTMock(computer.request_handler):
+      for i in range(2):
+        instance = computer.instance_list[i]
+        instance.requested_state = 'started'
+        run_dir = os.path.join(instance.partition_path, 'etc', 'run')
+        os.makedirs(run_dir)
+        with open(os.path.join(run_dir, 'runner' + str(i)), 'w'): pass
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+
+      conf_path = os.path.join(self.instance_root, 'etc', 'supervisord.conf.d', '%s.conf')
+      conf0 = conf_path % 0
+      conf1 = conf_path % 1
+      for conf in (conf0, conf1):
+        self.assertTrue(os.path.exists(conf), conf + ' does not exist')
+
+      computer.instance_list[0].requested_state = 'stopped'
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertFalse(os.path.exists(conf0), conf0 + ' still exists')
+      self.assertTrue(os.path.exists(conf1), conf1 + ' does not exist')
+
+      computer.instance_list[0].requested_state = 'started'
+      computer.instance_list[1].requested_state = 'stopped'
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertTrue(os.path.exists(conf0), conf0 + ' does not exist')
+      self.assertFalse(os.path.exists(conf1), conf1 + ' still exists')
+
+      computer.instance_list[0].requested_state = 'stopped'
+      computer.instance_list[1].requested_state = 'stopped'
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+
+      for conf in (conf0, conf1):
+        self.assertFalse(os.path.exists(conf), conf + ' still exists')
+
+      computer.instance_list[0].requested_state = 'started'
+      computer.instance_list[1].requested_state = 'started'
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+
+      for conf in (conf0, conf1):
+        self.assertTrue(os.path.exists(conf), conf + ' does not exist')
+
 
 class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
   """

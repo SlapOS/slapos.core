@@ -513,7 +513,8 @@ class Partition(object):
       new_content = partition_certificate[name]
       old_content = None
       if os.path.exists(path):
-        old_content = open(path).read()
+        with open(path) as f:
+          old_content = f.read()
 
       if old_content != new_content:
         if old_content is None:

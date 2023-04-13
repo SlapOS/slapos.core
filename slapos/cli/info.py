@@ -106,6 +106,7 @@ def do_info(logger, conf, local):
     info = {
         'software-url': instance._software_release_url,
         'software-type': instance._source_reference,
+        'shared': bool(instance._root_slave),
         'requested-state': instance._requested_state,
         'instance-parameters': instance._parameter_dict,
         'connection-parameters': connection_parameter_dict,

@@ -1090,8 +1090,8 @@ def hateoas_partitions(partition_reference):
       '_view': {
         'form_id': {
           'type': 'StringField',
-          'key': 'partition',
-          'default': partition['reference'],
+          'key': 'form_id',
+          'default': 'InstanceTree_viewAsHateoas',
         },
         'my_reference': {
           'type': 'StringField',

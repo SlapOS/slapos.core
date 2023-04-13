@@ -1123,6 +1123,11 @@ def hateoas_partitions(partition_reference):
           'key': 'field_my_source_reference',
           'default': partition['software_type'],
         },
+        'my_root_slave': {
+          'type': 'IntegerField',
+          'key': 'field_my_root_slave',
+          'default': 0,
+        },
       },
     },
     '_links': {

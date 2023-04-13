@@ -1299,6 +1299,7 @@ class TestCliInformation(CliMasterMixin):
       {
         "software-url": "http://sr0//",
         "software-type": "default",
+        "shared": False,
         "requested-state": "started",
         "instance-parameters": {},
         "connection-parameters": {},
@@ -1311,6 +1312,7 @@ class TestCliInformation(CliMasterMixin):
       {
         "software-url": "http://sr1//",
         "software-type": "MyType1",
+        "shared": False,
         "requested-state": "started",
         "instance-parameters": {"couscous": "hello"},
         "connection-parameters": {},

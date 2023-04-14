@@ -1289,6 +1289,16 @@ class TestCliInformation(CliMasterMixin):
       json.loads(output),
       {'MyInstance0': 'http://sr0//', 'MyInstance1': 'http://sr1//', 'MyInstance2': 'http://sr2//'})
 
+  def test_service_list_with_shared(self):
+    self.format_for_number_of_partitions(1)
+    self.request('http://sr0//', None, 'MyHostInstance0', None)
+    self.request('http://sr0//', None, 'MySharedInstance1', None, shared=True)
+    self.request('http://sr0//', None, 'MySharedInstance2', None, shared=True)
+    output = self.cliDoSlapos(('service', 'list'), stderr=subprocess.DEVNULL)
+    self.assertEqual(
+      json.loads(output),
+      {'MyHostInstance0': 'http://sr0//', 'MySharedInstance1': 'http://sr0//', 'MySharedInstance2': 'http://sr0//'})
+
   def test_service_info(self):
     self.format_for_number_of_partitions(3)
     self.request('http://sr0//', None, 'MyInstance0', None)
@@ -1325,6 +1335,38 @@ class TestCliInformation(CliMasterMixin):
       self.fail()
     except subprocess.CalledProcessError as e:
       self.assertIn('Instance MyInstance2 does not exist.', e.output)
+
+  def test_service_info_with_shared(self):
+    self.format_for_number_of_partitions(1)
+    self.request('http://sr0//', 'MyType1', 'MyHostInstance0', None)
+    self.request('http://sr0//', 'MyType1', 'MySharedInstance1', None, shared=True, partition_parameter_kw={'couscous': 'hello'})
+    self.request('http://sr0//', 'MyType1', 'MySharedInstance2', None, shared=True, partition_parameter_kw={'couscous': 'bye'})
+    output0 = self.cliDoSlapos(('service', 'info', 'MySharedInstance1'), stderr=subprocess.DEVNULL)
+    self.assertEqual(
+      json.loads(output0),
+      {
+        "software-url": "http://sr0//",
+        "software-type": "MyType1",
+        "shared": True,
+        "requested-state": "unused",
+        "instance-parameters": {"couscous": "hello"},
+        "connection-parameters": {},
+        "status": "unsupported",
+      },
+    )
+    output1 = self.cliDoSlapos(('service', 'info', 'MySharedInstance2'), stderr=subprocess.DEVNULL)
+    self.assertEqual(
+      json.loads(output1),
+      {
+        "software-url": "http://sr0//",
+        "software-type": "MyType1",
+        "shared": True,
+        "requested-state": "unused",
+        "instance-parameters": {"couscous": "bye"},
+        "connection-parameters": {},
+        "status": "unsupported",
+      },
+    )
 
   def test_invalid_service_names(self):
     invalid_names = ('"MyInstance0', 'MyInstance1"', 'My"Instance2', 'title:="MyInstance3"', 'reference:="MyInstance4"')

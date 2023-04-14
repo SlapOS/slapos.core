@@ -451,7 +451,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     app = self.app
     class TestConnectionHelper:
       def GET(self, path, params=None, headers=None):
-        return app.get(path, query_string=params, data=data).data
+        return app.get(path, query_string=params, headers=headers).data
 
       def POST(self, path, params=None, data=None,
               content_type='application/x-www-form-urlencoded'):

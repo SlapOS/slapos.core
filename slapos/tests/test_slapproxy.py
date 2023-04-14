@@ -1217,8 +1217,9 @@ database_uri = %(rootdir)s/lib/proxy.db
     )
 
   def startProxy(self):
+    logfile = os.path.join(self._rootdir, 'proxy.log')
     self.proxy_process = self.cliDoSlapos(
-      ('proxy', 'start'),
+      ('proxy', 'start', '--log-file', logfile),
       method=subprocess.Popen,
       stdout=subprocess.DEVNULL,
       stderr=subprocess.DEVNULL,

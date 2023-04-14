@@ -1037,6 +1037,29 @@ def busy_root_partitions_list(title=None):
     partitions.append(p)
   return partitions
 
+def busy_root_shared_list(title=None):
+  shared = []
+  query = 'SELECT * FROM %s WHERE asked_by==""'
+  args = []
+  if title:
+    query += ' AND reference=?'
+    args.append('_' + title)
+  for row in execute_db('slave', query, args):
+    host = execute_db('partition', 'SELECT * FROM %s WHERE reference=?', [row['hosted_by']], one=True)
+    if not host:
+      continue
+    for slave_dict in loads(host['slave_instance_list'].encode('utf-8')):
+      if slave_dict['slave_reference'] == row['reference']:
+        break
+    else:
+      continue
+    s = {}
+    s['url_string'] = host['software_release']
+    s['title'] = row['reference'][1:] # root shared are prefixed with _
+    s['relative_url'] = url_for('hateoas_shared', shared_reference=s['title'])
+    shared.append(s)
+  return shared
+
 def computers_list(reference=None):
   computers = []
   query = 'SELECT * FROM %s'
@@ -1066,11 +1089,14 @@ p_computer_info = p_computer_list + ' AND reference:='
 
 def parse_query(query):
   if query == p_service_list:
-    return busy_root_partitions_list()
+    return busy_root_partitions_list() + busy_root_shared_list()
   elif query.startswith(p_service_info):
     title = query[len(p_service_info):]
     if is_valid(title):
-      return busy_root_partitions_list(title.strip('"'))
+      partition = busy_root_partitions_list(title.strip('"'))
+      if partition:
+        return partition
+      return busy_root_shared_list(title.strip('"'))
   elif query == p_computer_list:
     return computers_list()
   elif query.startswith(p_computer_info):
@@ -1084,6 +1110,38 @@ def hateoas_partitions(partition_reference):
   partition = execute_db('partition', 'SELECT * FROM %s WHERE partition_reference=?', [partition_reference], one=True)
   if partition is None:
     abort(404)
+  partition['reference']=partition['partition_reference']
+  return hateoas_service_document(**partition, shared=0)
+
+@app.route('/hateoas/shared/<shared_reference>', methods=['GET'])
+def hateoas_shared(shared_reference):
+  slave_reference = '_' + shared_reference # root shared are prefixed with _ in db
+  shared = execute_db('slave', 'SELECT * FROM %s WHERE reference=?', [slave_reference], one=True)
+  if shared is None:
+    abort(404)
+  partition = execute_db('partition', 'SELECT * FROM %s WHERE reference=?', [shared['hosted_by']], one=True)
+  if partition is None:
+    abort(404)
+  slave_list = loads(partition['slave_instance_list'].encode('utf-8'))
+  for slave_dict in slave_list:
+    if slave_dict['slave_reference'] == slave_reference:
+      break
+  else:
+    abort(404)
+  del slave_dict['slave_title'], slave_dict['slave_reference']
+  software_type = slave_dict.pop('slap_software_type')
+  xml = dict2xml(slave_dict)
+  return hateoas_service_document(
+    reference = shared_reference,
+    requested_state='unused',
+    xml=xml,
+    connection_xml=shared['connection_xml'],
+    software_release=partition['software_release'],
+    software_type=software_type,
+    shared=1,
+  )
+
+def hateoas_service_document(**kw):
   # my_slap_state corresponds to requested_state, not slap_state.
   return {
     '_embedded': {
@@ -1096,37 +1154,37 @@ def hateoas_partitions(partition_reference):
         'my_reference': {
           'type': 'StringField',
           'key': 'field_my_reference',
-          'default': partition['partition_reference'],
+          'default': kw['reference'],
         },
         'my_slap_state': {
           'type': 'StringField',
           'key': 'field_my_slap_state',
-          'default': partition['requested_state'],
+          'default': kw['requested_state'],
         },
         'my_text_content': {
           'type': 'StringField',
           'key': 'field_my_text_content',
-          'default': partition['xml'],
+          'default': kw['xml'],
         },
         'my_connection_parameter_list': {
           'type': 'StringField',
           'key': 'field_my_connection_parameter_list',
-          'default': partition['connection_xml'],
+          'default': kw['connection_xml'],
         },
         'my_url_string': {
           'type': 'StringField',
           'key': 'field_my_url_string',
-          'default': partition['software_release'],
+          'default': kw['software_release'],
         },
         'my_source_reference': {
           'type': 'StringField',
           'key': 'field_my_source_reference',
-          'default': partition['software_type'],
+          'default': kw['software_type'],
         },
         'my_root_slave': {
           'type': 'IntegerField',
           'key': 'field_my_root_slave',
-          'default': 0,
+          'default': kw['shared'],
         },
       },
     },

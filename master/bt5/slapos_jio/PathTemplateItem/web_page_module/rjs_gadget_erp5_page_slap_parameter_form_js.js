@@ -72,379 +72,6 @@
     );
   }
 
-  function render_selection(json_field, default_value, is_required, editable) {
-    var input,
-      option_list = [domsugar('option', {
-        value: "",
-        selected: (default_value === undefined)
-      })],
-      option_index,
-      selected,
-      is_selected = (default_value === undefined),
-      data_format = "string",
-      property_dict = {
-        size: 1,
-        "placeholder": " ",
-        "class": "slapos-parameter"
-      };
-
-    if (json_field.type === "integer" || json_field.type === "number") {
-      data_format = "number";
-    } else if (json_field.type === "boolean") {
-      data_format = "boolean";
-    }
-    if (default_value === undefined) {
-      default_value = "";
-    }
-    for (option_index in json_field['enum']) {
-      if (json_field['enum'].hasOwnProperty(option_index)) {
-        selected = (json_field['enum'][option_index].toString() === default_value.toString());
-        is_selected = (is_selected || selected);
-        option_list.push(domsugar('option', {
-          value: json_field['enum'][option_index],
-          text: json_field['enum'][option_index],
-          "data-format": data_format,
-          selected: selected
-        }));
-      }
-    }
-    if (!is_selected) {
-      // The default value should be included even if it is
-      // outside the enum.
-      option_list.push(domsugar('option', {
-        value: default_value,
-        text: default_value,
-        "data-format": data_format,
-        selected: true
-      }));
-    }
-
-    property_dict["data-format"] = data_format;
-    if (is_required) {
-      property_dict.required = true;
-    }
-
-    input = domsugar('select', property_dict, option_list);
-    if (!editable) {
-      input.classList.add("readonly");
-      input["aria-disabled"] = "true";
-      input["tab-index"] = "-1";
-    }
-    return input;
-  }
-
-  function render_selection_oneof(json_field, default_value, is_required, editable) {
-    var input,
-      option_list = [domsugar('option', {
-        value: "",
-        selected: (default_value === undefined)
-      })],
-      property_dict = {
-        size: 1,
-        "placeholder": " ",
-        "class": "slapos-parameter"
-      };
-
-    json_field.oneOf.forEach(function (element) {
-      if ((element['const'] !== undefined) && (element.title !== undefined)) {
-        var value;
-        if ((json_field.type === 'array') || (json_field.type === 'object')) {
-          // Support for unusual types
-          value = JSON.stringify(element['const']);
-        } else {
-          value = element['const'];
-        }
-        option_list.push(domsugar('option', {
-          value: value,
-          text: element.title,
-          selected: (value === default_value)
-        }));
-      }
-    });
-    if (is_required) {
-      property_dict.required = true;
-    }
-    input = domsugar('select', property_dict, option_list);
-    if (!editable) {
-      input.classList.add("readonly");
-      input["aria-disabled"] = "true";
-      input["tab-index"] = "-1";
-    }
-    return input;
-  }
-
-  function render_textarea(json_field, default_value, data_format, is_required, editable) {
-    var input, property_dict = {
-      "data-format": data_format,
-      "placeholder": " ",
-      "class": "slapos-parameter"
-    };
-    if (default_value !== undefined) {
-      if (default_value instanceof Array) {
-        property_dict.value = default_value.join("\n");
-      } else {
-        property_dict.value = default_value;
-      }
-    }
-    if (is_required) {
-      property_dict.required = true;
-    }
-    input = domsugar('textarea', property_dict);
-    if (!editable) {
-      input.setAttribute('readonly', true);
-    }
-    return input;
-  }
-
-  function render_field(json_field, default_value, is_required, editable) {
-    var input,
-      data_format,
-      domsugar_input_dict = {"placeholder": " ", "class": "slapos-parameter"};
-    if (json_field['enum'] !== undefined) {
-      return render_selection(json_field, default_value, is_required, editable);
-    }
-
-    if (json_field.oneOf !== undefined) {
-      return render_selection_oneof(json_field, default_value, is_required, editable);
-    }
-
-    if (json_field.type === "boolean") {
-      json_field['enum'] = [true, false];
-      if (default_value === "true") {
-        default_value = true;
-      }
-      if (default_value === "false") {
-        default_value = false;
-      }
-      return render_selection(json_field, default_value, is_required, editable);
-    }
-
-    if (json_field.type === "array") {
-      data_format = json_field.type;
-      if (json_field.items !== undefined) {
-        if (json_field.items.type === "number" || json_field.items.type === "integer") {
-          data_format = "array-number";
-        }
-      }
-      return render_textarea(json_field, default_value, data_format, is_required, editable);
-    }
-
-    if (json_field.type === "string" && json_field.textarea === true) {
-      return render_textarea(json_field, default_value, "string", is_required, editable);
-    }
-
-    if (default_value !== undefined) {
-      domsugar_input_dict.value = default_value;
-    }
-
-    if (json_field.type === "integer") {
-      domsugar_input_dict.type = "number";
-    } else if (json_field.type === "number") {
-      domsugar_input_dict.type = "number";
-      domsugar_input_dict.step = "any";
-    } else if (json_field.type === "hidden") {
-      domsugar_input_dict.type = "hidden";
-    } else {
-      domsugar_input_dict.type = "text";
-    }
-
-    if (is_required) {
-      domsugar_input_dict.required = true;
-    }
-    input = domsugar('input', domsugar_input_dict);
-    if (!editable) {
-      input.setAttribute('readonly', true);
-    }
-    return input;
-  }
-
-  function render_subform(json_field, default_dict, root, path, editable) {
-    var div_input,
-      key,
-      div,
-      label,
-      input,
-      default_value,
-      default_used_list = [],
-      is_required;
-
-    if (default_dict === undefined) {
-      default_dict = {};
-    }
-
-    if (path === undefined) {
-      path = "/";
-    }
-
-    if (json_field.patternProperties !== undefined) {
-      if (json_field.patternProperties['.*'] !== undefined) {
-
-        div = domsugar("div", {
-          "class": "subfield",
-          title: json_field.description
-        });
-
-        if (editable) {
-          div_input = domsugar("div", {
-            "class": "input"
-          }, [
-            domsugar('input', {
-              type: "text",
-              // Name is only meaningfull to automate tests
-              name: "ADD" + path
-            }),
-            domsugar('button', {
-              value: btoa(JSON.stringify(json_field.patternProperties['.*'])),
-              "class": "add-sub-form",
-              type: "button",
-              name: path,
-              text: "+"
-            })
-          ]);
-          div.appendChild(div_input);
-        }
-
-        for (default_value in default_dict) {
-          if (default_dict.hasOwnProperty(default_value)) {
-            if (editable) {
-              label = domsugar('label', {
-                text: default_value,
-                'class': "slapos-parameter-dict-key"
-              }, [
-                domsugar('span', {
-                  text: "×",
-                  "class": "bt_close CLOSE" + path + "/" + default_value,
-                  title: "Remove this parameter section."
-                })
-              ]);
-            } else {
-              label = domsugar('label', {
-                text: default_value,
-                'class': "slapos-parameter-dict-key"
-              });
-            }
-
-            div.appendChild(render_subform(
-              json_field.patternProperties['.*'],
-              default_dict[default_value],
-              domsugar("div", {
-                "class": "slapos-parameter-dict-key"
-              }, [label]),
-              path + "/" + default_value,
-              editable
-            ));
-          }
-        }
-        root.appendChild(div);
-
-        return div;
-      }
-    }
-
-    // Expand by force the allOf recomposing the properties and required.
-    for (key in json_field.allOf) {
-      if (json_field.allOf.hasOwnProperty(key)) {
-        if (json_field.properties === undefined) {
-          json_field.properties = json_field.allOf[key].properties;
-        } else if (json_field.allOf[key].properties !== undefined) {
-          json_field.properties = Object.assign({},
-              json_field.properties,
-              json_field.allOf[key].properties
-            );
-        }
-        if (json_field.required === undefined) {
-          json_field.required = json_field.allOf[key].required;
-        } else if (json_field.allOf[key].required !== undefined) {
-          json_field.required.push.apply(
-            json_field.required,
-            json_field.allOf[key].required
-          );
-        }
-      }
-    }
-
-    for (key in json_field.properties) {
-      if (json_field.properties.hasOwnProperty(key)) {
-        if (editable || default_dict[key] !== undefined) {
-          label = domsugar("label", {
-            'text': json_field.properties[key].title
-          });
-          is_required = false;
-          if ((Array.isArray(json_field.required)) && (json_field.required.includes(key))) {
-            is_required = true;
-          }
-          if (json_field.properties[key].type === 'object') {
-            label.setAttribute("class", "slapos-parameter-dict-key");
-            div_input = render_subform(json_field.properties[key],
-              default_dict[key],
-              domsugar("div", {"class": "input"}),
-              path + "/" + key,
-              editable);
-          } else {
-            input = render_field(
-              json_field.properties[key],
-              default_dict[key],
-              is_required,
-              editable
-            );
-            input.name = path + "/" + key;
-            div_input = domsugar("div", {"class": "input"}, [input]);
-          }
-          default_used_list.push(key);
-          if (json_field.properties[key]['default'] !== undefined) {
-            div_input.appendChild(
-              domsugar("span",
-                {'text': '(default = ' + json_field.properties[key]['default'] + ')'})
-            );
-          }
-          div_input.appendChild(domsugar("span", {'class': 'error'}));
-          root.appendChild(
-            domsugar("div", {
-              "class": "subfield",
-              title: json_field.properties[key].description
-            }, [label, div_input])
-          );
-        }
-      }
-    }
-    for (key in default_dict) {
-      if (default_dict.hasOwnProperty(key)) {
-        if (default_used_list.indexOf(key) < 0) {
-          if (typeof default_dict[key] === 'object') {
-            div = domsugar("div", {title: key}, [
-              domsugar("label", {
-                text: key,
-                "class": "slapos-parameter-dict-key"
-              }),
-              render_subform({},
-                default_dict[key],
-                domsugar("div", {"class": "input"}),
-                path + "/" + key,
-                editable)
-            ]);
-          } else {
-            input = render_field({"type": "string", "textarea": true}, default_dict[key], false, editable);
-            input.name = path + "/" + key;
-            div = domsugar("div", {
-              title: key,
-              "class": "subfield"
-            }, [
-              domsugar("label", {text: key}),
-              domsugar("div", {"class": "input"}, [
-                input,
-                domsugar("span", {text: '(Not part of the schema)'}),
-                domsugar("span", {'class': 'error'})
-              ])
-            ]);
-          }
-          default_used_list.push(key);
-          root.appendChild(div);
-        }
-      }
-    }
-    return root;
-  }
-
   function getFormValuesAsJSONDict(element) {
     var json_dict = {},
       entry,
@@ -537,27 +164,6 @@
   function removeSubParameter(element) {
     element.parentNode.parentNode.remove();
     return false;
-  }
-
-  function addSubForm(gadget, element) {
-    var subform_json = JSON.parse(atob(element.value)),
-      input_text = element.parentNode.querySelector("input[type='text']"),
-      div;
-
-    if (input_text.value === "") {
-      return false;
-    }
-
-    div = domsugar('div', {
-      'class': "slapos-parameter-dict-key"
-    }, [domsugar('label', {
-      'class': "slapos-parameter-dict-key",
-      text: input_text.value
-    })]);
-
-    div = render_subform(subform_json, {}, div, element.name + "/" + input_text.value, gadget.state.editable);
-    element.parentNode.parentNode.insertBefore(div, element.parentNode.parentNode.children[1]);
-    return div;
   }
 
   function getSoftwareTypeFromForm(element) {
@@ -723,8 +329,8 @@
   // main render display functions
   /////////////////////////////////////////////////////
   function renderDisplayRawXml(g, error_text) {
-    var fieldset,
-      fieldset_list = g.element.querySelectorAll('fieldset'),
+    var fieldset = g.element.querySelector('fieldset.parameter-optional'),
+      failover_div = g.element.querySelector('div.failover-textarea'),
       div_error,
       textarea,
       show_raw_button = g.element.querySelector("button.slapos-show-raw-parameter"),
@@ -768,23 +374,22 @@
     if (!g.state.editable) {
       textarea.setAttribute("readonly", true);
     }
-    fieldset = domsugar('fieldset', [
-      domsugar('div', {
-        'class': 'field'
-      }, [
-        textarea
-      ]),
-      // div error
-      div_error
-    ]);
 
-    // Do not hide the Software type, let the user edit it.
-    fieldset_list[1].parentNode.replaceChild(
-      fieldset,
-      fieldset_list[1]
-    );
-    fieldset_list[2].innerHTML = '';
-    return fieldset;
+    return g.renderSubForm({}, {}, true)
+      .push(function () {
+        // Do not hide the Software type, let the user edit it.
+        failover_div = domsugar(failover_div, {}, [
+          domsugar('div', {
+            'class': 'field'
+          }, [
+            textarea
+          ]),
+          // div error
+          div_error
+        ]);
+        fieldset = domsugar(fieldset);
+        return failover_div;
+      });
   }
 
   function renderDisplayJsonForm(gadget) {
@@ -1010,15 +615,13 @@
         }
         return gadget.loadJSONSchema(parameter_json_schema_url, serialisation)
           .push(function (json) {
-            var fieldset_list = gadget.element.querySelectorAll('fieldset'),
-              fieldset = document.createElement("fieldset");
-
-            fieldset = render_subform(json, parameter_dict, fieldset, undefined, editable);
-            fieldset_list[1].parentNode.replaceChild(
-              fieldset,
-              fieldset_list[1]
+            // Reset failover text area
+            domsugar(gadget.element.querySelector('div.failover-textarea'));
+            return gadget.renderSubForm(
+              json,
+              parameter_dict,
+              editable
             );
-            return fieldset_list;
           });
       })
       .push(function () {
@@ -1076,6 +679,17 @@
         });
     })
 
+    .declareMethod("renderSubForm", function (json_field, default_dict, editable) {
+      return this.getDeclaredGadget('json_form')
+        .push(function (gadget) {
+          return gadget.render({
+            json_field: json_field,
+            default_dict: default_dict,
+            editable: editable
+          });
+        });
+    })
+
     .declareMethod('render', function (options) {
       var restricted_softwaretype = false,
         software_type_list = [],
@@ -1098,7 +712,6 @@
         // the list. 
         software_type_list.push(options.value.parameter.softwaretype);
       }
-
 
       return this.changeState({
         // Not used parameters
@@ -1187,15 +800,6 @@
         return queue
           .push(function () {
             return showRawParameter(gadget);
-          });
-      }
-
-      if ((tag_name === 'BUTTON') &&
-          // @ts-ignore
-          (evt.target.className.indexOf("add-sub-form") !== -1)) {
-        return queue
-          .push(function () {
-            return addSubForm(gadget, evt.target);
           });
       }
     }, false, false)

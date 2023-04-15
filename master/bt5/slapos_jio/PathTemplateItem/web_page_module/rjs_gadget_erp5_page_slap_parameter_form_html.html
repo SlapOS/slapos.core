@@ -28,14 +28,19 @@
                 <input type=hidden name="serialisation_type" class="slapos-serialisation-type">
               </div>
             </div>
-            <div class="field" title="hide_show_button">
+            <div class="field slapos-parameter-editor-button" title="hide_show_button">
               <div class="input">
-                <button type="button" class="slapos-show-form display-none"> Show Parameter Form </button>
-                <button type="button" class="slapos-show-raw-parameter"> Show Parameter XML</button>
+                <button type="button" class="slapos-show-form ui-btn-icon-left ui-icon-spinner"> Parameter Form </button>
+                <button type="button" class="slapos-show-raw-parameter ui-btn-icon-left ui-icon-code" disabled> Raw XML</button>
               </div>
             </div>
           </fieldset>
-          <fieldset id="parameter-main"> </fieldset>
+          <fieldset id="parameter-main">
+            <div class="parameter_json_form"
+              data-gadget-url="gadget_erp5_page_slap_json_form.html"
+              data-gadget-scope="json_form"> </div>
+            <div class="failover-textarea"> </div>
+          </fieldset>
           <fieldset id="parameter-optional"> </fieldset>
           <fieldset id="parameter-xml">
             <input type=hidden name="parameter_hash" class="parameter_hash_output">

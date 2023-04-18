@@ -1110,8 +1110,9 @@ def hateoas_partitions(partition_reference):
   partition = execute_db('partition', 'SELECT * FROM %s WHERE partition_reference=?', [partition_reference], one=True)
   if partition is None:
     abort(404)
-  partition['reference']=partition['partition_reference']
-  return hateoas_service_document(**partition, shared=0)
+  partition['reference'] = partition['partition_reference']
+  partition['shared'] = 0
+  return hateoas_service_document(**partition)
 
 @app.route('/hateoas/shared/<shared_reference>', methods=['GET'])
 def hateoas_shared(shared_reference):

@@ -663,6 +663,7 @@ class TestCliInfo(CliMixin):
     instance = slapos.slap.SoftwareInstance(
       _software_release_url='SR1',
       _source_reference='mytype',
+      _root_slave=False,
       _requested_state='mystate',
       _connection_dict=conn_params,
       _parameter_dict={'myinstanceparameter': 'value2'})
@@ -684,6 +685,7 @@ class TestCliInfo(CliMixin):
       expected = {
         "software-url": instance._software_release_url,
         "software-type": instance._source_reference,
+        'shared': instance._root_slave,
         "requested-state": instance._requested_state,
         "instance-parameters": instance._parameter_dict,
         "connection-parameters": {

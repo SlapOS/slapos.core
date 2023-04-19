@@ -13,7 +13,7 @@ response.setHeader('Content-Type', 'text/plain')
 
 response.setHeader("Content-Security-Policy", "default-src 'none'; img-src 'self' data:; media-src 'self'; connect-src 'self' mail.tiolive.com *.erp5.cn; script-src 'self' 'unsafe-eval'; font-src netdna.bootstrapcdn.com; style-src 'self' netdna.bootstrapcdn.com 'unsafe-inline' data:; frame-src 'self' data:")
 
-response.setHeader("Access-Control-Allow-Origin", "http://demoapp.node.grandenet.cn")
+response.setHeader("Access-Control-Allow-Origin", "https://selector.node.grandenet.cn")
 
 return """
 ###################################################################################

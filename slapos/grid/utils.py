@@ -37,6 +37,7 @@ import stat
 import sys
 import logging
 import psutil
+import shlex
 import time
 
 if sys.version_info >= (3,):
@@ -221,10 +222,15 @@ def getPythonExecutableFromSoftwarePath(software_path):
   try:
     with open(os.path.join(software_path, 'bin', 'buildout')) as f:
       shebang = f.readline()
+      if shebang.startswith('#!'):
+        executable = shebang[2:].split(None, 1)[0]
+        if executable == '/bin/sh':
+          exec_wrapper = shlex.split(f.readline())
+          if len(exec_wrapper) >= 2 and exec_wrapper[0] == 'exec':
+            return exec_wrapper[1]
+        return executable
   except (IOError, OSError):
     return
-  if shebang.startswith('#!'):
-    return shebang[2:].split(None, 1)[0]
 
 
 def getCleanEnvironment(logger, home_path='/tmp'):

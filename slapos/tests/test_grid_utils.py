@@ -473,3 +473,27 @@ class TestSetRunning(unittest.TestCase):
           tf.name)
       with open(tf.name) as f:
         self.assertEqual(f.read(), str(os.getpid()))
+
+
+class TestGetPythonExecutableFromBinBuildout(unittest.TestCase):
+  def test_simple_shebang(self):
+    with tempfile.TemporaryDirectory() as d:
+      binpath = os.path.join(d, 'bin')
+      python = os.path.realpath(os.path.join(d, 'python'))
+      os.mkdir(binpath)
+      with open(os.path.join(binpath, 'buildout'), 'w') as f:
+        f.write('#!' + python)
+      self.assertEqual(
+        slapos.grid.utils.getPythonExecutableFromSoftwarePath(d),
+        python)
+
+  def test_exec_wrapper(self):
+    with tempfile.TemporaryDirectory() as d:
+      binpath = os.path.join(d, 'bin')
+      python = os.path.realpath(os.path.join(d, 'python'))
+      os.mkdir(binpath)
+      with open(os.path.join(binpath, 'buildout'), 'w') as f:
+        f.write('#!/bin/sh\n"exec" "%s" "$0" "$@"' % python)
+      self.assertEqual(
+        slapos.grid.utils.getPythonExecutableFromSoftwarePath(d),
+        python)

@@ -1,5 +1,5 @@
 specialise = context.getSpecialiseValue(portal_type='Sale Trade Condition')
-if specialise.getSpecialiseValue() is None:
+if specialise is None or specialise.getSpecialiseValue() is None:
   # The trade model don't applies if the Trade Condition isn't attached to 
   # A business process
   return True

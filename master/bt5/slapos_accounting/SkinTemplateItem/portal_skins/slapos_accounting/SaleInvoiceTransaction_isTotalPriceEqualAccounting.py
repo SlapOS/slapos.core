@@ -1,11 +1,13 @@
 invoice = context
 
 specialise = context.getSpecialiseValue(portal_type='Sale Trade Condition')
-if specialise.getSpecialiseValue() is None:
+if specialise is None or specialise.getSpecialiseValue() is None:
   if not len(invoice.objectValues(portal_type="Invoice Line")):
     # The trade model don't applies if the Trade Condition isn't attached to
     # A business process
     return True
+
+
 
 total_price = invoice.getTotalPrice()
 if invoice.getTotalPrice() < 0:

@@ -737,11 +737,7 @@ class StandaloneSlapOS(object):
         state=state)
 
   def start(self):
-    """Start the system.
-
-    If system was stopped, it will start partitions.
-    If system was already running, this does not restart partitions.
-    """
+    """Start the system."""
     self._logger.debug("Starting StandaloneSlapOS in %s", self._base_directory)
     self._ensureSupervisordStarted()
     self._ensureSlapOSAvailable()

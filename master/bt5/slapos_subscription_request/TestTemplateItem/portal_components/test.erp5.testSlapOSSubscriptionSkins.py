@@ -151,7 +151,7 @@ class TestSubscriptionCondition_renderKVMClusterParameter(TestSubscriptionSkinsM
       "ram-size": 245760, 
       "project-guid": "PROJ-XXXX", 
       "cpu-max-count": 41, 
-      "sticky-compute-node": true
+      "sticky-computer": true
     }
   }
 }</parameter>
@@ -170,7 +170,7 @@ class TestSubscriptionCondition_renderKVMClusterParameter(TestSubscriptionSkinsM
       "ram-size": 245760, 
       "project-guid": "PROJ-XXXX", 
       "cpu-max-count": 41, 
-      "sticky-compute-node": true
+      "sticky-computer": true
     }, 
     "KVM1": {
       "disk-device-path": "/dev/sdb", 

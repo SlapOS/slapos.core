@@ -90,7 +90,7 @@
       <tr>
         <td>fireEvent</td>
         <td>//input[@name="//simple-string" and @type="text"]</td>
-        <td>change</td>
+        <td>click</td>
       </tr>
       <tr>
         <td colspan="3"><b> Assert Error Messages</b></td>

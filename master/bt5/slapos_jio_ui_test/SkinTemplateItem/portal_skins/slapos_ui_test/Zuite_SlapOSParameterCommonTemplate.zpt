@@ -83,6 +83,16 @@
       <td>//input[@name='url_string']</td>
       <td></td>
     </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//textarea[@name='text_content']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//textarea[@name='text_content']</td>
+      <td></td>
+    </tr>
   </tal:block>
 
   <tal:block metal:define-macro="init_readonly">
@@ -111,6 +121,16 @@
     <tr>
       <td>assertElementPresent</td>
       <td>//textarea[@name='parameter_output']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//textarea[@name='text_content']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//textarea[@name='text_content']</td>
       <td></td>
     </tr>
   </tal:block>
@@ -143,19 +163,19 @@
     <tr>
       <td>waitForElementPresent</td>
       <td>//div[contains(@data-gadget-url,
-        'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-raw-parameter"]</td>
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-raw-parameter")]</td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
       <td>//div[contains(@data-gadget-url,
-        'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-raw-parameter"]</td>
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-raw-parameter")]</td>
       <td></td>
     </tr>
     <tr>
       <td>click</td>
       <td>//div[contains(@data-gadget-url,
-        'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-raw-parameter"]</td>
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-raw-parameter")]</td>
       <td></td>
     </tr>
     <tr>
@@ -174,19 +194,19 @@
     <tr>
       <td>waitForElementPresent</td>
       <td>//div[contains(@data-gadget-url,
-        'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-form"]</td>
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-form")]</td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
       <td>//div[contains(@data-gadget-url,
-        'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-form"]</td>
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-form")]</td>
       <td></td>
     </tr>
     <tr>
       <td>click</td>
       <td>//div[contains(@data-gadget-url,
-        'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-form"]</td>
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-form")]</td>
       <td></td>
     </tr>
   </tal:block>

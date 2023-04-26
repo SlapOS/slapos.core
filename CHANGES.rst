@@ -1,6 +1,16 @@
 Changes
 =======
 
+1.9.3 (2023-04-26)
+------------------
+ * slapgrid: run promise with clean environment
+ * slapproxy: Fix Python2 syntax incompatibility
+ * slapproxy: Show shared in slapos service list/info
+ * cli/info: Report whether the instance is shared
+ * slapformat: Fix crash in specific code path
+ * cli/info: Include software-type in output
+ * slapformat: Fix ipv6_prefixshift typo
+
 1.9.2 (2023-03-24)
 ------------------
  * console: support args when passing a script file

@@ -153,13 +153,12 @@
       div_error,
       textarea,
       show_text_button = g.element.querySelector("button.slapos-show-raw-parameter"),
-      show_form_button = g.element.querySelector("button.slapos-show-form");;
+      show_form_button = g.element.querySelector("button.slapos-show-form");
 
     show_text_button.disabled = 1;
     show_text_button.classList.remove("ui-icon-code");
     show_text_button.classList.add("ui-icon-spinner");
     show_form_button.disabled = 0;
-
 
     if (error_text) {
       div_error = domsugar('div', {
@@ -412,16 +411,24 @@
               'text/xml'
             ).querySelector("parameter[id='_']");
 
-            if (parameter_entry !== null) {
-              throw new Error("The current parameter values should NOT contains _ parameter (xml).");
-            }
-            parseDocumentStringOrFail(
+            parameter_list = parseDocumentStringOrFail(
               parameter_xml,
               'text/xml'
-            ).querySelectorAll("parameter")
-                .forEach(function (element, index) {
-                parameter_dict[element.id] = element.textContent;
-              });
+            ).querySelectorAll("parameter");
+
+            if (parameter_entry !== null) {
+              if (parameter_entry.textContent !== "{}") {
+                throw new Error("The current parameter values should NOT contains _ parameter (xml).");
+              }
+            }
+
+            parameter_list.forEach(
+              function (element, index) {
+                if (!((element.id === "_") && (element.textContent === "{}"))) {
+                  parameter_dict[element.id] = element.textContent;
+                }
+              }
+            );
           } else {
             throw new Error("Unknown serialisation: " + serialisation);
           }
@@ -455,6 +462,8 @@
       .fail(function (error) {
         console.warn(error);
         console.log(error.stack);
+        show_form_button.classList.remove("ui-icon-spinner");
+        show_form_button.classList.add("ui-icon-th-list");
         return renderDisplayRawXml(gadget, error.toString());
       });
   }
@@ -549,11 +558,15 @@
 
       if (evt.target === software_type_element) {
         parameter_shared.value = software_type_element.selectedOptions[0]["data-shared"];
-        return gadget.changeState({
-          softwareindex: software_type_element.selectedOptions[0]["data-id"],
-          // Force refresh in any case
-          render_timestamp: new Date().getTime()
-        });
+        // call get content to ensure data is saved.
+        return gadget.getContent()
+          .push(function () {
+            return gadget.changeState({
+              softwareindex: software_type_element.selectedOptions[0]["data-id"],
+             // Force refresh in any case
+              render_timestamp: new Date().getTime()
+            });
+          });
       }
     }, false, false)
 

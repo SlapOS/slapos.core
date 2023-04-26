@@ -499,6 +499,10 @@
     .declareMethod("validateJSON", function (schema_url, generated_json) {
       return this.getDeclaredGadget('json_form_load_schema')
         .push(function (gadget) {
+          if (schema_url === undefined) {
+            // Skip validation if no schema is provided.
+            return {errors: []};
+          }
           return gadget.validateJSON(undefined, schema_url, generated_json);
         });
     })

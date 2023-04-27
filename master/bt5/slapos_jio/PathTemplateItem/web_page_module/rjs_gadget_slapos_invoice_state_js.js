@@ -14,7 +14,7 @@
         link;
       return gadget.getTranslationDict(['Pay Now'])
         .push(function (translation_dict) {
-          if (gadget.state.payment_state === 'Pay Now') {
+          if (gadget.state.payment_state === translation_dict["Pay Now"]) {
             link = domsugar("li", {},
               [
                 domsugar("a", {

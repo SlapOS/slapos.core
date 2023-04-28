@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Web Script" module="erp5.portal_type"/>
+      <global name="Web Style" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -40,17 +39,6 @@
             </value>
         </item>
         <item>
-            <key> <string>_Copy_or_Move_Permission</string> </key>
-            <value>
-              <list>
-                <string>Manager</string>
-                <string>Authenticated</string>
-                <string>Developer</string>
-                <string>Owner</string>
-              </list>
-            </value>
-        </item>
-        <item>
             <key> <string>_Modify_portal_content_Permission</string> </key>
             <value>
               <tuple>
@@ -70,18 +58,17 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
         <item>
-            <key> <string>categories</string> </key>
+            <key> <string>content_md5</string> </key>
             <value>
-              <tuple/>
+              <none/>
             </value>
         </item>
         <item>
-            <key> <string>content_md5</string> </key>
+            <key> <string>content_type</string> </key>
             <value>
               <none/>
             </value>
@@ -96,7 +83,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_parameter_form.js</string> </value>
+            <value> <string>gadget_erp5_page_slap_json_form.css</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -106,7 +93,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_parameter_form_js</string> </value>
+            <value> <string>rjs_gadget_erp5_page_slap_json_form_css</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -126,7 +113,7 @@
                 </tuple>
                 <state>
                   <tuple>
-                    <float>1523884648.42</float>
+                    <float>1523884648.28</float>
                     <string>UTC</string>
                   </tuple>
                 </state>
@@ -135,7 +122,7 @@
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Web Script</string> </value>
+            <value> <string>Web Style</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
@@ -145,7 +132,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>gadget_erp5_page_slap_parameter_form.js</string> </value>
+            <value> <string>Gadget Slapos JSON Form Style</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -235,7 +222,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1509639058.46</float>
+                              <float>1682015684.98</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -284,7 +271,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1007.64857.33700.1467</string> </value>
+                      <value> <string>1007.63576.46581.3566</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -304,7 +291,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1682532947.32</float>
+                              <float>1682455625.16</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -367,7 +354,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1509639044.06</float>
+                              <float>1682015393.14</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

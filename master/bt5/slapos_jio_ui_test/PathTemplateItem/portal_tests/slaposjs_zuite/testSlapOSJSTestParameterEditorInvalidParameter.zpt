@@ -50,7 +50,6 @@
         <td>//textarea[@name="text_content" and contains(text(), '&lt;instance/&gt;')]</td>
         <td></td>
       </tr>
-
       <tr>
         <td>type</td>
         <td>//textarea[@name="text_content"]</td>
@@ -105,9 +104,29 @@
         <td></td>
       </tr>
       <tr>
-        <td>assertValue</td>
-        <td>//textarea[@name="text_content"]</td>
-        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;&lt;instance&gt;&lt;parameter id=&quot;simple-string&quot;&gt;1024&lt;/parameter&gt;&lt;/instance&gt;</td>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;parameter id=&quot;simple-string&quot;&gt;1024&lt;/parameter&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;/instance&gt;')]</td>
+        <td></td>
       </tr>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
@@ -133,9 +152,29 @@
         <td></td>  
       </tr>
       <tr>
-        <td>assertValue</td>
-        <td>//textarea[@name="text_content"]</td>
-        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;&lt;instance&gt;&lt;parameter id=&quot;simple-string&quot;&gt;1024&lt;/parameter&gt;&lt;/instance&gt;</td>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;parameter id=&quot;simple-string&quot;&gt;1024&lt;/parameter&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;/instance&gt;')]</td>
+        <td></td>
       </tr>
       <tr>
         <td>pause</td>

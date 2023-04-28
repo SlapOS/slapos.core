@@ -231,7 +231,7 @@
                   <item>
                       <key> <string>comment</string> </key>
                       <value>
-                        <persistent> <string encoding="base64">AAAAAAAAAAY=</string> </persistent>
+                        <none/>
                       </value>
                   </item>
                   <item>
@@ -240,7 +240,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>998.18207.59213.64375</string> </value>
+                      <value> <string>1008.2096.42113.30924</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -260,7 +260,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1645206076.56</float>
+                              <float>1682697302.96</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -333,38 +333,6 @@
                 </dictionary>
               </list>
             </value>
-        </item>
-      </dictionary>
-    </pickle>
-  </record>
-  <record id="6" aka="AAAAAAAAAAY=">
-    <pickle>
-      <global name="Message" module="Products.ERP5Type.Message"/>
-    </pickle>
-    <pickle>
-      <dictionary>
-        <item>
-            <key> <string>default</string> </key>
-            <value> <string>Translation data updated from web site ${web_site_id}.</string> </value>
-        </item>
-        <item>
-            <key> <string>domain</string> </key>
-            <value> <string>erp5_ui</string> </value>
-        </item>
-        <item>
-            <key> <string>mapping</string> </key>
-            <value>
-              <dictionary>
-                <item>
-                    <key> <string>web_site_id</string> </key>
-                    <value> <string>hostingjs</string> </value>
-                </item>
-              </dictionary>
-            </value>
-        </item>
-        <item>
-            <key> <string>message</string> </key>
-            <value> <string>Translation data updated from web site ${web_site_id}.</string> </value>
         </item>
       </dictionary>
     </pickle>

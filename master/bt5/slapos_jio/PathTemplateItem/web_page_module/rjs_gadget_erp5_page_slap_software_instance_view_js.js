@@ -110,7 +110,9 @@
           "Parameter",
           "Value",
           "Status",
-          "Data updated."
+          "Data updated.",
+          "Node",
+          "Partition"
         ];
       return new RSVP.Queue()
         .push(function () {
@@ -211,6 +213,28 @@
                       "editable": 0,
                       "key": "source_reference",
                       "hidden": 0,
+                      "type": "StringField"
+                    },
+                    "my_aggregate_parent_reference": {
+                      "description": "",
+                      "title": result[2][12],
+                      "default": gadget.state.doc.aggregate_parent_reference,
+                      "css_class": "",
+                      "required": 1,
+                      "editable": 0,
+                      "key": "aggregate_parent_reference",
+                      "hidden": gadget.state.doc.aggregate_parent_reference ? 1 : 0,
+                      "type": "StringField"
+                    },
+                    "my_aggregate_title": {
+                      "description": "",
+                      "title": result[2][13],
+                      "default": gadget.state.doc.aggregate_title,
+                      "css_class": "",
+                      "required": 1,
+                      "editable": 0,
+                      "key": "aggregate_title",
+                      "hidden": gadget.state.doc.aggregate_title ? 1 : 0,
                       "type": "StringField"
                     },
                     "my_text_content": {

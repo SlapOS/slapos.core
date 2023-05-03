@@ -107,6 +107,8 @@
                         <string>my_specialise_title</string>
                         <string>my_news</string>
                         <string>my_connection_parameter_list</string>
+                        <string>my_aggregate_parent_reference</string>
+                        <string>my_aggregate_title</string>
                       </list>
                     </value>
                 </item>

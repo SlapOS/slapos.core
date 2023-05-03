@@ -100,20 +100,22 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     return instance
 
   def _makeComputeNode(self, owner=None, allocation_scope='open/public'):
-    compute_node = self.portal.compute_node_module\
-        .template_compute_node.Base_createCloneDocument(batch_mode=1)
-    compute_node.edit(reference="TESTCOMP-%s" % compute_node.getId())
-    compute_node.validate()
+    SlapOSTestCaseMixinWithAbort._makeComputeNode(
+      self, owner=owner, allocation_scope=allocation_scope
+    )
+    
+    reference = 'TESTPART-%s' % self.generateNewId()
+    self.partition1 = self.compute_node.newContent(
+      portal_type="Compute Partition",
+      title="slappart1", reference=reference, id="slappart1")
 
-    compute_node.newContent(portal_type="Compute Partition",
-                        title="slappart0", id="slappart0")
-    compute_node.newContent(portal_type="Compute Partition",
-                        title="slappart1", id="slappart1")
+    self.partition1.markFree()
+    self.partition1.validate()
 
     self.tic()
     self.changeSkin('Hal')
-    return compute_node
-  
+    return self.compute_node
+
   def _makeComputerNetwork(self):
     network = self.portal.computer_network_module.newContent()
     network.edit(reference="TESTNET-%s" % network.getId())
@@ -562,7 +564,7 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
   def test_with_instance(self):
     compute_node = self._makeComputeNode()
     instance = self._makeInstance()
-    instance.setAggregateValue(compute_node.slappart0)
+    instance.setAggregateValue(self.partition0)
     monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND aggregate_reference:%s' % (compute_node.getReference())
     self.tic()
     
@@ -599,7 +601,7 @@ class TestComputerNetwork_getNewsDict(TestSlapOSHalJsonStyleMixin):
     network = self._makeComputerNetwork()
     compute_node = self._makeComputeNode()
     instance = self._makeInstance()
-    instance.setAggregateValue(compute_node.slappart0)
+    instance.setAggregateValue(self.partition0)
     compute_node.setSubordinationValue(network)
 
     self.tic()
@@ -659,7 +661,7 @@ class TestOrganisation_getNewsDict(TestSlapOSHalJsonStyleMixin):
     organisation = self._makeOrganisation()
     compute_node = self._makeComputeNode()
     instance = self._makeInstance()
-    instance.setAggregateValue(compute_node.slappart0)
+    instance.setAggregateValue(self.partition0)
     organisation.fake_compute_node_list = [compute_node]
 
     self.tic()
@@ -720,7 +722,7 @@ class TestProject_getNewsDict(TestSlapOSHalJsonStyleMixin):
     project = self._makeProject()
     compute_node = self._makeComputeNode()
     instance = self._makeInstance()
-    instance.setAggregateValue(compute_node.slappart0)
+    instance.setAggregateValue(self.partition0)
     project.fake_compute_node_list = [compute_node]
 
     self.tic()
@@ -1797,6 +1799,45 @@ return []""")
         self.portal.SoftwareProduct_getSoftwareReleaseAsHateoas("fake", True))
     )
 
+class TestSoftwareInstance_getAllocationInformation(TestSlapOSHalJsonStyleMixin): 
 
+  def test_SoftwareInstance_getAllocationInformation_not_allocated(self):
+    self._makeTree()
+    self.changeSkin('RJS')
 
+    self.login(self.person_user.getUserId())
+    self.assertEqual("Not allocated",
+      self.software_instance.SoftwareInstance_getAllocationInformation())
 
+  def test_SoftwareInstance_getAllocationInformation(self):
+    computer_owner = self._makePerson(user=1)
+    self._makeComputeNode(owner=computer_owner)
+
+    self._makeComplexComputeNode(person=computer_owner)
+    started_instance = self.compute_node.partition1.getAggregateRelatedValue(
+        portal_type='Software Instance')
+    self.changeSkin('RJS')
+
+    self.login(computer_owner.getUserId())
+    self.assertEqual("%s (partition1)" % self.compute_node.getReference(),
+      started_instance.SoftwareInstance_getAllocationInformation())
+
+  def test_SoftwareInstance_getAllocationInformation_restricted_information(self):
+    computer_owner = self._makePerson(user=1)
+    self._makeComputeNode(owner=computer_owner)
+
+    requester = self._makePerson(user=1)
+    self._makeComplexComputeNode(person=requester)
+    started_instance = self.compute_node.partition1.getAggregateRelatedValue(
+        portal_type='Software Instance')
+
+    # ensure it dont have good admin assignment
+    for assignment in requester.contentValues(portal_type="Assignment"):
+      assignment.setGroup(None)
+      assignment.setRole("member")
+    self.tic()
+    self.changeSkin('RJS')
+
+    self.login(requester.getUserId())
+    self.assertEqual("Restricted information",
+      started_instance.SoftwareInstance_getAllocationInformation())

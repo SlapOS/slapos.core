@@ -110,7 +110,9 @@
           "Parameter",
           "Value",
           "Status",
-          "Data updated."
+          "Data updated.",
+          "Node",
+          "Partition"
         ];
       return new RSVP.Queue()
         .push(function () {
@@ -213,6 +215,17 @@
                       "hidden": 0,
                       "type": "StringField"
                     },
+                    "my_allocation_information": {
+                      "description": "",
+                      "title": result[2][12],
+                      "default": gadget.state.doc.allocation_information,
+                      "css_class": "",
+                      "required": 1,
+                      "editable": 0,
+                      "key": "allocation_information",
+                      "hidden": 0,
+                      "type": "StringField"
+                    },
                     "my_text_content": {
                       "description": "",
                       "title": result[2][6],
@@ -259,7 +272,7 @@
                     [["my_title"], ["my_reference"], ['my_monitoring_status']]
                   ], [
                     "right",
-                    [["my_specialise_title"], ["my_source_reference"]]
+                    [["my_specialise_title"], ["my_source_reference"], ["my_allocation_information"]]
                   ], [
                     "center",
                     [["my_url_string"], ["my_text_content"]]

@@ -27,32 +27,6 @@
       return this.triggerSubmit();
     })
 
-    .onEvent('submit', function () {
-      var gadget = this;
-      return gadget.notifySubmitting()
-        .push(function () {
-          return gadget.getDeclaredGadget('form_view');
-        })
-        .push(function (form_gadget) {
-          return form_gadget.getContent();
-        })
-        .push(function (doc) {
-          return gadget.getSetting("hateoas_url")
-            .push(function (url) {
-              return gadget.jio_putAttachment(doc.relative_url,
-                url + doc.relative_url + "/SoftwareRelease_requestInstanceTree", doc);
-            });
-        })
-        .push(function () {
-          return gadget.notifySubmitted({message: gadget.message_tranlation, status: 'success'})
-            .push(function () {
-              // Workaround, find a way to open document without break gadget.
-              return gadget.redirect({"command": "change",
-                                    "options": {"jio_key": "/", "page": "slap_service_list"}});
-            });
-        });
-    })
-
     .declareMethod("triggerSubmit", function () {
       return this.element.querySelector('button[type="submit"]').click();
     })
@@ -90,7 +64,7 @@
         });
     })
     .onStateChange(function (options) {
-      this.deferRender(options);
+      return this.deferRender(options);
     })
     .declareJob("deferRender", function (options) {
       var gadget = this;
@@ -99,9 +73,13 @@
       }
       return new RSVP.Queue()
         .push(function () {
-          return gadget.updateHeader({
-            page_title: gadget.page_title_translation
-          });
+          return gadget.getUrlFor({command: 'history_previous'})
+            .push(function (selection_url) {
+              return gadget.updateHeader({
+                page_title: gadget.page_title_translation,
+                selection_url: selection_url
+              });
+            });
         })
         .push(function () {
           return gadget.getSetting("hateoas_url")
@@ -114,6 +92,12 @@
             });
         })
         .push(function (jio_key) {
+          var div;
+          if ((jio_key === undefined) || (jio_key === "")) {
+            div = gadget.element.querySelector("div.message");
+            div.textContent = gadget.error_translation + ": could not find software release";
+            return div;
+          }
           if (options.auto === undefined) {
             return gadget.redirect({"command": "change",
               "options": {"jio_key": jio_key, "page": "slap_add_instance_tree",
@@ -121,58 +105,61 @@
           }
           // The auto is set, so we move foward to auto request the SR
           options.jio_key = jio_key;
-          return RSVP.all([
-            gadget.getDeclaredGadget('form_view'),
-            gadget.jio_get(jio_key),
-            gadget.getSetting("hateoas_url")
-          ]);
-        })
-        .push(function (result) {
-          var software_release = result[1],
-            url = result[2],
-            doc = {
-              url_string: software_release.url_string,
-              title: options.software_title ? options.software_title: gadget.software_title_translation + "{uid}",
-              relative_url: options.jio_key
-            };
-          if (options.software_type) {
-            doc.software_type = options.software_type;
-          }
-          if (options.text_content) {
-            doc.text_content = options.text_content;
-          }
-          if (options.shared) {
-            doc.shared = options.shared;
-          }
-          if (options.sla_xml) {
-            doc.sla_xml = options.sla_xml;
-          }
-          return gadget.notifySubmitting()
+          return new RSVP.Queue()
             .push(function () {
-              var query = [];
-              query.push("title=" + encodeURIComponent(doc.title));
-
-              if (doc.software_type) {
-                query.push("software_type=" + encodeURIComponent(doc.software_type));
-              }
-              if (doc.shared) {
-                query.push("shared:int=" + encodeURIComponent(doc.shared));
-              }
-              if (doc.text_content) {
-                query.push("text_content=" + encodeURIComponent(doc.text_content));
-              }
-              if (doc.sla_xml) {
-                query.push("sla_xml=" + encodeURIComponent(doc.sla_xml));
-              }
-              return gadget.jio_getAttachment(doc.relative_url,
-                url + doc.relative_url + "/SoftwareRelease_requestInstanceTree?" + query.join("&"));
+              return RSVP.all([
+                gadget.getDeclaredGadget('form_view'),
+                gadget.jio_get(jio_key),
+                gadget.getSetting("hateoas_url")
+              ]);
             })
-            .push(function (key) {
-              return gadget.notifySubmitted({message: gadget.message_tranlation, status: 'success'})
+            .push(function (result) {
+              var software_release = result[1],
+                url = result[2],
+                doc = {
+                  url_string: software_release.url_string,
+                  title: options.software_title ? options.software_title: gadget.software_title_translation + "{uid}",
+                  relative_url: options.jio_key
+                };
+              if (options.software_type) {
+                doc.software_type = options.software_type;
+              }
+              if (options.text_content) {
+                doc.text_content = options.text_content;
+              }
+              if (options.shared) {
+                doc.shared = options.shared;
+              }
+              if (options.sla_xml) {
+                doc.sla_xml = options.sla_xml;
+              }
+              return gadget.notifySubmitting()
                 .push(function () {
-                  // Workaround, find a way to open document without break gadget.
-                  return gadget.redirect({"command": "change",
-                                  "options": {"jio_key": key, "page": "slap_controller"}});
+                  var query = [];
+                  query.push("title=" + encodeURIComponent(doc.title));
+
+                  if (doc.software_type) {
+                    query.push("software_type=" + encodeURIComponent(doc.software_type));
+                  }
+                  if (doc.shared) {
+                    query.push("shared:int=" + encodeURIComponent(doc.shared));
+                  }
+                  if (doc.text_content) {
+                    query.push("text_content=" + encodeURIComponent(doc.text_content));
+                  }
+                  if (doc.sla_xml) {
+                    query.push("sla_xml=" + encodeURIComponent(doc.sla_xml));
+                  }
+                  return gadget.jio_getAttachment(doc.relative_url,
+                    url + doc.relative_url + "/SoftwareRelease_requestInstanceTree?" + query.join("&"));
+                })
+                .push(function (key) {
+                  return gadget.notifySubmitted({message: gadget.message_tranlation, status: 'success'})
+                    .push(function () {
+                      // Workaround, find a way to open document without break gadget.
+                      return gadget.redirect({"command": "change",
+                                      "options": {"jio_key": key, "page": "slap_controller"}});
+                    });
                 });
             });
         });

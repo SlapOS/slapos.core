@@ -1740,3 +1740,63 @@ class TestInstanceTree_getFastInputDict(TestSlapOSHalJsonStyleMixin):
       'enabled': True,
       'sla_xml': '<parameter id="instance_guid">%s</parameter>' % software_instance.getReference()
     }, self.instance_tree.InstanceTree_getFastInputDict())
+
+
+class TestSoftwareProduct_getSoftwareReleaseAsHateoas(TestSlapOSHalJsonStyleMixin):
+
+  @simulate('SoftwareProduct_getSortedSoftwareReleaseList', 
+    'software_product_reference=None, software_release_url=None, strict=None', """
+assert software_product_reference == 'fake'
+assert software_release_url is None
+assert strict is None
+return context.REQUEST['test_software_release_list']""")
+  def test_product_reference(self):
+
+    sr = self._makeSoftwareRelease()
+    self.changeSkin('RJS')
+
+    self.portal.REQUEST['test_software_release_list'] = [sr]
+ 
+    self.assertEqual(
+      sr.getRelativeUrl(),
+      json.loads(
+        self.portal.SoftwareProduct_getSoftwareReleaseAsHateoas("product.fake"))
+    )
+
+  @simulate('SoftwareProduct_getSortedSoftwareReleaseList', 
+    'software_product_reference=None, software_release_url=None, strict=None', """
+assert software_product_reference is None
+assert software_release_url == 'fake'
+assert strict is False
+return context.REQUEST['test_software_release_list']""")
+  def test_software_release(self):
+
+    sr = self._makeSoftwareRelease()
+    self.changeSkin('RJS')
+
+    self.portal.REQUEST['test_software_release_list'] = [sr]
+ 
+    self.assertEqual(
+      sr.getRelativeUrl(),
+      json.loads(
+        self.portal.SoftwareProduct_getSoftwareReleaseAsHateoas("fake"))
+    )
+
+  @simulate('SoftwareProduct_getSortedSoftwareReleaseList', 
+    'software_product_reference=None, software_release_url=None, strict=None', """
+assert software_product_reference is None
+assert software_release_url == 'fake'
+assert strict is True
+return []""")
+  def test_software_release_not_found(self):
+
+    self.changeSkin('RJS')
+    self.assertEqual(
+      '',
+      json.loads(
+        self.portal.SoftwareProduct_getSoftwareReleaseAsHateoas("fake", True))
+    )
+
+
+
+

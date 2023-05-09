@@ -4,4 +4,7 @@ if partition is not None:
     partition.getParentValue().getReference(), 
     partition.getReference())
 
-return ""
+if context.getAggregate() is None:
+  return context.Base_translateString("Not allocated")
+  
+return context.Base_translateString("Not allowed")

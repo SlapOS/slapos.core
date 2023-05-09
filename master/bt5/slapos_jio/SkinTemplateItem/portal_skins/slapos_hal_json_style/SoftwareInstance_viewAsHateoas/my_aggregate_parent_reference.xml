@@ -84,7 +84,7 @@
               <dictionary>
                 <item>
                     <key> <string>default</string> </key>
-                    <value> <string></string> </value>
+                    <value> <string>Not Allowed</string> </value>
                 </item>
                 <item>
                     <key> <string>field_id</string> </key>
@@ -116,7 +116,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: here.getAggregate() is not None and here.getAggregateValue().getParentValue().getReference() or ""</string> </value>
+            <value> <string>python: here.getAggregate() is not None and here.getAggregateValue().getParentValue().getReference() or "Not Allocated"</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -223,7 +223,7 @@
                       "required": 1,
                       "editable": 0,
                       "key": "aggregate_parent_reference",
-                      "hidden": gadget.state.doc.aggregate_parent_reference ? 1 : 0,
+                      "hidden": 0,
                       "type": "StringField"
                     },
                     "my_aggregate_title": {
@@ -234,7 +234,7 @@
                       "required": 1,
                       "editable": 0,
                       "key": "aggregate_title",
-                      "hidden": gadget.state.doc.aggregate_title ? 1 : 0,
+                      "hidden": 0,
                       "type": "StringField"
                     },
                     "my_text_content": {
@@ -283,7 +283,7 @@
                     [["my_title"], ["my_reference"], ['my_monitoring_status']]
                   ], [
                     "right",
-                    [["my_specialise_title"], ["my_source_reference"]]
+                    [["my_specialise_title"], ["my_source_reference"], ["my_aggregate_parent_reference"], ["my_aggregate_title"]]
                   ], [
                     "center",
                     [["my_url_string"], ["my_text_content"]]

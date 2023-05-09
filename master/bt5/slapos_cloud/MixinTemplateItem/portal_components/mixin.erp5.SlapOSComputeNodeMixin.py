@@ -103,7 +103,7 @@ class SlapOSComputeNodeMixin(object):
   def _activateFillComputeNodeInformationCache(self, user):
     tag = 'compute_node_information_cache_fill_%s_%s' % (self.getReference(), user)
     if self.getPortalObject().portal_activities.countMessageWithTag(tag) == 0:
-      self.activate(activity='SQLQueue', priority=2, tag=tag)._fillComputeNodeInformationCache(user)
+      self.activate(activity='SQLQueue', priority=1, tag=tag)._fillComputeNodeInformationCache(user)
 
 
   def _fillComputeNodeInformationCache(self, user):

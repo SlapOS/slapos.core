@@ -75,11 +75,12 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
   def test_activate_getFullComputerInformation_first_access(self):
     self._makeComplexComputeNode(with_slave=True)
     self.portal.REQUEST['disable_isTestRun'] = True
-    self.tic()
 
     self.login(self.compute_node_user_id)
     self.portal_slap.getFullComputerInformation(self.compute_node_id)
-    
+    self.tic()
+    self.portal_slap.getFullComputerInformation(self.compute_node_id)
+
     # First access.
     # Cache has been filled by interaction workflow
     # (luckily, it seems the cache is filled after everything is indexed)
@@ -174,7 +175,9 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
 
     self.tic()
-
+    self.portal_slap.getFullComputerInformation(self.compute_node_id)
+    self.tic()
+    
     # 6th, the instance edition triggered an interaction workflow
     # which updated the cache
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
@@ -212,6 +215,8 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     self.assertEqual(third_body_fingerprint, hashData(response.body))
     self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
 
+    self.tic()
+    self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.tic()
 
     # 8th access

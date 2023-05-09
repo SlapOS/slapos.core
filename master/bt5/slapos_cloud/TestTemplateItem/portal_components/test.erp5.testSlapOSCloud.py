@@ -524,12 +524,16 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
 
     self._makeComplexComputeNode(with_slave=True)
     self.portal.REQUEST['disable_isTestRun'] = True
-    self.tic()
 
     self.login(self.compute_node_user_id)
     user = self.getPortalObject().portal_membership.getAuthenticatedMember().getUserName()
 
     self.compute_node.setAccessStatus(self.compute_node_id)
+    refresh_etag = self.compute_node._calculateRefreshEtag()
+    body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
+    # This tic and second call is to fix indexation ordering while some sub object 
+    # is created after the etag is computed and stored. 
+    self.tic()
     refresh_etag = self.compute_node._calculateRefreshEtag()
     body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
 
@@ -625,6 +629,11 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
     self.compute_node.setAccessStatus(self.compute_node_id)
     refresh_etag = self.compute_node._calculateRefreshEtag()
     body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
+    
+    # On the previous tic, the values can be indexed out of order, so recall after indextion
+    # so the values are propely set.
+    self.tic()
+    body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
     self.commit()
 
     third_etag = self.compute_node._calculateRefreshEtag()
@@ -666,6 +675,12 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
     self.compute_node.setAccessStatus(self.compute_node_id)
     refresh_etag = self.compute_node._calculateRefreshEtag()
     body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
+
+    # On the previous tic, the values can be indexed out of order, so recall after indextion
+    # so the values are propely set.
+    self.tic()
+    body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
+    
     self.commit()
     fourth_etag = self.compute_node._calculateRefreshEtag()
     fourth_body_fingerprint = hashData(

@@ -531,7 +531,7 @@
             header_dict.start_url = url_list[2];
           }
           if (gadget.state.doc.fast_input_dict.enabled !== undefined) {
-            header_dict.fast_input_url = url_list[8];
+            header_dict.add_shared_url = url_list[8];
           }
           if (!gadget.state.editable) {
             header_dict.edit_content = url_list[0];

@@ -496,7 +496,7 @@
               page: "slap_intent",
               intent: "request",
               shared: 1,
-              sofware_type: gadget.state.doc.source_reference,
+              software_type: gadget.state.doc.source_reference,
               software_release:  gadget.state.doc.url_string,
               sla_xml: gadget.state.doc.fast_input_dict.sla_xml,
               strict: "True"

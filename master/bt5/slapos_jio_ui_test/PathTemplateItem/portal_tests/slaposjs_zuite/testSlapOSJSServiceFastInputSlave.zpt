@@ -226,7 +226,7 @@
         <td>www.erp5.com</td>
       </tr>
 
-      <tal:block define="menu_action python: 'Fast Input'">
+      <tal:block define="menu_action python: 'Add Shared'">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
       </tal:block>
 

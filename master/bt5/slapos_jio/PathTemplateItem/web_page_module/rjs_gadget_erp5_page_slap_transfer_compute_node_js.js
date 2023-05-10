@@ -67,12 +67,9 @@
           "The name of a document in ERP5",
           "Title",
           "Reference",
-          "Current Location",
-          "Current Project",
-          "Future Location",
-          "Future Project",
-          "Current Organisation",
-          "Future Organisation",
+          "Location",
+          "Project",
+          "Organisation",
           "Parent Relative Url",
           "Transfer Compute Node"
         ];
@@ -96,26 +93,31 @@
             gadget.jio_allDocs({
               query: 'portal_type:"Organisation" AND role_title: "Host" AND relative_url:(' + destination_list + ')',
               sort_on: [['reference', 'ascending']],
-              select_list: ['reference', 'title']
+              select_list: ['reference', 'title'],
+              limit: 1000
             }),
             gadget.jio_allDocs({
               query: 'portal_type:"Project" AND validation_state:"validated"',
               sort_on: [['reference', 'ascending']],
               select_list: ['reference', 'title'],
-              limit: 50
+              limit: 1000
             }),
             gadget.jio_allDocs({
               query: 'portal_type:"Organisation" AND role_title: "Client" AND relative_url:(' + destination_list + ')',
               sort_on: [['reference', 'ascending']],
-              select_list: ['reference', 'title']
+              select_list: ['reference', 'title'],
+              limit: 1000
             }),
             gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
           gadget.message_translation = result[5][0];
-          page_translation = result[5][11];
+          page_translation = result[5][8];
           var doc = result[1],
+            default_site = "",
+            default_organisation = "",
+            default_project = "",
             site_list = [["", ""]],
             project_list = [["", ""]],
             organisation_list = [["", ""]],
@@ -125,6 +127,9 @@
             organisation_len = result[4].data.total_rows;
 
           for (i = 0; i < site_len; i += 1) {
+            if (result[2].data.rows[i].value.title === doc.source_title) {
+              default_site = result[2].data.rows[i].id;
+            }
             site_list.push([
               result[2].data.rows[i].value.title || result[2].data.rows[i].value.reference,
               result[2].data.rows[i].id
@@ -132,6 +137,9 @@
           }
 
           for (i = 0; i < project_len; i += 1) {
+            if (result[3].data.rows[i].value.title === doc.source_project_title) {
+              default_project = result[3].data.rows[i].id;
+            }
             project_list.push([
               result[3].data.rows[i].value.title || result[3].data.rows[i].value.reference,
               result[3].data.rows[i].id
@@ -139,6 +147,9 @@
           }
 
           for (i = 0; i < organisation_len; i += 1) {
+            if (result[4].data.rows[i].value.title === doc.source_section_title) {
+              default_organisation = result[4].data.rows[i].id;
+            }
             organisation_list.push([
               result[4].data.rows[i].value.title || result[4].data.rows[i].value.reference,
               result[4].data.rows[i].id
@@ -170,35 +181,13 @@
                   "hidden": 0,
                   "type": "StringField"
                 },
-                "my_source": {
-                  "description": result[5][1],
-                  "title": result[5][4],
-                  "default": doc.source_title,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 0,
-                  "key": "source_title",
-                  "hidden": 0,
-                  "type": "StringField"
-                },
-                "my_source_project": {
-                  "description": result[5][1],
-                  "title": result[5][5],
-                  "default": doc.source_project_title,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 0,
-                  "key": "source_project_title",
-                  "hidden": 0,
-                  "type": "StringField"
-                },
                 "my_destination": {
                   "description": result[5][1],
-                  "title": result[5][6],
-                  "default": "",
+                  "title": result[5][4],
+                  "default": default_site,
                   "items": site_list,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 1,
                   "key": "destination",
                   "hidden": 0,
@@ -206,34 +195,23 @@
                 },
                 "my_destination_project": {
                   "description": result[5][1],
-                  "title": result[5][7],
-                  "default": "",
+                  "title": result[5][5],
+                  "default": default_project,
                   "items": project_list,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 1,
                   "key": "destination_project",
                   "hidden": 0,
                   "type": "ListField"
                 },
-                "my_source_section": {
-                  "description": result[5][1],
-                  "title": result[5][8],
-                  "default": doc.source_section_title,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 0,
-                  "key": "source_section_title",
-                  "hidden": 0,
-                  "type": "StringField"
-                },
                 "my_destination_section": {
                   "description": result[5][1],
-                  "title": result[5][9],
-                  "default": "",
+                  "title": result[5][6],
+                  "default": default_organisation,
                   "items": organisation_list,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 1,
                   "key": "destination_section",
                   "hidden": 0,
@@ -241,7 +219,7 @@
                 },
                 "my_relative_url": {
                   "description": "",
-                  "title": result[5][10],
+                  "title": result[5][7],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -261,8 +239,9 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_reference"], ["my_source_section"], ["my_source"], ["my_source_project"],
-                  ["my_destination"], ["my_destination_project"], ["my_destination_section"], ["my_relative_url"]]
+                [["my_title"], ["my_reference"], ["my_destination"],
+                  ["my_destination_project"], ["my_destination_section"],
+                  ["my_relative_url"]]
               ]]
             }
           });

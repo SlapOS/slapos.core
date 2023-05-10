@@ -107,6 +107,7 @@
                         <string>my_source_project_title</string>
                         <string>my_monitor_scope</string>
                         <string>my_upgrade_scope</string>
+                        <string>my_source_section_title</string>
                       </list>
                     </value>
                 </item>

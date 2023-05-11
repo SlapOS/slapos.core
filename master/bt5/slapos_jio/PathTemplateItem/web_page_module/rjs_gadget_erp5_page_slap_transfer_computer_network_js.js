@@ -17,7 +17,6 @@
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
-    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
@@ -39,7 +38,6 @@
         .push(function (doc) {
           return gadget.getSetting("hateoas_url")
             .push(function (url) {
-              // This is horrible
               return gadget.jio_putAttachment(doc.relative_url,
                 url + doc.relative_url + "/ComputerNetwork_createMovement", doc);
             })
@@ -62,13 +60,11 @@
     .declareMethod("render", function (options) {
       var gadget = this,
         translation_list = [
-          "The name of a document in ERP5",
+          "The name of a document in ERP5", 
           "Title",
           "Reference",
-          "Current Project",
-          "Future Project",
-          "Current Organisation",
-          "Future Organisation",
+          "Project",
+          "Organisation",
           "Parent Relative Url",
           "Transfer Computer Network",
           "Computer Network is transferred."
@@ -93,21 +89,25 @@
             gadget.jio_get(options.jio_key),
             gadget.jio_allDocs({
               query: 'portal_type:"Project" AND validation_state:"validated"',
-              sort_on: [['reference', 'ascending']],
-              select_list: ['reference', 'title']
+              sort_on: [['title', 'ascending']],
+              select_list: ['reference', 'title'],
+              limit: 1000
             }),
             gadget.jio_allDocs({
               query: 'portal_type:"Organisation" AND role_title: "Client" AND relative_url:(' + destination_list + ')',
-              sort_on: [['reference', 'ascending']],
-              select_list: ['reference', 'title']
+              sort_on: [['title', 'ascending']],
+              select_list: ['reference', 'title'],
+              limit: 1000
             }),
             gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
-          gadget.page_title_translation = result[4][8];
-          gadget.message_translation = result[4][9];
+          gadget.page_title_translation = result[4][6];
+          gadget.message_translation = result[4][7];
           var doc = result[1],
+            default_project = "",
+            default_organisation = "",
             organisation_list = [["", ""]],
             project_list = [["", ""]],
             i,
@@ -115,6 +115,9 @@
             organisation_len = result[3].data.total_rows;
 
           for (i = 0; i < project_len; i += 1) {
+            if (result[2].data.rows[i].value.title === doc.source_project_title) {
+              default_project = result[2].data.rows[i].id;
+            }
             project_list.push([
               result[2].data.rows[i].value.title || result[2].data.rows[i].value.reference,
               result[2].data.rows[i].id
@@ -122,6 +125,9 @@
           }
 
           for (i = 0; i < organisation_len; i += 1) {
+            if (result[3].data.rows[i].value.title === doc.source_project_title) {
+              default_organisation = result[3].data.rows[i].id;
+            }
             organisation_list.push([
               result[3].data.rows[i].value.title || result[3].data.rows[i].value.reference,
               result[3].data.rows[i].id
@@ -153,47 +159,25 @@
                   "hidden": 0,
                   "type": "StringField"
                 },
-                "my_source_project": {
-                  "description": result[4][0],
-                  "title": result[4][3],
-                  "default": doc.source_project_title,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 0,
-                  "key": "source_project_title",
-                  "hidden": 0,
-                  "type": "StringField"
-                },
                 "my_destination_project": {
                   "description": result[4][0],
-                  "title": result[4][4],
-                  "default": "",
+                  "title": result[4][3],
+                  "default": default_project,
                   "items": project_list,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 1,
                   "key": "destination_project",
                   "hidden": 0,
                   "type": "ListField"
                 },
-                "my_source_section": {
-                  "description": result[4][0],
-                  "title": result[4][5],
-                  "default": doc.source_section_title,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 0,
-                  "key": "source_section_title",
-                  "hidden": 0,
-                  "type": "StringField"
-                },
                 "my_destination_section": {
                   "description": result[4][0],
-                  "title": result[4][6],
-                  "default": "",
+                  "title": result[4][4],
+                  "default": default_organisation,
                   "items": organisation_list,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 1,
                   "key": "destination_section",
                   "hidden": 0,
@@ -201,10 +185,10 @@
                 },
                 "my_relative_url": {
                   "description": "",
-                  "title": result[4][7],
+                  "title": result[4][5],
                   "default": options.jio_key,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 1,
                   "key": "relative_url",
                   "hidden": 1,
@@ -221,7 +205,8 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_reference"], ["my_source_project"], ["my_source_section"], ["my_destination_project"], ["my_destination_section"], ["my_relative_url"]]
+                [["my_title"], ["my_reference"], ["my_source_project"], ["my_source_section"],
+                  ["my_destination_project"], ["my_destination_section"], ["my_relative_url"]]
               ]]
             }
           });

@@ -39,7 +39,6 @@
         .push(function (doc) {
           return gadget.getSetting("hateoas_url")
             .push(function (url) {
-              // This is horrible
               return gadget.jio_putAttachment(doc.relative_url,
                 url + doc.relative_url + "/InstanceTree_createMovement", doc);
             })

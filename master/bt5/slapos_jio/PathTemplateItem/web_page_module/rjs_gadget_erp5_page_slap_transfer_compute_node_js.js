@@ -40,7 +40,6 @@
         .push(function (doc) {
           return gadget.getSetting("hateoas_url")
             .push(function (url) {
-              // This is horrible
               return gadget.jio_putAttachment(doc.relative_url,
                 url + doc.relative_url + "/ComputeNode_createMovement", doc);
             })

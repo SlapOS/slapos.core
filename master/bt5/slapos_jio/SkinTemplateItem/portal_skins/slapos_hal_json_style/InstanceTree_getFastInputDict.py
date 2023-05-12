@@ -5,7 +5,7 @@
 if context.getRootSlave():
   return {}
 
-for sr_string in ['software/re6stnet/', 'software/caddy-frontend/']:
+for sr_string in ['software/re6stnet/', 'software/rapid-cdn/']:
   if context.getSuccessorReference() is not None and sr_string in context.getUrlString(''):
     return {
       'enabled': True,

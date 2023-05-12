@@ -95,7 +95,7 @@
                 </tuple>
                 <state>
                   <tuple>
-                    <float>1520985600.0</float>
+                    <float>1683763200.0</float>
                     <string>UTC</string>
                   </tuple>
                 </state>
@@ -128,11 +128,11 @@
         </item>
         <item>
             <key> <string>url_string</string> </key>
-            <value> <string>https://lab.nexedi.com/nexedi/slapos/raw/1.0.149/software/caddy-frontend/software.cfg</string> </value>
+            <value> <string>https://lab.nexedi.com/nexedi/slapos/raw/1.0.319/software/rapid-cdn/software.cfg</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>1.0.149</string> </value>
+            <value> <string>1.0.319</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -971,6 +971,53 @@
                           <state>
                             <tuple>
                               <float>1600955635.11</float>
+                              <string>UTC</string>
+                            </tuple>
+                          </state>
+                        </object>
+                      </value>
+                  </item>
+                </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>action</string> </key>
+                      <value> <string>edit</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>actor</string> </key>
+                      <value> <string>zope</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>comment</string> </key>
+                      <value>
+                        <none/>
+                      </value>
+                  </item>
+                  <item>
+                      <key> <string>error_message</string> </key>
+                      <value> <string></string> </value>
+                  </item>
+                  <item>
+                      <key> <string>serial</string> </key>
+                      <value> <string>1006.58340.40727.23620</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>state</string> </key>
+                      <value> <string>current</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>time</string> </key>
+                      <value>
+                        <object>
+                          <klass> <reference id="4.1"/> </klass>
+                          <tuple>
+                            <reference id="4.2"/>
+                            <reference id="4.3"/>
+                            <none/>
+                          </tuple>
+                          <state>
+                            <tuple>
+                              <float>1683921542.54</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

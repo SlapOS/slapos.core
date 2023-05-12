@@ -39,7 +39,6 @@
         .push(function (doc) {
           return gadget.getSetting("hateoas_url")
             .push(function (url) {
-              // This is horrible
               return gadget.jio_putAttachment(doc.relative_url,
                 url + doc.relative_url + "/InstanceTree_createMovement", doc);
             })
@@ -64,10 +63,8 @@
           "The name of a document in ERP5",
           "Title",
           "Reference",
-          "Current Project",
-          "Future Organisation",
-          "Current Organisation",
-          "Future Project",
+          "Project",
+          "Organisation",
           "Parent Relative Url",
           "Transfer Service"
         ];
@@ -90,21 +87,24 @@
             gadget.jio_get(options.jio_key),
             gadget.jio_allDocs({
               query: 'portal_type:"Organisation" AND role_title: "Client" AND relative_url:(' + destination_list + ')',
-              sort_on: [['reference', 'ascending']],
-              select_list: ['reference', 'title']
+              sort_on: [['title', 'descending']],
+              select_list: ['reference', 'title'],
+              limit: 1000
             }),
             gadget.jio_allDocs({
               query: 'portal_type:"Project" AND validation_state:"validated"',
-              sort_on: [['reference', 'ascending']],
+              sort_on: [['title', 'descending']],
               select_list: ['reference', 'title'],
-              limit: 50
+              limit: 1000
             }),
             gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
-          gadget.page_title_translation = result[4][8];
+          gadget.page_title_translation = result[4][6];
           var doc = result[1],
+            default_organisation = "",
+            default_project = "",
             organisation_list = [["", ""]],
             project_list = [["", ""]],
             i,
@@ -112,6 +112,9 @@
             site_len = result[2].data.total_rows;
 
           for (i = 0; i < site_len; i += 1) {
+            if (result[2].data.rows[i].value.title === doc.source_title) {
+              default_organisation = result[2].data.rows[i].id;
+            }
             organisation_list.push([
               result[2].data.rows[i].value.title || result[2].data.rows[i].value.reference,
               result[2].data.rows[i].id
@@ -119,6 +122,9 @@
           }
 
           for (i = 0; i < project_len; i += 1) {
+            if (result[3].data.rows[i].value.title === doc.source_project_title) {
+              default_project = result[3].data.rows[i].id;
+            }
             project_list.push([
               result[3].data.rows[i].value.title || result[3].data.rows[i].value.reference,
               result[3].data.rows[i].id
@@ -133,7 +139,7 @@
                   "title": result[4][1],
                   "default": doc.title,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 0,
                   "key": "title",
                   "hidden": 0,
@@ -144,53 +150,31 @@
                   "title": result[4][2],
                   "default": doc.reference,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 0,
                   "key": "reference",
-                  "hidden": 0,
-                  "type": "StringField"
-                },
-                "my_source_project": {
-                  "description": result[4][0],
-                  "title": result[4][3],
-                  "default": doc.source_project_title,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 0,
-                  "key": "source_project_title",
                   "hidden": 0,
                   "type": "StringField"
                 },
                 "my_destination": {
                   "description": result[4][0],
                   "title": result[4][4],
-                  "default": "",
+                  "default": default_organisation,
                   "items": organisation_list,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 1,
                   "key": "destination",
                   "hidden": 0,
                   "type": "ListField"
                 },
-                "my_source": {
-                  "description": result[4][0],
-                  "title": result[4][5],
-                  "default": doc.source_title,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 0,
-                  "key": "source_title",
-                  "hidden": 0,
-                  "type": "StringField"
-                },
                 "my_destination_project": {
                   "description": result[4][0],
-                  "title": result[4][6],
-                  "default": "",
+                  "title": result[4][3],
+                  "default": default_project,
                   "items": project_list,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 1,
                   "key": "destination_project",
                   "hidden": 0,
@@ -198,10 +182,10 @@
                 },
                 "my_relative_url": {
                   "description": "",
-                  "title": result[4][7],
+                  "title": result[4][5],
                   "default": options.jio_key,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 1,
                   "key": "relative_url",
                   "hidden": 1,
@@ -218,8 +202,8 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_reference"], ["my_source_project"], ["my_source"],
-                  ["my_destination_project"], ["my_destination"], ["my_relative_url"]]
+                [["my_title"], ["my_reference"], ["my_destination_project"],
+                  ["my_destination"], ["my_relative_url"]]
               ]]
             }
           });

@@ -13,7 +13,11 @@ def filter_per_portal_type(document):
       and document.getValidationState() == "validated":
     return document
 
-return portal.portal_catalog(uid=[i.uid
-           for i in context.portal_simulation.getCurrentTrackingList(
-             node_uid=context.getUid(), at_date=DateTime())
-             if filter_per_portal_type(i.getObject())], **kw)
+uid_list = [i.uid for i in context.portal_simulation.getCurrentTrackingList(
+    node_uid=context.getUid(), at_date=DateTime())
+    if filter_per_portal_type(i.getObject())]
+
+if not uid_list:
+  return []
+
+return portal.portal_catalog(uid=uid_list, **kw)

@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP, btoa */
+/*global window, rJS, RSVP, btoa, jIO, JSON */
 /*jslint nomen: true, indent: 2, maxerr: 3, sub:true */
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, btoa, jIO, JSON) {
   "use strict";
 
   rJS(window)
@@ -50,12 +50,22 @@
               return gadget.jio_putAttachment(doc.relative_url,
                 url + doc.relative_url + "/SoftwareRelease_requestInstanceTree", doc);
             })
-            .push(function () {
-              return gadget.notifySubmitted({message: gadget.message2_translation, status: 'success'})
+
+            .push(function (attachment) {
+              return new RSVP.Queue()
                 .push(function () {
-                  // Workaround, find a way to open document without break gadget.
-                  return gadget.redirect({"command": "change",
-                                    "options": {"jio_key": "/", "page": "slap_service_list"}});
+                  return jIO.util.readBlobAsText(attachment.target.response);
+                })
+                .push(function (response) {
+                  return JSON.parse(response.target.result);
+                })
+                .push(function (relative_url) {
+                  return gadget.notifySubmitted({message: gadget.message2_translation, status: 'success'})
+                    .push(function () {
+                    // Workaround, find a way to open document without break gadget.
+                      return gadget.redirect({"command": "change",
+                                    "options": {"jio_key": relative_url, "page": "slap_controller"}});
+                    });
                 });
             }, function (error) {
               if (error.target.status === 409) {
@@ -224,4 +234,4 @@
             });
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, btoa, jIO, JSON));

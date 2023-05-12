@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP */
+/*global window, rJS, RSVP, JSON , jIO */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, JSON, jIO) {
   "use strict";
 
   rJS(window)
@@ -42,7 +42,8 @@
           "New service created.",
           "Intent not supported",
           "Requesting a service…",
-          "Instance"
+          "Instance",
+
         ];
       return new RSVP.Queue()
         .push(function () {
@@ -135,33 +136,28 @@
               }
               return gadget.notifySubmitting()
                 .push(function () {
-                  var query = [];
-                  query.push("title=" + encodeURIComponent(doc.title));
-
-                  if (doc.software_type) {
-                    query.push("software_type=" + encodeURIComponent(doc.software_type));
-                  }
-                  if (doc.shared) {
-                    query.push("shared:int=" + encodeURIComponent(doc.shared));
-                  }
-                  if (doc.text_content) {
-                    query.push("text_content=" + encodeURIComponent(doc.text_content));
-                  }
-                  if (doc.sla_xml) {
-                    query.push("sla_xml=" + encodeURIComponent(doc.sla_xml));
-                  }
-                  return gadget.jio_getAttachment(doc.relative_url,
-                    url + doc.relative_url + "/SoftwareRelease_requestInstanceTree?" + query.join("&"));
-                })
-                .push(function (key) {
-                  return gadget.notifySubmitted({message: gadget.message_tranlation, status: 'success'})
-                    .push(function () {
-                      // Workaround, find a way to open document without break gadget.
-                      return gadget.redirect({"command": "change",
-                                      "options": {"jio_key": key, "page": "slap_controller"}});
+                  return gadget.getSetting("hateoas_url")
+                    .push(function (url) {
+                      return gadget.jio_putAttachment(doc.relative_url,
+                        url + doc.relative_url + "/SoftwareRelease_requestInstanceTree", doc);
+                    })
+        
+                    .push(function (attachment) {
+                      return jIO.util.readBlobAsText(attachment.target.response);
+                    })
+                    .push(function (response) {
+                      return JSON.parse(response.target.result);
+                    })
+                    .push(function (relative_url) {
+                      return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
+                        .push(function () {
+                        // Workaround, find a way to open document without break gadget.
+                          return gadget.redirect({"command": "change",
+                                        "options": {"jio_key": relative_url, "page": "slap_controller"}});
+                        });
                     });
                 });
             });
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, JSON , jIO));

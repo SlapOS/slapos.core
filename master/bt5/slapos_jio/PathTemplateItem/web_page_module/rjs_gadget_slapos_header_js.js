@@ -57,7 +57,8 @@
       ['accept_url', 'Accept', 'check-circle'],
       ['reject_url', 'Reject', 'ban'],
       ['contract_url', 'Contract', 'usd'],
-      ['list_all_url', 'Show all', 'eye']
+      ['list_all_url', 'Show all', 'eye'],
+      ['add_shared_url', 'Add Shared', 'magic']
     ],
     header_button_template = function (data) {
       // <form><button name='{{name}}' data-i18n="{{title}}" type='submit' class='ui-icon-{{icon}} ui-btn-icon-left {{class}}'>{{title}}</button></form>

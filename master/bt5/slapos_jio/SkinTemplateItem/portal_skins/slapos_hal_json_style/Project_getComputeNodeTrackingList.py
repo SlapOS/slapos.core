@@ -1,9 +1,6 @@
 # This script might not be efficient to a large quantities of
 # Compute Nodes
-from DateTime import DateTime
-
-kw = {"project_uid": context.getUid(),
-      "at_date": DateTime()}
+portal = context.getPortalObject()
 
 def filter_per_portal_type(document):
   if document.getPortalType() == "Compute Node" \
@@ -16,6 +13,11 @@ def filter_per_portal_type(document):
       and document.getValidationState() == "validated":
     return document
 
-return [ i.getObject()
-           for i in context.portal_simulation.getCurrentTrackingList(**kw)
-             if filter_per_portal_type(i.getObject())]
+uid_list = [i.uid for i in context.portal_simulation.getCurrentTrackingList(
+    project_uid=context.getUid(), at_date=DateTime())
+    if filter_per_portal_type(i.getObject())]
+
+if not uid_list:
+  return []
+
+return portal.portal_catalog(uid=uid_list, **kw)

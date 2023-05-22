@@ -22,8 +22,20 @@ def addAttentionForTicket(ticket):
 # Display unresponded tickets on services or servers
 if portal_type in ["Instance Tree", "Compute Node"]:
   simulation_state = ["suspended", "confirmed"]
-  for ticket in context.Base_getOpenRelatedTicketList(
-   limit=3, simulation_state=simulation_state):
+  for ticket in portal.portal_catalog(
+      portal_type="Support Request",
+      simulation_state="suspended",
+      default_aggregate_uid=context.getUid(),
+      limit=3):
+    entry = addAttentionForTicket(ticket)
+    if entry is not None:
+      attention_point_list.append(entry)
+
+  for ticket in portal.portal_catalog(
+      portal_type="Upgrade Decision",
+      simulation_state="confirmed",
+      chield_aggregate_relative_url=context.getUid(),
+      limit=1):
     entry = addAttentionForTicket(ticket)
     if entry is not None:
       attention_point_list.append(entry)

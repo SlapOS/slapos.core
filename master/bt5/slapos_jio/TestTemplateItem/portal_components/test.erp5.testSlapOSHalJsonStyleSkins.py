@@ -100,10 +100,11 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     return instance
 
   def _makeComputeNode(self, owner=None, allocation_scope='open/public'):
-    SlapOSTestCaseMixinWithAbort._makeComputeNode(
+    _, partition0 =SlapOSTestCaseMixinWithAbort._makeComputeNode(
       self, owner=owner, allocation_scope=allocation_scope
     )
     
+    self.partition0 = partition0
     reference = 'TESTPART-%s' % self.generateNewId()
     self.partition1 = self.compute_node.newContent(
       portal_type="Compute Partition",

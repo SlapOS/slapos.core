@@ -96,7 +96,8 @@
                     <key> <string>left</string> </key>
                     <value>
                       <list>
-                        <string>my_monitor_scope</string>
+                        <string>my_reference</string>
+                        <string>my_title</string>
                       </list>
                     </value>
                 </item>
@@ -104,7 +105,7 @@
                     <key> <string>right</string> </key>
                     <value>
                       <list>
-                        <string>my_upgrade_scope</string>
+                        <string>my_monitor_scope</string>
                       </list>
                     </value>
                 </item>

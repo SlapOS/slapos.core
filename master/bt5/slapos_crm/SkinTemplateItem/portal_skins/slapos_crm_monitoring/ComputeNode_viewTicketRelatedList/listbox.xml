@@ -13,12 +13,14 @@
                 <string>columns</string>
                 <string>count_method</string>
                 <string>default_params</string>
-                <string>editable</string>
+                <string>editable_columns</string>
                 <string>hide_rows_on_no_search_criterion</string>
-                <string>lines</string>
                 <string>list_method</string>
+                <string>portal_types</string>
+                <string>search_columns</string>
                 <string>selection_name</string>
                 <string>sort</string>
+                <string>sort_columns</string>
                 <string>title</string>
               </list>
             </value>
@@ -71,6 +73,12 @@
                 </item>
                 <item>
                     <key> <string>default_params</string> </key>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>editable_columns</string> </key>
                     <value> <string></string> </value>
                 </item>
                 <item>
@@ -86,13 +94,15 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
-                    <key> <string>lines</string> </key>
-                    <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
-                    </value>
+                    <key> <string>list_method</string> </key>
+                    <value> <string></string> </value>
                 </item>
                 <item>
-                    <key> <string>list_method</string> </key>
+                    <key> <string>portal_types</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>search_columns</string> </key>
                     <value> <string></string> </value>
                 </item>
                 <item>
@@ -106,7 +116,15 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>sort_columns</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>target</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>title</string> </key>
                     <value> <string></string> </value>
                 </item>
               </dictionary>
@@ -121,20 +139,12 @@
                     <value>
                       <list>
                         <tuple>
+                          <string>reference</string>
+                          <string>Reference</string>
+                        </tuple>
+                        <tuple>
                           <string>title</string>
                           <string>Title</string>
-                        </tuple>
-                        <tuple>
-                          <string>portal_type</string>
-                          <string>Portal Type</string>
-                        </tuple>
-                        <tuple>
-                          <string>resource_title</string>
-                          <string>Type</string>
-                        </tuple>
-                        <tuple>
-                          <string>modification_date</string>
-                          <string>Modification Date</string>
                         </tuple>
                         <tuple>
                           <string>translated_simulation_state_title</string>
@@ -142,7 +152,7 @@
                         </tuple>
                         <tuple>
                           <string>SupportRequest_recheckMonitoring</string>
-                          <string>Recheck</string>
+                          <string>Rechecking Monitoring</string>
                         </tuple>
                       </list>
                     </value>
@@ -158,8 +168,10 @@
                     </value>
                 </item>
                 <item>
-                    <key> <string>editable</string> </key>
-                    <value> <int>0</int> </value>
+                    <key> <string>editable_columns</string> </key>
+                    <value>
+                      <list/>
+                    </value>
                 </item>
                 <item>
                     <key> <string>field_id</string> </key>
@@ -167,15 +179,11 @@
                 </item>
                 <item>
                     <key> <string>form_id</string> </key>
-                    <value> <string>Base_viewFieldLibrary</string> </value>
+                    <value> <string>Base_viewWebFieldLibrary</string> </value>
                 </item>
                 <item>
                     <key> <string>hide_rows_on_no_search_criterion</string> </key>
                     <value> <int>0</int> </value>
-                </item>
-                <item>
-                    <key> <string>lines</string> </key>
-                    <value> <int>20</int> </value>
                 </item>
                 <item>
                     <key> <string>list_method</string> </key>
@@ -184,13 +192,59 @@
                     </value>
                 </item>
                 <item>
+                    <key> <string>portal_types</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>Support Request</string>
+                          <string>Support Request</string>
+                        </tuple>
+                      </list>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>search_columns</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>reference</string>
+                          <string>Reference</string>
+                        </tuple>
+                        <tuple>
+                          <string>title</string>
+                          <string>Title</string>
+                        </tuple>
+                        <tuple>
+                          <string>translated_simulation_state_title</string>
+                          <string>State</string>
+                        </tuple>
+                      </list>
+                    </value>
+                </item>
+                <item>
                     <key> <string>selection_name</string> </key>
-                    <value> <string>folder_open_ticket_rss_selection</string> </value>
+                    <value> <string>compute node_selection</string> </value>
                 </item>
                 <item>
                     <key> <string>sort</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <tuple>
+                          <string>modification_date</string>
+                          <string>Modification Date</string>
+                        </tuple>
+                      </list>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>sort_columns</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>modification_date</string>
+                          <string>Modification Date</string>
+                        </tuple>
+                      </list>
                     </value>
                 </item>
                 <item>
@@ -199,7 +253,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Ticket List</string> </value>
+                    <value> <string>Tickets</string> </value>
                 </item>
               </dictionary>
             </value>
@@ -215,7 +269,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: int(here.REQUEST.get(\'size\', preferences.getPreference(\'preferred_listbox_list_mode_line_count\', 30)))</string> </value>
+            <value> <string>python: [(\'default_aggregate_uid\', here.getUid())]</string> </value>
         </item>
       </dictionary>
     </pickle>
@@ -228,7 +282,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python:\'%scompute_node_support_request_selection\'  % here.getId()</string> </value>
+            <value> <string>python: \'compute_node_%s_ticket_list\' % here.getUid()</string> </value>
         </item>
       </dictionary>
     </pickle>
@@ -241,7 +295,7 @@
       <dictionary>
         <item>
             <key> <string>method_name</string> </key>
-            <value> <string>ComputeNode_getTicketRelatedList</string> </value>
+            <value> <string>portal_catalog</string> </value>
         </item>
       </dictionary>
     </pickle>

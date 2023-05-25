@@ -167,7 +167,8 @@
           "Associated Tickets",
           "Instances",
           "Instance Tree:",
-          "Software Logo"
+          "Software Logo",
+          "Node"
         ];
       return new RSVP.Queue()
         .push(function () {
@@ -199,6 +200,7 @@
               ['title', result[1][3]],
               ['reference', result[1][4]],
               ['portal_type', result[1][5]],
+              ['SoftwareInstance_getAllocationInformation', result[1][31]],
               ['SoftwareInstance_getReportedState', result[1][11]],
               ['SoftwareInstance_getNewsDict', result[1][1]]
             ],

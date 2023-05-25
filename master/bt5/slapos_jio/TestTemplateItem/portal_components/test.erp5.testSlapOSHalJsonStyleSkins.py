@@ -581,7 +581,7 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                             u'state': u'start_requested',
                             u'text': u'#access OK',
                             u'user': u'SlapOS Master'},
-                          'partition': {'slappart0': {'created_at': self.created_at,
+                          'partition': {self.partition0.getReference(): {'created_at': self.created_at,
                               'no_data': 1,
                               'portal_type': instance.getPortalType(),
                               'reference': instance.getReference(),
@@ -626,7 +626,7 @@ class TestComputerNetwork_getNewsDict(TestSlapOSHalJsonStyleMixin):
                             'reference': network.getReference(),
                             'partition':
                               { compute_node.getReference():
-                                {'slappart0': {'created_at': self.created_at,
+                                {self.partition0.getReference(): {'created_at': self.created_at,
                                 'no_data': 1,
                                 'portal_type': instance.getPortalType(),
                                 'reference': instance.getReference(),
@@ -687,7 +687,7 @@ class TestOrganisation_getNewsDict(TestSlapOSHalJsonStyleMixin):
            u'user': u'SlapOS Master'}},
         'partition':
           { compute_node.getReference():
-            {'slappart0': {'created_at': self.created_at,
+            {self.partition0.getReference(): {'created_at': self.created_at,
             'no_data': 1,
             'portal_type': instance.getPortalType(),
             'reference': instance.getReference(),
@@ -749,7 +749,7 @@ class TestProject_getNewsDict(TestSlapOSHalJsonStyleMixin):
                                u'user': u'SlapOS Master'}},
                             'partition':
                               { compute_node.getReference():
-                                {'slappart0': {'created_at': self.created_at,
+                                {self.partition0.getReference(): {'created_at': self.created_at,
                                 'no_data': 1,
                                 'portal_type': instance.getPortalType(),
                                 'reference': instance.getReference(),

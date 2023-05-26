@@ -1,9 +1,7 @@
-Compute Node Module | slapos_ticket_activity_report
 Compute Node | view_related_support_request
 Incident Response Module | rss_view
 Incident Response Module | view
 Incident Response | view
-Instance Tree Module | slapos_resilience_usage_report
 Instance Tree | jump_to_related_upgrade_decision_line
 Instance Tree | view_ticket
 Person | slapos_user_pending_ticket_report

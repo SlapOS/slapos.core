@@ -467,6 +467,17 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     found_software_release = upgrade_decision.UpgradeDecision_getAggregateValue("Software Release")
     self.assertEqual(None, found_software_release)
 
+  def testUpgradeDecision_getAggregateUrlString_SoftwareRelease(self):
+    software_release = self._makeSoftwareRelease()
+    upgrade_decision = self._makeUpgradeDecision()
+
+    upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
+    upgrade_decision_line.setAggregateValue(software_release)
+
+    url_string = upgrade_decision.UpgradeDecision_getAggregateUrlString()
+    self.assertNotEqual(None, url_string)
+    self.assertEqual(software_release.getUrlString(), url_string)
+
   def testSoftwareRelease_createUpgradeDecision_compute_node(self):
     person = self._makePerson()
     compute_node, _ = self._makeComputeNode(owner=person)

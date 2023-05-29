@@ -1,7 +1,7 @@
 /*jslint nomen: true, maxlen: 200, indent: 2, unparam: true*/
-/*global window, rJS, domsugar, Boolean, btoa, atob */
+/*global window, rJS, domsugar, Boolean, btoa, atob, Number */
 
-(function (window, rJS, domsugar, Boolean, btoa, atob) {
+(function (window, rJS, domsugar, Boolean, btoa, atob, Number) {
   "use strict";
 
   function render_selection(json_field, default_value, is_required, editable) {
@@ -137,7 +137,7 @@
       return true;
     }
     parsed_value = parseFloat(value);
-    if (!isNaN(parsed_value) && ((parsed_value % 1) === 0)) {
+    if (!isNaN(parsed_value) && (Number.isInteger(parsed_value))) {
       return true;
     }
     return false;
@@ -669,4 +669,4 @@
         });
     }, {mutex: 'statechange'});
 
-}(window, rJS, domsugar, Boolean, btoa, atob));
+}(window, rJS, domsugar, Boolean, btoa, atob, Number));

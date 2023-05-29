@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>**kw</string> </value>
+            <value> <string>document_portal_type="Software Release"</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputeNode_getTicketRelatedList</string> </value>
+            <value> <string>UpgradeDecision_getAggregateUrlString</string> </value>
         </item>
       </dictionary>
     </pickle>

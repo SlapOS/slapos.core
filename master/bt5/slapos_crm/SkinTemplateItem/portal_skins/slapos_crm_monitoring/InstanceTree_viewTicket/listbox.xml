@@ -12,12 +12,15 @@
               <list>
                 <string>columns</string>
                 <string>count_method</string>
+                <string>default_params</string>
                 <string>editable_columns</string>
                 <string>hide_rows_on_no_search_criterion</string>
                 <string>list_method</string>
                 <string>portal_types</string>
                 <string>search_columns</string>
                 <string>selection_name</string>
+                <string>sort</string>
+                <string>sort_columns</string>
                 <string>title</string>
               </list>
             </value>
@@ -69,6 +72,12 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>default_params</string> </key>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
+                    </value>
+                </item>
+                <item>
                     <key> <string>editable_columns</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -99,8 +108,16 @@
                 <item>
                     <key> <string>selection_name</string> </key>
                     <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
+                      <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
                     </value>
+                </item>
+                <item>
+                    <key> <string>sort</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>sort_columns</string> </key>
+                    <value> <string></string> </value>
                 </item>
                 <item>
                     <key> <string>target</string> </key>
@@ -145,6 +162,12 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>default_params</string> </key>
+                    <value>
+                      <list/>
+                    </value>
+                </item>
+                <item>
                     <key> <string>editable_columns</string> </key>
                     <value>
                       <list/>
@@ -165,7 +188,7 @@
                 <item>
                     <key> <string>list_method</string> </key>
                     <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
+                      <persistent> <string encoding="base64">AAAAAAAAAAQ=</string> </persistent>
                     </value>
                 </item>
                 <item>
@@ -175,10 +198,6 @@
                         <tuple>
                           <string>Support Request</string>
                           <string>Support Request</string>
-                        </tuple>
-                        <tuple>
-                          <string>Upgrade Decision</string>
-                          <string>Upgrade Decision</string>
                         </tuple>
                       </list>
                     </value>
@@ -207,6 +226,28 @@
                     <value> <string>software_instance_selection</string> </value>
                 </item>
                 <item>
+                    <key> <string>sort</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>modification_date</string>
+                          <string>Modification Date</string>
+                        </tuple>
+                      </list>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>sort_columns</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>modification_date</string>
+                          <string>Modification Date</string>
+                        </tuple>
+                      </list>
+                    </value>
+                </item>
+                <item>
                     <key> <string>target</string> </key>
                     <value> <string>Click to edit the target</string> </value>
                 </item>
@@ -228,12 +269,25 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: \'instance_tree_%s_ticket_list\' % here.getUid()</string> </value>
+            <value> <string>python: [(\'default_aggregate_uid\', here.getUid())]</string> </value>
         </item>
       </dictionary>
     </pickle>
   </record>
   <record id="3" aka="AAAAAAAAAAM=">
+    <pickle>
+      <global name="TALESMethod" module="Products.Formulator.TALESField"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>_text</string> </key>
+            <value> <string>python: \'instance_tree_%s_ticket_list\' % here.getUid()</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="4" aka="AAAAAAAAAAQ=">
     <pickle>
       <global name="Method" module="Products.Formulator.MethodField"/>
     </pickle>
@@ -241,7 +295,7 @@
       <dictionary>
         <item>
             <key> <string>method_name</string> </key>
-            <value> <string>Base_getOpenRelatedTicketList</string> </value>
+            <value> <string>portal_catalog</string> </value>
         </item>
       </dictionary>
     </pickle>

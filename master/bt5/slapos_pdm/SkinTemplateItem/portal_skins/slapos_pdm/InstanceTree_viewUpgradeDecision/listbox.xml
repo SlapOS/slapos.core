@@ -147,12 +147,12 @@
                           <string>Title</string>
                         </tuple>
                         <tuple>
-                          <string>translated_simulation_state_title</string>
-                          <string>State</string>
+                          <string>UpgradeDecision_getAggregateUrlString</string>
+                          <string>Software Release Url</string>
                         </tuple>
                         <tuple>
-                          <string>SupportRequest_recheckMonitoring</string>
-                          <string>Rechecking Monitoring</string>
+                          <string>translated_simulation_state_title</string>
+                          <string>State</string>
                         </tuple>
                       </list>
                     </value>
@@ -196,8 +196,8 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>Support Request</string>
-                          <string>Support Request</string>
+                          <string>Upgrade Decision</string>
+                          <string>Upgrade Decision</string>
                         </tuple>
                       </list>
                     </value>
@@ -223,7 +223,7 @@
                 </item>
                 <item>
                     <key> <string>selection_name</string> </key>
-                    <value> <string>compute node_selection</string> </value>
+                    <value> <string>software_instance_selection</string> </value>
                 </item>
                 <item>
                     <key> <string>sort</string> </key>
@@ -253,7 +253,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Tickets</string> </value>
+                    <value> <string>Upgrade Decisions</string> </value>
                 </item>
               </dictionary>
             </value>
@@ -269,7 +269,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: [(\'default_aggregate_uid\', here.getUid())]</string> </value>
+            <value> <string>python: [(\'child_aggregate_relative_url\', here.getRelativeUrl())]</string> </value>
         </item>
       </dictionary>
     </pickle>
@@ -282,7 +282,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: \'compute_node_%s_ticket_list\' % here.getUid()</string> </value>
+            <value> <string>python: \'instance_tree_%s_upgrade_list\' % here.getUid()</string> </value>
         </item>
       </dictionary>
     </pickle>

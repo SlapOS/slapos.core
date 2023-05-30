@@ -1,7 +1,7 @@
 /*jslint nomen: true, maxlen: 200, indent: 2, unparam: true*/
-/*global window, rJS, domsugar, Boolean, btoa, atob */
+/*global window, rJS, domsugar, Boolean, btoa, atob, Number */
 
-(function (window, rJS, domsugar, Boolean, btoa, atob) {
+(function (window, rJS, domsugar, Boolean, btoa, atob, Number) {
   "use strict";
 
   function render_selection(json_field, default_value, is_required, editable) {
@@ -128,6 +128,34 @@
     return input;
   }
 
+
+
+  function testInteger(value) {
+    var parsed_value;
+    if (value === undefined || value === "") {
+      // Value is empty so it is ok to render the field
+      return true;
+    }
+    parsed_value = parseFloat(value);
+    if (!isNaN(parsed_value) && (Number.isInteger(parsed_value))) {
+      return true;
+    }
+    return false;
+  }
+
+  function testNumber(value) {
+    var parsed_value;
+    if (value === undefined || value === "") {
+      // Value is empty so it is ok to render the field
+      return true;
+    }
+    parsed_value = parseFloat(value);
+    if (!isNaN(parsed_value)) {
+      return true;
+    }
+    return false;
+  }
+
   function render_field(json_field, default_value, is_required, editable) {
     var input,
       data_format,
@@ -169,9 +197,9 @@
       domsugar_input_dict.value = default_value;
     }
 
-    if (json_field.type === "integer") {
+    if (json_field.type === "integer" && testInteger(default_value)) {
       domsugar_input_dict.type = "number";
-    } else if (json_field.type === "number") {
+    } else if (json_field.type === "number" && testNumber(default_value)) {
       domsugar_input_dict.type = "number";
       domsugar_input_dict.step = "any";
     } else if (json_field.type === "hidden") {
@@ -641,4 +669,4 @@
         });
     }, {mutex: 'statechange'});
 
-}(window, rJS, domsugar, Boolean, btoa, atob));
+}(window, rJS, domsugar, Boolean, btoa, atob, Number));

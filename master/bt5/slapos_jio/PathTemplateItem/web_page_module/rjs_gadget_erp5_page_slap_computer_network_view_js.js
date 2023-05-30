@@ -131,7 +131,7 @@
                   "title": result[1][1],
                   "default": gadget.state.doc.title,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": editable,
                   "key": "title",
                   "hidden": 0,
@@ -142,7 +142,7 @@
                   "title": result[1][2],
                   "default": gadget.state.doc.reference,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 0,
                   "key": "reference",
                   "hidden": 0,
@@ -154,7 +154,7 @@
                   "default": {jio_key: gadget.state.jio_key,
                               result: gadget.state.doc.news},
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 0,
                   "url": "gadget_slapos_status.html",
                   "sandbox": "",
@@ -170,7 +170,7 @@
                   "required": 0,
                   "editable": 0,
                   "key": "",
-                  "hidden": 0,
+                  "hidden": gadget.state.doc.source_project_title ? 1 : 0,
                   "type": "StringField"
                 },
                 "my_source_section": {
@@ -178,10 +178,10 @@
                   "title": result[1][8],
                   "default": gadget.state.doc.source_section_title,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 0,
                   "key": "",
-                  "hidden": 0,
+                  "hidden": gadget.state.doc.source_section_title ? 1 : 0,
                   "type": "StringField"
                 },
                 "listbox": {

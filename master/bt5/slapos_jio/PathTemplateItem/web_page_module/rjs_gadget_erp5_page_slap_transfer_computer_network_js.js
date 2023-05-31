@@ -67,7 +67,7 @@
           "Organisation",
           "Parent Relative Url",
           "Transfer Computer Network",
-          "Computer Network is transferred."
+          "Computer Network will be transferred soon."
         ];
 
       return new RSVP.Queue()

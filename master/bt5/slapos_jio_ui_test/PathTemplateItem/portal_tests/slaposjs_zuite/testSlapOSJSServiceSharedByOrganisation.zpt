@@ -260,7 +260,7 @@
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
       <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                           'text': 'Service is transferred.'}">
+                                                           'text': 'Service will be transferred soon.'}">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
       </tal:block>
 

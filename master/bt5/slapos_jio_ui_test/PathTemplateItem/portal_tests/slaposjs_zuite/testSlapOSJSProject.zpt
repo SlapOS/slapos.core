@@ -152,7 +152,7 @@
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
       <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                           'text': 'Compute Node is transferred.'}">
+                                                           'text': 'Compute Node will be transferred soon.'}">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
       </tal:block>
 

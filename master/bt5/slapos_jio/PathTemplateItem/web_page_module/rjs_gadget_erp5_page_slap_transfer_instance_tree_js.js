@@ -43,7 +43,7 @@
                 url + doc.relative_url + "/InstanceTree_createMovement", doc);
             })
             .push(function () {
-              return gadget.notifySubmitted({message: 'Service is transferred.', status: 'success'})
+              return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
                 .push(function () {
                   // Workaround, find a way to open document without break gadget.
                   return gadget.redirect({"command": "change",
@@ -66,7 +66,8 @@
           "Project",
           "Organisation",
           "Parent Relative Url",
-          "Transfer Service"
+          "Transfer Service",
+          "Service will be transferred soon."
         ];
       return new RSVP.Queue()
         .push(function () {
@@ -101,6 +102,7 @@
           ]);
         })
         .push(function (result) {
+          gadget.message_translation = result[4][7];
           gadget.page_title_translation = result[4][6];
           var doc = result[1],
             default_organisation = "",

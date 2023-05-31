@@ -34,7 +34,7 @@ if portal_type in ["Instance Tree", "Compute Node"]:
   for ticket in portal.portal_catalog(
       portal_type="Upgrade Decision",
       simulation_state="confirmed",
-      child_aggregate_relative_url=context.getUid(),
+      child_aggregate_relative_url=context.getRelativeUrl(),
       limit=1):
     entry = addAttentionForTicket(ticket)
     if entry is not None:

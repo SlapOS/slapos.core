@@ -777,6 +777,9 @@ class SlapTool(BaseTool):
     Request Software Release installation
     """
     compute_node_document = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id)
+
+    if state == "destroyed" and compute_node_document.ComputeNode_getSoftwareReleaseUsage(url) > 0:
+      raise ValueError("Cannot remove, Software Release is been used")
     compute_node_document.requestSoftwareRelease(software_release_url=url, state=state)
 
   @convertToREST

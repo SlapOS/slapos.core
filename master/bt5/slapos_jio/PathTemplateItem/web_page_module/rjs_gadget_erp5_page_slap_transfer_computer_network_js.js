@@ -67,7 +67,7 @@
           "Organisation",
           "Parent Relative Url",
           "Transfer Computer Network",
-          "Computer Network is transferred."
+          "Computer Network will be transferred soon."
         ];
 
       return new RSVP.Queue()
@@ -125,7 +125,7 @@
           }
 
           for (i = 0; i < organisation_len; i += 1) {
-            if (result[3].data.rows[i].value.title === doc.source_project_title) {
+            if (result[3].data.rows[i].value.title === doc.source_section_title) {
               default_organisation = result[3].data.rows[i].id;
             }
             organisation_list.push([

@@ -48,7 +48,8 @@
                 .push(function () {
                 // Workaround, find a way to open document without break gadget.
                   return gadget.redirect({"command": "change",
-                                      "options": {"jio_key": doc.relative_url, "page": "slap_controller"}});
+                                      "options": {"jio_key": doc.relative_url,
+                                                  "page": "slap_controller"}});
                 });
             });
         });
@@ -62,7 +63,7 @@
       var gadget = this,
         page_translation,
         translation_list = [
-          "Compute Node is transferred.",
+          "Compute Node will be transferred soon.",
           "The name of a document in ERP5",
           "Title",
           "Reference",

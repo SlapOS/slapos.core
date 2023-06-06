@@ -1457,9 +1457,15 @@ def parse_computer_definition(conf, definition_path):
       address_list.append(dict(addr=address, netmask=netmask))
     if computer_definition.has_option(section, 'ipv6_range'):
       ipv6_range_network = computer_definition.get(section, 'ipv6_range')
-      addr, netmask = ipv6_range_network.split('/')
-      netmask = netmaskFromLenIPv6(int(netmask))
-      ipv6_range = {'addr' : address, 'netmask' : netmask, 'network' : ipv6_range_network}
+      ipv6_range_addr, ipv6_range_prefixlen = ipv6_range_network.split('/')
+      ipv6_range_prefixlen = int(ipv6_range_prefixlen)
+      ipv6_range_netmask = netmaskFromLenIPv6(ipv6_range_prefixlen)
+      ipv6_range = {
+        'addr' : ipv6_range_addr,
+        'netmask' : ipv6_range_netmask,
+        'network' : ipv6_range_network,
+        'prefixlen': ipv6_range_prefixlen,
+      }
     else:
       ipv6_range = {}
     tap = Tap(computer_definition.get(section, 'network_interface'))

@@ -65,6 +65,10 @@ from ..grid.svcbackend import getSupervisorRPC
 from ..grid.svcbackend import _getSupervisordSocketPath
 
 
+NETMASK_IPV6_FULL = 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'
+NETMASK_IPV4_FULL = '255.255.255.255'
+
+
 def _parseIPv6(ipv6):
   try:
     addr, prefixlen = ipv6.split('/')
@@ -298,7 +302,7 @@ class SlapformatDefinitionWriter(ConfigWriter):
   """
   def writeConfig(self, path):
     ipv4 = self._standalone_slapos._ipv4_address
-    ipv4_cidr = ipv4 + '/255.255.255.255' if ipv4 else ''
+    ipv4_cidr = '%s/%s' % (ipv4, NETMASK_IPV4_FULL) if ipv4 else ''
     user = pwd.getpwuid(os.getuid()).pw_name
     partition_base_name = self._standalone_slapos._partition_base_name
     with open(path, 'w') as f:
@@ -311,7 +315,10 @@ class SlapformatDefinitionWriter(ConfigWriter):
       ipv6 = self._standalone_slapos._ipv6_address
       for i in range(self._standalone_slapos._partition_count):
         ipv6_single, ipv6_range = self._standalone_slapos._getPartitionIpv6(i)
-        ipv6_single_cidr = ipv6_single + '/128' if ipv6_single else ''
+        if ipv6_single:
+          ipv6_single_cidr = '%s/%s' % (ipv6_single, NETMASK_IPV6_FULL)
+        else:
+          ipv6_single_cidr = ''
         if ipv6_range:
           ipv6_range_cidr = '%(addr)s/%(prefixlen)s' % ipv6_range
           ipv6_range_config_line = 'ipv6_range = ' + ipv6_range_cidr
@@ -657,11 +664,11 @@ class StandaloneSlapOS(object):
           'address_list': [
               {
                   'addr': ipv4_address,
-                  'netmask': '255.255.255.255'
+                  'netmask': NETMASK_IPV4_FULL
               },
               {
                   'addr': ipv6_addr,
-                  'netmask': 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'
+                  'netmask': NETMASK_IPV6_FULL
               }
           ],
           'ipv6_range' : ipv6_range,
@@ -691,7 +698,7 @@ class StandaloneSlapOS(object):
     self.computer.updateConfiguration(
         dumps({
             'address': ipv4_address,
-            'netmask': '255.255.255.255',
+            'netmask': NETMASK_IPV4_FULL,
             'partition_list': partition_list,
             'reference': self._computer_id,
             'instance_root': self._instance_root,

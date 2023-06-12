@@ -9,7 +9,7 @@ result_count = len(document_list)
 
 if result_count:
   if result_count == limit:
-    portal.portal_activities.activate(activity='SQLQueue').ERP5Site_checkDeletedDocumentList(document_list[-1].uid, limit, packet_size)
+    portal.portal_activities.activate(activity='SQLQueue', priority=3).ERP5Site_checkDeletedDocumentList(document_list[-1].uid, limit, packet_size)
 
   column_list = [(x.path, x.uid) for x in document_list]
   for i in xrange(0, result_count, packet_size):

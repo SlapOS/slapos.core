@@ -6,7 +6,6 @@ if context.getSimulationState() == "invalidated":
 if context.getPortalType() != "Support Request":
   return "Not a Support Request"
 
-
 now = DateTime()
 portal = context.getPortalObject()
 document = context.getAggregateValue()
@@ -49,6 +48,8 @@ if aggregate_portal_type == "Compute Node":
           break
 
       if is_instance_stalled and len(instance_list):
+        if last_contact is None:
+          return "Process instance stalled"
         return "Process instance stalled, last contact was %s" % last_contact
 
     return "All OK, latest contact: %s " % last_contact

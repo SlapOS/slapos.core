@@ -488,6 +488,11 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                           }
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
+    self.tic()
+    # Retest so cache is evaludated
+    news_dict = compute_node.ComputeNode_getNewsDict()
+    self.assertEqual(_decode_with_json(news_dict),
+                    _decode_with_json(expected_news_dict))
 
   def test_stopped(self):
     compute_node = self._makeComputeNode()
@@ -512,6 +517,11 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                           'reference': compute_node.getReference(),
                           'monitor_url': monitor_url
                           }
+    self.assertEqual(_decode_with_json(news_dict),
+                    _decode_with_json(expected_news_dict))
+    self.tic()
+    # Retest so cache is evaludated
+    news_dict = compute_node.ComputeNode_getNewsDict()
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
 
@@ -540,6 +550,11 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                           }
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
+    self.tic()
+    # Retest so cache is evaludated
+    news_dict = compute_node.ComputeNode_getNewsDict()
+    self.assertEqual(_decode_with_json(news_dict),
+                    _decode_with_json(expected_news_dict))
 
   def test_no_data(self):
     compute_node = self._makeComputeNode()
@@ -559,6 +574,11 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                           'reference': compute_node.getReference(),
                           'monitor_url': monitor_url
                           }
+    self.assertEqual(_decode_with_json(news_dict),
+                    _decode_with_json(expected_news_dict))
+    self.tic()
+    # Retest so cache is evaludated
+    news_dict = compute_node.ComputeNode_getNewsDict()
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
 
@@ -593,6 +613,12 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                           'reference': compute_node.getReference(),
                           'monitor_url': monitor_url
                           }
+    self.assertEqual(_decode_with_json(news_dict),
+                    _decode_with_json(expected_news_dict))
+
+    self.tic()
+    # Retest so cache is evaludated
+    news_dict = compute_node.ComputeNode_getNewsDict()
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
 

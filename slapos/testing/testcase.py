@@ -26,12 +26,13 @@
 #
 ##############################################################################
 
-import unittest
-import os
+import contextlib
 import fnmatch
 import glob
 import logging
+import os
 import shutil
+import unittest
 import warnings
 
 from six.moves.urllib.parse import urlparse
@@ -410,6 +411,18 @@ class SlapOSInstanceTestCase(unittest.TestCase):
         cls.slap._instance_root, cls.computer_partition.getId())
 
   @classmethod
+  @contextlib.contextmanager
+  def _snapshotManager(cls, snapshot_name):
+    try:
+      yield
+    except BaseException:
+      cls._storeSystemSnapshot(snapshot_name)
+      cls._cleanup(snapshot_name)
+      raise
+    else:
+      cls._storeSystemSnapshot(snapshot_name)
+
+  @classmethod
   def setUpClass(cls):
     """Request an instance.
     """
@@ -417,16 +430,13 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     cls._instance_parameter_dict = cls.getInstanceParameterDict()
     snapshot_name = "{}.{}.setUpClass".format(cls.__module__, cls.__name__)
 
-    try:
-      cls._setUpClass()
-    except BaseException:
-      cls.logger.exception("Error during setUpClass")
-      cls._storeSystemSnapshot(snapshot_name)
-      cls._cleanup(snapshot_name)
-      cls.setUp = lambda self: self.fail('Setup Class failed.')
-      raise
-    else:
-      cls._storeSystemSnapshot(snapshot_name)
+    with cls._snapshotManager(snapshot_name):
+      try:
+        cls._setUpClass()
+      except BaseException:
+        cls.logger.exception("Error during setUpClass")
+        cls.setUp = lambda self: self.fail('Setup Class failed.')
+        raise
     cls.logger.debug("setUpClass done")
 
   @classmethod

@@ -1,7 +1,7 @@
 portal = context.getPortalObject()
 
 now = DateTime()
-before = now - int(7)
+before = now - int(days_before)
 
 strfstring = '%Y-%m-%d %H:%M:%S'
 

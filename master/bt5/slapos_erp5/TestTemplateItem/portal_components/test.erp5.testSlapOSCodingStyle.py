@@ -267,7 +267,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_administration/ActivityTool_zGetDateForSQLDictMessage',
         'slapos_administration/ActivityTool_zGetDateForSQLQueueMessage',
         'slapos_administration/Base_checkStoredBrokenState',
-        'slapos_administration/ERP5Site_adjustProductionClone',
         'slapos_administration/ERP5Site_cleanUnusedSecurityUid',
         'slapos_administration/ERP5Site_getSecurityUidStat',
         'slapos_administration/ERP5Site_updateAllLocalRolesOnSecurityGroupsForSlapOS',

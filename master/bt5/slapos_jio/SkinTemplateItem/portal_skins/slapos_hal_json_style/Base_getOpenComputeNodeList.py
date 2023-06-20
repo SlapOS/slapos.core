@@ -9,4 +9,5 @@ return portal.portal_catalog(
       category_public.getUid(),
       category_personal.getUid()],
     validation_state="validated",
+    sort_on=(("title", "ASC" ),)
   )

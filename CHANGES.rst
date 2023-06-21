@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.10.0 (2023-06-21)
+-------------------
+ * slapgrid: Start services even without connection to master
+ * grid/utils: Improve parsing of instance's python
+
 1.9.3 (2023-04-26)
 ------------------
  * slapgrid: run promise with clean environment

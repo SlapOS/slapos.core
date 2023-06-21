@@ -108,12 +108,13 @@ class SlapOSComputeNodeMixin(object):
 
   def _fillComputeNodeInformationCache(self, user):
     key = '%s_%s' % (self.getReference(), user)
+    refresh_etag = self._calculateRefreshEtag()
     try:
       computer_dict = self._getCacheComputeNodeInformation(user)
       self._getCachePlugin().set(key, DEFAULT_CACHE_SCOPE,
         dict (
           time=time.time(),
-          refresh_etag=self._calculateRefreshEtag(),
+          refresh_etag=refresh_etag,
           data=computer_dict,
           # Store the XML while SlapTool Still used
           data_xml=self.getPortalObject().portal_slap._getSlapComputeNodeXMLFromDict(computer_dict)
@@ -129,6 +130,10 @@ class SlapOSComputeNodeMixin(object):
       # Note: IndexError ignored, as it happend in case if full reindex is
       # called on site
       pass
+
+    # Also update cache for News Dict, so it speed up access of this UI.
+    key = '%s_partition_news' % self.getReference()
+    self._getCachedComputePartitionNewsDict(key, refresh_etag)
 
   def _calculateRefreshEtag(self):
     # check max indexation timestamp
@@ -345,7 +350,7 @@ class SlapOSComputeNodeMixin(object):
       if (refresh_etag != cached_etag):
         return self._getCachedComputePartitionNewsDict(key, refresh_etag)
       else:
-        return cached_dict.get('data')   
+        return cached_dict.get('data')
     return self._getCachedComputePartitionNewsDict(key, refresh_etag)
         
     

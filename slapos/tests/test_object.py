@@ -87,7 +87,7 @@ original_upload_network_cached = networkcache.upload_network_cached
 originalBootstrapBuildout = utils.bootstrapBuildout
 originalLaunchBuildout = utils.launchBuildout
 originalUploadSoftwareRelease = Software.uploadSoftwareRelease
-originalPartitionGenerateSupervisorConfigurationFile = Partition.generateSupervisorConfigurationFile
+originalPartitionUpdateSupervisorConfiguration = Partition.updateSupervisorConfiguration
 
 class MasterMixin(BasicMixin, unittest.TestCase):
   """
@@ -170,8 +170,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
       software_path=software_path,
       instance_path=instance_path,
       shared_part_list=shared_part_list,
-      supervisord_partition_configuration_path=os.path.join(
-          supervisor_configuration_path, partition_id),
+      supervisord_partition_configuration_dir=supervisor_configuration_path,
       supervisord_socket=os.path.join(
           supervisor_configuration_path, 'supervisor.sock'),
       computer_partition=slap_computer_partition,
@@ -378,14 +377,14 @@ class TestPartitionSlapObject(MasterMixin, unittest.TestCase):
   def setUp(self):
     MasterMixin.setUp(self)
 
-    Partition.generateSupervisorConfigurationFile = FakeCallAndNoop()
+    Partition.updateSupervisorConfiguration = FakeCallAndNoop()
     utils.bootstrapBuildout = FakeCallAndNoop()
 
     utils.launchBuildout = FakeCallAndStore()
 
   def tearDown(self):
     MasterMixin.tearDown(self)
-    Partition.generateSupervisorConfigurationFile = originalPartitionGenerateSupervisorConfigurationFile
+    Partition.updateSupervisorConfiguration = originalPartitionUpdateSupervisorConfiguration
 
   def test_partition_timeout_default(self):
     software = self.createSoftware()
@@ -404,18 +403,6 @@ class TestPartitionSlapObject(MasterMixin, unittest.TestCase):
 
     self.assertTrue(utils.launchBuildout.called)
     self.assertEqual(utils.launchBuildout.kwargs['timeout'], 123)
-
-  def test_instance_is_deploying_if_software_release_exists(self):
-    """
-    Test that slapgrid deploys an instance if its Software Release exists and
-    instance.cfg in the Software Release exists.
-    """
-    software = self.createSoftware()
-
-    partition = self.createPartition(software.url)
-    partition.install()
-
-    self.assertTrue(utils.launchBuildout.called)
 
   def test_instance_is_deploying_if_software_release_exists(self):
     """
@@ -507,50 +494,52 @@ class TestPartitionSupervisorConfig(MasterMixin, unittest.TestCase):
     utils.launchBuildout = FakeCallAndNoop()
 
   def test_grouped_program(self):
-    self.assertEqual(self.partition.supervisor_configuration_group, '')
-    self.assertEqual(self.partition.partition_supervisor_configuration, '')
+    self.partition.addProgramToGroup('test', 'sample-1', 'sample-1', '/bin/ls')
+    self.partition.writeSupervisorConfigurationFiles()
 
-    partition_id = self.partition.partition_id
+    group_id = self.partition.getGroupIdFromSuffix('test')
 
-    group_id = self.partition.addCustomGroup('test', partition_id,
-                                             ['sample-1'])
+    filepath = os.path.join(
+      self.partition.supervisord_partition_configuration_dir,
+      group_id + '.conf'
+    )
 
-    self.assertIn('group:{}-test'.format(partition_id),
-                  self.partition.supervisor_configuration_group)
+    with open(filepath) as f:
+      supervisor_conf = f.read()
 
-    self.partition.addProgramToGroup(group_id, 'sample-1', 'sample-1',
-                                     '/bin/ls')
-
-    self.assertIn('program:{}-test_sample-1'.format(partition_id),
-                  self.partition.partition_supervisor_configuration)
+    self.assertIn('group:' + group_id, supervisor_conf)
+    self.assertIn('program:%s_sample-1' % group_id, supervisor_conf)
 
   def test_simple_service(self):
-    self.assertEqual(self.partition.supervisor_configuration_group, '')
-    self.assertEqual(self.partition.partition_supervisor_configuration, '')
-
-    partition_id = self.partition.partition_id
-
-    runners = ['runner-{}'.format(i) for i in range(3)]
+    runners = ['runner-' + str(i) for i in range(3)]
     path = os.path.join(self.partition.instance_path, 'etc/run')
-    self.partition.addServiceToGroup(partition_id, runners, path)
+    self.partition.addServicesToGroup(runners, path)
+    self.partition.writeSupervisorConfigurationFiles()
+
+    group_id = self.partition.getGroupIdFromSuffix()
+
+    filepath = os.path.join(
+      self.partition.supervisord_partition_configuration_dir,
+      group_id + '.conf'
+    )
+
+    with open(filepath) as f:
+      supervisor_conf = f.read()
 
     for i in range(3):
-      self.assertIn('program:{}_runner-{}'.format(partition_id, i),
-                    self.partition.partition_supervisor_configuration)
+      self.assertIn('program:%s_runner-%s' % (group_id, i), supervisor_conf)
 
-      runner_path = os.path.join(self.partition.instance_path, 'etc/run',
-                                 'runner-{}'.format(i))
 
 class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
   def setUp(self):
     MasterMixin.setUp(self)
-    Partition.generateSupervisorConfigurationFile = FakeCallAndNoop()
+    Partition.updateSupervisorConfiguration = FakeCallAndNoop()
     utils.bootstrapBuildout = FakeCallAndNoop()
     utils.launchBuildout = FakeCallAndStore()
 
   def tearDown(self):
     MasterMixin.tearDown(self)
-    Partition.generateSupervisorConfigurationFile = originalPartitionGenerateSupervisorConfigurationFile
+    Partition.updateSupervisorConfiguration = originalPartitionUpdateSupervisorConfiguration
 
   def test_retention_lock_delay_creation(self):
     delay = 42
@@ -640,13 +629,13 @@ class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
 class TestPartitionDestructionUnwritable(MasterMixin, unittest.TestCase):
   def setUp(self):
     MasterMixin.setUp(self)
-    Partition.generateSupervisorConfigurationFile = FakeCallAndNoop()
+    Partition.updateSupervisorConfiguration = FakeCallAndNoop()
     utils.bootstrapBuildout = FakeCallAndNoop()
     utils.launchBuildout = FakeCallAndStore()
 
   def tearDown(self):
     MasterMixin.tearDown(self)
-    Partition.generateSupervisorConfigurationFile = originalPartitionGenerateSupervisorConfigurationFile
+    Partition.updateSupervisorConfiguration = originalPartitionUpdateSupervisorConfiguration
 
   def test(self):
     software = self.createSoftware()

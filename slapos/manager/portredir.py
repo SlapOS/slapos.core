@@ -156,17 +156,15 @@ class Manager(object):
     # Generate supervisord configuration with socat processes added
     partition.generateSupervisorConfiguration()
 
-    group_id = partition.addCustomGroup('socat', partition.partition_id,
-                                        [program['name']
-                                         for program in socat_programs])
     for program in socat_programs:
-      partition.addProgramToGroup(group_id, program['name'], program['name'],
+      partition.addProgramToGroup('socat', program['name'], program['name'],
                                   program['command'],
                                   as_user=program['as_user'])
 
-    partition.writeSupervisorConfigurationFile()
+    partition.writeSupervisorConfigurationFiles()
 
     # Start processes
+    group_id = partition.getGroupIdFromSuffix('socat')
     with partition.getSupervisorRPC() as supervisor:
       for program in socat_programs:
         process_name = '{}:{}'.format(group_id, program['name'])

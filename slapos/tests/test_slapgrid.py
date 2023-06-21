@@ -388,7 +388,8 @@ class ComputerForTest(object):
                software_root,
                instance_root,
                instance_amount=1,
-               software_amount=1):
+               software_amount=1,
+               status_code=200):
     """
     Will set up instances, software and sequence
     """
@@ -397,6 +398,7 @@ class ComputerForTest(object):
     self.software_amount = software_amount
     self.software_root = software_root
     self.instance_root = instance_root
+    self.status_code = status_code
     self.ip_address_list = [
             ('interface1', '10.0.8.3'),
             ('interface2', '10.0.8.4'),
@@ -425,18 +427,18 @@ class ComputerForTest(object):
             and 'computer_id' in qs):
       slap_computer = self.getComputer(qs['computer_id'][0])
       return {
-              'status_code': 200,
+              'status_code': self.status_code,
               'content': dumps(slap_computer)
               }
     elif url.path == '/getHostingSubscriptionIpList':
       ip_address_list = self.ip_address_list
       return {
-              'status_code': 200,
+              'status_code': self.status_code,
               'content': dumps(ip_address_list)
               }
     elif url.path == '/getComputerPartitionCertificate':
       return {
-              'status_code': 200,
+              'status_code': self.status_code,
               'content': dumps({'certificate': 'SLAPOS_cert', 'key': 'SLAPOS_key'})
               }
     if req.method == 'POST' and 'computer_partition_id' in qs:
@@ -445,17 +447,17 @@ class ComputerForTest(object):
       instance.header_list.append(req.headers)
       if url.path == '/startedComputerPartition':
         instance.state = 'started'
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/stoppedComputerPartition':
         instance.state = 'stopped'
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/destroyedComputerPartition':
         instance.state = 'destroyed'
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/softwareInstanceBang':
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == "/updateComputerPartitionRelatedInstanceList":
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/softwareInstanceError':
         instance.error_log = '\n'.join(
             [
@@ -465,18 +467,18 @@ class ComputerForTest(object):
             ]
         )
         instance.error = True
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
 
     elif req.method == 'POST' and 'url' in qs:
       # XXX hardcoded to first software release!
       software = self.software_list[0]
       software.sequence.append(url.path)
       if url.path == '/availableSoftwareRelease':
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/buildingSoftwareRelease':
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/destroyedSoftwareRelease':
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
       if url.path == '/softwareReleaseError':
         software.error_log = '\n'.join(
             [
@@ -486,7 +488,7 @@ class ComputerForTest(object):
             ]
         )
         software.error = True
-        return {'status_code': 200}
+        return {'status_code': self.status_code}
 
     else:
       return {'status_code': 500}
@@ -1021,6 +1023,69 @@ exit 1
                         '/stoppedComputerPartition'])
       self.assertEqual('stopped', instance.state)
 
+  def test_one_partition_started_no_master(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, status_code=503)
+    with httmock.HTTMock(computer.request_handler):
+      partition = computer.instance_list[0]
+      partition.requested_state = 'started'
+      partition.software.setBuildout()
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_OFFLINE_SUCCESS)
+      self.assertInstanceDirectoryListEqual(['0'])
+      six.assertCountEqual(self, os.listdir(partition.partition_path), []) # buildout hasn't run
+      six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
+      self.assertEqual(computer.sequence, ['/getFullComputerInformation'])
+      self.assertEqual(partition.state, None)
+
+  def test_one_partition_started_after_master_connection_loss(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    partition = computer.instance_list[0]
+    partition.requested_state = 'started'
+    partition.software.setBuildout()
+    run_path = os.path.join(partition.partition_path, 'etc', 'run')
+    os.makedirs(run_path)
+    with open(os.path.join(run_path, 'runner'), 'w') as f:
+      f.write("#!/bin/sh\necho 'Working'\ntouch 'runner_worked'")
+      os.fchmod(f.fileno(), 0o755)
+
+    runner_worked_file = os.path.join(partition.partition_path, 'runner_worked')
+    def assertRunnerWorked():
+      for _ in range(50):
+        if os.path.exists(runner_worked_file):
+          break
+        time.sleep(0.1)
+      else:
+        self.assertTrue(os.path.exists(runner_worked_file))
+
+    with httmock.HTTMock(computer.request_handler):
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertInstanceDirectoryListEqual(['0'])
+      assertRunnerWorked()
+      six.assertCountEqual(self, os.listdir(partition.partition_path),
+                            ['.slapgrid', '.0_runner.log', 'buildout.cfg', 'etc',
+                             'runner_worked', 'software_release', 'worked',
+                             '.slapos-retention-lock-delay'])
+      runner_log_path = os.path.join(partition.partition_path, '.0_runner.log')
+      with open(runner_log_path) as f:
+        runner_log = f.read()
+      self.assertEqual(runner_log, 'Working\n')
+      self.assertEqual(partition.state, 'started')
+
+    computer.status_code = 503 # connection loss
+    os.unlink(runner_worked_file)
+
+    with httmock.HTTMock(computer.request_handler):
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_OFFLINE_SUCCESS)
+      self.assertInstanceDirectoryListEqual(['0'])
+      assertRunnerWorked()
+      with open(runner_log_path) as f:
+        runner_log = f.read()
+      self.assertEqual(runner_log, 'Working\n' * 2)
+      self.assertEqual(computer.sequence, [
+        '/getFullComputerInformation',
+        '/getComputerPartitionCertificate',
+        '/startedComputerPartition',
+        '/getComputerPartitionCertificate' # /getFullComputerInformation is cached
+      ])
 
 class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
 
@@ -1401,7 +1466,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
+                            ['.slapgrid', '.timestamp', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       timestamp_path = os.path.join(instance.partition_path, '.timestamp')
       self.setSlapgrid()
@@ -1422,7 +1487,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg',
+                            ['.slapgrid', '.timestamp', 'buildout.cfg',
                              'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
 
@@ -1445,7 +1510,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
+                            ['.slapgrid', '.timestamp', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       instance.timestamp = str(int(timestamp) - 1)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
@@ -1463,7 +1528,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
+                            ['.slapgrid', '.timestamp', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       instance.timestamp = str(int(timestamp) + 1)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
@@ -1491,7 +1556,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
+                            ['.slapgrid', '.timestamp', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       instance.timestamp = None
@@ -1523,7 +1588,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.launchSlapgrid()
       partition = os.path.join(self.instance_root, '0')
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg',
+                            ['.slapgrid', '.timestamp', 'buildout.cfg',
                              'software_release', 'worked', '.slapos-retention-lock-delay'])
 
       time.sleep(2)
@@ -1533,7 +1598,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
 
       self.launchSlapgrid()
       six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg',
+                            ['.slapgrid', '.timestamp', 'buildout.cfg',
                              'software_release', 'worked', '.slapos-retention-lock-delay'])
 
   def test_one_partition_periodicity_from_file_does_not_disturb_others(self):
@@ -1710,43 +1775,6 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
         self.launchSlapgrid()
         self.assertEqual(mock_method.call_count, 2)
 
-  def test_partition_requested_state_created(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
-    with httmock.HTTMock(computer.request_handler):
-      instance = computer.instance_list[0]
-      timestamp = str(int(time.time()))
-      instance.timestamp = timestamp
-
-      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
-      self.assertInstanceDirectoryListEqual(['0'])
-      partition = os.path.join(self.instance_root, '0')
-      six.assertCountEqual(self, os.listdir(partition),
-                            ['.slapgrid', '.timestamp', '.requested_state', 'buildout.cfg',
-                             'software_release', 'worked', '.slapos-retention-lock-delay'])
-      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
-      requested_state_path = os.path.join(instance.partition_path, '.requested_state')
-
-      with open(requested_state_path) as f:
-        self.assertEqual(f.read(), slapgrid.COMPUTER_PARTITION_STOPPED_STATE)
-      self.assertEqual(instance.sequence,
-                       ['/stoppedComputerPartition'])
-
-  def test_partition_requested_state_not_created_if_failed(self):
-    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
-    with httmock.HTTMock(computer.request_handler):
-      instance = computer.instance_list[0]
-      timestamp = str(int(time.time()))
-      instance.timestamp = timestamp
-
-      instance.software.setBuildout("""#!/bin/sh
-exit 3""")
-      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_FAIL)
-      self.assertInstanceDirectoryListEqual(['0'])
-      self.assertEqual(instance.sequence,
-                       ['/softwareInstanceError'])
-      requested_state_path = os.path.join(instance.partition_path, '.requested_state')
-      self.assertFalse(os.path.exists(requested_state_path))
-
   def test_one_partition_buildout_fail_does_not_disturb_others(self):
     """
     1. We set up two instance one using a corrupted buildout
@@ -1914,6 +1942,50 @@ echo %s; echo %s; exit 42""" % (line1, line2))
       )
       self.assertFalse(os.path.exists(promise_ran))
       self.assertFalse(instance.sequence)
+
+  def test_supervisor_partition_files_removed_on_stop(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 2, 1)
+    with httmock.HTTMock(computer.request_handler):
+      for i in range(2):
+        instance = computer.instance_list[i]
+        instance.requested_state = 'started'
+        run_dir = os.path.join(instance.partition_path, 'etc', 'run')
+        os.makedirs(run_dir)
+        with open(os.path.join(run_dir, 'runner' + str(i)), 'w'): pass
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+
+      conf_path = os.path.join(self.instance_root, 'etc', 'supervisord.conf.d', '%s.conf')
+      conf0 = conf_path % 0
+      conf1 = conf_path % 1
+      for conf in (conf0, conf1):
+        self.assertTrue(os.path.exists(conf), conf + ' does not exist')
+
+      computer.instance_list[0].requested_state = 'stopped'
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertFalse(os.path.exists(conf0), conf0 + ' still exists')
+      self.assertTrue(os.path.exists(conf1), conf1 + ' does not exist')
+
+      computer.instance_list[0].requested_state = 'started'
+      computer.instance_list[1].requested_state = 'stopped'
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertTrue(os.path.exists(conf0), conf0 + ' does not exist')
+      self.assertFalse(os.path.exists(conf1), conf1 + ' still exists')
+
+      computer.instance_list[0].requested_state = 'stopped'
+      computer.instance_list[1].requested_state = 'stopped'
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+
+      for conf in (conf0, conf1):
+        self.assertFalse(os.path.exists(conf), conf + ' still exists')
+
+      computer.instance_list[0].requested_state = 'started'
+      computer.instance_list[1].requested_state = 'started'
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+
+      for conf in (conf0, conf1):
+        self.assertTrue(os.path.exists(conf), conf + ' does not exist')
 
 
 class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
@@ -3030,13 +3102,17 @@ exit 0
       stat_info = os.stat(partition.partition_path)
       uid = stat_info.st_uid
       gid = stat_info.st_gid
-      supervisor_conf_file = os.path.join(self.instance_root,
+      partition_supervisor_conf_file = os.path.join(self.instance_root,
                                           'etc/supervisord.conf.d',
                                           '%s.conf' % partition.name)
-      self.assertTrue(os.path.exists(supervisor_conf_file))
+      prerm_supervisor_conf_file = os.path.join(self.instance_root,
+                                          'etc/supervisord.conf.d',
+                                          '%s-prerm.conf' % partition.name)
+      self.assertFalse(os.path.exists(partition_supervisor_conf_file))
+      self.assertTrue(os.path.exists(prerm_supervisor_conf_file))
       regex_user = r"user=(\d+)"
       regex_group = r"group=(\d+)"
-      with open(supervisor_conf_file) as f:
+      with open(prerm_supervisor_conf_file) as f:
         config = f.read()
         # search user uid in conf file
         result = re.search(regex_user, config, re.DOTALL)
@@ -3113,8 +3189,8 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
 
     self.computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.partition = self.computer.instance_list[0]
-    self.instance_supervisord_config_path = os.path.join(
-      self.instance_root, 'etc/supervisord.conf.d/0.conf')
+    self.socat_supervisord_config_path = os.path.join(
+      self.instance_root, 'etc/supervisord.conf.d/0-socat.conf')
 
     self.port_redirect_path = os.path.join(self.partition.partition_path,
                                            slapmanager.portredir.Manager.port_redirect_filename)
@@ -3122,8 +3198,8 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
   def _mock_requests(self):
     return httmock.HTTMock(self.computer.request_handler)
 
-  def _read_instance_supervisord_config(self):
-    with open(self.instance_supervisord_config_path) as f:
+  def _read_socat_supervisord_config(self):
+    with open(self.socat_supervisord_config_path) as f:
       return f.read()
 
   def _setup_instance(self, config):
@@ -3151,9 +3227,9 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertIn('socat-tcp-{}'.format(1234), partition_supervisord_config)
-      self.assertIn('socat TCP4-LISTEN:1234,fork TCP4:127.0.0.1:4321', partition_supervisord_config)
+      socat_supervisord_config = self._read_socat_supervisord_config()
+      self.assertIn('socat-tcp-{}'.format(1234), socat_supervisord_config)
+      self.assertIn('socat TCP4-LISTEN:1234,fork TCP4:127.0.0.1:4321', socat_supervisord_config)
 
   def test_ipv6_port_redirection(self):
     with self._mock_requests():
@@ -3166,9 +3242,9 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertIn('socat-tcp-{}'.format(1234), partition_supervisord_config)
-      self.assertIn('socat TCP4-LISTEN:1234,fork TCP6:[::1]:4321', partition_supervisord_config)
+      socat_supervisord_config = self._read_socat_supervisord_config()
+      self.assertIn('socat-tcp-{}'.format(1234), socat_supervisord_config)
+      self.assertIn('socat TCP4-LISTEN:1234,fork TCP6:[::1]:4321', socat_supervisord_config)
 
   def test_udp_port_redirection(self):
     with self._mock_requests():
@@ -3182,9 +3258,9 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertIn('socat-udp-{}'.format(1234), partition_supervisord_config)
-      self.assertIn('socat UDP4-LISTEN:1234,fork UDP4:127.0.0.1:4321', partition_supervisord_config)
+      socat_supervisord_config = self._read_socat_supervisord_config()
+      self.assertIn('socat-udp-{}'.format(1234), socat_supervisord_config)
+      self.assertIn('socat UDP4-LISTEN:1234,fork UDP4:127.0.0.1:4321', socat_supervisord_config)
 
   def test_portredir_config_change(self):
     # We want the partition to just get updated, not recreated
@@ -3200,9 +3276,9 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertIn('socat-tcp-{}'.format(1234), partition_supervisord_config)
-      self.assertIn('socat TCP4-LISTEN:1234,fork TCP4:127.0.0.1:4321', partition_supervisord_config)
+      socat_supervisord_config = self._read_socat_supervisord_config()
+      self.assertIn('socat-tcp-{}'.format(1234), socat_supervisord_config)
+      self.assertIn('socat TCP4-LISTEN:1234,fork TCP4:127.0.0.1:4321', socat_supervisord_config)
 
       # Remove the port binding from config
       with open(self.port_redirect_path, 'w+') as f:
@@ -3219,9 +3295,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       self.assertEqual(self.partition.state, 'started')
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertNotIn('socat-tcp-{}'.format(1234), partition_supervisord_config)
-      self.assertNotIn('socat TCP4-LISTEN:1234,fork TCP4:127.0.0.1:4321', partition_supervisord_config)
+      self.assertFalse(os.path.exists(self.socat_supervisord_config_path))
 
   def test_port_redirection_config_bad_source_port(self):
     with self._mock_requests():
@@ -3234,9 +3308,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertNotIn('socat-tcp-bad', partition_supervisord_config)
-      self.assertNotIn('socat TCP4-LISTEN:bad,fork TCP4:127.0.0.1:4321', partition_supervisord_config)
+      self.assertFalse(os.path.exists(self.socat_supervisord_config_path))
 
   def test_port_redirection_config_bad_dest_port(self):
     with self._mock_requests():
@@ -3249,9 +3321,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertNotIn('socat-tcp-1234', partition_supervisord_config)
-      self.assertNotIn('socat TCP4-LISTEN:1234,fork TCP4:127.0.0.1:wolf', partition_supervisord_config)
+      self.assertFalse(os.path.exists(self.socat_supervisord_config_path))
 
   def test_port_redirection_config_bad_source_address(self):
     with self._mock_requests():
@@ -3265,9 +3335,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertNotIn('socat-tcp-1234', partition_supervisord_config)
-      self.assertNotIn('socat TCP4-LISTEN:1234,bind=bad,fork TCP4:127.0.0.1:4321', partition_supervisord_config)
+      self.assertFalse(os.path.exists(self.socat_supervisord_config_path))
 
   def test_port_redirection_config_bad_dest_address(self):
     with self._mock_requests():
@@ -3280,9 +3348,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertNotIn('socat-tcp-1234', partition_supervisord_config)
-      self.assertNotIn('socat TCP4-LISTEN:1234,fork TCP4:wolf:4321', partition_supervisord_config)
+      self.assertFalse(os.path.exists(self.socat_supervisord_config_path))
 
   def test_port_redirection_config_bad_redir_type(self):
     with self._mock_requests():
@@ -3296,9 +3362,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       ])
 
       # Check the socat command
-      partition_supervisord_config = self._read_instance_supervisord_config()
-      self.assertNotIn('socat-htcpcp-1234', partition_supervisord_config)
-      self.assertNotIn('socat HTCPCP4-LISTEN:1234,fork HTCPCP4:127.0.0.1:4321', partition_supervisord_config)
+      self.assertFalse(os.path.exists(self.socat_supervisord_config_path))
 
 
 class TestSlapgridWithDevPermLsblk(MasterMixin, unittest.TestCase):

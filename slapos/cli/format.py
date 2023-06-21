@@ -83,12 +83,6 @@ class FormatCommand(ConfigCommand):
                         help='Launch slapformat without delay'
                              ' (default: %(default)s)')
 
-        ap.add_argument('--local',
-                        default=False, # can have a default as it is not in .cfg
-                        action="store_true",
-                        help='Keep format data locally, do not post xml to master'
-                             ' (default: %(default)s)')
-
         ap.add_argument('-n', '--dry_run',
                         default=False, # can have a default as it is not in .cfg
                         action="store_true",
@@ -131,4 +125,4 @@ class FormatCommand(ConfigCommand):
 
         tracing_monkeypatch(conf)
 
-        do_format(conf=conf)
+        return do_format(conf=conf)

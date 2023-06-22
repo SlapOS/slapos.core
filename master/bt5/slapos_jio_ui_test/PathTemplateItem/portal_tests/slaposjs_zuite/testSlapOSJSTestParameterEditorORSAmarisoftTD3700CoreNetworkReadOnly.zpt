@@ -17,7 +17,7 @@
       <tal:block define="name string:tdd3700">
         <tal:block metal:use-macro="here/Zuite_SlapOSORSParameterCommonTemplate/macros/set_ors_software" />
       </tal:block>
-      <tal:block metal:use-macro="here/Zuite_SlapOSORSParameterCommonTemplate/macros/basic_gnb_sim_card_scenario_readonly" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSORSParameterCommonTemplate/macros/basic_core_network_scenario_readonly" />
     </tbody>
   </table>
 </body>

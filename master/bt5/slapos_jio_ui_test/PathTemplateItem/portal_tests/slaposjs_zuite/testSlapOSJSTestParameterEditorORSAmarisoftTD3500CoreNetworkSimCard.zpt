@@ -14,12 +14,12 @@
     </thead>
     <tbody>
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
-      <tal:block define="name string:tdd2600">
+      <tal:block define="name string:tdd3500">
         <tal:block metal:use-macro="here/Zuite_SlapOSORSParameterCommonTemplate/macros/set_ors_software" />
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
-      <tal:block metal:use-macro="here/Zuite_SlapOSORSParameterCommonTemplate/macros/basic_gnb_sim_card_scenario" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSORSParameterCommonTemplate/macros/basic_core_network_sim_card_scenario" />
 
     </tbody>
   </table>

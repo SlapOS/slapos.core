@@ -48,7 +48,7 @@
     </tr>
   </tal:block>
 
-  <tal:block metal:define-macro="basic_gnb_sim_card_scenario">
+  <tal:block metal:define-macro="basic_core_network_sim_card_scenario">
     <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
     <tr>
       <td>waitForElementPresent</td>
@@ -255,7 +255,7 @@
     </tal:block>
   </tal:block>
 
-  <tal:block metal:define-macro="basic_gnb_sim_card_scenario_readonly">
+  <tal:block metal:define-macro="basic_core_network_sim_card_scenario_readonly">
     <tr>
       <td>type</td>
       <td>//textarea[@name='parameter_output']</td>
@@ -341,5 +341,191 @@
       <td></td>
     </tr>
   </tal:block>
+
+
+  <tal:block metal:define-macro="basic_core_network_scenario">
+    <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+      'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Core Network"]
+      </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Core Network"]
+      </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>select</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]
+      </td>
+      <td>Core Network</td>
+    </tr>
+    <tal:block tal:define="name python: '//core_network_plmn'; value python: 'some value'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+    </tal:block>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//select[@name="//external_enb_gnb" and @data-format="boolean"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//select[@name="//external_enb_gnb" and @data-format="boolean"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>select</td>
+      <td>//select[@name="//external_enb_gnb" and @data-format="boolean"]</td>
+      <td>true</td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//select[@name="//iperf3" and @data-format="boolean"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//select[@name="//iperf3" and @data-format="boolean"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>select</td>
+      <td>//select[@name="//iperf3" and @data-format="boolean"]</td>
+      <td>false</td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//select[@name="//use_ipv4" and @data-format="boolean"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//select[@name="//use_ipv4" and @data-format="boolean"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>select</td>
+      <td>//select[@name="//use_ipv4" and @data-format="boolean"]</td>
+      <td>false</td>
+    </tr>
+    <tal:block tal:define="name python:'//local_domain'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+    </tal:block>
+
+    
+    <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/click_proceed_and_wait_for_hash" />
+    <tr>
+      <td>waitForTextPresent</td>
+      <td>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiP</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertTextPresent</td>
+      <td>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGluc3RhbmNlPgogICAgPHBhcmFtZXRlciBpZD0iXyI+ewogICAgImNvcmVfbmV0d29ya19wbG1uIjogInNvbWUgdmFsdWUiLAogICAgImV4dGVybmFsX2VuYl9nbmIiOiB0cnVlLAogICAgImlwZXJmMyI6IGZhbHNlLAogICAgImxvY2FsX2RvbWFpbiI6ICJzb21lIHZhbHVlIiwKICAgICJ1c2VfaXB2NCI6IGZhbHNlCn08L3BhcmFtZXRlcj4KPC9pbnN0YW5jZT4=</td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="basic_core_network_scenario_readonly">
+    <tr>
+      <td>type</td>
+      <td>//textarea[@name='parameter_output']</td>
+      <td tal:content="python: '<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><instance><parameter id=&quot;_&quot;>{&quot;core_network_plmn&quot;: &quot;some value&quot;, &quot;external_enb_gnb&quot;: true, &quot;iperf3&quot;: false,&quot;local_domain&quot;:&quot;some value&quot;,&quot;use_ipv4&quot;:false}</parameter></instance>'"></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@name='software_type']</td>
+      <td tal:content="python: 'core-network'"></td>
+    </tr>
+    
+    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+    <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Core Network"]
+      </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Core Network"]
+      </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertValue</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]
+      </td>
+      <td>core-network</td>
+    </tr>
+
+    <tal:block tal:define="name python: '//core_network_plmn'; value python: 'some value'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'//local_domain'; value python: 'some value'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+    </tal:block>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//select[@name="//external_enb_gnb" and @data-format="boolean" and contains(@class, "readonly")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//select[@name="//external_enb_gnb" and @data-format="boolean" and contains(@class, "readonly")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertValue</td>
+      <td>//select[@name="//external_enb_gnb" and @data-format="boolean" and contains(@class, "readonly")]</td>
+      <td>true</td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//select[@name="//iperf3" and @data-format="boolean" and contains(@class, "readonly")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//select[@name="//iperf3" and @data-format="boolean" and contains(@class, "readonly")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertValue</td>
+      <td>//select[@name="//iperf3" and @data-format="boolean" and contains(@class, "readonly")]</td>
+      <td>false</td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//select[@name="//use_ipv4" and @data-format="boolean" and contains(@class, "readonly")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//select[@name="//use_ipv4" and @data-format="boolean" and contains(@class, "readonly")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertValue</td>
+      <td>//select[@name="//use_ipv4" and @data-format="boolean" and contains(@class, "readonly")]</td>
+      <td>false</td>
+    </tr>
+  </tal:block>
+
+
 
 </tal:block>

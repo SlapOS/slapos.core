@@ -53,14 +53,14 @@
     <tr>
       <td>waitForElementPresent</td>
       <td>//div[contains(@data-gadget-url,
-        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="gNB-EPC Sim Card"]
+      'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Core Network Sim Card"]
       </td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
       <td>//div[contains(@data-gadget-url,
-        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="gNB-EPC Sim Card"]
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Core Network Sim Card"]
       </td>
       <td></td>
     </tr>
@@ -69,7 +69,7 @@
       <td>//div[contains(@data-gadget-url,
         'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]
       </td>
-      <td>gNB-EPC Sim Card</td>
+      <td>Core Network Sim Card</td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
@@ -264,7 +264,7 @@
     <tr>
       <td>type</td>
       <td>//input[@name='software_type']</td>
-      <td tal:content="python: 'gnb-epc'"></td>
+      <td tal:content="python: 'core-network'"></td>
     </tr>
     <tr>
       <td>type</td>
@@ -278,14 +278,14 @@
     <tr>
       <td>waitForElementPresent</td>
       <td>//div[contains(@data-gadget-url,
-        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="gNB-EPC Sim Card"]
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Core Network Sim Card"]
       </td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
       <td>//div[contains(@data-gadget-url,
-        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="gNB-EPC Sim Card"]
+        'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Core Network Sim Card"]
       </td>
       <td></td>
     </tr>
@@ -294,7 +294,7 @@
       <td>//div[contains(@data-gadget-url,
         'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]
       </td>
-      <td>gnb-epc</td>
+      <td>core-network</td>
     </tr>
 
     <tal:block tal:define="name python: '//sim_algo'; value python: 'some value'">    
@@ -330,5 +330,16 @@
     </tal:block>
   </tal:block>
 
+  <tal:block metal:define-macro="set_ors_software">
+    <tr>
+      <td colspan="3"><b> Set URL for the software release </b></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@name='url_string']</td>
+      <td tal:content="python: 'https://lab.nexedi.com/nexedi/slapos/raw/1.0.327/software/ors-amarisoft/software-%s.cfg' % name"></td>
+      <td></td>
+    </tr>
+  </tal:block>
 
 </tal:block>

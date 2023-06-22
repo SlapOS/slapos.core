@@ -14,14 +14,9 @@
     </thead>
     <tbody>
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
-      <tr>
-        <td colspan="3"><b> Set URL for the software release </b></td>
-      </tr>
-      <tr>
-        <td>type</td>
-        <td>//input[@name='url_string']</td>
-        <td>https://lab.nexedi.com/nexedi/slapos/raw/1.0.286/software/ors-amarisoft/software-tdd3700.cfg</td>
-      </tr>
+      <tal:block define="name string:tdd3700">
+        <tal:block metal:use-macro="here/Zuite_SlapOSORSParameterCommonTemplate/macros/set_ors_software" />
+      </tal:block>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
       <tal:block metal:use-macro="here/Zuite_SlapOSORSParameterCommonTemplate/macros/basic_gnb_sim_card_scenario" />

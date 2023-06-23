@@ -317,6 +317,30 @@
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
+<tal:block tal:define="menu_action python: 'RSS'">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+</tal:block>
+<tal:block tal:define="menu_action python: 'Transfer'">
+    <tr>
+      <td>waitForElementNotPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementNotPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+</tal:block>
 <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
 
 </tbody></table>

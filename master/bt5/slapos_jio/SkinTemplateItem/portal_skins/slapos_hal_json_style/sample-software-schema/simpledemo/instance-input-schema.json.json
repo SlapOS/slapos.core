@@ -115,6 +115,23 @@
         1.25,
         1.5
       ]
+    },
+    "simple-numeric-float-oneOf": {
+      "title": "Example of Simple Numeric as float (oneOf)",
+      "description": "Example of Simple Numeric as float (oneOf)",
+      "type": "number",
+      "oneOf": [
+        {
+          "type": number,
+          "const": 6,
+          "title": "Six"
+        },
+        {
+          "type": number,
+          "const": 15,
+          "title": "Fifteen"
+        }
+      ]
     }
   }
 }

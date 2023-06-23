@@ -120,10 +120,6 @@
                           <string>reference</string>
                           <string>Reference</string>
                         </tuple>
-                        <tuple>
-                          <string>Project_getNewsDict</string>
-                          <string>Status</string>
-                        </tuple>
                       </list>
                     </value>
                 </item>

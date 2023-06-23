@@ -28,65 +28,19 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, value_jio_key, len = result.data.total_rows;
+          var i, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
             if (result.data.rows[i].value.hasOwnProperty("portal_type")) {
+              // Use a User-friendly for the Website, this value should be translated
+              // most liketly
               if (result.data.rows[i].value.portal_type === "Compute Node") {
-                value_jio_key = result.data.rows[i].id;
-                value = result.data.rows[i].value.Document_getNewsDict;
-                // Use a User-friendly for the Website, this value should be translated
-                // most liketly
                 result.data.rows[i].value.portal_type = "Server";
-                result.data.rows[i].value.Document_getNewsDict = {
-                  field_gadget_param : {
-                    css_class: "",
-                    description: gadget.description_translation,
-                    hidden: 0,
-                    "default": {jio_key: value_jio_key, result: value},
-                    key: "status",
-                    url: "gadget_slapos_status.html",
-                    title: gadget.title_translation,
-                    type: "GadgetField"
-                  }
-                };
               }
               if (result.data.rows[i].value.portal_type === "Instance Tree") {
-                value_jio_key = result.data.rows[i].id;
-                value = result.data.rows[i].value.Document_getNewsDict;
-                // Use a User-friendly for the Website, this value should be translated
-                // most liketly
                 result.data.rows[i].value.portal_type = "Service";
-                result.data.rows[i].value.Document_getNewsDict = {
-                  field_gadget_param : {
-                    css_class: "",
-                    description: gadget.description_translation,
-                    hidden: 0,
-                    "default": {jio_key: value_jio_key, result: value},
-                    key: "status",
-                    url: "gadget_slapos_status.html",
-                    title: gadget.title_translation,
-                    type: "GadgetField"
-                  }
-                };
               }
               if (result.data.rows[i].value.portal_type === "Computer Network") {
-                value_jio_key = result.data.rows[i].id;
-                value = result.data.rows[i].value.Document_getNewsDict;
-                // Use a User-friendly for the Website, this value should be translated
-                // most liketly
                 result.data.rows[i].value.portal_type = "Network";
-                result.data.rows[i].value.Document_getNewsDict = {
-                  field_gadget_param : {
-                    css_class: "",
-                    description: gadget.description_translation,
-                    hidden: 0,
-                    "default": {jio_key: value_jio_key, result: value},
-                    key: "status",
-                    url: "gadget_slapos_status.html",
-                    title: gadget.title_translation,
-                    type: "GadgetField"
-                  }
-                };
               }
               result.data.rows[i].value["listbox_uid:list"] = {
                 key: "listbox_uid:list",
@@ -160,8 +114,7 @@
             column_list = [
               ['title', result[2][0]],
               ['reference', result[2][1]],
-              ['portal_type', result[2][10]],
-              ['Document_getNewsDict', result[2][8]]
+              ['portal_type', result[2][10]]
             ];
           return result[0].render({
             erp5_document: {
@@ -198,20 +151,6 @@
                   "key": "description",
                   "hidden": 0,
                   "type": "TextAreaField"
-                },
-                "my_monitoring_status": {
-                  "description": "",
-                  "title": result[2][4],
-                  "default": {jio_key: gadget.state.jio_key,
-                              result: gadget.state.doc.news},
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 0,
-                  "url": "gadget_slapos_status.html",
-                  "sandbox": "",
-                  "key": "monitoring_status",
-                  "hidden": 0,
-                  "type": "GadgetField"
                 },
                 "listbox": {
                   "column_list": column_list,

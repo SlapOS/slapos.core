@@ -283,5 +283,4 @@
       <td tal:content="python: value"></td>
     </tr>
   </tal:block>
-
 </tal:block>

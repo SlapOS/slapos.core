@@ -19,7 +19,7 @@
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
-      <tal:block metal:use-macro="here/Zuite_SlapOSORSParameterCommonTemplate/macros/basic_rx_tx_scenario" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSORSParameterCommonTemplate/macros/basic_core_network_scenario" />
 
     </tbody>
   </table>

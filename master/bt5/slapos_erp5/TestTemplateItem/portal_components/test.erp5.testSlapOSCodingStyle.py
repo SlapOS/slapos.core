@@ -251,6 +251,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_hal_json_style/Project_closeRelatedAssignment',
         'slapos_hal_json_style/Project_hasItem',
         'slapos_hal_json_style/Document_isRequesterOrOwner',
+        'slapos_hal_json_style/Project_getComputeNodeTrackingList',
         'slapos_hal_json_style/SaleInvoiceTransaction_getRelatedInstanceTreeReportLineList',
         'slapos_hal_json_style/SaleInvoiceTransaction_getRelatedPaymentTransactionIntegrationId',
         'slapos_hal_json_style/SoftwareInstallation_getSoftwareReleaseInformation',

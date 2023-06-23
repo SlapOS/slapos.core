@@ -17,7 +17,6 @@ event_kw = {
 
 # Create event
 event = portal.event_module.newContent(**event_kw)
-event.plan()
 event.start(send_mail=True, comment="Sent via Person_sendSlapOSPendingTicketNotification")
 
 if batch_mode:

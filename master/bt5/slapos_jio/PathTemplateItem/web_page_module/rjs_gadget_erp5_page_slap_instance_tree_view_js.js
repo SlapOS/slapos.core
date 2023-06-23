@@ -523,9 +523,11 @@
             destroy_url: url_list[4],
             rss_url: url_list[5],
             selection_url: url_list[6],
-            transfer_url: url_list[7],
             save_action: true
           };
+          if (gadget.state.doc.is_owner !== undefined) {
+            header_dict.transfer_url = url_list[7];
+          }
           if (gadget.state.doc.slap_state === "start_requested") {
             header_dict.stop_url = url_list[3];
           }

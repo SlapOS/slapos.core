@@ -244,9 +244,11 @@
             selection_url: url_list[1],
             page_title: page_title_translation + " :" + gadget.state.doc.title,
             delete_url: url_list[2],
-            transfer_url: url_list[3],
             save_action: true
           };
+          if (gadget.state.doc.is_owner !== undefined) {
+            header_dict.transfer_url = url_list[3];
+          }
           if (!gadget.state.editable) {
             header_dict.edit_content = url_list[0];
           }

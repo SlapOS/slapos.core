@@ -83,6 +83,54 @@
             }
           }
         },
+        "simple-object-with-additionalProperties-string": {
+          "title": "Sample Object with additionalProperties as string",
+          "description": "Sample Object with additionalProperties as string",
+          "default": {},
+          "additionalProperties": {
+            "description": "Sample String",
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "simple-object-string": {
+          "title": "Example of multi strings as a Dict",
+          "description": "Example of multi strings as a Dict",
+          "patternProperties": {
+            ".*": {
+              "description": "Sample String",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "simple-object-with-additionalProperties-array-string": {
+          "title": "Sample Object with additionalProperties as array of string",
+          "description": "Sample Object with additionalProperties as array of string",
+          "default": {},
+          "additionalProperties": {
+            "description": "Sample array of String",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "type": "object"
+        },
+        "simple-object-array-string": {
+          "title": "Example of multi arrays of strings as a Dict",
+          "description": "Example of multi strings as a Dict",
+          "patternProperties": {
+            ".*": {
+              "description": "Sample array of strings",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
         "simple-object-dict": {
           "title": "Example of multi objects as a Dict",
           "description": "Example of multi objects as a Dict",

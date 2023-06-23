@@ -102,6 +102,7 @@
                         <string>my_news</string>
                         <string>my_source_project_title</string>
                         <string>my_source_section_title</string>
+                        <string>my_is_owner</string>
                       </list>
                     </value>
                 </item>

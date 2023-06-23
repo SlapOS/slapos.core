@@ -108,6 +108,7 @@
                         <string>my_monitor_scope</string>
                         <string>my_upgrade_scope</string>
                         <string>my_source_section_title</string>
+                        <string>my_is_owner</string>
                       </list>
                     </value>
                 </item>

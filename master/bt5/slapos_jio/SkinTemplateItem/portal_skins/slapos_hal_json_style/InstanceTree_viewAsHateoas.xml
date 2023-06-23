@@ -115,6 +115,7 @@
                         <string>my_source_title</string>
                         <string>my_list_image</string>
                         <string>my_fast_input_dict</string>
+                        <string>my_is_owner</string>
                       </list>
                     </value>
                 </item>

@@ -222,8 +222,8 @@ class testSlapOSMixin(ERP5TypeTestCase):
                  business_configuration,REQUEST=self.portal.REQUEST)
 
     self.portal.portal_types.resetDynamicDocumentsOnceAtTransactionBoundary()
-    # Delay 2 hours
-    self.tic(verbose=True, delay=2 * 60 * 60)
+    # Delay 4 hours
+    self.tic(verbose=True, delay=4 * 60 * 60)
 
     # Set post upgrade configurations for the tests
     preference_tool = self.portal.portal_preferences.portal_preferences

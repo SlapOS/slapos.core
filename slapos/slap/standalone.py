@@ -443,6 +443,10 @@ class StandaloneSlapOS(object):
     self._ipv6_range_prefixlen = None
     self._partitions_have_ipv6_range = False
 
+    # NOTE: Using Standalone's own slapos (slapos.cli.entry) instead
+    # is not that easy because in test nodes standalone is often run
+    # with gpython (pygolang), and gpython currently doesn't support
+    # buildout
     self._slapos_bin = slapos_bin
 
     self._slapos_commands = {

@@ -25,6 +25,7 @@
 #
 ##############################################################################
 
+import json
 import unittest
 import mock
 import os
@@ -79,100 +80,163 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
   def setUp(self):
     checkPortIsFree()
 
-  def test_format(self):
+  def setupSimpleStandalone(self):
     working_dir = tempfile.mkdtemp(prefix=__name__)
     self.addCleanup(slapos.util.rmtree, working_dir)
     standalone = StandaloneSlapOS(
         working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
     self.addCleanup(standalone.stop)
-    standalone.format(3, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+    return standalone
 
-    self.assertTrue(os.path.exists(standalone.software_directory))
-    self.assertTrue(os.path.exists(standalone.instance_directory))
-    self.assertTrue(
-        os.path.exists(
-            os.path.join(standalone.instance_directory, 'slappart0')))
-    self.assertTrue(
-        os.path.exists(
-            os.path.join(standalone.instance_directory, 'slappart1')))
-    self.assertTrue(
-        os.path.exists(
-            os.path.join(standalone.instance_directory, 'slappart2')))
+  @staticmethod
+  def getInstancePath(standalone, *segments):
+    return os.path.join(standalone.instance_directory, *segments)
+
+  def assertExists(self, path):
+    self.assertTrue(os.path.exists(path))
+
+  def assertNotExists(self, path):
+    self.assertFalse(os.path.exists(path))
+
+  @classmethod
+  def getJsonResourceList(cls, standalone):
+    return [
+        cls.getJson(
+            cls.getInstancePath(
+                standalone, 'slappart%d' % i, '.slapos-resource'))
+        for i in range(standalone._partition_count)]
+
+  @staticmethod
+  def getJson(path):
+    with open(path) as f:
+      return json.load(f)
+
+  def test_format(self):
+    standalone = self.setupSimpleStandalone()
+    standalone.format(3, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+    self.assertExists(standalone.software_directory)
+    self.assertExists(standalone.instance_directory)
+    self.assertExists(
+        os.path.join(standalone.instance_directory, 'slappart0'))
+    self.assertExists(
+        os.path.join(standalone.instance_directory, 'slappart1'))
+    self.assertExists(
+        os.path.join(standalone.instance_directory, 'slappart2'))
+    for i in range(3):
+      self.assertExists(
+          self.getInstancePath(standalone, 'slappart%d' % i, '.slapos-resource'))
+
+  def test_format_ipv6_big_range(self):
+    standalone = self.setupSimpleStandalone()
+    prefixlen = 96
+    slapos_fake_ipv6_range = '%s/%d' % (SLAPOS_TEST_IPV6, prefixlen)
+    standalone.format(3, SLAPOS_TEST_IPV4, slapos_fake_ipv6_range)
+    resource_list = self.getJsonResourceList(standalone)
+    for i, resource in enumerate(resource_list):
+      resource_prefixlen = int(resource['ipv6_range']['network'].split('/')[1])
+      self.assertEqual(resource_prefixlen, prefixlen + 16)
+      self.assertIn(':', resource['address_list'][0]['addr']) # ipv6
+      for other_resource in resource_list[i + 1:]:
+        self.assertNotEqual(
+            resource['ipv6_range']['addr'],
+            other_resource['ipv6_range']['addr'])
+        self.assertNotEqual(
+            resource['address_list'][0]['addr'],
+            other_resource['address_list'][0]['addr'])
+
+  def test_format_ipv6_small_range(self):
+    standalone = self.setupSimpleStandalone()
+    prefixlen = 112
+    slapos_fake_ipv6_range = '%s/%d' % (SLAPOS_TEST_IPV6, prefixlen)
+    standalone.format(3, SLAPOS_TEST_IPV4, slapos_fake_ipv6_range)
+    resource_list = self.getJsonResourceList(standalone)
+    for i, resource in enumerate(resource_list):
+      self.assertFalse(resource['ipv6_range'])
+      self.assertIn(':', resource['address_list'][0]['addr']) # ipv6
+      for other_resource in resource_list[i + 1:]:
+        self.assertNotEqual(
+            resource['address_list'][0]['addr'],
+            other_resource['address_list'][0]['addr'])
+        self.assertNotEqual(
+            resource['address_list'][0]['addr'],
+            SLAPOS_TEST_IPV6)
+
+  def test_format_ipv6_min_range(self):
+    standalone = self.setupSimpleStandalone()
+    prefixlen = 128
+    slapos_fake_ipv6_range = '%s/%d' % (SLAPOS_TEST_IPV6, prefixlen)
+    standalone.format(3, SLAPOS_TEST_IPV4, slapos_fake_ipv6_range)
+    resource_list = self.getJsonResourceList(standalone)
+    for i, resource in enumerate(resource_list):
+      self.assertFalse(resource['ipv6_range'])
+      self.assertIn(':', resource['address_list'][0]['addr']) # ipv6
+      for other_resource in resource_list[i + 1:]:
+        self.assertEqual(
+            resource['address_list'][0]['addr'],
+            SLAPOS_TEST_IPV6)
+
+  def test_format_ipv6_no_range(self):
+    standalone = self.setupSimpleStandalone()
+    standalone.format(3, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+    resource_list = self.getJsonResourceList(standalone)
+    for i, resource in enumerate(resource_list):
+      self.assertFalse(resource['ipv6_range'])
+      self.assertIn(':', resource['address_list'][0]['addr']) # ipv6
+      for other_resource in resource_list[i + 1:]:
+        self.assertEqual(
+            resource['address_list'][0]['addr'],
+            SLAPOS_TEST_IPV6)
 
   def test_reformat_less_partitions(self):
-    working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(slapos.util.rmtree, working_dir)
-    standalone = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
-    self.addCleanup(standalone.stop)
+    standalone = self.setupSimpleStandalone()
     standalone.format(2, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
     standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
-    self.assertFalse(
-        os.path.exists(
-            os.path.join(standalone.instance_directory, 'slappart1')))
+    self.assertNotExists(
+        os.path.join(standalone.instance_directory, 'slappart1'))
     self.assertEqual(
         ['slappart0'],
         [cp.getId() for cp in standalone.computer.getComputerPartitionList()])
 
   def test_reformat_less_chmod_files(self):
-    working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(slapos.util.rmtree, working_dir)
-    standalone = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
-    self.addCleanup(standalone.stop)
+    standalone = self.setupSimpleStandalone()
     standalone.format(2, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
     # removing this directory should not be a problem
     chmoded_dir_path = os.path.join(standalone.instance_directory, 'slappart1', 'directory')
     os.mkdir(chmoded_dir_path)
     os.chmod(chmoded_dir_path, 0o000)
     standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
-    self.assertFalse(os.path.exists(chmoded_dir_path))
+    self.assertNotExists(chmoded_dir_path)
     self.assertEqual(
         ['slappart0'],
         [cp.getId() for cp in standalone.computer.getComputerPartitionList()])
 
   def test_reformat_different_base_name(self):
-    working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(slapos.util.rmtree, working_dir)
-    standalone = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
-    self.addCleanup(standalone.stop)
+    standalone = self.setupSimpleStandalone()
     standalone.format(
         1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6, partition_base_name="a")
-    self.assertTrue(
-        os.path.exists(os.path.join(standalone.instance_directory, 'a0')))
+    self.assertExists(os.path.join(standalone.instance_directory, 'a0'))
     standalone.format(
         1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6, partition_base_name="b")
-    self.assertFalse(
-        os.path.exists(os.path.join(standalone.instance_directory, 'a0')))
-    self.assertTrue(
-        os.path.exists(os.path.join(standalone.instance_directory, 'b0')))
+    self.assertNotExists(os.path.join(standalone.instance_directory, 'a0'))
+    self.assertExists(os.path.join(standalone.instance_directory, 'b0'))
     self.assertEqual(
         ['b0'],
         [cp.getId() for cp in standalone.computer.getComputerPartitionList()])
 
   def test_reformat_refuse_deleting_running_partition(self):
-    working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(slapos.util.rmtree, working_dir)
-    standalone = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
-    self.addCleanup(standalone.stop)
+    standalone = self.setupSimpleStandalone()
     standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
     with mock.patch("slapos.slap.ComputerPartition.getState", return_value="busy"),\
        self.assertRaisesRegex(ValueError, "Cannot reformat to remove busy partition at .*slappart0"):
       standalone.format(0, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
 
   def test_slapos_node_format(self):
-    working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(slapos.util.rmtree, working_dir)
-    standalone = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
-    self.addCleanup(standalone.stop)
-    self.assertTrue(os.path.exists(standalone.instance_directory))
+    standalone = self.setupSimpleStandalone()
+    self.assertExists(standalone.instance_directory)
     format_command = (standalone._slapos_wrapper, 'node', 'format', '--now')
     glob_pattern = os.path.join(standalone.instance_directory, 'slappart*')
     self.assertFalse(glob.glob(glob_pattern))
-    self.assertTrue(subprocess.call(format_command))
+    self.assertTrue(subprocess.call(format_command)) # non-zero exitcode
     self.assertFalse(glob.glob(glob_pattern))
     for partition_count in (3, 2):
       standalone.format(partition_count, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
@@ -314,9 +378,13 @@ class SlapOSStandaloneTestCase(unittest.TestCase):
                 'SLAPOS_TEST_SHARED_PART_LIST', '').split(os.pathsep) if p
         ],
     )
-    if self._auto_stop_standalone:
-      self.addCleanup(self.standalone.stop)
+    self.addCleanup(self.stopStandalone)
     self.standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+
+  def stopStandalone(self):
+    if self._auto_stop_standalone:
+      self.standalone.stop()
+      self._auto_stop_standalone = False
 
 
 class TestSlapOSStandaloneLogFile(SlapOSStandaloneTestCase):
@@ -448,8 +516,6 @@ class TestSlapOSStandaloneSoftware(SlapOSStandaloneTestCase):
 
 
 class TestSlapOSStandaloneInstance(SlapOSStandaloneTestCase):
-  _auto_stop_standalone = False  # we stop explicitly
-
   def test_request_instance(self):
     with tempfile.NamedTemporaryFile(suffix="-%s.cfg" % self.id()) as f:
       # This is a minimal / super fast buildout that's compatible with slapos.
@@ -564,5 +630,5 @@ class TestSlapOSStandaloneInstance(SlapOSStandaloneTestCase):
           if p['statename'] == 'RUNNING'
       ])
     self.assertEqual(set([True]), set([p.is_running() for p in process_list]))
-    self.standalone.stop()
+    self.stopStandalone()
     self.assertEqual(set([False]), set([p.is_running() for p in process_list]))

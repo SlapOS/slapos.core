@@ -214,11 +214,24 @@ def getPartitionIpv6Addr(ipv6_range, partition_index):
   }
   returns the IPv6 addr
   addr::(partition_index+2) (address 1 is is used by re6st)
+  If the range is too small, wrap around
   """
   addr = ipv6_range['addr']
   prefixlen = ipv6_range['prefixlen']
   prefix = binFromIpv6(addr)[:prefixlen]
-  return dict(addr=ipv6FromBin(prefix + bin(partition_index+2)[2:].zfill(128 - prefixlen)), prefixlen=prefixlen)
+  remaining = 128 - prefixlen
+  suffix = bin(partition_index+2)[2:]
+  if len(suffix) > remaining:
+    # wrap by keeping the first bit and the last bits
+    # or just the first bit
+    # or none whatsoever
+    # instead of truncating which would give the same IP to adjacent partitions
+    # the first bit is always 1, we keep it to (try to )reserve address 0 and 1
+    suffix = suffix[:bool(remaining)] + suffix[len(suffix) + 1 - remaining:]
+  else:
+    suffix = suffix.zfill(remaining)
+  bits = prefix + suffix
+  return dict(addr=ipv6FromBin(bits), prefixlen=prefixlen)
 
 def getIpv6RangeFactory(k, s):
   """

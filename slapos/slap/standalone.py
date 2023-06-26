@@ -738,6 +738,13 @@ class StandaloneSlapOS(object):
       SlapOSConfigWriter(self).writeConfig(self._slapos_config)
     SlapformatDefinitionWriter(self).writeConfig(self._slapformat_definition)
 
+    # remove slapos xml configuration in case of ip changes
+    try:
+      os.unlink(self._slapos_xml)
+    except OSError as e:
+      if e.errno != errno.ENOENT:
+        raise
+
     # run slapos format --now
     command = (
       self._slapos_bin, 'node', 'format',

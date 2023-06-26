@@ -38,6 +38,7 @@ import socket
 import sqlite3
 import struct
 import subprocess
+import sys
 import warnings
 
 import jsonschema
@@ -201,7 +202,7 @@ def ipv6FromBin(ip, suffix=''):
   if suffix_len > 0:
     ip += suffix.rjust(suffix_len, '0')
   elif suffix_len:
-    sys.exit("Prefix exceeds 128 bits")
+    sys.exit("Prefix %s exceeds 128 bits by %d bit" % (ip, -suffix_len))
   return socket.inet_ntop(socket.AF_INET6,
     struct.pack('>QQ', int(ip[:64], 2), int(ip[64:], 2)))
 
@@ -214,11 +215,23 @@ def getPartitionIpv6Addr(ipv6_range, partition_index):
   }
   returns the IPv6 addr
   addr::(partition_index+2) (address 1 is is used by re6st)
+  If the range is too small, wrap around
   """
   addr = ipv6_range['addr']
   prefixlen = ipv6_range['prefixlen']
   prefix = binFromIpv6(addr)[:prefixlen]
-  return dict(addr=ipv6FromBin(prefix + bin(partition_index+2)[2:].zfill(128 - prefixlen)), prefixlen=prefixlen)
+  remaining = 128 - prefixlen
+  suffix = bin(partition_index+2)[2:]
+  if len(suffix) > remaining:
+    if remaining >= 2:
+      # skip reserved addresses 0 and 1
+      suffix = bin((partition_index % ((1 << remaining) - 2)) + 2)[2:]
+    else:
+      # truncate, we have no other addresses than 0 and 1
+      suffix = suffix[len(suffix) - remaining:]
+  suffix = suffix.zfill(remaining)
+  bits = prefix + suffix
+  return dict(addr=ipv6FromBin(bits), prefixlen=prefixlen)
 
 def getIpv6RangeFactory(k, s):
   """

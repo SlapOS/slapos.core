@@ -890,10 +890,11 @@ class SlapTool(BaseTool):
         compute_partition_id)
 
     if instance.getSlapState() == 'destroy_requested':
-      # remove certificate from SI
-      instance.revokeCertificate()
       if instance.getValidationState() == 'validated':
         instance.invalidate()
+      for login in instance.objectValues(portal_type="Certificate Login"):
+        if login.getValidationState() == 'validated':
+          login.invalidate()
 
   @convertToREST
   def _setComputePartitionConnectionXml(self, compute_node_id,

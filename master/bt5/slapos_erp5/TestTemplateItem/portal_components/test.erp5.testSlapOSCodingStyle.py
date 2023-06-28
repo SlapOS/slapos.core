@@ -296,6 +296,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_core/ERP5Type_getSecurityCategoryFromAggregateRelatedSoftwareInstanceInstanceTree',
         'slapos_core/ERP5Type_getSecurityCategoryFromChildAssignmentList',
         'slapos_core/ERP5Type_getSecurityCategoryFromContentParent',
+        'slapos_core/ERP5Type_getSecurityCategoryFromParentContentParent',
         'slapos_core/ERP5Type_getSecurityCategoryFromParent',
         'slapos_core/ERP5Type_getSecurityCategoryMapping',
         'slapos_core/Event_getSecurityCategoryFromMovementFollowUpAggregateComputeNodeDestinationSection',

@@ -73,7 +73,7 @@ setup(name=name,
           'requests>=2.4.3',
           'six',
           'cachecontrol',
-          'lockfile',
+          'filelock',
           'jsonschema',
           'PyYAML',
           'uritemplate', # used by hateoas navigator

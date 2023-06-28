@@ -724,6 +724,25 @@ class TestERP5Login(TestSlapOSGroupRoleSecurityMixin):
 class TestCertificateLogin(TestERP5Login):
   login_portal_type = "Certificate Login"
 
+  def test_ComputeNodeCanAccessSoftwareInstanceLoginDocument(self):
+    software_instance = self.portal.software_instance_module.newContent(portal_type='Software Instance')
+    login = software_instance.newContent(portal_type=self.login_portal_type)
+    compute_node_reference = 'TESTCOMP-%s' % self.generateNewId()
+    compute_node = self.portal.compute_node_module.template_compute_node\
+        .Base_createCloneDocument(batch_mode=1)
+    compute_node.edit(reference=compute_node_reference)
+    partition = compute_node.newContent(portal_type='Compute Partition')
+    software_instance.edit(aggregate=partition.getRelativeUrl())
+
+    compute_node.updateLocalRolesOnSecurityGroups()
+    software_instance.updateLocalRolesOnSecurityGroups()
+    login.updateLocalRolesOnSecurityGroups()
+
+    self.assertSecurityGroup(login,
+      [self.user_id, software_instance.getUserId(), compute_node.getUserId()], False)
+    self.assertRoles(login, software_instance.getUserId(), ['Assignee'])
+    self.assertRoles(login, self.user_id, ['Owner'])
+    self.assertRoles(login, compute_node.getUserId(), ['Assignor'])
 
 class TestGoogleLogin(TestERP5Login):
   login_portal_type = "Google Login"

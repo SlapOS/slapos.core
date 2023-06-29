@@ -232,8 +232,14 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     software_instance = self.portal.software_instance_module.newContent(
         portal_type='Software Instance',
         specialise=instance_tree.getRelativeUrl())
+    certificate_login = software_instance.newContent(
+        portal_type='Certificate Login')
+    
     self.assertSecurityGroup(software_instance, [self.user_id, 'G-COMPANY',
         instance_tree.getReference()],
+        False)
+    self.assertSecurityGroup(certificate_login, [self.user_id,
+      software_instance.getUserId()],
         False)
 
     compute_node = self.portal.compute_node_module.template_compute_node\
@@ -250,6 +256,9 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
         compute_node.getUserId(), instance_tree.getReference()], False)
     self.assertSecurityGroup(partition, [self.user_id,
         instance_tree.getReference()], True)
+    self.assertSecurityGroup(certificate_login, [self.user_id,
+        compute_node.getUserId(), software_instance.getUserId()],
+        False)
 
   def test_SlaveInstance_setSpecialise(self):
     slave_instance = self.portal.software_instance_module.newContent(

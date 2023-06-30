@@ -41,6 +41,8 @@ import six
 from six import PY3, with_metaclass
 from datetime import datetime, timedelta
 
+from pkg_resources import parse_version
+
 PROMISE_STATE_FOLDER_NAME = '.slapgrid/promise'
 PROMISE_RESULT_FOLDER_NAME = '.slapgrid/promise/result'
 PROMISE_LOG_FOLDER_NAME = '.slapgrid/promise/log'
@@ -493,8 +495,9 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
       ))
     elif (not self.__is_tested and not check_anomaly) or \
         (not self.__is_anomaly_detected and check_anomaly):
-      # Anomaly or Test is disabled on this promise, send empty result
-      if self.getConfig('slapgrid-version', '') <= '1.4.17':
+      # Anomaly or Test is disabled on this promise, send empty 
+      slapgrid_version = self.getConfig('slapgrid-version', '')
+      if parse_version(slapgrid_version) <= parse_version('1.4.17'):
         # old version cannot send EmptyResult
         self.__sendResult(PromiseQueueResult(item=TestResult()))
       else:

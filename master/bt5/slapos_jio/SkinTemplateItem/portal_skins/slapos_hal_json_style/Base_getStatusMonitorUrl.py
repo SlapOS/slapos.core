@@ -1,11 +1,5 @@
 base_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND '
 
-if context.getPortalType() in ["Organisation", "Computer Network"]:
-  if compute_node_list is None:
-    return ""
-  compute_node_reference = ",".join([ '"' + i.getReference() + '"' for i in compute_node_list])
-  return base_url + "aggregate_reference:(%s)" % compute_node_reference
-
 if context.getPortalType() == "Instance Tree":
   for connection_parameter in context.InstanceTree_getConnectionParameterList(raw=True):
     if connection_parameter['connection_key'] == "monitor-setup-url":
@@ -15,6 +9,3 @@ if context.getPortalType() == "Instance Tree":
 
 if context.getPortalType() in ["Software Instance", "Slave Instance"]:
   return base_url + "reference:%s" % context.getReference()
-
-if context.getPortalType() == "Compute Node":
-  return base_url + "aggregate_reference:%s" % context.getReference()

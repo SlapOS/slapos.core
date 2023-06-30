@@ -77,42 +77,6 @@
     return 'ui-btn-error';
   }
 
-  function getComputePartitionStatus(options) {
-    var message,
-      compute_partition,
-      partition_class = 'ui-btn-ok',
-      error_amount = 0,
-      total_amount = 0;
-
-    if (!options) {
-      return 'ui-btn-no-data';
-    }
-
-    for (compute_partition in options) {
-      if (options.hasOwnProperty(compute_partition) &&
-          options[compute_partition].text) {
-        message = options[compute_partition].text;
-        if (message.startsWith("#error")) {
-          partition_class = 'ui-btn-warning';
-          error_amount += 1;
-        }
-        total_amount += 1;
-        if ((error_amount > 0) && (error_amount < total_amount)) {
-          // No need to continue the result will be a warnning
-          return partition_class;
-        }
-      }
-    }
-    if (!total_amount) {
-      return 'ui-btn-no-data';
-    }
-
-    if (error_amount === total_amount) {
-      return 'ui-btn-error';
-    }
-    return partition_class;
-  }
-
   function getSoftwareInstallationStatus(options) {
     if ((!options) || (options && !options.text)) {
       return 'ui-btn-no-data';
@@ -163,40 +127,6 @@
     return status;
   }
 
-  function getComputePartitionStatusList(options) {
-    var compute_node_reference,
-      status = 'ui-btn-no-data',
-      previous_status = "START";
-    for (compute_node_reference in options.partition) {
-      if (options.partition.hasOwnProperty(compute_node_reference)) {
-        status = getComputePartitionStatus(
-          options.partition[compute_node_reference]
-        );
-        if (previous_status === "START") {
-          previous_status = status;
-        }
-        if (status === 'ui-btn-warning') {
-          // XXX Drop warning
-          return status;
-        }
-        if (previous_status !== status) {
-          if ((previous_status === 'ui-btn-error') &&
-              (status === 'ui-btn-ok')) {
-            return 'ui-btn-warning';
-          }
-          if ((status === 'ui-btn-error') &&
-              (previous_status === 'ui-btn-ok')) {
-            return 'ui-btn-warning';
-          }
-          if (status === 'ui-btn-no-data') {
-            status = previous_status;
-          }
-        }
-      }
-    }
-    return status;
-  }
-
   function getStatus(gadget, result) {
     var i, status_class = 'ui-btn-no-data',
       right_class = 'ui-btn-no-data',
@@ -215,24 +145,10 @@
     }
 
     if (result && result.portal_type && result.portal_type === "Compute Node") {
-      main_link_configuration_dict.href = monitor_url;
-      main_link_configuration_dict.target = "_target";
       main_link_configuration_dict.text = 'Node';
-      sub_link_configuration_dict.href = monitor_url;
-      sub_link_configuration_dict.target = "_target";
-      sub_link_configuration_dict.text = 'Partitions';
-
-      if (result && result.compute_node) {
-        status_class = getComputeNodeStatus(result.compute_node);
-      }
-      if ((status_class === 'ui-btn-error') ||
-            (status_class === 'ui-btn-no-data')) {
-        right_class = status_class;
-      } else {
-        if (result && result.partition) {
-          right_class = getComputePartitionStatus(result.partition);
-        }
-      }
+      main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
+      right_class = "ui-btn-hide";
+      status_class = getComputeNodeStatus(result);
     } else if (result && result.portal_type &&
                result.portal_type === "Software Installation") {
       status_class = getSoftwareInstallationStatus(result);
@@ -293,20 +209,10 @@
         main_link_configuration_dict.text = 'Instance';
       }
     } else {
-      main_link_configuration_dict.href = monitor_url;
-      main_link_configuration_dict.target = "_target";
       main_link_configuration_dict.text = 'Node';
-      sub_link_configuration_dict.href = monitor_url;
-      sub_link_configuration_dict.target = "_target";
-      sub_link_configuration_dict.text = 'Partitions';
-
+      main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
+      right_class = "ui-btn-hide";
       status_class = getComputeNodeStatusList(result);
-      if ((status_class === 'ui-btn-error') ||
-          (status_class === 'ui-btn-no-data')) {
-        right_class = status_class;
-      } else {
-        right_class = getComputePartitionStatusList(result);
-      }
     }
 
     main_link_configuration_dict.text = ' ' + main_link_configuration_dict.text;

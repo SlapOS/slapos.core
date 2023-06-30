@@ -154,12 +154,12 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
       <tr>
@@ -206,12 +206,12 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
 
@@ -227,12 +227,12 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(@href, 'COMP-') and contains(text(), 'Node')]</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
 

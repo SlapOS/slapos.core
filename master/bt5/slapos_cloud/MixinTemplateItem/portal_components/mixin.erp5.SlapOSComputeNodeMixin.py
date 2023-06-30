@@ -131,10 +131,6 @@ class SlapOSComputeNodeMixin(object):
       # called on site
       pass
 
-    # Also update cache for News Dict, so it speed up access of this UI.
-    key = '%s_partition_news' % self.getReference()
-    self._getCachedComputePartitionNewsDict(key, refresh_etag)
-
   def _calculateRefreshEtag(self):
     # check max indexation timestamp
     # it is unlikely to get an empty catalog
@@ -334,61 +330,3 @@ class SlapOSComputeNodeMixin(object):
         self.getReference(), ', '.join([q.getRelativeUrl() for q \
           in software_installation_list])
       ))
-
-  def getComputePartitionNewsDict(self):
-    key = '%s_partition_news' % self.getReference()
-    cache_plugin = self._getCachePlugin()
-    refresh_etag = self._calculateRefreshEtag()
-    try:
-      entry = cache_plugin.get(key, DEFAULT_CACHE_SCOPE)
-    except KeyError:
-      entry = None
-
-    if entry is not None and isinstance(entry.getValue(), dict):
-      cached_dict = entry.getValue()
-      cached_etag = cached_dict.get('refresh_etag', None)
-      if (refresh_etag != cached_etag):
-        return self._getCachedComputePartitionNewsDict(key, refresh_etag)
-      else:
-        return cached_dict.get('data')
-    return self._getCachedComputePartitionNewsDict(key, refresh_etag)
-        
-    
-  def _getCachedComputePartitionNewsDict(self, key, refresh_etag):
-    unrestrictedSearchResults = self.getPortalObject().portal_catalog.unrestrictedSearchResults
-    compute_partition_uid_list = [x.uid for x in unrestrictedSearchResults(
-                    parent_uid=self.getUid(),
-                    validation_state="validated",
-                    portal_type="Compute Partition")]
-    software_instance_list = unrestrictedSearchResults(
-      portal_type="Software Instance",
-      default_aggregate_uid=compute_partition_uid_list,
-      validation_state="validated",
-      group_by_list=['default_aggregate_uid'],
-      select_list=['default_aggregate_uid', 'default_aggregate_title']
-    )
-
-    compute_partition_dict = { }
-    for software_instance in software_instance_list:
-      compute_partition_dict[software_instance.default_aggregate_title] = software_instance.getAccessStatus()
-
-    try:
-      self._getCachePlugin().set(key, DEFAULT_CACHE_SCOPE,
-        dict (
-          time=time.time(),
-          refresh_etag=refresh_etag,
-          data=compute_partition_dict
-        ),
-        cache_duration=self.getPortalObject().portal_caches\
-            .getRamCacheRoot().get('compute_node_information_cache_factory'\
-              ).cache_duration
-        )
-    except (Unauthorized, IndexError):
-      # XXX: Unauthorized hack. Race condition of not ready setup delivery which provides
-      # security information shall not make this method fail, as it will be
-      # called later anyway
-      # Note: IndexError ignored, as it happend in case if full reindex is
-      # called on site
-      pass
-
-    return compute_partition_dict

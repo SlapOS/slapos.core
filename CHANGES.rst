@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.10.1 (2023-07-03)
+-------------------
+ * slap/standalone: Use IPv6 range when available
+ * testing: Factor snapshot management
+
 1.10.0 (2023-06-21)
 -------------------
  * slapgrid: Start services even without connection to master

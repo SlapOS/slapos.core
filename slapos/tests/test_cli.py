@@ -442,16 +442,13 @@ class TestCliBoot(CliMixin):
           patch('slapos.cli.boot.ConfigCommand.config_path', return_value=slapos_conf.name), \
           patch(
               'slapos.cli.boot.netifaces.ifaddresses',
-              return_value={socket.AF_INET6: ({'addr': '2000::1'},),},) as ifaddresses,\
-          patch('slapos.cli.boot._ping_hostname', return_value=1) as _ping_hostname:
+              return_value={socket.AF_INET6: ({'addr': '2000::1'},),},) as ifaddresses:
         app.run(('node', 'boot'))
 
       # boot command runs as root
       check_root_user.assert_called_once()
       # it waits for interface to have an IPv6 address
       ifaddresses.assert_called_once_with('interface_name_from_config')
-      # then ping master hostname to wait for connectivity
-      _ping_hostname.assert_called_once_with('slap.vifib.com')
       # then format and bang
       SlapOSApp().run.assert_any_call(['node', 'format', '--now', '--verbose'])
       SlapOSApp().run.assert_any_call(['node', 'bang', '-m', 'Reboot'])

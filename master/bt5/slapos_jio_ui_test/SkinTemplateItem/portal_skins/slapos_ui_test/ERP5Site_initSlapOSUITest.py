@@ -112,11 +112,11 @@ except KeyError:
   )
 
 erp5_software_release.edit(
-  url_string="https://lab.nexedi.com/nexedi/slapos/raw/%s/software/kvm/software.cfg" % software_version,
+  url_string="https://lab.nexedi.com/nexedi/slapos/raw/%s/software/erp5/software.cfg" % software_version,
 )
 
-if kvm_software_release.getValidationState() == "draft":
-  kvm_software_release.publishAlive()
+if erp5_software_release.getValidationState() == "draft":
+  erp5_software_release.publishAlive()
 
 # some are already indexed
 kw = {'portal_type': ('Authentication Event', 'Passoword Event')}

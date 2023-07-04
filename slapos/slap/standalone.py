@@ -944,11 +944,14 @@ class StandaloneSlapOS(object):
             if retry >= max_retry:
               # get the last lines of output, at most `error_lines`. If
               # these lines are long, the output may be truncated.
-              _, log_offset, _ = supervisor.tailProcessStdoutLog(command, 0, 0)
-              output, _, _ = supervisor.tailProcessStdoutLog(
-                  command, log_offset - (2 << 13), 2 << 13)
+              getTail = supervisor.tailProcessStdoutLog
+              output, size, overflow = getTail(command, 0, 2 << 15)
+              output_lines = output.splitlines()
+              if overflow:
+                if error_lines == 0 or len(output_lines) < error_lines:
+                  output_lines = getTail(commmand, 0, size)[0].splitlines()
               raise SlapOSNodeCommandError({
-                  'output': '\n'.join(output.splitlines()[-error_lines:]),
+                  'output': '\n'.join(output_lines[-error_lines:]),
                   'exitstatus': process_info['exitstatus'],
               })
             break

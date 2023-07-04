@@ -1,7 +1,7 @@
 # PreferenceTool
 from DateTime import DateTime
 
-software_version = "1.0.289"
+software_version = context.ERP5Site_getSoftwareReleaseTagVersion()
 
 portal = context.getPortalObject()
 
@@ -82,7 +82,41 @@ theia_software_release.edit(
 if theia_software_release.getValidationState() == "draft":
   theia_software_release.publishAlive()
 
-portal = context.getPortalObject()
+
+
+try:
+  erp5_product = context.software_product_module["erp5"]
+except KeyError:
+  erp5_product = context.software_product_module.newContent(
+    id="erp5",
+    title="ERP5",
+    product_line ="software/application",
+    reference="erp5",
+    portal_type="Software Product"
+  )
+
+if erp5_product.getValidationState() == "draft":
+  erp5_product.publish()
+
+try:
+  erp5_software_release = context.software_release_module["erp5"]
+except KeyError:
+  erp5_software_release = context.software_release_module.newContent(
+    id="erp5",
+    title="ERP5",
+    portal_type="Software Release",
+    version="0.1",
+    language="en",
+    effective_date=DateTime('2018/03/14 00:00:00 UTC'),
+    aggregate="software_product_module/erp5"
+  )
+
+erp5_software_release.edit(
+  url_string="https://lab.nexedi.com/nexedi/slapos/raw/%s/software/erp5/software.cfg" % software_version,
+)
+
+if erp5_software_release.getValidationState() == "draft":
+  erp5_software_release.publishAlive()
 
 # some are already indexed
 kw = {'portal_type': ('Authentication Event', 'Passoword Event')}

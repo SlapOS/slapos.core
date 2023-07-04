@@ -283,4 +283,16 @@
       <td tal:content="python: value"></td>
     </tr>
   </tal:block>
+
+
+  <tal:block metal:define-macro="set_software_for_parameter_test">
+    <tr>
+      <td colspan="3"><b> Set URL for the software release </b></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@name='url_string']</td>
+      <td tal:content="python: 'https://lab.nexedi.com/nexedi/slapos/raw/%s/software/%s/software.cfg' % (context.ERP5Site_getSoftwareReleaseTagVersion(), name)"></td>
+    </tr>
+  </tal:block>
 </tal:block>

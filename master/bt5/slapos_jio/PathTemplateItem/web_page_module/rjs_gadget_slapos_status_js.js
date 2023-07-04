@@ -77,42 +77,6 @@
     return 'ui-btn-error';
   }
 
-  function getComputePartitionStatus(options) {
-    var message,
-      compute_partition,
-      partition_class = 'ui-btn-ok',
-      error_amount = 0,
-      total_amount = 0;
-
-    if (!options) {
-      return 'ui-btn-no-data';
-    }
-
-    for (compute_partition in options) {
-      if (options.hasOwnProperty(compute_partition) &&
-          options[compute_partition].text) {
-        message = options[compute_partition].text;
-        if (message.startsWith("#error")) {
-          partition_class = 'ui-btn-warning';
-          error_amount += 1;
-        }
-        total_amount += 1;
-        if ((error_amount > 0) && (error_amount < total_amount)) {
-          // No need to continue the result will be a warnning
-          return partition_class;
-        }
-      }
-    }
-    if (!total_amount) {
-      return 'ui-btn-no-data';
-    }
-
-    if (error_amount === total_amount) {
-      return 'ui-btn-error';
-    }
-    return partition_class;
-  }
-
   function getSoftwareInstallationStatus(options) {
     if ((!options) || (options && !options.text)) {
       return 'ui-btn-no-data';
@@ -163,81 +127,26 @@
     return status;
   }
 
-  function getComputePartitionStatusList(options) {
-    var compute_node_reference,
-      status = 'ui-btn-no-data',
-      previous_status = "START";
-    for (compute_node_reference in options.partition) {
-      if (options.partition.hasOwnProperty(compute_node_reference)) {
-        status = getComputePartitionStatus(
-          options.partition[compute_node_reference]
-        );
-        if (previous_status === "START") {
-          previous_status = status;
-        }
-        if (status === 'ui-btn-warning') {
-          // XXX Drop warning
-          return status;
-        }
-        if (previous_status !== status) {
-          if ((previous_status === 'ui-btn-error') &&
-              (status === 'ui-btn-ok')) {
-            return 'ui-btn-warning';
-          }
-          if ((status === 'ui-btn-error') &&
-              (previous_status === 'ui-btn-ok')) {
-            return 'ui-btn-warning';
-          }
-          if (status === 'ui-btn-no-data') {
-            status = previous_status;
-          }
-        }
-      }
-    }
-    return status;
-  }
-
   function getStatus(gadget, result) {
-    var i, status_class = 'ui-btn-no-data',
-      right_class = 'ui-btn-no-data',
+    var status_class = 'ui-btn-no-data',
       main_status_div = gadget.element.querySelector(".main-status"),
-      sub_status_div = gadget.element.querySelector(".sub-status"),
       monitor_url = '',
       main_link_configuration_dict = {
-        class: "ui-btn ui-btn-icon-left ui-icon-desktop"
-      },
-      sub_link_configuration_dict = {
         class: "ui-btn ui-btn-icon-left ui-icon-desktop"
       };
 
     if (result && result.monitor_url) {
-      monitor_url = result.monitor_url
+      monitor_url = result.monitor_url;
     }
 
     if (result && result.portal_type && result.portal_type === "Compute Node") {
-      main_link_configuration_dict.href = monitor_url;
-      main_link_configuration_dict.target = "_target";
       main_link_configuration_dict.text = 'Node';
-      sub_link_configuration_dict.href = monitor_url;
-      sub_link_configuration_dict.target = "_target";
-      sub_link_configuration_dict.text = 'Partitions';
-
-      if (result && result.compute_node) {
-        status_class = getComputeNodeStatus(result.compute_node);
-      }
-      if ((status_class === 'ui-btn-error') ||
-            (status_class === 'ui-btn-no-data')) {
-        right_class = status_class;
-      } else {
-        if (result && result.partition) {
-          right_class = getComputePartitionStatus(result.partition);
-        }
-      }
+      main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
+      status_class = getComputeNodeStatus(result);
     } else if (result && result.portal_type &&
                result.portal_type === "Software Installation") {
       status_class = getSoftwareInstallationStatus(result);
       main_link_configuration_dict.text = "Installation";
-      right_class = "ui-btn-hide";
       if (status_class === "ui-btn-is-building") {
         main_link_configuration_dict.text = "Building";
         status_class = "ui-btn-no-data";
@@ -252,7 +161,6 @@
         result.portal_type === "Slave Instance"
       )) {
       status_class = getInstanceStatus(result);
-      right_class = "ui-btn-hide";
       if (status_class === 'ui-btn-is-slave') {
         status_class = 'ui-btn-color-white';
         main_link_configuration_dict.text = 'Slave';
@@ -274,7 +182,6 @@
               result.portal_type === "Instance Tree") {
       status_class = getInstanceTreeStatus(result);
       // it should verify if the monitor-base-url is ready.
-      right_class = "ui-btn-hide";
       if (status_class === 'ui-btn-is-slave') {
         status_class = 'ui-btn-color-white';
         main_link_configuration_dict.text = 'Slave Only';
@@ -293,40 +200,18 @@
         main_link_configuration_dict.text = 'Instance';
       }
     } else {
-      main_link_configuration_dict.href = monitor_url;
-      main_link_configuration_dict.target = "_target";
       main_link_configuration_dict.text = 'Node';
-      sub_link_configuration_dict.href = monitor_url;
-      sub_link_configuration_dict.target = "_target";
-      sub_link_configuration_dict.text = 'Partitions';
-
+      main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
       status_class = getComputeNodeStatusList(result);
-      if ((status_class === 'ui-btn-error') ||
-          (status_class === 'ui-btn-no-data')) {
-        right_class = status_class;
-      } else {
-        right_class = getComputePartitionStatusList(result);
-      }
     }
 
     main_link_configuration_dict.text = ' ' + main_link_configuration_dict.text;
-    sub_link_configuration_dict.text = ' ' + sub_link_configuration_dict.text;
     domsugar(main_status_div.querySelector('div'),
       {
         class: "ui-bar ui-corner-all first-child " + status_class
       }, [
         domsugar("a", main_link_configuration_dict)
       ]);
-    domsugar(sub_status_div.querySelector('div'),
-      {
-        class: "ui-bar ui-corner-all last-child " + right_class
-      }, [
-        domsugar("a", sub_link_configuration_dict)
-      ]);
-    if (right_class === 'ui-btn-hide') {
-      // expand main button to use the space
-      main_status_div.className = "ui-block-a ui-block main-status";
-    }
     return gadget;
   }
 
@@ -338,7 +223,8 @@
 
     .onLoop(function () {
       var gadget = this;
-      if (typeof gadget.state.jio_key === 'string' && gadget.state.jio_key !== '') {
+      if (typeof gadget.state.jio_key === 'string' &&
+          gadget.state.jio_key !== '') {
         return gadget.jio_get(gadget.state.jio_key)
           .push(function (result) {
             var state_dict = result.news || {};

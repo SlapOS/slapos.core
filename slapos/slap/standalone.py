@@ -945,8 +945,9 @@ class StandaloneSlapOS(object):
               # get the last lines of output, at most `error_lines`. If
               # these lines are long, the output may be truncated.
               _, log_offset, _ = supervisor.tailProcessStdoutLog(command, 0, 0)
+              tail_length = (2 << 15)
               output, _, _ = supervisor.tailProcessStdoutLog(
-                  command, log_offset - (2 << 13), 2 << 13)
+                  command, max(0, log_offset - tail_length), tail_length)
               raise SlapOSNodeCommandError({
                   'output': '\n'.join(output.splitlines()[-error_lines:]),
                   'exitstatus': process_info['exitstatus'],

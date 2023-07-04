@@ -128,32 +128,25 @@
   }
 
   function getStatus(gadget, result) {
-    var i, status_class = 'ui-btn-no-data',
-      right_class = 'ui-btn-no-data',
+    var status_class = 'ui-btn-no-data',
       main_status_div = gadget.element.querySelector(".main-status"),
-      sub_status_div = gadget.element.querySelector(".sub-status"),
       monitor_url = '',
       main_link_configuration_dict = {
-        class: "ui-btn ui-btn-icon-left ui-icon-desktop"
-      },
-      sub_link_configuration_dict = {
         class: "ui-btn ui-btn-icon-left ui-icon-desktop"
       };
 
     if (result && result.monitor_url) {
-      monitor_url = result.monitor_url
+      monitor_url = result.monitor_url;
     }
 
     if (result && result.portal_type && result.portal_type === "Compute Node") {
       main_link_configuration_dict.text = 'Node';
       main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
-      right_class = "ui-btn-hide";
       status_class = getComputeNodeStatus(result);
     } else if (result && result.portal_type &&
                result.portal_type === "Software Installation") {
       status_class = getSoftwareInstallationStatus(result);
       main_link_configuration_dict.text = "Installation";
-      right_class = "ui-btn-hide";
       if (status_class === "ui-btn-is-building") {
         main_link_configuration_dict.text = "Building";
         status_class = "ui-btn-no-data";
@@ -168,7 +161,6 @@
         result.portal_type === "Slave Instance"
       )) {
       status_class = getInstanceStatus(result);
-      right_class = "ui-btn-hide";
       if (status_class === 'ui-btn-is-slave') {
         status_class = 'ui-btn-color-white';
         main_link_configuration_dict.text = 'Slave';
@@ -190,7 +182,6 @@
               result.portal_type === "Instance Tree") {
       status_class = getInstanceTreeStatus(result);
       // it should verify if the monitor-base-url is ready.
-      right_class = "ui-btn-hide";
       if (status_class === 'ui-btn-is-slave') {
         status_class = 'ui-btn-color-white';
         main_link_configuration_dict.text = 'Slave Only';
@@ -211,28 +202,16 @@
     } else {
       main_link_configuration_dict.text = 'Node';
       main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
-      right_class = "ui-btn-hide";
       status_class = getComputeNodeStatusList(result);
     }
 
     main_link_configuration_dict.text = ' ' + main_link_configuration_dict.text;
-    sub_link_configuration_dict.text = ' ' + sub_link_configuration_dict.text;
     domsugar(main_status_div.querySelector('div'),
       {
         class: "ui-bar ui-corner-all first-child " + status_class
       }, [
         domsugar("a", main_link_configuration_dict)
       ]);
-    domsugar(sub_status_div.querySelector('div'),
-      {
-        class: "ui-bar ui-corner-all last-child " + right_class
-      }, [
-        domsugar("a", sub_link_configuration_dict)
-      ]);
-    if (right_class === 'ui-btn-hide') {
-      // expand main button to use the space
-      main_status_div.className = "ui-block-a ui-block main-status";
-    }
     return gadget;
   }
 
@@ -244,7 +223,8 @@
 
     .onLoop(function () {
       var gadget = this;
-      if (typeof gadget.state.jio_key === 'string' && gadget.state.jio_key !== '') {
+      if (typeof gadget.state.jio_key === 'string' &&
+          gadget.state.jio_key !== '') {
         return gadget.jio_get(gadget.state.jio_key)
           .push(function (result) {
             var state_dict = result.news || {};

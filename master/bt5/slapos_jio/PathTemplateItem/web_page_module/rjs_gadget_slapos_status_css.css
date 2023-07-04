@@ -16,12 +16,8 @@
     clear: left;
 }
 
-.ui-block-50 {
-  width: 50% !important;
-}
-
-.ui-btn-hide {
-  display: none !important;
+.ui-block {
+  width: 100%
 }
 
 .ui-bar {

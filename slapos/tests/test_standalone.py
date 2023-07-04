@@ -656,3 +656,35 @@ class TestSlapOSStandaloneInstance(SlapOSStandaloneTestCase):
     self.assertEqual(set([True]), set([p.is_running() for p in process_list]))
     self.stopStandalone()
     self.assertEqual(set([False]), set([p.is_running() for p in process_list]))
+
+
+class TestSlapOSStandaloneLongSoftwareError(SlapOSStandaloneTestCase):
+  def test(self):
+    with tempfile.NamedTemporaryFile(suffix="-%s.cfg" % self.id()) as f:
+      very_long_string = "a" * (2 << 16)
+      software_url = f.name
+      f.write(
+          textwrap.dedent(
+              '''
+              [buildout]
+              parts = fail
+              newest = false
+
+              [fail]
+              recipe = plone.recipe.command==1.1
+              stop-on-error = true
+              command = echo %r && false
+      ''' % very_long_string).encode())
+      f.flush()
+
+      self.standalone.supply(software_url)
+
+      # Not using assertRaises context manager for python2 compatibility
+      try:
+        self.standalone.waitForSoftware()
+      except SlapOSNodeSoftwareError as e:
+        self.assertIn(very_long_string, str(e))
+      except Exception as e:
+        self.fail("waitForSoftware raised unexpected exception %r" % e)
+      else:
+        self.fail("waitForSoftware should have raised")

@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.10.2 (2023-07-07)
+-------------------
+ * slap/standalone: Increase slapos error log size
+
 1.10.1 (2023-07-03)
 -------------------
  * slap/standalone: Use IPv6 range when available

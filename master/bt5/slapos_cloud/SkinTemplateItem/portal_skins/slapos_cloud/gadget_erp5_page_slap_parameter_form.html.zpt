@@ -17,7 +17,7 @@
       <div>
           <fieldset id="software-type">
             <div class="field" title="software_type">
-              <label> 软件类型 </label>
+              <label i18n:translate="" i18n:domain="ui"> Software Type </label>
               <div class="input">
                 <select size="1" name="software_type" class="slapos-software-type">
                 </select>
@@ -30,8 +30,8 @@
             </div>
             <div class="field slapos-parameter-editor-button" title="hide_show_button">
               <div class="input">
-                <button type="button" class="slapos-show-form ui-btn-icon-left ui-icon-spinner"> 展开参数表格 </button>
-                <button type="button" class="slapos-show-raw-parameterui-btn-icon-left ui-icon-code" disabled> 展开参数XML</button>
+                <button type="button" class="slapos-show-form ui-btn-icon-left ui-icon-spinner" i18n:translate="" i18n:domain="ui"> Parameter Form </button>
+                <button type="button" class="slapos-show-raw-parameter ui-btn-icon-left ui-icon-code" disabled i18n:translate="" i18n:domain="ui"> Raw XML</button>
               </div>
             </div>
           </fieldset>

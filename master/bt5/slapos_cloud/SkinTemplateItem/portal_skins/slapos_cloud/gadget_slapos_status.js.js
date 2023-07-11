@@ -132,7 +132,7 @@
       main_status_div = gadget.element.querySelector(".main-status"),
       monitor_url = '',
       main_link_configuration_dict = {
-        class: "ui-btn ui-btn-icon-left ui-icon-desktop"
+        "class": "ui-btn ui-btn-icon-left ui-icon-desktop"
       };
 
     if (result && result.monitor_url) {
@@ -141,7 +141,7 @@
 
     if (result && result.portal_type && result.portal_type === "Compute Node") {
       main_link_configuration_dict.text = 'Node';
-      main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
+      main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
       status_class = getComputeNodeStatus(result);
     } else if (result && result.portal_type &&
                result.portal_type === "Software Installation") {
@@ -155,7 +155,7 @@
       } else if (status_class === "ui-btn-error") {
         main_link_configuration_dict.text = "Error";
       }
-      main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
+      main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
     } else if (result && result.portal_type && (
         result.portal_type === "Software Instance" ||
         result.portal_type === "Slave Instance"
@@ -164,15 +164,15 @@
       if (status_class === 'ui-btn-is-slave') {
         status_class = 'ui-btn-color-white';
         main_link_configuration_dict.text = 'Slave';
-        main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
+        main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
       } else if (status_class === 'ui-btn-is-stopped') {
         status_class = 'ui-btn-color-white';
         main_link_configuration_dict.text = 'Stopped';
-        main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
+        main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
       } else if (status_class === 'ui-btn-is-destroyed') {
         status_class = 'ui-btn-color-white';
         main_link_configuration_dict.text = 'Destroyed';
-        main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
+        main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
       } else {
         main_link_configuration_dict.href = monitor_url;
         main_link_configuration_dict.target = "_target";
@@ -185,15 +185,15 @@
       if (status_class === 'ui-btn-is-slave') {
         status_class = 'ui-btn-color-white';
         main_link_configuration_dict.text = 'Slave Only';
-        main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
+        main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
       } else if (status_class === 'ui-btn-is-stopped') {
         status_class = 'ui-btn-color-white';
         main_link_configuration_dict.text = 'Stopped';
-        main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
+        main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
       } else if (status_class === 'ui-btn-is-destroyed') {
         status_class = 'ui-btn-color-white';
         main_link_configuration_dict.text = 'Destroyed';
-        main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
+        main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
       } else {
         main_link_configuration_dict.href = monitor_url;
         main_link_configuration_dict.target = "_target";
@@ -201,14 +201,14 @@
       }
     } else {
       main_link_configuration_dict.text = 'Node';
-      main_link_configuration_dict.class = "ui-btn ui-btn-icon-left";
+      main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
       status_class = getComputeNodeStatusList(result);
     }
 
     main_link_configuration_dict.text = ' ' + main_link_configuration_dict.text;
     domsugar(main_status_div.querySelector('div'),
       {
-        class: "ui-bar ui-corner-all first-child " + status_class
+        "class": "ui-bar ui-corner-all first-child " + status_class
       }, [
         domsugar("a", main_link_configuration_dict)
       ]);

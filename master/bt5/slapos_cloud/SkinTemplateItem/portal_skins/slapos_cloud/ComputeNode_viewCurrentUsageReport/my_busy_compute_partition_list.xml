@@ -429,6 +429,10 @@
                           <string>status</string>
                           <string>Status</string>
                         </tuple>
+                        <tuple>
+                          <string>error_reported</string>
+                          <string>error_reported</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

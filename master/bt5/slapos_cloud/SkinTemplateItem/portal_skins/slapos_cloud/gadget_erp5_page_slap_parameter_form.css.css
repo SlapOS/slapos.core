@@ -1,4 +1,7 @@
-#software-type {padding: 10px 0 0;}
+#software-type {
+  padding: 10px 0 0;
+  border: 0px;
+}
 #software-type  .field[title='serialisation_type'] .input { padding-top: 0; }
 .subfield, #software-type .input{
   padding-top: 10px;
@@ -24,6 +27,11 @@ textarea.slapos-parameter {
   width: 400px;
   height: 100px;
 }
+
+div.parameter-editor fieldset {
+  border: 0px;
+}
+
 
 .field input ~ span {
   position: relative;

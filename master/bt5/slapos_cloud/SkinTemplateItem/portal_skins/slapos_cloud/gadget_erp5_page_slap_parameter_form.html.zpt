@@ -14,7 +14,7 @@
     <link href="gadget_erp5_page_slap_parameter_form.css" rel="stylesheet" type="text/css"/>
   </head>
     <body>
-      <div>
+      <div class="parameter-editor">
           <fieldset id="software-type">
             <div class="field" title="software_type">
               <label i18n:translate="" i18n:domain="ui"> Software Type </label>

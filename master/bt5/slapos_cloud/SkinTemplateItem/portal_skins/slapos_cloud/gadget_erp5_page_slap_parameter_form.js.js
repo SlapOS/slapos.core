@@ -504,24 +504,35 @@
     .declareMethod('render', function (options) {
       var restricted_softwaretype = false,
         software_type_list = [],
-        parameter_hash = options.value.parameter.parameter_hash,
-        // XXX Do we directly get parameter_xml parameter?
-        parameter_xml = options.value.parameter.parameter_xml;
+        parameter_dict,
+        parameter_hash,
+        parameter_xml;
 
+      if ((options.value !== undefined) && (typeof options.value === "string")) {
+        parameter_dict = JSON.parse(options.value).parameter
+      } else {
+        parameter_dict = options.value.parameter;
+      }
+
+      
+      parameter_hash = parameter_dict.parameter_hash,
+      // XXX Do we directly get parameter_xml parameter?
+      parameter_xml = parameter_dict.parameter_xml;
+        
       if (parameter_hash !== undefined) {
         // A JSON where provided via gadgetfield
         parameter_xml = atob(parameter_hash);
       }
 
-      if (options.value.parameter.software_type_list !== undefined) {
-        software_type_list = options.value.parameter.software_type_list;
+      if (parameter_dict.software_type_list !== undefined) {
+        software_type_list = parameter_dict.software_type_list;
       }
 
-      if (options.value.parameter.softwaretype !== undefined) {
+      if (parameter_dict.softwaretype !== undefined) {
         restricted_softwaretype = true;
         // exceptional situation where the default item must be in
         // the list. 
-        software_type_list.push(options.value.parameter.softwaretype);
+        software_type_list.push(parameter_dict.softwaretype);
       }
 
       return this.changeState({
@@ -529,13 +540,13 @@
         // hidden: options.hidden,
         // key: options.key,
         serialisation: options.serialisation,
-        json_url: options.value.parameter.json_url,
+        json_url: parameter_dict.json_url,
         parameter_xml: parameter_xml,
         restricted_softwaretype: restricted_softwaretype,
-        shared: options.value.parameter.shared,
-        softwaretype: options.value.parameter.softwaretype,
+        shared: parameter_dict.shared,
+        softwaretype: parameter_dict.softwaretype,
         software_type_list: software_type_list,
-        softwareindex: options.value.parameter.softwareindex,
+        softwareindex: parameter_dict.softwareindex,
         editable: options.editable,
         // Force refresh in any case
         render_timestamp: new Date().getTime()

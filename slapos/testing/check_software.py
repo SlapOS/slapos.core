@@ -115,6 +115,8 @@ def checkSoftware(slap, software_url):
       # Python libraries lacking an rpath; these are not actually used
       # by Chromium itself
       '*/.vpython-root/*',
+      # this library is not readable by group/other
+      '*/libexec/ssh-keysign',
   ))
 
   software_hash = md5digest(software_url)

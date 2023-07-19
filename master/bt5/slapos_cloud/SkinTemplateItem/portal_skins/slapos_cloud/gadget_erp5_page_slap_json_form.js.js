@@ -326,9 +326,13 @@
     for (key in json_field.properties) {
       if (json_field.properties.hasOwnProperty(key)) {
         if (editable || default_dict[key] !== undefined) {
-          label = domsugar("label", {
-            'text': json_field.properties[key].title
-          });
+          if (json_field.properties[key].title !== undefined) {
+            label = domsugar("label", {
+              'text': json_field.properties[key].title
+            });
+          } else {
+            label = domsugar("label", {'text': key });
+          }
           is_required = false;
           if ((Array.isArray(json_field.required)) && (json_field.required.includes(key))) {
             is_required = true;

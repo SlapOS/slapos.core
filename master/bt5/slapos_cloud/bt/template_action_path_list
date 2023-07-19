@@ -12,6 +12,7 @@ Instance Tree | create_hs_upgrade
 Instance Tree | request_hs_start
 Instance Tree | request_hs_stop
 Instance Tree | view
+Instance Tree | view_editor
 Instance Tree | view_request_destroy
 Person | jump_to_instance_tree
 Slave Instance | jump_to_instance_tree

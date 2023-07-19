@@ -436,7 +436,7 @@ class StandaloneSlapOS(object):
     self._base_directory = base_directory
     self._shared_part_list = list(shared_part_list)
     self._partition_forward_configuration = list(partition_forward_configuration)
-    self._partition_count = 0
+    self._partition_count = -1
     self._partition_base_name = 'slappart'
     self._ipv4_address = None
     self._ipv6_address = None

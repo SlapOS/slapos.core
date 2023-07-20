@@ -202,6 +202,14 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     login.validate()
     return login
 
+  def _addCertificateLogin(self, document, **kw):
+    login = document.newContent(
+        portal_type="Certificate Login",
+        reference=document.getReference(),
+        **kw)
+    login.validate()
+    return login
+
   def makePerson(self, new_id=None, index=True, user=True):
 
     if new_id is None:

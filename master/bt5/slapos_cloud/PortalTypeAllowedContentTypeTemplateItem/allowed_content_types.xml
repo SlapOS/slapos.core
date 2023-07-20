@@ -1,7 +1,6 @@
 <allowed_content_type_list>
  <portal_type id="Compute Node">
   <item>Certificate Login</item>
-  <item>ERP5 Login</item>
  </portal_type>
  <portal_type id="Hosting Subscription Module">
   <item>Hosting Subscription</item>
@@ -14,7 +13,6 @@
  </portal_type>
  <portal_type id="Software Instance">
   <item>Certificate Login</item>
-  <item>ERP5 Login</item>
  </portal_type>
  <portal_type id="Software Instance Module">
   <item>Slave Instance</item>

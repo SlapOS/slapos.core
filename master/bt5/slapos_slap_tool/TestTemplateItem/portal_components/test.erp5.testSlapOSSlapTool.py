@@ -57,8 +57,7 @@ class TestSlapOSSlapToolMixin(SlapOSTestCaseMixin):
         source_administration_value=getattr(self, "person", None),
         )
     self.compute_node.validate()
-
-    self._addERP5Login(self.compute_node)
+    self._addCertificateLogin(self.compute_node)
 
     self.tic()
 

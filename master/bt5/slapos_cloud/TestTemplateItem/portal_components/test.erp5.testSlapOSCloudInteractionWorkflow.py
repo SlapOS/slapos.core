@@ -59,7 +59,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       specialise_value=hs)
 
     if portal_type == "Software Instance":
-      self._addERP5Login(instance)
+      self._addCertificateLogin(instance)
     self.tic()
 
     def verify_activeSense_call(self):
@@ -130,7 +130,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       portal_type='Compute Node',
       title="Compute Node %s for %s" % (self.new_id, self.person_user.getReference()),
       reference="TESTCOMP-%s" % self.new_id)
-    self._addERP5Login(compute_node)
+    self._addCertificateLogin(compute_node)
 
     installation = self.portal.software_installation_module.newContent(
       portal_type='Software Installation',
@@ -173,7 +173,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       portal_type='Compute Node',
       title="Compute Node %s for %s" % (new_id, self.person_user.getReference()),
       reference="TESTCOMP-%s" % new_id)
-    self._addERP5Login(compute_node)
+    self._addCertificateLogin(compute_node)
     partition = compute_node.newContent(
       portal_type='Compute Partition',
       title="Partition Compute Node %s for %s" % (new_id,

@@ -213,7 +213,10 @@ class Software(object):
         finally:
           tar.close()
       elif force_binary_cache:
-        message = 'Binary cache forced for %r, but failed to download, will retry again' % (self.url,)
+        if os.path.exists(self.software_path):
+          message = 'Binary cache forced for %r, but directory %s already exists, will retry again' % (self.url, self.software_path)
+        else:
+          message = 'Binary cache forced for %r, but failed to download, will retry again' % (self.url,)
         self.logger.error(message)
         raise BuildoutFailedError(message)
       else:

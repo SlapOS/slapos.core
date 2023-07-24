@@ -32,10 +32,13 @@ import glob
 import logging
 import os
 import shutil
+import sqlite3
 import unittest
 import warnings
 
 from six.moves.urllib.parse import urlparse
+
+from netaddr import valid_ipv6
 
 from .utils import getPortFromPath
 from .utils import ManagedResource
@@ -43,9 +46,12 @@ from .utils import ManagedResource
 from ..slap.standalone import StandaloneSlapOS
 from ..slap.standalone import SlapOSNodeCommandError
 from ..slap.standalone import PathTooDeepError
+
 from ..util import mkdir_p
 from ..slap import ComputerPartition
 from .check_software import checkSoftware
+
+from ..proxy.db_version import DB_VERSION
 
 try:
   from typing import Iterable, Tuple, Callable, Type, Dict, List, Optional, TypeVar
@@ -410,6 +416,10 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     cls.computer_partition_root_path = os.path.join(
         cls.slap._instance_root, cls.computer_partition.getId())
 
+    # the ipv6 of the instance
+    cls.computer_partition_ipv6_address = cls.getPartitionIPv6(
+        cls.computer_partition.getId())
+
   @classmethod
   @contextlib.contextmanager
   def _snapshotManager(cls, snapshot_name):
@@ -643,3 +653,26 @@ class SlapOSInstanceTestCase(unittest.TestCase):
         partition_reference=cls.default_partition_reference,
         partition_parameter_kw=cls._instance_parameter_dict,
         state=state)
+
+  @classmethod
+  def getPartitionId(cls, instance_name):
+    query = "SELECT reference FROM partition%s WHERE partition_reference=?" % DB_VERSION
+    with sqlite3.connect(os.path.join(
+      cls._base_directory,
+      'var/proxy.db',
+    )) as db:
+      return db.execute(query, (instance_name,)).fetchall()[0][0]
+
+  @classmethod
+  def getPartitionIPv6(cls, partition_id):
+    query = "SELECT address FROM partition_network%s WHERE partition_reference=?" % DB_VERSION
+    with sqlite3.connect(os.path.join(
+      cls._base_directory,
+      'var/proxy.db',
+    )) as db:
+      rows = db.execute(query, (partition_id,)).fetchall()
+    # do not assume the partition's IPv6 address is the second one,
+    # instead find the first address that is IPv6
+    for (address,) in rows:
+      if valid_ipv6(address):
+        return address

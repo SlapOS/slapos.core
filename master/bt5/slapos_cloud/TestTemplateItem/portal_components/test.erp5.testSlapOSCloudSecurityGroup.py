@@ -117,12 +117,6 @@ class TestSlapOSComputeNodeSecurity(TestSlapOSSecurityMixin):
 
     self._assertUserDoesNotExists(user_id, reference, None)
 
-  def test_active_backward_compatibility_with_erp5_login(self):
-    self.test_active(login_portal_type="ERP5 Login")
-
-  def test_inactive_backward_compatibility_with_erp5_login(self):
-    self.test_inactive(login_portal_type="ERP5 Login")
-
 class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
   portal_type = 'Software Instance'
   def test_active(self, login_portal_type="Certificate Login"):
@@ -174,12 +168,6 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
     self.tic()
 
     self._assertUserDoesNotExists(user_id, reference, None)
-
-  def test_active_backward_compatibility_with_erp5_login(self):
-    self.test_active(login_portal_type="ERP5 Login")
-
-  def test_inactive_backward_compatibility_with_erp5_login(self):
-    self.test_inactive(login_portal_type="ERP5 Login")
 
 class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
 

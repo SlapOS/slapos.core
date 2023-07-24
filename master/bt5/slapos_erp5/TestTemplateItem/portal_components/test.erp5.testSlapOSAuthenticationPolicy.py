@@ -212,17 +212,6 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
       document=person,
       login_portal_type="ERP5 Login")
 
-  def test_expire_ERP5Login_without_password_on_compute_node(self):
-    self._test_expire_when_passoword_is_set(
-      document=self._makeComputeNode()[0],
-      login_portal_type="ERP5 Login"
-    )
-  
-  def test_expire_ERP5Login_without_password_on_software_instance(self):
-    self._test_expire_when_passoword_is_set(
-      document=self._makeDummySoftwareInstance(),
-      login_portal_type="ERP5 Login")
-
   def test_expire_CertificateLogin_without_password_on_person(self):
     person = self.makePerson(user=0)
     person.edit(

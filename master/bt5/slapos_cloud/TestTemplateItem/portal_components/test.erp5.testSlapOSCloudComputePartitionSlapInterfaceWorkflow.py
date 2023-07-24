@@ -36,7 +36,7 @@ class TestSlapOSCoreComputePartitionSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     )
     self.compute_node.validate()
     login = self.compute_node.newContent(
-      portal_type="ERP5 Login",
+      portal_type="Certificate Login",
       reference=self.compute_node.getReference()
     )
     login.validate()

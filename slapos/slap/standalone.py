@@ -328,7 +328,7 @@ class SlapformatDefinitionWriter(ConfigWriter):
             textwrap.dedent(
                 """
                 [partition_{i}]
-                address = {ipv6_single_cidr} {ipv4_cidr}
+                address = {ipv4_cidr} {ipv6_single_cidr}
                 {ipv6_range_config_line}
                 pathname = {partition_base_name}{i}
                 user = {user}

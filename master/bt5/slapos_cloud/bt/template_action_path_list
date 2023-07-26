@@ -1,6 +1,7 @@
 Compute Node | compute_node_usage
 Compute Node | tracking
 Compute Node | view_capacity
+Compute Node | view_certificate_login
 Compute Partition | unfiltered_tracking_list
 Computer Model | view_capacity
 Computer Network | view_compute_node_list
@@ -30,6 +31,7 @@ Software Instance | jump_to_instance_tree
 Software Instance | jump_to_software_instance
 Software Instance | unfiltered_tracking_list
 Software Instance | view
+Software Instance | view_certificate_login
 Software Instance | view_rename_and_request_destroy
 Software Instance | view_rename_and_request_stop
 Software Release | usable_compute_node

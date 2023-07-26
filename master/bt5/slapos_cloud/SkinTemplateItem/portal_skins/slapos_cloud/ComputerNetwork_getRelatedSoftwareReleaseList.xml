@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputerNetwork_getSoftwareReleaseUrl</string> </value>
+            <value> <string>ComputerNetwork_getRelatedSoftwareReleaseList</string> </value>
         </item>
       </dictionary>
     </pickle>

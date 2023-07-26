@@ -71,21 +71,24 @@
                         <string>listbox_image</string>
                         <string>listbox_status</string>
                         <string>listbox_title</string>
-                        <string>listbox_version</string>
-                        <string>listbox_compute_node_reference</string>
                       </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>left</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>my_title</string>
+                        <string>my_reference</string>
+                      </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>right</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>my_translated_validation_state_title</string>
+                      </list>
                     </value>
                 </item>
               </dictionary>
@@ -93,7 +96,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputerNetwork_viewSofwareRelease</string> </value>
+            <value> <string>ComputerNetwork_viewSoftwareReleaseList</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>

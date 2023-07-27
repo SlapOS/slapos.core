@@ -38,6 +38,8 @@ import warnings
 
 from six.moves.urllib.parse import urlparse
 
+from netaddr import valid_ipv6
+
 from .utils import getPortFromPath
 from .utils import ManagedResource
 
@@ -668,4 +670,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       cls._base_directory,
       'var/proxy.db',
     )) as db:
-      return db.execute(query).fetchall()[0][0]
+      rows = db.execute(query).fetchall()
+    for (address,) in rows:
+      if valid_ipv6(address):
+        return address

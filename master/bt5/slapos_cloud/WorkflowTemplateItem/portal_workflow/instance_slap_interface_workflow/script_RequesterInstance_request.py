@@ -93,14 +93,9 @@ if (request_software_instance is None):
       reference=reference,
       activate_kw={'tag': tag}
     )
-    request_software_instance.generateCertificate()
-    request_software_instance.validate()
     if software_instance_portal_type == "Software Instance":
-      # Include Certificate Login so Instance become a User
-      certificate_login = request_software_instance.newContent(
-        portal_type="Certificate Login",
-        reference=request_software_instance.getReference())
-      certificate_login.validate()
+      request_software_instance.generateCertificate()
+    request_software_instance.validate()
 
     graph[request_software_instance.getUid()] = []
 

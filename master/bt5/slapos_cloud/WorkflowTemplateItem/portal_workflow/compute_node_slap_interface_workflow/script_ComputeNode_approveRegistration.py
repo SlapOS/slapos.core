@@ -8,10 +8,4 @@ compute_node.edit(
   capacity_scope='open'
 )
 
-erp5_login = compute_node.newContent(
-  portal_type="Certificate Login",
-  reference=compute_node.getReference()
-)
-erp5_login.validate()
-
 portal.portal_workflow.doActionFor(compute_node, 'validate_action')

@@ -449,34 +449,33 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertNotEqual(compute_node_key, self.portal.REQUEST.get('compute_node_key'))
     self.assertNotEqual(compute_node_certificate, self.portal.REQUEST.get('compute_node_certificate'))
 
-    certificate_login = new_certificate_login
-
     self.assertEqual(new_certificate_login.getValidationState(), 'invalidated')
-    self.assertEqual(new_certificate_login.getDestinationReference(), destination_reference)
+    self.assertNotEqual(new_certificate_login.getDestinationReference(), destination_reference)
     self.assertNotEqual(new_certificate_login.getReference(), None)
 
     certificate_login_list = self.compute_node.objectValues(portal_type="Certificate Login")
     self.assertEqual(len(certificate_login_list), 3)
-    new_certificate_login = [i for i in certificate_login_list \
+
+    third_certificate_login = [i for i in certificate_login_list \
       if i.getId() not in [certificate_login.getId(), new_certificate_login.getId()]][0]
     
-    destination_reference = certificate_login.getDestinationReference()
-    self.assertEqual(new_certificate_login.getValidationState(), 'validated')
-    self.assertNotEqual(new_certificate_login.getReference(), None)
-    self.assertNotEqual(new_certificate_login.getReference(),
+    destination_reference = new_certificate_login.getDestinationReference()
+    self.assertEqual(third_certificate_login.getValidationState(), 'validated')
+    self.assertNotEqual(third_certificate_login.getReference(), None)
+    self.assertNotEqual(third_certificate_login.getReference(),
       certificate_login.getReference())
   
-    self.assertNotEqual(new_certificate_login.getDestinationReference(), None)
-    self.assertNotEqual(new_certificate_login.getDestinationReference(),
-      certificate_login.getDestinationReference())
-    serial = '0x%x' % int(new_certificate_login.getDestinationReference(), 16)
+    self.assertNotEqual(third_certificate_login.getDestinationReference(), None)
+    self.assertNotEqual(third_certificate_login.getDestinationReference(),
+      new_certificate_login.getDestinationReference())
+    serial = '0x%x' % int(third_certificate_login.getDestinationReference(), 16)
 
     compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
     self.assertTrue(serial in compute_node_certificate)
-    self.assertTrue(new_certificate_login.getReference() in compute_node_certificate.decode('string_escape'))
-    self.assertFalse(certificate_login.getReference() in compute_node_certificate.decode('string_escape'))
+    self.assertTrue(third_certificate_login.getReference() in compute_node_certificate.decode('string_escape'))
+    self.assertFalse(new_certificate_login.getReference() in compute_node_certificate.decode('string_escape'))
     
-    self.assertNotEqual(certificate_login.getReference(),
+    self.assertNotEqual(third_certificate_login.getReference(),
                         self.compute_node.getReference())
 
     self.assertNotEqual(new_certificate_login.getReference(),

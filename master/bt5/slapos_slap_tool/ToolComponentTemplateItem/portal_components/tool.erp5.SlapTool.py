@@ -189,8 +189,11 @@ class SlapTool(BaseTool):
     # Keep compatibility with older clients that relies on marshalling.
     # This code is an adaptation of SlapOSComputeNodeMixin._getComputeNodeInformation
     # To comply with cache capability.
-    user_document = _assertACI(portal.portal_catalog.unrestrictedGetResultValue(
-      reference=user, portal_type=['Person', 'Compute Node', 'Software Instance']))
+    login = portal.portal_catalog.unrestrictedGetResultValue(
+      reference=user, portal_type="Certificate Login",
+      parent_portal_type=['Person', 'Compute Node', 'Software Instance'])
+
+    user_document = _assertACI(login.getParentValue())
     user_type = user_document.getPortalType()
     if user_type in ('Compute Node', 'Person'):
       if not compute_node._isTestRun():

@@ -193,6 +193,9 @@ class SlapTool(BaseTool):
       reference=user, portal_type="Certificate Login",
       parent_portal_type=['Person', 'Compute Node', 'Software Instance'])
 
+    if not login:
+      raise Unauthorized('User %s not found!' % user)
+
     user_document = _assertACI(login.getParentValue())
     user_type = user_document.getPortalType()
     if user_type in ('Compute Node', 'Person'):

@@ -9,9 +9,8 @@ for certificate_login in compute_node.objectValues(
     
 certificate_login = compute_node.newContent(
   portal_type="Certificate Login")
-certificate_login.validate()
-
 certificate_dict = certificate_login.getCertificate()
+certificate_login.validate()
 
 context.REQUEST.set("compute_node_certificate", certificate_dict["certificate"])
 context.REQUEST.set("compute_node_key", certificate_dict["key"])

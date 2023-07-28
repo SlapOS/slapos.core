@@ -1140,68 +1140,88 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
 
   def test_generateCertificate(self):
     self.login()
+    self.software_instance.setSslKey(None)
+    self.software_instance.setSslCertificate(None)
     self.software_instance.setDestinationReference(None)
-    self.software_instance.getSslKey(None)
-    self.software_instance.getSslCertificate(None)
 
     self.software_instance.generateCertificate()
-    self.assertNotEqual(self.software_instance.getDestinationReference(), None)
     self.assertNotEqual(self.software_instance.getSslKey(), None)
     self.assertNotEqual(self.software_instance.getSslCertificate(), None)
+    self.assertEqual(self.software_instance.getDestinationReference(), None)
+
+    certificate_login_list = self.software_instance.objectValues(portal_type="Certificate Login")
+    self.assertEqual(len(certificate_login_list), 1)
+    certificate_login = certificate_login_list[0]
+
+    self.assertEqual(certificate_login.getValidationState(), 'validated')
+    self.assertNotEqual(certificate_login.getReference(), None)
+    self.assertNotEqual(certificate_login.getDestinationReference(), None)
+    serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
+    self.assertTrue(serial in self.software_instance.getSslCertificate())
+    self.assertTrue(certificate_login.getReference() in \
+       self.software_instance.getSslCertificate().decode('string_escape'))
 
     self.assertRaises(ValueError, self.software_instance.generateCertificate)
 
   def test_revokeCertificate(self):
     self.login()
-    self.assertNotEqual(self.software_instance.getDestinationReference(), None)
-    self.assertNotEqual(self.software_instance.getSslKey(), None)
-    self.assertNotEqual(self.software_instance.getSslCertificate(), None)
-
-    self.software_instance.revokeCertificate()
-    self.assertEqual(self.software_instance.getDestinationReference(), None)
-    self.assertEqual(self.software_instance.getSslKey(), None)
-    self.assertEqual(self.software_instance.getSslCertificate(), None)
-
     self.assertRaises(ValueError, self.software_instance.revokeCertificate)
+    certificate_login_list = self.software_instance.objectValues(portal_type="Certificate Login")
+    self.assertEqual(len(certificate_login_list), 0)
 
   def test_revokeAndGenerateCertificate(self):
     self.login()
 
-    destination_reference = self.software_instance.getDestinationReference()
     ssl_key = self.software_instance.getSslKey()
     ssl_certificate = self.software_instance.getSslCertificate()
 
-    self.assertNotEqual(self.software_instance.getDestinationReference(), None)
     self.assertNotEqual(self.software_instance.getSslKey(), None)
     self.assertNotEqual(self.software_instance.getSslCertificate(), None)
 
-    self.software_instance.revokeCertificate()
+    self.assertRaises(ValueError, self.software_instance.revokeCertificate)
+
     self.software_instance.generateCertificate()
-    self.assertNotEqual(self.software_instance.getDestinationReference(), None)
     self.assertNotEqual(self.software_instance.getSslKey(), None)
     self.assertNotEqual(self.software_instance.getSslCertificate(), None)
 
-    self.assertNotEqual(self.software_instance.getDestinationReference(),
-      destination_reference)
+    certificate_login_list = self.software_instance.objectValues(portal_type="Certificate Login")
+    self.assertEqual(len(certificate_login_list), 1)
+    certificate_login = certificate_login_list[0]
+    self.assertEqual(certificate_login.getValidationState(), 'validated')
+    self.assertNotEqual(certificate_login.getReference(), None)
+    self.assertNotEqual(certificate_login.getDestinationReference(), None)
+
     self.assertNotEqual(self.software_instance.getSslKey(),
       ssl_key)
     self.assertNotEqual(self.software_instance.getSslCertificate(),
       ssl_certificate)
 
-    destination_reference = self.software_instance.getDestinationReference()
     ssl_key = self.software_instance.getSslKey()
     ssl_certificate = self.software_instance.getSslCertificate()
 
     self.software_instance.revokeCertificate()
     self.software_instance.generateCertificate()
-    self.assertNotEqual(self.software_instance.getDestinationReference(), None)
     self.assertNotEqual(self.software_instance.getSslKey(), None)
     self.assertNotEqual(self.software_instance.getSslCertificate(), None)
 
-    self.assertNotEqual(self.software_instance.getDestinationReference(),
-      destination_reference)
     self.assertNotEqual(self.software_instance.getSslKey(),
       ssl_key)
     self.assertNotEqual(self.software_instance.getSslCertificate(),
       ssl_certificate)
+
+    certificate_login_list = self.software_instance.objectValues(portal_type="Certificate Login")
+    self.assertEqual(len(certificate_login_list), 2)
+    another_certificate_login = [ i for i in certificate_login_list
+                                   if i.getId() != certificate_login.getId()][0]
+
+    self.assertEqual(another_certificate_login.getValidationState(), 'validated')
+    self.assertNotEqual(another_certificate_login.getReference(), None)
+    self.assertNotEqual(another_certificate_login.getDestinationReference(), None)
+
+    self.assertEqual(certificate_login.getValidationState(), 'invalidated')
+    self.assertNotEqual(certificate_login.getReference(),
+      another_certificate_login.getReference())
+    self.assertNotEqual(certificate_login.getDestinationReference(),
+      another_certificate_login.getDestinationReference())
+
 

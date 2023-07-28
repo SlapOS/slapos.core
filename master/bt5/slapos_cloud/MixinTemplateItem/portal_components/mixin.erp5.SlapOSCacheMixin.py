@@ -109,8 +109,8 @@ class SlapOSCacheMixin:
     return self._setAccessStatus("%s %s" % (BUILDING, text), state, reindex)
 
   def _setAccessStatus(self, text, state="", reindex=0):
-    user_reference = self.getPortalObject().portal_membership.getAuthenticatedMember()\
-                                                   .getUserName()
+    user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
+                                                   .getUserValue()
 
     previous = self._getCachedAccessInfo()
     created_at = rfc1123_date(DateTime())
@@ -125,6 +125,11 @@ class SlapOSCacheMixin:
       if state == "":
         state = previous_json.get("state", "")
 
+    if user is not None:
+      user_reference = user.getReference()
+    else:
+      user_reference = self.getPortalObject().portal_membership.getAuthenticatedMember()\
+                                                   .getUserName()
     value = json.dumps({
       'user': '%s' % user_reference,
       'created_at': '%s' % created_at,

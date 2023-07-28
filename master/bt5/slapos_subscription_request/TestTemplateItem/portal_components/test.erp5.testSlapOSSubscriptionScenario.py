@@ -1186,6 +1186,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     # format the compute_nodes
     self.formatComputeNode(subscription_server)
 
+    # Without certificate computer isnt a user yet.
+    subscription_server.generateCertificate()
+
     self.tic()
     self.logout()
     return subscription_server

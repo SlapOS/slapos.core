@@ -125,8 +125,13 @@ class SlapOSCacheMixin:
       if state == "":
         state = previous_json.get("state", "")
 
+    if user is not None:
+      user_reference = user.getReference()
+    else:
+      user_reference = self.getPortalObject().portal_membership.getAuthenticatedMember()\
+                                                   .getUserName()
     value = json.dumps({
-      'user': '%s' % user.getReference(),
+      'user': '%s' % user_reference,
       'created_at': '%s' % created_at,
       'text': '%s' % text,
       'since': '%s' % since,

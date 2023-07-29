@@ -1,5 +1,4 @@
 instance = state_change['object']
-portal = instance.getPortalObject()
 
 if instance.getSslKey() is not None or instance.getSslCertificate() is not None:
   instance.edit(ssl_key=None, ssl_certificate=None)

@@ -682,11 +682,8 @@ class TestPerson(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(person, project.getReference(), ['Auditor'])
     self.assertRoles(person, self.user_id, ['Owner'])
 
-
-
-class TestERP5Login(TestSlapOSGroupRoleSecurityMixin):
-
-  login_portal_type = "ERP5 Login"
+class TestCertificateLogin(TestSlapOSGroupRoleSecurityMixin):
+  login_portal_type = "Certificate Login"
 
   def test_PersonCanAccessLoginDocument(self):
     person = self.portal.person_module.newContent(portal_type='Person')
@@ -695,12 +692,10 @@ class TestERP5Login(TestSlapOSGroupRoleSecurityMixin):
     login.updateLocalRolesOnSecurityGroups()
 
     self.assertSecurityGroup(login,
-        [self.user_id, person.getUserId()], False)
+        ['G-COMPANY', self.user_id, person.getUserId()], False)
     self.assertRoles(login, person.getUserId(), ['Assignee'])
     self.assertRoles(login, self.user_id, ['Owner'])
-
-class TestCertificateLogin(TestERP5Login):
-  login_portal_type = "Certificate Login"
+    self.assertRoles(login, 'G-COMPANY', ['Assignor'])
 
   def test_ComputeNodeCanAccessSoftwareInstanceLoginDocument(self):
     software_instance = self.portal.software_instance_module.newContent(portal_type='Software Instance')
@@ -717,10 +712,12 @@ class TestCertificateLogin(TestERP5Login):
     login.updateLocalRolesOnSecurityGroups()
 
     self.assertSecurityGroup(login,
-      [self.user_id, software_instance.getUserId(), compute_node.getUserId()], False)
+      ['G-COMPANY', self.user_id, software_instance.getUserId(),
+       compute_node.getUserId()], False)
     self.assertRoles(login, software_instance.getUserId(), ['Assignee'])
     self.assertRoles(login, self.user_id, ['Owner'])
     self.assertRoles(login, compute_node.getUserId(), ['Assignor'])
+    self.assertRoles(login, 'G-COMPANY', ['Assignor'])
 
   def test_ComputeNodeCanAccessLoginDocument(self):
     compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node')
@@ -729,9 +726,26 @@ class TestCertificateLogin(TestERP5Login):
     login.updateLocalRolesOnSecurityGroups()
 
     self.assertSecurityGroup(login,
-        [self.user_id, compute_node.getUserId()], False)
+        ['G-COMPANY', self.user_id, compute_node.getUserId()], False)
     self.assertRoles(login, compute_node.getUserId(), ['Assignee'])
     self.assertRoles(login, self.user_id, ['Owner'])
+    self.assertRoles(login, 'G-COMPANY', ['Assignor'])
+
+  def test_ComputeNodeSourceAdministrationCanAccessLoginDocument(self):
+    person = self.portal.person_module.newContent(portal_type='Person')
+    compute_node = self.portal.compute_node_module.newContent(
+      portal_type='Compute Node', source_administration=person.getRelativeUrl())
+    login = compute_node.newContent(portal_type=self.login_portal_type)
+    compute_node.updateLocalRolesOnSecurityGroups()
+    login.updateLocalRolesOnSecurityGroups()
+
+    self.assertSecurityGroup(login,
+        ['G-COMPANY', self.user_id, compute_node.getUserId(),
+         person.getUserId()], False)
+    self.assertRoles(login, compute_node.getUserId(), ['Assignee'])
+    self.assertRoles(login, self.user_id, ['Owner'])
+    self.assertRoles(login, person.getUserId(), ['Assignee'])
+    self.assertRoles(login, 'G-COMPANY', ['Assignor'])
 
   def test_SoftwareInstanceCanAccessLoginDocument(self):
     software_instance = self.portal.software_instance_module.newContent(portal_type='Software Instance')
@@ -740,8 +754,23 @@ class TestCertificateLogin(TestERP5Login):
     login.updateLocalRolesOnSecurityGroups()
 
     self.assertSecurityGroup(login,
-        [self.user_id, software_instance.getUserId()], False)
+        ['G-COMPANY', self.user_id, software_instance.getUserId()], False)
     self.assertRoles(login, software_instance.getUserId(), ['Assignee'])
+    self.assertRoles(login, self.user_id, ['Owner'])
+    self.assertRoles(login, 'G-COMPANY', ['Assignor'])
+
+class TestERP5Login(TestSlapOSGroupRoleSecurityMixin):
+  login_portal_type = "ERP5 Login"
+
+  def test_PersonCanAccessLoginDocument(self):
+    person = self.portal.person_module.newContent(portal_type='Person')
+    login = person.newContent(portal_type=self.login_portal_type)
+    person.updateLocalRolesOnSecurityGroups()
+    login.updateLocalRolesOnSecurityGroups()
+
+    self.assertSecurityGroup(login,
+        [self.user_id, person.getUserId()], False)
+    self.assertRoles(login, person.getUserId(), ['Assignee'])
     self.assertRoles(login, self.user_id, ['Owner'])
 
 class TestGoogleLogin(TestERP5Login):
@@ -749,7 +778,6 @@ class TestGoogleLogin(TestERP5Login):
 
 class TestFacebookLogin(TestERP5Login):
   login_portal_type = "Facebook Login"
-
 
 class TestPersonModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):

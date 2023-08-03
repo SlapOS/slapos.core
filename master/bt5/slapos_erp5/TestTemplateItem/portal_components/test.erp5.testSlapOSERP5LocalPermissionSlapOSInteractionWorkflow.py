@@ -238,7 +238,7 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     self.assertSecurityGroup(software_instance, [self.user_id, 'G-COMPANY',
         instance_tree.getReference()],
         False)
-    self.assertSecurityGroup(certificate_login, [self.user_id,
+    self.assertSecurityGroup(certificate_login, [self.user_id, 'G-COMPANY',
       software_instance.getUserId()],
         False)
 
@@ -256,7 +256,7 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
         compute_node.getUserId(), instance_tree.getReference()], False)
     self.assertSecurityGroup(partition, [self.user_id,
         instance_tree.getReference()], True)
-    self.assertSecurityGroup(certificate_login, [self.user_id,
+    self.assertSecurityGroup(certificate_login, [self.user_id, 'G-COMPANY',
         compute_node.getUserId(), software_instance.getUserId()],
         False)
 

@@ -135,15 +135,17 @@ class SlapOSComputeNodeMixin(object):
     # check max indexation timestamp
     # it is unlikely to get an empty catalog
     last_indexed_entry = self.getPortalObject().portal_catalog(
-      select_list=['indexation_timestamp'],
+      select_list=['indexation_timestamp', 'modification_date'],
       portal_type=['Compute Node', 'Compute Partition',
                    'Software Instance', 'Slave Instance',
                    'Software Installation'],
       sort_on=[('indexation_timestamp', 'DESC')],
       limit=1,
     )[0]
-    return '%s_%s' % (last_indexed_entry.uid,
-                      last_indexed_entry.indexation_timestamp)
+    return '%s_%s_%s_%s' % (last_indexed_entry.uid,
+                      last_indexed_entry.indexation_timestamp,
+                      last_indexed_entry.modification_date,
+                      last_indexed_entry.getModificationDate())
 
   def _isTestRun(self):
     if self.REQUEST.get('disable_isTestRun', False):

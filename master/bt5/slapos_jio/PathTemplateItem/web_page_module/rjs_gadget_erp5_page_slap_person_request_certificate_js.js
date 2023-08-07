@@ -11,8 +11,6 @@
     .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
-    .declareAcquiredMethod("redirect", "redirect")
-    .declareAcquiredMethod("jio_post", "jio_post")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
@@ -149,9 +147,12 @@
         .push(function (url_list) {
           var header_dict = {
             page_title: page_title_translation,
-            submit_action: true,
             selection_url: url_list[0]
           };
+          if (options.key === undefined) {
+            header_dict.submit_action = true;
+          }
+
           return gadget.updateHeader(header_dict);
         });
     });

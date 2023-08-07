@@ -45,6 +45,8 @@ url_list = [
   "gadget_erp5_page_slap_facebook_login_view.html",
   "gadget_erp5_page_slap_google_login_view.html",
   "gadget_erp5_page_slap_erp5_login_view.html",
+  "gadget_erp5_page_slap_certificate_login_view.html",
+  "gadget_erp5_page_slap_certificate_login_view.js",
   "gadget_erp5_page_slap_google_login_view.js",
   "gadget_erp5_page_slap_facebook_login_view.js",
   "gadget_erp5_page_slap_erp5_login_view.js",

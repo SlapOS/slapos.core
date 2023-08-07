@@ -106,8 +106,6 @@ url_list = [
   "gadget_erp5_page_slap_person_add_organisation.html",
   "gadget_erp5_page_slap_person_request_certificate.html",
   "gadget_erp5_page_slap_person_request_certificate.js",
-  "gadget_erp5_page_slap_person_revoke_certificate.html",
-  "gadget_erp5_page_slap_person_revoke_certificate.js",
   "gadget_erp5_page_slap_person_view.html",
   "gadget_erp5_page_slap_person_view.js",
   "gadget_erp5_page_slap_project_list.html",

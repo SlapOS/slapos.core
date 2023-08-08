@@ -88,6 +88,7 @@ if next_database_image:
     new_data_array = context.data_array_module.newContent(portal_type='Data Array')
     new_data_array.setArray(diff_array)
     new_data_array.edit(
+      reference= '%s-%s-%s' % (context.getReference(), next_database_image.getReference(), new_data_array.getId()),
       title='diff of %s and %s' %(context.getTitle(), next_database_image.getTitle()),
       predecessor_value_list=[context, next_database_image],
       publication_section=["file_system_image/node_image", "file_system_image/process_state/converted"],

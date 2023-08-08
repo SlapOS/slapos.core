@@ -2,6 +2,7 @@ from Products.ZSQLCatalog.SQLCatalog import AndQuery, Query
 
 query = AndQuery(
     Query(portal_type = ["Data Array"]),
+    Query(validation_state='validated'),
     Query(causality_uid=context.getUid()),
     AndQuery(Query(publication_section_relative_url = 'publication_section/file_system_image/diff_end'),
              Query(publication_section_relative_url = 'publication_section/file_system_image/process_state/processed')))

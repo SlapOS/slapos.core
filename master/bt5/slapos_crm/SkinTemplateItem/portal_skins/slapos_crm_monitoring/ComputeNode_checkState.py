@@ -16,6 +16,7 @@ ticket_title = node_ticket_title
 
 description = ""
 last_contact = "No Contact Information"
+issue_document_reference = ""
 notification_message_reference = 'slapos-crm-compute_node_check_state.notification'
 now = DateTime()
 
@@ -36,8 +37,10 @@ else:
     data_array  = context.ComputeNode_hasModifiedFile()
     if data_array:
       should_notify = True
+      notification_message_reference = "slapos-crm-compute_node_check_modified_file.notification"
       ticket_title = "[MONITORING] Compute Node %s has modified file" % reference
-      description = "The Compute Node %s (%s) has modified file: %s" % (compute_node_title, reference, data_array.getRelativeUrl())
+      issue_document_reference = data_array.Reference()
+      description = "The Compute Node %s (%s) has modified file: %s" % (compute_node_title, reference, issue_document_reference)
 
 if not should_notify:
   # Since server is contacting, check for stalled processes
@@ -107,7 +110,8 @@ if should_notify:
   else:
     mapping_dict = {'compute_node_title':context.getTitle(),
                     'compute_node_id':reference,
-                    'last_contact':last_contact}
+                    'last_contact':last_contact,
+                    'issue_document_reference': issue_document_reference}
     message = notification_message.asText(
               substitution_method_parameter_dict={'mapping_dict': mapping_dict})
 

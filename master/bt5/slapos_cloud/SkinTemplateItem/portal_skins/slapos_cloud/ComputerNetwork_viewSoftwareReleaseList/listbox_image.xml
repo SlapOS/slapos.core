@@ -187,6 +187,10 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>input_type</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>max_length</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -315,7 +319,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: cell.portal_catalog.getResultValue(portal_type=\'Software Release\', url_string=cell.getUrlString()).getAggregateValue().getDefaultImageAbsoluteUrl()</string> </value>
+            <value> <string>python: cell.getAggregateValue().getDefaultImageAbsoluteUrl()</string> </value>
         </item>
       </dictionary>
     </pickle>

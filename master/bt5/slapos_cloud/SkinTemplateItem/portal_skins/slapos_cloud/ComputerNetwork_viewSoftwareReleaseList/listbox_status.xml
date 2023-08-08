@@ -125,7 +125,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: cell.getAggregateValue().getSubordinationValue().ComputerNetwork_getSoftwareReleaseAllocableState(cell.getUrlString())</string> </value>
+            <value> <string>python: context.ComputerNetwork_getSoftwareReleaseAllocableState(cell.getUrlString())</string> </value>
         </item>
       </dictionary>
     </pickle>

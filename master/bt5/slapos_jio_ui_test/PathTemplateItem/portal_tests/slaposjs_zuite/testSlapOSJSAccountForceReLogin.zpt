@@ -149,11 +149,6 @@ function redirect us to the login page -->
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//a[@data-i18n="Revoke Certificate"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
         <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('First Name', lang=lang))"></td>
         <td></td>
       </tr>

@@ -28,7 +28,6 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
 
-
       <tr>
         <td colspan="3"><b> Request User Certificate</b> </td>
       </tr>
@@ -75,70 +74,107 @@
       </tal:block>
 
       <tr>
-        <td colspan="3"><b> Request User Certificate</b> </td>
+        <td colspan="3"><b> Request User Certificate (Again)</b> </td>
       </tr>
 
       <tal:block define="menu_action python: 'Request Certificate'">
-        <tr>
-          <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
-        </tr>
-        <tr>
-          <td>waitForElementPresent</td>
-          <td
-            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action">
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>assertElementPresent</td>
-          <td
-            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action">
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>click</td>
-          <td
-            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action">
-          </td>
-          <td></td>
-        </tr>
-      </tal:block>
-
-      <tal:block define="header python: 'Request New Certificate'; ">
-        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
-      </tal:block>
-
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
-
-      <tal:block
-        tal:define="notification_configuration python: {'class': 'success',
-                                                           'text': 'This person already has one certificate, please revoke it before request a new one..'}">
-        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
-      </tal:block>
-
-
-      <tal:block define="header python: 'Request New Certificate'; ">
-        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
-        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
-      </tal:block>
-
-      <tr>
-        <td colspan="3"><b> Revoke Certificate</b></td>
-      </tr>
-
-      <tal:block define="menu_action python: 'Revoke Certificate'">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
       </tal:block>
 
-      <tal:block define="header python: 'Revoke Person Certificate'; ">
+      <tal:block define="header python: 'Request New Certificate'; ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
       <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                           'text': 'Certificate is Revoked.'}">
+                                                           'text': 'Certificate is Requested.'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      </tal:block>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="certificate"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="certificate"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="key"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="key"]</td>
+        <td></td>
+      </tr>
+
+      <tal:block define="header python: 'Request New Certificate'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+
+      <tal:block define="person_name python: 'Demo User Functional'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
+      </tal:block>
+
+      <tal:block tal:define="pagination_configuration python: {'header': '(3)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '3'})">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
+
+      <!-- We cannot assert title since we UI is generated automatically -->
+      <tr>
+        <td>verifyTextPresent</td>
+        <td>Certificate Login</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>verifyTextPresent</td>
+        <td>Certificate Login</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>verifyTextPresent</td>
+        <td>CERTLOGIN-</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>verifyTextPresent</td>
+        <td>CERTLOGIN-</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//a[text()="Certificate Login"]</td>
+        <td></td>
+      </tr>
+
+      <tal:block define="header python: 'Certificate Login: ${title}';
+                         dummy python: context.REQUEST.set('mapping', {'title' : ''})">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header_contains" />
+      </tal:block>
+
+      <tal:block define="menu_action python: 'Delete'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+      </tal:block>
+
+      <tal:block define="header python: 'Disable Login: ${title}';
+                         dummy python: context.REQUEST.set('mapping', {'title' : ''})">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header_contains" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'Login is Disabled.'}">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
       </tal:block>
 
@@ -147,73 +183,105 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
-      <tr>
-        <td colspan="3"><b> Request User Certificate again</b> </td>
-      </tr>
-
-      <tal:block define="menu_action python: 'Request Certificate'">
-        <tr>
-          <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
-        </tr>
-        <tr>
-          <td>waitForElementPresent</td>
-          <td
-            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action">
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>assertElementPresent</td>
-          <td
-            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action">
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>click</td>
-          <td
-            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action">
-          </td>
-          <td></td>
-        </tr>
+      <tal:block define="person_name python: 'Demo User Functional'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
       </tal:block>
 
-      <tal:block define="header python: 'Request New Certificate'; ">
-        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      <tal:block tal:define="pagination_configuration python: {'header': '(2)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '2'})">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
+
+      <!-- We cannot assert title since we UI is generated automatically -->
+      <tr>
+        <td>verifyTextPresent</td>
+        <td>Certificate Login</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>verifyTextPresent</td>
+        <td>Certificate Login</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>verifyTextPresent</td>
+        <td>CERTLOGIN-</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>verifyTextPresent</td>
+        <td>CERTLOGIN-</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//a[text()="Certificate Login"]</td>
+        <td></td>
+      </tr>
+
+      <tal:block define="header python: 'Certificate Login: ${title}';
+                         dummy python: context.REQUEST.set('mapping', {'title' : ''}) ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header_contains" />
+      </tal:block>
+
+      <tal:block define="menu_action python: 'Delete'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+      </tal:block>
+
+      <tal:block define="header python: 'Disable Login: ${title}';
+                         dummy python: context.REQUEST.set('mapping', {'title' : ''}) ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header_contains" />
       </tal:block>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
       <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                           'text': 'Certificate is Requested.'}">
+                                                           'text': 'Login is Disabled.'}">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
       </tal:block>
 
+      <tal:block tal:define="header python: 'Your Account : ${title}';
+                         dummy python: context.REQUEST.set('mapping', {'title': 'Demo User Functional'}) ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+
+      <tal:block define="person_name python: 'Demo User Functional'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
+      </tal:block>
+
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
+
+
+      <!-- We cannot assert title since we UI is generated automatically -->
       <tr>
-        <td>waitForElementPresent</td>
-        <td>//textarea[@name="certificate"]</td>
+        <td>verifyTextNotPresent</td>
+        <td>Certificate Login</td>
         <td></td>
       </tr>
       <tr>
-        <td>assertElementPresent</td>
-        <td>//textarea[@name="certificate"]</td>
+        <td>verifyTextNotPresent</td>
+        <td>Certificate Login</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
-        <td>//textarea[@name="key"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//textarea[@name="key"]</td>
+        <td>verifyTextNotPresent</td>
+        <td>CERTLOGIN-</td>
         <td></td>
       </tr>
 
-      <tal:block define="header python: 'Request New Certificate'; ">
-        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
-      </tal:block>
+      <tr>
+        <td>verifyTextNotPresent</td>
+        <td>CERTLOGIN-</td>
+        <td></td>
+      </tr>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
 

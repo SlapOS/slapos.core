@@ -3,12 +3,6 @@ import json
 portal = context.getPortalObject()
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
-# Revoke user certificate
-try:
-  person.revokeCertificate()
-except ValueError:
-  pass
-
 web_site = context.getWebSiteValue()
 request_url = "%s/%s" % (
   web_site.getLayoutProperty(

@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Web Page" module="erp5.portal_type"/>
+      <global name="Web Script" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -40,6 +39,17 @@
             </value>
         </item>
         <item>
+            <key> <string>_Copy_or_Move_Permission</string> </key>
+            <value>
+              <list>
+                <string>Manager</string>
+                <string>Authenticated</string>
+                <string>Developer</string>
+                <string>Owner</string>
+              </list>
+            </value>
+        </item>
+        <item>
             <key> <string>_Modify_portal_content_Permission</string> </key>
             <value>
               <tuple>
@@ -59,15 +69,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
-            <key> <string>categories</string> </key>
-            <value>
-              <tuple>
-                <string>contributor/person_module/1</string>
               </tuple>
             </value>
         </item>
@@ -78,20 +79,8 @@
             </value>
         </item>
         <item>
-            <key> <string>content_type</string> </key>
-            <value> <string>text/html</string> </value>
-        </item>
-        <item>
-            <key> <string>creators</string> </key>
-            <value>
-              <tuple>
-                <string>cedric.le.ninivin</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_person_revoke_certificate.html</string> </value>
+            <value> <string>gadget_erp5_page_slap_certificate_login_view.js</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -101,38 +90,15 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_person_revoke_certificate_html</string> </value>
+            <value> <string>rjs_gadget_erp5_page_slap_certificate_login_view_js</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
-            <key> <string>modification_date</string> </key>
-            <value>
-              <object>
-                <klass>
-                  <global name="_reconstructor" module="copy_reg"/>
-                </klass>
-                <tuple>
-                  <global name="DateTime" module="DateTime.DateTime"/>
-                  <global name="object" module="__builtin__"/>
-                  <none/>
-                </tuple>
-                <state>
-                  <tuple>
-                    <float>1455284351.46</float>
-                    <string>UTC</string>
-                  </tuple>
-                </state>
-              </object>
-            </value>
+            <value> <string>en</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Web Page</string> </value>
+            <value> <string>Web Script</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
@@ -142,17 +108,11 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Slap Person Revoke Certificate</string> </value>
-        </item>
-        <item>
-            <key> <string>url_string</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>Gadget SlapOS Certificate Login View</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>001</string> </value>
+            <value> <string>003</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -238,7 +198,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1509386436.45</float>
+                              <float>1691431608.83</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -287,7 +247,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>982.21236.17255.51438</string> </value>
+                      <value> <string>1010.19559.12294.65348</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -307,7 +267,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1583423335.96</float>
+                              <float>1691437353.66</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -370,7 +330,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1509386361.74</float>
+                              <float>1691431315.97</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

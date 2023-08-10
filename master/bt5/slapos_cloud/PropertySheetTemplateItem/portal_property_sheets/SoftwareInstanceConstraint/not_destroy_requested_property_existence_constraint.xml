@@ -24,7 +24,6 @@
               <tuple>
                 <string>ssl_certificate</string>
                 <string>ssl_key</string>
-                <string>destination_reference</string>
               </tuple>
             </value>
         </item>

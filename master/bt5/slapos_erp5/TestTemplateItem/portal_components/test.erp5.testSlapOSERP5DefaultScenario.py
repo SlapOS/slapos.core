@@ -18,6 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 ##############################################################################
+
 from erp5.component.test.SlapOSTestCaseDefaultScenarioMixin import DefaultScenarioMixin
 from DateTime import DateTime
 import re
@@ -48,6 +49,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     self.setAccessToMemcached(public_server)
     self.assertNotEqual(None, public_server)
     self.setServerOpenPublic(public_server)
+    public_server.generateCertificate()
 
     personal_server_title = 'Personal Server for %s' % owner_reference
     personal_server_id = self.requestComputeNode(personal_server_title)
@@ -56,6 +58,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     self.setAccessToMemcached(personal_server)
     self.assertNotEqual(None, personal_server)
     self.setServerOpenPersonal(personal_server)
+    personal_server.generateCertificate()
 
     # and install some software on them
     public_server_software = self.generateNewSoftwareReleaseUrl()

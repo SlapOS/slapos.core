@@ -84,7 +84,7 @@ class TestSlapOSShadowComputeNode(TestSlapOSSecurityMixin):
       reference=reference)
     compute_node.setUserId(user_id)
 
-    compute_node.newContent(portal_type='ERP5 Login',
+    compute_node.newContent(portal_type='Certificate Login',
           reference=reference).validate()
 
     compute_node.validate()
@@ -125,7 +125,7 @@ class TestSlapOSShadowSoftwareInstance(TestSlapOSSecurityMixin):
     instance = self.portal.getDefaultModule(portal_type=self.portal_type)\
       .newContent(portal_type=self.portal_type, reference=reference)
     instance.setUserId(user_id)
-    instance.newContent(portal_type='ERP5 Login',
+    instance.newContent(portal_type='Certificate Login',
           reference=reference).validate()
     instance.validate()
     self.tic()

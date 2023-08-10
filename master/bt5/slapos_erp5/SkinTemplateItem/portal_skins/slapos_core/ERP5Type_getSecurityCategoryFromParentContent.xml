@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>*args, **kwargs</string> </value>
+            <value> <string>base_category_list, user_name, ob, portal_type</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_revokeCertificate</string> </value>
+            <value> <string>ERP5Type_getSecurityCategoryFromParentContent</string> </value>
         </item>
       </dictionary>
     </pickle>

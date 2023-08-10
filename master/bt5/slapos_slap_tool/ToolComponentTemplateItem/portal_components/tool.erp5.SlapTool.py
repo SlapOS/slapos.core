@@ -173,9 +173,9 @@ class SlapTool(BaseTool):
     Reuses slap library for easy marshalling.
     """
     portal = self.getPortalObject()
-    user = portal.portal_membership.getAuthenticatedMember().getUserName()
-    if str(user) == computer_id:
-      compute_node = portal.portal_membership.getAuthenticatedMember().getUserValue()
+    user_value = portal.portal_membership.getAuthenticatedMember().getUserValue()
+    if user_value is not None and user_value.getReference() == computer_id:
+      compute_node = user_value
       compute_node.setAccessStatus(computer_id)
     else:
       # Don't use getDocument because we don't want use _assertACI here, but
@@ -186,11 +186,18 @@ class SlapTool(BaseTool):
 
     refresh_etag = compute_node._calculateRefreshEtag()
 
+    user = portal.portal_membership.getAuthenticatedMember().getUserName()
     # Keep compatibility with older clients that relies on marshalling.
     # This code is an adaptation of SlapOSComputeNodeMixin._getComputeNodeInformation
     # To comply with cache capability.
-    user_document = _assertACI(portal.portal_catalog.unrestrictedGetResultValue(
-      reference=user, portal_type=['Person', 'Compute Node', 'Software Instance']))
+    login = portal.portal_catalog.unrestrictedGetResultValue(
+      reference=user, portal_type="Certificate Login",
+      parent_portal_type=['Person', 'Compute Node', 'Software Instance'])
+
+    if not login:
+      raise Unauthorized('User %s not found!' % user)
+
+    user_document = _assertACI(login.getParentValue())
     user_type = user_document.getPortalType()
     if user_type in ('Compute Node', 'Person'):
       if not compute_node._isTestRun():

@@ -175,12 +175,6 @@ class TestSlapOSSoftwareInstanceConstraint(TestSlapOSConstraintMixin):
     self.assertFalse(consistency_message in self.getMessageList(self.software_instance))
     self.assertSameSet(current_message_list, self.getMessageList(self.software_instance))
 
-  def test_property_existence_destination_reference(self):
-    self._test_property_existence(self.software_instance,
-        'destination_reference',
-        'Property existence error for property destination_reference, this document'
-        ' has no such property or the property has never been set')
-
   def test_property_existence_source_reference(self):
     property_id = 'source_reference'
     consistency_message = 'Property existence error for property '\

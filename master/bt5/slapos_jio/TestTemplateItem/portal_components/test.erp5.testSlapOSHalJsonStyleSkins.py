@@ -727,7 +727,7 @@ class TestPerson_newLogin(TestSlapOSHalJsonStyleMixin):
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
     self.assertIn(person.getRelativeUrl(), result)
     
-class TestPerson_get_revoke_Certificate(TestSlapOSHalJsonStyleMixin):
+class TestPerson_get_Certificate(TestSlapOSHalJsonStyleMixin):
   def test_Person_getCertificate_unauthorized(self):
     person = self._makePerson(user=1)
     self.assertEqual(1 , len(person.objectValues( portal_type="ERP5 Login")))
@@ -735,38 +735,43 @@ class TestPerson_get_revoke_Certificate(TestSlapOSHalJsonStyleMixin):
     self.assertEqual(person.Person_getCertificate(), {})
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 403)
 
-  def test_Person_revokeCertificate_unauthorized(self):
+  def test_Person_get_Certificate(self):
     person = self._makePerson(user=1)
-    self.assertEqual(1 , len(person.objectValues( portal_type="ERP5 Login")))
-
-    self.assertEqual(person.Person_revokeCertificate(), None)
-    self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 403)
-
-
-  def test_Person_get_revoke_Certificate(self):
-    person = self._makePerson(user=1)
-    self.assertEqual(1 , len(person.objectValues( portal_type="ERP5 Login")))
+    self.assertEqual(1 , len(person.objectValues(portal_type="ERP5 Login")))
  
     self.login(person.getUserId())
     response_dict = json.loads(person.Person_getCertificate())
-    
+    self.assertEqual(1 , len(person.objectValues(portal_type="Certificate Login")))
+    login = person.objectValues(portal_type="Certificate Login")[0]
+    self.assertEqual("validated" , login.getValidationState())
+
     self.assertSameSet(response_dict.keys(), ["common_name", "certificate", "id", "key"])
-    self.assertEqual(response_dict["common_name"], person.getUserId())
+
+    self.assertEqual(response_dict["id"], login.getDestinationReference())
+    self.assertEqual(response_dict["common_name"], login.getReference())
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
 
-    response_false = json.loads(person.Person_getCertificate())
-    self.assertFalse(response_false)
+    new_response_dict = json.loads(person.Person_getCertificate())
+    self.assertTrue(new_response_dict)
 
-    response_true = json.loads(person.Person_revokeCertificate())
-    self.assertTrue(response_true)
-
-    response_false = json.loads(person.Person_revokeCertificate())
-    self.assertFalse(response_false)
-
-    response_dict = json.loads(person.Person_getCertificate())
+    self.assertEqual(2 , len(person.objectValues(portal_type="Certificate Login")))
+    new_login = [i for i in person.objectValues(portal_type="Certificate Login")
+      if i.getUid() != login.getUid()][0]
     
-    self.assertSameSet(response_dict.keys(), ["common_name", "certificate", "id", "key"])
-    self.assertEqual(response_dict["common_name"], person.getUserId())
+    self.assertEqual("validated" , login.getValidationState())
+    self.assertEqual("validated" , new_login.getValidationState())
+    self.assertNotEqual(login.getReference(), new_login.getReference())
+    self.assertNotEqual(login.getDestinationReference(), new_login.getDestinationReference())
+
+    self.assertSameSet(new_response_dict.keys(), ["common_name", "certificate", "id", "key"])
+    self.assertEqual(new_response_dict["common_name"], new_login.getReference())
+    self.assertEqual(new_response_dict["id"], new_login.getDestinationReference())
+    
+    self.assertNotEqual(new_response_dict["common_name"], response_dict["common_name"])
+    self.assertNotEqual(new_response_dict["id"], response_dict["id"])
+    self.assertNotEqual(new_response_dict["key"], response_dict["key"])
+    self.assertNotEqual(new_response_dict["certificate"], response_dict["certificate"])
+    
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
 
 class TestPerson_testLoginExistence(TestSlapOSHalJsonStyleMixin):

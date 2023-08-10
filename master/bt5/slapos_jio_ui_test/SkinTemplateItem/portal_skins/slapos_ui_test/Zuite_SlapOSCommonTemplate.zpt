@@ -462,6 +462,22 @@
     </tal:block>
   </tal:block>
 
+  <tal:block metal:define-macro="assert_page_header_contains">
+    <tal:block tal:define="header_translation python: here.Base_translateString(header, mapping=context.REQUEST.get('mapping', {}), lang=lang);
+                           dummy python:context.REQUEST.set('mapping', {})">
+     <tr>
+       <td>waitForElementPresent</td>
+       <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[contains(@data-i18n, \'%s\')]' % header_translation"></td>
+       <td></td>
+     </tr>
+     <tr>
+       <td>assertElementPresent</td>
+       <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[contains(@data-i18n, \'%s\')]' % header_translation"></td>
+       <td></td>
+     </tr>
+    </tal:block>
+  </tal:block>
+
   <tal:block metal:define-macro="click_page_header">
     <tal:block tal:define="header_translation python: here.Base_translateString(header, mapping=context.REQUEST.get('mapping', {}), lang=lang);
                            dummy python:context.REQUEST.set('mapping', {})">

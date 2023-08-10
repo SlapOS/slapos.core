@@ -11,7 +11,7 @@ if person is None:
   return {}
 
 try:
-  return json.dumps(person.getCertificate())
+  return json.dumps(person.generateCertificate())
   # Certificate is Created
 except ValueError:
   # Certificate was already requested, please revoke existing one.

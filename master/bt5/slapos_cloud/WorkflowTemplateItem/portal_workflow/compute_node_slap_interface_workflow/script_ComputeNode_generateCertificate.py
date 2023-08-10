@@ -1,14 +1,16 @@
 compute_node = state_change['object']
 
-if compute_node.getDestinationReference() is not None:
-  context.REQUEST.set("compute_node_certificate", None)
-  context.REQUEST.set("compute_node_key", None)
-  raise ValueError('Certificate still active.')
-
-ca = context.getPortalObject().portal_certificate_authority
-certificate_dict = ca.getNewCertificate(compute_node.getReference())
-
-compute_node.setDestinationReference(certificate_dict["id"])
+for certificate_login in compute_node.objectValues(
+  portal_type=["Certificate Login"]):
+  if certificate_login.getValidationState() == "validated":
+    context.REQUEST.set("compute_node_certificate", None)
+    context.REQUEST.set("compute_node_key", None)
+    raise ValueError('Certificate still active.')
+    
+certificate_login = compute_node.newContent(
+  portal_type="Certificate Login")
+certificate_dict = certificate_login.getCertificate()
+certificate_login.validate()
 
 context.REQUEST.set("compute_node_certificate", certificate_dict["certificate"])
 context.REQUEST.set("compute_node_key", certificate_dict["key"])

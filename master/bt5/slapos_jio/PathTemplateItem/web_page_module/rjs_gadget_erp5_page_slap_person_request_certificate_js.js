@@ -11,8 +11,8 @@
     .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
+    .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("redirect", "redirect")
-    .declareAcquiredMethod("jio_post", "jio_post")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
@@ -52,7 +52,12 @@
                 .push(function () {
                   // Workaround, find a way to open document without break gadget.
                   result.jio_key = doc.relative_url;
-                  return gadget.render(result);
+                  return gadget.changeState({
+                    jio_key: doc.relative_url,
+                    certificate: result.certificate,
+                    key: result.key,
+                    title: doc.title
+                  });
                 });
             });
         });
@@ -64,6 +69,24 @@
 
     .declareMethod("render", function (options) {
       var gadget = this,
+        jio_key;
+
+      return new RSVP.Queue()
+        .push(function () {
+          jio_key = options.jio_key;
+          return gadget.jio_get(jio_key);
+        })
+        .push(function (doc) {
+          return gadget.changeState({
+            jio_key: jio_key,
+            doc: doc,
+            editable: 1
+          });
+        });
+    })
+
+    .onStateChange(function () {
+      var gadget = this,
         page_title_translation,
         translation_list = [
           "Certificate is Requested.",
@@ -71,7 +94,8 @@
           "Parent Relative Url",
           "Your Certificate",
           "Your Key",
-          "Request New Certificate"
+          "Request New Certificate",
+          "Title"
         ];
       return new RSVP.Queue()
         .push(function () {
@@ -84,13 +108,16 @@
           gadget.msg1_translation = result[1][0];
           gadget.msg2_translation = result[1][1];
           page_title_translation = result[1][5];
+          if (gadget.state.title === undefined) {
+            gadget.state.title = gadget.state.doc.first_name + " " + gadget.state.doc.last_name;
+          }
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_relative_url": {
                   "description": "",
                   "title": result[1][2],
-                  "default": options.jio_key,
+                  "default": gadget.state.jio_key,
                   "css_class": "",
                   "required": 1,
                   "editable": 1,
@@ -98,26 +125,37 @@
                   "hidden": 1,
                   "type": "StringField"
                 },
+                "my_title": {
+                  "description": "",
+                  "title": result[1][6],
+                  "default": gadget.state.title,
+                  "css_class": "",
+                  "required": 0,
+                  "editable": 0,
+                  "key": "title",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
                 "my_certificate": {
                   "description": "",
                   "title": result[1][3],
-                  "default": options.certificate,
+                  "default": gadget.state.certificate,
                   "css_class": "",
                   "required": 1,
                   "editable": 1,
                   "key": "certificate",
-                  "hidden": (options.certificate === undefined) ? 1 : 0,
+                  "hidden": (gadget.state.certificate === undefined) ? 1 : 0,
                   "type": "TextAreaField"
                 },
                 "my_key": {
                   "description": "",
                   "title": result[1][4],
-                  "default": options.key,
+                  "default": gadget.state.key,
                   "css_class": "",
                   "required": 1,
                   "editable": 1,
                   "key": "key",
-                  "hidden": (options.key === undefined) ? 1 : 0,
+                  "hidden": (gadget.state.key === undefined) ? 1 : 0,
                   "type": "TextAreaField"
                 }
               }},
@@ -130,9 +168,13 @@
             },
             form_definition: {
               group_list: [[
-                "center",
-                [["my_key"], ["my_certificate"], ["my_relative_url"]]
-              ]]
+                "left",
+                [["my_title"]]
+              ],
+                [
+                  "center",
+                  [["my_key"], ["my_certificate"], ["my_relative_url"]]
+                ]]
             }
           });
         })
@@ -149,9 +191,12 @@
         .push(function (url_list) {
           var header_dict = {
             page_title: page_title_translation,
-            submit_action: true,
             selection_url: url_list[0]
           };
+          if (gadget.state.key === undefined) {
+            header_dict.submit_action = true;
+          }
+
           return gadget.updateHeader(header_dict);
         });
     });

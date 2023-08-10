@@ -401,14 +401,14 @@
             page_title: page_title_translation + " " + gadget.state.doc.title,
             ticket_url: url_list[1],
             supply_url: url_list[2],
-            request_certificate_url: url_list[3],
-            revoke_certificate_url: url_list[4],
             rss_url: url_list[5],
             selection_url: url_list[7],
             save_action: true
           };
           if (gadget.state.doc.is_owner !== undefined) {
             header_dict.transfer_url = url_list[6];
+            header_dict.request_certificate_url = url_list[3];
+            header_dict.revoke_certificate_url = url_list[4];
           }
           if (!gadget.state.editable) {
             header_dict.edit_content = url_list[0];

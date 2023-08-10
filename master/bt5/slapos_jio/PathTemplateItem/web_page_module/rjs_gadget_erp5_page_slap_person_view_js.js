@@ -197,11 +197,11 @@
                   "key": "slap_person_login_listbox",
                   "lines": 20,
                   "list_method": "portal_catalog",
-                  "query": "urn:jio:allDocs?query=%28portal_type%3A%28%22" +
-                    "ERP5 Login" + "%22%20OR%20%22" +
-                    "Google Login" + "%22%20OR%20%22" +
-                    "Facebook Login" + "%22%29%20AND%20" +
-                    "validation_state%3Avalidated%29",
+                  "query": "urn:jio:allDocs?query=portal_type%3A%28%22ERP5 Login%22%20" +
+                    "OR%20%22Certificate Login%22%20" +
+                    "OR%20%22Google Login%22%20" +
+                    "OR%20%22Facebook Login%22%29%20" +
+                    "AND%20validation_state%3Avalidated",
                   "portal_type": [],
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
@@ -314,8 +314,6 @@
         })
         .push(function (setting_list) {
           return RSVP.all([
-            gadget.getUrlFor({command: "change", options: {editable: true}}),
-            gadget.getUrlFor({command: "change", options: {jio_key: setting_list[0], page: "slap_person_revoke_certificate"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: setting_list[0], page: "slap_person_request_certificate"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: setting_list[0], page: "slap_person_get_token"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: setting_list[0], page: "slap_person_add_erp5_login"}}),
@@ -329,18 +327,14 @@
           var header_dict = {
             page_title: gadget.account_translation + " : " + gadget.state.doc.first_name + " " + gadget.state.doc.last_name,
             save_action: true,
-            request_certificate_url: result[2],
-            revoke_certificate_url: result[1],
-            token_url: result[3],
-            add_login_url: result[4],
-            add_organisation_url: result[5],
-            selection_url: result[6]
+            request_certificate_url: result[0],
+            token_url: result[1],
+            add_login_url: result[2],
+            add_organisation_url: result[3],
+            selection_url: result[4]
           };
           if (gadget.state.doc.contract_relative_url) {
-            header_dict.contract_url = result[7];
-          }
-          if (!gadget.state.editable) {
-            header_dict.edit_content = result[0];
+            header_dict.contract_url = result[6];
           }
           return gadget.updateHeader(header_dict);
         });

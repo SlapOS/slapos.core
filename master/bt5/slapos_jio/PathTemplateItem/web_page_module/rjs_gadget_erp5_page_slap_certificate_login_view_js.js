@@ -1,4 +1,4 @@
-/*global window, rJS, RSVP */
+/*global window, rJS, RSVP, jIO, Blob */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
 (function (window, rJS, RSVP) {
   "use strict";
@@ -9,20 +9,28 @@
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("updateHeader", "updateHeader")
     .declareAcquiredMethod("updatePanel", "updatePanel")
-    .declareAcquiredMethod("getSetting", "getSetting")
+    .declareAcquiredMethod("getUrlParameter", "getUrlParameter")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
-    .declareAcquiredMethod("redirect", "redirect")
-    .declareAcquiredMethod("jio_post", "jio_post")
+    .declareAcquiredMethod("getSetting", "getSetting")
+    .declareAcquiredMethod("updateDocument", "updateDocument")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
+    .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
     /////////////////////////////////////////////////////////////////
-    .allowPublicAcquisition('notifySubmit', function () {
-      return this.triggerSubmit();
+
+
+    .declareMethod("render", function (options) {
+      return this.changeState({
+        jio_key: options.jio_key,
+        doc: options.doc,
+        editable: 1
+      });
     })
 
     .onEvent('submit', function () {
@@ -34,26 +42,11 @@
         .push(function (form_gadget) {
           return form_gadget.getContent();
         })
-        .push(function (doc) {
-          return gadget.getSetting("hateoas_url")
-            .push(function (url) {
-              return gadget.jio_getAttachment(doc.relative_url,
-                url + doc.relative_url + "/Person_revokeCertificate");
-            });
+        .push(function (content) {
+          return gadget.updateDocument(content);
         })
-        .push(function (result) {
-          var msg;
-          if (result) {
-            msg = gadget.msg1_translation;
-          } else {
-            msg = gadget.msg2_translation;
-          }
-          return gadget.notifySubmitted({message: msg, status: 'success'})
-            .push(function () {
-              // Workaround, find a way to open document without break gadget.
-              return gadget.redirect({"command": "change",
-                                    "options": {"page": "slap_controller"}});
-            });
+        .push(function () {
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'});
         });
     })
 
@@ -61,38 +54,37 @@
       return this.element.querySelector('button[type="submit"]').click();
     })
 
-    .declareMethod("render", function (options) {
+    .onStateChange(function () {
       var gadget = this,
         page_title_translation,
         translation_list = [
-          "Certificate is Revoked.",
-          "This person has no certificate to revoke.",
-          "Parent Relative Url",
-          "Revoke Person Certificate"
+          "Data updated.",
+          "Reference",
+          "Certificate Login:"
         ];
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
+            gadget.getSetting("hateoas_url"),
             gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
-          page_title_translation = result[1][3];
-          gadget.msg1_translation = result[1][0];
-          gadget.msg2_translation = result[1][1];
+          gadget.message_translation = result[2][0];
+          page_title_translation = result[2][2];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
-                "my_relative_url": {
+                "my_reference": {
                   "description": "",
-                  "title": result[1][2],
-                  "default": options.jio_key,
+                  "title": result[2][1],
+                  "default": gadget.state.doc.reference,
                   "css_class": "",
                   "required": 1,
-                  "editable": 1,
-                  "key": "relative_url",
-                  "hidden": 1,
+                  "editable": 0,
+                  "key": "reference",
+                  "hidden": 0,
                   "type": "StringField"
                 }
               }},
@@ -106,7 +98,7 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_relative_url"]]
+                [["my_reference"]]
               ]]
             }
           });
@@ -118,15 +110,17 @@
         })
         .push(function () {
           return RSVP.all([
-            gadget.getUrlFor({command: 'change', options: {page: 'slap_person_view'}})
+            gadget.getUrlFor({command: 'history_previous'}),
+            gadget.getUrlFor({command: "change", options: {page: "slap_invalidate_login"}})
           ]);
         })
         .push(function (url_list) {
           var header_dict = {
-            page_title: page_title_translation,
-            submit_action: true,
-            selection_url: url_list[0]
+            selection_url: url_list[0],
+            page_title: page_title_translation + " " + gadget.state.doc.reference,
+            delete_url: url_list[1]
           };
+          
           return gadget.updateHeader(header_dict);
         });
     });

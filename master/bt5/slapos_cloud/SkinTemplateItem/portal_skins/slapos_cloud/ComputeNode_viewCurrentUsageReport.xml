@@ -118,6 +118,7 @@
                       <list>
                         <string>my_reference</string>
                         <string>your_free_partition_count</string>
+                        <string>my_source_administration_title</string>
                       </list>
                     </value>
                 </item>

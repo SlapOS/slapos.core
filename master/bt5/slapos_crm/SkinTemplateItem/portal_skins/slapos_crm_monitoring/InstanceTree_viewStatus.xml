@@ -97,6 +97,7 @@
                       <list>
                         <string>listbox_error_reported</string>
                         <string>listbox_aggregate_parent_reference</string>
+                        <string>listbox_status</string>
                       </list>
                     </value>
                 </item>
@@ -106,7 +107,6 @@
                       <list>
                         <string>my_reference</string>
                         <string>my_source_reference</string>
-                        <string>listbox_status</string>
                       </list>
                     </value>
                 </item>

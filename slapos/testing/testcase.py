@@ -391,8 +391,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
           max_retry=cls.instance_max_retry, debug=cls._debug)
 
   @classmethod
-  def _setUpClass(cls):
-    cls.slap.start()
+  def formatPartitions(cls):
     cls.logger.debug(
         "Formatting to remove old partitions XXX should not be needed because we delete ..."
     )
@@ -402,12 +401,20 @@ class SlapOSInstanceTestCase(unittest.TestCase):
         cls.partition_count, cls._ipv4_address, cls._ipv6_address,
         getattr(cls, '__partition_reference__', '{}-'.format(cls.__name__)))
 
+  @classmethod
+  def _setUpClass(cls):
+    cls.slap.start()
+
+    # (re)format partitions
+    cls.formatPartitions()
+
     # request
     cls.requestDefaultInstance()
 
     # slapos node instance
     cls.logger.debug("Waiting for instance")
     cls.waitForInstance()
+
     # expose some class attributes so that tests can use them:
     # the main ComputerPartition instance, to use getInstanceParameterDict
     cls.computer_partition = cls.requestDefaultInstance()

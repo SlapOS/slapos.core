@@ -14,7 +14,6 @@
             <key> <string>login_portal_type_list</string> </key>
             <value>
               <list>
-                <string>ERP5 Login</string>
                 <string>Certificate Login</string>
               </list>
             </value>

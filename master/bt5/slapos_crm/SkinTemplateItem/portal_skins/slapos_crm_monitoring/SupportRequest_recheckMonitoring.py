@@ -23,6 +23,13 @@ if aggregate_portal_type == "Compute Node":
 
   last_contact = DateTime(d.get('created_at'))
   if (now - last_contact) < 0.01:
+    ComputeNode_hasModifiedFile = getattr(
+      document, "ComputeNode_hasModifiedFile", None)
+    if ComputeNode_hasModifiedFile:
+      data_array  = ComputeNode_hasModifiedFile()
+      if data_array:
+        return "Compute Node %s (%s) has modified file: %s" % (
+           document.getTitle(), document.getReference(), data_array.getReference())
     # If server has no partitions skip
     compute_partition_uid_list = [
       x.getUid() for x in document.contentValues(portal_type="Compute Partition")

@@ -21,4 +21,6 @@ for previous_array in portal.portal_catalog(
 
 if batch:
   return
-context.Base_redirect('view',keep_items={'portal_status_message': context.Base_translateString("Declared as default data")})
+return context.Base_redirect('view',
+  keep_items={'portal_status_message':
+    context.Base_translateString("Declared as default data")})

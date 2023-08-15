@@ -39,7 +39,7 @@ else:
       should_notify = True
       notification_message_reference = "slapos-crm-compute_node_check_modified_file.notification"
       ticket_title = "[MONITORING] Compute Node %s has modified file" % reference
-      issue_document_reference = data_array.Reference()
+      issue_document_reference = data_array.getReference()
       description = "The Compute Node %s (%s) has modified file: %s" % (compute_node_title, reference, issue_document_reference)
 
 if not should_notify:

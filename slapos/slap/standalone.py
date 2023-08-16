@@ -328,7 +328,7 @@ class SlapformatDefinitionWriter(ConfigWriter):
             textwrap.dedent(
                 """
                 [partition_{i}]
-                address = {ipv6_single_cidr} {ipv4_cidr}
+                address = {ipv4_cidr} {ipv6_single_cidr}
                 {ipv6_range_config_line}
                 pathname = {partition_base_name}{i}
                 user = {user}
@@ -654,7 +654,6 @@ class StandaloneSlapOS(object):
         unknown_partition_set.add(path)
 
     # create partitions and configure computer
-    partition_list = []
     for i in range(partition_count):
       partition_reference = '%s%s' % (partition_base_name, i)
 
@@ -663,25 +662,6 @@ class StandaloneSlapOS(object):
       if not (os.path.exists(partition_path)):
         os.mkdir(partition_path)
       os.chmod(partition_path, 0o750)
-      ipv6_addr, ipv6_range = self._getPartitionIpv6(i)
-      partition_list.append({
-          'address_list': [
-              {
-                  'addr': ipv4_address,
-                  'netmask': NETMASK_IPV4_FULL
-              },
-              {
-                  'addr': ipv6_addr,
-                  'netmask': NETMASK_IPV6_FULL
-              }
-          ],
-          'ipv6_range' : ipv6_range,
-          'path': partition_path,
-          'reference': partition_reference,
-          'tap': {
-              'name': partition_reference
-          },
-      })
 
     if unknown_partition_set:
       # sanity check that we are not removing partitions in use
@@ -698,16 +678,6 @@ class StandaloneSlapOS(object):
           raise ValueError(
               "Cannot reformat to remove busy partition at {part_id}".format(
                   **locals()))
-
-    self.computer.updateConfiguration(
-        dumps({
-            'address': ipv4_address,
-            'netmask': NETMASK_IPV4_FULL,
-            'partition_list': partition_list,
-            'reference': self._computer_id,
-            'instance_root': self._instance_root,
-            'software_root': self._software_root
-        }))
 
     for part in unknown_partition_set:
       self._logger.debug(

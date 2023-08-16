@@ -136,14 +136,15 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
     for i, resource in enumerate(resource_list):
       resource_prefixlen = int(resource['ipv6_range']['network'].split('/')[1])
       self.assertEqual(resource_prefixlen, prefixlen + 16)
-      self.assertTrue(netaddr.valid_ipv6(resource['address_list'][0]['addr']))
+      partition_ipv6 = resource['address_list'][1]['addr']
+      self.assertTrue(netaddr.valid_ipv6(partition_ipv6))
       for other_resource in resource_list[i + 1:]:
         self.assertNotEqual(
             resource['ipv6_range']['addr'],
             other_resource['ipv6_range']['addr'])
         self.assertNotEqual(
-            resource['address_list'][0]['addr'],
-            other_resource['address_list'][0]['addr'])
+            partition_ipv6,
+            other_resource['address_list'][1]['addr'])
 
   def test_format_ipv6_small_range(self):
     standalone = self.setupSimpleStandalone()
@@ -154,14 +155,12 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
     resource_list = self.getJsonResourceList(standalone)
     for i, resource in enumerate(resource_list):
       self.assertFalse(resource['ipv6_range'])
-      self.assertTrue(netaddr.valid_ipv6(resource['address_list'][0]['addr']))
+      partition_ipv6 = resource['address_list'][1]['addr']
+      self.assertTrue(netaddr.valid_ipv6(partition_ipv6))
       for other_resource in resource_list[i + 1:]:
-        self.assertNotEqual(
-            resource['address_list'][0]['addr'],
-            other_resource['address_list'][0]['addr'])
-        self.assertNotEqual(
-            resource['address_list'][0]['addr'],
-            addr0)
+        other_partition_ipv6 = other_resource['address_list'][1]['addr']
+        self.assertNotEqual(partition_ipv6, other_partition_ipv6)
+        self.assertNotEqual(partition_ipv6, addr0)
 
   def test_format_ipv6_very_small_range(self):
     standalone = self.setupSimpleStandalone()
@@ -172,21 +171,17 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
     resource_list = self.getJsonResourceList(standalone)
     for i, resource in enumerate(resource_list):
       self.assertFalse(resource['ipv6_range'])
-      self.assertTrue(netaddr.valid_ipv6(resource['address_list'][0]['addr']))
+      partition_ipv6 = resource['address_list'][1]['addr']
+      self.assertTrue(netaddr.valid_ipv6(partition_ipv6))
       for j, other_resource in enumerate(resource_list[i + 1:]):
-        self.assertNotEqual(
-            resource['address_list'][0]['addr'],
-            addr0)
+        other_partition_ipv6 = other_resource['address_list'][1]['addr']
+        self.assertNotEqual(partition_ipv6, addr0)
         if j % 2 == 1:
-          self.assertEqual(
-              resource['address_list'][0]['addr'],
-              other_resource['address_list'][0]['addr'])
+          self.assertEqual(partition_ipv6, other_partition_ipv6)
         else:
-          self.assertNotEqual(
-              resource['address_list'][0]['addr'],
-              other_resource['address_list'][0]['addr'])
+          self.assertNotEqual(partition_ipv6, other_partition_ipv6)
 
-  def test_format_ipv6_slapsh_128_range(self):
+  def test_format_ipv6_slash_128_range(self):
     standalone = self.setupSimpleStandalone()
     prefixlen = 128
     slapos_fake_ipv6_range = '%s/%d' % (SLAPOS_TEST_IPV6, prefixlen)
@@ -194,10 +189,9 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
     resource_list = self.getJsonResourceList(standalone)
     for i, resource in enumerate(resource_list):
       self.assertFalse(resource['ipv6_range'])
-      self.assertTrue(netaddr.valid_ipv6(resource['address_list'][0]['addr']))
-      self.assertEqual(
-          resource['address_list'][0]['addr'],
-          SLAPOS_TEST_IPV6)
+      partition_ipv6 = resource['address_list'][1]['addr']
+      self.assertTrue(netaddr.valid_ipv6(partition_ipv6))
+      self.assertEqual(partition_ipv6, SLAPOS_TEST_IPV6)
 
   def test_format_ipv6_no_range(self):
     standalone = self.setupSimpleStandalone()
@@ -205,11 +199,10 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
     resource_list = self.getJsonResourceList(standalone)
     for i, resource in enumerate(resource_list):
       self.assertFalse(resource['ipv6_range'])
-      self.assertTrue(netaddr.valid_ipv6(resource['address_list'][0]['addr']))
+      partition_ipv6 = resource['address_list'][1]['addr']
+      self.assertTrue(netaddr.valid_ipv6(partition_ipv6))
       for other_resource in resource_list[i + 1:]:
-        self.assertEqual(
-            resource['address_list'][0]['addr'],
-            SLAPOS_TEST_IPV6)
+        self.assertEqual(partition_ipv6, SLAPOS_TEST_IPV6)
 
   def test_reformat_less_partitions(self):
     standalone = self.setupSimpleStandalone()

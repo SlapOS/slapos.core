@@ -663,21 +663,21 @@ class SlapOSInstanceTestCase(unittest.TestCase):
 
   @classmethod
   def getPartitionId(cls, instance_name):
-    query = "SELECT reference FROM partition%s WHERE partition_reference='%s'" % (DB_VERSION, instance_name)
+    query = "SELECT reference FROM partition%s WHERE partition_reference=?" % DB_VERSION
     with sqlite3.connect(os.path.join(
       cls._base_directory,
       'var/proxy.db',
     )) as db:
-      return db.execute(query).fetchall()[0][0]
+      return db.execute(query, (instance_name,)).fetchall()[0][0]
 
   @classmethod
   def getPartitionIPv6(cls, partition_id):
-    query = "SELECT address FROM partition_network%s WHERE partition_reference='%s'" % (DB_VERSION, partition_id)
+    query = "SELECT address FROM partition_network%s WHERE partition_reference=?" % DB_VERSION
     with sqlite3.connect(os.path.join(
       cls._base_directory,
       'var/proxy.db',
     )) as db:
-      rows = db.execute(query).fetchall()
+      rows = db.execute(query, (partition_id,)).fetchall()
     for (address,) in rows:
       if valid_ipv6(address):
         return address

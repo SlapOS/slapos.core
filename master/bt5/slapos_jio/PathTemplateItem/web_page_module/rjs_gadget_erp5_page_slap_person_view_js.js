@@ -201,7 +201,8 @@
                     "OR%20%22Certificate Login%22%20" +
                     "OR%20%22Google Login%22%20" +
                     "OR%20%22Facebook Login%22%29%20" +
-                    "AND%20validation_state%3Avalidated",
+                    "AND%20validation_state%3Avalidated" +
+                    "%20AND%20parent_portal_type%3APerson",
                   "portal_type": [],
                   "search_column_list": column_list,
                   "sort_column_list": column_list,

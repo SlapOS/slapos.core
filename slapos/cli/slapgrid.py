@@ -109,14 +109,16 @@ class SlapgridCommand(ConfigCommand):
 
         random_delay(options, logger=self.app.log)
 
-        slapgrid_object = create_slapgrid_object(options, logger=self.app.log)
-
         pidfile = ( options.get(self.pidfile_option_name) or
             options.get('pidfile') or # for compatibility we also read pidfile from option `pidfile`
             self.default_pidfile )
 
         if pidfile:
             setRunning(logger=self.app.log, pidfile=pidfile)
+
+        # Create slapgrid object after checking pidfile.
+        slapgrid_object = create_slapgrid_object(options, logger=self.app.log)
+
         try:
             return getattr(slapgrid_object, self.method_name)()
         finally:

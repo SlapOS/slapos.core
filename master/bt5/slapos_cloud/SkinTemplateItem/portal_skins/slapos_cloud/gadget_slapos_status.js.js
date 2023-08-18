@@ -221,22 +221,6 @@
       return {};
     })
 
-    .onLoop(function () {
-      var gadget = this;
-      if (typeof gadget.state.jio_key === 'string' &&
-          gadget.state.jio_key !== '') {
-        return gadget.jio_get(gadget.state.jio_key)
-          .push(function (result) {
-            var state_dict = result.news || {};
-            state_dict.jio_key = gadget.state.jio_key;
-            return gadget.changeState(state_dict);
-          });
-      }
-      throw new Error(
-        'jio_key dont contains a proper value: ' +
-          JSON.stringify(gadget.state.jio_key)
-      );
-    }, 300000)
 
     .onStateChange(function () {
       return getStatus(this, this.state);

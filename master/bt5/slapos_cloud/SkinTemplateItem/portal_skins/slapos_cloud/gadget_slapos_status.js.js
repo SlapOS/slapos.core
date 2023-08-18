@@ -1,7 +1,7 @@
-/*globals console, window, rJS, domsugar, JSON */
+/*globals console, window, rJS, domsugar */
 /*jslint indent: 2, nomen: true, maxlen: 80 */
 
-(function (window, rJS, domsugar, JSON) {
+(function (window, rJS, domsugar) {
   "use strict";
   var gadget_klass = rJS(window);
 
@@ -221,7 +221,6 @@
       return {};
     })
 
-
     .onStateChange(function () {
       return getStatus(this, this.state);
     })
@@ -234,4 +233,4 @@
       return this.changeState(state_dict);
     });
 
-}(window, rJS, domsugar, JSON));
+}(window, rJS, domsugar));

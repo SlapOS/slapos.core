@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP */
+/*global window, rJS, RSVP, JSON */
 /*jslint nomen: true, indent: 2, maxerr: 3*/
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, JSON) {
   "use strict";
 
   rJS(window)
@@ -18,18 +18,21 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, news, len = result.data.total_rows;
+          var i, value, value_jio_key, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
             if (result.data.rows[i].value.hasOwnProperty("ComputerNetwork_getNewsDict")) {
-              value = result.data.rows[i].id;
-              news = result.data.rows[i].value.ComputerNetwork_getNewsDict;
+              value_jio_key = result.data.rows[i].id;
+              value = result.data.rows[i].value.ComputerNetwork_getNewsDict;
               result.data.rows[i].value.ComputerNetwork_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
-                  "default": {jio_key: value,
-                              result: news},
+                  default: "",
+                  renderjs_extra: JSON.stringify({
+                    jio_key: value_jio_key,
+                    result: value
+                  }),
                   key: "status",
                   url: "gadget_slapos_status.html",
                   title: "Status",
@@ -141,4 +144,4 @@
           });
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, JSON));

@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP */
+/*global window, rJS, RSVP, JSON */
 /*jslint nomen: true, indent: 2, maxerr: 3*/
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, JSON) {
   'use strict';
 
   rJS(window)
@@ -24,10 +24,7 @@
           value_jio_key,
           len = result.data.total_rows;
         for (i = 0; i < len; i += 1) {
-          if (
-            1 ||
-              result.data.rows[i].value.hasOwnProperty('Organisation_getNewsDict')
-          ) {
+          if (result.data.rows[i].value.hasOwnProperty('Organisation_getNewsDict')) {
             value_jio_key = result.data.rows[i].id;
             value = result.data.rows[i].value.Organisation_getNewsDict;
             result.data.rows[i].value.Organisation_getNewsDict = {
@@ -35,7 +32,11 @@
                 css_class: '',
                 description: 'The Status',
                 hidden: 0,
-                default: { jio_key: value_jio_key, result: value },
+                default: "",
+                renderjs_extra: JSON.stringify({
+                  jio_key: value_jio_key,
+                  result: value
+                }),
                 key: 'status',
                 url: 'gadget_slapos_status.html',
                 title: 'Status',
@@ -94,7 +95,6 @@
             column_list = [
               ['title', result[2][0]],
               ['reference', result[2][1]],
-              //['default_address_region_title', result[2][2]],
               ['Organisation_getNewsDict', result[2][3]]
             ];
           destination_list = '%22NULL%22%2C';
@@ -168,4 +168,4 @@
           });
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, JSON));

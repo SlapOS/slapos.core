@@ -114,9 +114,7 @@
                 </item>
                 <item>
                     <key> <string>default</string> </key>
-                    <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
-                    </value>
+                    <value> <string></string> </value>
                 </item>
                 <item>
                     <key> <string>description</string> </key>
@@ -152,7 +150,9 @@
                 </item>
                 <item>
                     <key> <string>renderjs_extra</string> </key>
-                    <value> <string></string> </value>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
+                    </value>
                 </item>
                 <item>
                     <key> <string>title</string> </key>
@@ -253,7 +253,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: {"result": cell.getAccessStatus()}</string> </value>
+            <value> <string>python: [(\'jio_key\', cell.getRelativeUrl()), (\'result\', cell.getAccessStatus())]</string> </value>
         </item>
       </dictionary>
     </pickle>

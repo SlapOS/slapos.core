@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP */
+/*global window, rJS, RSVP, JSON */
 /*jslint nomen: true, indent: 2, maxerr: 3*/
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, JSON) {
   "use strict";
 
   rJS(window)
@@ -9,7 +9,6 @@
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("reload", "reload")
     .declareAcquiredMethod("getSetting", "getSetting")
-    .declareAcquiredMethod("setSetting", "setSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
@@ -19,16 +18,20 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, news, len = result.data.total_rows;
+          var i, value, value_jio_key, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].value.hasOwnProperty("InstanceTree_getNewsDict"))) {
-              value = result.data.rows[i].id;
-              news = result.data.rows[i].value.InstanceTree_getNewsDict;
+            if (result.data.rows[i].value.hasOwnProperty("InstanceTree_getNewsDict")) {
+              value_jio_key = result.data.rows[i].id;
+              value = result.data.rows[i].value.InstanceTree_getNewsDict;
               result.data.rows[i].value.InstanceTree_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   hidden: 0,
-                  default: {jio_key: value, result: news},
+                  default: "",
+                  renderjs_extra: JSON.stringify({
+                    jio_key: value_jio_key,
+                    result: value
+                  }),
                   key: "status",
                   url: "gadget_slapos_status.html",
                   type: "GadgetField"
@@ -105,4 +108,4 @@
           });
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, JSON));

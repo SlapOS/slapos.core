@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP */
+/*global window, rJS, RSVP, JSON */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, JSON) {
   "use strict";
 
   rJS(window)
@@ -28,18 +28,19 @@
         .push(function (result) {
           var i, value, value_jio_key, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].value.SoftwareInstallation_getNewsDict)) {
-              value = result.data.rows[i].value.SoftwareInstallation_getNewsDict;
+            if (1 || (result.data.rows[i].value.getAccessStatus)) {
+              value = result.data.rows[i].value.getAccessStatus;
               value_jio_key = result.data.rows[i].id;
-              result.data.rows[i].value.SoftwareInstallation_getNewsDict = {
+              result.data.rows[i].value.getAccessStatus = {
                 field_gadget_param : {
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
-                  "default": {
+                  "default": "",
+                  renderjs_extra: JSON.stringify({
                     jio_key: value_jio_key,
-                    result: value,
-                    portal_type: "Software Installation"},
+                    result: value
+                  }),
                   key: "status",
                   url: "gadget_slapos_status.html",
                   title: "Status",
@@ -67,19 +68,13 @@
           return form_gadget.getContent();
         })
         .push(function (content) {
-          return gadget.updateDocument(content)
-            .push(function (ndoc) {
-              ndoc.allocation_scope = content.allocation_scope;
-              return gadget.render({
-                jio_key: gadget.state.jio_key,
-                doc: ndoc
-              });
-            });
+          return gadget.updateDocument(content);
         })
         .push(function () {
           return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'});
         });
     })
+
 
     .declareMethod("triggerSubmit", function () {
       return this.element.querySelector('button[type="submit"]').click();
@@ -153,7 +148,7 @@
             column_list = [
               ['SoftwareInstallation_getSoftwareReleaseInformation', results[2][1]],
               ['url_string', results[2][2]],
-              ['SoftwareInstallation_getNewsDict', results[2][3]]
+              ['getAccessStatus', results[2][3]]
             ],
             ticket_column_list = [
               ['title', results[2][4]],
@@ -304,9 +299,11 @@
                 "my_monitoring_status": {
                   "description": "",
                   "title": results[2][29],
-                  "default": {jio_key: gadget.state.jio_key,
-                              result: gadget.state.doc.news,
-                              portal_type: "Compute Node"},
+                  "default": "",
+                  "renderjs_extra": JSON.stringify({
+                    jio_key: gadget.state.jio_key,
+                    result: gadget.state.doc.news
+                  }),
                   "css_class": "",
                   "required": 0,
                   "editable": 0,
@@ -416,4 +413,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, JSON));

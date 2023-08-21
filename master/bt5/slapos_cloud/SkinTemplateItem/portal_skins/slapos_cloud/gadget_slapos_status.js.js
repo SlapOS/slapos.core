@@ -226,11 +226,17 @@
     })
 
     .declareMethod("render", function (options) {
-      // Save will force the gadget to be updated so
-      // result is empty.
-      var state_dict = options.value.result || {};
-      state_dict.jio_key = options.value.jio_key;
+      // crash as soon as possible to detect wrong configuration
+      if (!(options.hasOwnProperty('jio_key') &&
+            options.hasOwnProperty('result'))) {
+        throw new Error(
+          'status gadget did not receive jio_key  and result values'
+        );
+      }
+      var state_dict = options.result || {};
+      state_dict.jio_key = options.jio_key;
       return this.changeState(state_dict);
     });
+
 
 }(window, rJS, domsugar));

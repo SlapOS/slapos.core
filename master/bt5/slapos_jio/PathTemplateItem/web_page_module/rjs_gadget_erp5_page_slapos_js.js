@@ -1,6 +1,6 @@
-/*global document, window, Option, rJS, RSVP, Chart, UriTemplate, domsugar */
+/*global document, window, rJS, RSVP, Chart, domsugar, JSON */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, domsugar) {
+(function (window, rJS, RSVP, domsugar, JSON) {
   "use strict";
   var gadget_klass = rJS(window);
   gadget_klass
@@ -20,7 +20,6 @@
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("updateHeader", "updateHeader")
-    .declareAcquiredMethod("updateConfiguration", "updateConfiguration")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
@@ -41,7 +40,11 @@
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
-                  "default": {jio_key: value_jio_key, result: value},
+                  default: "",
+                  renderjs_extra: JSON.stringify({
+                    jio_key: value_jio_key,
+                    result: value
+                  }),
                   key: "status",
                   url: "gadget_slapos_status.html",
                   title: "Status",
@@ -393,4 +396,4 @@
             });
         });
     });
-}(window, rJS, RSVP, domsugar));
+}(window, rJS, RSVP, domsugar, JSON));

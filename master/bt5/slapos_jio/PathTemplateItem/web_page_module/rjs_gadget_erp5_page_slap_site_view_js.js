@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP, jIO, Blob */
+/*global window, rJS, RSVP, JSON */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, JSON) {
   "use strict";
 
   rJS(window)
@@ -30,17 +30,21 @@
         .push(function (result) {
           var i, value, value_jio_key, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].value.hasOwnProperty("ComputeNode_getNewsDict"))) {
+            if (result.data.rows[i].value.hasOwnProperty("getAccessStatus")) {
               value_jio_key = result.data.rows[i].id;
-              value = result.data.rows[i].value.ComputeNode_getNewsDict;
-              result.data.rows[i].value.ComputeNode_getNewsDict = {
+              value = result.data.rows[i].value.getAccessStatus;
+              result.data.rows[i].value.getAccessStatus = {
                 field_gadget_param : {
                   css_class: "",
                   description: gadget.description_translation,
                   hidden: 0,
-                  "default": {jio_key: value_jio_key, result: value, portal_type: "Compute Node"},
+                  default: "",
                   key: "status",
                   url: "gadget_slapos_status.html",
+                  renderjs_extra: JSON.stringify({
+                    jio_key: value_jio_key,
+                    result: value
+                  }),
                   title: gadget.title_translation,
                   type: "GadgetField"
                 }
@@ -117,7 +121,7 @@
             column_list = [
               ['title', result[2][0]],
               ['reference', result[2][1]],
-              ['ComputeNode_getNewsDict', result[2][9]]
+              ['getAccessStatus', result[2][9]]
             ];
           return result[0].render({
             erp5_document: {
@@ -169,8 +173,11 @@
                 "my_monitoring_status": {
                   "description": "",
                   "title": result[2][4],
-                  "default": {jio_key: gadget.state.jio_key,
-                              result: gadget.state.doc.news},
+                  "default": "",
+                  "renderjs_extra": JSON.stringify({
+                    jio_key: gadget.state.jio_key,
+                    result: gadget.state.doc.news
+                  }),
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
@@ -270,4 +277,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, JSON));

@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP, jIO, Blob, btoa */
+/*global window, rJS, RSVP, jIO, btoa, JSON */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, btoa) {
+(function (window, rJS, RSVP, jIO, btoa, JSON) {
   "use strict";
 
   rJS(window)
@@ -27,17 +27,21 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, jio_key_value, len = result.data.total_rows;
+          var i, value, value_jio_key, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
             if (1 || (result.data.rows[i].value.SoftwareInstance_getNewsDict)) {
               value = result.data.rows[i].value.SoftwareInstance_getNewsDict;
-              jio_key_value = result.data.rows[i].id;
+              value_jio_key = result.data.rows[i].id;
               result.data.rows[i].value.SoftwareInstance_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: gadget.description_translation,
                   hidden:  0,
-                  "default": {jio_key: jio_key_value, result: value},
+                  "default": "",
+                  renderjs_extra: JSON.stringify({
+                    jio_key: value_jio_key,
+                    result: value
+                  }),
                   key: "status",
                   url: "gadget_slapos_status.html",
                   title: gadget.title_translation,
@@ -49,7 +53,7 @@
                 value: 2713
               };
             }
-            if (1 || (result.data.rows[i].value.hasOwnProperty("connection_key"))) {
+            if (result.data.rows[i].value.hasOwnProperty("connection_key")) {
               value = result.data.rows[i].value.connection_key;
               result.data.rows[i].value.connection_key = {
                 field_gadget_param : {
@@ -345,8 +349,11 @@
                     "my_monitoring_status": {
                       "description": "",
                       "title": result[1][23],
-                      "default": {jio_key: gadget.state.jio_key,
-                                  result: gadget.state.doc.news},
+                      "default": "",
+                      "renderjs_extra": JSON.stringify({
+                        jio_key: gadget.state.jio_key,
+                        result: gadget.state.doc.news
+                      }),
                       "css_class": "",
                       "required": 0,
                       "editable": 0,
@@ -543,4 +550,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, btoa));
+}(window, rJS, RSVP, jIO, btoa, JSON));

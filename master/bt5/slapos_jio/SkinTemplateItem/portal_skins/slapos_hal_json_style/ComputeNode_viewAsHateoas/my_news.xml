@@ -126,7 +126,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>here/ComputeNode_getNewsDict</string> </value>
+            <value> <string>here/getAccessStatus</string> </value>
         </item>
       </dictionary>
     </pickle>

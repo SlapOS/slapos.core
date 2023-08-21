@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP, jIO, Blob */
+/*global window, rJS, RSVP, JSON */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP) {
+(function (window, rJS, JSON) {
   "use strict";
 
   rJS(window)
@@ -30,7 +30,7 @@
         .push(function (result) {
           var i, value, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].value.hasOwnProperty("connection_key"))) {
+            if (result.data.rows[i].value.hasOwnProperty("connection_key")) {
               value = result.data.rows[i].value.connection_key;
               result.data.rows[i].value.connection_key = {
                 field_gadget_param : {
@@ -164,11 +164,11 @@
                     "my_monitoring_status": {
                       "description": "",
                       "title": result[2][2],
-                      "default": {
+                      "default": "",
+                      "renderjs_extra": JSON.stringify({
                         jio_key: gadget.state.jio_key,
-                        result: gadget.state.doc.news,
-                        portal_type: gadget.state.doc.portal_type
-                      },
+                        result: gadget.state.doc.news
+                      }),
                       "css_class": "",
                       "required": 1,
                       "editable": 0,
@@ -307,4 +307,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, JSON));

@@ -28,31 +28,28 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, news, len = result.data.total_rows;
+          var i, value, value_jio_key, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].value.hasOwnProperty("ComputeNode_getNewsDict"))) {
-              value = result.data.rows[i].id;
-              news = result.data.rows[i].value.ComputeNode_getNewsDict;
-              result.data.rows[i].value.ComputeNode_getNewsDict = {
+            if (result.data.rows[i].value.hasOwnProperty("getAccessStatus")) {
+              value_jio_key = result.data.rows[i].id;
+              value = result.data.rows[i].value.getAccessStatus;
+              result.data.rows[i].value.getAccessStatus = {
                 field_gadget_param : {
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
-                  "default": {
-                    jio_key: value,
-                    result: news,
-                    portal_type: "Compute Node"
-                  },
+                  "default": "",
+                  renderjs_extra: JSON.stringify({
+                    jio_key: value_jio_key,
+                    result: value
+                  }),
                   key: "status",
                   url: "gadget_slapos_status.html",
                   title: gadget.title_translation,
                   type: "GadgetField"
                 }
               };
-              result.data.rows[i].value["listbox_uid:list"] = {
-                //key: "listbox_uid:list",
-                //value: 2713
-              };
+              result.data.rows[i].value["listbox_uid:list"] = {};
             }
           }
           return result;
@@ -121,7 +118,7 @@
               ['title', result[1][1]],
               ['reference', result[1][2]],
               ['allocation_scope_translated_title', result[1][3]],
-              ['ComputeNode_getNewsDict', result[1][4]]
+              ['getAccessStatus', result[1][4]]
             ];
           return result[0].render({
             erp5_document: {
@@ -151,8 +148,11 @@
                 "my_monitoring_status": {
                   "description": "",
                   "title": result[1][5],
-                  "default": {jio_key: gadget.state.jio_key,
-                              result: gadget.state.doc.news},
+                  "default": "",
+                  "renderjs_extra": JSON.stringify({
+                    jio_key: gadget.state.jio_key,
+                    result: gadget.state.doc.news
+                  }),
                   "css_class": "",
                   "required": 0,
                   "editable": 0,

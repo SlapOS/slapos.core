@@ -748,7 +748,7 @@ class TestPerson_get_Certificate(TestSlapOSHalJsonStyleMixin):
     self.assertSameSet(response_dict.keys(), ["common_name", "certificate", "id", "key"])
 
     self.assertEqual(response_dict["id"], login.getDestinationReference())
-    self.assertEqual(response_dict["common_name"], login.getReference())
+    self.assertEqual(json.dumps(response_dict["common_name"]), json.dumps(login.getReference()))
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
 
     new_response_dict = json.loads(person.Person_getCertificate())
@@ -764,14 +764,14 @@ class TestPerson_get_Certificate(TestSlapOSHalJsonStyleMixin):
     self.assertNotEqual(login.getDestinationReference(), new_login.getDestinationReference())
 
     self.assertSameSet(new_response_dict.keys(), ["common_name", "certificate", "id", "key"])
-    self.assertEqual(new_response_dict["common_name"], new_login.getReference())
+    self.assertEqual(json.dumps(new_response_dict["common_name"]), json.dumps(new_login.getReference()))
     self.assertEqual(new_response_dict["id"], new_login.getDestinationReference())
     
     self.assertNotEqual(new_response_dict["common_name"], response_dict["common_name"])
     self.assertNotEqual(new_response_dict["id"], response_dict["id"])
     self.assertNotEqual(new_response_dict["key"], response_dict["key"])
     self.assertNotEqual(new_response_dict["certificate"], response_dict["certificate"])
-    
+
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
 
 class TestPerson_testLoginExistence(TestSlapOSHalJsonStyleMixin):

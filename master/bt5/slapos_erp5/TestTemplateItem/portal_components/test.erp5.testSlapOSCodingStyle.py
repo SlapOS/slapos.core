@@ -102,6 +102,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_cloud/InstanceTree_requestDestroy',
         'slapos_cloud/InstanceTree_requestStart',
         'slapos_cloud/InstanceTree_requestStop',
+        'slapos_cloud/InstanceTree_requestParameterChange',
         'slapos_cloud/Organisation_afterClone',
         'slapos_cloud/Organisation_init',
         'slapos_cloud/Person_findPartition',

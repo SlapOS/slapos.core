@@ -228,15 +228,13 @@
               ['connection_value', result[1][14]]
             ],
             parameter_dict = {
-              'parameter' : {
-                'json_url': gadget.state.doc.url_string.split('?')[0] + ".json",
-                'softwaretype': gadget.state.doc.source_reference,
-                'shared': gadget.state.doc.root_slave ? 1 : 0,
-                'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance></instance>')
-              }
+              'json_url': gadget.state.doc.url_string.split('?')[0] + ".json",
+              'softwaretype': gadget.state.doc.source_reference,
+              'shared': gadget.state.doc.root_slave ? 1 : 0,
+              'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance></instance>')
             };
           if (gadget.state.doc.text_content !== undefined) {
-            parameter_dict.parameter.parameter_hash = btoa(gadget.state.doc.text_content);
+            parameter_dict.parameter_hash = btoa(gadget.state.doc.text_content);
           }
           return gadget.getSetting("hateoas_url")
             .push(function (url) {
@@ -314,7 +312,7 @@
                     "my_text_content": {
                       "description": "",
                       "title": result[1][19],
-                      "default": parameter_dict,
+                      "default": "",
                       "css_class": "",
                       "required": 0,
                       "editable": 1,
@@ -322,7 +320,9 @@
                       "sandbox": "",
                       "key": "text_content",
                       "hidden": 0,
-                      "type": "GadgetField"
+                      "type": "GadgetField",
+                      "renderjs_extra": JSON.stringify(parameter_dict)
+
                     },
                     "my_source_project": {
                       "description": result[1][20],

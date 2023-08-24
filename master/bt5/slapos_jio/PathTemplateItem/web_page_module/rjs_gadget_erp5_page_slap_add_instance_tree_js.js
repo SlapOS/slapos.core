@@ -115,16 +115,14 @@
           page_title_translation = result[2][9];
           var doc = result[1],
             parameter_dict = {
-              'parameter' : {
-                'json_url':  doc.url_string.split('?')[0] + ".json",
-                'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance/>')
-              }
+              'json_url':  doc.url_string.split('?')[0] + ".json",
+              'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance/>')
             };
           if (options.software_type) {
-            parameter_dict["parameter"]['softwaretype'] = options.software_type;
+            parameter_dict['softwaretype'] = options.software_type;
           }
           if (options.shared) {
-            parameter_dict["parameter"]['shared'] = true;
+            parameter_dict['shared'] = true;
           }
 
           return result[0].render({
@@ -155,7 +153,7 @@
                 "your_text_content": {
                   "description": "",
                   "title": result[2][5],
-                  "default": parameter_dict,
+                  "default": "",
                   "css_class": "",
                   "required": 1,
                   "editable": 1,
@@ -163,7 +161,8 @@
                   "sandbox": "",
                   "key": "text_content",
                   "hidden": 0,
-                  "type": "GadgetField"
+                  "type": "GadgetField",
+                  "renderjs_extra": JSON.stringify(parameter_dict)
                 },
                 "your_computer_guid": {
                   "description": result[2][2],

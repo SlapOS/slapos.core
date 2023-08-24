@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP, btoa */
+/*global window, rJS, RSVP, btoa, JSON */
 /*jslint nomen: true, indent: 2, maxerr: 3, sub:true */
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, btoa, JSON) {
   "use strict";
 
   rJS(window)
@@ -106,13 +106,11 @@
             parameter_hash = btoa(gadget.state.parameter_output);
           }
           parameter_dict = {
-            'parameter' : {
-              'json_url':  gadget.state.url_string.split('?')[0] + ".json",
-              'parameter_hash': parameter_hash
-            }
+            'json_url':  gadget.state.url_string.split('?')[0] + ".json",
+            'parameter_hash': parameter_hash
           };
           if (gadget.state.software_type_list) {
-            parameter_dict.parameter.software_type_list = gadget.state.software_type_list.split(',');
+            parameter_dict.software_type_list = gadget.state.software_type_list.split(',');
           }
           return result[0].render({
             erp5_document: {
@@ -131,7 +129,7 @@
                 "your_text_content": {
                   "description": "",
                   "title": "Parameters",
-                  "default": parameter_dict,
+                  "default": "",
                   "css_class": "",
                   "required": 1,
                   "editable": gadget.state.url_string !== "",
@@ -139,7 +137,8 @@
                   "sandbox": "",
                   "key": "text_content",
                   "hidden": gadget.state.url_string === "",
-                  "type": "GadgetField"
+                  "type": "GadgetField",
+                  "renderjs_extra": JSON.stringify(parameter_dict)
                 },
                 "your_software_type": {
                   "description": "",
@@ -207,4 +206,4 @@
             });
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, btoa, JSON));

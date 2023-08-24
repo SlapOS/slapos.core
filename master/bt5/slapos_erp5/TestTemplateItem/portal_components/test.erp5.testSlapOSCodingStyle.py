@@ -124,7 +124,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_cloud/SoftwareInstance_viewRenameAndRequestDestroyAction',
         'slapos_cloud/Base_getSupportRequestInProgress',
         'slapos_cloud/SoftwareInstance_checkDuplicationOnInstanceTreeConsistency',
-        'slapos_cloud/Base_getParameterEditorDict',
         'slapos_cloud/ComputerNetwork_getRelatedSoftwareReleaseList',
         'slapos_crm_monitoring/ComputeNode_checkInstanceOnCloseAllocation',
         'slapos_crm_monitoring/SiteMessage_setSlapOSUserSourceAndDestinatationList',

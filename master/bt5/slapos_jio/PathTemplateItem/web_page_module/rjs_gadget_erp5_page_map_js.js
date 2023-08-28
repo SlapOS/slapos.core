@@ -221,11 +221,9 @@
                 .push(function (compute_node) {
                   //xxxx repopup to resize popup
                   new_marker_list[index].openPopup();
-                  return compute_node.render({value: {
+                  return compute_node.render({
                     jio_key : gadget.options.marker_list ? gadget.options.marker_list[index].jio_key : "",
-                    doc: gadget.options.marker_list ? gadget.options.marker_list[index].doc : "",
                     result: gadget.options.marker_list ? gadget.options.marker_list[index].doc.result : ""
-                  }
                   });
                 });
               }

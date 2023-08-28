@@ -164,15 +164,6 @@
             marker_space.className = "ui-btn-map";
             marker_label.appendChild(marker_space);
 
-            marker_monitor_link = document.createElement("a");
-            marker_monitor_link.target = "_blank";
-            // Please update me, and compose the actuall url.
-            marker_monitor_link.href = hateoas_url + marker_list[i].jio_key + "/Base_redirectToMonitor";
-            marker_monitor_link.text = "   >   ";
-            marker_monitor_link.className = "ui-btn-map ui-btn ui-btn-icon-left ui-icon-desktop";
-
-            marker_label.appendChild(marker_monitor_link);
-
             marker = new L.marker(
               [m.doc.latitude || 0, m.doc.longitude || 0],
               marker_options

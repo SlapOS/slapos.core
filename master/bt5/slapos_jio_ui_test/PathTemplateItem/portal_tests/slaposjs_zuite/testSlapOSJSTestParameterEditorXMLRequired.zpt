@@ -46,7 +46,18 @@
           'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
         <td>Required Example</td>
       </tr>
-
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "ui-icon-spinner")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementNotPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "ui-icon-spinner")]</td>
+        <td></td>
+      </tr>
       <tr>
         <td>waitForElementPresent</td>
         <td>//input[@name="//simple-string" and @type="text"]</td>
@@ -77,6 +88,12 @@
         <td>//select[@name="//simple-string-with-enum"]</td>
         <td>simple string B</td>
       </tr>
+
+      <tr>
+        <td>fireEvent</td>
+        <td>//input[@name="//simple-string" and @type="text"]</td>
+        <td>change</td>
+      </tr>      
       <tr>
         <td>type</td>
         <td>//input[@name="//simple-string" and @type="text"]</td>
@@ -86,6 +103,11 @@
         <td>select</td>
         <td>//select[@name="//simple-string-with-enum"]</td>
         <td></td>
+      </tr>
+      <tr>
+        <td>fireEvent</td>
+        <td>//input[@name="//simple-string" and @type="text"]</td>
+        <td>change</td>
       </tr>
       <tr>
         <td>fireEvent</td>

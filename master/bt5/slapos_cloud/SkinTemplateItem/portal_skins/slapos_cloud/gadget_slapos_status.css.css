@@ -41,7 +41,6 @@
 .ui-btn-ok:hover a {
   color: white !important;
   background: green !important;
-  cursor: default;
   text-align: center;
 }
 
@@ -53,7 +52,6 @@
 .ui-btn-warning:hover a {
   color: white !important;
   background: #f0ad4e !important;
-  cursor: default;
   text-align: center;
 }
 
@@ -65,7 +63,6 @@
 .ui-btn-error:hover a {
   color: white !important;
   background: red !important;
-  cursor: default;
   text-align: center;
 }
 
@@ -77,7 +74,6 @@
 .ui-btn-no-data:hover a {
   color: grey !important;
   background: grey !important;
-  cursor: default;
   text-align: center;
 }
 
@@ -89,7 +85,6 @@
 .ui-btn-color-white:hover a  {
   color: white !important;
   background: grey !important;
-  cursor: default;
   text-align: center;
 }
 
@@ -101,7 +96,6 @@
 .ui-btn-white:active a,
 .ui-btn-white:hover a {
   background: white !important;
-  cursor: default;
   text-align: center;
 }
 

@@ -1,3 +1,7 @@
+.sensor-status {
+  min-width: 210px;
+}
+
 /* --------------------- CUSTOM MAP ----------------------- */
 .custom-map-wrap {
   position: relative;

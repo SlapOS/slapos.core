@@ -328,12 +328,12 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Slave Only')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Slave Only')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Slave Only')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Slave Only')]</td>
         <td></td>
       </tr>
       <tr>
@@ -354,23 +354,23 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Slave Only')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Slave Only')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Slave Only')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Slave Only')]</td>
         <td></td>
       </tr>
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Slave')]</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Slave')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Slave')]</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Slave')]</td>
         <td></td>
       </tr>
 
@@ -390,22 +390,22 @@
       </tal:block>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Destroyed')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Destroyed')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Destroyed')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Destroyed')]</td>
         <td></td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Slave')]</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Slave')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Slave')]</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Slave')]</td>
         <td></td>
       </tr>
 
@@ -483,22 +483,22 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Destroyed')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Destroyed')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Destroyed')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Destroyed')]</td>
         <td></td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Destroyed')]</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Destroyed')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//a[contains(text(), 'Destroyed')]</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-color-white')]//span[contains(text(), 'Destroyed')]</td>
         <td></td>
       </tr>
 

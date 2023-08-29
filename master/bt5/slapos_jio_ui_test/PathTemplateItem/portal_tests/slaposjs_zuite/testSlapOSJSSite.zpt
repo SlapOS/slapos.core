@@ -179,23 +179,23 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//span[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//span[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//span[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//span[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
 
@@ -212,34 +212,34 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//span[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//span[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//span[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
+        <td>//div[contains(@class, 'leaflet-pane')]//div[contains(@class, 'ui-btn-ok')]//span[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
       <!-- Check on listbox -->
       <tr>
         <td>waitForElementPresent</td>
-        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//span[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//a[contains(text(), 'Node')]</td>
+        <td>//td//div[contains(@class, 'main-status')]//div[contains(@class, 'ui-btn-ok')]//span[contains(text(), 'Node')]</td>
         <td></td>
       </tr>
 

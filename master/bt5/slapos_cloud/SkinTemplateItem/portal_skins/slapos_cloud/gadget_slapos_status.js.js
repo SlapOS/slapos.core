@@ -210,7 +210,8 @@
       {
         "class": "ui-bar ui-corner-all first-child " + status_class
       }, [
-        domsugar("a", main_link_configuration_dict)
+        domsugar(main_link_configuration_dict.href ? "a" : "span",
+                 main_link_configuration_dict)
       ]);
     return gadget;
   }

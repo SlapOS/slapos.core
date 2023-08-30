@@ -1,7 +1,7 @@
 portal_type = context.getPortalType()
 
 if portal_type == "Compute Node":
-  return context.ComputeNode_getNewsDict(**kw)
+  return context.getAccessStatus(**kw)
 
 if portal_type == "Instance Tree":
   return context.InstanceTree_getNewsDict(**kw)

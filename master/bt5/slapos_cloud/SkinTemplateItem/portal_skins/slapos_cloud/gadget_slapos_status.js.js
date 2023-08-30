@@ -1,7 +1,7 @@
-/*globals console, window, rJS, domsugar, JSON */
+/*globals console, window, rJS, domsugar */
 /*jslint indent: 2, nomen: true, maxlen: 80 */
 
-(function (window, rJS, domsugar, JSON) {
+(function (window, rJS, domsugar) {
   "use strict";
   var gadget_klass = rJS(window);
 
@@ -210,7 +210,8 @@
       {
         "class": "ui-bar ui-corner-all first-child " + status_class
       }, [
-        domsugar("a", main_link_configuration_dict)
+        domsugar(main_link_configuration_dict.href ? "a" : "span",
+                 main_link_configuration_dict)
       ]);
     return gadget;
   }
@@ -221,33 +222,22 @@
       return {};
     })
 
-    .onLoop(function () {
-      var gadget = this;
-      if (typeof gadget.state.jio_key === 'string' &&
-          gadget.state.jio_key !== '') {
-        return gadget.jio_get(gadget.state.jio_key)
-          .push(function (result) {
-            var state_dict = result.news || {};
-            state_dict.jio_key = gadget.state.jio_key;
-            return gadget.changeState(state_dict);
-          });
-      }
-      throw new Error(
-        'jio_key dont contains a proper value: ' +
-          JSON.stringify(gadget.state.jio_key)
-      );
-    }, 300000)
-
     .onStateChange(function () {
       return getStatus(this, this.state);
     })
 
     .declareMethod("render", function (options) {
-      // Save will force the gadget to be updated so
-      // result is empty.
-      var state_dict = options.value.result || {};
-      state_dict.jio_key = options.value.jio_key;
+      // crash as soon as possible to detect wrong configuration
+      if (!(options.hasOwnProperty('jio_key') &&
+            options.hasOwnProperty('result'))) {
+        throw new Error(
+          'status gadget did not receive jio_key  and result values'
+        );
+      }
+      var state_dict = options.result || {};
+      state_dict.jio_key = options.jio_key;
       return this.changeState(state_dict);
     });
 
-}(window, rJS, domsugar, JSON));
+
+}(window, rJS, domsugar));

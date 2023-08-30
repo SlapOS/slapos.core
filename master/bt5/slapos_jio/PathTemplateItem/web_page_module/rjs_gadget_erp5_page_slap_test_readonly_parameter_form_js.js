@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP, btoa */
+/*global window, rJS, RSVP, btoa, JSON */
 /*jslint nomen: true, indent: 2, maxerr: 3, sub:true */
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, btoa, JSON) {
   "use strict";
 
   rJS(window)
@@ -112,15 +112,13 @@
             parameter_hash = btoa(gadget.state.parameter_output);
           }
           parameter_dict = {
-            'parameter' : {
-              'json_url':  gadget.state.url_string.split('?')[0] + ".json",
-              'parameter_hash': parameter_hash,
-              'softwaretype': gadget.state.software_type,
-              'restricted_softwaretype': false
-            }
+            'json_url':  gadget.state.url_string.split('?')[0] + ".json",
+            'parameter_hash': parameter_hash,
+            'softwaretype': gadget.state.software_type,
+            'restricted_softwaretype': false
           };
           if (gadget.state.shared === 'yes') {
-            parameter_dict['parameter']['shared'] = true;
+            parameter_dict['shared'] = true;
           }
           return result[0].render({
             erp5_document: {
@@ -139,7 +137,7 @@
                 "your_text_content": {
                   "description": "",
                   "title": "Parameters",
-                  "default": parameter_dict,
+                  "default": "",
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
@@ -147,7 +145,8 @@
                   "sandbox": "",
                   "key": "text_content",
                   "hidden": gadget.state.url_string === "",
-                  "type": "GadgetField"
+                  "type": "GadgetField",
+                  "renderjs_extra": JSON.stringify(parameter_dict)
                 },
                 "your_software_type": {
                   "description": "Software Type",
@@ -216,4 +215,4 @@
             });
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, btoa, JSON));

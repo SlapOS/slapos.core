@@ -16,13 +16,13 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>action_type/object_view</string>
+                <string>action_type/object_action</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>category</string> </key>
-            <value> <string>object_view</string> </value>
+            <value> <string>object_action</string> </value>
         </item>
         <item>
             <key> <string>condition</string> </key>
@@ -60,7 +60,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Parameter Editor</string> </value>
+            <value> <string>Edit Parameters</string> </value>
         </item>
         <item>
             <key> <string>visible</string> </key>

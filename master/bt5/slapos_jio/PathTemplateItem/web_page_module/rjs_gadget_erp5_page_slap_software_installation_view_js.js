@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP, jIO, Blob */
+/*global window, rJS, RSVP, JSON */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, JSON) {
   "use strict";
 
   rJS(window)
@@ -153,10 +153,11 @@
                 "my_monitoring_status": {
                   "description": "",
                   "title": result[2][8],
-                  "default": {
+                  "default": "",
+                  "renderjs_extra": JSON.stringify({
                     jio_key: gadget.state.jio_key,
                     result: gadget.state.doc.news
-                  },
+                  }),
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
@@ -210,4 +211,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, JSON));

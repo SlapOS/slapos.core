@@ -65,7 +65,11 @@
         <td>//textarea[@name="text_content"]</td>
         <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;instance&gt;&lt;parameter id=&quot;_&quot;&gt;{&quot;simple-string-in-json&quot;: &quot;1024&quot;}&lt;/parameter&gt;&lt;/instance&gt;</td>
       </tr>
-
+      <tr>
+        <td>pause</td>
+        <td>500</td>
+        <td>500</td>
+      </tr>
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/click_proceed_and_wait_for_hash" />
 
       <tr>

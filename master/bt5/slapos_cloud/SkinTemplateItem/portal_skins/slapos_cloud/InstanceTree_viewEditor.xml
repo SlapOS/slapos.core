@@ -39,11 +39,11 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string></string> </value>
+            <value> <string>InstanceTree_requestParameterChange</string> </value>
         </item>
         <item>
             <key> <string>action_title</string> </key>
-            <value> <string></string> </value>
+            <value> <string>Save</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -83,7 +83,7 @@
                     <key> <string>bottom</string> </key>
                     <value>
                       <list>
-                        <string>my_text_content</string>
+                        <string>your_instance_xml</string>
                       </list>
                     </value>
                 </item>
@@ -140,7 +140,7 @@
         </item>
         <item>
             <key> <string>pt</string> </key>
-            <value> <string>form_view</string> </value>
+            <value> <string>form_dialog</string> </value>
         </item>
         <item>
             <key> <string>row_length</string> </key>

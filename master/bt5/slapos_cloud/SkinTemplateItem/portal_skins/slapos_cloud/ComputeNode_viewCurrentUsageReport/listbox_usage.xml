@@ -61,6 +61,10 @@
                     </value>
                 </item>
                 <item>
+                    <key> <string>display_width</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>field_id</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -70,6 +74,10 @@
                 </item>
                 <item>
                     <key> <string>target</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>title</string> </key>
                     <value> <string></string> </value>
                 </item>
               </dictionary>
@@ -101,7 +109,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>listbox_installation_state</string> </value>
+                    <value> <string>listbox_usage</string> </value>
                 </item>
               </dictionary>
             </value>
@@ -117,7 +125,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>cell/Base_getSoftwareReleaseUsageOnComputeNode</string> </value>
+            <value> <string>python: cell.getAggregateValue(portal_type="Compute Node").ComputeNode_getSoftwareReleaseUsage(cell.getUrlString())</string> </value>
         </item>
       </dictionary>
     </pickle>

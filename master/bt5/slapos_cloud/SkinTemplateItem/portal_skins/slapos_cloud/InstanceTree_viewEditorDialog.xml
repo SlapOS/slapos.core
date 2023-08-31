@@ -43,7 +43,7 @@
         </item>
         <item>
             <key> <string>action_title</string> </key>
-            <value> <string>Save</string> </value>
+            <value> <string>Save Parameter</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -128,7 +128,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>InstanceTree_viewEditor</string> </value>
+            <value> <string>InstanceTree_viewEditorDialog</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -136,7 +136,7 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>InstanceTree_view</string> </value>
+            <value> <string>InstanceTree_viewDialog</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>

@@ -1,14 +1,9 @@
-kw['portal_type'] = 'Software Installation'
-kw['validation_state'] = 'validated'
-kw['url_string'] = context.getUrlString()
+portal = context.getPortalObject()
 
-software_installation_list = context.portal_catalog(**kw)
-compute_node_list = []
-allocation_scope_list = ['open/personal', 'open/public']
-for software_installation in software_installation_list:
-  compute_node = software_installation.getAggregateValue()
-  if software_installation.getSlapState() == 'start_requested' and \
-              compute_node.getAllocationScope() in allocation_scope_list:
-    compute_node_list.append(compute_node)
+compute_partition_list = portal.portal_catalog(
+  software_release_url=context.getUrlString(),
+  free_for_request=1,
+  group_by=("parent_uid",)
+)
 
-return compute_node_list
+return [c.getParentValue() for c in compute_partition_list]

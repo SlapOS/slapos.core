@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>*args, **kwargs</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Base_getSoftwareReleaseStateOnComputeNode</string> </value>
+            <value> <string>SoftwareInstallation_getInstallationState</string> </value>
         </item>
       </dictionary>
     </pickle>

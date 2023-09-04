@@ -11,14 +11,14 @@
             <value>
               <list>
                 <string>default</string>
-                <string>display_width</string>
+                <string>editable</string>
                 <string>title</string>
               </list>
             </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>listbox_installation_state</string> </value>
+            <value> <string>listbox_error_reported</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>
@@ -43,10 +43,6 @@
                     <key> <string>form_id</string> </key>
                     <value> <string></string> </value>
                 </item>
-                <item>
-                    <key> <string>target</string> </key>
-                    <value> <string></string> </value>
-                </item>
               </dictionary>
             </value>
         </item>
@@ -61,7 +57,7 @@
                     </value>
                 </item>
                 <item>
-                    <key> <string>display_width</string> </key>
+                    <key> <string>editable</string> </key>
                     <value> <string></string> </value>
                 </item>
                 <item>
@@ -70,10 +66,6 @@
                 </item>
                 <item>
                     <key> <string>form_id</string> </key>
-                    <value> <string></string> </value>
-                </item>
-                <item>
-                    <key> <string>target</string> </key>
                     <value> <string></string> </value>
                 </item>
                 <item>
@@ -92,8 +84,8 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
-                    <key> <string>display_width</string> </key>
-                    <value> <int>20</int> </value>
+                    <key> <string>editable</string> </key>
+                    <value> <int>0</int> </value>
                 </item>
                 <item>
                     <key> <string>field_id</string> </key>
@@ -104,12 +96,8 @@
                     <value> <string>Base_viewFieldLibrary</string> </value>
                 </item>
                 <item>
-                    <key> <string>target</string> </key>
-                    <value> <string>Click to edit the target</string> </value>
-                </item>
-                <item>
                     <key> <string>title</string> </key>
-                    <value> <string>listbox_installation_state</string> </value>
+                    <value> <string>Reported Error</string> </value>
                 </item>
               </dictionary>
             </value>
@@ -125,7 +113,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>cell/SoftwareInstallation_getInstallationState</string> </value>
+            <value> <string>python: cell.getAggregateRelatedValue(portal_type="Software Instance").SoftwareInstance_hasReportedError(include_message=True, )</string> </value>
         </item>
       </dictionary>
     </pickle>

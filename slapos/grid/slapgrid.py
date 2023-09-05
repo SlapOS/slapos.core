@@ -59,6 +59,7 @@ from requests.exceptions import RequestException
 from lxml import etree
 
 from slapos import manager as slapmanager
+from slapos.slap.exception import ConnectionError
 from slapos.slap.slap import NotFoundError
 from slapos.slap.slap import ServerError
 from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
@@ -1425,7 +1426,7 @@ stderr_logfile_backups=1
   def processComputerPartitionList(self):
     try:
       return self.processComputerPartitionListOnline()
-    except RequestException:
+    except (RequestException, ConnectionError):
       return self.processComputerPartitionListOffline()
 
   def processComputerPartitionListOnline(self):
@@ -1456,7 +1457,7 @@ stderr_logfile_backups=1
         self.processComputerPartition(computer_partition)
 
       # Handle connection loss at the next level
-      except RequestException:
+      except (RequestException, ConnectionError):
         raise
 
       # Send log before exiting

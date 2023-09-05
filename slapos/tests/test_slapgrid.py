@@ -308,7 +308,9 @@ class TestBasicSlapgridCP(BasicMixin, unittest.TestCase):
   def test_no_master(self):
     os.mkdir(self.software_root)
     os.mkdir(self.instance_root)
-    self.assertRaises(ConnectionError, self.grid.processComputerPartitionList)
+    self.assertEqual(
+      self.grid.processComputerPartitionList(),
+      slapgrid.SLAPGRID_OFFLINE_SUCCESS)
 
   def test_environment_variable_HOME(self):
     # When running instance, $HOME is set to the partition path

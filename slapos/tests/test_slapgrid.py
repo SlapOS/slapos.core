@@ -1089,6 +1089,71 @@ exit 1
         '/getComputerPartitionCertificate' # /getFullComputerInformation is cached
       ])
 
+  def test_stopped_partition_remains_stopped_after_master_connection_loss(self):
+    computer = self.getTestComputerClass()(
+      self.software_root, self.instance_root, instance_amount=2)
+
+    for i in range(2):
+      partition = computer.instance_list[i]
+      partition.requested_state = 'started'
+      partition.software.setBuildout()
+      run_path = os.path.join(partition.partition_path, 'etc', 'run')
+      os.makedirs(run_path)
+      with open(os.path.join(run_path, 'runner'), 'w') as f:
+        f.write("#!/bin/sh\necho 'Working'\ntouch 'runner_worked'")
+        os.fchmod(f.fileno(), 0o755)
+
+    control_partition = computer.instance_list[0]
+    test_partition = computer.instance_list[1]
+
+    control_file = os.path.join(control_partition.partition_path, 'runner_worked')
+    test_file = os.path.join(test_partition.partition_path, 'runner_worked')
+
+    def assertRunnerWorked(path):
+      for _ in range(50):
+        if os.path.exists(path):
+          break
+        time.sleep(0.1)
+      else:
+        self.assertTrue(os.path.exists(path))
+
+    with httmock.HTTMock(computer.request_handler):
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertInstanceDirectoryListEqual(['0', '1'])
+      assertRunnerWorked(control_file)
+      assertRunnerWorked(test_file)
+      for i in range(2):
+        six.assertCountEqual(self, os.listdir(computer.instance_list[i].partition_path),
+                              ['.slapgrid', '.%d_runner.log' % i, 'buildout.cfg', 'etc',
+                              'runner_worked', 'software_release', 'worked',
+                              '.slapos-retention-lock-delay'])
+      self.assertEqual(control_partition.state, 'started')
+      self.assertEqual(test_partition.state, 'started')
+
+    # simulate stopping the partition with old version
+    test_partition.state = 'stopped'
+    state_path = os.path.join(test_partition.partition_path, '.requested_state')
+    with open(state_path, 'w') as f:
+      f.write('stopped')
+
+    computer.status_code = 503 # connection loss
+    os.unlink(control_file)
+    os.unlink(test_file)
+
+    with httmock.HTTMock(computer.request_handler):
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_OFFLINE_SUCCESS)
+      self.assertInstanceDirectoryListEqual(['0', '1'])
+      assertRunnerWorked(control_file)
+      self.assertFalse(os.path.exists(test_file))
+      self.assertEqual(computer.sequence, [
+        '/getFullComputerInformation',
+        '/getComputerPartitionCertificate',
+        '/startedComputerPartition',
+        '/getComputerPartitionCertificate',
+        '/startedComputerPartition',
+        '/getComputerPartitionCertificate' # /getFullComputerInformation is cached
+      ])
+
 class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
 
   def setUp(self):

@@ -59,6 +59,7 @@ from requests.exceptions import RequestException
 from lxml import etree
 
 from slapos import manager as slapmanager
+from slapos.slap.exception import ConnectionError
 from slapos.slap.slap import NotFoundError
 from slapos.slap.slap import ServerError
 from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
@@ -1425,7 +1426,7 @@ stderr_logfile_backups=1
   def processComputerPartitionList(self):
     try:
       return self.processComputerPartitionListOnline()
-    except RequestException:
+    except (RequestException, ConnectionError):
       return self.processComputerPartitionListOffline()
 
   def processComputerPartitionListOnline(self):
@@ -1456,7 +1457,7 @@ stderr_logfile_backups=1
         self.processComputerPartition(computer_partition)
 
       # Handle connection loss at the next level
-      except RequestException:
+      except (RequestException, ConnectionError):
         raise
 
       # Send log before exiting
@@ -1517,6 +1518,40 @@ stderr_logfile_backups=1
 
   def processComputerPartitionListOffline(self):
     self.logger.info('Processing computer partitions offline...')
+    # Backwards compatibility: remove stopped services
+    for name in os.listdir(self.instance_root):
+      instance_path = os.path.join(self.instance_root, name)
+      state_path = os.path.join(instance_path, '.requested_state')
+      try:
+        with open(state_path) as f:
+          requested_state = f.read()
+        os.remove(state_path)
+      except (IOError, OSError) as e:
+        if e.errno != errno.ENOENT and e.errno != errno.ENOTDIR:
+          raise
+        requested_state = None
+      if requested_state == 'stopped':
+        local_partition = Partition(
+          software_path=None,
+          instance_path=instance_path,
+          shared_part_list='',
+          supervisord_partition_configuration_dir=(
+            _getSupervisordConfigurationDirectory(self.instance_root)),
+          supervisord_socket=self.supervisord_socket,
+          computer_partition=None,
+          computer_id=self.computer_id,
+          partition_id=name,
+          server_url=self.master_url,
+          software_release_url='toto',
+          certificate_repository_path=self.certificate_repository_path,
+          buildout=self.buildout,
+          buildout_debug=self.buildout_debug,
+          logger=self.logger,
+          instance_storage_home=self.instance_storage_home,
+          ipv4_global_network=self.ipv4_global_network,
+        )
+        local_partition.stop()
+    # Offline: start all existing services
     try:
       supervisord_socket_path = _getSupervisordSocketPath(
         self.instance_root,

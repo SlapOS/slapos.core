@@ -34,7 +34,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>certificate_authority_consistency_constraint_constraint</string> </value>
+            <value> <string>acl_users_slapos_machine_constraint</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -42,7 +42,7 @@
         </item>
         <item>
             <key> <string>script_id</string> </key>
-            <value> <string>CertificateAuthorityTool_checkCertificateAuthorityConsistency</string> </value>
+            <value> <string>TemplateTool_checkSlapOSMachineNonExistenceConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

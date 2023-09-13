@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>fixit=False, **kw</string> </value>
+            <value> <string>fixit=False</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>CertificateAuthorityTool_checkCertificateAuthorityConsistency</string> </value>
+            <value> <string>TemplateTool_checkSlapOSMachineNonExistenceConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

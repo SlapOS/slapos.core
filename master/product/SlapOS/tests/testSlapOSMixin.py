@@ -64,67 +64,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
         setattr(self, 'stepCall' + convertToUpperCase(alarm.getId()) \
           + 'Alarm', makeCallAlarm(alarm))
 
-  def createCertificateAuthorityFile(self):
-    """Sets up portal_certificate_authority"""
-
-    if 'TEST_CA_PATH' not in os.environ:
-      return
-
-    ca_path = os.path.join(os.environ['TEST_CA_PATH'],
-                           self.__class__.__name__)
-
-    if os.path.exists(ca_path):
-      shutil.rmtree(ca_path)
-
-    os.mkdir(ca_path)
-    os.mkdir(os.path.join(ca_path, 'private'))
-    os.mkdir(os.path.join(ca_path, 'crl'))
-    os.mkdir(os.path.join(ca_path, 'certs'))
-    os.mkdir(os.path.join(ca_path, 'requests'))
-    os.mkdir(os.path.join(ca_path, 'newcerts'))
-
-    original_openssl_cnf = open(
-      os.path.join(os.environ['TEST_CA_PATH'], 'openssl.cnf'), "r").read()
-
-    openssl_cnf_with_updated_path = original_openssl_cnf.replace(
-            os.environ['TEST_CA_PATH'], ca_path)
-
-    # SlapOS Master requires unique subjects
-    openssl_cnf = openssl_cnf_with_updated_path.replace(
-            "unique_subject  = no", "unique_subject  = yes")
-
-    with open(os.path.join(ca_path, 'openssl.cnf'), "w") as f:
-      f.write(openssl_cnf)
-
-    shutil.copy(os.path.join(os.environ['TEST_CA_PATH'], 'cacert.pem'),
-            os.path.join(ca_path, 'cacert.pem'))
-
-    shutil.copy(os.path.join(os.environ['TEST_CA_PATH'], 'private', 'cakey.pem'),
-            os.path.join(ca_path, 'private', 'cakey.pem'))
-
-    # reset test CA to have it always count from 0
-    open(os.path.join(ca_path, 'serial'), 'w').write('01')
-    open(os.path.join(ca_path, 'crlnumber'), 'w').write('01')
-    open(os.path.join(ca_path, 'index.txt'), 'w').write('')
-    private_list = glob.glob('%s/*.key' % os.path.join(ca_path, 'private'))
-    for private in private_list:
-      os.remove(private)
-
-    crl_list = glob.glob('%s/*' % os.path.join(ca_path, 'crl'))
-    for crl in crl_list:
-      os.remove(crl)
-
-    certs_list = glob.glob('%s/*' % os.path.join(ca_path, 'certs'))
-    for cert in certs_list:
-      os.remove(cert)
-
-    newcerts_list = glob.glob('%s/*' % os.path.join(ca_path, 'newcerts'))
-    for newcert in newcerts_list:
-      os.remove(newcert)
-
-    self.portal.portal_certificate_authority.manage_editCertificateAuthorityTool(
-      certificate_authority_path=ca_path)
-
   def isLiveTest(self):
     #return 'ERP5TypeLiveTestCase' in [q.__name__ for q in self.__class__.mro()]
     # XXX - What is the better way to know if we are in live test mode ?
@@ -156,7 +95,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
 
     if self.isLiveTest():
       return
-    self.createCertificateAuthorityFile() 
     self.commit()
     self.portal.portal_caches.updateCache()
 

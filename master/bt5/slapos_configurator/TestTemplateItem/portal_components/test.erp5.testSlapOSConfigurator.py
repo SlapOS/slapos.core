@@ -23,8 +23,6 @@
 
 from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixin
-import os
-
 
 class TestSlapOSConfigurator(SlapOSTestCaseMixin):
 
@@ -63,17 +61,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       pref_tool.slapos_default_system_preference.SystemPreference_checkSystemPreferenceConsistency(),
       [])
 
-  def testConfiguredCertificateAuthoringConstraint(self):
-    """Make sure Certificate Authoring was configured well,
-       invoking checkConsistency.
-
-       Make sure PAS is well configured."""
-    # The certificate_authority_path is modified by the setup, invoke
-    # fixConsistency here to restore it like the originally expected.    
-    self.portal.portal_certificate_authority.fixConsistency()
-
-    self.assertEqual(self.portal.portal_certificate_authority.checkConsistency(), [])
-
   def testConfiguredTemplateToolViaConstraint(self):
     """ Make sure Template Tool Repositories was configured well,
         invoking checkConsistency """
@@ -95,24 +82,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     preference_tool = self.portal.portal_preferences
     conversion_url = ["https://cloudooo.erp5.net/"]
     self.assertEqual(preference_tool.getPreferredDocumentConversionServerUrlList(), conversion_url)
-
-  def testConfiguredCertificateAuthoring(self):
-    """ Make sure Certificate Authoting is
-        well configured. """
-
-    if self.isLiveTest():
-      # This test is redundant with testConfiguredVolatileCacheViaPromise
-      # and it is only aims to verify if test environment is behaving as
-      # expected, nothing else, and if alamrs were invoked.
-      return
-
-    # The certificate_authority_path is modified by the setup, invoke
-    # fixConsistency here to restore it like the originally expected.
-    self.portal.portal_certificate_authority.fixConsistency()
-
-    self.assertTrue(self.portal.hasObject('portal_certificate_authority'))
-    self.assertEqual(os.environ['TEST_CA_PATH'],
-          self.portal.portal_certificate_authority.certificate_authority_path)
 
   def testAlarmIsSubscribed(self):
     """ Make sure portal_alarms is subscribed. """

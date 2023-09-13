@@ -32,7 +32,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>CertificateAuthorityToolConsistencyConstraint</string> </value>
+            <value> <string>TemplateToolPASConsistencyConstraint</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>

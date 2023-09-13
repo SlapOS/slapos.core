@@ -74,52 +74,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
         setattr(self, step_name, makeCallAlarm(alarm))
     setattr(self, 'stepCallAlarmList', makeCallAlarmList(alarm_step_list))
 
-  def createCertificateAuthorityFile(self):
-    """Sets up portal_certificate_authority"""
-
-    ca_path = os.path.join(os.environ['TEST_CA_PATH'],
-          self.__class__.__module__, self.__class__.__name__)
-
-    if os.path.exists(ca_path):
-      shutil.rmtree(ca_path)
-
-    os.makedirs(ca_path, 0o700)
-    os.mkdir(os.path.join(ca_path, 'private'))
-    os.mkdir(os.path.join(ca_path, 'crl'))
-    os.mkdir(os.path.join(ca_path, 'certs'))
-    os.mkdir(os.path.join(ca_path, 'requests'))
-    os.mkdir(os.path.join(ca_path, 'newcerts'))
-
-    with open(os.path.join(os.environ['TEST_CA_PATH'], 'openssl.cnf'), "r") as f:
-      original_openssl_cnf = f.read()
-
-    openssl_cnf_with_updated_path = original_openssl_cnf.replace(
-            os.environ['TEST_CA_PATH'], ca_path)
-
-    # SlapOS Master requires unique subjects
-    openssl_cnf = openssl_cnf_with_updated_path.replace(
-            "unique_subject  = no", "unique_subject  = yes")
-
-    with open(os.path.join(ca_path, 'openssl.cnf'), "w") as f:
-      f.write(openssl_cnf)
-
-    shutil.copy(os.path.join(os.environ['TEST_CA_PATH'], 'cacert.pem'),
-            os.path.join(ca_path, 'cacert.pem'))
-
-    shutil.copy(os.path.join(os.environ['TEST_CA_PATH'], 'private', 'cakey.pem'),
-            os.path.join(ca_path, 'private', 'cakey.pem'))
-
-    # reset test CA to have it always count from 0
-    with open(os.path.join(ca_path, 'serial'), "w") as f:
-      f.write('01')
-    with open(os.path.join(ca_path, 'index.txt'), "w") as f:
-      f.write('01')
-    with open(os.path.join(ca_path, 'crlnumber'), "w") as f:
-      f.write('')
-
-    self.portal.portal_certificate_authority.manage_editCertificateAuthorityTool(
-      certificate_authority_path=ca_path)
-
   def isLiveTest(self):
     return 'TEST_CA_PATH' not in os.environ
 
@@ -142,9 +96,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
 
     if self.isLiveTest():
       return
-
-    if self.require_certificate:
-      self.createCertificateAuthorityFile()
 
     self.commit()
     self.portal.portal_caches.updateCache()

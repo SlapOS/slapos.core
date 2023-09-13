@@ -1,5 +1,4 @@
 Catalog Tool | CatalogToolNoneCreationDateConstraint
-Certificate Authority Tool | CertificateAuthorityToolConsistencyConstraint
 Contract Invitation Token | Reference
 Contract Invitation Token | SlapOSCloudContractAccounting
 Contract Invitation Token | Url
@@ -9,4 +8,5 @@ Invitation Token | Url
 OAuth Tool | OAuthToolDefaultSlapOSConnector
 Organisation | GeographicOrganisation
 Template Tool | TemplateToolBusinessApplicationModuleCategoryConstraint
+Template Tool | TemplateToolPASConsistencyConstraint
 Web Site Module | WebSiteModuleShacacheConstraint

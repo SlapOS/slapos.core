@@ -228,7 +228,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_base/Login_isLoginBlocked',
         'slapos_base/Login_isPasswordExpired',
         'slapos_base/Login_notifyPasswordExpire',
-        'slapos_erp5/CertificateAuthorityTool_checkCertificateAuthorityConsistency',
         'slapos_panel_compatibility/Base_getComputerToken',
         'slapos_panel_compatibility/Person_requestComputer',
         'slapos_panel/AllocationSupply_invalidateComputeNodeList',
@@ -370,7 +369,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_configurator/BusinessConfiguration_runPostUpgradeConsistency',
         'slapos_configurator/BusinessConfiguration_setupSlapOSMasterStandardBT5'
       ]
-
       SlapOSTestCaseMixin.afterSetUp(self)
 
     def getBusinessTemplateList(self):

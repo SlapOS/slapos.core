@@ -39,88 +39,16 @@ fi
 
 # Warn users who aren't on an explicitly supported distro, but allow them to
 # override check and attempt installation with ``export FORCE=yes``
-if [[ ! ${DISTRO} =~ (jessie|stretch|buster|bullseye|xenial|bionic|focal|jammy|Kylin-v10.|rhel7|Linuxmint-21.1) ]]; then
+if [[ ! ${DISTRO} =~ (stretch|buster|bullseye|bookworm|xenial|bionic|focal|jammy|Kylin-v10.|rhel7|Linuxmint-21.1) ]]; then
     echo "WARNING: this script has not been tested on $DISTRO"
     if [[ "$FORCE" != "yes" ]]; then
         die $LINENO "If you wish to run this script anyway run with FORCE=yes"
     fi
 fi
 
-# Make sure wheezy backports are available.
-if [[ $DISTRO == "wheezy" ]]; then
-    echo "deb http://archive.debian.org/debian wheezy-backports main contrib " > /etc/apt/sources.list.d/wheezy-backports.list
-fi
-
-if is_fedora && [[ $DISTRO =~ rhel7|f20|f19 ]]; then
-    # RHEL requires EPEL for many Ansible dependencies
-
-    # NOTE: We always remove and install latest -- some environments
-    # use snapshot images, and if EPEL version updates they break
-    # unless we update them to latest version.
-    if sudo yum repolist enabled epel | grep -q 'epel'; then
-        uninstall_package epel-release || true
-    fi
-
-    # This trick installs the latest epel-release from a bootstrap
-    # repo, then removes itself (as epel-release installed the
-    # "real" repo).
-    #
-    # You would think that rather than this, you could use
-    # $releasever directly in .repo file we create below.  However
-    # RHEL gives a $releasever of "6Server" which breaks the path;
-    # see https://bugzilla.redhat.com/show_bug.cgi?id=1150759
-    cat <<EOF | sudo tee /etc/yum.repos.d/epel-bootstrap.repo
-[epel-bootstrap]
-name=Bootstrap EPEL
-mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-7&arch=\$basearch
-failovermethod=priority
-enabled=0
-gpgcheck=0
-EOF
-    yum clean all
-    yum makecache
-    yum update -y
-    yum_install yum-utils
-    # Enable a bootstrap repo.  It is removed after finishing
-    # the epel-release installation.
-    yum-config-manager --enable epel-bootstrap
-    yum_install epel-release || \
-        die $LINENO "Error installing EPEL repo, cannot continue"
-    # EPEL rpm has installed it's version
-    rm -f /etc/yum.repos.d/epel-bootstrap.repo
-
-    # ... and also optional to be enabled
-    is_package_installed yum-utils || install_package yum-utils
-    yum-config-manager --enable rhel-7-server-optional-rpms
-
-fi
-
-if is_fedora && [[ $DISTRO == "rhel6" ]]; then
-    sed -i "/requiretty/d" /etc/sudoers
-    if sudo yum repolist enabled epel | grep -q 'epel'; then
-        uninstall_package epel-release || true
-    fi
-
-    cat <<EOF | sudo tee /etc/yum.repos.d/epel-bootstrap.repo
-[epel-bootstrap]
-name=Bootstrap EPEL
-mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-6&arch=\$basearch
-failovermethod=priority
-enabled=0
-gpgcheck=0
-EOF
-    yum update -y
-    yum_install yum-utils
-    yum-config-manager --enable epel-bootstrap
-    yum_install epel-release || \
-        die $LINENO "Error installing EPEL repo, cannot continue"
-    # EPEL rpm has installed it's version
-    rm -f /etc/yum.repos.d/epel-bootstrap.repo
-
-    is_package_installed yum-utils || install_package yum-utils
-    yum-config-manager --enable rhel-6-server-optional-rpms
-
-    is_package_installed libselinux-python || install_package libselinux-python
+# Starting from Debian 12, we need this variable to install eggs with pip at system level
+if [[ "$os_VENDOR" =~ (Debian) && "$os_RELEASE" > 11 ]]; then
+  export PIP_BREAK_SYSTEM_PACKAGES=1
 fi
 
 is_package_installed unzip || install_package unzip

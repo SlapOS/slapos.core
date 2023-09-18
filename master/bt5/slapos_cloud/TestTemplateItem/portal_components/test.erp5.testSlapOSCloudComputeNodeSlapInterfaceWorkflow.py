@@ -27,6 +27,9 @@ from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
 
 
 class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
+  
+  launch_caucase = 1
+
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     # Clone compute_node document
@@ -791,8 +794,6 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
 
 
 class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
-
-
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     portal = self.getPortalObject()

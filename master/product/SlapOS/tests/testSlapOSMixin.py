@@ -30,6 +30,7 @@ import random
 import transaction
 import unittest
 from Products.ERP5Type.tests.ERP5TypeTestCase import ERP5TypeTestCase
+from Products.ERP5Type.tests.ERP5TypeCaucaseTestCase import ERP5TypeCaucaseTestCase
 from Products.ERP5Type.Utils import convertToUpperCase
 import os
 import glob
@@ -40,9 +41,10 @@ from App.config import getConfiguration
 
 config = getConfiguration()
 
-class testSlapOSMixin(ERP5TypeTestCase):
+class testSlapOSMixin(ERP5TypeCaucaseTestCase):
 
   abort_transaction = 0
+  launch_caucase = 0
 
   def clearCache(self):
     self.portal.portal_caches.clearAllCache()
@@ -86,6 +88,8 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.portal.email_from_address = 'romain@nexedi.com'
     self.portal.email_to_address = 'romain@nexedi.com'
 
+    if not self.isLiveTest() and self.launch_caucase:
+      self.setUpCaucase()
 
     if getattr(self.portal.portal_caches, 'erp5_site_global_id', None):
       # we are not on live test so multiple tests can run in parallel
@@ -93,8 +97,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
       self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
       self.portal.portal_caches._p_changed = 1
 
-    if self.isLiveTest():
-      return
     self.commit()
     self.portal.portal_caches.updateCache()
 

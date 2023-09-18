@@ -1075,6 +1075,7 @@ class TestSlapOSRegularisationRequest_stopInstanceTreeList(
 class TestSlapOSInstanceTree_stopFromRegularisationRequest(
                                                           SlapOSTestCaseMixinWithAbort):
 
+  launch_caucase = 1
   def createInstanceTree(self):
     new_id = self.generateNewId()
     instance_tree = self.portal.instance_tree_module\

@@ -104,6 +104,8 @@ class TestCRMSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
 class TestSlapOSSupportRequestModule_getMonitoringUrlList(TestCRMSkinsMixin):
 
+  launch_caucase = 1
+
   def test_SupportRequestModule_getMonitoringUrlList(self):
     module = self.portal.support_request_module
     # We assume here that several objects created by others tests don't influentiate
@@ -332,6 +334,8 @@ class TestSlapOSisSupportRequestCreationClosed(TestCRMSkinsMixin):
 
 
 class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
+
+  launch_caucase = 1
 
   def beforeTearDown(self):
     self._cancelTestSupportRequestList()
@@ -634,6 +638,8 @@ class TestSlapOSInstanceTree_createSupportRequestEvent(SlapOSTestCaseMixin):
          instance_tree, "test-slapos-crm-check.notification"))
 
 class TestSlapOSHasError(SlapOSTestCaseMixin):
+
+  launch_caucase = 1
 
   def _makeSoftwareRelease(self, software_release_url=None):
     software_release = self.portal.software_release_module\

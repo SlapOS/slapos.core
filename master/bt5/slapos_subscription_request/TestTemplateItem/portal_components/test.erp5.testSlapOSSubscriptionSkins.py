@@ -637,6 +637,8 @@ class TestSubscriptionRequest_createRelatedSaleInvoiceTransaction(TestSubscripti
 
 class SubscriptionRequest_processRequest(TestSubscriptionSkinsMixin):
 
+  launch_caucase = 1
+
   def test_process_request_person_is_none(self):
     subscription_request = self.newSubscriptionRequest(quantity=1)
     self.assertEqual(None, subscription_request.SubscriptionRequest_processRequest())
@@ -1053,6 +1055,8 @@ class TestSubscriptionRequest_verifyReservationPaymentTransaction(TestSubscripti
     self._test_cancel_due_sale_invoice_state(state="deleted")
 
 class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
+
+  launch_caucase = 1
 
   def test_no_sale_invoice(self):
     person = self.makePerson()

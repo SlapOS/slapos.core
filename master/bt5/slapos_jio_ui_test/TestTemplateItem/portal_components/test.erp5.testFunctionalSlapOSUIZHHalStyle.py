@@ -32,6 +32,7 @@ from Products.ERP5Type.tests.ERP5TypeFunctionalTestCase import ERP5TypeFunctiona
 class TestSlapOSUIZHHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
   foreground = 0
   run_only = "slaposjs_zuite"
+  launch_caucase = 1
 
   def afterSetUp(self):
     ERP5TypeFunctionalTestCase.afterSetUp(self)

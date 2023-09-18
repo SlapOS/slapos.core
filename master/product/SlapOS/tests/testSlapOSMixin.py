@@ -30,6 +30,7 @@ import random
 import transaction
 import unittest
 from Products.ERP5Type.tests.ERP5TypeTestCase import ERP5TypeTestCase
+from Products.ERP5Type.tests.CaucaseTestCase import CaucaseTestCase
 from Products.ERP5Type.tests.utils import DummyMailHost
 from Products.ERP5Type.Utils import convertToUpperCase
 import os
@@ -41,9 +42,10 @@ from App.config import getConfiguration
 
 config = getConfiguration()
 
-class testSlapOSMixin(ERP5TypeTestCase):
+class testSlapOSMixin(CaucaseTestCase, ERP5TypeTestCase):
 
   abort_transaction = 0
+  launch_caucase = 0
 
   def clearCache(self):
     self.portal.portal_caches.clearAllCache()
@@ -116,10 +118,11 @@ class testSlapOSMixin(ERP5TypeTestCase):
   def afterSetUp(self):
     self.login()
     self.createAlarmStep()
-
     if self.isLiveTest():
       self.setUpPersistentDummyMailHost()
       return
+    if self.launch_caucase:
+      self.setUpCaucase()
     self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
     self.portal.portal_caches._p_changed = 1
     self.commit()

@@ -23,6 +23,9 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 from erp5.component.test.testSlapOSAccountingAlarm import simulateByEditWorkflowMark
 
 class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(SlapOSTestCaseMixin):
+
+  launch_caucase = 1
+  
   def createInstance(self, url_string):
     instance_tree = self.portal.instance_tree_module\
         .template_instance_tree.Base_createCloneDocument(batch_mode=1)
@@ -110,8 +113,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
         aggregate=compute_node.getRelativeUrl())
     published_software_installation.validate()
     published_software_installation.requestStart()
-
-
     self.tic()
     
     # first run touches software installation
@@ -195,8 +196,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
         aggregate=compute_node.getRelativeUrl())
     published_software_installation.validate()
     published_software_installation.requestStart()
-
-
     self.tic()
     
     # as Compute Node is manually managed, nothing happens

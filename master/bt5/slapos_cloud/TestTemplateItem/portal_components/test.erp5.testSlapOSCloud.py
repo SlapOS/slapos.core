@@ -44,6 +44,8 @@ def hashData(data):
 class TestSlapOSCloudSlapOSCacheMixin(
     SlapOSTestCaseMixin):
 
+  launch_caucase = 1
+
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self.pinDateTime(DateTime())
@@ -365,6 +367,8 @@ class TestSlapOSCloudSlapOSCacheMixin(
 
 class TestSlapOSCloudSoftwareInstance(
     SlapOSTestCaseMixin):
+
+  launch_caucase = 1
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)

@@ -1504,6 +1504,8 @@ return []""")
 
 class TestSoftwareInstance_getAllocationInformation(TestSlapOSHalJsonStyleMixin): 
 
+  launch_caucase = 1
+
   def test_SoftwareInstance_getAllocationInformation_not_allocated(self):
     self._makeTree()
     self.changeSkin('RJS')

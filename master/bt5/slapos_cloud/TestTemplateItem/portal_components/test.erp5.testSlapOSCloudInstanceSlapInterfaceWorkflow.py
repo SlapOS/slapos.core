@@ -27,6 +27,8 @@ from zExceptions import Unauthorized
 class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
   """Tests instance.requestInstance"""
 
+  launch_caucase = 1
+
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     portal = self.getPortalObject()

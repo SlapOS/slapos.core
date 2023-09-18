@@ -27,6 +27,8 @@ from zExceptions import Unauthorized
 class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
   """Tests instance.requestInstance"""
 
+  launch_caucase = 1
+
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     portal = self.getPortalObject()
@@ -865,6 +867,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
 class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
   """Tests instance.requestTransfer"""
+  launch_caucase = 1
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
@@ -1223,5 +1226,4 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
       another_certificate_login.getReference())
     self.assertNotEqual(certificate_login.getDestinationReference(),
       another_certificate_login.getDestinationReference())
-
 

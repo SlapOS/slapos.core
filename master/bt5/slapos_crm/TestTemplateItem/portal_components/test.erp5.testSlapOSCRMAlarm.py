@@ -1031,6 +1031,7 @@ class TestSlapOSCrmStopInstanceTree(SlapOSTestCaseMixinWithAbort):
 
 
 class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
+  launch_caucase = 1
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -1252,6 +1253,7 @@ class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
 
 
 class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort):
+  launch_caucase = 1
 
   #################################################################
   # slapos_crm_check_compute_node_state
@@ -1528,6 +1530,8 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
 
 class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCaseMixinWithAbort):
 
+  launch_caucase = 1
+
   #################################################################
   # slapos_crm_check_software_installation_state
   #################################################################
@@ -1770,6 +1774,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
 
 
 class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
+  launch_caucase = 1
 
   def _makeInstanceTree(self):
     person = self.portal.person_module\

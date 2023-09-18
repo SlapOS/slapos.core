@@ -44,6 +44,8 @@ def hashData(data):
 class TestSlapOSCloudSlapOSCacheMixin(
     SlapOSTestCaseMixin):
 
+  launch_caucase = 1
+
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self.pinDateTime(DateTime())
@@ -375,6 +377,8 @@ class TestSlapOSCloudSlapOSCacheMixin(
 class TestSlapOSCloudSoftwareInstance(
     SlapOSTestCaseMixin):
 
+  launch_caucase = 1
+
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self.project = self.addProject()
@@ -496,6 +500,7 @@ class TestSlapOSCloudSoftwareInstance(
 
 class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
       SlapOSTestCaseMixin):
+  launch_caucase = 1
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
@@ -704,5 +709,4 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
     self.assertEqual(fourth_etag, etag)
     self.assertEqual(fourth_body_fingerprint, hashData(body))
     self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
-
 

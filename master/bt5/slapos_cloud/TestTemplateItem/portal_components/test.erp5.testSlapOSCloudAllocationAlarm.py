@@ -6,6 +6,8 @@ from unittest import skip
 
 class TestSlapOSAllocation(SlapOSTestCaseMixin):
 
+  launch_caucase = 1
+
   def makeAllocableComputeNode(self, project, software_product,
                                release_variation, type_variation):
     with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):

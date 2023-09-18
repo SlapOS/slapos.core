@@ -105,9 +105,12 @@ class TestCRMSkinsMixin(SlapOSTestCaseMixinWithAbort):
     return software_installation
 
 class TestSlapOSSupportRequestModule_getMonitoringUrlList(TestCRMSkinsMixin):
+  launch_caucase = 1
 
   def test_SupportRequestModule_getMonitoringUrlList(self):
     module = self.portal.support_request_module
+    # Tic to ensure caucase is indexed
+    self.tic()
     # We assume here that several objects created by others tests don't influentiate
     # this test.
     self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])

@@ -18,12 +18,13 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
-  string_escape
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 from erp5.component.document.SoftwareInstance import SoftwareInstance, \
   DisconnectedSoftwareTree, CyclicSoftwareTree
+from Products.ERP5Type.Utils import str2unicode
 import transaction
-
+from cryptography import x509
+from cryptography.x509.oid import NameOID
 
 class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
   """Tests instance.requestInstance"""
@@ -1146,7 +1147,6 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
     self.software_instance.generateCertificate()
     self.assertNotEqual(self.software_instance.getSslKey(), None)
     self.assertNotEqual(self.software_instance.getSslCertificate(), None)
-    self.assertEqual(self.software_instance.getDestinationReference(), None)
 
     certificate_login_list = self.software_instance.objectValues(portal_type="Certificate Login")
     self.assertEqual(len(certificate_login_list), 1)
@@ -1154,11 +1154,11 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
 
     self.assertEqual(certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(certificate_login.getReference(), None)
-    self.assertNotEqual(certificate_login.getDestinationReference(), None)
-    serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
-    self.assertIn(serial, self.software_instance.getSslCertificate())
-    self.assertIn(certificate_login.getReference(), \
-       string_escape(self.software_instance.getSslCertificate()))
+    self.assertNotEqual(certificate_login.getCsrId(), None)
+    ssl_certificate = x509.load_pem_x509_certificate(self.software_instance.getSslCertificate())
+    self.assertEqual(len(ssl_certificate.subject), 2)
+    cn = [i.value for i in ssl_certificate.subject if i.oid == NameOID.COMMON_NAME][0]
+    self.assertEqual(str2unicode(certificate_login.getReference()), cn)
     self.assertRaises(ValueError, self.software_instance.generateCertificate)
 
   def test_revokeCertificate(self):
@@ -1187,7 +1187,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
     certificate_login = certificate_login_list[0]
     self.assertEqual(certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(certificate_login.getReference(), None)
-    self.assertNotEqual(certificate_login.getDestinationReference(), None)
+    self.assertNotEqual(certificate_login.getCsrId(), None)
 
     self.assertNotEqual(self.software_instance.getSslKey(),
       ssl_key)
@@ -1214,12 +1214,11 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
 
     self.assertEqual(another_certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(another_certificate_login.getReference(), None)
-    self.assertNotEqual(another_certificate_login.getDestinationReference(), None)
+    self.assertNotEqual(another_certificate_login.getCsrId(), None)
 
     self.assertEqual(certificate_login.getValidationState(), 'invalidated')
     self.assertNotEqual(certificate_login.getReference(),
       another_certificate_login.getReference())
-    self.assertNotEqual(certificate_login.getDestinationReference(),
-      another_certificate_login.getDestinationReference())
-
+    self.assertNotEqual(certificate_login.getCsrId(),
+      another_certificate_login.getCsrId())
 

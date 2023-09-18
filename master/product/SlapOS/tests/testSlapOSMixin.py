@@ -28,6 +28,7 @@
 
 import unittest
 from Products.ERP5Type.tests.ERP5TypeTestCase import ERP5TypeTestCase
+from Products.ERP5Type.tests.ERP5TypeCaucaseTestCase import ERP5TypeCaucaseTestCase
 from Products.ERP5Type.Utils import convertToUpperCase
 import os
 import glob
@@ -38,7 +39,7 @@ from App.config import getConfiguration
 
 config = getConfiguration()
 
-class testSlapOSMixin(ERP5TypeTestCase):
+class testSlapOSMixin(ERP5TypeCaucaseTestCase):
 
   require_certificate = 0
 
@@ -91,8 +92,8 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.portal.email_from_address = 'romain@nexedi.com'
     self.portal.email_to_address = 'romain@nexedi.com'
 
-    if self.isLiveTest():
-      return
+    if not self.isLiveTest() and self.require_certificate:
+      self.setUpCaucase()
 
     self.commit()
     self.portal.portal_caches.updateCache()

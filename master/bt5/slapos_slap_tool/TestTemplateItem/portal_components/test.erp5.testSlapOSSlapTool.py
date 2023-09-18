@@ -41,6 +41,7 @@ class Simulator:
     open(self.outfile, 'w').write(repr(l))
 
 class TestSlapOSSlapToolMixin(SlapOSTestCaseMixin):
+  launch_caucase = 1
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self.portal_slap = self.portal.portal_slap

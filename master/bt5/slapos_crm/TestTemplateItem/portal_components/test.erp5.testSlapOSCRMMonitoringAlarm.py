@@ -603,6 +603,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeProjectState(TestSlapOSCrmMonitorin
 
 class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin):
 
+  launch_caucase = 1
   ##########################################################################
   # ComputeNode_checkProjectMontoringState > ComputeNode_checkMonitoringState
   ##########################################################################

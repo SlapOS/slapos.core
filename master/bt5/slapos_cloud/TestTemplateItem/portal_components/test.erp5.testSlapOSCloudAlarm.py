@@ -9,6 +9,8 @@ from erp5.component.module.DateUtils import addToDate
 class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(
     SlapOSTestCaseMixin):
 
+  launch_caucase = 1
+  
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self._makeTree()
@@ -219,6 +221,8 @@ class TestSlapOSFreeComputePartitionAlarmWithSlave(SlapOSTestCaseMixin):
 
 
 class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
+
+  launch_caucase = 1
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
@@ -528,6 +532,8 @@ class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
 
 class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
 
+  launch_caucase = 1
+
   def createInstance(self):
     instance_tree = self.portal.instance_tree_module\
         .template_instance_tree.Base_createCloneDocument(batch_mode=1)
@@ -612,6 +618,8 @@ class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
     )
 
 class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
+
+  launch_caucase = 1
 
   def createInstance(self):
     instance_tree = self.portal.instance_tree_module\
@@ -849,6 +857,8 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 
 
 class TestSlapOSGarbageCollectUnlinkedInstanceAlarm(SlapOSTestCaseMixin):
+
+  launch_caucase = 1
 
   def createInstance(self):
     instance_tree = self.portal.instance_tree_module\

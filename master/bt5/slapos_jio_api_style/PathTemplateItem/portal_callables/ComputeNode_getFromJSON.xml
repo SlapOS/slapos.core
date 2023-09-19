@@ -45,40 +45,23 @@
   "title": "Get Compute Node",\n
   "description": "Data necessary to get Compute Node",\n
   "type": "object",\n
-  "oneOf": [\n
-    {\n
-      "properties": {\n
-        "compute_node_id": {\n
-          "title": "Compute Node ID",\n
-          "type": "string",\n
-          "description": "The Id of the compute node, example: COMP-1234"\n
-        },\n
-        "portal_type": {\n
-          "title": "Portal Type",\n
-          "const": "Compute Node",\n
-          "type": "string"\n
-        }\n
-      },\n
-      "required": [\n
-        "compute_node_id",\n
-        "portal_type"\n
-      ]\n
+  "properties": {\n
+    "compute_node_id": {\n
+      "title": "Compute Node ID",\n
+      "type": "string",\n
+      "description": "The Id of the compute node, example: COMP-1234"\n
     },\n
-    {\n
-      "properties": {\n
-        "id": {\n
-          "title": "ID",\n
-          "type": "string",\n
-          "description": "Unique Id of the object. This ID is defined by KD Portal. It is not editable."\n
-        }\n
-      },\n
-      "required": [\n
-        "id"\n
-      ]\n
+    "portal_type": {\n
+      "title": "Portal Type",\n
+      "const": "Compute Node",\n
+      "type": "string"\n
     }\n
+  },\n
+  "required": [\n
+    "compute_node_id",\n
+    "portal_type"\n
   ]\n
-}\n
-</string> </value>
+}</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>

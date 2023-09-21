@@ -618,7 +618,7 @@ class TestPerson_get_Certificate(TestSlapOSHalJsonStyleMixin):
 
     self.assertSameSet(response_dict.keys(), ["common_name", "certificate", "id", "key"])
 
-    self.assertEqual(response_dict["id"], login.getDestinationReference())
+    self.assertEqual(response_dict["id"], login.getSourceReference())
     self.assertEqual(json.dumps(response_dict["common_name"]), json.dumps(login.getReference()))
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
 
@@ -632,7 +632,7 @@ class TestPerson_get_Certificate(TestSlapOSHalJsonStyleMixin):
     self.assertEqual("validated" , login.getValidationState())
     self.assertEqual("validated" , new_login.getValidationState())
     self.assertNotEqual(login.getReference(), new_login.getReference())
-    self.assertNotEqual(login.getDestinationReference(), new_login.getDestinationReference())
+    self.assertNotEqual(login.getSourceReference(), new_login.getSourceReference())
 
     self.assertSameSet(new_response_dict.keys(), ["common_name", "certificate", "id", "key"])
     self.assertEqual(json.dumps(new_response_dict["common_name"]), json.dumps(new_login.getReference()))

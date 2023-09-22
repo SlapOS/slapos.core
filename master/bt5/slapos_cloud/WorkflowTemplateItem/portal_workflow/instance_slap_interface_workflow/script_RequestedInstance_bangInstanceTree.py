@@ -2,7 +2,7 @@ from DateTime import DateTime
 instance = state_change['object']
 assert instance.getPortalType() in ["Slave Instance", "Software Instance"]
 
-instance.edit(bang_timestamp=int(DateTime()))
+instance.edit(bang_timestamp=int(float(DateTime()) * 1e6))
 key = "%s_bangstamp" % instance.getReference()
 instance.setLastData(key, str(int(instance.getModificationDate())))
 

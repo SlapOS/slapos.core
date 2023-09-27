@@ -141,19 +141,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.commit()
     self.launchConfigurator()
 
-  def updateInitSite(self):
-    self.portal.portal_caches.updateCache()
-    try:
-      initsite = config.product_config["initsite"]
-    except KeyError:
-      initsite = {}
-
-    if initsite.get("cloudooo_url", None) is None:
-      initsite["cloudooo_url"] = "https://cloudooo.erp5.net" 
-
-    config.product_config["initsite"] = initsite
-    self.commit()
-
   def afterSetUp(self):
     self.login()
     self.createAlarmStep()
@@ -171,7 +158,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
       return
     self.createCertificateAuthorityFile() 
     self.commit()
-    self.updateInitSite()
 
   def getBusinessConfiguration(self):
     return self.portal.business_configuration_module[\
@@ -180,7 +166,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
   def launchConfigurator(self):
     self.logMessage('SlapOS launchConfigurator ...\n')
     self.login()
-    self.updateInitSite()
     # Create new Configuration 
     business_configuration  = self.getBusinessConfiguration()
 

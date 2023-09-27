@@ -9,18 +9,15 @@ if context.getId() == "slapos_default_system_preference" and context.getPreferen
 if context.getPreferenceState() != "global":
   return []
 
-portal = context.getPortalObject()
-system_preference = context
-expected_url = portal.ERP5Site_getConfigurationCloudoooUrl()
-url = system_preference.getPreferredDocumentConversionServerUrl()
+url = context.getPreferredDocumentConversionServerUrlList()
 
-if expected_url != url:
+if not url:
   fixing = ''
   if fixit:
-    system_preference.setPreferredDocumentConversionServerUrl(expected_url)
-    fixing = ' (fixed)'
+    # Set some value if no value is set.
+    context.setPreferredDocumentConversionServerUrlList(['https://cloudooo1.erp5.net/', 'https://cloudooo.erp5.net/'])
+    fixing = ' (fixed, set https://cloudooo1.erp5.net/ and https://cloudooo.erp5.net/)'
   
-  error_log.append("Conversion Server not configured as expected%s: %s" %
-    (fixing, "Expect %s\nGot %s" % (expected_url, url)))
+  error_log.append("Conversion Server is not configured. " % fixing)
 
 return error_log

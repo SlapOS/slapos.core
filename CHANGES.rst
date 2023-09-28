@@ -1,6 +1,16 @@
 Changes
 =======
 
+1.10.3 (2023-09-28)
+-------------------
+* slap/standalone: Fix format with 0 partitions
+* slapos/grid: Improve logging regarding networkcache
+* slapos/testing: Improve software checks
+* slap/standalone: Improve slapos partition formatting
+* slapos/testing: Add utils for IPv6-range-aware tests
+* cli/slapgrid: Abort before connecting to master when a process is already running
+* slapgrid: Fix offline instance processing
+
 1.10.2 (2023-07-07)
 -------------------
  * slap/standalone: Increase slapos error log size

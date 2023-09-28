@@ -15,4 +15,5 @@ ${slapos_install_content}
 clear
 
 echo "Starting Ansible playbook:"
-ansible-playbook ors.yml -i hosts --connection=local
+mkdir /opt/upgrader
+flock -n /opt/upgrader/ansible.lock -c "ansible-playbook ors.yml -i hosts --connection=local"

@@ -1,7 +1,6 @@
 PreferenceSlapOSConstraintPreference
 CertificateAuthorityToolConsistencyConstraint
 SlapOSModuleIdGeneratorConstraint
-MemcachedToolServerConstraint
 GeographicOrganisation
 WebSiteModuleShacacheConstraint
 ShacacheSystemPreference

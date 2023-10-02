@@ -424,7 +424,7 @@ def _readAsJson(url):
         return None
   if url.startswith('http://') or url.startswith('https://'):
     try:
-      r = requests.get(url)
+      r = requests.get(url, timeout=60) # we need a timeout !
       r.raise_for_status()
       return r.json()
     except (requests.exceptions.RequestException, ValueError):

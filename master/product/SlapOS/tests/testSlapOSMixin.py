@@ -171,11 +171,15 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.login()
     self.createAlarmStep()
 
+    if getattr(self.portal.portal_caches, 'erp5_site_global_id', None):
+      # we are not on live test so multiple tests can run in parallel
+      # so ensure that each start tests from scratch
+      self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
+      self.portal.portal_caches._p_changed = 1
+
     if self.isLiveTest():
       self.setUpPersistentDummyMailHost()
       return
-    self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
-    self.portal.portal_caches._p_changed = 1
     self.createCertificateAuthorityFile() 
     self.commit()
     self.updateInitSite()

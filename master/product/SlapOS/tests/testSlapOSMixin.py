@@ -147,12 +147,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
     if self.abort_transaction:
       transaction.abort()
 
-  def getUserFolder(self):
-    """
-    Return the user folder
-    """
-    return getattr(self.getPortal(), 'acl_users', None)
-
   def setUpOnce(self):
     self.commit()
     self.portal.portal_templates.updateRepositoryBusinessTemplateList(
@@ -162,7 +156,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
 
   def updateInitSite(self):
     self.portal.portal_caches.updateCache()
-
     try:
       initsite = config.product_config["initsite"]
     except KeyError:

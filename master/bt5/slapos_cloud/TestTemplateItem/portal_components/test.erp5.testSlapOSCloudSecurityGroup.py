@@ -55,7 +55,7 @@ class TestSlapOSSecurityMixin(SlapOSTestCaseMixin):
     """Checks that a user with login and password exists and can log in to the
     system.
     """
-    uf = self.getUserFolder()
+    uf = self.portal.acl_users
     self.assertNotEqual(uf.getUserById(user_id, None), None)
     for _, plugin in uf._getOb('plugins').listPlugins(
                                 IAuthenticationPlugin ):
@@ -72,7 +72,7 @@ class TestSlapOSSecurityMixin(SlapOSTestCaseMixin):
     """Checks that a user with login and password does not exists and cannot
     log in to the system.
     """
-    uf = self.getUserFolder()
+    uf = self.portal.acl_users
     for plugin_name, plugin in uf._getOb('plugins').listPlugins(
                               IAuthenticationPlugin ):
       if plugin.authenticateCredentials(

@@ -30,7 +30,6 @@ import random
 import transaction
 import unittest
 from Products.ERP5Type.tests.ERP5TypeTestCase import ERP5TypeTestCase
-from Products.ERP5Type.tests.utils import DummyMailHost
 from Products.ERP5Type.Utils import convertToUpperCase
 import os
 import glob
@@ -131,19 +130,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
     # XXX - What is the better way to know if we are in live test mode ?
     return not os.environ.has_key('TEST_CA_PATH')
 
-  def _setUpDummyMailHost(self):
-    """Do not play with NON persistent replacement of MailHost"""
-    if not self.isLiveTest():
-      ERP5TypeTestCase._setUpDummyMailHost(self)
-
-  def _restoreMailHost(self):
-    """Do not play with NON persistent replacement of MailHost"""
-    if not self.isLiveTest():
-      ERP5TypeTestCase._restoreMailHost(self)
-
   def beforeTearDown(self):
-    if self.isLiveTest():
-      self.deSetUpPersistentDummyMailHost()
     if self.abort_transaction:
       transaction.abort()
 
@@ -170,6 +157,9 @@ class testSlapOSMixin(ERP5TypeTestCase):
   def afterSetUp(self):
     self.login()
     self.createAlarmStep()
+    self.portal.email_from_address = 'romain@nexedi.com'
+    self.portal.email_to_address = 'romain@nexedi.com'
+
 
     if getattr(self.portal.portal_caches, 'erp5_site_global_id', None):
       # we are not on live test so multiple tests can run in parallel
@@ -178,25 +168,10 @@ class testSlapOSMixin(ERP5TypeTestCase):
       self.portal.portal_caches._p_changed = 1
 
     if self.isLiveTest():
-      self.setUpPersistentDummyMailHost()
       return
     self.createCertificateAuthorityFile() 
     self.commit()
     self.updateInitSite()
-
-  def deSetUpPersistentDummyMailHost(self):
-    if 'MailHost' in self.portal.objectIds():
-      self.portal.manage_delObjects(['MailHost'])
-    self.portal.manage_addProduct['MailHost'].manage_addMailHost('MailHost')
-    self.commit()
-
-  def setUpPersistentDummyMailHost(self):
-    if 'MailHost' in self.portal.objectIds():
-      self.portal.manage_delObjects(['MailHost'])
-    self.portal._setObject('MailHost', DummyMailHost('MailHost'))
-
-    self.portal.email_from_address = 'romain@nexedi.com'
-    self.portal.email_to_address = 'romain@nexedi.com'
 
   def getBusinessConfiguration(self):
     return self.portal.business_configuration_module[\

@@ -93,15 +93,24 @@ class CompleteCommand(cliff.complete.CompleteCommand):
 # completions for slapos command generated with `slapos complete --shell=fish`
 
 function __fish_print_slapos_services
+  eval ( commandline -o | head -1 ) service list | jq -r 'to_entries[] | "\(.key)\t\(.value)"'
+end
+
+function __fish_print_slapos_node_services
+  echo all\\tAll services
+  eval ( commandline -o | head -1 ) node supervisorctl status | sed -e 's/ /\t/'
+end
+
+function __fish_print_slapos_node_services
   echo all\\tAll services
   eval ( commandline -o | head -1 ) node supervisorctl status | sed -e 's/ /\t/'
 end
 
 # complete installed softwares for slapos node software --only-sr
-function __fish_print_slapos_softwares
+function __fish_print_slapos_node_softwares
   eval ( commandline -o | head -1 ) proxy show --software | tail -n +6 | grep available | awk '{print $4"\\t"$1}'
 end
-complete -c slapos  -n '__fish_seen_subcommand_from node; and __fish_seen_subcommand_from software; and __fish_contains_opt only-sr only' -f -a '(__fish_print_slapos_softwares)'
+complete -c slapos  -n '__fish_seen_subcommand_from node; and __fish_seen_subcommand_from software; and __fish_contains_opt only-sr only' -f -a '(__fish_print_slapos_node_softwares)'
 
 # complete busy partitions for slapos node instance --only-cp
 function __fish_print_slapos_partitions
@@ -174,6 +183,21 @@ complete -c slapos  -n '__fish_seen_subcommand_from node; and __fish_seen_subcom
           output_action(action, cmd_name.split(' '))
 
         if cmd_name in (
+            'service info',
+          ):
+          base_cmd, sub_cmd = cmd_name.split(' ')
+          self.app.stdout.write(
+            "complete -c {slapos} -f "
+            " -n '__fish_seen_subcommand_from {base_cmd}; and __fish_seen_subcommand_from {sub_cmd}' "
+            " -a '(__fish_print_slapos_services)'\n".format(
+                slapos=self.app.NAME,
+                base_cmd=base_cmd,
+                sub_cmd=sub_cmd,
+                cmd_description=cmd_description,
+            )
+          )
+
+        if cmd_name in (
             'node restart',
             'node start',
             'node status',
@@ -184,7 +208,7 @@ complete -c slapos  -n '__fish_seen_subcommand_from node; and __fish_seen_subcom
           self.app.stdout.write(
             "complete -c {slapos} -f "
             " -n '__fish_seen_subcommand_from {base_cmd}; and __fish_seen_subcommand_from {sub_cmd}' "
-            " -a '(__fish_print_slapos_services)'\n".format(
+            " -a '(__fish_print_slapos_node_services)'\n".format(
                 slapos=self.app.NAME,
                 base_cmd=base_cmd,
                 sub_cmd=sub_cmd,

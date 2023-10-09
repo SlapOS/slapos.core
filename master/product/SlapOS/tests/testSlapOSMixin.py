@@ -30,7 +30,6 @@ import random
 import transaction
 import unittest
 from Products.ERP5Type.tests.ERP5TypeTestCase import ERP5TypeTestCase
-from Products.ERP5Type.tests.utils import DummyMailHost
 from Products.ERP5Type.Utils import convertToUpperCase
 import os
 import glob
@@ -131,27 +130,9 @@ class testSlapOSMixin(ERP5TypeTestCase):
     # XXX - What is the better way to know if we are in live test mode ?
     return not os.environ.has_key('TEST_CA_PATH')
 
-  def _setUpDummyMailHost(self):
-    """Do not play with NON persistent replacement of MailHost"""
-    if not self.isLiveTest():
-      ERP5TypeTestCase._setUpDummyMailHost(self)
-
-  def _restoreMailHost(self):
-    """Do not play with NON persistent replacement of MailHost"""
-    if not self.isLiveTest():
-      ERP5TypeTestCase._restoreMailHost(self)
-
   def beforeTearDown(self):
-    if self.isLiveTest():
-      self.deSetUpPersistentDummyMailHost()
     if self.abort_transaction:
       transaction.abort()
-
-  def getUserFolder(self):
-    """
-    Return the user folder
-    """
-    return getattr(self.getPortal(), 'acl_users', None)
 
   def setUpOnce(self):
     self.commit()
@@ -160,46 +141,23 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.commit()
     self.launchConfigurator()
 
-  def updateInitSite(self):
-    self.portal.portal_caches.updateCache()
-
-    try:
-      initsite = config.product_config["initsite"]
-    except KeyError:
-      initsite = {}
-
-    if initsite.get("cloudooo_url", None) is None:
-      initsite["cloudooo_url"] = "https://cloudooo.erp5.net" 
-
-    config.product_config["initsite"] = initsite
-    self.commit()
-
   def afterSetUp(self):
     self.login()
     self.createAlarmStep()
-
-    if self.isLiveTest():
-      self.setUpPersistentDummyMailHost()
-      return
-    self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
-    self.portal.portal_caches._p_changed = 1
-    self.createCertificateAuthorityFile() 
-    self.commit()
-    self.updateInitSite()
-
-  def deSetUpPersistentDummyMailHost(self):
-    if 'MailHost' in self.portal.objectIds():
-      self.portal.manage_delObjects(['MailHost'])
-    self.portal.manage_addProduct['MailHost'].manage_addMailHost('MailHost')
-    self.commit()
-
-  def setUpPersistentDummyMailHost(self):
-    if 'MailHost' in self.portal.objectIds():
-      self.portal.manage_delObjects(['MailHost'])
-    self.portal._setObject('MailHost', DummyMailHost('MailHost'))
-
     self.portal.email_from_address = 'romain@nexedi.com'
     self.portal.email_to_address = 'romain@nexedi.com'
+
+
+    if getattr(self.portal.portal_caches, 'erp5_site_global_id', None):
+      # we are not on live test so multiple tests can run in parallel
+      # so ensure that each start tests from scratch
+      self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
+      self.portal.portal_caches._p_changed = 1
+
+    if self.isLiveTest():
+      return
+    self.createCertificateAuthorityFile() 
+    self.commit()
 
   def getBusinessConfiguration(self):
     return self.portal.business_configuration_module[\
@@ -208,7 +166,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
   def launchConfigurator(self):
     self.logMessage('SlapOS launchConfigurator ...\n')
     self.login()
-    self.updateInitSite()
     # Create new Configuration 
     business_configuration  = self.getBusinessConfiguration()
 

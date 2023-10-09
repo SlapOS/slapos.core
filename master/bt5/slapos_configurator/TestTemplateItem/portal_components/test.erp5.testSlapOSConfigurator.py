@@ -25,6 +25,7 @@ from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixin
 import os
 
+
 class TestSlapOSConfigurator(SlapOSTestCaseMixin):
 
   maxDiff = None
@@ -80,53 +81,13 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     self.assertEqual([],
       self.portal.portal_templates.TemplateTool_checkBusinessApplicationToModuleConsistency())
 
-  def testConfiguredVolatileCache(self):
-    """  Make sure Memcached is configured
-    """
-    if self.isLiveTest():
-      # This test is redundant with testConfiguredVolatileCacheViaPromise
-      # and it is only aims to verify if test environment is behaving as
-      # expected, nothing else, and if alamrs were invoked.
-      return
-    from Products.ERP5Type.tests.ERP5TypeTestCase import \
-                                         _getVolatileMemcachedServerDict
-
-    memcached_tool = self.getPortal().portal_memcached
-    connection_dict = _getVolatileMemcachedServerDict()
-    url_string = 'erp5-memcached-volatile:%(port)s' % connection_dict
-    self.assertEqual(memcached_tool.default_memcached_plugin.getUrlString(),
-                      url_string)
-
-  def testConfiguredPersistentCache(self):
-    """ Make sure Kumofs is configured
-    """
-    if self.isLiveTest():
-      # This test is redundant with testConfiguredVolatileCacheViaPromise
-      # and it is only aims to verify if test environment is behaving as
-      # expected, nothing else, and if alamrs were invoked.
-      return
-
-    from Products.ERP5Type.tests.ERP5TypeTestCase import\
-            _getPersistentMemcachedServerDict
-    memcached_tool = self.getPortal().portal_memcached
-    connection_dict = _getPersistentMemcachedServerDict()
-    url_string = 'erp5-memcached-persistent:%(port)s' % connection_dict
-    self.assertEqual(memcached_tool.persistent_memcached_plugin.getUrlString(),
-                      url_string)
-
   def testConfiguredConversionServer(self):
     """ Make sure Conversion Server (Cloudooo) is
         well configured """
-    if self.isLiveTest():
-      # This test is redundant with testConfiguredConversionServerViaConstraint
-      # and it is only aims to verify if test environment is behaving as
-      # expected, nothing else, and if alamrs were invoked.
-      return
-
     # set preference
     preference_tool = self.portal.portal_preferences
-    conversion_url = "https://cloudooo.erp5.net"
-    self.assertEqual(preference_tool.getPreferredDocumentConversionServerUrl(), conversion_url)
+    conversion_url = ["https://cloudooo.erp5.net"]
+    self.assertEqual(preference_tool.getPreferredDocumentConversionServerUrlList(), conversion_url)
 
   def testConfiguredCertificateAuthoring(self):
     """ Make sure Certificate Authoting is
@@ -298,7 +259,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     expected_module_list.extend(self._custom_expected_module_list)
 
     self.assertSameSet(module_list, expected_module_list)
-
 
   def testConfiguredBusinessTemplateList(self):
     """ Make sure Installed business Templates are

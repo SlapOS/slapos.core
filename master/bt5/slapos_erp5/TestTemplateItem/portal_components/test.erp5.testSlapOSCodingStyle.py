@@ -303,8 +303,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_erp5/CertificateAuthorityTool_checkCertificateAuthorityConsistency',
         'slapos_erp5/CertificateAuthorityTool_checkSlapOSMachineNonExistenceConsistency',
         'slapos_erp5/CertificateAuthorityTool_checkSlapOSPASConsistency',
-        'slapos_erp5/MemcachedTool_checkKumofsServerConstraint',
-        'slapos_erp5/MemcachedTool_checkMemcachedServerConsistency',
         'slapos_erp5/Module_checkSlapOSModuleIdGeneratorConsistency',
         'slapos_erp5/OAuthTool_checkFacebookConnectorExistenceConsistency',
         'slapos_erp5/OAuthTool_checkGoogleConnectorExistenceConsistency',

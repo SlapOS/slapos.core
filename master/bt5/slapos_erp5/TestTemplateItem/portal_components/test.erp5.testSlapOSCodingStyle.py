@@ -76,7 +76,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_cloud/ComputeNode_getBusyComputePartitionList',
         'slapos_cloud/ComputeNode_getFreeComputePartitionCount',
         'slapos_cloud/ComputeNode_getSoftwareReleaseList',
-        'slapos_cloud/ComputeNode_getSoftwareReleaseState',
         'slapos_cloud/ComputeNode_getSoftwareReleaseUrlStringList',
         'slapos_cloud/ComputeNode_getSoftwareReleaseUsage',
         'slapos_cloud/ComputeNode_getUsageReportUrl',

@@ -2403,6 +2403,26 @@ class TestUserConsumptionHTMLFile(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(html_document, customer.getUserId(), ['Assignee'])
     self.assertRoles(html_document, self.user_id, ['Owner'])
 
+class TestDocumentModule(TestSlapOSGroupRoleSecurityMixin):
+  def test(self):
+    module = self.portal.document_module
+    self.changeOwnership(module)
+    self.assertSecurityGroup(module,
+        [self.user_id, 'G-COMPANY'], False)
+    self.assertRoles(module, 'G-COMPANY', ['Author', 'Auditor'])
+    self.assertRoles(module, self.user_id, ['Owner'])
+
+class TestPDF(TestSlapOSGroupRoleSecurityMixin):
+  def test_GroupCompany(self):
+    text = self.portal.document_module.newContent(
+        portal_type='PDF')
+
+    self.assertSecurityGroup(text,
+        ['G-COMPANY', self.user_id],
+        False)
+    self.assertRoles(text, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(text, self.user_id, ['Owner'])
+
 class TestCloudContractModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):
     module = self.portal.cloud_contract_module

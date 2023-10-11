@@ -48,6 +48,7 @@ Data Supply Module
 Data Transformation
 Data Transformation Module
 Document Ingestion Module
+Document Module
 ERP5 Login
 Event Module
 Facebook Login
@@ -70,6 +71,7 @@ Open Sale Order
 Open Sale Order Module
 Organisation
 Organisation Module
+PDF
 Payment Transaction
 Payzen Event
 Person

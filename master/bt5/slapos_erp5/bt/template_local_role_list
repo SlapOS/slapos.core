@@ -43,6 +43,7 @@ data_stream_module
 data_supply_module
 data_transformation_module
 document_ingestion_module
+document_module
 event_module
 event_module/slapos_crm_web_message_template
 incident_response_module

@@ -86,7 +86,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
         well configured """
     # set preference
     preference_tool = self.portal.portal_preferences
-    conversion_url = ["https://cloudooo.erp5.net"]
+    conversion_url = ["https://cloudooo.erp5.net/"]
     self.assertEqual(preference_tool.getPreferredDocumentConversionServerUrlList(), conversion_url)
 
   def testConfiguredCertificateAuthoring(self):

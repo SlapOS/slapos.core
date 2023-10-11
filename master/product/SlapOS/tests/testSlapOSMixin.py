@@ -158,6 +158,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
       return
     self.createCertificateAuthorityFile() 
     self.commit()
+    self.portal.portal_caches.updateCache()
 
   def getBusinessConfiguration(self):
     return self.portal.business_configuration_module[\

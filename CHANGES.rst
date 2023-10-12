@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.10.4 (2023-10-12)
+-------------------
+* cli/info: Complete "slapos service info" with service names
+* grid/utils: Fix untimeouted request in _ReadAsJson
+
 1.10.3 (2023-09-28)
 -------------------
 * slap/standalone: Fix format with 0 partitions

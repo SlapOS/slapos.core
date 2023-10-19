@@ -29,19 +29,6 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
 class TestSlapOSXHTML(SlapOSTestCaseMixin, testXHTML.TestXHTML):
 
-  # some forms have intentionally empty listbox selections like RSS generators
-  JSL_IGNORE_SKIN_LIST = ('erp5_code_mirror', 'erp5_ckeditor',
-                          'erp5_fckeditor', 'erp5_ui_test_core',
-                          'erp5_jquery', 'erp5_jquery_ui',
-                          'erp5_svg_editor', 'erp5_xinha_editor',
-                          'erp5_monaco_editor', 'erp5_slideshow_core',
-                          'erp5_run_my_doc', 'erp5_web_renderjs',
-                          'erp5_corporate_identity',
-                          'erp5_corporate_identity_web',
-                          'erp5_notebook', 'erp5_officejs_notebook',
-                          'erp5_web_js_style_ui', 'slapos_hal_json_style',
-                          'slapos_cloud',
-                          'erp5_wendelin_notebook')
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     # Live tests all uses the same request. For now we remove cell from

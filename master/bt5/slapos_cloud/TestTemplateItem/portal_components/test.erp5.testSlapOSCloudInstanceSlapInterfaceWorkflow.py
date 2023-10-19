@@ -1161,7 +1161,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
     self.assertNotEqual(certificate_login.getReference(), None)
     self.assertNotEqual(certificate_login.getSourceReference(), None)
     ssl_certificate = x509.load_pem_x509_certificate(self.software_instance.getSslCertificate())
-    self.assertEqual(len(ssl_certificate.subject), 1)
+    self.assertEqual(len(ssl_certificate.subject), 2)
     cn = [i.value for i in ssl_certificate.subject if i.oid == NameOID.COMMON_NAME][0]
     self.assertEqual(certificate_login.getReference().decode("UTF-8"), cn)
 

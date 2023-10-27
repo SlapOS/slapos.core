@@ -54,11 +54,11 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
     return assignment
 
   def _makeInstanceTree(self):
-    person = self.portal.person_module.template_member\
-         .Base_createCloneDocument(batch_mode=1)
+    person = self.portal.person_module\
+         .newContent(portal_type="Person")
     instance_tree = self.portal\
-      .instance_tree_module.template_instance_tree\
-      .Base_createCloneDocument(batch_mode=1)
+      .instance_tree_module\
+      .newContent(portal_type="Instance Tree")
     instance_tree.validate()
     new_id = self.generateNewId()
     instance_tree.edit(
@@ -86,8 +86,7 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
   def _makeSoftwareInstallation(self):
     self._makeComputeNode()
     software_installation = self.portal\
-       .software_installation_module.template_software_installation\
-       .Base_createCloneDocument(batch_mode=1)
+       .software_installation_module.newContent(portal_type="Software Installation")
     software_installation.edit(
        url_string=self.generateNewSoftwareReleaseUrl(),
        aggregate=self.compute_node.getRelativeUrl(),

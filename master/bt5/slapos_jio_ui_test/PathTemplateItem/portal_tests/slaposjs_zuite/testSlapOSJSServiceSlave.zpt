@@ -97,22 +97,9 @@
         </td>
         <td></td>
       </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//url"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//url"]</td>
-        <td></td>
-      </tr>
-
-      <tr>
-        <td>type</td>
-        <td>//input[@name="//url"]</td>
-        <td>http://www.erp5.com</td>
-      </tr>
+      <tal:block tal:define="name python:'root[url]'; value python: 'http://www.erp5.com'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 

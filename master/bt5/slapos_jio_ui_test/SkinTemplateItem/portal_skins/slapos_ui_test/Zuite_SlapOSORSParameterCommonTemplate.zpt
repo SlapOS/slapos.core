@@ -28,12 +28,12 @@
     <tr>
       <td colspan="3"><b> Fill RX/TX </b></td>
     </tr>
-    <tal:block tal:define="name python: '//tx_gain'; value python: '78.0'">    
-      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_number" />
+    <tal:block tal:define="name python: 'root[tx_gain]'; value python: '78.0'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python: '//rx_gain'; value python: '78.0'">    
-      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_number" />
+    <tal:block tal:define="name python: 'root[rx_gain]'; value python: '78.0'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
     <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/click_proceed_and_wait_for_hash" />
     <tr>
@@ -72,123 +72,78 @@
       <td>Core Network Sim Card</td>
     </tr>
     <tr>
-      <td>waitForElementPresent</td>
-      <td>//input[@name="//sim_algo" and @type="text"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertElementPresent</td>
-      <td>//input[@name="//sim_algo" and @type="text"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>type</td>
-      <td>//input[@name="//sim_algo" and @type="text"]</td>
-      <td>x</td>
-    </tr>
-    <tr>
-      <td>waitForElementPresent</td>
-      <td>//input[@name="//imsi" and @type="text"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertElementPresent</td>
-      <td>//input[@name="//imsi" and @type="text"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>type</td>
-      <td>//input[@name="//imsi" and @type="text"]</td>
-      <td>x</td>
-    </tr>
-    <tr>
-      <td>type</td>
-      <td>//input[@name="//sim_algo" and @type="text"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>type</td>
-      <td>//input[@name="//imsi" and @type="text"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>fireEvent</td>
-      <td>//input[@name="//imsi" and @type="text"]</td>
-      <td>change</td>
-    </tr>
-    <tr>
       <td colspan="3"><b> Assert Error Messages</b></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//span[@class="error" and text() = 'Instance does not have required property "sim_algo".']</td>
+      <td>//div[@class="alert alert-danger" and text() = "Object is missing the required property 'Sim Algorithm'"]</td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//span[@class="error" and text() = 'Instance does not have required property "imsi".']</td>
+      <td>//div[@class="alert alert-danger" and text() = "Object is missing the required property 'IMSI'"]</td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//span[@class="error" and text() = 'Instance does not have required property "opc".']</td>
+      <td>//div[@class="alert alert-danger" and text() = "Object is missing the required property 'OPC'"]</td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//span[@class="error" and text() = 'Instance does not have required property "amf".']</td>
+      <td>//div[@class="alert alert-danger" and text() = "Object is missing the required property 'AMF'"]</td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//span[@class="error" and text() = 'Instance does not have required property "sqn".']</td>
+      <td>//div[@class="alert alert-danger" and text() = "Object is missing the required property 'SQN'"]</td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//span[@class="error" and text() = 'Instance does not have required property "k".']</td>
+      <td>//div[@class="alert alert-danger" and text() = "Object is missing the required property 'K'"]</td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//span[@class="error" and text() = 'Instance does not have required property "impu".']</td>
+      <td>//div[@class="alert alert-danger" and text() = "Object is missing the required property 'IMPU'"]</td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//span[@class="error" and text() = 'Instance does not have required property "impi".']</td>
+      <td>//div[@class="alert alert-danger" and text() = "Object is missing the required property 'IMPI'"]</td>
       <td></td>
     </tr>
 
-    <tal:block tal:define="name python: '//sim_algo'; value python: 'some value'">    
+    <tal:block tal:define="name python:'root[sim_algo]'; value python: 'some value'">    
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//imsi'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[imsi]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//opc'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[opc]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//amf'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[amf]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//sqn'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[sqn]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//k'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[k]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//impu'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[impu]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//impi'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[impi]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
     
@@ -246,12 +201,12 @@
       <td colspan="3"><b> Fill RX/TX </b></td>
     </tr>
 
-    <tal:block tal:define="name python: '//tx_gain'; value python: '78'">    
-      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_number" />
+    <tal:block tal:define="name python: 'root[tx_gain]'; value python: '78'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python: '//rx_gain'; value python: '78'">    
-      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_number" />
+    <tal:block tal:define="name python: 'root[rx_gain]'; value python: '78'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
     </tal:block>
   </tal:block>
 
@@ -297,35 +252,35 @@
       <td>core-network</td>
     </tr>
 
-    <tal:block tal:define="name python: '//sim_algo'; value python: 'some value'">    
+    <tal:block tal:define="name python:'root[sim_algo]'; value python: 'some value'">    
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//imsi'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[imsi]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//opc'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[opc]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//amf'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[amf]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//sqn'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[sqn]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//k'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[k]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//impu'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[impu]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//impi'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[impi]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
     </tal:block>
   </tal:block>
@@ -365,56 +320,23 @@
       </td>
       <td>Core Network</td>
     </tr>
-    <tal:block tal:define="name python: '//core_network_plmn'; value python: 'some value'">    
+    <tal:block tal:define="name python:'root[core_network_plmn]'; value python: 'some value'">    
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
 
-    <tr>
-      <td>waitForElementPresent</td>
-      <td>//select[@name="//external_enb_gnb" and @data-format="boolean"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertElementPresent</td>
-      <td>//select[@name="//external_enb_gnb" and @data-format="boolean"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>select</td>
-      <td>//select[@name="//external_enb_gnb" and @data-format="boolean"]</td>
-      <td>true</td>
-    </tr>
-    <tr>
-      <td>waitForElementPresent</td>
-      <td>//select[@name="//iperf3" and @data-format="boolean"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertElementPresent</td>
-      <td>//select[@name="//iperf3" and @data-format="boolean"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>select</td>
-      <td>//select[@name="//iperf3" and @data-format="boolean"]</td>
-      <td>false</td>
-    </tr>
-    <tr>
-      <td>waitForElementPresent</td>
-      <td>//select[@name="//use_ipv4" and @data-format="boolean"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertElementPresent</td>
-      <td>//select[@name="//use_ipv4" and @data-format="boolean"]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>select</td>
-      <td>//select[@name="//use_ipv4" and @data-format="boolean"]</td>
-      <td>false</td>
-    </tr>
-    <tal:block tal:define="name python:'//local_domain'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[external_enb_gnb]'; value python: 'true'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'root[iperf3]'; value python: 'false'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'root[use_ipv4]'; value python: 'false'">    
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'root[local_domain]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
     </tal:block>
 
@@ -470,59 +392,25 @@
       <td>core-network</td>
     </tr>
 
-    <tal:block tal:define="name python: '//core_network_plmn'; value python: 'some value'">    
+    <tal:block tal:define="name python:'root[core_network_plmn]'; value python: 'some value'">    
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
     </tal:block>
 
-    <tal:block tal:define="name python:'//local_domain'; value python: 'some value'">
+    <tal:block tal:define="name python:'root[local_domain]'; value python: 'some value'">
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
     </tal:block>
 
-    <tr>
-      <td>waitForElementPresent</td>
-      <td>//select[@name="//external_enb_gnb" and @data-format="boolean" and contains(@class, "readonly")]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertElementPresent</td>
-      <td>//select[@name="//external_enb_gnb" and @data-format="boolean" and contains(@class, "readonly")]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertValue</td>
-      <td>//select[@name="//external_enb_gnb" and @data-format="boolean" and contains(@class, "readonly")]</td>
-      <td>true</td>
-    </tr>
-    <tr>
-      <td>waitForElementPresent</td>
-      <td>//select[@name="//iperf3" and @data-format="boolean" and contains(@class, "readonly")]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertElementPresent</td>
-      <td>//select[@name="//iperf3" and @data-format="boolean" and contains(@class, "readonly")]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertValue</td>
-      <td>//select[@name="//iperf3" and @data-format="boolean" and contains(@class, "readonly")]</td>
-      <td>false</td>
-    </tr>
-    <tr>
-      <td>waitForElementPresent</td>
-      <td>//select[@name="//use_ipv4" and @data-format="boolean" and contains(@class, "readonly")]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertElementPresent</td>
-      <td>//select[@name="//use_ipv4" and @data-format="boolean" and contains(@class, "readonly")]</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertValue</td>
-      <td>//select[@name="//use_ipv4" and @data-format="boolean" and contains(@class, "readonly")]</td>
-      <td>false</td>
-    </tr>
+    <tal:block tal:define="name python:'root[external_enb_gnb]'; value python: 'true'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'root[iperf3]'; value python: 'false'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+    </tal:block>
+
+    <tal:block tal:define="name python:'root[use_ipv4]'; value python: 'false'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+    </tal:block>
   </tal:block>
 
 

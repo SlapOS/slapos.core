@@ -103,22 +103,9 @@
           'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
         <td>Custom Personal</td>
       </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//domain"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//domain"]</td>
-        <td></td>
-      </tr>
-
-      <tr>
-        <td>type</td>
-        <td>//input[@name="//domain"]</td>
-        <td>www.erp5.com</td>
-      </tr>
+      <tal:block tal:define="name python:'root[domain]'; value python: 'www.erp5.com'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
@@ -209,20 +196,13 @@
           'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
         <td>custom-personal</td>
       </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//domain"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//domain"]</td>
-        <td></td>
-      </tr>
+      <tal:block tal:define="name python:'root[domain]'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+      </tal:block>
 
       <tr>
         <td>assertValue</td>
-        <td>//input[@name="//domain"]</td>
+        <td>//input[@name="root[domain]"]</td>
         <td>www.erp5.com</td>
       </tr>
 
@@ -280,22 +260,9 @@
         </td>
         <td></td>
       </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//url"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//url"]</td>
-        <td></td>
-      </tr>
-
-      <tr>
-        <td>type</td>
-        <td>//input[@name="//url"]</td>
-        <td>http://www.erp5.com/shared/instance</td>
-      </tr>
+      <tal:block tal:define="name python:'root[url]'; value python: 'http://www.erp5.com/shared/instance'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 

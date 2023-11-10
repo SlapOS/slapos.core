@@ -25,24 +25,10 @@
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
 
-      <tr>
-        <td colspan="3"><b>Assert parameter was loaded</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//select[@name="//autorun" and contains(@class, "readonly")]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//select[@name="//autorun" and contains(@class, "readonly")]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertValue</td>
-        <td>//select[@name="//autorun" and contains(@class, "readonly")]</td>
-        <td>running</td>
-      </tr>
+      <tal:block tal:define="name python:'root[autorun]'; value python: 'running'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+      </tal:block>
+
     </tbody>
   </table>
 </body>

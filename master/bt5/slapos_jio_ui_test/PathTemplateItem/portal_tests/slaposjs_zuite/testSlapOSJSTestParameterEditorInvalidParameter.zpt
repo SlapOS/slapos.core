@@ -26,16 +26,9 @@
 
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
 
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//simple-string" and @type="text"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//simple-string" and @type="text"]</td>
-        <td></td>
-      </tr>
+      <tal:block tal:define="name python:'root[simple-string]'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+      </tal:block>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_raw_parameter" />
 
@@ -58,20 +51,13 @@
 
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
 
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//simple-string" and @type="text"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//simple-string" and @type="text"]</td>
-        <td></td>
-      </tr>
+      <tal:block tal:define="name python:'root[simple-string]'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+      </tal:block>
 
       <tr>
         <td>assertValue</td>
-        <td>//input[@name="//simple-string" and @type="text"]</td>
+        <td>//input[@name="root[simple-string]" and @type="text"]</td>
         <td>1024</td>
       </tr>
 
@@ -195,20 +181,13 @@
 
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
 
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//simple-string-in-json" and @type="text"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//simple-string-in-json" and @type="text"]</td>
-        <td></td>
-      </tr>
+      <tal:block tal:define="name python:'root[simple-string-in-json]'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+      </tal:block>
 
       <tr>
         <td>assertValue</td>
-        <td>//input[@name="//simple-string-in-json" and @type="text"]</td>
+        <td>//input[@name="root[simple-string-in-json]" and @type="text"]</td>
         <td>1024</td>
       </tr>
 

@@ -21,106 +21,52 @@
 
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
 
-      <tr>
-        <td colspan="3"><b> Fill the ram size</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//ram-size" and @type="number"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//ram-size" and @type="number"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>type</td>
-        <td>//input[@name="//ram-size" and @type="number"]</td>
-        <td>4097</td>
-      </tr>
 
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//span[@class="error" and text() = '4097 is not a multiple of 512.']</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//span[@class="error" and text() = '4097 is not a multiple of 512.']</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>type</td>
-        <td>//input[@name="//ram-size" and @type="number"]</td>
-        <td>4096</td>
-      </tr>
+      <tal:block tal:define="name python:'root[ram-size]'; value python: 4097">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
       <tr>
         <td>fireEvent</td>
-        <td>//input[@name="//ram-size" and @type="number"]</td>
+        <td>//input[@name="root[ram-size]" and @type="text"]</td>
         <td>change</td>
       </tr>
-      <tr>
-        <td>waitForElementNotPresent</td>
-        <td>//span[@class="error" and text() = '4096 is not a multiple of 512.']</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>waitForElementNotPresent</td>
-        <td>//span[@class="error" and text() = '4096 is not a multiple of 512.']</td>
-        <td></td>
-      </tr>
+      <tal:block tal:define="name python:'root.ram-size'; value python: 'Value must be a multiple of 512.'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_invalid_feedback" />
+      </tal:block>
 
+      <tal:block tal:define="name python:'root[ram-size]'; value python: 4096">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
 
-      <tr>
-        <td colspan="3"><b> Fill ram size</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//cpu-count" and @type="number"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//cpu-count" and @type="number"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>type</td>
-        <td>//input[@name="//cpu-count" and @type="number"]</td>
-        <td>-1</td>
-      </tr>
-
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//span[@class="error" and text() = '-1 is less than 1.']</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//span[@class="error" and text() = '-1 is less than 1.']</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>type</td>
-        <td>//input[@name="//cpu-count" and @type="number"]</td>
-        <td>3</td>
-      </tr>
       <tr>
         <td>fireEvent</td>
-        <td>//input[@name="//cpu-count" and @type="number"]</td>
+        <td>//input[@name="root[ram-size]" and @type="text"]</td>
         <td>change</td>
       </tr>
+      <tal:block tal:define="name python:'root.ram-size'; value python: 'Value must be a multiple of 512.'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_not_invalid_feedback" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[cpu-count]'; value python: -1">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root.cpu-count'; value python: 'Value must be at least 1.'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_invalid_feedback" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[cpu-count]'; value python: 3">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
       <tr>
-        <td>waitForElementNotPresent</td>
-        <td>//span[@class="error" and text() = '-1 is less than 1.']</td>
-        <td></td>
+        <td>fireEvent</td>
+        <td>//input[@name="root[cpu-count]" and @type="text"]</td>
+        <td>change</td>
       </tr>
-      <tr>
-        <td>waitForElementNotPresent</td>
-        <td>//span[@class="error" and text() = '-1 is less than 1.']</td>
-        <td></td>
-      </tr>
+      <tal:block tal:define="name python:'root.cpu-count'; value python: 'Value must be at least 1.'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_not_invalid_feedback" />
+      </tal:block>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/click_proceed_and_wait_for_hash" />
 

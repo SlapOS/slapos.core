@@ -262,6 +262,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'erp5_l10n_ja',
       'erp5_l10n_zh',
       'erp5_monaco_editor',
+      'erp5_json_editor',
       'erp5_movement_table_catalog',
       'erp5_oauth',
       'erp5_bearer_token',

@@ -21,24 +21,9 @@
 
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
 
-      <tr>
-        <td colspan="3"><b> Set autorun</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//select[@name="//autorun"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//select[@name="//autorun"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>select</td>
-        <td>//select[@name="//autorun"]</td>
-        <td>running</td>
-      </tr>
+      <tal:block tal:define="name python:'root[autorun]'; value python: 'running'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/click_proceed_and_wait_for_hash" />
 

@@ -86,7 +86,9 @@ erp5_gadget
 erp5_glossary
 erp5_graph_editor"""
 
-common_folder_list = """erp5_json_type
+common_folder_list = """erp5_jquery_sheet_editor
+erp5_json_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_multimedia
 erp5_notebook
@@ -196,7 +198,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -249,7 +250,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
@@ -288,7 +288,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
@@ -328,7 +327,6 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -368,13 +366,14 @@ erp5_integration
 erp5_invoicing
 erp5_jquery
 erp5_jquery_sheet_editor
+erp5_json_editor
 erp5_json_type
 erp5_km_widget_library
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
-""" % {'common_folder_list' : '\n'.join(common_folder_list.split('\n')[1:]),
+""" % {'common_folder_list' : '\n'.join(common_folder_list.split('\n')[3:]),
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
        'slapos_folder_list': slapos_folder_list
@@ -407,7 +406,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
@@ -444,7 +442,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -482,7 +479,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
@@ -519,7 +515,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
@@ -557,7 +552,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
@@ -595,7 +589,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -634,7 +627,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -674,7 +666,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
@@ -713,7 +704,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -751,7 +741,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -787,7 +776,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -823,7 +811,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -859,7 +846,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -912,7 +898,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -948,7 +933,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -984,7 +968,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -1020,7 +1003,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -1056,7 +1038,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
@@ -1095,7 +1076,6 @@ erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing
-erp5_jquery_sheet_editor
 %(common_folder_list)s
 erp5_xhtml_style
 external_method

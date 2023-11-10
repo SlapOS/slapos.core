@@ -31,204 +31,56 @@
       
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
 
-      <tr>
-        <td colspan="3"><b> Assert the simple string</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//textarea[@name="//simple-stringxxx" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//textarea[@name="//simple-stringxxx" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertValue</td>
-        <td>//textarea[@name="//simple-stringxxx" and @readonly="true"]</td>
-        <td>this is a simple stringxx</td>
-      </tr>
+      <tal:block tal:define="name python:'root[simple-stringxxx]'; value python: 'this is a simple stringxx'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-string-with-enum]'; value python: 'simple string B'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+      </tal:block>
+
+
+      <tal:block tal:define="name python:'root[simple-boolean]'; value python: 'true'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-integer]'; value python: 1">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-integer-with-enum]'; value python: 7">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-numeric-integer]'; value python: 2">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-numeric-integer-enum]'; value python: 13">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-numeric-float]'; value python: 2">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-numeric-float-enum]'; value python: '1.25'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-string-with-text-area]'; value python: 'this is a simple string on a text area'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_textarea" />
+      </tal:block>
 
       <tr>
-        <td colspan="3"><b> Assert the simple string not Present</b></td>
+        <td colspan="3"><b> Assert the simple string NOT Present</b></td>
       </tr>
       <tr>
         <td>assertElementNotPresent</td>
-        <td>//input[@name="//simple-string" and @readonly="true"]</td>
+        <td>//input[@name="root[simple-string]"]</td>
         <td></td>
       </tr>
 
-      <tr>
-        <td colspan="3"><b> Assert the string + enum</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//select[@name="//simple-string-with-enum" and contains(@class, "readonly")]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//select[@name="//simple-string-with-enum" and contains(@class, "readonly")]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertValue</td>
-        <td>//select[@name="//simple-string-with-enum" and contains(@class, "readonly")]</td>
-        <td>simple string B</td>
-      </tr>
-
-      <tr>
-        <td colspan="3"><b> Assert the boolean</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//select[@name="//simple-boolean" and contains(@class, "readonly")]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//select[@name="//simple-boolean" and contains(@class, "readonly")]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertValue</td>
-        <td>//select[@name="//simple-boolean" and contains(@class, "readonly")]</td>
-        <td>true</td>
-      </tr>
-
-      <tr>
-        <td colspan="3"><b> Assert the String on Text area</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//textarea[@name="//simple-string-with-text-area" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//textarea[@name="//simple-string-with-text-area" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertValue</td>
-        <td>//textarea[@name="//simple-string-with-text-area" and @readonly="true"]</td>
-        <td>this is a simple string on a text area</td>
-      </tr>
-
-      <tr>
-        <td colspan="3"><b> Assert the simple integer</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//simple-integer" and @type="number" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//simple-integer" and @type="number" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertValue</td>
-        <td>//input[@name="//simple-integer" and @type="number" and @readonly="true"]</td>
-        <td>1</td>
-      </tr>
-
-      <tr>
-        <td colspan="3"><b> Assert the integer + enum</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//select[@name="//simple-integer-with-enum" and contains(@class, "readonly")]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//select[@name="//simple-integer-with-enum" and contains(@class, "readonly")]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertValue</td>
-        <td>//select[@name="//simple-integer-with-enum" and contains(@class, "readonly")]</td>
-        <td>7</td>
-      </tr>
-
-      <tr>
-        <td colspan="3"><b> Assert the simple numeric (integer)</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//simple-numeric-integer" and @type="number" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//simple-numeric-integer" and @type="number" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertValue</td>
-        <td>//input[@name="//simple-numeric-integer" and @type="number" and @readonly="true"]</td>
-        <td>2</td>
-      </tr>
-
-      <tr>
-        <td colspan="3"><b> Assert the numeric integer + enum</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//select[@name="//simple-numeric-integer-enum" and contains(@class, "readonly")]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//select[@name="//simple-numeric-integer-enum" and contains(@class, "readonly")]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertValue</td>
-        <td>//select[@name="//simple-numeric-integer-enum" and contains(@class, "readonly")]</td>
-        <td>13</td>
-      </tr>
-
-      <tr>
-        <td colspan="3"><b> Assert the simple numeric (float)</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//simple-numeric-float" and @type="number" and @step="any" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//simple-numeric-float" and @type="number"and @step="any" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertValue</td>
-        <td>//input[@name="//simple-numeric-float" and @type="number"and @step="any" and @readonly="true"]</td>
-        <td>2</td>
-      </tr>
-
-      <tr>
-        <td colspan="3"><b> Assert the numeric float + enum</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//select[@name="//simple-numeric-float-enum" and contains(@class, "readonly")]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//select[@name="//simple-numeric-float-enum" and contains(@class, "readonly")]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertValue</td>
-        <td>//select[@name="//simple-numeric-float-enum" and contains(@class, "readonly")]</td>
-        <td>1.25</td>
-      </tr>
     </tbody>
   </table>
 </body>

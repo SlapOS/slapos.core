@@ -37,7 +37,7 @@
           </fieldset>
           <fieldset id="parameter-main">
             <div class="parameter_json_form"
-              data-gadget-url="gadget_erp5_page_slap_json_form.html"
+              data-gadget-url="gadget_erp5_page_json_editor.html"
               data-gadget-scope="json_form"> </div>
             <div class="failover-textarea"> </div>
           </fieldset>

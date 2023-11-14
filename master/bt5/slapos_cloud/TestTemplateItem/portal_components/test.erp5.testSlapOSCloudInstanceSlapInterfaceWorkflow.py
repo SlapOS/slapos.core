@@ -1339,8 +1339,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
 
     self.assertEqual(certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(certificate_login.getReference(), None)
-
-    self.assertNotEqual(certificate_login.getSourceReference(), None)
+    self.assertNotEqual(certificate_login.getCsrId(), None)
     ssl_certificate = x509.load_pem_x509_certificate(self.software_instance.getSslCertificate())
     self.assertEqual(len(ssl_certificate.subject), 2)
     cn = [i.value for i in ssl_certificate.subject if i.oid == NameOID.COMMON_NAME][0]
@@ -1373,7 +1372,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
     certificate_login = certificate_login_list[0]
     self.assertEqual(certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(certificate_login.getReference(), None)
-    self.assertNotEqual(certificate_login.getSourceReference(), None)
+    self.assertNotEqual(certificate_login.getCsrId(), None)
 
     self.assertNotEqual(self.software_instance.getSslKey(),
       ssl_key)
@@ -1400,11 +1399,11 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
 
     self.assertEqual(another_certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(another_certificate_login.getReference(), None)
-    self.assertNotEqual(another_certificate_login.getSourceReference(), None)
+    self.assertNotEqual(another_certificate_login.getCsrId(), None)
 
     self.assertEqual(certificate_login.getValidationState(), 'invalidated')
     self.assertNotEqual(certificate_login.getReference(),
       another_certificate_login.getReference())
-    self.assertNotEqual(certificate_login.getSourceReference(),
-      another_certificate_login.getSourceReference())
+    self.assertNotEqual(certificate_login.getCsrId(),
+      another_certificate_login.getCsrId())
 

@@ -117,7 +117,10 @@ else:
   successor_uid_list = successor.getSuccessorUidList()
   if request_software_instance.getUid() in successor_uid_list:
     successor_uid_list.remove(request_software_instance.getUid())
-    successor.edit(successor_uid_list=successor_uid_list)
+    successor.edit(
+      successor_uid_list=successor_uid_list,
+      activate_kw={'tag': tag}
+    )
   graph[successor.getUid()] = successor_uid_list
 
 if instance_found:
@@ -156,7 +159,10 @@ if instance_found:
   request_software_instance.checkConnected(graph, instance_tree.getUid())
   request_software_instance.checkNotCyclic(graph)
 
-  requester_instance.edit(successor_list=successor_list)
+  requester_instance.edit(
+    successor_list=successor_list,
+    activate_kw={'tag': tag}
+  )
 
 else:
   context.REQUEST.set('request_instance', None)

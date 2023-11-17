@@ -88,6 +88,7 @@ erp5_graph_editor"""
 
 common_folder_list = """erp5_jquery_sheet_editor
 erp5_json_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_multimedia
 erp5_notebook
@@ -366,6 +367,7 @@ erp5_invoicing
 erp5_jquery
 erp5_jquery_sheet_editor
 erp5_json_editor
+erp5_json_type
 erp5_km_widget_library
 %(common_folder_list)s
 erp5_xhtml_style

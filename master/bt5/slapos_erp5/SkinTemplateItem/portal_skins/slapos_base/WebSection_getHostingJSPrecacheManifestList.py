@@ -195,7 +195,6 @@ url_list = [
   "vkbeautify.js",
   "URI.js",
   "ref-parser.min.js",
-  "jsoneditor.min.js",
   "cfworker-jsonschema-validator.js",
   "slapos_load_software_schema.json",
   "slapos_load_meta_schema_xml.json",

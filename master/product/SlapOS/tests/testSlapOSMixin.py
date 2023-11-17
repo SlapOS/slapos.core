@@ -287,6 +287,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'erp5_officejs',
       'erp5_corporate_identity',
       'erp5_big_file',
+      'erp5_json_type',
       'erp5_data_notebook',
       'erp5_wendelin',
       'erp5_development_wizard',

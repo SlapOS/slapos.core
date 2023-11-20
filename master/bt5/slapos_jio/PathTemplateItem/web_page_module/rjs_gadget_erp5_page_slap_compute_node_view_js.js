@@ -28,7 +28,7 @@
         .push(function (result) {
           var i, value, value_jio_key, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].value.getAccessStatus)) {
+            if (result.data.rows[i].value.getAccessStatus) {
               value = result.data.rows[i].value.getAccessStatus;
               value_jio_key = result.data.rows[i].id;
               result.data.rows[i].value.getAccessStatus = {
@@ -192,15 +192,14 @@
 
           if (!supported_allocation_scope_list.includes(
               gadget.state.doc.allocation_scope
-            ) && hidden_allocation_scope.keys().includes(
-              gadget.state.doc.allocation_scope
-            )) {
+            ) && (hidden_allocation_scope.hasOwnProperty(gadget.state.doc.allocation_scope))) {
             allocation_scope_list.push(
               [hidden_allocation_scope[gadget.state.doc.allocation_scope],
                 gadget.state.doc.allocation_scope
                 ]
             );
           }
+
           return form_gadget.render({
             erp5_document: {
               "_embedded": {"_view": {

@@ -1,0 +1,1 @@
+return context.SoftwareInstance_triggerObjectMigrationToRemoteVirtualMaster(remote_node_relative_url, REQUEST=REQUEST)

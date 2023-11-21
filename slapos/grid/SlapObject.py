@@ -727,7 +727,7 @@ class Partition(object):
     """
     remaining = set(
       f for f in os.listdir(self.supervisord_partition_configuration_dir)
-      if f.startswith(self.partition_id)
+      if f == '%s.conf' % self.partition_id
     )
     for group, programs in self.supervisor_conf.items():
       filename = '%s.conf' % group

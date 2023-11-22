@@ -541,6 +541,47 @@ class TestPartitionSupervisorConfig(MasterMixin, unittest.TestCase):
     for i in range(3):
       self.assertIn('program:%s_runner-%s' % (group_id, i), supervisor_conf)
 
+  def test_partition_independence(self):
+    partition1a = self.createPartition(self.software.url, partition_id='part1a')
+    partition1a_service_path = os.path.join(
+      partition1a.instance_path, 'etc', 'service')
+    os.makedirs(partition1a_service_path)
+    with open(os.path.join(partition1a_service_path, 'test'), 'w') as f:
+      f.write('#!/bin/sh\nsleep 30')
+      os.fchmod(f.fileno(), 0o750)
+    partition1a.start()
+
+    with self.supervisor as s:
+      part1a_pid = s.getProcessInfo('part1a:test-on-watch')['pid']
+      self.assertTrue(part1a_pid)
+
+    partition1 = self.createPartition(self.software.url, partition_id='part1')
+    partition1_service_path = os.path.join(
+      partition1.instance_path, 'etc', 'service')
+    os.makedirs(partition1_service_path)
+    with open(os.path.join(partition1_service_path, 'test'), 'w') as f:
+      f.write('#!/bin/sh\nsleep 30')
+      os.fchmod(f.fileno(), 0o750)
+    partition1.start()
+
+    # process is still running (it was not restarted)
+    with self.supervisor as s:
+      self.assertEqual(
+        s.getProcessInfo('part1a:test-on-watch')['pid'],
+        part1a_pid)
+
+    partition1.stop()
+    with self.supervisor as s:
+      self.assertEqual(
+        s.getProcessInfo('part1a:test-on-watch')['pid'],
+        part1a_pid)
+
+    partition1.destroy()
+    with self.supervisor as s:
+      self.assertEqual(
+        s.getProcessInfo('part1a:test-on-watch')['pid'],
+        part1a_pid)
+
 
 class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
   def setUp(self):

@@ -40,6 +40,8 @@ from slapos.slap import ComputerPartition as SlapComputerPartition
 from slapos.grid.SlapObject import Partition, Software
 from slapos.grid import utils
 from slapos.grid import networkcache
+from slapos.grid import svcbackend
+
 # XXX: BasicMixin should be in a separated module, not in slapgrid test module.
 from slapos.tests.test_slapgrid import BasicMixin
 
@@ -98,7 +100,15 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     os.mkdir(self.software_root)
     os.mkdir(self.instance_root)
 
+    logger = logging.getLogger(self.id())
+    svcbackend.createSupervisordConfiguration(self.instance_root, logger)
+    svcbackend.launchSupervisord(self.instance_root, logger)
+    self.supervisord_socket = svcbackend._getSupervisordSocketPath(self.instance_root, logger)
+    self.assertTrue(os.path.exists(self.supervisord_socket))
+
   def tearDown(self):
+    with self.supervisor as s:
+      s.shutdown()
     BasicMixin.tearDown(self)
 
     # Un-monkey patch possible modules
@@ -106,6 +116,10 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     global originalLaunchBuildout
     utils.bootstrapBuildout = originalBootstrapBuildout
     utils.launchBuildout = originalLaunchBuildout
+
+  @property
+  def supervisor(self):
+    return svcbackend.getSupervisorRPC(self.supervisord_socket)
 
   # Helper functions
   def createSoftware(self, url=None, empty=False):
@@ -162,17 +176,16 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     os.mkdir(instance_path)
     os.chmod(instance_path, 0o750)
 
-    supervisor_configuration_path = os.path.join(
-          self.instance_root, 'supervisor')
-    os.mkdir(supervisor_configuration_path)
+    supervisor_configuration_path = svcbackend._getSupervisordConfigurationDirectory(
+      self.instance_root)
 
     partition = Partition(
       software_path=software_path,
       instance_path=instance_path,
       shared_part_list=shared_part_list,
       supervisord_partition_configuration_dir=supervisor_configuration_path,
-      supervisord_socket=os.path.join(
-          supervisor_configuration_path, 'supervisor.sock'),
+      supervisord_socket=svcbackend._getSupervisordSocketPath(
+        self.instance_root, logging.getLogger(self.id())),
       computer_partition=slap_computer_partition,
       computer_id='bidon',
       partition_id=partition_id,
@@ -183,7 +196,6 @@ class MasterMixin(BasicMixin, unittest.TestCase):
       partition_timeout=partition_timeout,
     )
 
-    partition.updateSupervisor = FakeCallAndNoop
     if retention_delay:
       partition.retention_delay = retention_delay
 

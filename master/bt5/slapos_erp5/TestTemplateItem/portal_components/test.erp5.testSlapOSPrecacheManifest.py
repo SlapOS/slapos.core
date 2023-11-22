@@ -59,3 +59,6 @@ class TestSlapOSMonacoEditorPrecacheManifestList(
     TestSlapOSHostingJSPrecacheManifestList):
   manifest_script_id = 'WebSection_getMonacoEditorPrecacheManifestList'
 
+class TestSlapOSJsonEditorPrecacheManifestList(
+    TestSlapOSHostingJSPrecacheManifestList):
+  manifest_script_id = 'WebSection_getJsonEditorPrecacheManifestList'

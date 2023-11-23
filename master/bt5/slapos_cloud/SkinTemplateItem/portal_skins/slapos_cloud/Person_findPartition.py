@@ -88,6 +88,10 @@ for base_category in compute_node_base_category_list:
     else:
       query_kw["%s_uid" % base_category] = category.getUid()
 
+if 'capability' in filter_kw:
+  capability = filter_kw.pop('capability')
+  query_kw['subject'] = {'query': capability, 'key': 'ExactMatch'}
+
 query_kw["capacity_scope_uid"] = portal.portal_categories.capacity_scope.open.getUid()
 if subscription_reference is not None and software_instance_portal_type != "Slave Instance":
   # Subscriptions uses a specific set of allocation scope

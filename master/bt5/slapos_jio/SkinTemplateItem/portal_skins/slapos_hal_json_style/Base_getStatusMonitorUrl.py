@@ -1,4 +1,5 @@
-base_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND '
+monitor_url = context.Base_getMonitorBaseUrl()
+base_url = monitor_url + '#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND '
 
 if context.getPortalType() == "Instance Tree":
   for connection_parameter in context.InstanceTree_getConnectionParameterList(raw=True):

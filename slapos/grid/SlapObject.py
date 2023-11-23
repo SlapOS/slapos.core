@@ -721,14 +721,18 @@ class Partition(object):
       self.addServicesToGroup(
         service_list, self.service_path, extension=WATCHDOG_MARK)
 
+  def getSupervisorConfigurationFiles(self):
+    for f in os.listdir(self.supervisord_partition_configuration_dir):
+      if os.path.splitext(f)[0] == self.partition_id: # partition
+        yield f
+      elif f.startswith(self.partition_id + '-'): # manager
+        yield f
+
   def writeSupervisorConfigurationFiles(self):
     """
       Write supervisord configuration files and update supervisord
     """
-    remaining = set(
-      f for f in os.listdir(self.supervisord_partition_configuration_dir)
-      if f.startswith(self.partition_id)
-    )
+    remaining = set(self.getSupervisorConfigurationFiles())
     for group, programs in self.supervisor_conf.items():
       filename = '%s.conf' % group
       filepath = os.path.join(
@@ -765,10 +769,7 @@ class Partition(object):
     """
       Remove supervisord configuration files if any exist and update supervisord
     """
-    filenames = [
-      f for f in os.listdir(self.supervisord_partition_configuration_dir)
-      if f.startswith(self.partition_id)
-    ]
+    filenames = list(self.getSupervisorConfigurationFiles())
     for filename in filenames:
       filepath = os.path.join(
         self.supervisord_partition_configuration_dir, filename)

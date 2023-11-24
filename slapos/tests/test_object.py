@@ -40,6 +40,8 @@ from slapos.slap import ComputerPartition as SlapComputerPartition
 from slapos.grid.SlapObject import Partition, Software
 from slapos.grid import utils
 from slapos.grid import networkcache
+from slapos.grid import svcbackend
+
 # XXX: BasicMixin should be in a separated module, not in slapgrid test module.
 from slapos.tests.test_slapgrid import BasicMixin
 
@@ -98,7 +100,15 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     os.mkdir(self.software_root)
     os.mkdir(self.instance_root)
 
+    logger = logging.getLogger(self.id())
+    svcbackend.createSupervisordConfiguration(self.instance_root, logger)
+    svcbackend.launchSupervisord(self.instance_root, logger)
+    self.supervisord_socket = svcbackend._getSupervisordSocketPath(self.instance_root, logger)
+    self.assertTrue(os.path.exists(self.supervisord_socket))
+
   def tearDown(self):
+    with self.supervisor as s:
+      s.shutdown()
     BasicMixin.tearDown(self)
 
     # Un-monkey patch possible modules
@@ -106,6 +116,10 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     global originalLaunchBuildout
     utils.bootstrapBuildout = originalBootstrapBuildout
     utils.launchBuildout = originalLaunchBuildout
+
+  @property
+  def supervisor(self):
+    return svcbackend.getSupervisorRPC(self.supervisord_socket)
 
   # Helper functions
   def createSoftware(self, url=None, empty=False):
@@ -162,17 +176,16 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     os.mkdir(instance_path)
     os.chmod(instance_path, 0o750)
 
-    supervisor_configuration_path = os.path.join(
-          self.instance_root, 'supervisor')
-    os.mkdir(supervisor_configuration_path)
+    supervisor_configuration_path = svcbackend._getSupervisordConfigurationDirectory(
+      self.instance_root)
 
     partition = Partition(
       software_path=software_path,
       instance_path=instance_path,
       shared_part_list=shared_part_list,
       supervisord_partition_configuration_dir=supervisor_configuration_path,
-      supervisord_socket=os.path.join(
-          supervisor_configuration_path, 'supervisor.sock'),
+      supervisord_socket=svcbackend._getSupervisordSocketPath(
+        self.instance_root, logging.getLogger(self.id())),
       computer_partition=slap_computer_partition,
       computer_id='bidon',
       partition_id=partition_id,
@@ -183,7 +196,6 @@ class MasterMixin(BasicMixin, unittest.TestCase):
       partition_timeout=partition_timeout,
     )
 
-    partition.updateSupervisor = FakeCallAndNoop
     if retention_delay:
       partition.retention_delay = retention_delay
 
@@ -528,6 +540,47 @@ class TestPartitionSupervisorConfig(MasterMixin, unittest.TestCase):
 
     for i in range(3):
       self.assertIn('program:%s_runner-%s' % (group_id, i), supervisor_conf)
+
+  def test_partition_independence(self):
+    partition1a = self.createPartition(self.software.url, partition_id='part1a')
+    partition1a_service_path = os.path.join(
+      partition1a.instance_path, 'etc', 'service')
+    os.makedirs(partition1a_service_path)
+    with open(os.path.join(partition1a_service_path, 'test'), 'w') as f:
+      f.write('#!/bin/sh\nsleep 30')
+      os.fchmod(f.fileno(), 0o750)
+    partition1a.start()
+
+    with self.supervisor as s:
+      part1a_pid = s.getProcessInfo('part1a:test-on-watch')['pid']
+      self.assertTrue(part1a_pid)
+
+    partition1 = self.createPartition(self.software.url, partition_id='part1')
+    partition1_service_path = os.path.join(
+      partition1.instance_path, 'etc', 'service')
+    os.makedirs(partition1_service_path)
+    with open(os.path.join(partition1_service_path, 'test'), 'w') as f:
+      f.write('#!/bin/sh\nsleep 30')
+      os.fchmod(f.fileno(), 0o750)
+    partition1.start()
+
+    # process is still running (it was not restarted)
+    with self.supervisor as s:
+      self.assertEqual(
+        s.getProcessInfo('part1a:test-on-watch')['pid'],
+        part1a_pid)
+
+    partition1.stop()
+    with self.supervisor as s:
+      self.assertEqual(
+        s.getProcessInfo('part1a:test-on-watch')['pid'],
+        part1a_pid)
+
+    partition1.destroy()
+    with self.supervisor as s:
+      self.assertEqual(
+        s.getProcessInfo('part1a:test-on-watch')['pid'],
+        part1a_pid)
 
 
 class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):

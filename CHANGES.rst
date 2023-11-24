@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.10.5 (2023-11-24)
+-------------------
+* SlapObject: Fix supervisord config generation
+
 1.10.4 (2023-10-12)
 -------------------
 * cli/info: Complete "slapos service info" with service names

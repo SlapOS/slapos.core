@@ -74,6 +74,7 @@ if (request_software_instance is None):
   else:
     instance_found = True
     # First time that the software instance is requested
+    successor = None
 
     # Create a new one
     reference = "SOFTINST-%s" % portal.portal_ids.generateNewId(
@@ -123,7 +124,6 @@ else:
         activate_kw={'tag': tag}
       )
   graph[successor.getUid()] = successor_uid_list
-  context.log("rafael graph %s" % graph)
 
 if instance_found:
 
@@ -149,7 +149,7 @@ if instance_found:
 
   successor_list = requester_instance.getSuccessorList()
   successor_uid_list = requester_instance.getSuccessorUidList()
-  if request_software_instance_url not in successor_list:
+  if successor != requester_instance:
     successor_list.append(request_software_instance_url)
     successor_uid_list.append(request_software_instance.getUid())
   uniq_successor_list = list(set(successor_list))
@@ -165,10 +165,7 @@ if instance_found:
   request_software_instance.checkConnected(graph, instance_tree.getUid())
   request_software_instance.checkNotCyclic(graph)
 
-  previous_successor_list = requester_instance.getSuccessorList()
-  previous_successor_list.sort()
-
-  if previous_successor_list != successor_list: 
+  if successor != requester_instance:
     requester_instance.edit(
       successor_list=successor_list,
       activate_kw={'tag': tag}

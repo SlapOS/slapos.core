@@ -85,6 +85,11 @@ for send_partition in compute_node_dict['partition_list']:
     partition.validate(comment="Reactivated by slapformat")
   if partition.getReference() != send_partition['reference']:
     partition.edit(reference=send_partition['reference'])
+
+  send_capability_list = send_partition.get('capability') or []
+  if partition.getSubjectList() != send_capability_list:
+    partition.edit(subject=send_capability_list)
+
   network_interface = send_partition['tap']['name']
   compareAndUpdateAddressList(partition, send_partition['address_list'], {'network_interface': network_interface})
   tap_addr_list = []

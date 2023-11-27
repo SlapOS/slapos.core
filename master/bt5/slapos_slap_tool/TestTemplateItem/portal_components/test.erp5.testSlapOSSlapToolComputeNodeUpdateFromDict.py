@@ -980,3 +980,88 @@ class TestSlapOSCoreComputeNodeUpdateFromDict(SlapOSTestCaseMixinWithAbort):
     self.assertEqual(partition.getValidationState(), 'invalidated')
     self.assertEqual(partition.getSlapState(), 'inactive')
     self.assertEqual(partition.getId(), 'bar')
+
+  #############################################
+  # Compute Partition capabilities
+  #############################################
+  def test_CreateSinglePartitionWithCapability(self):
+    capability = "CAPA-%s" % self.generateNewId()
+
+    parameter_dict = {
+      'partition_list': [{
+        'reference': 'foo',
+        'address_list': [],
+        'tap': {'name': 'bar'},
+        'capability': capability,
+      }],
+      'address': 'a',
+      'netmask': 'b',
+    }
+    self.compute_node.ComputeNode_updateFromDict(parameter_dict)
+
+    partition_list = self.compute_node.contentValues(
+        portal_type='Compute Partition')
+    self.assertEqual(len(partition_list), 1)
+    partition = partition_list[0]
+    self.assertEqual(partition.getReference(), 'foo')
+    self.assertEqual(partition.getValidationState(), 'validated')
+    self.assertEqual(partition.getSlapState(), 'free')
+    self.assertEqual(partition.getSubjectList(), [capability])
+
+  def test_UpdatePartitionCapability(self):
+    partition_dict = {
+      'reference': 'foo',
+      'address_list': [],
+      'tap': {'name': 'bar'},
+    }
+    parameter_dict = {
+      'partition_list': [partition_dict],
+      'address': 'a',
+      'netmask': 'b',
+    }
+
+    def check_Partition(subject_list):
+      partition_list = self.compute_node.contentValues(
+          portal_type='Compute Partition')
+      self.assertEqual(len(partition_list), 1)
+      partition = partition_list[0]
+      self.assertEqual(partition.getReference(), 'foo')
+      self.assertEqual(partition.getValidationState(), 'validated')
+      self.assertEqual(partition.getSlapState(), 'free')
+      self.assertEqual(partition.getSubjectList(), subject_list)
+
+    self.compute_node.ComputeNode_updateFromDict(parameter_dict)
+    check_Partition([])
+
+    capa1 = "CAPA1-%s" % self.generateNewId()
+    partition_dict['capability'] = capa1
+    self.compute_node.ComputeNode_updateFromDict(parameter_dict)
+    check_Partition([capa1])
+
+    capa2 = "CAPA2-%s" % self.generateNewId()
+    partition_dict['capability'] = capa2
+    self.compute_node.ComputeNode_updateFromDict(parameter_dict)
+    check_Partition([capa2])
+
+    partition_dict['capability'] = '\n'.join((capa1, capa2))
+    self.compute_node.ComputeNode_updateFromDict(parameter_dict)
+    check_Partition([capa1, capa2])
+
+    # Check order is stable
+    partition_dict['capability'] = '\n'.join((capa2, capa1))
+    self.compute_node.ComputeNode_updateFromDict(parameter_dict)
+    check_Partition([capa1, capa2])
+
+    partition_dict['capability'] = ''
+    self.compute_node.ComputeNode_updateFromDict(parameter_dict)
+    check_Partition([])
+
+    # Check duplicates are removed
+    partition_dict['capability'] = '\n'.join((capa2, capa2, capa1))
+    self.compute_node.ComputeNode_updateFromDict(parameter_dict)
+    check_Partition([capa1, capa2])
+
+    del partition_dict['capability']
+    self.compute_node.ComputeNode_updateFromDict(parameter_dict)
+    check_Partition([])
+

@@ -854,7 +854,9 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
   def test_allocation_storage_redundancy_sla(self):
     return self.check_allocation_category_sla('storage_redundancy', 'dht', 'raid')
 
-  def check_allocation_capability(self, capability, *bad_capability_list):
+  def check_allocation_capability(self, capability, bad_capability_list,
+                                  good_capability=None):
+    good_capability = good_capability or capability
     self._makeTree()
 
     self._makeComputeNode()
@@ -883,7 +885,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='capability'>%s</parameter>
-        </instance>""" % capability)
+        </instance>""" % good_capability)
     self.software_instance.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(self.partition.getRelativeUrl(),
         self.software_instance.getAggregate(portal_type='Compute Partition'))
@@ -893,9 +895,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     valid_id = self.generateNewId()
     capability = 'toto_' + valid_id
 
-    self.check_allocation_capability(
-        capability,
-
+    self.check_allocation_capability(capability, (
         'tutu_' + self.generateNewId(),
         't%to_' + valid_id,
         '%_' + valid_id,
@@ -907,12 +907,17 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
         '.*_' + valid_id,
         '.*',
-    )
+    ))
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_capability_percent(self):
-    self.check_allocation_capability('%', '_')
+    self.check_allocation_capability('%', ('_',))
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_capability_ipv6(self):
-    self.check_allocation_capability('fe80::1ff:fe23:4567:890a', 'fe80::1')
+    self.check_allocation_capability('fe80::1ff:fe23:4567:890a', ('fe80::1',))
+
+  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
+  def test_allocation_capability_multiple(self):
+    self.check_allocation_capability('toto\ntata', ('titi',), 'toto')
+    self.check_allocation_capability('toto\ntata', ('titi',), 'tata')

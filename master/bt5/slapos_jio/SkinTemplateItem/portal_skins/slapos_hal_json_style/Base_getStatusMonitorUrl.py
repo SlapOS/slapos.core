@@ -11,4 +11,4 @@ if context.getPortalType() == "Instance Tree":
   return query_url + "title:(%s)" % context.getTitle()
 
 if context.getPortalType() in ["Software Instance", "Slave Instance"]:
-  return query_url + "reference:%s" % context.getReference()
+  return query_url + 'title:"%s" AND ' % context.getTitle() + 'specialise_title:"%s"' % context.getSpecialiseTitle()

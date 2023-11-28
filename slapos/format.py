@@ -1486,6 +1486,15 @@ def parse_computer_definition(conf, definition_path):
                           address_list=address_list,
                           ipv6_range=ipv6_range,
                           tap=tap, tun=tun)
+    if computer_definition.has_option(section, 'capability_list'):
+      # Attribute .capability_list exists only when capabilities are defined
+      capability_string = computer_definition.get(section, 'capability_list')
+      capability_list = []
+      for c in capability_string.splitlines():
+          c = c.strip()
+          if c:
+            capability_list.append(c)
+      partition.capability_list = capability_list
     partition_list.append(partition)
   computer.partition_list = partition_list
   return computer

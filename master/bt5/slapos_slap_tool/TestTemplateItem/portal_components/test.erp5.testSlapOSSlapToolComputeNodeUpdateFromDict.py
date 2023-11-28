@@ -1006,7 +1006,7 @@ class TestSlapOSCoreComputeNodeUpdateFromDict(SlapOSTestCaseMixinWithAbort):
     self.assertEqual(partition.getReference(), 'foo')
     self.assertEqual(partition.getValidationState(), 'validated')
     self.assertEqual(partition.getSlapState(), 'free')
-    self.assertEqual(partition.getSubject(), capability)
+    self.assertEqual(partition.getSubjectList(), [capability])
 
   def test_UpdatePartitionCapability(self):
     partition_dict = {

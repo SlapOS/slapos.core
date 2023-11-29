@@ -269,7 +269,8 @@ class Computer(object):
     self.interface = interface
     self.partition_list = partition_list or []
     self.address = addr
-    self.netmask = netmask
+    # Normalize netmask due to netiface netmasks like ffff::/16
+    self.netmask = netmask and netmask.split('/')[0]
     self.ipv6_interface = ipv6_interface
     self.partition_has_ipv6_range = partition_has_ipv6_range
     self.software_user = software_user
@@ -1613,7 +1614,8 @@ def do_format(conf):
     conf.logger.info('Updating computer')
     address = computer.getAddress()
     computer.address = address['addr']
-    computer.netmask = address['netmask']
+    # Normalize netmask due to netiface netmasks like ffff::/16
+    computer.netmask = address['netmask'] and address['netmask'].split('/')[0]
 
     if conf.output_definition_file:
       write_computer_definition(conf, computer)

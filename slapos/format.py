@@ -144,6 +144,19 @@ class AddressGenerationError(Exception):
     )
 
 
+def getNormalizedIfaddresses(iface, inet):
+  """
+  Keep a single representation for netmasks, to avoid netmasks like
+  ffff:ffff:ffff:ffff:ffff:ffff::/96
+  """
+  address_list = netifaces.ifaddresses(iface)[inet]
+  for q in address_list:
+    try:
+      q['netmask'] = q['netmask'].split('/')[0]
+    except KeyError:
+      pass
+  return address_list
+
 def getPublicIPv4Address():
   test_list = [
     { "url": 'https://api.ipify.org/?format=json' , "json_key": "ip"},
@@ -194,7 +207,7 @@ def getIfaceAddressIPv4(iface):
     raise ValueError('Could not find interface called %s to use as gateway ' \
                       'for tap network' % iface)
   try:
-    addresses_list = netifaces.ifaddresses(iface)[socket.AF_INET]
+    addresses_list = getNormalizedIfaddresses(iface, socket.AF_INET)
     if len (addresses_list) > 0:
 
       addresses = addresses_list[0].copy()
@@ -1057,14 +1070,16 @@ class Interface(object):
     Returns currently configured local IPv4 addresses which are in
     ipv4_local_network
     """
-    if not socket.AF_INET in netifaces.ifaddresses(self.name):
+    try:
+      address_list = getNormalizedIfaddresses(self.name, socket.AF_INET)
+    except KeyError: # No entry for socket.AF_INET
       return []
     return [
             {
-                'addr': q['addr'],
-                'netmask': q['netmask']
-                }
-            for q in netifaces.ifaddresses(self.name)[socket.AF_INET]
+              'addr': q['addr'],
+              'netmask': q['netmask']
+            }
+            for q in address_list
             if netaddr.IPAddress(q['addr'], 4) in netaddr.glob_to_iprange(
                 netaddr.cidr_to_glob(self.ipv4_local_network))
             ]
@@ -1075,7 +1090,7 @@ class Interface(object):
     try:
       address_list = [
           q
-          for q in netifaces.ifaddresses(interface_name)[socket.AF_INET6]
+          for q in getNormalizedIfaddresses(interface_name, socket.AF_INET6)
           if isGlobalScopeAddress(q['addr'].split('%')[0])
       ]
     except KeyError:
@@ -1088,7 +1103,7 @@ class Interface(object):
       try:
         address_list += [
           q
-          for q in netifaces.ifaddresses(tap.name)[socket.AF_INET6]
+          for q in getNormalizedIfaddresses(tap.name, socket.AF_INET6)
           if isGlobalScopeAddress(q['addr'].split('%')[0])
       ]
       except KeyError:

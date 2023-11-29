@@ -7,7 +7,8 @@
   "use strict";
 
   var DISPLAY_JSON_FORM = 'display_json_form',
-    DISPLAY_RAW_XML = 'display_raw_xml';
+    DISPLAY_RAW_XML = 'display_raw_xml',
+    PARAMETER_KEY = 'parameter_key';
 
   //////////////////////////////////////////
   // ParserError
@@ -129,6 +130,12 @@
     return g.getDeclaredGadget('json_form')
       .push(function (gadget) {
         return gadget.getContent();
+      })
+      .push(function (json_dict) {
+        if (json_dict && (json_dict[PARAMETER_KEY] !== undefined)) {
+          return JSON.parse(json_dict[PARAMETER_KEY]);
+        }
+        return {};
       })
       .push(function (json_dict) {
         var parameter_hash_input = g.element.querySelectorAll('.parameter_hash_output')[0],
@@ -442,13 +449,14 @@
           prefix = json_url.split(json_url_uri.path())[0] + prefix.join("/");
           parameter_json_schema_url = prefix + "/" + parameter_json_schema_url;
         }
+        // loadJSONSchema is there to ensure that the JSON from a proper serialisation
+        // 
         return gadget.loadJSONSchema(parameter_json_schema_url, serialisation)
-          .push(function (json) {
+          .push(function () {
             // Reset failover text area
             domsugar(gadget.element.querySelector('div.failover-textarea'));
             return gadget.renderSubForm(
               parameter_json_schema_url,
-              json,
               parameter_dict,
               editable
             );
@@ -489,13 +497,14 @@
         });
     })
 
-    .declareMethod("renderSubForm", function (parameter_json_schema_url, json_field, default_dict, editable) {
+    .declareMethod("renderSubForm", function (parameter_json_schema_url, default_dict, editable) {
       return this.getDeclaredGadget('json_form')
         .push(function (gadget) {
           return gadget.render({
             schema_url: parameter_json_schema_url,
-            json_field: json_field,
-            default_dict: default_dict,
+            key: PARAMETER_KEY,
+            // value is always string
+            value: JSON.stringify(default_dict),
             editable: editable
           });
         });

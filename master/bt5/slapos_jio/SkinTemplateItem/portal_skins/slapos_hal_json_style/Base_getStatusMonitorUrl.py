@@ -1,5 +1,5 @@
 monitor_dict = context.Base_getMonitorDict()
-base_url = monitor_dict.url + '#/?page=' + monitor_dict.dispatch_page
+base_url = monitor_dict["url"] + '#/?page=' + monitor_dict["dispatch_page"]
 
 query_url = base_url + '&query=portal_type:"Software Instance" AND '
 

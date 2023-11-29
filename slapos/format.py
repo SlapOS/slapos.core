@@ -1288,21 +1288,11 @@ class Interface(object):
     address_dict = interface_addr_list[0]
 
     if addr is not None:
-      # support netifaces which returns netmask and netmask/len
-      # will result with updating the computer XML netmask only
-      # to follow the change of netmask representation in netifaces
-      if '/' in netmask:
-        dict_addr_netmask_with_len = dict(addr=addr, netmask=netmask)
-        dict_addr_netmask_without_len = dict(addr=addr, netmask=netmask.split('/')[0])
-      else:
-        dict_addr_netmask_without_len = dict(addr=addr, netmask=netmask)
-        dict_addr_netmask_with_len = dict(addr=addr, netmask='%s/%s' % (netmask, lenNetmaskIpv6(netmask)))
-      for dict_addr_netmask in [dict_addr_netmask_with_len, dict_addr_netmask_without_len]:
-        if dict_addr_netmask in interface_addr_list or \
-           (tap and dict_addr_netmask in self.getGlobalScopeAddressList(tap=tap)):
-          # confirmed to be configured
-          # return without len to keep format stable, as the first time len is not included
-          return dict_addr_netmask_without_len
+      dict_addr_netmask = dict(addr=addr, netmask=netmask)
+      if dict_addr_netmask in interface_addr_list or \
+         (tap and dict_addr_netmask in self.getGlobalScopeAddressList(tap=tap)):
+        # confirmed to be configured
+        return dict_addr_netmask
       if netmask == address_dict['netmask'] or \
          (tap and lenNetmaskIpv6(netmask) == 128):
         # same netmask, so there is a chance to add good one

@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.10.6 (2023-11-30)
+-------------------
+* slap/hateoas: use new portal type "Compute Node" instead of "Computer"
+
 1.10.5 (2023-11-24)
 -------------------
 * SlapObject: Fix supervisord config generation

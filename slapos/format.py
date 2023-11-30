@@ -144,6 +144,19 @@ class AddressGenerationError(Exception):
     )
 
 
+def getNormalizedIfaddresses(iface, inet):
+  """
+  Keep a single representation for netmasks, to avoid netmasks like
+  ffff:ffff:ffff:ffff:ffff:ffff::/96
+  """
+  address_list = netifaces.ifaddresses(iface)[inet]
+  for q in address_list:
+    try:
+      q['netmask'] = q['netmask'].split('/')[0]
+    except KeyError:
+      pass
+  return address_list
+
 def getPublicIPv4Address():
   test_list = [
     { "url": 'https://api.ipify.org/?format=json' , "json_key": "ip"},
@@ -194,7 +207,7 @@ def getIfaceAddressIPv4(iface):
     raise ValueError('Could not find interface called %s to use as gateway ' \
                       'for tap network' % iface)
   try:
-    addresses_list = netifaces.ifaddresses(iface)[socket.AF_INET]
+    addresses_list = getNormalizedIfaddresses(iface, socket.AF_INET)
     if len (addresses_list) > 0:
 
       addresses = addresses_list[0].copy()
@@ -269,7 +282,8 @@ class Computer(object):
     self.interface = interface
     self.partition_list = partition_list or []
     self.address = addr
-    self.netmask = netmask
+    # Normalize netmask due to netiface netmasks like ffff::/16
+    self.netmask = netmask and netmask.split('/')[0]
     self.ipv6_interface = ipv6_interface
     self.partition_has_ipv6_range = partition_has_ipv6_range
     self.software_user = software_user
@@ -1056,14 +1070,16 @@ class Interface(object):
     Returns currently configured local IPv4 addresses which are in
     ipv4_local_network
     """
-    if not socket.AF_INET in netifaces.ifaddresses(self.name):
+    try:
+      address_list = getNormalizedIfaddresses(self.name, socket.AF_INET)
+    except KeyError: # No entry for socket.AF_INET
       return []
     return [
             {
-                'addr': q['addr'],
-                'netmask': q['netmask']
-                }
-            for q in netifaces.ifaddresses(self.name)[socket.AF_INET]
+              'addr': q['addr'],
+              'netmask': q['netmask']
+            }
+            for q in address_list
             if netaddr.IPAddress(q['addr'], 4) in netaddr.glob_to_iprange(
                 netaddr.cidr_to_glob(self.ipv4_local_network))
             ]
@@ -1074,7 +1090,7 @@ class Interface(object):
     try:
       address_list = [
           q
-          for q in netifaces.ifaddresses(interface_name)[socket.AF_INET6]
+          for q in getNormalizedIfaddresses(interface_name, socket.AF_INET6)
           if isGlobalScopeAddress(q['addr'].split('%')[0])
       ]
     except KeyError:
@@ -1087,7 +1103,7 @@ class Interface(object):
       try:
         address_list += [
           q
-          for q in netifaces.ifaddresses(tap.name)[socket.AF_INET6]
+          for q in getNormalizedIfaddresses(tap.name, socket.AF_INET6)
           if isGlobalScopeAddress(q['addr'].split('%')[0])
       ]
       except KeyError:
@@ -1486,6 +1502,15 @@ def parse_computer_definition(conf, definition_path):
                           address_list=address_list,
                           ipv6_range=ipv6_range,
                           tap=tap, tun=tun)
+    if computer_definition.has_option(section, 'capability_list'):
+      # Attribute .capability_list exists only when capabilities are defined
+      capability_string = computer_definition.get(section, 'capability_list')
+      capability_list = []
+      for c in capability_string.splitlines():
+          c = c.strip()
+          if c:
+            capability_list.append(c)
+      partition.capability_list = capability_list
     partition_list.append(partition)
   computer.partition_list = partition_list
   return computer
@@ -1604,7 +1629,8 @@ def do_format(conf):
     conf.logger.info('Updating computer')
     address = computer.getAddress()
     computer.address = address['addr']
-    computer.netmask = address['netmask']
+    # Normalize netmask due to netiface netmasks like ffff::/16
+    computer.netmask = address['netmask'] and address['netmask'].split('/')[0]
 
     if conf.output_definition_file:
       write_computer_definition(conf, computer)

@@ -353,7 +353,7 @@ class SlapHateoasNavigator(HateoasNavigator):
     return result['data']['rows']
 
   def _getComputerList(self, title=None, reference=None, select_list=["title", "reference"]):
-    query_str = 'portal_type:"Computer" AND validation_state:validated'
+    query_str = 'portal_type:"Compute Node" AND validation_state:validated'
     if title is not None:
       query_str += ' AND title:="%s"' % title
 

@@ -9,3 +9,6 @@ if context.getPortalType() == "Instance Tree":
 
 if context.getPortalType() in ["Software Instance", "Slave Instance"]:
   return base_url + '&query=portal_type:"Software Instance" AND title:"%s" AND ' % context.getTitle() + 'specialise_title:"%s"' % context.getSpecialiseTitle()
+
+#OLD return query_url + "reference:%s" % context.getReference()
+#TODO build a url detach from internal monitoring app stuff, like [app-url]/?page=import{url,username,password,query}

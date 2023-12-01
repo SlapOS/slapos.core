@@ -25,6 +25,7 @@
 #
 ##############################################################################
 
+from Products.ERP5Type.TransactionalVariable import getTransactionalVariable
 from AccessControl.SecurityManagement import getSecurityManager, \
              setSecurityManager, newSecurityManager
 from Products.ERP5Security import SUPER_USER
@@ -283,6 +284,13 @@ def Computer_checkComputeNodeMigrationConsistency(self, fixit=False):
 
   return error_list
 
+def Base_setTransactionalTag(self, tag, REQUEST=None):
+  getTransactionalVariable()[str(tag)] = str(tag)
+
+def Base_getTransactionalTag(self, tag, REQUEST=None):
+  if REQUEST is not None:
+    raise Unauthorized
+  return getTransactionalVariable().get(tag, None) 
 
 def Base_updateRelatedContentWithoutReindextion(self, previous_category_url, new_category_url, REQUEST=None):
   """ This method indeed reimplements the updateRelatedContent but it uses 

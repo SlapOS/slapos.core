@@ -33,8 +33,8 @@
       "default": "simple string A"
     },
     "simple-boolean": {
-      "title": "Example of Simple String",
-      "description": "Example of Simple String",
+      "title": "Example of Boolean",
+      "description": "Example of Boolean",
       "type": "boolean",
       "default": true
     },
@@ -74,7 +74,7 @@
       "default": 1.0
     },
      "simple-numeric-integer-enum": {
-      "title": "Example of Simple Numeric as integer",
+      "title": "Example of Simple Numeric as integer with enum",
       "description": "Example of Simple Numeric as Interger",
       "type": "number",
       "default": 1.0,
@@ -96,7 +96,7 @@
       "default": 1.5
     },
      "simple-numeric-float-enum": {
-      "title": "Example of Simple Numeric as float",
+      "title": "Example of Simple Numeric as float with enum",
       "description": "Example of Simple Numeric as float",
       "type": "number",
       "default": 1.5,

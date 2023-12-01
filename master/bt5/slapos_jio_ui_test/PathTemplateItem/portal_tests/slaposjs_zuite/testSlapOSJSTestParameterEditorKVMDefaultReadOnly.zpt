@@ -26,44 +26,12 @@
 
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
 
-      <tr>
-        <td colspan="3"><b> Check ram size</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//ram-size" and @type="number" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//ram-size" and @type="number" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-
-      <tr>
-        <td>assertValue</td>
-        <td>//input[@name="//ram-size" and @type="number" and @readonly="true"]</td>
-        <td>4096</td>
-      </tr>
-
-      <tr>
-        <td colspan="3"><b> Check CPU count</b></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name="//cpu-count" and @type="number" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertElementPresent</td>
-        <td>//input[@name="//cpu-count" and @type="number" and @readonly="true"]</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>assertValue</td>
-        <td>//input[@name="//cpu-count" and @type="number" and @readonly="true"]</td>
-        <td>3</td>
-      </tr>
+      <tal:block tal:define="name python:'root[ram-size]'; value python: 4096">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+      </tal:block>
+      <tal:block tal:define="name python:'root[cpu-count]'; value python: 3">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+      </tal:block>
     </tbody>
   </table>
 </body>

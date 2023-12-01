@@ -448,7 +448,8 @@
         </item>
         <item>
             <key> <string>configuration_precache_manifest_script_list</string> </key>
-            <value> <string>WebSection_getHostingJSPrecacheManifestList</string> </value>
+            <value> <string>WebSection_getHostingJSPrecacheManifestList\n
+WebSection_getJsonEditorPrecacheManifestList</string> </value>
         </item>
         <item>
             <key> <string>configuration_service_worker_url</string> </key>
@@ -707,7 +708,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1001.26171.19762.42854</string> </value>
+                      <value> <string>1010.52641.3080.21452</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -727,7 +728,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1659036783.36</float>
+                              <float>1700245844.87</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

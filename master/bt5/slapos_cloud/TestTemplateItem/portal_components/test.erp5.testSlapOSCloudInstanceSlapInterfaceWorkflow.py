@@ -20,7 +20,6 @@
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 import transaction
-from unittest import expectedFailure
 from time import sleep
 from zExceptions import Unauthorized
 
@@ -441,7 +440,6 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertRaises(NotImplementedError, B_instance.requestInstance,
         **request_kw)
 
-  @expectedFailure
   def test_request_tree_change_same_transaction(self):
     """Checks tree change forced by request
 
@@ -706,7 +704,6 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertRaises(NotImplementedError, B_instance.requestInstance,
         **request_kw)
 
-  @expectedFailure
   def test_request_tree_change_same_transaction_shared(self):
     """Checks tree change forced by request
 
@@ -1160,7 +1157,6 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
     self.assertTrue(serial in self.software_instance.getSslCertificate())
     self.assertTrue(certificate_login.getReference() in \
        self.software_instance.getSslCertificate().decode('string_escape'))
-
     self.assertRaises(ValueError, self.software_instance.generateCertificate)
 
   def test_revokeCertificate(self):

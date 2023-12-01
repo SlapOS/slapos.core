@@ -30,7 +30,7 @@ else:
 # Prevent creating two instances with the same title
 instance_tree.serialize()
 tag = "%s_%s_inProgress" % (instance_tree.getUid(), software_title)
-if (portal.portal_activities.countMessageWithTag(tag) > 0):
+if (portal.portal_activities.countMessageWithTag(tag) > 0) or context.Base_getTransactionalTag(tag):
   # The software instance is already under creation but can not be fetched from catalog
   # As it is not possible to fetch informations, it is better to raise an error
   raise NotImplementedError(tag)
@@ -137,6 +137,7 @@ if instance_found:
   }
   request_software_instance_url = request_software_instance.getRelativeUrl()
   context.REQUEST.set('request_instance', request_software_instance)
+  context.Base_setTransactionalTag(tag)
   if (root_state == "started"):
     request_software_instance.requestStart(**promise_kw)
   elif (root_state == "stopped"):

@@ -470,6 +470,66 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertRaises(NotImplementedError, B_instance.requestInstance,
         **request_kw)
 
+  def test_request_tree_edit_parameters_change_not_indexed(self):
+    """Checks tree change forced by request
+
+    For a tree like:
+
+    A
+    |
+    A
+    |\
+    B C
+    |
+    D
+
+    When C requests D tree in a while C requests D, but before indexation,
+    the system shall disallow the operation."""
+    request_kw = self.request_kw.copy()
+
+    request_kw['software_title'] = self.generateNewSoftwareTitle()
+    self.software_instance.requestInstance(**request_kw)
+    B_instance = self.software_instance.REQUEST.get('request_instance')
+
+    request_kw['software_title'] = self.generateNewSoftwareTitle()
+    self.software_instance.requestInstance(**request_kw)
+    C_instance = self.software_instance.REQUEST.get('request_instance')
+
+    request_kw['software_title'] = self.generateNewSoftwareTitle()
+    B_instance.requestInstance(**request_kw)
+    D_instance = self.software_instance.REQUEST.get('request_instance')
+
+    self.assertSameSet(
+        self.software_instance.getSuccessorList(),
+        [B_instance.getRelativeUrl(), C_instance.getRelativeUrl()])
+
+    self.assertSameSet(
+        B_instance.getSuccessorList(), [D_instance.getRelativeUrl()])
+
+    # Ensure all is indexed first
+    self.tic()
+  
+    # B edits twice w/o a problem w/o indexation problems
+    request_kw['instance_xml'] = self.generateSafeXml()
+    B_instance.requestInstance(**request_kw)
+    
+    transaction.commit()
+    C_instance.requestInstance(**request_kw)
+    
+    transaction.commit()
+    self.assertSameSet(
+        C_instance.getSuccessorList(), [D_instance.getRelativeUrl()])
+
+    self.assertSameSet(
+        B_instance.getSuccessorList(), [])
+
+
+    # B request must fails since indexation didnt finished up properly
+    # which would lead to dupplicated set on sucessor
+    self.assertRaises(NotImplementedError, B_instance.requestInstance,
+        **request_kw)
+
+
   def test_request_started_stopped_destroyed(self):
     request_kw = self.request_kw.copy()
 

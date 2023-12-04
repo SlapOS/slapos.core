@@ -1084,7 +1084,7 @@ def is_valid(name):
 
 p_service_list = 'portal_type:"Instance Tree" AND validation_state:validated'
 p_service_info = p_service_list + ' AND title:='
-p_computer_list = 'portal_type:"Computer" AND validation_state:validated'
+p_computer_list = 'portal_type:"Compute Node" AND validation_state:validated'
 p_computer_info = p_computer_list + ' AND reference:='
 
 def parse_query(query):

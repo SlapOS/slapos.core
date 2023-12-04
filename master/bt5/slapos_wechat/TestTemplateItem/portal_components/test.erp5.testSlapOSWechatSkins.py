@@ -523,7 +523,6 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
         payment.workflow_history['accounting_workflow'][-1]['comment'])
 
 class TestSlapOSWechatBase_getWechatServiceRelativeUrl(SlapOSTestCaseMixinWithAbort):
-
   def test_getWechatServiceRelativeUrl_REQUEST_disallowed(self):
     self.assertRaises(
       Unauthorized,
@@ -531,8 +530,17 @@ class TestSlapOSWechatBase_getWechatServiceRelativeUrl(SlapOSTestCaseMixinWithAb
       REQUEST={})
 
   def test_getWechatServiceRelativeUrl_default_result(self):
+    self.portal.portal_secure_payments.slapos_wechat_test.setReference("PSERV-Wechat-Test")
+    self.tic()
     result = self.portal.Base_getWechatServiceRelativeUrl()
     self.assertEqual(result, 'portal_secure_payments/slapos_wechat_test')
+
+  def test_getWechatServiceRelativeUrl_not_found(self):
+    self.portal.portal_secure_payments.slapos_wechat_test.setReference("disabled")
+    self.tic()
+    result = self.portal.Base_getWechatServiceRelativeUrl()
+    self.assertEqual(result, None)
+
 
 class TestSlapOSWechatPaymentTransaction_redirectToManualWechatPayment(
                                                     SlapOSTestCaseMixinWithAbort):

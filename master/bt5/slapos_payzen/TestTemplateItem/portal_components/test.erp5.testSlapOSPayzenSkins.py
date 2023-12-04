@@ -170,6 +170,8 @@ class TestSlapOSPaymentTransaction_createPayzenEvent(SlapOSTestCaseMixinWithAbor
       REQUEST={})
 
   def test_createPayzenEvent_newPayment(self):
+    self.portal.portal_secure_payments.slapos_payzen_test.setReference("PSERV-Payzen-Test")
+    self.tic()
     payment_transaction = self.createPaymentTransaction()
     payzen_event = payment_transaction.PaymentTransaction_createPayzenEvent()
     self.assertEqual(payzen_event.getPortalType(), "Payzen Event")
@@ -178,6 +180,8 @@ class TestSlapOSPaymentTransaction_createPayzenEvent(SlapOSTestCaseMixinWithAbor
     self.assertEqual(payzen_event.getDestination(), payment_transaction.getRelativeUrl())
 
   def test_createPayzenEvent_kwParameter(self):
+    self.portal.portal_secure_payments.slapos_payzen_test.setReference("PSERV-Payzen-Test")
+    self.tic()
     payment_transaction = self.createPaymentTransaction()
     payzen_event = payment_transaction.PaymentTransaction_createPayzenEvent(
       title='foo')
@@ -666,8 +670,17 @@ class TestSlapOSPayzenBase_getPayzenServiceRelativeUrl(SlapOSTestCaseMixinWithAb
       REQUEST={})
 
   def test_getPayzenServiceRelativeUrl_default_result(self):
+    self.portal.portal_secure_payments.slapos_payzen_test.setReference("PSERV-Payzen-Test")
+    self.tic()
     result = self.portal.Base_getPayzenServiceRelativeUrl()
     self.assertEqual(result, 'portal_secure_payments/slapos_payzen_test')
+
+  def test_getPayzenServiceRelativeUrl_not_found(self):
+    self.portal.portal_secure_payments.slapos_payzen_test.setReference("disabled")
+    self.tic()
+    result = self.portal.Base_getPayzenServiceRelativeUrl()
+    self.assertEqual(result, None)
+
 
 class TestSlapOSPayzenPaymentTransaction_redirectToManualPayzenPayment(
                                                     SlapOSTestCaseMixinWithAbort):
@@ -712,6 +725,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self._dropPaymentTransaction_getVADSUrlDict()
 
   def test_PaymentTransaction_redirectToManualPayzenPayment_redirect(self):
+    self.portal.portal_secure_payments.slapos_payzen_test.setReference("PSERV-Payzen-Test")
+    self.tic()
     person = self.makePerson()
     invoice =  self.createStoppedSaleInvoiceTransaction(
       destination_section=person.getRelativeUrl())

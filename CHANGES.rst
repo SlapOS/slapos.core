@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.10.7 (2023-12-04)
+-------------------
+* slap/proxy: use new portal type "Compute Node" instead of "Computer"
+
 1.10.6 (2023-11-30)
 -------------------
 * slap/hateoas: use new portal type "Compute Node" instead of "Computer"

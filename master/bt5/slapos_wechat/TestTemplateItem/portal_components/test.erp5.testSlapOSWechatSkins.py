@@ -169,6 +169,7 @@ class TestSlapOSPaymentTransaction_createWechatEvent(SlapOSTestCaseMixinWithAbor
       REQUEST={})
 
   def test_createWechatEvent_newPayment(self):
+    self.portal.portal_secure_payments.slapos_wechat_test.setReference("PSERV-Wechat-Test")
     payment_transaction = self.createPaymentTransaction()
     wechat_event = payment_transaction.PaymentTransaction_createWechatEvent()
     self.assertEqual(wechat_event.getPortalType(), "Wechat Event")
@@ -177,6 +178,8 @@ class TestSlapOSPaymentTransaction_createWechatEvent(SlapOSTestCaseMixinWithAbor
     self.assertEqual(wechat_event.getDestination(), payment_transaction.getRelativeUrl())
 
   def test_createWechatEvent_kwParameter(self):
+    self.portal.portal_secure_payments.slapos_wechat_test.setReference("PSERV-Wechat-Test")
+    self.tic()
     payment_transaction = self.createPaymentTransaction()
     wechat_event = payment_transaction.PaymentTransaction_createWechatEvent(
       title='foo')
@@ -585,6 +588,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self._dropPaymentTransaction_getVADSUrlDict()
 
   def test_PaymentTransaction_redirectToManualWechatPayment_redirect(self):
+    self.portal.portal_secure_payments.slapos_wechat_test.setReference("PSERV-Wechat-Test")
     person = self.makePerson()
     invoice =  self.createStoppedSaleInvoiceTransaction(
       payment_mode="wechat",
@@ -629,6 +633,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     transaction.abort()
 
   def test_PaymentTransaction_redirectToManualWechatPayment_redirect_with_website(self):
+    self.portal.portal_secure_payments.slapos_wechat_test.setReference("PSERV-Wechat-Test")
     person = self.makePerson()
     invoice =  self.createStoppedSaleInvoiceTransaction(
       payment_mode="wechat",

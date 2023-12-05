@@ -189,7 +189,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_consumption/SoftwareRelease_getAverageConsumedMemory',
         'slapos_wechat/Base_queryWechatOrderStatusByTradeNo',
         'slapos_wechat/ERP5Site_receiveWechatPaymentCallback',
-        'slapos_wechat/PaymentTransaction_redirectToWechatPayment',
         'slapos_payzen/PayzenEvent_isPaymentExpired',
         'slapos_deploy_theme/WebPage_getDeploySubstitutionMappingDict',
         'slapos_deploy_theme/WebPage_viewAsWeb',

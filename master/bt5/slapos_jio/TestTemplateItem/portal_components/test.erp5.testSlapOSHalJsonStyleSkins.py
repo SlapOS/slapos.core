@@ -27,6 +27,7 @@ from App.Common import rfc1123_date
 from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
 from DateTime import DateTime
 import json
+import transaction
 
 def _decode_with_json(value):
   # Ensure value is serisalisable as json
@@ -478,23 +479,23 @@ class TestOrganisation_getNewsDict(TestSlapOSHalJsonStyleMixin):
 class TestPerson_newLogin(TestSlapOSHalJsonStyleMixin):
   def test_Person_newLogin_as_superuser(self):
     person = self._makePerson(user=0)
-    self.assertEqual(0 , len(person.objectValues( portal_type="ERP5 Login")))
+    self.assertEqual(0 , len(person.objectValues(portal_type="ERP5 Login")))
 
     self.assertRaises(Unauthorized, person.Person_newLogin, reference="a", password="b")
 
   def test_Person_newLogin_different_user(self):
     person = self._makePerson(user=1)
-    self.assertEqual(1 , len(person.objectValues( portal_type="ERP5 Login")))
+    self.assertEqual(1 , len(person.objectValues(portal_type="ERP5 Login")))
 
     personx = self._makePerson(user=1)
-    self.assertEqual(1 , len(personx.objectValues( portal_type="ERP5 Login")))
+    self.assertEqual(1 , len(personx.objectValues(portal_type="ERP5 Login")))
 
     self.login(person.getUserId())
     self.assertRaises(Unauthorized, personx.Person_newLogin, reference="a", password="b")
 
   def test_Person_newLogin_duplicated(self):
     person = self._makePerson(user=1)
-    self.assertEqual(1 , len(person.objectValues( portal_type="ERP5 Login")))
+    self.assertEqual(1 , len(person.objectValues(portal_type="ERP5 Login")))
 
     personx = self._makePerson(user=1)
     login_list = personx.objectValues(portal_type="ERP5 Login")
@@ -511,7 +512,7 @@ class TestPerson_newLogin(TestSlapOSHalJsonStyleMixin):
 
   def test_Person_newLogin_dont_comply(self):
     person = self._makePerson(user=1)
-    self.assertEqual(1 , len(person.objectValues( portal_type="ERP5 Login")))
+    self.assertEqual(1 , len(person.objectValues(portal_type="ERP5 Login")))
 
     self.login(person.getUserId())
     result = json.loads(person.Person_newLogin(reference="a",
@@ -522,7 +523,7 @@ class TestPerson_newLogin(TestSlapOSHalJsonStyleMixin):
     
   def test_Person_newLogin(self):
     person = self._makePerson(user=1)
-    self.assertEqual(1 , len(person.objectValues( portal_type="ERP5 Login")))
+    self.assertEqual(1 , len(person.objectValues(portal_type="ERP5 Login")))
 
     self.login(person.getUserId())
 
@@ -535,7 +536,7 @@ class TestPerson_newLogin(TestSlapOSHalJsonStyleMixin):
 class TestPerson_get_Certificate(TestSlapOSHalJsonStyleMixin):
   def test_Person_getCertificate_unauthorized(self):
     person = self._makePerson(user=1)
-    self.assertEqual(1 , len(person.objectValues( portal_type="ERP5 Login")))
+    self.assertEqual(1 , len(person.objectValues(portal_type="ERP5 Login")))
 
     self.assertEqual(person.Person_getCertificate(), {})
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 403)
@@ -852,6 +853,7 @@ class TestInstanceTree_edit(TestSlapOSHalJsonStyleMixin):
     self.assertEqual(new_parameter,
       self.instance_tree.getTextContent())
 
+    transaction.commit()
     # Check if owner can edit it 
     self.logout()
     self.login(self.person_user.getUserId())
@@ -1042,6 +1044,7 @@ class TestInstanceTree_edit(TestSlapOSHalJsonStyleMixin):
     self.assertEqual(new_parameter,
       self.instance_tree.getTextContent())
 
+    transaction.commit()
     # Check if owner can edit it
     self.logout()
     self.login(self.person_user.getUserId())
@@ -1059,6 +1062,7 @@ class TestInstanceTree_edit(TestSlapOSHalJsonStyleMixin):
     self.assertEqual(new_parameter,
       self.instance_tree.getTextContent())
 
+    transaction.commit()
     self.login(another_person.getUserId())
     self.changeSkin("Hal")
 

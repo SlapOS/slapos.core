@@ -30,7 +30,7 @@ else:
 # Prevent creating two instances with the same title
 instance_tree.serialize()
 tag = "%s_%s_inProgress" % (instance_tree.getUid(), software_title)
-if (portal.portal_activities.countMessageWithTag(tag) > 0):
+if (portal.portal_activities.countMessageWithTag(tag) > 0) or context.Base_getTransactionalTag(tag):
   # The software instance is already under creation but can not be fetched from catalog
   # As it is not possible to fetch informations, it is better to raise an error
   raise NotImplementedError(tag)
@@ -74,6 +74,7 @@ if (request_software_instance is None):
   else:
     instance_found = True
     # First time that the software instance is requested
+    successor = None
 
     # Create a new one
     reference = "SOFTINST-%s" % portal.portal_ids.generateNewId(
@@ -105,8 +106,8 @@ else:
   successor = request_software_instance.getSuccessorRelatedValue(portal_type="Software Instance")
   if (successor is None):
     # Check if the precessor is a Instance Tree
-    instance_tree_precessesor = request_software_instance.getSuccessorRelatedValue(portal_type="Instance Tree")
-    if (requester_instance.getPortalType() != "Instance Tree" and instance_tree_precessesor is not None):
+    instance_tree_successor = request_software_instance.getSuccessorRelatedValue(portal_type="Instance Tree")
+    if (requester_instance.getPortalType() != "Instance Tree" and instance_tree_successor is not None):
       raise ValueError('It is disallowed to request root software instance %s' % request_software_instance.getRelativeUrl())
     else:
       successor = requester_instance
@@ -114,10 +115,14 @@ else:
       if request_software_instance.getUid() not in graph:
         graph[request_software_instance.getUid()] = request_software_instance.getSuccessorUidList()
 
-  successor_uid_list = successor.getSuccessorUidList()
-  if request_software_instance.getUid() in successor_uid_list:
-    successor_uid_list.remove(request_software_instance.getUid())
-    successor.edit(successor_uid_list=successor_uid_list)
+  successor_uid_list = successor.getSuccessorUidList()  
+  if successor != requester_instance:
+    if request_software_instance.getUid() in successor_uid_list:
+      successor_uid_list.remove(request_software_instance.getUid())
+      successor.edit(
+        successor_uid_list=successor_uid_list,
+        activate_kw={'tag': tag}
+      )
   graph[successor.getUid()] = successor_uid_list
 
 if instance_found:
@@ -132,6 +137,7 @@ if instance_found:
   }
   request_software_instance_url = request_software_instance.getRelativeUrl()
   context.REQUEST.set('request_instance', request_software_instance)
+  context.Base_setTransactionalTag(tag)
   if (root_state == "started"):
     request_software_instance.requestStart(**promise_kw)
   elif (root_state == "stopped"):
@@ -142,7 +148,11 @@ if instance_found:
   else:
     raise ValueError, "state should be started, stopped or destroyed"
 
-  successor_list = requester_instance.getSuccessorList() + [request_software_instance_url]
+  successor_list = requester_instance.getSuccessorList()
+  successor_uid_list = requester_instance.getSuccessorUidList()
+  if successor != requester_instance:
+    successor_list.append(request_software_instance_url)
+    successor_uid_list.append(request_software_instance.getUid())
   uniq_successor_list = list(set(successor_list))
   successor_list.sort()
   uniq_successor_list.sort()
@@ -150,13 +160,16 @@ if instance_found:
   assert successor_list == uniq_successor_list, "%s != %s" % (successor_list, uniq_successor_list)
 
   # update graph to reflect requested operation
-  graph[requester_instance.getUid()] = requester_instance.getSuccessorUidList() + [request_software_instance.getUid()]
+  graph[requester_instance.getUid()] = successor_uid_list
 
   # check if all elements are still connected and if there is no cycle
   request_software_instance.checkConnected(graph, instance_tree.getUid())
   request_software_instance.checkNotCyclic(graph)
 
-  requester_instance.edit(successor_list=successor_list)
-
+  if successor != requester_instance:
+    requester_instance.edit(
+      successor_list=successor_list,
+      activate_kw={'tag': tag}
+    )
 else:
   context.REQUEST.set('request_instance', None)

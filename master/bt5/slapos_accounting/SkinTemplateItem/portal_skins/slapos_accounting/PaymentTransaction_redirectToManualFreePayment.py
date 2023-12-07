@@ -10,11 +10,11 @@ base_url = web_site.absolute_url()
 payment_transaction_url = context.getRelativeUrl()
 
 base = web_site.getLayoutProperty("configuration_payment_url_template",
-                                 "%(url)s/#/%(payment)s?page=slap_payment_result&result=%(result)s")
+                                 "%(url)s/#/%(payment_transaction_url)s?page=slap_payment_result&result=%(result)s")
 
 base_substitution_dict = {
   "url" : base_url,
-  "payment": payment_transaction_url,
+  "payment_transaction_url": payment_transaction_url,
   "result": "free"
 }
 

@@ -20,8 +20,6 @@ if email in ["", None]:
       )
   return context.REQUEST.RESPONSE.redirect(redirect_url)
 
-
-
 if token:
   error = ""
   try:
@@ -105,14 +103,18 @@ if target_language == "zh": # Wechat payment
   def wrapRedirectWithShadow(payment_transaction, web_site):
     # getTotalPayble returns a negative value
     if payment_transaction.PaymentTransaction_getTotalPayablePrice() < 0:
-      return payment_transaction.PaymentTransaction_redirectToManualWechatPayment(web_site)
+      if payment_transaction.Base_getWechatServiceRelativeUrl():
+        return payment_transaction.PaymentTransaction_redirectToManualWechatPayment(web_site)
+      return payment_transaction.PaymentTransaction_redirectToManualContactUsPayment(web_site)
     return payment_transaction.PaymentTransaction_redirectToManualFreePayment(web_site)
     
 else: # Payzen payment
   def wrapRedirectWithShadow(payment_transaction, web_site):
     # getTotalPayble returns a negative value
     if payment_transaction.PaymentTransaction_getTotalPayablePrice() < 0:
-      return payment_transaction.PaymentTransaction_redirectToManualPayzenPayment(web_site)
+      if payment_transaction.Base_getPayzenServiceRelativeUrl():
+        return payment_transaction.PaymentTransaction_redirectToManualPayzenPayment(web_site)
+      return payment_transaction.PaymentTransaction_redirectToManualContactUsPayment(web_site)
     return payment_transaction.PaymentTransaction_redirectToManualFreePayment(web_site)
     
 return person.Person_restrictMethodAsShadowUser(

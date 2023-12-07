@@ -353,6 +353,16 @@
                       <value> <string>string</string> </value>
                   </item>
                 </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>configuration_payment_url_template</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>string</string> </value>
+                  </item>
+                </dictionary>
               </tuple>
             </value>
         </item>
@@ -445,6 +455,14 @@
         <item>
             <key> <string>configuration_payment_result</string> </key>
             <value> <string>slap_payment_result</string> </value>
+        </item>
+        <item>
+            <key> <string>configuration_payment_url_template</string> </key>
+            <value> <string encoding="cdata"><![CDATA[
+
+%(url)s/#/%(payment_transaction_url)s?page=slap_payment_result&result=%(result)s
+
+]]></string> </value>
         </item>
         <item>
             <key> <string>configuration_precache_manifest_script_list</string> </key>
@@ -708,7 +726,7 @@ WebSection_getJsonEditorPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1010.52641.3080.21452</string> </value>
+                      <value> <string>1012.36758.49018.20019</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -728,7 +746,7 @@ WebSection_getJsonEditorPrecacheManifestList</string> </value>
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1700245844.87</float>
+                              <float>1701890500.23</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

@@ -59,6 +59,14 @@
             page_title = "Payment Unfinished";
             message = "You have not finished your payment.";
             advice = "Please consider continuing it as soon as possible, otherwise you will be not able to use full functionality.";
+          } else if (options.result === "free") {
+            page_title = "This payment is free";
+            message = "You are trying to pay a Free invoice.";
+            advice = "Please, contact us by opening a ticket to ask more information.";
+          } else if (options.result === "contact_us") {
+            page_title = "Please, contact us";
+            message = "You are trying to pay an invoice, but the automatic payments are disabled currently.";
+            advice = "Please contact us by opening a ticket with the invoice information, we will provide you an alternative way to pay.";
           } else if (options.result === "already_registered") {
             page_title = "Payment already registered";
             message = "Your payment had already been registered.";

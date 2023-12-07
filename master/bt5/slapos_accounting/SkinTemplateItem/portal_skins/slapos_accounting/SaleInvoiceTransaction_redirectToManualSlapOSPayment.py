@@ -13,9 +13,19 @@ payment = entity.Person_restrictMethodAsShadowUser(
 if web_site is None:
   web_site = context.getWebSiteValue() 
 
-if payment_mode == "wechat":
-  return payment.PaymentTransaction_redirectToManualWechatPayment(web_site=web_site)
-elif payment_mode == "payzen":
-  return payment.PaymentTransaction_redirectToManualPayzenPayment(web_site=web_site)
+total_price = entity.Person_restrictMethodAsShadowUser(
+  shadow_document=entity,
+  callable_object=payment.PaymentTransaction_getTotalPayablePrice,
+  argument_list=[])
 
-raise ValueError("%s isn't an acceptable payment mode" % payment_mode)
+if total_price >= 0:
+  return payment.PaymentTransaction_redirectToManualFreePayment(web_site=web_site)
+
+if payment_mode == "wechat":
+  if payment.Base_getWechatServiceRelativeUrl():
+    return payment.PaymentTransaction_redirectToManualWechatPayment(web_site=web_site)
+elif payment_mode == "payzen":
+  if payment.Base_getPayzenServiceRelativeUrl():
+    return payment.PaymentTransaction_redirectToManualPayzenPayment(web_site=web_site)
+
+return payment.PaymentTransaction_redirectToManualContactUsPayment(web_site=web_site)

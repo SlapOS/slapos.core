@@ -9,12 +9,26 @@ import requests
 import re
 import slapos.client
 from websocket import create_connection
+from logging.handlers import RotatingFileHandler
+
 
 class EndToEndTestCase(unittest.TestCase):
+  def __init__(self, methodName='runTest'):
+      super().__init__(methodName)
+
+      LOG_FILE = os.environ['LOG_FILE']
+
+      self.logger = logging.getLogger('logger')
+      self.logger.setLevel(logging.DEBUG)
+      handler = RotatingFileHandler(LOG_FILE, maxBytes=100000, backupCount=5)
+      self.logger.addHandler(handler)
+      formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+      handler.setFormatter(formatter)
+
+
   @classmethod
   def setUpClass(cls):
     configp = configparser.ConfigParser()
-    print(os.environ)
     config_path = os.environ['SLAPOS_TEST_CLIENT_CFG']
     configp.read(config_path)
     args = type("empty_args", (), {})()
@@ -101,7 +115,7 @@ class EndToEndTestCase(unittest.TestCase):
     t0 = t0 or  time.time()
     while (status := cls.getInstanceStatus(instance_name)) != 'green':
       msg = 'Instance %s status is still %s' % (instance_name, status)
-      print(msg)
+      self.logger.info(msg)
       cls.checkTimeoutAndSleep(t0, timeout, msg)
 
   @classmethod
@@ -109,7 +123,7 @@ class EndToEndTestCase(unittest.TestCase):
     t0 = t0 or time.time()
     msg = 'Instance %s still does not publish %s' % (instance_name, key)
     while (value := cls.getInstanceInfos(instance_name).connection_dict.get(key)) == None:
-      print(msg)
+      self.logger.info(msg)
       cls.checkTimeoutAndSleep(t0, timeout, msg)
     return value
 
@@ -186,7 +200,7 @@ class EndToEndTestCase(unittest.TestCase):
       result = "[OK]" in title
       name = title.replace("[OK]", "").replace("[ERROR]", "").strip()
       status[name] = result
-      print(f"Test alarm: {title}: {description}")
+      self.logger.info(f"Test alarm: {title}: {description}")
     return status
 
   @classmethod
@@ -196,10 +210,10 @@ class EndToEndTestCase(unittest.TestCase):
       while True:
         resp, url = cls.waitUntilMonitorURLReady(instance_name, code=200, timeout=timeout, t0=t0)
         status = cls.getMonitorPromises(resp.content)
-        print("Status:", status)
-        print("Promise Status:", status.get(promise_name, "Promise not found"))
+        self.logger.info("Status:", status)
+        self.logger.info("Promise Status:", status.get(promise_name, "Promise not found"))
         if status.get(promise_name) == expected:
-          print("%s is at expected status: %s" % (promise_name, expected))
+          self.logger.info("%s is at expected status: %s" % (promise_name, expected))
           break
         cls.checkTimeoutAndSleep(t0, timeout, msg)
         resp = requests.get(url)

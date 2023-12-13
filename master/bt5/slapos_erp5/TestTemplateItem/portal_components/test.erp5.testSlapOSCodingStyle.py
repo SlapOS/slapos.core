@@ -64,6 +64,9 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
       # Modified by subprojects during tests
       slapos_crm/PathTemplateItem/sale_trade_condition_module/slapos_ticket_trade_condition.xml
       slapos_payzen/PathTemplateItem/portal_secure_payments/slapos_payzen_test.xml
+
+      # Modified during the configuration
+      slapos_configurator/PathTemplateItem/business_configuration_module/slapos_master_configuration_workflow.xml
       """
 
       CodingStyleTestCase.coverage_ignore_path_list = [
@@ -174,6 +177,9 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_accounting/SalePackingList_postSlapOSAggregatedDeliveryBuilder',
         'slapos_accounting/SubscriptionRequest_getAggregatedConsumptionDelivery',
         'slapos_accounting/SubscriptionRequest_setAggregatedConsumptionDelivery',
+        'slapos_configurator/BusinessConfiguration_runPostUpgradeConsistency',
+        'slapos_configurator/BusinessConfiguration_setupSlapOSMasterStandardBT5',
+        'slapos_configurator/TemplateTool_getSlapOSMasterBusinessTemplateList',
         'slapos_consumption/Base_getConsumptionListAsODSReport',
         'slapos_consumption/Base_getResourceServiceTitleUitList',
         'slapos_consumption/Base_getUserConsumptionDetailList',

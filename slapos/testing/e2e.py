@@ -8,28 +8,19 @@ import xml.etree.ElementTree as ET
 import requests
 import re
 import slapos.client
-from websocket import create_connection
+import urllib.parse
+
 from logging.handlers import RotatingFileHandler
 
 
 class EndToEndTestCase(unittest.TestCase):
-  def __init__(self, methodName='runTest'):
-      super().__init__(methodName)
-
-      LOG_FILE = os.environ['LOG_FILE']
-
-      self.logger = logging.getLogger('logger')
-      self.logger.setLevel(logging.DEBUG)
-      handler = RotatingFileHandler(LOG_FILE, maxBytes=100000, backupCount=5)
-      self.logger.addHandler(handler)
-      formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-      handler.setFormatter(formatter)
-
 
   @classmethod
   def setUpClass(cls):
+    cls.createLogger()
+
     configp = configparser.ConfigParser()
-    config_path = os.environ['SLAPOS_TEST_CLIENT_CFG']
+    config_path = os.environ['SLAPOS_E2E_TEST_CLIENT_CFG']
     configp.read(config_path)
     args = type("empty_args", (), {})()
     conf = slapos.client.ClientConfig(args, configp)
@@ -41,9 +32,21 @@ class EndToEndTestCase(unittest.TestCase):
     cls._requested = {}
 
   @classmethod
+  def createLogger(cls):
+
+    LOG_FILE = os.environ['SLAPOS_E2E_TEST_LOG_FILE']
+
+    cls.logger = logging.getLogger('logger')
+    cls.logger.setLevel(logging.DEBUG)
+    handler = RotatingFileHandler(LOG_FILE, maxBytes=100000, backupCount=5)
+    cls.logger.addHandler(handler)
+    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+    handler.setFormatter(formatter)
+
+  @classmethod
   def tearDownClass(cls, final_state='destroyed'):
     for args, kw in cls._requested.values():
-      kw['state']  = 'destroyed'
+      kw['state'] = 'destroyed'
       cls._request(*args, **kw)
 
   @classmethod
@@ -65,21 +68,24 @@ class EndToEndTestCase(unittest.TestCase):
   def getInstanceInfos(cls, instance_name):
     # adapated from cli/info
     infos = cls.slap.registerOpenOrder().getInformation(instance_name)
+
     class Infos:
+
       def __init__(self, **kw):
         self.__dict__.update(kw)
+
     connection_dict = {
-      e['connection_key'] : e['connection_value']
+      e['connection_key']: e['connection_value']
       for e in infos._connection_dict
     }
     return Infos(
-      software_url = infos._software_release_url,
-      software_type = infos._source_reference,
-      shared = bool(infos._root_slave),
-      requested_state = infos._requested_state,
-      parameter_dict = infos._parameter_dict,
-      connection_dict = cls.unwrapConnectionDict(connection_dict),
-      news = infos._news,
+      software_url=infos._software_release_url,
+      software_type=infos._source_reference,
+      shared=bool(infos._root_slave),
+      requested_state=infos._requested_state,
+      parameter_dict=infos._parameter_dict,
+      connection_dict=cls.unwrapConnectionDict(connection_dict),
+      news=infos._news,
     )
 
   @classmethod
@@ -112,82 +118,75 @@ class EndToEndTestCase(unittest.TestCase):
 
   @classmethod
   def waitUntilGreen(cls, instance_name, timeout=80, t0=None):
-    t0 = t0 or  time.time()
+    t0 = t0 or time.time()
     while (status := cls.getInstanceStatus(instance_name)) != 'green':
       msg = 'Instance %s status is still %s' % (instance_name, status)
-      self.logger.info(msg)
+      cls.logger.info(msg)
       cls.checkTimeoutAndSleep(t0, timeout, msg)
 
   @classmethod
   def waitUntilPublished(cls, instance_name, key, timeout=80, t0=None):
     t0 = t0 or time.time()
     msg = 'Instance %s still does not publish %s' % (instance_name, key)
-    while (value := cls.getInstanceInfos(instance_name).connection_dict.get(key)) == None:
-      self.logger.info(msg)
+    while (
+        value :=
+        cls.getInstanceInfos(instance_name).connection_dict.get(key)) == None:
+      cls.logger.info(msg)
       cls.checkTimeoutAndSleep(t0, timeout, msg)
     return value
 
   @classmethod
-  def waitUntilMonitorURLReady(cls, instance_name, code=200, timeout=80, t0=None):
-      suffix = '/share/public/feed'
-      key = 'monitor-base-url'
-      t0 = t0 or time.time()
-      url = cls.waitUntilPublished(instance_name, key, timeout, t0) + suffix
-      while True:
-          resp = requests.get(url, verify=False)
-          if resp.status_code == code:
-              return resp, url
-          msg = 'Instance %s monitor url %s returned unexpected status code %s (expected %s)' % (
-              instance_name, url, resp.status_code, code)
-          cls.checkTimeoutAndSleep(t0, timeout, msg)
-          url = cls.getInstanceInfos(instance_name).connection_dict.get(key) + suffix
+  def waitUntilMonitorURLReady(
+      cls, instance_name, code=200, timeout=80, t0=None):
+    suffix = '/share/public/feed'
+    key = 'monitor-base-url'
+    t0 = t0 or time.time()
+    url = cls.waitUntilPublished(instance_name, key, timeout, t0) + suffix
+    while True:
+      resp = requests.get(url, verify=False)
+      if resp.status_code == code:
+        return resp, url
+      msg = 'Instance %s monitor url %s returned unexpected status code %s (expected %s)' % (
+        instance_name, url, resp.status_code, code)
+      cls.checkTimeoutAndSleep(t0, timeout, msg)
+      url = cls.getInstanceInfos(instance_name).connection_dict.get(
+        key) + suffix
 
   @classmethod
-  def waitUntilPrivateMonitorURLReady(cls, instance_name, code=200, timeout=80, t0=None):
-      suffix = '/share/private'
-      key = 'monitor-base-url'
-      t0 = t0 or time.time()
-      url = cls.waitUntilPublished(instance_name, key, timeout, t0) + suffix
-      while True:
-          resp = requests.get(url, verify=False)
-          if resp.status_code == code:
-              return resp, url
-          msg = 'Instance %s monitor url %s returned unexpected status code %s (expected %s)' % (
-              instance_name, url, resp.status_code, code)
-          cls.checkTimeoutAndSleep(t0, timeout, msg)
-          url = cls.getInstanceInfos(instance_name).connection_dict.get(key) + suffix
+  def waitUntilPrivateMonitorURLReady(
+      cls, instance_name, code=200, timeout=80, t0=None):
+    suffix = '/share/private'
+    key = 'monitor-base-url'
+    setup_url_key = 'monitor-setup-url'
 
-  @classmethod
-  def waitUntilPrivateMonitorURLReady(cls, instance_name, code=200, timeout=80, t0=None):
-      suffix = '/share/private'
-      key = 'monitor-base-url'
-      setup_url_key = 'monitor-setup-url'
+    t0 = t0 or time.time()
+    base_url = cls.waitUntilPublished(instance_name, key, timeout, t0)
+    setup_url = cls.getInstanceInfos(instance_name).connection_dict.get(
+      setup_url_key)
 
-      t0 = t0 or time.time()
-      base_url = cls.waitUntilPublished(instance_name, key, timeout, t0)
-      setup_url = cls.getInstanceInfos(instance_name).connection_dict.get(setup_url_key)
+    if not base_url or not setup_url:
+      raise ValueError('Base URL or Setup URL is missing')
 
-      if not base_url or not setup_url:
-          raise ValueError('Base URL or Setup URL is missing')
+    # Parsing the setup URL to find the password
+    parsed_setup_url = urllib.parse.urlparse(setup_url)
+    query_params = urllib.parse.parse_qs(parsed_setup_url.query)
+    password = query_params.get('password', [None])[0]
+    if not password:
+      raise ValueError('Password not found in the setup URL')
 
-      password = re.search(r'&password=([^&]*)', setup_url)
-      if not password:
-          raise ValueError('Password not found in the setup URL')
+    # Adding credentials to the base URL
+    parsed_base_url = urllib.parse.urlparse(base_url)
+    netloc = f'admin:{password}@{parsed_base_url.hostname}'
+    new_base_url = parsed_base_url._replace(netloc=netloc).geturl()
+    final_url = f'{new_base_url}{suffix}'
 
-      password = password.group(1)  # Extracting the password from the setup URL
+    while True:
+      resp = requests.get(final_url, verify=False)
+      if resp.status_code == code:
+        return resp, final_url
 
-      # Building the final URL with credentials
-      credentials = f'admin:{password}@'
-      base_url = re.sub(r'^https?://', f'https://{credentials}', base_url)
-      final_url = f'{base_url}{suffix}'
-
-      while True:
-          resp = requests.get(final_url, verify=False)
-          if resp.status_code == code:
-              return resp, final_url
-
-          msg = f'Instance {instance_name} monitor URL {final_url} returned unexpected status code {resp.status_code} (expected {code})'
-          cls.checkTimeoutAndSleep(t0, timeout, msg)
+      msg = f'Instance {instance_name} monitor URL {final_url} returned unexpected status code {resp.status_code} (expected {code})'
+      cls.checkTimeoutAndSleep(t0, timeout, msg)
 
   @classmethod
   def getMonitorPromises(cls, content):
@@ -196,66 +195,28 @@ class EndToEndTestCase(unittest.TestCase):
     status = {}
     for item in feed_xml.findall("channel/item"):
       title = item.find("title").text.strip()
-      description=item.find("description").text.strip()
+      description = item.find("description").text.strip()
       result = "[OK]" in title
       name = title.replace("[OK]", "").replace("[ERROR]", "").strip()
       status[name] = result
-      self.logger.info(f"Test alarm: {title}: {description}")
+      cls.logger.info(f"Test alarm: {title}: {description}")
     return status
 
   @classmethod
-  def waitUntilPromises(cls, instance_name, promise_name, expected, timeout=80, t0=None):
-      t0 = t0 or time.time()
-      msg = 'Instance %s promises not in expected state yet' % (instance_name)
-      while True:
-        resp, url = cls.waitUntilMonitorURLReady(instance_name, code=200, timeout=timeout, t0=t0)
-        status = cls.getMonitorPromises(resp.content)
-        self.logger.info("Status:", status)
-        self.logger.info("Promise Status:", status.get(promise_name, "Promise not found"))
-        if status.get(promise_name) == expected:
-          self.logger.info("%s is at expected status: %s" % (promise_name, expected))
-          break
-        cls.checkTimeoutAndSleep(t0, timeout, msg)
-        resp = requests.get(url)
-
-class WebsocketTestClass(EndToEndTestCase):
-    @classmethod
-    def setUpClass(cls, ws_url):
-        super().setUpClass()
-        cls.ws_url = ws_url
-        cls.ws = create_connection(cls.ws_url)
-
-    @classmethod
-    def tearDownClass(cls):
-        super().setUpClass()
-        cls.ws.close()
-
-    def send(self, msg):
-        self.ws.send(json.dumps(msg))
-
-    def recv(self):
-        return json.loads(self.ws.recv())
-
-    def ue_get(self):
-        self.send({"message": "ue_get"})
-        result = self.recv()
-
-        if 'message' not in result:
-            raise ValueError(f"Unexpected response format: {result}")
-
-        if 'ue_list' in result:
-            if not result['ue_list']:
-                raise ValueError(f"No UE found in response: {result}")
-            return result['ue_list'][0]
-        else:
-            return result
-
-    def power_on(self, ue_id):
-        self.assertFalse(self.ue_get()['power_on'], "UE already powered on")
-        self.send({"message": "power_on", "ue_id": ue_id})
-        self.recv()
-
-    def power_off(self, ue_id):
-        self.assertTrue(self.ue_get()['power_on'], "UE already powered off")
-        self.send({"message": "power_off", "ue_id": ue_id})
-        self.recv()
+  def waitUntilPromises(
+      cls, instance_name, promise_name, expected, timeout=80, t0=None):
+    t0 = t0 or time.time()
+    msg = 'Instance %s promises not in expected state yet' % (instance_name)
+    while True:
+      resp, url = cls.waitUntilMonitorURLReady(
+        instance_name, code=200, timeout=timeout, t0=t0)
+      status = cls.getMonitorPromises(resp.content)
+      cls.logger.info("Status:", status)
+      cls.logger.info(
+        "Promise Status:", status.get(promise_name, "Promise not found"))
+      if status.get(promise_name) == expected:
+        cls.logger.info(
+          "%s is at expected status: %s" % (promise_name, expected))
+        break
+      cls.checkTimeoutAndSleep(t0, timeout, msg)
+      resp = requests.get(url)

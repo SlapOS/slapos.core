@@ -35,6 +35,8 @@ class EndToEndTestCase(unittest.TestCase):
   def createLogger(cls):
 
     LOG_FILE = os.environ['SLAPOS_E2E_TEST_LOG_FILE']
+    if not LOG_FILE:
+        raise EnvironmentError("SLAPOS_E2E_TEST_LOG_FILE environment variable not set")
 
     cls.logger = logging.getLogger('logger')
     cls.logger.setLevel(logging.DEBUG)
@@ -44,7 +46,7 @@ class EndToEndTestCase(unittest.TestCase):
     handler.setFormatter(formatter)
 
   @classmethod
-  def tearDownClass(cls, final_state='destroyed'):
+  def tearDownClass(cls):
     for args, kw in cls._requested.values():
       kw['state'] = 'destroyed'
       cls._request(*args, **kw)
@@ -128,11 +130,10 @@ class EndToEndTestCase(unittest.TestCase):
   def waitUntilPublished(cls, instance_name, key, timeout=80, t0=None):
     t0 = t0 or time.time()
     msg = 'Instance %s still does not publish %s' % (instance_name, key)
-    while (
-        value :=
-        cls.getInstanceInfos(instance_name).connection_dict.get(key)) == None:
-      cls.logger.info(msg)
-      cls.checkTimeoutAndSleep(t0, timeout, msg)
+    while (value := cls.getInstanceInfos(instance_name).connection_dict.get(key)) is None:
+        cls.logger.info(msg)
+        cls.checkTimeoutAndSleep(t0, timeout, msg)
+
     return value
 
   @classmethod
@@ -211,12 +212,11 @@ class EndToEndTestCase(unittest.TestCase):
       resp, url = cls.waitUntilMonitorURLReady(
         instance_name, code=200, timeout=timeout, t0=t0)
       status = cls.getMonitorPromises(resp.content)
-      cls.logger.info("Status:", status)
+      cls.logger.info("Status: %s", status)
       cls.logger.info(
-        "Promise Status:", status.get(promise_name, "Promise not found"))
+        "Promise Status: %s", status.get(promise_name, "Promise not found"))
       if status.get(promise_name) == expected:
         cls.logger.info(
           "%s is at expected status: %s" % (promise_name, expected))
         break
       cls.checkTimeoutAndSleep(t0, timeout, msg)
-      resp = requests.get(url)

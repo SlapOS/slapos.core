@@ -200,7 +200,7 @@ class EndToEndTestCase(unittest.TestCase):
       result = "[OK]" in title
       name = title.replace("[OK]", "").replace("[ERROR]", "").strip()
       status[name] = result
-      cls.logger.info(f"Test alarm: {title}: {description}")
+      cls.logger.info("Test alarm: %s: %s", title, description)
     return status
 
   @classmethod

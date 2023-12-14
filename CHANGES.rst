@@ -1,5 +1,8 @@
 Changes
 =======
+1.10.8 (2023-12-14)
+-------------------
+* slapos/testing: add e2e.py for slapos/software/end-to-end-testing
 
 1.10.7 (2023-12-04)
 -------------------

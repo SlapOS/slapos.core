@@ -65,7 +65,7 @@ class EndToEndTestCase(unittest.TestCase):
     partition = cls._request(*args, **kw)
     return cls.unwrapConnectionDict(partition.getConnectionParameterDict())
 
-  @classmethod$
+  @classmethod
   def supply(cls, software_release, computer_id, state):
     cls._supplied[software_release] = computer_id
     cls._supply(software_release, computer_id, state)

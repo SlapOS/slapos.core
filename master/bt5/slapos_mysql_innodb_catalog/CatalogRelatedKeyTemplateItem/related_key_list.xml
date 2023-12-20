@@ -1,7 +1,3 @@
 <key_list>
- <key>causality_subscription_request_related_uid | category,catalog/uid/z_related_causality_subscription_request</key>
- <key>default_or_child_aggregate_reference | catalog,category,catalog/reference/z_related_default_or_child_aggregate</key>
- <key>default_or_child_aggregate_uid | catalog,category,catalog/uid/z_related_default_or_child_aggregate</key>
- <key>follow_up_default_or_child_aggregate_uid | category,catalog,category,catalog/uid/z_related_follow_up_default_or_child_aggregate</key>
  <key>related_successor_but_with_different_title_than_catalog_title | category,catalog/uid/z_related_successor_but_with_different_title_than_catalog_title</key>
 </key_list>

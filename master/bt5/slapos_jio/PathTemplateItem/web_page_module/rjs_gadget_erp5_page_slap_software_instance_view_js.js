@@ -1,6 +1,6 @@
 /*global window, rJS, RSVP, JSON */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, JSON) {
+(function (window, rJS, RSVP, JSON) {
   "use strict";
 
   rJS(window)

@@ -30,6 +30,7 @@ class EndToEndTestCase(unittest.TestCase):
     cls._request = staticmethod(local['request'])
     cls.product = staticmethod(local['product'])
     cls._requested = {}
+    cls._supplied = {}
 
   @classmethod
   def createLogger(cls):
@@ -51,12 +52,23 @@ class EndToEndTestCase(unittest.TestCase):
       kw['state'] = 'destroyed'
       cls._request(*args, **kw)
 
+    # remove software releases
+    for k,v in cls._supplied.items():
+      print("Remove %s from %s" %(k, v))
+      cls._supply(k, v, 'destroyed')
+
+
   @classmethod
   def request(cls, *args, **kw):
     instance_name = args[1]
     cls._requested[instance_name] = (args, kw)
     partition = cls._request(*args, **kw)
     return cls.unwrapConnectionDict(partition.getConnectionParameterDict())
+
+  @classmethod
+  def supply(cls, software_release, computer_id, state):
+    cls._supplied[software_release] = computer_id
+    cls._supply(software_release, computer_id, state)
 
   @staticmethod
   def unwrapConnectionDict(connection_dict):

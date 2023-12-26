@@ -39,7 +39,9 @@
         <item>
             <key> <string>text_content_warning_message</string> </key>
             <value>
-              <tuple/>
+              <tuple>
+                <string>W:  4,  0: Unused import time (unused-import)</string>
+              </tuple>
             </value>
         </item>
         <item>

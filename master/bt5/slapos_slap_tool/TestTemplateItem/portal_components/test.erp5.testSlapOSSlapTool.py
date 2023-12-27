@@ -2109,6 +2109,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
             self.start_requested_software_instance.getSuccessorTitleList())
 
     # Update with no changes
+    # updateComputerPartitionRelatedInstanceList was completely disabled so
+    # it has no impact to update the sucessors
     instance_list_xml = """
 <marshal>
   <list id="i2"><string>Instance0</string><string>Instance1</string></list>
@@ -2122,6 +2124,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
             self.start_requested_software_instance.getSuccessorTitleList())
 
     # Update Instance0 was not requested
+    # updateComputerPartitionRelatedInstanceList was completely disabled so
+    # it has no impact to update the sucessors
     instance_list_xml = """
 <marshal>
   <list id="i2"><string>Instance1</string></list>
@@ -2131,7 +2135,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         computer_partition_id=partition_id,
         instance_reference_xml=instance_list_xml)
     self.tic()
-    self.assertSameSet(['Instance1'],
+    self.assertSameSet(['Instance0', 'Instance1'],
             self.start_requested_software_instance.getSuccessorTitleList())
 
   def test_updateInstanceSuccessorList_one_child(self):
@@ -2158,13 +2162,15 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertSameSet(['Instance0'],
             self.start_requested_software_instance.getSuccessorTitleList())
 
+    # updateComputerPartitionRelatedInstanceList was completely disabled so
+    # it has no impact to update the sucessors
     instance_list_xml = '<marshal><list id="i2" /></marshal>'
     self.portal_slap.updateComputerPartitionRelatedInstanceList(
         computer_id=self.compute_node_id,
         computer_partition_id=partition_id,
         instance_reference_xml=instance_list_xml)
     self.tic()
-    self.assertEqual([],
+    self.assertEqual(['Instance0'],
               self.start_requested_software_instance.getSuccessorTitleList())
 
   def test_updateInstanceSuccessorList_no_child(self):
@@ -2178,6 +2184,9 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
             self.start_requested_software_instance.getSuccessorTitleList())
 
     instance_list_xml = '<marshal><list id="i2" /></marshal>'
+
+    # updateComputerPartitionRelatedInstanceList was completely disabled so
+    # it has no impact to update the sucessors
     self.portal_slap.updateComputerPartitionRelatedInstanceList(
         computer_id=self.compute_node_id,
         computer_partition_id=partition_id,
@@ -2191,6 +2200,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 <marshal>
 <list id="i2"><string>instance0</string></list>
 </marshal>"""
+    # updateComputerPartitionRelatedInstanceList was completely disabled so
+    # it has no impact to update the sucessors
     self.portal_slap.updateComputerPartitionRelatedInstanceList(
         computer_id=self.compute_node_id,
         computer_partition_id=partition_id,

@@ -31,7 +31,6 @@
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
-from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 from OFS.Traversable import NotFound
 from Products.DCWorkflow.DCWorkflow import ValidationFailed
 from Products.ERP5Type.Globals import InitializeClass
@@ -492,11 +491,11 @@ class SlapTool(BaseTool):
                                                    computer_partition_id,
                                                    instance_reference_xml):
     """
-    Update Software Instance successor list
+    DISABLED: Update Software Instance successor list
+
+    This feature was disabled completly.
     """
-    return self._updateComputePartitionRelatedInstanceList(computer_id,
-                                                   computer_partition_id,
-                                                   instance_reference_xml)
+    return
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'supplySupply')
@@ -1012,23 +1011,6 @@ class SlapTool(BaseTool):
         return dumps(SlapSoftwareInstance(
           **requested_software_instance._asSoftwareInstanceDict()))
 
-  @UnrestrictedMethod
-  def _updateComputePartitionRelatedInstanceList(self, compute_node_id,
-                              compute_partition_id, instance_reference_xml):
-    """
-    Update Software Instance successor list to match the given list. If one
-    instance was not requested by this compute partition, it should be removed
-    in the successor_list of this instance.
-    Once the link is removed, this instance will be trashed by Garbage Collect!
-
-    instance_reference_xml contain list of title of sub-instances requested by
-    this instance.
-    """
-    software_instance_document = self.\
-                          _getSoftwareInstanceForComputePartition(compute_node_id,
-                          compute_partition_id)
-
-    software_instance_document._updateSucessorList(instance_reference_xml)
 
   ####################################################
   # Internals methods

@@ -285,5 +285,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
 
     bt5_to_resolve, _, _ = self.portal.portal_templates.TemplateTool_getSlapOSMasterBusinessTemplateList()
 
-    bt5_list = [i[1] for i in self.portal.portal_templates.resolveBusinessTemplateListDependency(bt5_to_resolve)]
+    bt5_list = [i[1] for i in self.portal.portal_templates.resolveBusinessTemplateListDependency(
+        template_title_list=bt5_to_resolve,
+        with_test_dependency_list=True)]
     self.assertSameSet(expected_business_template_list, bt5_list)

@@ -1,7 +1,6 @@
 # Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
 import transaction
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
-import time
 from zExceptions import Unauthorized
 from DateTime import DateTime
 from erp5.component.module.DateUtils import addToDate

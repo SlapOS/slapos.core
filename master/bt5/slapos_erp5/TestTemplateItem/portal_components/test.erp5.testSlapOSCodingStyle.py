@@ -179,7 +179,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_accounting/SubscriptionRequest_setAggregatedConsumptionDelivery',
         'slapos_configurator/BusinessConfiguration_runPostUpgradeConsistency',
         'slapos_configurator/BusinessConfiguration_setupSlapOSMasterStandardBT5',
-        'slapos_configurator/TemplateTool_getSlapOSMasterBusinessTemplateList',
         'slapos_consumption/Base_getConsumptionListAsODSReport',
         'slapos_consumption/Base_getResourceServiceTitleUitList',
         'slapos_consumption/Base_getUserConsumptionDetailList',

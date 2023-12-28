@@ -272,3 +272,18 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
 
     self.assertSameSet(expected_business_template_list,
       self.portal.portal_templates.getInstalledBusinessTemplateTitleList())
+
+  def testConfiguredExpectedBusinessTemplateDependencyList(self):
+    """ Make sure TemplateTool_getSlapOSMasterBusinessTemplateList dependency resolution
+        provides the expected bt5 list. """
+
+    expected_business_template_list = self.getExpectedBusinessTemplateInstalledAfterConfiguration()
+
+    # If mixin contains a custom definition that introduce new business templated from
+    # the project scope, them include it on expected list.
+    expected_business_template_list.extend(self._custom_additional_bt5_list)
+
+    bt5_to_resolve, _, _ = self.portal.portal_templates.TemplateTool_getSlapOSMasterBusinessTemplateList()
+
+    bt5_list = [i[1] for i in self.portal.portal_templates.resolveBusinessTemplateListDependency(bt5_to_resolve)]
+    self.assertSameSet(expected_business_template_list, bt5_list)

@@ -19,6 +19,8 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
+from erp5.component.document.SoftwareInstance import SoftwareInstance, \
+  DisconnectedSoftwareTree, CyclicSoftwareTree
 import transaction
 from time import sleep
 from zExceptions import Unauthorized
@@ -407,6 +409,127 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
         [B_instance.getRelativeUrl()])
     self.assertSameSet(B_instance.getSuccessorList(),
         [C_instance.getRelativeUrl()])
+
+
+  def test_request_tree_disconnected(self):
+    """Checks tree change forced by request
+
+    For a tree like:
+
+    A
+    |
+    A
+    |\
+    B C
+
+    Them force C to be disconnected:
+
+    A
+    |
+    A
+    |
+    B C
+
+
+    When A requests C the request should fail.
+    """
+    request_kw = self.request_kw.copy()
+
+    request_kw['software_title'] = self.generateNewSoftwareTitle()
+    self.software_instance.requestInstance(**request_kw)
+    B_instance = self.software_instance.REQUEST.get('request_instance')
+
+    request_kw['software_title'] = self.generateNewSoftwareTitle()
+    self.software_instance.requestInstance(**request_kw)
+    C_instance = self.software_instance.REQUEST.get('request_instance')
+
+    self.assertSameSet(
+        self.software_instance.getSuccessorList(),
+        [B_instance.getRelativeUrl(), C_instance.getRelativeUrl()])
+
+    self.tic()  # in order to recalculate tree
+
+    self.software_instance.setSuccessorList([B_instance.getRelativeUrl()])
+    self.tic()  # in order to recalculate tree
+
+    self.assertRaises(DisconnectedSoftwareTree, self.software_instance.requestInstance, **request_kw)
+
+    # Just re-set sucessor fixes the problem    
+    self.software_instance.setSuccessorList([B_instance.getRelativeUrl(), C_instance.getRelativeUrl()])
+    self.tic()  # in order to recalculate tree
+
+    self.software_instance.requestInstance(**request_kw)
+    C1_instance = self.software_instance.REQUEST.get('request_instance')
+
+    self.assertEqual(C_instance.getRelativeUrl(), C1_instance.getRelativeUrl())
+
+  def test_request_check_cycle(self):
+    """Checks tree change forced by request
+
+    For a tree like:
+
+    A
+    |
+    A
+    |
+    B
+    |
+    C
+    |
+    D
+
+    Them force D to request A to be cycled (dupplicated successor related):
+
+    A
+    |
+    A
+    |\
+    B D
+    |/
+    C
+
+    In normal conditions there is no raise because either DisconnectedSoftwareTree is raised before,
+    so we hot patch the checkConnected to ensure we get the proper raise 
+    """
+    request_kw = self.request_kw.copy()
+
+    request_kw['software_title'] = self.generateNewSoftwareTitle()
+    self.software_instance.requestInstance(**request_kw)
+    B_instance = self.software_instance.REQUEST.get('request_instance')
+
+    request_kw['software_title'] = self.generateNewSoftwareTitle()
+    B_instance.requestInstance(**request_kw)
+    C_instance = self.software_instance.REQUEST.get('request_instance')
+
+
+    request_kw['software_title'] = self.generateNewSoftwareTitle()
+    C_instance.requestInstance(**request_kw)
+    D_instance = self.software_instance.REQUEST.get('request_instance')
+
+    self.assertSameSet(
+        self.software_instance.getSuccessorList(),
+        [B_instance.getRelativeUrl()])
+
+    self.assertSameSet(
+        B_instance.getSuccessorList(), [C_instance.getRelativeUrl()])
+
+    self.assertSameSet(
+        C_instance.getSuccessorList(), [D_instance.getRelativeUrl()])
+
+    self.tic()  # in order to recalculate tree
+    
+    def checkConnected(self, graph, root):
+      "Patch and return skip"
+      return
+
+    checkConnected_original = SoftwareInstance.checkConnected
+    try:
+      SoftwareInstance.checkConnected = checkConnected
+      request_kw['software_title'] = B_instance.getTitle()
+      self.assertRaises(CyclicSoftwareTree, D_instance.requestInstance, **request_kw)
+    finally:
+      SoftwareInstance.checkConnected = checkConnected_original
+  
 
   def test_request_tree_change_not_indexed(self):
     """Checks tree change forced by request

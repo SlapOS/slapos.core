@@ -874,7 +874,6 @@ class User(object):
     """
     # XXX: This method shall be no-op in case if all is correctly setup
     #      This method shall check if all is correctly done
-    #      This method shall not reset groups, just add them
     grpname = 'grp_' + self.name if sys.platform == 'cygwin' else self.name
     try:
       grp.getgrnam(grpname)
@@ -882,17 +881,23 @@ class User(object):
       callAndRead(['groupadd', grpname])
 
     user_parameter_list = ['-d', self.path, '-g', self.name, '-s', self.shell]
-    if self.additional_group_list is not None:
-      user_parameter_list.extend(['-G', ','.join(self.additional_group_list)])
-    user_parameter_list.append(self.name)
+    additional_groups_flag = '-aG'
+    command = 'usermod'
+
     try:
       pwd.getpwnam(self.name)
     except KeyError:
       user_parameter_list.append('-r')
-      callAndRead(['useradd'] + user_parameter_list)
-    else:
-      # if the user is already created and used we should not fail
-      callAndRead(['usermod'] + user_parameter_list, raise_on_error=False)
+      additional_groups_flag = '-G'
+      command = 'useradd'
+
+    if self.additional_group_list is not None:
+      user_parameter_list.extend([additional_groups_flag, ','.join(self.additional_group_list)])
+
+    user_parameter_list.insert(0, command)
+    user_parameter_list.append(self.name)
+
+    callAndRead(user_parameter_list, raise_on_error=False)
     # lock the password of user
     callAndRead(['passwd', '-l', self.name])
 

@@ -910,6 +910,7 @@ class TestCliRequest(CliMixin):
     self.conf.type = None
     self.conf.state = None
     self.conf.slave = False
+    self.conf.force_serialisation = None
 
     with patch.object(
         slapos.slap.slap,
@@ -961,6 +962,7 @@ class TestCliRequest(CliMixin):
     self.conf.type = None
     self.conf.state = None
     self.conf.slave = False
+    self.conf.force_serialisation = None
 
     cp = slapos.slap.ComputerPartition(
         'computer_%s' % self.id(),
@@ -1013,6 +1015,7 @@ class TestCliRequestParameterFile(CliMixin):
     self.conf.type = None
     self.conf.state = None
     self.conf.slave = False
+    self.conf.force_serialisation = None
 
 
 class TestCliRequestParameterFileUndefinedSerialization(TestCliRequestParameterFile):
@@ -1118,3 +1121,40 @@ class TestCliRequestParametersFileXml(TestCliRequestParametersFileJson):
     </instance>
   '''
   parameter_file_suffix = '.xml'
+
+
+class TestCliRequestForceSerialisation(TestCliRequestParameterFile):
+  """Request with --parameter-file, with a .json file, enforcing
+  serialisation with --force-serialisation.
+  """
+  parameter_file_suffix = '.json'
+  parameter_file_content = '''\
+  {
+    "foo": ["bar"]
+  }
+  '''
+  expected_partition_parameter_kw = {"_": "{\"foo\": [\"bar\"]}"}
+
+  def test_request_parameters_file(self):
+    self._request_parameters_file_setup()
+    self.conf.force_serialisation = 'json-in-xml'
+    with patch.object(
+        slapos.slap.slap,
+        'registerOpenOrder',
+        return_value=mock.create_autospec(slapos.slap.OpenOrder)) as registerOpenOrder:
+      slapos.cli.request.do_request(self.logger, self.conf, self.local)
+
+    registerOpenOrder().request.assert_called_once_with(
+        software_release='software URL',
+        partition_reference='instance reference',
+        partition_parameter_kw=self.expected_partition_parameter_kw,
+        software_type=None,
+        filter_kw={'computer_guid': 'COMP-1234'},
+        state=None,
+        shared=False,
+    )
+    self.logger.info.assert_any_call(
+        'Requesting %s as instance of %s...',
+        'instance reference',
+        'software URL',
+    )

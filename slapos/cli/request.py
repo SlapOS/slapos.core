@@ -113,6 +113,10 @@ class RequestCommand(ClientConfigCommand):
                         action='store_true',
                         help='Ask for a slave instance')
 
+        ap.add_argument('--force-serialisation',
+                        choices=[s.value for s in SoftwareReleaseSerialisation],
+                        help='Enforce serialisation used for sending parameters to the master')
+
         parameter_args = ap.add_mutually_exclusive_group()
 
         parameter_args.add_argument(
@@ -151,8 +155,11 @@ def do_request(logger, conf, local):
     software_schema = SoftwareReleaseSchema(conf.software_url, conf.type)
     parameters = conf.parameters
     if conf.parameters_file:
-        # getSerialisation must throw an exception if serialization cannot be found
-        parameters = getParametersFromFile(conf.parameters_file, software_schema.getSerialisation())
+        if conf.force_serialisation:
+            parameters = getParametersFromFile(conf.parameters_file, SoftwareReleaseSerialisation(conf.force_serialisation))
+        else:
+            # getSerialisation must throw an exception if serialization cannot be found
+            parameters = getParametersFromFile(conf.parameters_file, software_schema.getSerialisation())
     try:
         partition = local['slap'].registerOpenOrder().request(
             software_release=conf.software_url,

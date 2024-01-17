@@ -158,13 +158,17 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
 
 class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
 
-  def getMonitorUrl(instance_reference):
+  def getMonitorUrl(instance, instance_reference):
     base_url = 'https://monitor.app.officejs.com/#/?page=ojsm_landing'
+    connection_parameter_dict = instance.InstanceTree_getMonitorParameterDict()
+    connection_url = '&url=%s'% connection_parameter_dict['url'] + '&username=%s'% connection_parameter_dict['username'] + '&password=%s'% connection_parameter_dict['password']
     if instance_reference:
-      url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND reference:%s' % (instance_reference)
+      return base_url + '&query=portal_type:"Software Instance" AND title:"%s" AND ' % context.getTitle() + 'specialise_title:"%s"' % context.getSpecialiseTitle() + connection_url
+      #url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Software Instance" AND reference:%s' % (instance_reference)
     else:
-      url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Instance Tree" AND title:(Template Instance Tree)',
-    return url
+      return base_url + '&query=portal_type:"Instance Tree" AND title:(%s)' % context.getTitle() + connection_url
+      #url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type:"Instance Tree" AND title:(Template Instance Tree)',
+    #return url
 
   def test(self):
     instance_tree = self._makeInstanceTree()

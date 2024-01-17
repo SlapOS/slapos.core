@@ -1,5 +1,11 @@
 Changes
 =======
+1.11.0 (2024-01-17)
+-------------------
+* cli/request: allow enforcing a given serialisation
+* format: do not remove user from groups
+* slapos/testing/e2e: extend base class so that it can request SRs and have them deleted afterwards
+
 1.10.8 (2023-12-14)
 -------------------
 * slapos/testing: add e2e.py for slapos/software/end-to-end-testing

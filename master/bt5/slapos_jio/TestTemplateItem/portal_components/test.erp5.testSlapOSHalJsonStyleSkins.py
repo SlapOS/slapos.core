@@ -41,7 +41,7 @@ def fakeDestroyRequestedSlapState():
 
 class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
 
-  def getMonitorUrl(context, instance_reference):
+  def getMonitorUrl(self, context, instance_reference):
     base_url = 'https://monitor.app.officejs.com/#/?page=ojsm_landing'
     instance_tree = context
     if context.getPortalType() in ["Software Instance", "Slave Instance"]:

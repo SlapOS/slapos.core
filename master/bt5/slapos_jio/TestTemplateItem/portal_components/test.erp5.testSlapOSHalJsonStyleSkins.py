@@ -44,10 +44,13 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
   def getMonitorUrl(self, context, instance_reference=None):
     base_url = 'https://monitor.app.officejs.com/#/?page=ojsm_landing'
     instance_tree = context
-    if context.getPortalType() in ["Software Instance", "Slave Instance"]:
-      instance_tree = context.getSpecialise()
-    connection_parameter_dict = instance_tree.InstanceTree_getMonitorParameterDict()
-    connection_url = '&url=%s'% connection_parameter_dict['url'] + '&username=%s'% connection_parameter_dict['username'] + '&password=%s'% connection_parameter_dict['password']
+    try:
+      if context.getPortalType() in ["Software Instance", "Slave Instance"]:
+        instance_tree = context.getSpecialise()
+      connection_parameter_dict = instance_tree.InstanceTree_getMonitorParameterDict()
+      connection_url = '&url=%s'% connection_parameter_dict['url'] + '&username=%s'% connection_parameter_dict['username'] + '&password=%s'% connection_parameter_dict['password']
+    except:
+      connection_url = ''
     if instance_reference:
       return base_url + '&query=portal_type:"Software Instance" AND title:"%s" AND ' % context.getTitle() + 'specialise_title:"%s"' % instance_reference + connection_url
     else:

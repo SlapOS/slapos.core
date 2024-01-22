@@ -311,7 +311,9 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
 class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
 
   def test(self):
+    instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
+    instance.edit(specialise_value=instance_tree)
     self._logFakeAccess(instance)
     news_dict = instance.SoftwareInstance_getNewsDict()
     expected_news_dict =  {'created_at': self.created_at,
@@ -319,7 +321,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'no_data_since_5_minutes': 0,
       'portal_type': instance.getPortalType(),
       'reference': instance.getReference(),
-      'monitor_url': self.getMonitorUrl(instance, None),
+      'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
       'since': self.created_at,
       'state': 'start_requested',
       'text': '#access OK',
@@ -329,7 +331,9 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
 
 
   def test_no_data(self):
+    instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
+    instance.edit(specialise_value=instance_tree)
     self.changeSkin('Hal')
 
     news_dict = instance.SoftwareInstance_getNewsDict()
@@ -340,27 +344,31 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'since': self.created_at,
       'state': '',
       'text': '#error no data found for %s' % instance.getReference(),
-      'monitor_url': self.getMonitorUrl(instance, None),
+      'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
       'user': 'SlapOS Master'}
 
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
 
   def test_slave(self):
-    instance = self._makeSlaveInstance()
+    instance_tree = self._makeInstanceTree()
+    instance = self._makeInstance()
+    instance.edit(specialise_value=instance_tree)
     news_dict = instance.SoftwareInstance_getNewsDict()
     expected_news_dict = {
       'portal_type': instance.getPortalType(),
       'reference': instance.getReference(),
       'is_slave': 1,
       'text': '#nodata is a slave %s' % instance.getReference(),
-      'monitor_url': self.getMonitorUrl(instance, None),
+      'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
       'user': 'SlapOS Master'}
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
 
   def test_stopped(self):
+    instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
+    instance.edit(specialise_value=instance_tree)
     instance.getSlapState = fakeStopRequestedSlapState
     news_dict = instance.SoftwareInstance_getNewsDict()
     expected_news_dict = {
@@ -368,14 +376,16 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       "reference": instance.getReference(),
       "user": "SlapOS Master",
       "text": "#nodata is an stopped instance %s" % instance.getReference(),
-      'monitor_url': self.getMonitorUrl(instance, None),
+      'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
       "is_stopped": 1
     }
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
 
   def test_destroyed(self):
+    instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
+    instance.edit(specialise_value=instance_tree)
     instance.getSlapState = fakeDestroyRequestedSlapState
     news_dict = instance.SoftwareInstance_getNewsDict()
     expected_news_dict = {
@@ -383,7 +393,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       "reference": instance.getReference(),
       "user": "SlapOS Master",
       "text": "#nodata is an destroyed instance %s" % instance.getReference(),
-      'monitor_url': self.getMonitorUrl(instance, None),
+      'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
       "is_destroyed": 1
     }
     self.assertEqual(_decode_with_json(news_dict),

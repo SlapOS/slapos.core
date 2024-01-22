@@ -325,6 +325,9 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'since': self.created_at,
       'state': 'start_requested',
       'text': '#access OK',
+      'news_dict-monitor_url': news_dict['monitor_url'],
+      'expected_dict-monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
+      'instance.getSpecialiseTitle()': instance.getSpecialiseTitle(),
       'user': 'SlapOS Master'}
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))

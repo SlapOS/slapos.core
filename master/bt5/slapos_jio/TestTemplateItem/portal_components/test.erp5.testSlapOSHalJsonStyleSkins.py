@@ -352,7 +352,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
 
   def test_slave(self):
     instance_tree = self._makeInstanceTree()
-    instance = self._makeInstance()
+    instance = self._makeSlaveInstance()
     instance.edit(specialise_value=instance_tree)
     news_dict = instance.SoftwareInstance_getNewsDict()
     expected_news_dict = {

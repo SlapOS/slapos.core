@@ -245,7 +245,7 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
                 'portal_type': instance.getPortalType(),
                 'reference': instance.getReference(),
                 'since': self.created_at,
-                'monitor_url': self.getMonitorUrl(instance_tree, instance_tree.getReference()),
+                'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
                 'state': '',
                 'text': '#error no data found for %s' % instance.getReference(),
                 'user': 'SlapOS Master'}]
@@ -291,7 +291,7 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
           'portal_type': instance0.getPortalType(),
           'reference': instance0.getReference(),
           'since': self.created_at,
-          'monitor_url': self.getMonitorUrl(instance_tree, instance_tree.getReference()),
+          'monitor_url': self.getMonitorUrl(instance0, instance_tree.getReference()),
           'state': '',
           'text': '#error no data found for %s' % instance0.getReference(),
           'user': 'SlapOS Master'},
@@ -300,7 +300,7 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
          'portal_type': instance.getPortalType(),
          'reference': instance.getReference(), 
          'since': self.created_at,
-         'monitor_url': self.getMonitorUrl(instance_tree, instance_tree.getReference()),
+         'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
          'state': '',
          'text': '#error no data found for %s' % instance.getReference(),
          'user': 'SlapOS Master'}]}

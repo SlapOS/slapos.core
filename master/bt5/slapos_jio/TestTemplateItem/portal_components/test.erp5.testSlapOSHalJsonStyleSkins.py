@@ -41,7 +41,7 @@ def fakeDestroyRequestedSlapState():
 
 class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
 
-  def getMonitorUrl(self, context, instance_tree_reference=None):
+  def getMonitorUrl(self, context, instance_tree_title =None):
     base_url = 'https://monitor.app.officejs.com/#/?page=ojsm_landing'
     instance_tree = context
     try:
@@ -54,7 +54,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     if context.getPortalType() == "Instance Tree":
       return base_url + '&query=portal_type:"Instance Tree" AND title:(%s)' % context.getTitle() + connection_url
     else:
-      return base_url + '&query=portal_type:"Software Instance" AND title:"%s" AND ' % context.getTitle() + 'specialise_title:"%s"' % instance_tree_reference + connection_url
+      return base_url + '&query=portal_type:"Software Instance" AND title:"%s" AND ' % context.getTitle() + 'specialise_title:"%s"' % instance_tree_title + connection_url
   
   maxDiff = None
   def afterSetUp(self):
@@ -245,7 +245,7 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
                 'portal_type': instance.getPortalType(),
                 'reference': instance.getReference(),
                 'since': self.created_at,
-                'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
+                'monitor_url': self.getMonitorUrl(instance, instance_tree.getTitle()),
                 'state': '',
                 'text': '#error no data found for %s' % instance.getReference(),
                 'user': 'SlapOS Master'}]
@@ -291,7 +291,7 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
           'portal_type': instance0.getPortalType(),
           'reference': instance0.getReference(),
           'since': self.created_at,
-          'monitor_url': self.getMonitorUrl(instance0, instance_tree.getReference()),
+          'monitor_url': self.getMonitorUrl(instance0, instance_tree.getTitle()),
           'state': '',
           'text': '#error no data found for %s' % instance0.getReference(),
           'user': 'SlapOS Master'},
@@ -300,7 +300,7 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
          'portal_type': instance.getPortalType(),
          'reference': instance.getReference(), 
          'since': self.created_at,
-         'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
+         'monitor_url': self.getMonitorUrl(instance, instance_tree.getTitle()),
          'state': '',
          'text': '#error no data found for %s' % instance.getReference(),
          'user': 'SlapOS Master'}]}
@@ -321,13 +321,10 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'no_data_since_5_minutes': 0,
       'portal_type': instance.getPortalType(),
       'reference': instance.getReference(),
-      'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
+      'monitor_url': self.getMonitorUrl(instance, instance_tree.getTitle()),
       'since': self.created_at,
       'state': 'start_requested',
       'text': '#access OK',
-      'news_dict-monitor_url': news_dict['monitor_url'],
-      'expected_dict-monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
-      'instance.getSpecialiseTitle()': instance.getSpecialiseTitle(),
       'user': 'SlapOS Master'}
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
@@ -347,7 +344,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'since': self.created_at,
       'state': '',
       'text': '#error no data found for %s' % instance.getReference(),
-      'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
+      'monitor_url': self.getMonitorUrl(instance, instance_tree.getTitle()),
       'user': 'SlapOS Master'}
 
     self.assertEqual(_decode_with_json(news_dict),
@@ -363,7 +360,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'reference': instance.getReference(),
       'is_slave': 1,
       'text': '#nodata is a slave %s' % instance.getReference(),
-      'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
+      'monitor_url': self.getMonitorUrl(instance, instance_tree.getTitle()),
       'user': 'SlapOS Master'}
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
@@ -379,7 +376,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       "reference": instance.getReference(),
       "user": "SlapOS Master",
       "text": "#nodata is an stopped instance %s" % instance.getReference(),
-      'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
+      'monitor_url': self.getMonitorUrl(instance, instance_tree.getTitle()),
       "is_stopped": 1
     }
     self.assertEqual(_decode_with_json(news_dict),
@@ -396,7 +393,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       "reference": instance.getReference(),
       "user": "SlapOS Master",
       "text": "#nodata is an destroyed instance %s" % instance.getReference(),
-      'monitor_url': self.getMonitorUrl(instance, instance_tree.getReference()),
+      'monitor_url': self.getMonitorUrl(instance, instance_tree.getTitle()),
       "is_destroyed": 1
     }
     self.assertEqual(_decode_with_json(news_dict),

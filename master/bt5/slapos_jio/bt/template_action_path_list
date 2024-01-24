@@ -9,7 +9,9 @@ Computer Network | slaposjs_view
 ERP5 Login | slaposjs_view
 Facebook Login | slaposjs_view
 Google Login | slaposjs_view
+Instance Tree Module | monitoring_view
 Instance Tree Module | slaposjs_view
+Instance Tree | monitoring_view
 Instance Tree | slaposjs_view
 Organisation Module | slaposjs_view
 Organisation | slaposjs_view
@@ -20,6 +22,7 @@ Regularisation Request | slaposjs_view
 Sale Invoice Transaction | slaposjs_view
 Slave Instance | slaposjs_view
 Software Installation | slaposjs_view
+Software Instance | monitoring_view
 Software Instance | slaposjs_view
 Software Product | slaposjs_view
 Software Release | slaposjs_view

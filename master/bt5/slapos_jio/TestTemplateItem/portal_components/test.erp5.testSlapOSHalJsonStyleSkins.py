@@ -49,7 +49,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
         instance_tree = context.getSpecialise()
       connection_parameter_dict = instance_tree.InstanceTree_getMonitorParameterDict()
       connection_url = '&url=%s'% connection_parameter_dict['url'] + '&username=%s'% connection_parameter_dict['username'] + '&password=%s'% connection_parameter_dict['password']
-    except (AttributeError, TypeError) as e:
+    except (AttributeError, TypeError) as _:
       connection_url = ''
     if context.getPortalType() == "Instance Tree":
       return base_url + '&query=portal_type:"Instance Tree" AND title:(%s)' % context.getTitle() + connection_url

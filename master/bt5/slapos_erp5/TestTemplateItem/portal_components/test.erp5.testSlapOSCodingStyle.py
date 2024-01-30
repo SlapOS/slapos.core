@@ -230,7 +230,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_hal_json_style/ERP5Site_receiveGoogleCallback',
         'slapos_hal_json_style/Event_getAcknowledgementDict',
         'slapos_hal_json_style/InstanceTree_getConnectionParameterList',
-        'slapos_hal_json_style/InstanceTree_getMonitorParameterDict',
         'slapos_hal_json_style/Item_getCurrentProjectTitle',
         'slapos_hal_json_style/Item_getCurrentSiteTitle',
         'slapos_hal_json_style/Login_edit',

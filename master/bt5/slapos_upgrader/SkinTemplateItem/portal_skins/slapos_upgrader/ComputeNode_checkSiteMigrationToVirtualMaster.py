@@ -85,7 +85,7 @@ else:
     if instance_tree.getDestinationSection() != not_migrated_compute_node['source_administration']:
       from_same_user_only = False
     else:
-      for software_instance in instance_tree.getFollowUpRelatedValueList():
+      for software_instance in instance_tree.getSpecialiseRelatedValueList():
         partition = software_instance.getAggregate(None)
         if (partition is not None) and (partition.startswith(compute_node_relative_url)):
           from_same_user_only = False

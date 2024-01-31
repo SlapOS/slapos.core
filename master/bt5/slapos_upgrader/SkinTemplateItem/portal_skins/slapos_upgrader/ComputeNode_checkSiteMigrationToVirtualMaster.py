@@ -63,35 +63,24 @@ elif (computer_network is not None) and (computer_network.getFollowUp(None) is n
   compute_node.activate().Base_activateObjectMigrationToVirtualMaster(computer_network.getFollowUp())
   not_migrated_compute_node_dict.pop(compute_node_relative_url)
 
-elif force_migration and (not_migrated_compute_node['source_administration'] is not None):
-  # Create a single project for every single remaining compute node
-  project = source_administration_value.Person_addVirtualMaster(
-    title='Migrated shared for %s' % compute_node.getReference(),
-    is_compute_node_payable=False,
-    is_instance_tree_payable=False,
-    # Hardcoded
-    price_currency='currency_module/EUR',
-    batch=1
-  )
-  compute_node.activate().Base_activateObjectMigrationToVirtualMaster(project.getRelativeUrl())
-  not_migrated_compute_node_dict.pop(compute_node_relative_url)
-
 else:
   # If the related instance are all grouped on this machine, and from the same user
   from_same_user_only = True
+  on_this_node_only = True
   instance_project_list = []
   for instance_tree in instance_tree_list:
     instance_project_list.append(instance_tree.getFollowUp(None))
     if instance_tree.getDestinationSection() != not_migrated_compute_node['source_administration']:
       from_same_user_only = False
-    else:
-      for software_instance in instance_tree.getSpecialiseRelatedValueList():
-        partition = software_instance.getAggregate(None)
-        if (partition is not None) and (partition.startswith(compute_node_relative_url)):
-          from_same_user_only = False
+
+    for software_instance in instance_tree.getSpecialiseRelatedValueList():
+      partition = software_instance.getAggregate(None)
+      if (partition is not None) and (partition.startswith(compute_node_relative_url)):
+        on_this_node_only = False
+
   instance_project_list = list(set(instance_project_list))
 
-  if from_same_user_only:
+  if from_same_user_only and on_this_node_only:
     not_migrated_compute_node_dict.pop(compute_node_relative_url)
     source_administration_value.Person_checkSiteMigrationCreatePersonalVirtualMaster([compute_node_relative_url] + [x.getRelativeUrl() for x in instance_tree_list])
 
@@ -99,6 +88,23 @@ else:
     # Else, check if all related instances tree are on the same virtual master
     not_migrated_compute_node_dict.pop(compute_node_relative_url)
     compute_node.activate().Base_activateObjectMigrationToVirtualMaster(instance_project_list[0])
+
+  elif force_migration and (not_migrated_compute_node['source_administration'] is not None):
+    if from_same_user_only:
+      not_migrated_compute_node_dict.pop(compute_node_relative_url)
+      source_administration_value.Person_checkSiteMigrationCreatePersonalVirtualMaster([compute_node_relative_url])
+    else:
+      # Create a single project for every single remaining compute node
+      project = source_administration_value.Person_addVirtualMaster(
+        title='Migrated shared for %s' % compute_node.getReference(),
+        is_compute_node_payable=False,
+        is_instance_tree_payable=False,
+        # Hardcoded
+        price_currency='currency_module/EUR',
+        batch=1
+      )
+      compute_node.activate().Base_activateObjectMigrationToVirtualMaster(project.getRelativeUrl())
+      not_migrated_compute_node_dict.pop(compute_node_relative_url)
 
 # Log
 if not_migrated_compute_node_dict:

@@ -42,6 +42,7 @@ Project | add_slapos_computer_network
 Project | add_slapos_remote_node
 Project | add_slapos_sale_supply
 Project | add_slapos_software_product
+Project | add_slapos_support_request
 Project | jump_to_slapos_allocation_supply
 Project | jump_to_slapos_compute_node
 Project | jump_to_slapos_computer_network

@@ -1,7 +1,10 @@
 portal = context.getPortalObject()
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
-project = context.getFollowUpValue()
+if context.getPortalType() == 'Project':
+  project = context
+else:
+  project = context.getFollowUpValue()
 support_request = project.Project_createSupportRequestWithCausality(
   title,
   description,

@@ -13,7 +13,7 @@ if document is None:
 aggregate_portal_type = document.getPortalType()
 
 if aggregate_portal_type in ["Compute Node", "Instance Tree"] and \
-  document.getMonitorScope() == "disabled":
+  document.getMonitorScope("disabled") == "disabled":
   return []
 
 if aggregate_portal_type == "Instance Tree":

@@ -4,7 +4,7 @@ from erp5.component.module.DateUtils import addToDate
 instance_tree = context
 portal = context.getPortalObject()
 
-if instance_tree.getMonitorScope() == "disabled":
+if instance_tree.getMonitorScope("disabled") == "disabled":
   # Don't generate ticket if Monitor Scope is marked to disable
   return
 

@@ -14,7 +14,7 @@ if document is None:
 
 aggregate_portal_type = document.getPortalType()
 if aggregate_portal_type == "Compute Node":
-  if document.getMonitorScope() == "disabled":
+  if document.getMonitorScope("disabled") == "disabled":
     return "Monitor is disabled to the related %s." % document.getPortalType()
 
   d = document.getAccessStatus()
@@ -65,7 +65,7 @@ if aggregate_portal_type == "Compute Node":
 
 if aggregate_portal_type == "Software Installation":
   compute_node_title = document.getAggregateTitle()
-  if document.getAggregateValue().getMonitorScope() == "disabled":
+  if document.getAggregateValue().getMonitorScope("disabled") == "disabled":
     return "Monitor is disabled to the related %s." % document.getPortalType()
 
   if document.getSlapState() not in ["start_requested", "stop_requested"]:
@@ -87,7 +87,7 @@ if aggregate_portal_type == "Software Installation":
       (document.getUrlString(), compute_node_title, document.getCreationDate())
 
 if aggregate_portal_type == "Instance Tree":
-  if document.getMonitorScope() == "disabled":
+  if document.getMonitorScope("disabled") == "disabled":
     return "Monitor is disabled to the related %s." % document.getPortalType()
 
   message_list = []

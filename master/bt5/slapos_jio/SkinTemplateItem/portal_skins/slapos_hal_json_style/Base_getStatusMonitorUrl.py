@@ -13,7 +13,9 @@ except (AttributeError, TypeError) as _:
 if context.getPortalType() == "Instance Tree":
   for connection_parameter in context.InstanceTree_getConnectionParameterList(raw=True):
     if connection_parameter['connection_key'] == "monitor-setup-url":
-      return connection_parameter['connection_value']
+      # connection_parameter['connection_value'] looks like #page=settings_configurator&url=xxx/public/feeds&username=admin&password=tjfazwlh
+      # workaround until settings_configurator is drop on software releases / buildout cfg files are updated
+      return connection_parameter['connection_value'].replace("settings_configurator", "ojsm_landing")
   return base_url + '&query=portal_type:"Instance Tree" AND title:(%s)' % context.getTitle() + connection_url
 
 if context.getPortalType() in ["Software Instance", "Slave Instance"]:

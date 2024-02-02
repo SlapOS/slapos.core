@@ -52,7 +52,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     except (AttributeError, TypeError) as _:
       connection_url = ''
     if context.getPortalType() == "Instance Tree":
-      return base_url + '&query=portal_type:"Instance Tree" AND title:(%s)' % context.getTitle() + connection_url
+      return base_url + '&query=portal_type:"Instance Tree" AND title:"%s"' % context.getTitle() + connection_url
     else:
       return base_url + '&query=portal_type:"Software Instance" AND title:"%s" AND ' % context.getTitle() + 'specialise_title:"%s"' % instance_tree_title + connection_url
   

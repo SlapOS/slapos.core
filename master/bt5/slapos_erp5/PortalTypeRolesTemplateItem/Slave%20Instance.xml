@@ -22,6 +22,7 @@
    <property id='description'>XXX add local role group</property>
    <property id='condition'>python: context.getFollowUp("") != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
+   <multi_property id='categories'>local_role_group/project</multi_property>
    <multi_property id='category'>function/production/agent</multi_property>
    <multi_property id='base_category'>follow_up</multi_property>
   </role>
@@ -30,6 +31,7 @@
    <property id='description'>XXX add local role group</property>
    <property id='condition'>python: context.getFollowUp("") != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
+   <multi_property id='categories'>local_role_group/project</multi_property>
    <multi_property id='category'>function/production/manager</multi_property>
    <multi_property id='base_category'>follow_up</multi_property>
   </role>

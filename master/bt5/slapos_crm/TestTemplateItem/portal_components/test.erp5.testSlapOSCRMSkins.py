@@ -689,10 +689,9 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     instance_tree.validate()
     new_id = self.generateNewId()
     instance_tree.edit(
-        title="Test hosting sub ticket %s" % new_id,
+        title= "Test hosting sub ticket %s" % new_id,
         reference="TESTHST-%s" % new_id,
-        destination_section_value=person,
-        monitor_scope="enabled"
+        destination_section_value=person
     )
 
     return instance_tree
@@ -1037,7 +1036,7 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
     instance_tree.validate()
     new_id = self.generateNewId()
     instance_tree.edit(
-        title="Test hosting sub ticket %s" % new_id,
+        title= "Test hosting sub ticket %s" % new_id,
         reference="TESTHST-%s" % new_id,
         destination_section_value=person
     )

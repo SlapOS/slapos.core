@@ -3,7 +3,7 @@ portal = context.getPortalObject()
 
 person = context.getSourceAdministrationValue(portal_type="Person")
 if not person or \
-   context.getMonitorScope("disabled") == "disabled" or \
+   context.getMonitorScope() == "disabled" or \
    portal.ERP5Site_isSupportRequestCreationClosed():
   return
 

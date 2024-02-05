@@ -14,6 +14,7 @@
 Only show to all project customer if it is not specific to a dedicated user</property>
    <property id='condition'>python: (context.getDestinationProject("") != "") and (context.getDestination(None) is None) and (context.getValidationState() == 'validated')</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
+   <multi_property id='categories'>local_role_group/project</multi_property>
    <multi_property id='category'>function/customer</multi_property>
    <multi_property id='base_category'>destination_project</multi_property>
   </role>
@@ -22,6 +23,7 @@ Only show to all project customer if it is not specific to a dedicated user</pro
    <property id='description'>XXX add local role group</property>
    <property id='condition'>python: context.getDestinationProject("") != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
+   <multi_property id='categories'>local_role_group/project</multi_property>
    <multi_property id='category'>function/production/agent</multi_property>
    <multi_property id='base_category'>destination_project</multi_property>
   </role>
@@ -30,6 +32,7 @@ Only show to all project customer if it is not specific to a dedicated user</pro
    <property id='description'>XXX add local role group</property>
    <property id='condition'>python: context.getDestinationProject("") != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
+   <multi_property id='categories'>local_role_group/project</multi_property>
    <multi_property id='category'>function/production/manager</multi_property>
    <multi_property id='base_category'>destination_project</multi_property>
   </role>

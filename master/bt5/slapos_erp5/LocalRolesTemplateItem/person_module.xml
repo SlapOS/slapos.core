@@ -23,6 +23,7 @@
     <principal id='F-ACCOUNTING*'>Auditor</principal>
     <principal id='F-ACCOUNTING*'>Author</principal>
     <principal id='F-CUSTOMER'>Auditor</principal>
+    <principal id='F-PRODUCTION*'>Auditor</principal>
     <principal id='F-SALE*'>Auditor</principal>
     <principal id='F-SALE*'>Author</principal>
   </local_role_group_id>

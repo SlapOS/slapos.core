@@ -2,6 +2,7 @@
   <role id='Auditor'>
    <property id='title'>Information System</property>
    <property id='description'>XXX local role group</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
    <multi_property id='category'>function/is*</multi_property>
    <multi_property id='base_category'>function</multi_property>
   </role>

@@ -2,6 +2,7 @@
   <role id='Auditor'>
    <property id='title'>Accounting</property>
    <property id='description'>`Sale` people can NOT create/modify `Service`. This comes from the `bt5`, and can be really fragile to change for now.</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
    <multi_property id='category'>function/accounting*</multi_property>
    <multi_property id='base_category'>function</multi_property>
   </role>
@@ -9,6 +10,7 @@
    <property id='title'>Project Compute Node Manager</property>
    <property id='description'>XXX TODO
 add local roles group</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
    <multi_property id='category'>function/production*</multi_property>
    <multi_property id='base_category'>function</multi_property>
   </role>
@@ -21,6 +23,7 @@ add local roles group</property>
   <role id='Auditor'>
    <property id='title'>Sale</property>
    <property id='description'>`Sale` people can NOT create/modify `Service`. This comes from the `bt5`, and can be really fragile to change for now.</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
    <multi_property id='category'>function/sale*</multi_property>
    <multi_property id='base_category'>function</multi_property>
   </role>

@@ -27,6 +27,10 @@ used_group_security_uid_dict = {
     x.computer_security_uid
     for x in portal.z_get_used_computer_security_uid_list()
   },
+  'organisation': {
+    x.organisation_security_uid 
+    for x in portal.z_get_used_organisation_security_uid_list()
+  },
   'project': {
     x.project_security_uid
     for x in portal.z_get_used_project_security_uid_list()
@@ -34,6 +38,10 @@ used_group_security_uid_dict = {
   'user' : {
     x.user_security_uid
     for x in portal.z_get_used_user_security_uid_list()
+  },
+  'subscription' : {
+    x.subscription_security_uid
+    for x in portal.z_get_used_subscription_security_uid_list()
   },
   'group': {
     x.group_security_uid

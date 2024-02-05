@@ -11,7 +11,6 @@ CREATE TABLE `catalog` (
   `computer_security_uid` INT UNSIGNED,
   `user_security_uid` INT UNSIGNED,
   `subscription_security_uid` INT UNSIGNED,
-  `organisation_security_uid` INT UNSIGNED,
   `project_security_uid` INT UNSIGNED,
   `owner` varbinary(255) NOT NULL default '',
   `viewable_owner` varbinary(255) NOT NULL default '',

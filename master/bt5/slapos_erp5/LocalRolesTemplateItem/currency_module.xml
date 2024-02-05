@@ -22,6 +22,7 @@
     <principal id='F-ACCOUNTING*'>Auditor</principal>
     <principal id='F-ACCOUNTING*'>Author</principal>
     <principal id='F-CUSTOMER'>Auditor</principal>
+    <principal id='F-PRODUCTION*'>Auditor</principal>
     <principal id='F-SALE*'>Auditor</principal>
   </local_role_group_id>
   <local_role_group_id id='shadow'>

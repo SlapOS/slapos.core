@@ -17,10 +17,12 @@
  <local_role_group_ids>
   <local_role_group_id id='computer'>
     <principal id='R-COMPUTER'>Auditor</principal>
+    <principal id='R-INSTANCE'>Auditor</principal>
   </local_role_group_id>
   <local_role_group_id id='function'>
     <principal id='F-CUSTOMER'>Auditor</principal>
     <principal id='F-CUSTOMER'>Author</principal>
+    <principal id='F-PRODUCTION*'>Auditor</principal>
   </local_role_group_id>
  </local_role_group_ids>
 </local_roles_item>

@@ -3,4 +3,5 @@ group | group_security_uid
 shadow | shadow_security_uid
 computer | computer_security_uid
 user | user_security_uid
+subscription | subscription_security_uid
 project | project_security_uid

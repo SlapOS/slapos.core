@@ -1,6 +1,6 @@
 REPLACE INTO
   catalog
-  (`uid`, `security_uid`, `function_security_uid`, `group_security_uid`, `shadow_security_uid`, `computer_security_uid`,`user_security_uid`, `subscription_security_uid`,
+  (`uid`, `security_uid`, `function_security_uid`, `group_security_uid`, `shadow_security_uid`, `computer_security_uid`,`user_security_uid`,
    `project_security_uid`, `owner`, `viewable_owner`, `path`, `relative_url`, `parent_uid`, `id`, `description`, `title`, `meta_type`,
    `portal_type`, `opportunity_state`, `corporate_registration_code`, `ean13_code`, `validation_state`, `simulation_state`,
    `causality_state`, `invoice_state`, `payment_state`, `event_state`, `immobilisation_state`, `reference`, `grouping_reference`, `grouping_date`,
@@ -16,7 +16,6 @@ VALUES
   <dtml-sqlvar expr="shadow_security_uid[loop_item]" type="int" optional>,
   <dtml-sqlvar expr="computer_security_uid[loop_item]" type="int" optional>,
   <dtml-sqlvar expr="user_security_uid[loop_item]" type="int" optional>,
-  <dtml-sqlvar expr="subscription_security_uid[loop_item]" type="int" optional>,
   <dtml-sqlvar expr="project_security_uid[loop_item]" type="int" optional>,
   <dtml-sqlvar expr="getOwnerInfo[loop_item]['id']" type="string">,
   <dtml-sqlvar expr="(getViewPermissionOwner[loop_item] is not None) and getViewPermissionOwner[loop_item] or ''" type="string" optional>,

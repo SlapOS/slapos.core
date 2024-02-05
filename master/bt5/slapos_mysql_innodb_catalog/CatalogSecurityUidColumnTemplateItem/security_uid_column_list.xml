@@ -4,6 +4,5 @@
  <key>group | group_security_uid</key>
  <key>project | project_security_uid</key>
  <key>shadow | shadow_security_uid</key>
- <key>subscription | subscription_security_uid</key>
  <key>user | user_security_uid</key>
 </key_list>

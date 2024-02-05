@@ -19,6 +19,7 @@ group_security_uid\n
 shadow_security_uid\n
 computer_security_uid\n
 user_security_uid\n
+subscription_security_uid\n
 project_security_uid\n
 getOwnerInfo\n
 getViewPermissionOwner\n

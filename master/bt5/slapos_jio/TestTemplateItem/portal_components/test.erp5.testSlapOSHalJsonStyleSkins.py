@@ -46,7 +46,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     instance_tree = context
     try:
       if context.getPortalType() in ["Software Instance", "Slave Instance"]:
-        instance_tree = context.getSpecialise()
+        instance_tree = context.getSpecialiseValue(portal_type="Instance Tree")
       connection_parameter_dict = instance_tree.InstanceTree_getMonitorParameterDict()
       connection_url = '&url=%s'% connection_parameter_dict['url'] + '&username=%s'% connection_parameter_dict['username'] + '&password=%s'% connection_parameter_dict['password']
     except (AttributeError, TypeError) as _:

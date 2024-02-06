@@ -39,3 +39,5 @@ else:
 
   upgrade_decision.stop(
     comment="Upgrade Processed for the Instance Tree!")
+  upgrade_decision.deliver(
+    comment="Upgrade Processed for the Instance Tree!")

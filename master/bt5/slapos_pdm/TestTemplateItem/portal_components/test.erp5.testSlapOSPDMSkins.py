@@ -34,7 +34,6 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
 
     upgrade_decision = instance_tree.InstanceTree_createUpgradeDecision()
     upgrade_decision.start()
-
     self.portal.portal_workflow._jumpToStateFor(instance_tree,
                                                 'stop_requested')
 
@@ -43,7 +42,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     self.assertEqual(new_release_variation.getUrlString(),
                      instance_tree.getUrlString())
     self.assertEqual('stop_requested', instance_tree.getSlapState())
-    self.assertEqual('stopped', upgrade_decision.getSimulationState())
+    self.assertEqual('delivered', upgrade_decision.getSimulationState())
 
   def test_requestUpgrade_destroyed_instance_tree(self):
     software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree()

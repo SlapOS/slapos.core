@@ -1207,7 +1207,7 @@ class TestUpgradeDecisionModule(TestSlapOSGroupRoleSecurityMixin):
     module = self.portal.upgrade_decision_module
     self.assertSecurityGroup(module,
         ['F-PRODUCTION*', 'F-CUSTOMER', module.Base_getOwnerId()], True)
-    self.assertRoles(module, 'F-PRODUCTION*', ['Auditor'])
+    self.assertRoles(module, 'F-PRODUCTION*', ['Auditor', 'Author'])
     self.assertRoles(module, 'F-CUSTOMER', ['Auditor'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
 

@@ -5,7 +5,7 @@ url_parameter_kw = { 'page': 'ojsm_landing' }
 
 instance_tree = context
 if context.getPortalType() in ["Software Instance", "Slave Instance"]:
-  instance_tree = context.getSpecialise()
+  instance_tree = context.getSpecialiseValue(portal_type="Instance Tree")
 connection_parameter_dict = instance_tree.InstanceTree_getMonitorParameterDict()
 if all(key in connection_parameter_dict for key in ('username', 'password', 'url')):
   url_parameter_kw['username'] = connection_parameter_dict['username']

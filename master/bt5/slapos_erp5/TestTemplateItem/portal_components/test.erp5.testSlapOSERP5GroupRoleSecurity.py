@@ -50,11 +50,20 @@ class TestSlapOSGroupRoleSecurityCoverage(SlapOSTestCaseMixinWithAbort):
     XXX how to check the consistency
     """
     test_list = []
+    expected_failure_dict = {
+      # comes from generic erp5 bt5. Unused
+      'Query - Acquired Assignee': None,
+      # Like 'user' group, but for instance
+      # there is no local_role_group for single instance user
+      'Slave Instance - Software Instance which provides this Slave Instance': None
+    }
     for pt in self.portal.portal_types.objectValues():
       for role_information in pt.contentValues(portal_type="Role Information"):
         group = role_information.getLocalRoleGroupValue()
-        if group is None:
-          test_list.append('%s - %s' % (pt.getId(), role_information.getTitle()))
+        role_title = '%s - %s' % (pt.getId(), role_information.getTitle())
+        if ((group is None) and (role_title not in expected_failure_dict)) or \
+           ((group is not None) and (role_title in expected_failure_dict)):
+          test_list.append(role_title)
     test_list.sort()
     self.assertEqual(test_list, [])
 

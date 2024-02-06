@@ -24,6 +24,7 @@ Instance Tree Module | slapos_panel_view
 Instance Tree Module | slapos_panel_view_my_instance_tree_list
 Instance Tree | add_slapos_instance_node
 Instance Tree | add_slapos_support_request
+Instance Tree | slapos_create_upgrade_decision
 Instance Tree | slapos_panel_view
 Instance Tree | slapos_request_hs_start
 Instance Tree | slapos_request_hs_stop

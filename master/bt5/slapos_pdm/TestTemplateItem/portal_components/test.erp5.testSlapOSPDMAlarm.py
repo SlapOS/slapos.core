@@ -28,7 +28,8 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
 
   def test_alarm_upgrade_decision_process_instance_tree(self):
     upgrade_decision = self._makeUpgradeDecision()
-    upgrade_decision.start()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'"):
+      upgrade_decision.start()
     self.tic()
 
     with TemporaryAlarmScript(self.portal, 'UpgradeDecision_processUpgrade'):

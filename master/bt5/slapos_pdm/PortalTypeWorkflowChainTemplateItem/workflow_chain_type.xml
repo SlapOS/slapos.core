@@ -17,6 +17,6 @@
  </chain>
  <chain>
   <type>Upgrade Decision</type>
-  <workflow>edit_workflow, ticket_interaction_workflow, upgrade_decision_workflow</workflow>
+  <workflow>edit_workflow, slapos_pdm_interaction_workflow, ticket_interaction_workflow, upgrade_decision_workflow</workflow>
  </chain>
 </workflow_chain>

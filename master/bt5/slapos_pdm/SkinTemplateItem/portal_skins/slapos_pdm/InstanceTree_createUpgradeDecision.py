@@ -1,5 +1,8 @@
 from DateTime import DateTime
 portal = context.getPortalObject()
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
 
 instance_tree = context
 
@@ -108,6 +111,8 @@ if len(allocation_cell_list) == 1:
       resource_value=software_product,
       variation_category_list=allocation_cell_list[0].getVariationCategoryList(),
       aggregate_value=instance_tree,
+      # As a ticket, give the ticket original context
+      causality_value=instance_tree,
     )
 
     with upgrade_decision.defaultActivateParameterDict({'tag': tag}):

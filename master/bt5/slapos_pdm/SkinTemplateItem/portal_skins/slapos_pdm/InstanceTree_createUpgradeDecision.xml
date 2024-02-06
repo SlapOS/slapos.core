@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>target_software_release=None, target_software_type=None</string> </value>
+            <value> <string>REQUEST=None, target_software_release=None, target_software_type=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

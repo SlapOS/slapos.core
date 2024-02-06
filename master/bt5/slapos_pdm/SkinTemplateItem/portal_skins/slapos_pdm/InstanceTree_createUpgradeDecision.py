@@ -61,9 +61,7 @@ if len(root_instance_list) != 0:
       elif (compute_node.getPortalType() != 'Remote Node'):
         return
 
-person = context.getDestinationSectionValue()
-if person is None:
-  return
+person = context.getDestinationSectionValue(checked_permission='Access contents information')
 
 # Search if the product with the same type
 # XXX search only for the main node
@@ -102,11 +100,12 @@ if len(allocation_cell_list) == 1:
       return
 
     decision_title = 'A new upgrade is available for %s' % instance_tree.getTitle()
+    person_relative_url = context.getDestinationSection()
     upgrade_decision = portal.upgrade_decision_module.newContent(
       portal_type='Upgrade Decision',
       title=decision_title,
-      destination_section_value=person,
-      destination_decision_value=person,
+      destination_section=person_relative_url,
+      destination_decision=person_relative_url,
       destination_project_value=instance_tree.getFollowUpValue(),
       resource_value=software_product,
       variation_category_list=allocation_cell_list[0].getVariationCategoryList(),

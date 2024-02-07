@@ -43,7 +43,8 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
 
   def testConfiguredShacacheWebSite(self):
     """ Make sure Shacache WebSite is setuped by Alarm
-        case we trust on promise outcome."""
+        case we trust on promise outcome, this checks:
+        WebSiteModule_checkShacacheConstraint """
     self.assertEqual(self.portal.web_site_module.checkConsistency(), [])
 
   def testConfiguredCacheViaConstraint(self):
@@ -54,7 +55,13 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
   def testConfiguredConversionServerViaConstraint(self):
     """ Make sure Conversion Server was configured well,
         invoking checkConsistency """
-    self.assertEqual(self.portal.portal_preferences.checkConsistency(), [])
+    pref_tool = self.portal.portal_preferences
+    self.assertEqual(pref_tool.checkConsistency(), [])
+
+    # Check if configuration is properly set:
+    self.assertEqual(
+      pref_tool.slapos_default_system_preference.SystemPreference_checkSystemPreferenceConsistency(),
+      [])
 
   def testConfiguredCertificateAuthoringConstraint(self):
     """Make sure Certificate Authoring was configured well,
@@ -81,9 +88,9 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     self.assertEqual([],
       self.portal.portal_templates.TemplateTool_checkBusinessApplicationToModuleConsistency())
 
-  def testConfiguredConversionServer(self):
+  def test_SystemPreference_checkConversionServerConsistency(self):
     """ Make sure Conversion Server (Cloudooo) is
-        well configured """
+        well configured."""
     # set preference
     preference_tool = self.portal.portal_preferences
     conversion_url = ["https://cloudooo.erp5.net/"]
@@ -111,10 +118,19 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     """ Make sure portal_alarms is subscribed. """
     self.assertTrue(self.portal.portal_alarms.isSubscribed())
 
+  def test_TemplateTool_checkSlapOSPASConsistency(self):
+    """ Ensure that PAS is configured after the configuration """
+    self.assertEqual(self.portal.portal_templates.TemplateTool_checkSlapOSPASConsistency(),
+      [])
+    self.assertEqual(self.portal.portal_templates.TemplateTool_checkSlapOSPASConsistency(),
+      [])
+    
+
   def testInteractionDropped(self):
     """ Make sure that no portal type uses interaction workflow for simulation """
     for pt in self.portal.portal_types.objectValues():
-      for dropped_workflow in ["delivery_movement_simulation_interaction_workflow",
+      for dropped_workflow in [
+            "delivery_movement_simulation_interaction_workflow",
             "delivery_simulation_interaction_workflow",
             "open_order_simulation_interaction_workflow",
             "open_order_path_simulation_interaction_workflow",
@@ -126,7 +142,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
               "Workflow %s still present on %s Portal Type (%s)" % \
                       (dropped_workflow, pt, pt.getTypeWorkflowList()))
 
-  def testModuleHasIdGeneratorByDay(self):
+  def test_Module_checkSlapOSModuleIdGeneratorConsistency(self):
     """ Ensure the Constraint sets appropriate id generator on all modules.
     """
     module_list = [module.getId() for module in self.portal.objectValues() 
@@ -259,6 +275,9 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     expected_module_list.extend(self._custom_expected_module_list)
 
     self.assertSameSet(module_list, expected_module_list)
+
+    self.assertEqual(self.portal.portal_simulation.getIdGenerator(), "_generatePerDayId")    
+    self.assertEqual(self.portal.portal_activities.getIdGenerator(), "_generatePerDayId")
 
   def testConfiguredBusinessTemplateList(self):
     """ Make sure Installed business Templates are

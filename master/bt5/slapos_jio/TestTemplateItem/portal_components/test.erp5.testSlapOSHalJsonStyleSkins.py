@@ -42,10 +42,19 @@ def fakeDestroyRequestedSlapState():
 class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
 
   def getMonitorUrl(self, context, instance_tree_title =None):
-    if context.getPortalType() in ["Software Instance", "Slave Instance"]:
-      return 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Software%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22&page=ojsm_landing'
+    base_url = 'https://monitor.app.officejs.com/#/?page=ojsm_landing'
+    instance_tree = context
+    try:
+      if context.getPortalType() in ["Software Instance", "Slave Instance"]:
+        instance_tree = context.getSpecialiseValue(portal_type="Instance Tree")
+      connection_parameter_dict = instance_tree.InstanceTree_getMonitorParameterDict()
+      connection_url = '&url=%s'% connection_parameter_dict['url'] + '&username=%s'% connection_parameter_dict['username'] + '&password=%s'% connection_parameter_dict['password']
+    except (AttributeError, TypeError) as _:
+      connection_url = ''
+    if context.getPortalType() == "Instance Tree":
+      return base_url + '&query=portal_type:"Instance Tree" AND title:"%s"' % context.getTitle() + connection_url
     else:
-      return 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Instance%20Tree%22%20AND%20title%3A%22Template%20Instance%20Tree%22&page=ojsm_landing'
+      return base_url + '&query=portal_type:"Software Instance" AND title:"%s" AND ' % context.getTitle() + 'specialise_title:"%s"' % instance_tree_title + connection_url
   
   maxDiff = None
   def afterSetUp(self):

@@ -272,7 +272,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_administration/z_search_unindexed_security_uid',
         'slapos_administration/z_get_uid_group_from_roles_and_users',
         'slapos_administration/SoftwareInstance_renewCertificate',
-        'slapos_core/Base_updateSlapOSLocalRolesOnSecurityGroups',
         'slapos_core/ERP5Type_getSecurityCategoryMapping',
         'slapos_core/SlaveInstance_getSecurityCategoryFromSoftwareInstance',
         'slapos_disaster_recovery/ERP5Site_checkDeletedDocumentList',

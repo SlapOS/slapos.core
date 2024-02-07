@@ -20,7 +20,8 @@
           'Request',
           'Projects',
           'Servers',
-          'Tickets'
+          'Tickets',
+          'Invoices'
         ])
       }))
         .push(function (result_dict) {
@@ -44,6 +45,10 @@
             title: result_dict.translation_dict.Tickets,
             jio_key: 'support_request_module',
             erp5_action: 'slapos_panel_view_my_ticket_list'
+          }, {
+            title: result_dict.translation_dict.Invoices,
+            jio_key: 'accounting_module',
+            erp5_action: 'slapos_panel_view_my_invoice_list'
           }]);
         });
     });

@@ -17,9 +17,6 @@
   <item>Reference</item>
   <item>Url</item>
  </portal_type>
- <portal_type id="OAuth Tool">
-  <item>OAuthToolDefaultSlapOSConnector</item>
- </portal_type>
  <portal_type id="Organisation">
   <item>GeographicOrganisation</item>
  </portal_type>

@@ -1,22 +1,24 @@
+from ZTUtils import make_query
 # TODO how to avoid hardcode here? from InstanceTree_getConnectionParameterList?
-base_url = 'https://monitor.app.officejs.com/#/?page=ojsm_landing'
+base_url = 'https://monitor.app.officejs.com/#/?'
+url_parameter_kw = { 'page': 'ojsm_landing' }
 
-try:
-  instance_tree = context
-  if context.getPortalType() in ["Software Instance", "Slave Instance"]:
-    instance_tree = context.getSpecialise()
-  connection_parameter_dict = instance_tree.InstanceTree_getMonitorParameterDict()
-  connection_url = '&url=%s'% connection_parameter_dict['url'] + '&username=%s'% connection_parameter_dict['username'] + '&password=%s'% connection_parameter_dict['password']
-except (AttributeError, TypeError) as _:
-  connection_url = ''
+instance_tree = context
+if context.getPortalType() in ["Software Instance", "Slave Instance"]:
+  instance_tree = context.getSpecialiseValue(portal_type="Instance Tree")
+connection_parameter_dict = instance_tree.InstanceTree_getMonitorParameterDict()
+if all(key in connection_parameter_dict for key in ('username', 'password', 'url')):
+  url_parameter_kw['username'] = connection_parameter_dict['username']
+  url_parameter_kw['password'] = connection_parameter_dict['password']
+  url_parameter_kw['url'] = connection_parameter_dict['url']
 
 if context.getPortalType() == "Instance Tree":
   for connection_parameter in context.InstanceTree_getConnectionParameterList(raw=True):
-    if connection_parameter['connection_key'] == "monitor-setup-url":
-      # connection_parameter['connection_value'] looks like #page=settings_configurator&url=xx/public/feeds&username=admin&password=yy
-      # workaround until settings_configurator is c on software releases / buildout cfg files are updated
-      return connection_parameter['connection_value'].replace("settings_configurator", "ojsm_landing")
-  return base_url + '&query=portal_type:"Instance Tree" AND title:"%s"' % context.getTitle() + connection_url
+    if 'connection_key' in connection_parameter and connection_parameter['connection_key'] == "monitor-setup-url":
+      return connection_parameter['connection_value']
+  url_parameter_kw['query'] = 'portal_type:"Instance Tree" AND title:"%s"' % context.getTitle()
 
 if context.getPortalType() in ["Software Instance", "Slave Instance"]:
-  return base_url + '&query=portal_type:"Software Instance" AND title:"%s" AND ' % context.getTitle() + 'specialise_title:"%s"' % context.getSpecialiseTitle() + connection_url
+  url_parameter_kw['query'] = 'portal_type:"Software Instance" AND title:"%s" AND ' % context.getTitle() + 'specialise_title:"%s"' % context.getSpecialiseTitle()
+
+return base_url + make_query(url_parameter_kw)

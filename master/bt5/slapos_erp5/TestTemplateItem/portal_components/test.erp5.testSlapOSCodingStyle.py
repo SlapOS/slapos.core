@@ -296,8 +296,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_disaster_recovery/ERP5Site_recoverFromRestoration',
         'slapos_disaster_recovery/ERP5Site_reindexOrUnindexDocumentList',
         'slapos_disaster_recovery/ERP5Site_unindexDeletedDocumentList',
-        'slapos_base/ERP5Login_isLoginBlocked',
-        'slapos_base/ERP5Login_isPasswordExpired',
         'slapos_base/Login_getFastExpirationReferenceList',
         'slapos_base/Login_isLoginBlocked',
         'slapos_base/Login_isPasswordExpired',

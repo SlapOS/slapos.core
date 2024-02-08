@@ -2,6 +2,8 @@
   Return true if user account is blocked.
 """
 from DateTime import DateTime
+from erp5.component.module.Log import log
+
 request = context.REQUEST
 portal = context.getPortalObject()
 portal_preferences = portal.portal_preferences
@@ -15,6 +17,13 @@ one_second = 1/24.0/60.0/60.0
 check_duration = portal_preferences.getPreferredAuthenticationFailureCheckDuration()
 block_duration = portal_preferences.getPreferredAuthenticationFailureBlockDuration()
 max_authentication_failures = portal_preferences.getPreferredMaxAuthenticationFailure()
+
+if None in (check_duration,
+            block_duration,
+            max_authentication_failures):
+  log('Login block is not working because authentication policy in system preference is not set properly.')
+  return 0
+
 check_time = now - check_duration*one_second
 
 # some failures might be still unindexed

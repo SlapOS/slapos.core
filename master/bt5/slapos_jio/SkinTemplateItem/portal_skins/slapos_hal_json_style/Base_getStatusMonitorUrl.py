@@ -1,7 +1,7 @@
 from ZTUtils import make_query
 # TODO how to avoid hardcode here? from InstanceTree_getConnectionParameterList?
 base_url = 'https://monitor.app.officejs.com/#/?'
-url_parameter_kw = { 'page': 'ojsm_landing' }
+url_parameter_kw = { 'page': 'ojsm_dispatch' }
 
 instance_tree = context
 if context.getPortalType() in ["Software Instance", "Slave Instance"]:

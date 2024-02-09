@@ -43,9 +43,9 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
 
   def getMonitorUrl(self, context):
     if context.getPortalType() in ["Software Instance", "Slave Instance"]:
-      return 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Software%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22&page=ojsm_landing'
+      return 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Software%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22&page=ojsm_dispatch'
     else:
-      return 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Instance%20Tree%22%20AND%20title%3A%22Template%20Instance%20Tree%22&page=ojsm_landing'
+      return 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Instance%20Tree%22%20AND%20title%3A%22Template%20Instance%20Tree%22&page=ojsm_dispatch'
   
   maxDiff = None
   def afterSetUp(self):
@@ -351,7 +351,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'reference': instance.getReference(),
       'is_slave': 1,
       'text': '#nodata is a slave %s' % instance.getReference(),
-      'monitor_url': 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Slave%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22&page=ojsm_landing',
+      'monitor_url': 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Slave%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22&page=ojsm_dispatch',
       'user': 'SlapOS Master'}
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))

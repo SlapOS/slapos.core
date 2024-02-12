@@ -5,8 +5,6 @@ outstanding_amount = portal.restrictedTraverse(outstanding_amount)
 
 # Check that the total_price matches the outstanding amount list
 expected_price = context.Entity_getOutstandingAmountList(
-  include_planned=False,
-  at_date=date,
   section_uid=outstanding_amount.getSourceSectionUid(),
   resource_uid=outstanding_amount.getPriceCurrencyUid(),
   ledger_uid=outstanding_amount.getLedgerUid(),
@@ -19,8 +17,6 @@ if total_price != expected_price:
 
 payment_transaction = context.Entity_createPaymentTransaction(
   context.Entity_getOutstandingAmountList(
-    include_planned=False,
-    at_date=date,
     section_uid=outstanding_amount.getSourceSectionUid(),
     resource_uid=outstanding_amount.getPriceCurrencyUid(),
     ledger_uid=outstanding_amount.getLedgerUid(),

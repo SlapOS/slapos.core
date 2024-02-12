@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>resource_uid=None, section_uid=None, group_by_node=True, at_date=None, include_planned=True, ledger_uid=None, **kw</string> </value>
+            <value> <string>resource_uid=None, section_uid=None, group_by_node=True, at_date=None, include_planned=False, ledger_uid=None, portal_type=\'Sale Invoice Transaction Line\', **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

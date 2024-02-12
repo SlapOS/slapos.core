@@ -21,6 +21,7 @@ from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery
 portal = context.getPortalObject()
 
 params = dict()
+params['portal_type'] = portal_type
 
 if at_date:
   params['at_date'] = at_date

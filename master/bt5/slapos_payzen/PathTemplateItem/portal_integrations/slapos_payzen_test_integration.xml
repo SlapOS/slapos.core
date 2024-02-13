@@ -81,14 +81,18 @@
         <item>
             <key> <string>categories</string> </key>
             <value>
-              <tuple>
-                <string>source_trade/sale_trade_condition_module/payzen_sale_trade_condition</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>
             <key> <string>default_reference</string> </key>
             <value> <string>payzen</string> </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>id</string> </key>

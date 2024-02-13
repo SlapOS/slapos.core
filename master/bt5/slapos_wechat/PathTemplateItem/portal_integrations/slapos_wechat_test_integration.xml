@@ -81,9 +81,7 @@
         <item>
             <key> <string>categories</string> </key>
             <value>
-              <tuple>
-                <string>source_trade/sale_trade_condition_module/wechat_sale_trade_condition</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>

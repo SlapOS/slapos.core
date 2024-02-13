@@ -170,9 +170,8 @@ class TestPaymentTransaction(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Payment Transaction')
     product.edit(ledger='automated')
     self.assertSecurityGroup(product,
-        ['F-ACCOUNTING*', 'R-SHADOW-PERSON', self.user_id], False)
+        ['F-ACCOUNTING*', self.user_id], False)
     self.assertRoles(product, 'F-ACCOUNTING*', ['Auditor'])
-    self.assertRoles(product, 'R-SHADOW-PERSON', ['Assignee'])
     self.assertRoles(product, self.user_id, ['Owner'])
 
   def test_PaymentTransaction_UserWithoutLedger(self):
@@ -205,7 +204,7 @@ class TestPaymentTransaction(TestSlapOSGroupRoleSecurityMixin):
         ['F-ACCOUNTING*', self.user_id, person.getUserId(),
          shadow_user_id], False)
     self.assertRoles(product, 'F-ACCOUNTING*', ['Auditor'])
-    self.assertRoles(product, shadow_user_id, ['Auditor'])
+    self.assertRoles(product, shadow_user_id, ['Assignee'])
     self.assertRoles(product, person.getUserId(), ['Auditor'])
     self.assertRoles(product, self.user_id, ['Owner'])
 

@@ -3,14 +3,14 @@
   <role id='F-CUSTOMER'>
    <item>Auditor</item>
   </role>
-  <role id='F-PRODUCTION*'>
+  <role id='F-SALE*'>
    <item>Auditor</item>
   </role>
  </local_roles>
  <local_role_group_ids>
   <local_role_group_id id='function'>
     <principal id='F-CUSTOMER'>Auditor</principal>
-    <principal id='F-PRODUCTION*'>Auditor</principal>
+    <principal id='F-SALE*'>Auditor</principal>
   </local_role_group_id>
  </local_role_group_ids>
 </local_roles_item>

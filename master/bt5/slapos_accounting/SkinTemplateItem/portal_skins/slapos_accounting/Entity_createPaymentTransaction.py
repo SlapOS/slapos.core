@@ -37,6 +37,8 @@ for invoice in invoice_list:
     causality_uid_list.append(invoice.payment_request_uid)
   if invoice.SaleInvoiceTransaction_isLettered():
     raise ValueError('This invoice is already lettered')
+  if invoice.getPortalType() != 'Sale Invoice Transaction':
+    raise ValueError('Not an invoice')
 
 if not price:
   raise ValueError('No total_price to pay')

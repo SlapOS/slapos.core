@@ -1,6 +1,8 @@
 url_list = [
   'gadget_erp5_page_slapos_master_panel_access.html',
   'slapos_master_panel_access.js',
+  'gadget_erp5_page_slapos_master_panel_external_payment_result.html',
+  'slapos_master_panel_external_payment_result.js',
   'slapos_master_panel_header.html',
   'slapos_master_panel_header.js',
   'slapos_master_panel_import_product.html',

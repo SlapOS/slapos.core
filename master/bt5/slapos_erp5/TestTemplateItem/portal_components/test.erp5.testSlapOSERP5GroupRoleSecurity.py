@@ -602,8 +602,9 @@ class TestEventModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):
     module = self.portal.event_module
     self.assertSecurityGroup(module,
-        ['F-PRODUCTION*', 'F-CUSTOMER', module.Base_getOwnerId()], True)
+        ['F-PRODUCTION*', 'F-SALE*', 'F-CUSTOMER', module.Base_getOwnerId()], True)
     self.assertRoles(module, 'F-PRODUCTION*', ['Auditor', 'Author'])
+    self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
     self.assertRoles(module, 'F-CUSTOMER', ['Auditor', 'Author'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
 
@@ -1011,8 +1012,9 @@ class TestSupportRequestModule(TestSlapOSGroupRoleSecurityMixin):
   def test_SupportRequestModule(self):
     module = self.portal.support_request_module
     self.assertSecurityGroup(module,
-        ['F-PRODUCTION*', 'F-CUSTOMER', module.Base_getOwnerId()], True)
+        ['F-PRODUCTION*', 'F-SALE*', 'F-CUSTOMER', module.Base_getOwnerId()], True)
     self.assertRoles(module, 'F-PRODUCTION*', ['Auditor', 'Author'])
+    self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
     self.assertRoles(module, 'F-CUSTOMER', ['Auditor', 'Author'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
 
@@ -1073,11 +1075,11 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
 
 
 class TestRegularisationRequestModule(TestSlapOSGroupRoleSecurityMixin):
-  def test(self):
+  def test_RegularisationRequestModule(self):
     module = self.portal.regularisation_request_module
     self.assertSecurityGroup(module,
-        ['F-PRODUCTION*', 'F-CUSTOMER', module.Base_getOwnerId()], True)
-    self.assertRoles(module, 'F-PRODUCTION*', ['Auditor'])
+        ['F-SALE*', 'F-CUSTOMER', module.Base_getOwnerId()], True)
+    self.assertRoles(module, 'F-SALE*', ['Auditor'])
     self.assertRoles(module, 'F-CUSTOMER', ['Auditor'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
 
@@ -1106,38 +1108,6 @@ class TestRegularisationRequest(TestSlapOSGroupRoleSecurityMixin):
         [person.getUserId(), self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
     self.assertRoles(support_request, person.getUserId(), ['Auditor'])
     self.assertRoles(support_request, self.user_id, ['Owner'])
-    self.assertRoles(support_request, 'F-SALEMAN', ['Assignor'])
-    self.assertRoles(support_request, 'F-SALEAGT', ['Assignee'])
-
-  def test_RegularisationRequest_SourceProject(self):
-    project = self.addProject()
-    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
-        portal_type=self.ticket_portal_type)
-    support_request.edit(
-        source_project_value=project)
-    self.assertSecurityGroup(support_request, [self.user_id,
-        '%s_F-PRODAGNT' % project.getReference(),
-        '%s_F-PRODMAN' % project.getReference(),
-        'F-SALEAGT', 'F-SALEMAN'], False)
-    self.assertRoles(support_request, self.user_id, ['Owner'])
-    self.assertRoles(support_request, '%s_F-PRODMAN' % project.getReference(), ['Assignor'])
-    self.assertRoles(support_request, '%s_F-PRODAGNT' % project.getReference(), ['Assignee'])
-    self.assertRoles(support_request, 'F-SALEMAN', ['Assignor'])
-    self.assertRoles(support_request, 'F-SALEAGT', ['Assignee'])
-
-  def test_RegularisationRequest_DestinationProject(self):
-    project = self.addProject()
-    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
-        portal_type=self.ticket_portal_type)
-    support_request.edit(
-        destination_project_value=project)
-    self.assertSecurityGroup(support_request, [self.user_id,
-        '%s_F-PRODAGNT' % project.getReference(),
-        '%s_F-PRODMAN' % project.getReference(),
-        'F-SALEAGT', 'F-SALEMAN'], False)
-    self.assertRoles(support_request, self.user_id, ['Owner'])
-    self.assertRoles(support_request, '%s_F-PRODMAN' % project.getReference(), ['Assignor'])
-    self.assertRoles(support_request, '%s_F-PRODAGNT' % project.getReference(), ['Assignee'])
     self.assertRoles(support_request, 'F-SALEMAN', ['Assignor'])
     self.assertRoles(support_request, 'F-SALEAGT', ['Assignee'])
 

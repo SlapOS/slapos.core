@@ -100,9 +100,7 @@
                 </item>
                 <item>
                     <key> <string>portal_types</string> </key>
-                    <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
-                    </value>
+                    <value> <string></string> </value>
                 </item>
                 <item>
                     <key> <string>search_columns</string> </key>
@@ -175,13 +173,17 @@
                           <string>resource_title</string>
                           <string>Currency</string>
                         </tuple>
+                        <tuple>
+                          <string>AccountingTransaction_getPaymentState</string>
+                          <string>State</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>count_method</string> </key>
                     <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAQ=</string> </persistent>
+                      <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
                     </value>
                 </item>
                 <item>
@@ -248,7 +250,7 @@
                 <item>
                     <key> <string>list_method</string> </key>
                     <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAU=</string> </persistent>
+                      <persistent> <string encoding="base64">AAAAAAAAAAQ=</string> </persistent>
                     </value>
                 </item>
                 <item>
@@ -260,28 +262,8 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>Accounting Transaction</string>
-                          <string>Accounting Transaction</string>
-                        </tuple>
-                        <tuple>
-                          <string>Balance Transaction</string>
-                          <string>Balance Transaction</string>
-                        </tuple>
-                        <tuple>
-                          <string>Purchase Invoice Transaction</string>
-                          <string>Purchase Invoice Transaction</string>
-                        </tuple>
-                        <tuple>
                           <string>Sale Invoice Transaction</string>
                           <string>Sale Invoice Transaction</string>
-                        </tuple>
-                        <tuple>
-                          <string>Pay Sheet Transaction</string>
-                          <string>Pay Sheet Transaction</string>
-                        </tuple>
-                        <tuple>
-                          <string>Payment Transaction</string>
-                          <string>Payment Transaction</string>
                         </tuple>
                       </list>
                     </value>
@@ -303,7 +285,7 @@
                 </item>
                 <item>
                     <key> <string>selection_name</string> </key>
-                    <value> <string>accounting_selection</string> </value>
+                    <value> <string>my_invoice_selection</string> </value>
                 </item>
                 <item>
                     <key> <string>sort</string> </key>
@@ -336,19 +318,23 @@
                       <list>
                         <tuple>
                           <string>reference</string>
-                          <string>Reference</string>
+                          <string></string>
                         </tuple>
                         <tuple>
                           <string>operation_date</string>
-                          <string>Date</string>
+                          <string></string>
                         </tuple>
                         <tuple>
                           <string>total_price</string>
-                          <string>Price</string>
+                          <string></string>
                         </tuple>
                         <tuple>
                           <string>resource_title</string>
-                          <string>Currency</string>
+                          <string></string>
+                        </tuple>
+                        <tuple>
+                          <string>AccountingTransaction_getPaymentState</string>
+                          <string></string>
                         </tuple>
                       </list>
                     </value>
@@ -386,19 +372,6 @@
   </record>
   <record id="3" aka="AAAAAAAAAAM=">
     <pickle>
-      <global name="TALESMethod" module="Products.Formulator.TALESField"/>
-    </pickle>
-    <pickle>
-      <dictionary>
-        <item>
-            <key> <string>_text</string> </key>
-            <value> <string>python:[(x,x) for x in here.getPortalAccountingTransactionTypeList()]</string> </value>
-        </item>
-      </dictionary>
-    </pickle>
-  </record>
-  <record id="4" aka="AAAAAAAAAAQ=">
-    <pickle>
       <global name="Method" module="Products.Formulator.MethodField"/>
     </pickle>
     <pickle>
@@ -410,7 +383,7 @@
       </dictionary>
     </pickle>
   </record>
-  <record id="5" aka="AAAAAAAAAAU=">
+  <record id="4" aka="AAAAAAAAAAQ=">
     <pickle>
       <global name="Method" module="Products.Formulator.MethodField"/>
     </pickle>

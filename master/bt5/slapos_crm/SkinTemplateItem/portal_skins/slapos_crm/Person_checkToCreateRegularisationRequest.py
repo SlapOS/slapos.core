@@ -24,7 +24,7 @@ if ticket is not None:
   return ticket, None
 
 mail_message = None
-if person.Entity_hasOutstandingAmount():
+if person.Entity_hasOutstandingAmount(ledger_uid=portal.portal_categories.ledger.automated.getUid()):
   tag = "%s_addRegularisationRequest_inProgress" % person.getUid()
   if (portal.portal_activities.countMessageWithTag(tag) > 0):
     # The regularisation request is already under creation but can not be fetched from catalog

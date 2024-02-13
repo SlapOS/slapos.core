@@ -11,12 +11,16 @@
             <value> <string>Alarm_checkInstanceTreeState</string> </value>
         </item>
         <item>
+            <key> <string>automatic_solve</string> </key>
+            <value> <int>0</int> </value>
+        </item>
+        <item>
             <key> <string>description</string> </key>
             <value> <string>Check and create a Ticket when an instance is partially allocated for more than 4 hours.</string> </value>
         </item>
         <item>
             <key> <string>enabled</string> </key>
-            <value> <int>0</int> </value>
+            <value> <int>1</int> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

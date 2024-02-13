@@ -97,8 +97,8 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 subscription requests
     self.assertRelatedObjectCount(project, 5)
 
+    self.assertFalse(owner_person.Entity_hasOutstandingAmount(include_planned=True))
     self.assertFalse(owner_person.Entity_hasOutstandingAmount())
-    self.assertFalse(owner_person.Entity_hasOutstandingAmount(include_planned=False))
     self.assertEqual(project.getValidationState(), "validated")
     subscription_request = self.portal.portal_catalog.getResultValue(
       portal_type="Subscription Request",
@@ -111,11 +111,11 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       payment_transaction.PaymentTransaction_acceptDepositPayment()
       self.tic()
 
-    self.assertTrue(owner_person.Entity_hasOutstandingAmount())
-    amount_list = owner_person.Entity_getOutstandingAmountList()
+    self.assertTrue(owner_person.Entity_hasOutstandingAmount(include_planned=True))
+    amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=True)
     self.assertEquals(len(amount_list), 1)
     self.assertEquals(amount_list[0].total_price, 24.384)
-    self.assertFalse(owner_person.Entity_hasOutstandingAmount(include_planned=False))
+    self.assertFalse(owner_person.Entity_hasOutstandingAmount())
     self.assertEqual(subscription_request.getSimulationState(), "invalidated")
     open_sale_order = self.portal.portal_catalog.getResultValue(
       portal_type="Open Sale Order Line",
@@ -151,12 +151,12 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.portal.portal_alarms.update_open_order_simulation.activeSense()
       self.tic()
 
-    self.assertTrue(owner_person.Entity_hasOutstandingAmount())
-    amount_list = owner_person.Entity_getOutstandingAmountList()
+    self.assertTrue(owner_person.Entity_hasOutstandingAmount(include_planned=True))
+    amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=True)
     self.assertEquals(len(amount_list), 1)
     self.assertEquals(amount_list[0].total_price, 175.584)
-    self.assertTrue(owner_person.Entity_hasOutstandingAmount(include_planned=False))
-    amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=False)
+    self.assertTrue(owner_person.Entity_hasOutstandingAmount())
+    amount_list = owner_person.Entity_getOutstandingAmountList()
     self.assertEquals(len(amount_list), 1)
     self.assertEquals(amount_list[0].total_price, 125.184)
     self.assertEqual(first_invoice.getSimulationState(), "stopped")
@@ -175,7 +175,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       payment_transaction = owner_person.Entity_createPaymentTransaction(
         owner_person.Entity_getOutstandingAmountList(
-          include_planned=False,
           at_date=DateTime('2021/05/06'),
           section_uid=first_invoice.getSourceSectionUid(),
           resource_uid=first_invoice.getPriceCurrencyUid(),
@@ -186,12 +185,12 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       payment_transaction.stop()
       self.assertEquals(payment_transaction.AccountingTransaction_getTotalCredit(), 74.78399999999999)
       self.tic()
-      self.assertTrue(owner_person.Entity_hasOutstandingAmount())
-      amount_list = owner_person.Entity_getOutstandingAmountList()
+      self.assertTrue(owner_person.Entity_hasOutstandingAmount(include_planned=True))
+      amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=True)
       self.assertEquals(len(amount_list), 1)
       self.assertEquals(amount_list[0].total_price, 100.8)
-      self.assertTrue(owner_person.Entity_hasOutstandingAmount(include_planned=False))
-      amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=False)
+      self.assertTrue(owner_person.Entity_hasOutstandingAmount())
+      amount_list = owner_person.Entity_getOutstandingAmountList()
       self.assertEquals(len(amount_list), 1)
       self.assertEquals(amount_list[0].total_price, 50.4)
       self.assertTrue(first_invoice.SaleInvoiceTransaction_isLettered())
@@ -203,7 +202,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       payment_transaction = owner_person.Entity_createPaymentTransaction(
         owner_person.Entity_getOutstandingAmountList(
-          include_planned=False,
           section_uid=first_invoice.getSourceSectionUid(),
           resource_uid=first_invoice.getPriceCurrencyUid(),
           ledger_uid=first_invoice.getLedgerUid(),
@@ -213,12 +211,12 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       payment_transaction.stop()
       self.assertEquals(payment_transaction.AccountingTransaction_getTotalCredit(), 50.4)
       self.tic()
-      self.assertTrue(owner_person.Entity_hasOutstandingAmount())
-      amount_list = owner_person.Entity_getOutstandingAmountList()
+      self.assertTrue(owner_person.Entity_hasOutstandingAmount(include_planned=True))
+      amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=True)
       self.assertEquals(len(amount_list), 1)
       self.assertEquals(amount_list[0].total_price, 50.4)
-      self.assertFalse(owner_person.Entity_hasOutstandingAmount(include_planned=False))
-      amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=False)
+      self.assertFalse(owner_person.Entity_hasOutstandingAmount())
+      amount_list = owner_person.Entity_getOutstandingAmountList()
       self.assertEquals(len(amount_list), 0)
       # Ensure no unexpected object has been created
       self.assertRelatedObjectCount(project, 22)

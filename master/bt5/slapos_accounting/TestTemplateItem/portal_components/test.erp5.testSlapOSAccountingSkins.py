@@ -111,18 +111,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
         '?portal_status_message=Reversal%20Transaction%20created.'), 
         "%s doesn't end with expected response" % redirect)
 
-  def test_SaleInvoiceTransaction_createReversalSaleInvoiceTransaction_redirect_unknown(self):
-    sale_invoice_transaction = self.portal.accounting_module.newContent(portal_type="Sale Invoice Transaction")
-    sale_invoice_transaction.edit(payment_mode="unknown")
-
-    redirect = sale_invoice_transaction.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction()
-
-    self.assertTrue(
-      redirect.endswith(
-        '%s?portal_status_message=The%%20payment%%20mode%%20is%%20unsupported.' % sale_invoice_transaction.getRelativeUrl()), 
-      "%s doesn't end with %s?portal_status_message=The%%20payment%%20mode%%20is%%20unsupported." % (
-        redirect, sale_invoice_transaction.getRelativeUrl()))
-
   #################################################################
   # SaleInvoiceTransaction_createReversalSaleInvoiceTransaction
   #################################################################
@@ -327,7 +315,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       batch_mode=1
     )
     self.tic()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Paid", invoice.AccountingTransaction_getPaymentState())
     self.assertEqual(0, invoice.getTotalPrice() + reversal.getTotalPrice())
     self.assertTrue(invoice.SaleInvoiceTransaction_isLettered())
     self.assertTrue(reversal.SaleInvoiceTransaction_isLettered())

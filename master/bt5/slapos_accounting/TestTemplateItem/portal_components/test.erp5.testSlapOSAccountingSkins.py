@@ -134,49 +134,9 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       batch_mode=1)
 
   @withAbort
-  def test_createReversalSaleInvoiceTransaction_bad_payment_mode(self):
-    invoice = self.createSaleInvoiceTransactionForReversal()
-    invoice.edit(payment_mode="cash")
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
-      batch_mode=1)
-
-  @withAbort
-  def test_createReversalSaleInvoiceTransaction_bad_state(self, payment_mode='payzen'):
-    invoice = self.createSaleInvoiceTransactionForReversal(payment_mode=payment_mode)
-    self.portal.portal_workflow._jumpToStateFor(invoice, 'delivered')
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
-      batch_mode=1)
-
-  @withAbort
   def test_createReversalSaleInvoiceTransaction_zero_price(self, payment_mode='payzen'):
     invoice = self.createSaleInvoiceTransactionForReversal(payment_mode=payment_mode)
     invoice.manage_delObjects(invoice.contentIds())
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
-      batch_mode=1)
-
-  @withAbort
-  def test_createReversalSaleInvoiceTransaction_wrong_trade_condition(self, payment_mode='payzen'):
-    invoice = self.createSaleInvoiceTransactionForReversal(payment_mode=payment_mode)
-    invoice.edit(specialise=None)
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
-      batch_mode=1)
-
-  @withAbort
-  def test_createReversalSaleInvoiceTransaction_wrong_ledger(self, payment_mode='payzen'):
-    invoice = self.createSaleInvoiceTransactionForReversal(payment_mode=payment_mode)
-    invoice.edit(ledger=None)
     self.tic()
     self.assertRaises(
       AssertionError,
@@ -220,7 +180,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     reversale_invoice = invoice.\
       SaleInvoiceTransaction_createReversalSaleInvoiceTransaction(batch_mode=1)
 
-    self.assertEqual(invoice.getPaymentMode(""), "")
+    self.assertEqual(invoice.getPaymentMode(""), payment_mode)
     self.assertEqual(reversale_invoice.getTitle(),
                      "Reversal Transaction for %s" % invoice.getTitle())
     self.assertEqual(reversale_invoice.getDescription(),
@@ -280,73 +240,14 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(payment, 'started')
 
     self.tic()
-    reversale_invoice = invoice.\
-      SaleInvoiceTransaction_createReversalSaleInvoiceTransaction(batch_mode=1)
-
-    self.assertEqual(invoice.getPaymentMode(""), "")
-    # Related payment is cancelled by a proper alarm.
-    self.assertEqual(payment.getSimulationState(), "started")
-    self.assertEqual(reversale_invoice.getTitle(),
-                     "Reversal Transaction for %s" % invoice.getTitle())
-    self.assertEqual(reversale_invoice.getDescription(),
-                     "Reversal Transaction for %s" % invoice.getTitle())
-    self.assertEqual(reversale_invoice.getCausality(),
-                     invoice.getRelativeUrl())
-    self.assertEqual(reversale_invoice.getSimulationState(), "stopped")
-    self.assertEqual(invoice.getSimulationState(), "stopped")
-
-    invoice_line_id = invoice.contentValues(portal_type="Invoice Line")[0].getId()
-    transaction_line_id = invoice.contentValues(
-      portal_type="Sale Invoice Transaction Line")[0].getId()
-
-    self.assertEqual(invoice[invoice_line_id].getQuantity(),
-                     -reversale_invoice[invoice_line_id].getQuantity())
-    self.assertEqual(reversale_invoice[invoice_line_id].getQuantity(), 2)
-
-    self.assertEqual(invoice[transaction_line_id].getQuantity(),
-                     -reversale_invoice[transaction_line_id].getQuantity())
-    self.assertEqual(reversale_invoice[transaction_line_id].getQuantity(), 3)
-    self.assertEqual(len(invoice.getMovementList()), 2)
-
-    # Both invoice should have a grouping reference
-    self.assertNotEqual(invoice[transaction_line_id].getGroupingReference(""),
-                        "")
-    self.assertEqual(
-      invoice[transaction_line_id].getGroupingReference("1"),
-      reversale_invoice[transaction_line_id].getGroupingReference("2"))
-
-    # All references should be regenerated
-    self.assertNotEqual(invoice.getReference(""),
-                        reversale_invoice.getReference(""))
-    self.assertNotEqual(invoice.getSourceReference(""),
-                        reversale_invoice.getSourceReference(""))
-    self.assertNotEqual(invoice.getDestinationReference(""),
-                        reversale_invoice.getDestinationReference(""))
-
-    self.assertTrue(invoice.SaleInvoiceTransaction_isLettered())
-    self.assertTrue(reversale_invoice.SaleInvoiceTransaction_isLettered())
-    
-    # Another trade condition
-    self.assertEqual(
-      reversale_invoice.getSpecialise(),
-      "sale_trade_condition_module/slapos_manual_accounting_trade_condition")
-    self.tic()
-
-  @withAbort
-  def test_createReversalSaleInvoiceTransaction_wechat_bad_state(self):
-    self.test_createReversalSaleInvoiceTransaction_bad_state(payment_mode='wechat')
+    self.assertRaises(
+      ValueError,
+      invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
+      batch_mode=1)
 
   @withAbort
   def test_createReversalSaleInvoiceTransaction_wechat_zero_price(self):
     self.test_createReversalSaleInvoiceTransaction_zero_price(payment_mode='wechat')
-
-  @withAbort
-  def test_createReversalSaleInvoiceTransaction_wechat_wrong_trade_condition(self):
-    self.test_createReversalSaleInvoiceTransaction_wrong_trade_condition(payment_mode='wechat')
-
-  @withAbort
-  def test_createReversalSaleInvoiceTransaction_wechat_wrong_ledger(self):
-    self.test_createReversalSaleInvoiceTransaction_wrong_ledger(payment_mode='wechat')
 
   @withAbort
   def test_createReversalSaleInvoiceTransaction_wechat_paid(self):

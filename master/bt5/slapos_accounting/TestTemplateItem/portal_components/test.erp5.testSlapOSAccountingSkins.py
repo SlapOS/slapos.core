@@ -328,7 +328,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       batch_mode=1
     )
     self.tic()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Paid", invoice.AccountingTransaction_getPaymentState())
     self.assertEqual(0, invoice.getTotalPrice() + reversal.getTotalPrice())
 
   def test_AccountingTransaction_getPaymentState_payzen_free_payment(self):

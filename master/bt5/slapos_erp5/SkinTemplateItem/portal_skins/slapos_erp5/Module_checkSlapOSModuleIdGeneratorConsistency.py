@@ -1,5 +1,5 @@
 portal = context.getPortalObject()
-id_generator = '_generatePerDayId'
+id_generator = '_generatePerDayNodeNumberId'
 error_list = []
 
 for module_id in portal.objectIds(spec=('ERP5 Folder',)) + ["portal_simulation", "portal_activities"]:

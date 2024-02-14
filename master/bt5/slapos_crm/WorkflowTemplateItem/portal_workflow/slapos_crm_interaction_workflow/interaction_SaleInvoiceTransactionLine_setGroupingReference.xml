@@ -54,7 +54,7 @@
             <key> <string>trigger_method_id</string> </key>
             <value>
               <tuple>
-                <string>_setGroupingReference</string>
+                <string>_baseSetGroupingReference</string>
               </tuple>
             </value>
         </item>

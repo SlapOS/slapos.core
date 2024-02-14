@@ -363,6 +363,16 @@
                       <value> <string>string</string> </value>
                   </item>
                 </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>configuration_payment_url_template</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>string</string> </value>
+                  </item>
+                </dictionary>
               </tuple>
             </value>
         </item>
@@ -456,6 +466,12 @@
         <item>
             <key> <string>configuration_panel_gadget_url</string> </key>
             <value> <string>slapos_master_panel_panel.html</string> </value>
+        </item>
+        <item>
+            <key> <string>configuration_payment_url_template</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>configuration_precache_manifest_script_list</string> </key>
@@ -747,7 +763,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>System Processes</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -761,7 +777,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1013.50132.20130.46779</string> </value>
+                      <value> <string>1014.34969.36285.52701</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -781,7 +797,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1705323025.05</float>
+                              <float>1707916460.85</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

@@ -76,6 +76,7 @@
       "Nothing selected": "Nothing selected",
       "Others": "Others",
       "Pay": "Pay",
+      "Payment Result": "Payment Result",
       "Please fill all required fields to submit": "Please fill all required fields to submit",
       "Preferences": "Preferences",
       "Previous": "Previous",

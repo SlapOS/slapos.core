@@ -39,7 +39,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     self.portal.portal_ids.fixConsistency()
     self.assertEqual(self.portal.portal_ids.checkConsistency(), [])
     self.assertEqual(self.portal.person_module.getIdGenerator(),
-                        "_generatePerDayId")
+                        "_generatePerDayNodeNumberId")
 
   def testConfiguredShacacheWebSite(self):
     """ Make sure Shacache WebSite is setuped by Alarm
@@ -132,7 +132,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     """
     module_list = [module.getId() for module in self.portal.objectValues() 
                      if getattr(module, "getIdGenerator", None) is not None and \
-                                        module.getIdGenerator() == "_generatePerDayId"]
+                                        module.getIdGenerator() == "_generatePerDayNodeNumberId"]
     expected_module_list = [
        'access_token_module',
        'account_module',

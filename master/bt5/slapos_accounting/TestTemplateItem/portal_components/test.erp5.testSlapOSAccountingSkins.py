@@ -28,7 +28,6 @@
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort
 
-from zExceptions import Unauthorized
 from DateTime import DateTime
 
 class TestSlapOSAccounting(SlapOSTestCaseMixin):
@@ -123,34 +122,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
         '%s?portal_status_message=The%%20payment%%20mode%%20is%%20unsupported.' % sale_invoice_transaction.getRelativeUrl()), 
       "%s doesn't end with %s?portal_status_message=The%%20payment%%20mode%%20is%%20unsupported." % (
         redirect, sale_invoice_transaction.getRelativeUrl()))
-
-  #################################################################
-  # SaleInvoiceTransaction_resetPaymentMode
-  #################################################################
-  def test_SaleInvoiceTransaction_resetPaymentMode(self):
-    sale_invoice_transaction = self.portal.accounting_module.newContent(portal_type="Sale Invoice Transaction")
-    sale_invoice_transaction.edit(payment_mode="unknown",
-      start_date=DateTime(),
-      stop_date=DateTime())
-    sale_invoice_transaction.confirm()
-    sale_invoice_transaction.start( )
-    sale_invoice_transaction.stop()
-
-    sale_invoice_transaction.SaleInvoiceTransaction_resetPaymentMode()
-    self.assertEqual(sale_invoice_transaction.getPaymentMode(), "unknown")
-    sale_invoice_transaction.edit(payment_mode="payzen")
-
-    sale_invoice_transaction.SaleInvoiceTransaction_resetPaymentMode()
-    self.assertEqual(sale_invoice_transaction.getPaymentMode(), None)
-    sale_invoice_transaction.edit(payment_mode="wechat")
-
-    sale_invoice_transaction.SaleInvoiceTransaction_resetPaymentMode()
-    self.assertEqual(sale_invoice_transaction.getPaymentMode(), None)
-
-    self.assertRaises(
-      Unauthorized,
-      sale_invoice_transaction.SaleInvoiceTransaction_resetPaymentMode,
-      REQUEST={})
 
   #################################################################
   # SaleInvoiceTransaction_createReversalSaleInvoiceTransaction
@@ -457,6 +428,8 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.tic()
     self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
     self.assertEqual(0, invoice.getTotalPrice() + reversal.getTotalPrice())
+    self.assertTrue(invoice.SaleInvoiceTransaction_isLettered())
+    self.assertTrue(reversal.SaleInvoiceTransaction_isLettered())
 
   @withAbort
   def test_AccountingTransaction_getPaymentState_wechat_reversed_payment(self):

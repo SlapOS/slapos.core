@@ -149,7 +149,7 @@ class TestAccountingTransactionModule(TestSlapOSGroupRoleSecurityMixin):
         ['F-ACCOUNTING*', 'F-PRODUCTION*', module.Base_getOwnerId(),
          'R-SHADOW-PERSON', 'F-CUSTOMER'], True)
     self.assertRoles(module, 'F-ACCOUNTING*', ['Auditor', 'Author'])
-    self.assertRoles(module, 'R-SHADOW-PERSON', ['Assignor'])
+    self.assertRoles(module, 'R-SHADOW-PERSON', ['Author'])
     self.assertRoles(module, 'F-PRODUCTION*', ['Auditor'])
     self.assertRoles(module, 'F-CUSTOMER', ['Auditor'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])

@@ -184,10 +184,10 @@ class TestPaymentTransaction_getSecurityCategoryFromUser(TestSlapOSCoreMixin):
       self.portal.PaymentTransaction_getSecurityCategoryFromUser([], None, payment, None)) 
 
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
-    self.assertEqual({'Auditor': [shadow_user_id]},
+    self.assertEqual({'Assignee': [shadow_user_id]},
       self.portal.PaymentTransaction_getSecurityCategoryFromUser(["destination_section"], None, payment, None)) 
 
-    self.assertEqual({'Auditor': [shadow_user_id]},
+    self.assertEqual({'Assignee': [shadow_user_id]},
       self.portal.PaymentTransaction_getSecurityCategoryFromUser(["couscous", "destination_section"], None, payment, None)) 
 
 class TestPayzenEvent_getSecurityCategoryFromUserr(TestSlapOSCoreMixin):

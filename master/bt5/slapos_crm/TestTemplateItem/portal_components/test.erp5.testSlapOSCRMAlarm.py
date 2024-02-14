@@ -21,7 +21,7 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort, simulate
+  SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort, simulate, TemporaryAlarmScript
 from DateTime import DateTime
 import difflib
 import transaction
@@ -54,7 +54,8 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
     if is_stopped:
       current_invoice.stop()
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
     return current_invoice
 
   #################################################################

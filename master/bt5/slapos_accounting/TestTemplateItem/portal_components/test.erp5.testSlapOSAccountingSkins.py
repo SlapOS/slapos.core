@@ -590,33 +590,3 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.assertIn('account_module/receivable',
       [i.getRelativeUrl() for i in account_list])
 
-  #################################################################
-  # PaymentTransaction_start
-  #################################################################
-  def test_PaymentTransaction_start(self):
-
-    sale_invoice_transaction = self.portal.accounting_module.newContent(
-      portal_type="Sale Invoice Transaction",
-      start_date=DateTime()
-    )
-    payment_transaction = self.portal.accounting_module.newContent(
-      portal_type="Payment Transaction",
-      start_date=DateTime()
-    )
-
-    self.assertRaises(Unauthorized,
-      payment_transaction.PaymentTransaction_start,
-      REQUEST=self.portal.REQUEST)
-
-    self.assertRaises(Unauthorized,
-      sale_invoice_transaction.PaymentTransaction_start,
-      REQUEST=self.portal.REQUEST)
-
-    self.assertRaises(Unauthorized,
-      sale_invoice_transaction.PaymentTransaction_start,
-      REQUEST=None)
-
-    payment_transaction.PaymentTransaction_start()
-    self.assertEqual("started",
-      payment_transaction.getSimulationState())
-

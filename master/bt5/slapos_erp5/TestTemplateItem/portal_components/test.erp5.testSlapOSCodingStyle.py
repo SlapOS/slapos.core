@@ -393,7 +393,9 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_upgrader/SoftwareInstance_triggerObjectMigrationToVirtualMaster',
         'slapos_upgrader/SupportRequest_checkSiteMigrationToVirtualMaster',
         'slapos_upgrader/SupportRequest_triggerObjectMigrationToVirtualMaster',
-        'slapos_upgrader/WebMessage_triggerObjectMigrationToVirtualMaster'
+        'slapos_upgrader/WebMessage_triggerObjectMigrationToVirtualMaster',
+        'slapos_configurator/BusinessConfiguration_runPostUpgradeConsistency',
+        'slapos_configurator/BusinessConfiguration_setupSlapOSMasterStandardBT5'
       ]
 
       SlapOSTestCaseMixin.afterSetUp(self)

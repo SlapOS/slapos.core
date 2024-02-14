@@ -1,40 +1,27 @@
 """ Create a reversal transaction from current transaction. """
-portal = context.getPortalObject()
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
 
-if not batch_mode and context.getPaymentMode() not in ["payzen", "wechat"]:
-  message = context.Base_translateString("The payment mode is unsupported.")
-  return context.Base_redirect(keep_items={'portal_status_message': message})
+portal = context.getPortalObject()
 
 # Check that we are in state that we are waiting for user manual payment
 assert context.getPortalType() == 'Sale Invoice Transaction'
-assert context.getPaymentMode() in ('payzen', 'wechat')
-assert context.getSimulationState() == 'stopped'
+assert context.getSimulationState() in ('stopped', 'delivered')
 assert context.getTotalPrice() != 0
-assert context.getLedger() == 'automated'
-assert context.getSpecialise(None) is not None
 
-# Dont create if the invoice is already paied
+# Dont create if the invoice is already paid
 assert not context.SaleInvoiceTransaction_isLettered()
 
 payment = portal.portal_catalog.getResultValue(
   portal_type="Payment Transaction",
   simulation_state="started",
-  default_causality_uid=context.getUid(),
-  default_payment_mode_uid=[
-    portal.portal_categories.payment_mode.payzen.getUid(),
-    portal.portal_categories.payment_mode.wechat.getUid()],
+  default_causality_uid=context.getUid()
 )
 if payment is not None:
-  payment_mode = payment.getPaymentMode()
-  if payment_mode == 'payzen' and payment.PaymentTransaction_getPayzenId()[1] is not None:
-    # The payment transaction will be cancelled by a proper alarm.
-    raise ValueError("Payment Transaction is waiting for External Payzen confirmation!")
-  elif payment_mode == 'wechat' and payment.PaymentTransaction_getWechatId()[1] is not None:
-    # The payment transaction will be cancelled by a proper alarm.
-    raise ValueError("Payment Transaction is waiting for External Wechat confirmation!")
+  raise ValueError("Payment Transaction is waiting for confirmation!")
 
 # Should be safe now to fix everything
-context.SaleInvoiceTransaction_resetPaymentMode()
 reversal_transaction = context.Base_createCloneDocument(batch_mode=1)
 
 reversal_transaction.edit(

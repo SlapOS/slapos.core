@@ -33,7 +33,7 @@ from Products.ERP5Type.tests.utils import createZODBPythonScript
 import transaction
 import functools
 from functools import wraps
-
+from zLOG import LOG, INFO
 
 def changeSkin(skin_name):
   def decorator(func):
@@ -193,12 +193,21 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     return custom_organisation
 
   def _addERP5Login(self, document, **kw):
-    if document.getPortalType() == "Person":
-      kw["password"] = document.Person_generatePassword()
+    if document.getPortalType() != "Person":
+      raise ValueError("Only Person supports add ERP5 Login")
+    
     login = document.newContent(
         portal_type="ERP5 Login",
         reference=document.getReference(),
         **kw)
+
+    for _ in range(5):
+      try:
+        login.setPassword(document.Person_generatePassword())
+        break
+      except ValueError:
+        # Skip the generated password wasnt acceptable let it try again.
+        LOG("SlapOSTextCaseMixin._addERP5Login", INFO, "Set password failed, try few more times")
     login.validate()
     return login
 
@@ -211,7 +220,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     return login
 
   def makePerson(self, new_id=None, index=True, user=True):
-
     if new_id is None:
       new_id = self.generateNewId()
     # Clone person document

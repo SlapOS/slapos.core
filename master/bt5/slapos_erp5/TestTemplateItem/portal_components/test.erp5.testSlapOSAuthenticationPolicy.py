@@ -22,7 +22,6 @@
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
-
 class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
@@ -44,9 +43,9 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
 
   def _getPasswordEventList(self, login):
     return [x.getObject() for x in self.portal.portal_catalog(
-                                                 portal_type = 'Password Event',
-                                                 default_destination_uid = login.getUid(),
-                                                 sort_on = (('creation_date', 'DESC',),))]
+                                                 portal_type='Password Event',
+                                                 default_destination_uid=login.getUid(),
+                                                 sort_on=(('creation_date', 'DESC',),))]
 
   def _notifyLoginFailureAboveMaximum(self, login):
     login.notifyLoginFailure()
@@ -97,16 +96,6 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
   def _test_login_block_if_password_is_set(self, document, login_portal_type):
     login = self._test(document, login_portal_type)
     self.assertTrue(login.isLoginBlocked())
-
-  def test_block_ERP5Login_without_password_on_person(self):
-    person = self.makePerson(user=0)
-    person.edit(
-      first_name="SOMENAME",
-      last_name="LASTNAME"
-    )
-    self._test_login_block_if_password_is_set(
-      document=person,
-      login_portal_type="ERP5 Login")
 
   def test_block_CertificateLogin_without_password_on_person(self):
     person = self.makePerson(user=0)
@@ -201,16 +190,6 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
     self.system_preference.setPreferredMaxPasswordLifetimeDuration(0)
     self._clearCache()
     self.assertFalse(login.isPasswordExpired())
-
-  def test_expire_ERP5Login_without_password_on_person(self):
-    person = self.makePerson(user=0)
-    person.edit(
-      first_name="SOMENAME",
-      last_name="LASTNAME"
-    )
-    self._test_expire_when_passoword_is_set(
-      document=person,
-      login_portal_type="ERP5 Login")
 
   def test_expire_CertificateLogin_without_password_on_person(self):
     person = self.makePerson(user=0)

@@ -6,7 +6,6 @@ Contract Invitation Token | Url
 Id Tool | SlapOSModuleIdGeneratorConstraint
 Invitation Token | Reference
 Invitation Token | Url
-OAuth Tool | OAuthToolDefaultSlapOSConnector
 Organisation | GeographicOrganisation
 Template Tool | TemplateToolBusinessApplicationModuleCategoryConstraint
 Web Site Module | WebSiteModuleShacacheConstraint

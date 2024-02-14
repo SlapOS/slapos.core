@@ -28,13 +28,10 @@ for role in ['member', 'subscriber']:
     title = '%s Assignment' % (role.capitalize()),
     role = role).open(comment="Created by Subscription Request")
 
-password = list("".join([context.Person_generatePassword(15, 5, 4) for _ in range(random.randint(2, 4))]))
-random.shuffle(password)
-
 login = person.newContent(
   portal_type="ERP5 Login",
   reference="%s-FIRST-SUBSCRIBER-LOGIN" % person.getUserId(),
-  password="".join(password))
+  password=context.Person_generatePassword())
 
 login.validate()
 

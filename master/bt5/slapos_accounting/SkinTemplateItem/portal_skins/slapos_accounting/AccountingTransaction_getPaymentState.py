@@ -8,27 +8,9 @@ elif simulation_state in ("planned", "confirmed", "ordered", "started"):
 
 else:
   portal = context.getPortalObject()
-
   person = portal.portal_membership.getAuthenticatedMember().getUserValue()
-  paid = True
 
-  def isNodeFromLineReceivable(line):
-    node_value = line.getSourceValue(portal_type='Account')
-    return node_value.getAccountType() == 'asset/receivable'
-
-  for line in context.getMovementList(portal.getPortalAccountingMovementTypeList()):
-    if person is not None:
-      is_node_from_line_receivable = person.Person_restrictMethodAsShadowUser(
-        shadow_document=person,
-        callable_object=isNodeFromLineReceivable,
-        argument_list=[line])
-    else:
-      is_node_from_line_receivable = isNodeFromLineReceivable(line)
- 
-    if is_node_from_line_receivable:
-      if not line.hasGroupingReference():
-        paid = False
-        break
+  paid = context.SaleInvoiceTransaction_isLettered()
 
   if paid:
     result = "Paid"
@@ -41,9 +23,7 @@ else:
     payment = portal.portal_catalog.getResultValue(
       portal_type="Payment Transaction",
       simulation_state="started",
-      causality__uid=context.getUid(),
-      payment_mode__uid=[portal.portal_categories.payment_mode.payzen.getUid(),
-                         portal.portal_categories.payment_mode.wechat.getUid()],
+      causality__uid=context.getUid()
     )
     if payment is not None:
       # Check if mapping exists

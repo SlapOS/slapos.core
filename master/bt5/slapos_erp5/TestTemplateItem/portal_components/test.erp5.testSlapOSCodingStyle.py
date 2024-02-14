@@ -230,6 +230,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_hal_json_style/ERP5Site_receiveGoogleCallback',
         'slapos_hal_json_style/Event_getAcknowledgementDict',
         'slapos_hal_json_style/InstanceTree_getConnectionParameterList',
+        'slapos_hal_json_style/InstanceTree_getMonitorParameterDict',
         'slapos_hal_json_style/Item_getCurrentProjectTitle',
         'slapos_hal_json_style/Item_getCurrentSiteTitle',
         'slapos_hal_json_style/Login_edit',
@@ -295,24 +296,13 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_disaster_recovery/ERP5Site_recoverFromRestoration',
         'slapos_disaster_recovery/ERP5Site_reindexOrUnindexDocumentList',
         'slapos_disaster_recovery/ERP5Site_unindexDeletedDocumentList',
-        'slapos_base/ERP5Login_isLoginBlocked',
-        'slapos_base/ERP5Login_isPasswordExpired',
         'slapos_base/Login_getFastExpirationReferenceList',
         'slapos_base/Login_isLoginBlocked',
         'slapos_base/Login_isPasswordExpired',
         'slapos_base/Login_notifyPasswordExpire',
         'slapos_base/Person_applyContractInvitation',
         'slapos_base/ERP5Site_getAvailableOAuthLoginList',
-        'slapos_erp5/CatalogTool_checkNoneCreationDateConsistency',
-        'slapos_erp5/CertificateAuthorityTool_checkCertificateAuthorityConsistency',
-        'slapos_erp5/CertificateAuthorityTool_checkSlapOSMachineNonExistenceConsistency',
-        'slapos_erp5/CertificateAuthorityTool_checkSlapOSPASConsistency',
-        'slapos_erp5/Module_checkSlapOSModuleIdGeneratorConsistency',
-        'slapos_erp5/OAuthTool_checkFacebookConnectorExistenceConsistency',
-        'slapos_erp5/OAuthTool_checkGoogleConnectorExistenceConsistency',
-        'slapos_erp5/WebSiteModule_checkShacacheConstraint',
-        'slapos_erp5/SystemPreference_checkConversionServerConsistency',
-        'slapos_erp5/SystemPreference_checkSystemPreferenceConsistency']
+        'slapos_erp5/CatalogTool_checkNoneCreationDateConsistency']
       
       SlapOSTestCaseMixin.afterSetUp(self)
 

@@ -299,7 +299,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     )
     _, partition = self._makeComputeNode(self.addProject())
 
-    error_date = DateTime()
+    error_date = DateTime() - 0.1
     with PinnedDateTime(self, error_date):
       instance.setErrorStatus("")
 
@@ -313,8 +313,9 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     self.assertEqual(instance.SoftwareInstance_hasReportedError(), None)
 
   def test_SoftwareInstallation_hasReportedError(self):
-    installation = self.portal.software_installation_module.newContent()
-
+    installation = self.portal.software_installation_module.newContent(
+      reference=self.generateNewId()
+    )
     self.assertEqual(installation.SoftwareInstallation_hasReportedError(), None)
 
     error_date = DateTime() - 0.1

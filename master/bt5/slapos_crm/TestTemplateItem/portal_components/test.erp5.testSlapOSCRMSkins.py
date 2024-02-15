@@ -23,7 +23,7 @@
 
 import transaction
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort, TemporaryAlarmScript
+  SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort, TemporaryAlarmScript, PinnedDateTime
 
 from DateTime import DateTime
 from App.Common import rfc1123_date
@@ -169,22 +169,16 @@ class TestComputeNode_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
     self.assertTrue(has_contacted)
 
   def test_ComputeNode_hasContactedRecently_no_data(self):
-    try:
-      self.pinDateTime(DateTime()-32)
+    with PinnedDateTime(self, DateTime()-32):
       compute_node, _ = self._makeComputeNode(self.addProject())
-    finally:
-      self.unpinDateTime()
     self.tic()
 
     has_contacted = compute_node.ComputeNode_hasContactedRecently()
     self.assertFalse(has_contacted)
 
   def test_ComputeNode_hasContactedRecently_memcached(self):
-    try:
-      self.pinDateTime(DateTime()-32)
+    with PinnedDateTime(self, DateTime()-32):
       compute_node, _ = self._makeComputeNode(self.addProject())
-    finally:
-      self.unpinDateTime()
     compute_node.setAccessStatus("")
 
     self.tic()
@@ -193,12 +187,9 @@ class TestComputeNode_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
     self.assertTrue(has_contacted)
 
   def test_ComputeNode_hasContactedRecently_memcached_oudated_no_spl(self):
-    try:
-      self.pinDateTime(DateTime()-32)
+    with PinnedDateTime(self, DateTime()-32):
       compute_node, _ = self._makeComputeNode(self.addProject())
       compute_node.setAccessStatus("")
-    finally:
-      self.unpinDateTime()
 
     self.tic()
 
@@ -309,11 +300,8 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     _, partition = self._makeComputeNode(self.addProject())
 
     error_date = DateTime()
-    try:
-      self.pinDateTime(error_date)
+    with PinnedDateTime(self, error_date):
       instance.setErrorStatus("")
-    finally:
-      self.unpinDateTime()
 
     self.assertEqual(instance.SoftwareInstance_hasReportedError(), None)
 
@@ -330,11 +318,8 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     self.assertEqual(installation.SoftwareInstallation_hasReportedError(), None)
 
     error_date = DateTime()
-    try:
-      self.pinDateTime(error_date)
+    with PinnedDateTime(self, error_date):
       installation.setErrorStatus("")
-    finally:
-      self.unpinDateTime()
 
     self.assertEqual(
       rfc1123_date(installation.SoftwareInstallation_hasReportedError()),

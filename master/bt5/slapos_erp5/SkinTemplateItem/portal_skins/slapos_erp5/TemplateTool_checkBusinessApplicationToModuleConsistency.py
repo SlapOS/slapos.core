@@ -98,14 +98,15 @@ for business_application_id, module_name_list in [
         error_list.append("business application %s not found, please update this constraint! (ignored when solving)" % business_application_id)
       continue
     try:
-      module.getBusinessApplication(None)
+      current_business_application_id = module.getBusinessApplication(None)
     except AttributeError:
+      current_business_application_id = None
       raise AttributeError("%s has no business_application category" % (module_name))
-    if module.getBusinessApplication(None) != business_application_id:
+    if current_business_application_id != business_application_id:
       if fixit:
         module.setBusinessApplicationValue(business_application_value)
       else:
-        error_list.append("no business application assigned to module %s (Expected: %s | Found: %s)" % (module_name, business_application_id, module.getBusinessApplication(None)))
+        error_list.append("no business application assigned to module %s (Expected: %s | Found: %s)" % (module_name, business_application_id, current_business_application_id))
 
 # Remove business application from unused module
 for module_name in portal.contentIds():
@@ -116,14 +117,14 @@ for module_name in portal.contentIds():
         error_list.append("module %s not found, please update this constraint! (ignored when solving)" % module_name)
       continue
     try:
-      module.getBusinessApplication(None)
+      current_business_application_id = module.getBusinessApplication(None)
     except AttributeError:
-      raise AttributeError("%s has no business_application category" % (module_name))
-    if module.getBusinessApplication(None) != None:
+      current_business_application_id = None
+    if current_business_application_id != None:
       if fixit:
         module.setBusinessApplicationValue(None)
       else:
-        error_list.append("no business application assigned to module %s (Expected: None | Found: %s)" % (module_name, module.getBusinessApplication(None)))
+        error_list.append("no business application assigned to module %s (Expected: None | Found: %s)" % (module_name, current_business_application_id))
 
 #return "\n".join(error_list) or "OK"
 return error_list

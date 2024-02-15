@@ -122,8 +122,13 @@ class TestSlapOSPaymentTransaction_generateWechatId(SlapOSTestCaseMixinWithAbort
 
     mapping = integration_site.getCategoryFromMapping(
       'Causality/%s' % transaction_url)
-    self.assertEqual(mapping, "%s-%s" % (
-      transaction_date.asdatetime().strftime('%Y%m%d'), wechat_id.split('-')[1]))
+    self.assertEqual(mapping, payment_transaction.getId())
+    self.assertTrue(mapping.startswith(
+      '%s.' % transaction_date.asdatetime().strftime('%Y%m%d')
+    ))
+    self.assertTrue(mapping.endswith(
+      '-%s' % wechat_id.split('-')[1]
+    ))
     category = integration_site.getMappingFromCategory('causality/%s' % mapping)
     # XXX Not indexed yet
 #     self.assertEqual(category, 'Causality/%s' % transaction_url)

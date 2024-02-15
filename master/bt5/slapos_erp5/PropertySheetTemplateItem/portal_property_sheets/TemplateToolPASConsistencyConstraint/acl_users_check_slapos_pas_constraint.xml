@@ -42,7 +42,7 @@
         </item>
         <item>
             <key> <string>script_id</string> </key>
-            <value> <string>CertificateAuthorityTool_checkSlapOSPASConsistency</string> </value>
+            <value> <string>TemplateTool_checkSlapOSPASConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

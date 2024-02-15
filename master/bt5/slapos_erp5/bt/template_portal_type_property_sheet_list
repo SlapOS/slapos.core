@@ -8,4 +8,5 @@ Invitation Token | Reference
 Invitation Token | Url
 Organisation | GeographicOrganisation
 Template Tool | TemplateToolBusinessApplicationModuleCategoryConstraint
+Template Tool | TemplateToolPASConsistencyConstraint
 Web Site Module | WebSiteModuleShacacheConstraint

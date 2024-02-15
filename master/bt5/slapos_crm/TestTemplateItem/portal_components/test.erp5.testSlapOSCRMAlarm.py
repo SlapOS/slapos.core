@@ -21,7 +21,7 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort, simulate, TemporaryAlarmScript
+  SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort, simulate, TemporaryAlarmScript, PinnedDateTime
 from DateTime import DateTime
 import difflib
 import transaction
@@ -1280,12 +1280,9 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   def test_ComputeNode_checkState_script_oldAccessStatus(self):
     compute_node, _ = self._makeComputeNode(self.addProject())
-    try:
-      d = DateTime() - 1.1
-      self.pinDateTime(d)
+    d = DateTime() - 1.1
+    with PinnedDateTime(self, d):
       compute_node.setAccessStatus("")
-    finally:
-      self.unpinDateTime()
 
     compute_node_support_request = compute_node.ComputeNode_checkState()
     self.assertNotEqual(compute_node_support_request, None)
@@ -1334,11 +1331,8 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
   def test_ComputeNode_checkState_script_notify(self):
     compute_node, _ = self._makeComputeNode(self.addProject())
 
-    try:
-      self.pinDateTime(DateTime()-1.1)
+    with PinnedDateTime(self, DateTime()-1.1):
       compute_node.setAccessStatus("")
-    finally:
-      self.unpinDateTime()
 
     self.portal.REQUEST['test_ComputeNode_checkState_notify'] = \
         self._makeNotificationMessage(compute_node.getReference())
@@ -1423,11 +1417,8 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     # Computer is getting access
     compute_node.setAccessStatus("")
 
-    try:
-      self.pinDateTime(DateTime()-1.1)
+    with PinnedDateTime(self, DateTime()-1.1):
       self.start_requested_software_instance.setAccessStatus("")
-    finally:
-      self.unpinDateTime()
 
     compute_node.ComputeNode_checkState()
     self.tic()
@@ -1471,12 +1462,9 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     # Computer is getting access
     compute_node.setAccessStatus("")
 
-    try:
-      self.pinDateTime(DateTime()-1.1)
+    with PinnedDateTime(self, DateTime()-1.1):
       self.start_requested_software_instance.setAccessStatus("")
       self.start_requested_software_installation.setAccessStatus("")
-    finally:
-      self.unpinDateTime()
 
     compute_node.ComputeNode_checkState()
     self.tic()
@@ -1558,13 +1546,10 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_ComputeNode_checkSoftwareInstallationState_notify"])')
   def test_ComputeNode_checkSoftwareInstallationState_script_notifyNoInformation(self):
-    try:
-      self.pinDateTime(DateTime()-1.1)
+    with PinnedDateTime(self, DateTime()-1.1):
       compute_node, _ = self._makeComputeNode(self.addProject())
       self._makeComplexComputeNode(self.addProject())
       compute_node = self.compute_node
-    finally:
-      self.unpinDateTime()
 
     self.tic()
     self.portal.REQUEST['test_ComputeNode_checkSoftwareInstallationState_notify'] = \
@@ -1608,13 +1593,10 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_ComputeNode_checkSoftwareInstallationState_notify"])')
   def test_ComputeNode_checkSoftwareInstallationState_script_notifySlow(self):
-    try:
-      self.pinDateTime(DateTime()-1.1)
+    with PinnedDateTime(self, DateTime()-1.1):
       compute_node, _ = self._makeComputeNode(self.addProject())
       self._makeComplexComputeNode(self.addProject())
       compute_node = self.compute_node
-    finally:
-      self.unpinDateTime()
 
     self.start_requested_software_installation.setBuildingStatus("building")
     self.tic()
@@ -1685,13 +1667,10 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_ComputeNode_checkSoftwareInstallationState_notify"])')
   def test_ComputeNode_checkSoftwareInstallationState_script_notifyError(self):
-    try:
-      self.pinDateTime(DateTime()-1.1)
+    with PinnedDateTime(self, DateTime()-1.1):
       compute_node, _ = self._makeComputeNode(self.addProject())
       self._makeComplexComputeNode(self.addProject())
       compute_node = self.compute_node
-    finally:
-      self.unpinDateTime()
 
     self.start_requested_software_installation.setErrorStatus("")
     self.tic()
@@ -1734,13 +1713,10 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_ComputeNode_checkSoftwareInstallationState_notify"])')
   def test_ComputeNode_checkSoftwareInstallationState_script_oldBuild(self):
-    try:
-      self.pinDateTime(DateTime()-1.1)
+    with PinnedDateTime(self, DateTime()-1.1):
       compute_node, _ = self._makeComputeNode(self.addProject())
       self._makeComplexComputeNode(self.addProject())
       compute_node = self.compute_node
-    finally:
-      self.unpinDateTime()
 
     self.start_requested_software_installation.setAccessStatus("")
     self.tic()
@@ -1819,16 +1795,13 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_InstanceTree_checkSoftwareInstanceState_notify"])')
   def test_InstanceTree_checkSoftwareInstanceState_script_notifyError(self):
-    try:
-      self.pinDateTime(DateTime()-1.1)
+    with PinnedDateTime(self, DateTime()-1.1):
       self._makeComputeNode(self.addProject())
       self._makeComplexComputeNode(self.addProject())
 
       software_instance = self.start_requested_software_instance
       instance_tree = software_instance.getSpecialiseValue()
       software_instance.setErrorStatus("")
-    finally:
-      self.unpinDateTime()
 
     self.portal.REQUEST['test_InstanceTree_checkSoftwareInstanceState_notify'] = \
         self._makeNotificationMessage(instance_tree.getReference())
@@ -1864,15 +1837,12 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
   def test_InstanceTree_checkSoftwareInstanceState_script_notifyErrorTolerance(self):
-    try:
-      self.pinDateTime(DateTime()-1.1)
+    with PinnedDateTime(self, DateTime()-1.1):
       self._makeComputeNode(self.addProject())
       self._makeComplexComputeNode(self.addProject())
 
       software_instance = self.start_requested_software_instance
       instance_tree = software_instance.getSpecialiseValue()
-    finally:
-      self.unpinDateTime()
 
     software_instance.setErrorStatus("")
 
@@ -1897,15 +1867,12 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_InstanceTree_checkSoftwareInstanceState_notify"])')
   def test_InstanceTree_checkSoftwareInstanceState_script_notifyNotAllocated(self):
-    try:
-      self.pinDateTime(DateTime()-1.1)
+    with PinnedDateTime(self, DateTime()-1.1):
       self._makeComputeNode(self.addProject())
       self._makeComplexComputeNode(self.addProject())
 
       software_instance = self.start_requested_software_instance
       instance_tree = software_instance.getSpecialiseValue()
-    finally:
-      self.unpinDateTime()
 
     self.portal.REQUEST['test_InstanceTree_checkSoftwareInstanceState_notify'] = \
         self._makeNotificationMessage(instance_tree.getReference())
@@ -1942,16 +1909,13 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
   def test_InstanceTree_checkSoftwareInstanceState_script_tooEarly(self):
-    try:
-      self.pinDateTime(DateTime())
+    with PinnedDateTime(self, DateTime()):
       self._makeComputeNode(self.addProject())
       self._makeComplexComputeNode(self.addProject())
 
       software_instance = self.start_requested_software_instance
       instance_tree = software_instance.getSpecialiseValue()
       software_instance.setErrorStatus("")
-    finally:
-      self.unpinDateTime()
 
     self.portal.REQUEST['test_InstanceTree_checkSoftwareInstanceState_notify'] = \
         self._makeNotificationMessage(instance_tree.getReference())
@@ -1969,16 +1933,13 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 1')
   def test_InstanceTree_checkSoftwareInstanceState_script_closed(self):
-    try:
-      self.pinDateTime(DateTime()-1)
+    with PinnedDateTime(self, DateTime()-1):
       self._makeComputeNode(self.addProject())
       self._makeComplexComputeNode(self.addProject())
 
       software_instance = self.start_requested_software_instance
       instance_tree = software_instance.getSpecialiseValue()
       software_instance.setErrorStatus("")
-    finally:
-      self.unpinDateTime()
 
     self.portal.REQUEST['test_InstanceTree_checkSoftwareInstanceState_notify'] = \
         self._makeNotificationMessage(instance_tree.getReference())

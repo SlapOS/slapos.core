@@ -317,10 +317,11 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
     self.assertEqual(installation.SoftwareInstallation_hasReportedError(), None)
 
-    error_date = DateTime()
+    error_date = DateTime() - 0.1
     with PinnedDateTime(self, error_date):
       installation.setErrorStatus("")
 
+    self.assertNotEqual(installation.SoftwareInstallation_hasReportedError(), None)
     self.assertEqual(
       rfc1123_date(installation.SoftwareInstallation_hasReportedError()),
       rfc1123_date(error_date))

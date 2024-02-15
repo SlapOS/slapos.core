@@ -186,7 +186,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'person_module',
        'portal_activities',
        'portal_simulation',
-       'portal_callables',
        'product_module',
        'project_module',
        'purchase_order_module',

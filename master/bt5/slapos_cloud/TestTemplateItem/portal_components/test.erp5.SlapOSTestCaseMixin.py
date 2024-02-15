@@ -112,6 +112,21 @@ return %s""" % (self.attribute, self.script_name, self.fake_return)
     transaction.commit()
 
 
+class PinnedDateTime(object):
+  """
+  Context manager for changing the zope date
+  """
+  def __init__(self, testinstance, datetime):
+    self.datetime = datetime
+    self.testinstance = testinstance
+
+  def __enter__(self):
+    self.testinstance.pinDateTime(self.datetime)
+
+  def __exit__(self, *args, **kw):
+    self.testinstance.unpinDateTime()
+
+
 class SlapOSTestCaseMixin(testSlapOSMixin):
 
   expected_html_payzen_redirect_page = None

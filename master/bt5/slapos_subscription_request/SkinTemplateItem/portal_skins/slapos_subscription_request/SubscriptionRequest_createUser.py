@@ -1,4 +1,5 @@
 from zExceptions import Unauthorized
+from erp5.component.module.Log import log
 import random, string
 
 if REQUEST is not None:
@@ -30,11 +31,20 @@ for role in ['member', 'subscriber']:
 
 login = person.newContent(
   portal_type="ERP5 Login",
-  reference="%s-FIRST-SUBSCRIBER-LOGIN" % person.getUserId(),
-  password=context.Person_generatePassword())
+  reference="%s-FIRST-SUBSCRIBER-LOGIN" % person.getUserId())
+
+for _ in range(5):
+  try:
+    login.setPassword(person.Person_generatePassword())
+    break
+  except ValueError:
+    # Skip the generated password wasnt acceptable let it try again.
+    log("Set password failed, try few more times")
+
+if not login.getPassword():
+  raise ValueError("We could not set a proper password.")
 
 login.validate()
-
 
 # The rest of the information will be used later.
 person.SubscriptionRequest_saveTransactionalUser(person)

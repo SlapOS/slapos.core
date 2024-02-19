@@ -43,10 +43,10 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
 
   def getMonitorUrl(self, context):
     if context.getPortalType() in ["Software Instance", "Slave Instance"]:
-      return 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Software%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22&page=ojsm_dispatch'
+      return 'https://monitor.app.officejs.com/#/?username=testuser&url=softinst-monitored/public/feeds&password=testpass&page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Software%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22'
     else:
-      return 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Instance%20Tree%22%20AND%20title%3A%22Template%20Instance%20Tree%22&page=ojsm_dispatch'
-  
+      return 'https://monitor.app.officejs.com/#/?username=testuser&url=softinst-monitored/public/feeds&password=testpass&page=ojsm_dispatch&query=portal_type%3A%22Instance%20Tree%22%20AND%20title%3A%22Template%20Instance%20Tree%22'
+
   maxDiff = None
   def afterSetUp(self):
     SlapOSTestCaseMixinWithAbort.afterSetUp(self)
@@ -110,7 +110,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     _, partition0 =SlapOSTestCaseMixinWithAbort._makeComputeNode(
       self, owner=owner, allocation_scope=allocation_scope
     )
-    
+
     self.partition0 = partition0
     reference = 'TESTPART-%s' % self.generateNewId()
     self.partition1 = self.compute_node.newContent(
@@ -132,7 +132,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     self.tic()
     self.changeSkin('Hal')
     return network
-  
+
   def _makeProject(self):
     project = self.portal.project_module.newContent()
     project.edit(reference="TESTPROJ-%s" % project.getId())
@@ -223,6 +223,7 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
     instance.edit(specialise_value=instance_tree)
+    instance_tree.edit(successor_value=instance)
     self.tic()
     self.changeSkin('Hal')
     news_dict = instance_tree.InstanceTree_getNewsDict()
@@ -1506,7 +1507,7 @@ return []""")
         self.portal.SoftwareProduct_getSoftwareReleaseAsHateoas("fake", True))
     )
 
-class TestSoftwareInstance_getAllocationInformation(TestSlapOSHalJsonStyleMixin): 
+class TestSoftwareInstance_getAllocationInformation(TestSlapOSHalJsonStyleMixin):
 
   def test_SoftwareInstance_getAllocationInformation_not_allocated(self):
     self._makeTree()

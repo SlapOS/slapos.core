@@ -77,7 +77,7 @@
   <parameter id="parameter1">valueof1</parameter>\n
   <parameter id="parameter2">https://niut:pass@example.com:4567/arfarf/oink?m=1#4.5</parameter>\n
   <parameter id="monitor-setup-url">monitor-app.com&amp;url=softinst-monitored/public/feeds&amp;username=testuser&amp;password=testpass</parameter>\n
-  <parameter id="monitor-base-url">softinst-monitored/public/feeds</parameter>\n
+  <parameter id="monitor-base-url">softinst-monitored</parameter>\n
   <parameter id="monitor-user">testuser</parameter>\n
   <parameter id="monitor-password">testpass</parameter>\n
 </instance>\n

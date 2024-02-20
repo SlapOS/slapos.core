@@ -14,26 +14,16 @@ for open_order_line in open_sale_order.contentValues(
     content_list = [open_order_line]
   for open_order_cell in content_list:
     item = open_order_cell.getAggregateValue(portal_type=['Instance Tree', 'Compute Node', 'Project'])
+    hosting_subscription = open_order_cell.getAggregateValue(portal_type='Hosting Subscription')
 
     if item is None:
       raise AssertionError('No matching item on: %s' % open_order_cell.getRelativeUrl())
 
-    elif item.getPortalType() == 'Instance Tree':
-      if item.getSlapState() != 'destroy_requested':
-        # Do not touch if the instance is still started/stopped
-        return
-
-    elif item.getPortalType() == 'Compute Node':
-      # XXX TODO how to officially close a Compute Node
-      #raise NotImplementedError('what is the finished state for Compute Node')
+    if item.getValidationState() not in ['invalidated', 'archived']:
+      # Do not touch if the item is not clean yet
       return
 
-    elif item.getPortalType() == 'Project':
-      # Do not close project for now
-      return
-
-    else:
-      raise KeyError('Unexpected portal type: %s on %s' % (item.getPortalType(), open_order_cell.getRelativeUrl()))
+    hosting_subscription.archive(comment='No item in used anymore')
 
 # if the script didn't return before, we can archive the open sale order
 now = DateTime()

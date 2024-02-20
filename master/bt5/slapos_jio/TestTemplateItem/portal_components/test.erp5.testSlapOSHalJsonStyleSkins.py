@@ -42,6 +42,8 @@ def fakeDestroyRequestedSlapState():
 class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
 
   def getMonitorUrl(self, context):
+    if context.getSlapState() == fakeDestroyRequestedSlapState():
+      return ''
     if context.getPortalType() in ["Software Instance", "Slave Instance"]:
       connection = context.getConnectionXmlAsDict()
       if connection and connection.has_key('monitor-user') and \
@@ -262,6 +264,7 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeSlaveInstance()
     instance.edit(specialise_value=instance_tree)
+    instance_tree.edit(successor_value=instance)
     self.tic()
     self.changeSkin('Hal')
     news_dict = instance_tree.InstanceTree_getNewsDict()
@@ -279,9 +282,9 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
     instance.edit(specialise_value=instance_tree)
+    instance_tree.edit(successor_value=instance)
     instance0 = self._makeInstance()
     instance0.edit(specialise_value=instance_tree)
-    
     self.tic()
     self.changeSkin('Hal')
     news_dict = instance_tree.InstanceTree_getNewsDict()
@@ -319,6 +322,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
     instance.edit(specialise_value=instance_tree)
+    instance_tree.edit(successor_value=instance)
     self._logFakeAccess(instance)
     news_dict = instance.SoftwareInstance_getNewsDict()
     expected_news_dict =  {'created_at': self.created_at,
@@ -339,6 +343,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
     instance.edit(specialise_value=instance_tree)
+    instance_tree.edit(successor_value=instance)
     self.changeSkin('Hal')
 
     news_dict = instance.SoftwareInstance_getNewsDict()
@@ -375,6 +380,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
     instance.edit(specialise_value=instance_tree)
+    instance_tree.edit(successor_value=instance)
     instance.getSlapState = fakeStopRequestedSlapState
     news_dict = instance.SoftwareInstance_getNewsDict()
     expected_news_dict = {
@@ -432,7 +438,6 @@ class TestComputerNetwork_getNewsDict(TestSlapOSHalJsonStyleMixin):
                             'portal_type': network.getPortalType(),
                             'reference': network.getReference()
                             }
-                          
 
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))

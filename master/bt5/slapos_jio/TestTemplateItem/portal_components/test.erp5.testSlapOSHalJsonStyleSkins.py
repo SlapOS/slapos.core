@@ -43,9 +43,22 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
 
   def getMonitorUrl(self, context):
     if context.getPortalType() in ["Software Instance", "Slave Instance"]:
-      return 'https://monitor.app.officejs.com/#/?username=testuser&url=softinst-monitored/public/feeds&password=testpass&page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Software%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22'
+      connection = context.getConnectionXmlAsDict()
+      if connection and connection.has_key('monitor-user') and \
+          connection.has_key('monitor-password') and \
+          connection.has_key('monitor-base-url'):
+        return 'https://monitor.app.officejs.com/#/?username=testuser&url=softinst-monitored/public/feeds&password=testpass&page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Software%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22'
+      else:
+        return ''
     else:
-      return 'https://monitor.app.officejs.com/#/?username=testuser&url=softinst-monitored/public/feeds&password=testpass&page=ojsm_dispatch&query=portal_type%3A%22Instance%20Tree%22%20AND%20title%3A%22Template%20Instance%20Tree%22'
+      soft_inst = context.getSuccessorValue()
+      if soft_inst:
+        connection = soft_inst.getConnectionXmlAsDict()
+        if connection and connection.has_key('monitor-user') and \
+          connection.has_key('monitor-password') and \
+          connection.has_key('monitor-base-url'):
+          return 'https://monitor.app.officejs.com/#/?username=testuser&url=softinst-monitored/public/feeds&password=testpass&page=ojsm_dispatch&query=portal_type%3A%22Instance%20Tree%22%20AND%20title%3A%22Template%20Instance%20Tree%22'
+      return ''
 
   maxDiff = None
   def afterSetUp(self):
@@ -188,7 +201,7 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'monitor_url': self.getMonitorUrl(instance_tree),
       'is_slave': 1
     }
-    self.assertEqual(news_dict, 
+    self.assertEqual(news_dict,
                     _decode_with_json(expected_news_dict))
 
   def test_stopped(self):
@@ -346,6 +359,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeSlaveInstance()
     instance.edit(specialise_value=instance_tree)
+    instance_tree.edit(successor_value=instance)
     news_dict = instance.SoftwareInstance_getNewsDict()
     expected_news_dict = {
       'portal_type': instance.getPortalType(),

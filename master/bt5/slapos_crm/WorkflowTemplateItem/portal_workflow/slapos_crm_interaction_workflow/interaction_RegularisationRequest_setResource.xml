@@ -22,20 +22,19 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>interaction_Item_invalidate</string> </value>
+            <value> <string>interaction_RegularisationRequest_setResource</string> </value>
         </item>
         <item>
             <key> <string>portal_type_filter</string> </key>
             <value>
               <tuple>
-                <string>Instance Tree</string>
-                <string>Compute Node</string>
+                <string>Regularisation Request</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>temporary_document_disallowed</string> </key>
-            <value> <int>1</int> </value>
+            <value> <int>0</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
@@ -47,8 +46,7 @@
             <key> <string>trigger_method_id</string> </key>
             <value>
               <tuple>
-                <string>invalidate</string>
-                <string>archive</string>
+                <string>_setResource.*</string>
               </tuple>
             </value>
         </item>

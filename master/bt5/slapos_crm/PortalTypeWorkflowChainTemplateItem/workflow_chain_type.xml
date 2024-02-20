@@ -13,7 +13,7 @@
  </chain>
  <chain>
   <type>Regularisation Request</type>
-  <workflow>edit_workflow, pricing_interaction_workflow, ticket_interaction_workflow, ticket_workflow</workflow>
+  <workflow>edit_workflow, pricing_interaction_workflow, slapos_crm_interaction_workflow, ticket_interaction_workflow, ticket_workflow</workflow>
  </chain>
  <chain>
   <type>Sale Invoice Transaction</type>

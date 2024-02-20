@@ -17,7 +17,6 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
     Ensure services are destroyed, open order are archived, and
     deposit is used to pay the invoice
     """
-    self.portal.testromain()
     creation_date = DateTime('2020/05/19')
     with PinnedDateTime(self, creation_date):
       owner_person, currency, project = self.bootstrapAccountingTest()
@@ -108,11 +107,17 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Trigger regularisation request escalation
     self.logout()
     self.login()
-    for date_offset in range(33, 64, 1):
+    for date_offset in range(33, 70, 1):
       # Trigger the alarm everyday, to not depend too much
       # of the alarm crm delay current implementation
       with PinnedDateTime(self, creation_date + date_offset):
-        self.stepCallAlarmList()
+        for alarm_id in [
+          'slapos_crm_trigger_acknowledgment_escalation',
+          'slapos_crm_trigger_delete_reminder_escalation',
+          'update_open_order_simulation',
+          'slapos_stop_confirmed_aggregated_sale_invoice_transaction'
+        ]:
+          self.portal.portal_alarms[alarm_id].activeSense()
         self.tic()
 
     ##################################################
@@ -133,6 +138,7 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertEquals(open_order.getValidationState(), 'archived')
       self.assertNotEquals(open_order.getStopDate(), open_order.getStartDate())
       self.assertNotEquals(open_order.getStopDate(), None)
+      self.assertEquals(open_order.getStopDate(), DateTime('2020/07/17'))
 
       for line in open_order.contentValues():
         for cell in line.contentValues():

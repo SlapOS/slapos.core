@@ -10,23 +10,19 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>before_script/portal_workflow/slapos_cloud_interaction_workflow/script_SoftwareInstance_reindexComputePartition</string>
-                <string>after_script/portal_workflow/slapos_cloud_interaction_workflow/script_SoftwareInstance_reindexComputePartition</string>
                 <string>after_script/portal_workflow/slapos_cloud_interaction_workflow/script_Base_triggerComputeNodeInvalidationAlarm</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>This is needed to update the compute_partition catalog table.\n
-\n
-As there is no possibility to compare object state before and after transaction, it is safer to register reindexation for both cases.\n
-\n
-It will create duplicate activities, but only one for each will be fired.</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>interaction_SoftwareInstance_setAggregateList</string> </value>
+            <value> <string>interaction_ComputeNode_setAllocationScope</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -36,8 +32,7 @@ It will create duplicate activities, but only one for each will be fired.</strin
             <key> <string>portal_type_filter</string> </key>
             <value>
               <tuple>
-                <string>Software Instance</string>
-                <string>Slave Instance</string>
+                <string>Compute Node</string>
               </tuple>
             </value>
         </item>
@@ -53,13 +48,15 @@ It will create duplicate activities, but only one for each will be fired.</strin
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Reindexes before and after list of compute partition</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>trigger_method_id</string> </key>
             <value>
               <tuple>
-                <string>_setAggregate.*</string>
+                <string>_setAllocationScope.*</string>
               </tuple>
             </value>
         </item>

@@ -12,56 +12,18 @@ from DateTime import DateTime
 
 class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
-  def bootstrapAccountingTest(self):
-    currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
-    self.tic()
-
-    self.logout()
-    # lets join as slapos administrator, which will manager the project
-    owner_reference = 'project-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, owner_reference)
-
-    self.login()
-    owner_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=owner_reference).getParentValue()
-    self.tic()
-    self.logout()
-
-    self.login(sale_person.getUserId())
-    with PinnedDateTime(self, DateTime('2020/01/01')):
-      project_relative_url = self.addProject(
-        is_accountable=True,
-        person=owner_person,
-        currency=currency
-      )
-      self.tic()
-    self.logout()
-
-    self.login()
-    project = self.portal.restrictedTraverse(project_relative_url)
-    preference = self.portal.portal_preferences.slapos_default_system_preference
-    preference.edit(
-      preferred_subscription_assignment_category_list=[
-        'function/customer',
-        'role/client',
-        'destination_project/%s' % project.getRelativeUrl()
-      ]
-    )
-    return owner_person, currency, project
-
   def test_rejectedSubscriptionScenario(self):
     """
     User does not pay the subscription, which is cancelled after some time
     """
     _, _, project = self.bootstrapAccountingTest()
 
-    self.assertEqual(project.getValidationState(), "invalidated")
     subscription_request = self.portal.portal_catalog.getResultValue(
       portal_type="Subscription Request",
       aggregate__uid=project.getUid()
     )
     self.assertEqual(subscription_request.getSimulationState(), "cancelled")
+    self.assertEqual(project.getValidationState(), "invalidated")
 
     # Ensure no unexpected object has been created
     # 2 assignment
@@ -210,18 +172,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     with PinnedDateTime(self, DateTime('2021/07/06')):
       self.checkERP5StateBeforeExit()
 
-  def createProductionManager(self, project):
-    production_manager_reference = 'production_manager-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, production_manager_reference)
-
-    self.login()
-    production_manager_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=production_manager_reference).getParentValue()
-
-    self.addProjectProductionManagerAssignment(production_manager_person, project)
-    self.tic()
-    return production_manager_person
 
   def test_aggregationOfMonthlyInvoiceScenario(self):
     """

@@ -1,7 +1,15 @@
 <workflow_chain>
  <chain>
+  <type>Compute Node</type>
+  <workflow>slapos_crm_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Incident Response</type>
   <workflow>edit_workflow, ticket_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Instance Tree</type>
+  <workflow>slapos_crm_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Regularisation Request</type>

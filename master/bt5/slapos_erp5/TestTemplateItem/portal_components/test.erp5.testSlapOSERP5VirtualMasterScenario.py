@@ -7,6 +7,9 @@
 
 from erp5.component.test.SlapOSTestCaseDefaultScenarioMixin import DefaultScenarioMixin
 from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, NegatedQuery
+from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
+from DateTime import DateTime
+
 
 class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
 
@@ -247,6 +250,58 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     related_object_list = [x.getRelativeUrl() for x in related_object_list]
     related_object_list.sort()
     assert len(related_object_list) == count, '%i\n%s' % (len(related_object_list), '\n'.join(related_object_list))
+
+  def createProductionManager(self, project):
+    production_manager_reference = 'production_manager-%s' % self.generateNewId()
+    self.joinSlapOS(self.web_site, production_manager_reference)
+
+    self.login()
+    production_manager_person = self.portal.portal_catalog.getResultValue(
+      portal_type="ERP5 Login",
+      reference=production_manager_reference).getParentValue()
+
+    self.addProjectProductionManagerAssignment(production_manager_person, project)
+    self.tic()
+    return production_manager_person
+
+  def bootstrapAccountingTest(self):
+    currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
+    self.tic()
+
+    self.logout()
+    # lets join as slapos administrator, which will manager the project
+    owner_reference = 'project-%s' % self.generateNewId()
+    self.joinSlapOS(self.web_site, owner_reference)
+
+    self.login()
+    owner_person = self.portal.portal_catalog.getResultValue(
+      portal_type="ERP5 Login",
+      reference=owner_reference).getParentValue()
+    self.tic()
+    self.logout()
+
+    self.login(sale_person.getUserId())
+    with PinnedDateTime(self, DateTime('2020/01/01')):
+      project_relative_url = self.addProject(
+        is_accountable=True,
+        person=owner_person,
+        currency=currency
+      )
+      self.tic()
+    self.logout()
+
+    self.login()
+    project = self.portal.restrictedTraverse(project_relative_url)
+    preference = self.portal.portal_preferences.slapos_default_system_preference
+    preference.edit(
+      preferred_subscription_assignment_category_list=[
+        'function/customer',
+        'role/client',
+        'destination_project/%s' % project.getRelativeUrl()
+      ]
+    )
+    return owner_person, currency, project
+
 
 class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 

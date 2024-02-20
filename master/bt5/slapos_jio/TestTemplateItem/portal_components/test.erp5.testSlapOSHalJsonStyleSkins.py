@@ -366,7 +366,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'reference': instance.getReference(),
       'is_slave': 1,
       'text': '#nodata is a slave %s' % instance.getReference(),
-      'monitor_url': 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Slave%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22&page=ojsm_dispatch',
+      'monitor_url': 'https://monitor.app.officejs.com/#/?username=testuser&url=softinst-monitored/public/feeds&password=testpass&page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Slave%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22',
       'user': 'SlapOS Master'}
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))

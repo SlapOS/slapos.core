@@ -42,26 +42,11 @@ def fakeDestroyRequestedSlapState():
 class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
 
   def getMonitorUrl(self, context):
-    if context.getSlapState() == fakeDestroyRequestedSlapState():
-      return ''
     if context.getPortalType() in ["Software Instance", "Slave Instance"]:
-      connection = context.getConnectionXmlAsDict()
-      if connection and connection.has_key('monitor-user') and \
-          connection.has_key('monitor-password') and \
-          connection.has_key('monitor-base-url'):
-        return 'https://monitor.app.officejs.com/#/?username=testuser&url=softinst-monitored/public/feeds&password=testpass&page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Software%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22'
-      else:
-        return ''
+      return 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Software%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22&page=ojsm_dispatch'
     else:
-      soft_inst = context.getSuccessorValue()
-      if soft_inst:
-        connection = soft_inst.getConnectionXmlAsDict()
-        if connection and connection.has_key('monitor-user') and \
-          connection.has_key('monitor-password') and \
-          connection.has_key('monitor-base-url'):
-          return 'https://monitor.app.officejs.com/#/?username=testuser&url=softinst-monitored/public/feeds&password=testpass&page=ojsm_dispatch&query=portal_type%3A%22Instance%20Tree%22%20AND%20title%3A%22Template%20Instance%20Tree%22'
-      return ''
-
+      return 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Instance%20Tree%22%20AND%20title%3A%22Template%20Instance%20Tree%22&page=ojsm_dispatch'
+  
   maxDiff = None
   def afterSetUp(self):
     SlapOSTestCaseMixinWithAbort.afterSetUp(self)
@@ -125,7 +110,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     _, partition0 =SlapOSTestCaseMixinWithAbort._makeComputeNode(
       self, owner=owner, allocation_scope=allocation_scope
     )
-
+    
     self.partition0 = partition0
     reference = 'TESTPART-%s' % self.generateNewId()
     self.partition1 = self.compute_node.newContent(
@@ -147,7 +132,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     self.tic()
     self.changeSkin('Hal')
     return network
-
+  
   def _makeProject(self):
     project = self.portal.project_module.newContent()
     project.edit(reference="TESTPROJ-%s" % project.getId())
@@ -203,7 +188,7 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
       'monitor_url': self.getMonitorUrl(instance_tree),
       'is_slave': 1
     }
-    self.assertEqual(news_dict,
+    self.assertEqual(news_dict, 
                     _decode_with_json(expected_news_dict))
 
   def test_stopped(self):
@@ -238,7 +223,6 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
     instance.edit(specialise_value=instance_tree)
-    instance_tree.edit(successor_value=instance)
     self.tic()
     self.changeSkin('Hal')
     news_dict = instance_tree.InstanceTree_getNewsDict()
@@ -264,7 +248,6 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeSlaveInstance()
     instance.edit(specialise_value=instance_tree)
-    instance_tree.edit(successor_value=instance)
     self.tic()
     self.changeSkin('Hal')
     news_dict = instance_tree.InstanceTree_getNewsDict()
@@ -282,9 +265,9 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
     instance.edit(specialise_value=instance_tree)
-    instance_tree.edit(successor_value=instance)
     instance0 = self._makeInstance()
     instance0.edit(specialise_value=instance_tree)
+    
     self.tic()
     self.changeSkin('Hal')
     news_dict = instance_tree.InstanceTree_getNewsDict()
@@ -322,7 +305,6 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
     instance.edit(specialise_value=instance_tree)
-    instance_tree.edit(successor_value=instance)
     self._logFakeAccess(instance)
     news_dict = instance.SoftwareInstance_getNewsDict()
     expected_news_dict =  {'created_at': self.created_at,
@@ -343,7 +325,6 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
     instance.edit(specialise_value=instance_tree)
-    instance_tree.edit(successor_value=instance)
     self.changeSkin('Hal')
 
     news_dict = instance.SoftwareInstance_getNewsDict()
@@ -364,14 +345,13 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeSlaveInstance()
     instance.edit(specialise_value=instance_tree)
-    instance_tree.edit(successor_value=instance)
     news_dict = instance.SoftwareInstance_getNewsDict()
     expected_news_dict = {
       'portal_type': instance.getPortalType(),
       'reference': instance.getReference(),
       'is_slave': 1,
       'text': '#nodata is a slave %s' % instance.getReference(),
-      'monitor_url': 'https://monitor.app.officejs.com/#/?username=testuser&url=softinst-monitored/public/feeds&password=testpass&page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Slave%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22',
+      'monitor_url': 'https://monitor.app.officejs.com/#/?query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Slave%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22&page=ojsm_dispatch',
       'user': 'SlapOS Master'}
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
@@ -380,7 +360,6 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
     instance.edit(specialise_value=instance_tree)
-    instance_tree.edit(successor_value=instance)
     instance.getSlapState = fakeStopRequestedSlapState
     news_dict = instance.SoftwareInstance_getNewsDict()
     expected_news_dict = {
@@ -438,6 +417,7 @@ class TestComputerNetwork_getNewsDict(TestSlapOSHalJsonStyleMixin):
                             'portal_type': network.getPortalType(),
                             'reference': network.getReference()
                             }
+                          
 
     self.assertEqual(_decode_with_json(news_dict),
                     _decode_with_json(expected_news_dict))
@@ -1526,7 +1506,7 @@ return []""")
         self.portal.SoftwareProduct_getSoftwareReleaseAsHateoas("fake", True))
     )
 
-class TestSoftwareInstance_getAllocationInformation(TestSlapOSHalJsonStyleMixin):
+class TestSoftwareInstance_getAllocationInformation(TestSlapOSHalJsonStyleMixin): 
 
   def test_SoftwareInstance_getAllocationInformation_not_allocated(self):
     self._makeTree()

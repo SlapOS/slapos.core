@@ -19,4 +19,22 @@ portal.portal_catalog.searchAndActivate(
   **packet_kw
 )
 
+# Delete existing old product only
+if portal.portal_catalog.getResultValue(portal_type="Software Release") is not None:
+  not_migrated_select_dict={'default_follow_up_uid': None}
+
+  portal.portal_catalog.searchAndActivate(
+    method_id='Base_deleteProcessedDocumentDuringPurge',
+    portal_type="Software Release",
+    **packet_kw
+  )
+  portal.portal_catalog.searchAndActivate(
+    method_id='Base_deleteProcessedDocumentDuringPurge',
+    portal_type="Software Product",
+    select_dict=not_migrated_select_dict,
+    left_join_list=not_migrated_select_dict.keys(),
+    default_follow_up_uid=None,
+    **packet_kw
+  )
+
 context.activate(after_tag=tag, priority=4).getId()

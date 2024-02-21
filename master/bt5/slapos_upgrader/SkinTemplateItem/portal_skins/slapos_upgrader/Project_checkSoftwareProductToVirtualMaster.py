@@ -109,9 +109,37 @@ for soft, variation_dict in soft_dict.items():
       parent_uid=software_product.getUid()
     )
     if software_release_variation is None:
+      software_release_variation_title = software_release
+      # Search previous Software Release object
+      # to copy the title and the Software Product image
+      old_software_release = portal.portal_catalog.getResultValue(
+        portal_type="Software Release",
+        url_string={'query': software_release, 'key': 'ExactMatch'},
+        validation_state='published_alive'
+      )
+      if old_software_release is not None:
+        old_software_product = old_software_release.getAggregateValue()
+        if old_software_product is not None:
+          software_release_variation_title = old_software_release.getReference()
+          software_product.edit(
+            title=old_software_product.getTitle(),
+            description=old_software_product.getDescription(),
+            activate_kw=activate_kw
+          )
+          old_image = old_software_product.getDefaultImageValue()
+          if old_image is not None:
+            new_image = software_product.getDefaultImageValue()
+            if new_image is None:
+              new_image = software_product.newContent(portal_type="Embedded File",
+                                                      id="default_image",
+                                                      activate_kw=activate_kw)
+              new_image.edit(data=old_image.getData(),
+                             activate_kw=activate_kw)
+
+
       software_product.newContent(
         portal_type="Software Product Release Variation",
-        title=software_release,
+        title=software_release_variation_title,
         url_string=software_release,
         activate_kw=activate_kw
       )

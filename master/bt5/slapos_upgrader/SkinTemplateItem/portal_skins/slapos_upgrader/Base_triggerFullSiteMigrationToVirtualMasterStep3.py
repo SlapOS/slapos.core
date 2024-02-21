@@ -17,14 +17,6 @@ portal.portal_catalog.searchAndActivate(
   **packet_kw
 )
 
-# Delete existing old product only
-if portal.portal_catalog.getResultValue(portal_type="Software Release") is not None:
-  portal.portal_catalog.searchAndActivate(
-    method_id='Base_deleteProcessedDocumentDuringPurge',
-    portal_type=["Software Product", "Software Release"],
-    **packet_kw
-  )
-
 ############################################
 # Gather compute node informations
 ############################################

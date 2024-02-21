@@ -10,6 +10,8 @@
             <key> <string>delegated_list</string> </key>
             <value>
               <list>
+                <string>allow_creation</string>
+                <string>parameter_list</string>
                 <string>portal_type</string>
               </list>
             </value>
@@ -53,6 +55,10 @@
             <value>
               <dictionary>
                 <item>
+                    <key> <string>allow_creation</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>extra_context</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -65,6 +71,12 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>parameter_list</string> </key>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
+                    </value>
+                </item>
+                <item>
                     <key> <string>portal_type</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -75,6 +87,10 @@
             <key> <string>values</string> </key>
             <value>
               <dictionary>
+                <item>
+                    <key> <string>allow_creation</string> </key>
+                    <value> <int>0</int> </value>
+                </item>
                 <item>
                     <key> <string>extra_context</string> </key>
                     <value>
@@ -90,6 +106,12 @@
                     <value> <string>Base_viewPDMFieldLibrary</string> </value>
                 </item>
                 <item>
+                    <key> <string>parameter_list</string> </key>
+                    <value>
+                      <list/>
+                    </value>
+                </item>
+                <item>
                     <key> <string>portal_type</string> </key>
                     <value>
                       <list>
@@ -102,6 +124,19 @@
                 </item>
               </dictionary>
             </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="2" aka="AAAAAAAAAAI=">
+    <pickle>
+      <global name="TALESMethod" module="Products.Formulator.TALESField"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>_text</string> </key>
+            <value> <string>python: [(\'follow_up__uid\', here.getParentValue().getDestinationProjectUid())]</string> </value>
         </item>
       </dictionary>
     </pickle>

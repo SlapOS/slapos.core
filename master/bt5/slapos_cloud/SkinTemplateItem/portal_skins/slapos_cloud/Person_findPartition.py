@@ -4,6 +4,7 @@ person = context
 portal = person.getPortalObject()
 
 assert project_uid
+assert instance_tree.getFollowUpUid() == project_uid
 
 compute_partition = None
 query_kw = {

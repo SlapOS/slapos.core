@@ -29,10 +29,14 @@ if len(category_list) != len(new_category_list):
   compute_node.setCategoryList(new_category_list)
 
 # Trigger migrations of related objects
+not_migrated_select_dict={'default_follow_up_uid': None}
 portal.portal_catalog.searchAndActivate(
   method_id='Base_activateObjectMigrationToVirtualMaster',
   method_args=[project_relative_url],
 
   portal_type='Software Installation',
-  aggregate__uid=compute_node.getUid()
+  aggregate__uid=compute_node.getUid(),
+  select_dict=not_migrated_select_dict,
+  left_join_list=not_migrated_select_dict.keys(),
+  **not_migrated_select_dict
 )

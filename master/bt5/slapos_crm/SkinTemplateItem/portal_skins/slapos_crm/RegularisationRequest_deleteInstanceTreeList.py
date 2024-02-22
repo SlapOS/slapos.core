@@ -64,3 +64,6 @@ if (state == 'suspended') and \
           subscribed_item_list.append(other_item)
       if can_invalidate_project:
         subscribed_item.invalidate(comment='Not paid')
+
+  return True
+return False

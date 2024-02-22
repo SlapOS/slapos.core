@@ -21,6 +21,11 @@ portal.portal_catalog.searchAndActivate(
 
 # Delete existing old product only
 if portal.portal_catalog.getResultValue(portal_type="Software Release") is not None:
+  packet_kw = {
+    'activate_kw': {'tag': tag, 'priority': 1},
+    'packet_size': 1, # Separate calls to many transactions (calculation can take time)
+    'activity_count': 1000,
+  }
   not_migrated_select_dict={'default_follow_up_uid': None}
 
   portal.portal_catalog.searchAndActivate(

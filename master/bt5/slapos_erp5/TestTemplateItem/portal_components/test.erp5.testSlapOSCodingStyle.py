@@ -71,6 +71,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
 
       CodingStyleTestCase.coverage_ignore_path_list = [
         'erp5_interaction_drop/InvoiceTransaction_postGeneration',
+        'slapos_cloud/ComputeNode_invalidateIfEmpty',
         'slapos_cloud/AllocationSupplyCell_asPredicate',
         'slapos_cloud/AllocationSupplyLine_asPredicate',
         'slapos_cloud/ERP5Type_asSecurityGroupId',
@@ -162,6 +163,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_simulation/SimulationMovement_testInvoiceTransactionSimulationRule',
         'slapos_simulation/SimulationMovement_testPaymentSimulationRule',
         'slapos_simulation/SimulationMovement_testTradeModelSimulationRule',
+        'slapos_accounting/OpenSaleOrder_archiveIfUnusedItem',
         'slapos_accounting/Base_getAccountForUse',
         'slapos_accounting/Entity_createPaymentTransactionAction',
         'slapos_accounting/Movement_getPriceCalculationOperandDict',

@@ -42,6 +42,6 @@ regularisation_request_list = portal.portal_catalog(
   limit=1
 )
 if len(regularisation_request_list) == 1:
-  return "to_pay"
+  return "nopaid"
 
 return "subscribed"

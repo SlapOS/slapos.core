@@ -1099,10 +1099,10 @@ class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
   'comment="Visited by InstanceTree_deleteFromRegularisationRequest ' \
   '%s" % (person))')
   def test_RegularisationRequest_deleteInstanceTreeList_script_matchingSubscription(self):
-    project = self.addProject()
-    person = self.makePerson(project, index=0, user=0)
+    _, _, _, _, _, instance_tree = \
+      self.bootstrapAllocableInstanceTree(is_accountable=True, base_price=3, )
+    person = instance_tree.getDestinationSectionValue()
     ticket = self.createRegularisationRequest()
-    instance_tree = self.createInstanceTree()
 
     ticket.edit(
       destination_decision_value=person,
@@ -1110,10 +1110,30 @@ class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
     )
     ticket.validate()
     ticket.suspend()
-    instance_tree.edit(
-      destination_section=person.getRelativeUrl(),
+
+    accounting_transaction = self.portal.accounting_module.newContent(
+      portal_type="Sale Invoice Transaction",
+      destination_section_value=person,
+      start_date=DateTime(),
+      price_currency="currency_module/EUR",
+      resource="currency_module/EUR",
+      ledger="automated",
     )
-    self.tic()
+    accounting_transaction.newContent(
+      portal_type="Invoice Line",
+      aggregate_value_list=[
+        instance_tree,
+        self.portal.hosting_subscription_module.newContent()
+      ]
+    )
+    accounting_transaction.newContent(
+      portal_type="Sale Invoice Transaction Line",
+      quantity=1,
+      source="account_module/receivable"
+    )
+    self.portal.portal_workflow._jumpToStateFor(accounting_transaction, 'stopped')
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
 
     result = ticket.\
         RegularisationRequest_deleteInstanceTreeList('footag')

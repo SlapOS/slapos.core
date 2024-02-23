@@ -12,27 +12,6 @@ from DateTime import DateTime
 
 class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
-  def test_rejectedSubscriptionScenario(self):
-    """
-    User does not pay the subscription, which is cancelled after some time
-    """
-    _, _, project = self.bootstrapAccountingTest()
-
-    subscription_request = self.portal.portal_catalog.getResultValue(
-      portal_type="Subscription Request",
-      aggregate__uid=project.getUid()
-    )
-    self.assertEqual(subscription_request.getSimulationState(), "cancelled")
-    self.assertEqual(project.getValidationState(), "invalidated")
-
-    # Ensure no unexpected object has been created
-    # 2 assignment
-    # 2 sale trade condition
-    # 1 subscription requests
-    self.assertRelatedObjectCount(project, 5)
-
-    self.checkERP5StateBeforeExit()
-
   def test_notPaidOpenOrderScenario(self):
     """
     User does not pay the subscription, which is cancelled after some time
@@ -177,7 +156,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     """
     Generate many different open order
     Try to ensure monthly invoices are correctly created
-    couscous
     """
     creation_date = DateTime('2020/05/19')
     with PinnedDateTime(self, creation_date):

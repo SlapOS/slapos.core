@@ -518,7 +518,7 @@ class TestSlapOSCrmTriggerEscalationOnAcknowledgmentRegularisationRequest(SlapOS
       '%s %s %s %s %s %s %s %s' % \
       (15,
        'service_module/slapos_crm_acknowledgement',
-       'service_module/slapos_crm_stop_reminder',
+       'service_module/slapos_crm_delete_reminder',
        'Reminder: invoice payment requested',
 """Dear user,
 

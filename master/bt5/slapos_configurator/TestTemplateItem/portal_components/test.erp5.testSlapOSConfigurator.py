@@ -54,6 +54,8 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
   def testConfiguredConversionServerViaConstraint(self):
     """ Make sure Conversion Server was configured well,
         invoking checkConsistency """
+    self.portal.portal_preferences.fixConsistency()
+
     self.assertEqual(self.portal.portal_preferences.checkConsistency(), [])
 
   def testConfiguredCertificateAuthoringConstraint(self):

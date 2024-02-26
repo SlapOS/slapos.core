@@ -1161,7 +1161,8 @@ class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
     ticket.validate()
     ticket.suspend()
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
 
     result = ticket.\
         RegularisationRequest_deleteInstanceTreeList('footag')
@@ -1181,7 +1182,8 @@ class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
     ticket.validate()
     ticket.suspend()
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
 
     result = ticket.\
         RegularisationRequest_deleteInstanceTreeList('footag')
@@ -1204,7 +1206,8 @@ class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
     )
     ticket.validate()
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
 
     result = ticket.\
         RegularisationRequest_deleteInstanceTreeList('footag')
@@ -1228,7 +1231,8 @@ class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
     ticket.validate()
     ticket.suspend()
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
 
     result = ticket.\
         RegularisationRequest_deleteInstanceTreeList('footag')

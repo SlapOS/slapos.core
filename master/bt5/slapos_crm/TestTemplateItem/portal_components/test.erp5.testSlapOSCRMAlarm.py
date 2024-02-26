@@ -1145,6 +1145,12 @@ class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
       '%s' % person.getRelativeUrl(),
       instance_tree.workflow_history['edit_workflow'][-1]['comment'])
 
+    # The test impacts all others
+    # workaround by deleting the object
+    accounting_transaction.getParentValue().manage_delObjects([accounting_transaction.getId()])
+    ticket.getParentValue().manage_delObjects([ticket.getId()])
+    self.tic()
+
   @simulate('InstanceTree_deleteFromRegularisationRequest',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')

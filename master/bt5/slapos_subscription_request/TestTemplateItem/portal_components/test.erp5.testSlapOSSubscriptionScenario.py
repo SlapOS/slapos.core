@@ -897,8 +897,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     # Test if balance is bad now
     subscriber = subscription_request.getDestinationSectionValue()
-    self.assertEqual(subscriber.Entity_statOutstandingAmount(at_date=DateTime()),
-      0.0)
+
     
     if subscription_request.getPriceCurrency() == "currency_module/CNY":
       expected_individual_price_with_tax = self.expected_zh_individual_price_with_tax
@@ -907,6 +906,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     expected_amount = round(expected_individual_price_with_tax*sum([i.getQuantity(0)
      for i in subscription_request_list]),2)
 
+    # We generate now after the debt is active
+    self.assertEqual(round(subscriber.Entity_statOutstandingAmount(at_date=DateTime()), 2), expected_amount)
     self.assertEqual(round(subscriber.Entity_statOutstandingAmount(), 2), expected_amount)
 
     # Invoice to Pay
@@ -1805,7 +1806,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self.assertEqual(instance_tree.getPeriodicityMonthDay(),
         min(DateTime().day(), 28))
 
-    self.pinDateTime(DateTime(DateTime().asdatetime() + datetime.timedelta(days=17)))
+    self.pinDateTime(DateTime(DateTime().asdatetime() + datetime.timedelta(days=32)))
     self.addCleanup(self.unpinDateTime)
 
     self._checkSecondMonthSimulation(subscription_request_list,

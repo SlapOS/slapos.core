@@ -56,6 +56,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     """ Make sure Conversion Server was configured well,
         invoking checkConsistency """
     pref_tool = self.portal.portal_preferences
+    self.portal.portal_preferences.fixConsistency()
     self.assertEqual(pref_tool.checkConsistency(), [])
 
     # Check if configuration is properly set:

@@ -356,7 +356,7 @@
       <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/check_listbox_pagination_text" />
       </tal:block>
-      <tal:block tal:define="click_configuration python: {'text': '_remote_PROJ'}">
+      <tal:block tal:define="click_configuration python: {'text': '_remote_PROJ', 'partial_text_match': True}">
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_page_link" />
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />

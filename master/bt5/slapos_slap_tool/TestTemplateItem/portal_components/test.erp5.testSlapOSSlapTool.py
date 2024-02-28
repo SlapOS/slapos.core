@@ -3112,6 +3112,38 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       if os.path.exists(self.instance_request_simulator):
         os.unlink(self.instance_request_simulator)
 
+  def test_requestWithoutProjectReference(self):
+    self.instance_request_simulator = tempfile.mkstemp()[1]
+    try:
+      self.login(self.person_user_id)
+      self.person.requestSoftwareInstance = Simulator(
+        self.instance_request_simulator, 'requestSoftwareInstance')
+      response = self.portal_slap.requestComputerPartition(
+          software_release='req_release',
+          software_type='req_type',
+          partition_reference='req_reference',
+          partition_parameter_xml='<marshal><dictionary id="i2"/></marshal>',
+          filter_xml='<marshal><dictionary id="i2"/></marshal>',
+          state='<marshal><string>started</string></marshal>',
+          shared_xml='<marshal><bool>0</bool></marshal>'
+          )
+      self.assertEqual(408, response.status)
+      self.assertEqual('private',
+          response.headers.get('cache-control'))
+      self.assertInstanceRequestSimulator((), {
+          'instance_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
+          'software_title': 'req_reference',
+          'software_release': 'req_release',
+          'state': 'started',
+          'sla_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
+          'software_type': 'req_type',
+          'shared': False,
+          'project_reference': self.project.getReference()
+      })
+    finally:
+      if os.path.exists(self.instance_request_simulator):
+        os.unlink(self.instance_request_simulator)
+
   def test_request_allocated_instance(self):
     self.tic()
     self.person.edit(

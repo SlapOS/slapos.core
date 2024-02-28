@@ -1,6 +1,6 @@
 # Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
 import transaction
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, simulate, TemporaryAlarmScript
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, TemporaryAlarmScript
 from unittest import skip
 
 
@@ -63,30 +63,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     compute_node.reindexObject()
     self.tic()
 
-  def test_person_allocation_checked(self):
-    software_instance, _, _ = self.makeAllocableSoftwareInstance()
-    with TemporaryAlarmScript(self.portal, 'Person_isAllowedToAllocate',
-                              fake_return="True"):
-      software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(
-        'Visited by Person_isAllowedToAllocate',
-        software_instance.getSpecialiseValue().getDestinationSectionValue().workflow_history['edit_workflow'][-1]['comment'])
-
-  def test_no_allocation_if_person_is_not_allowed(self):
-    software_instance, _, _ = self.makeAllocableSoftwareInstance()
-
-    self.assertEqual(None, software_instance.getAggregateValue(
-        portal_type='Compute Partition'))
-    with TemporaryAlarmScript(self.portal, 'Person_isAllowedToAllocate',
-                              fake_return="False"):
-      software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(None, software_instance.getAggregateValue(
-        portal_type='Compute Partition'))
-    self.assertEqual(
-        'Allocation failed: Allocation disallowed',
-        software_instance.workflow_history['edit_workflow'][-1]['comment'])
-
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_no_free_partition(self):
     software_instance, _, partition = self.makeAllocableSoftwareInstance()
     partition.markBusy()
@@ -98,7 +74,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_no_host_instance(self):
     software_instance, _, partition = self.makeAllocableSoftwareInstance(shared=True, node="instance")
     partition.markFree()
@@ -110,7 +85,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_free_partition(self):
     software_instance, _, partition = self.makeAllocableSoftwareInstance()
 
@@ -127,7 +101,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     compute_partition.markBusy()
     self.tic()
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_host_instance(self):
     software_instance, _, partition = self.makeAllocableSoftwareInstance(shared=True, node="instance")
 
@@ -137,7 +110,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(partition.getRelativeUrl(),
         software_instance.getAggregate(portal_type='Compute Partition'))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_capacity_scope_close(self):
     software_instance, _, partition = self.makeAllocableSoftwareInstance()
     partition.getParentValue().edit(capacity_scope='close')
@@ -149,7 +121,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(None,
         software_instance.getAggregate(portal_type='Compute Partition'))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_host_capacity_scope_close(self):
     software_instance, _, partition = self.makeAllocableSoftwareInstance(shared=True, node="instance")
     partition.getParentValue().edit(capacity_scope='close')
@@ -161,7 +132,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(None,
         software_instance.getAggregate(portal_type='Compute Partition'))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_allocation_scope_close(self):
     software_instance, _, partition = self.makeAllocableSoftwareInstance()
     partition.getParentValue().edit(allocation_scope='close')
@@ -173,7 +143,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(None,
         software_instance.getAggregate(portal_type='Compute Partition'))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_host_allocation_scope_close(self):
     software_instance, _, partition = self.makeAllocableSoftwareInstance(shared=True, node="instance")
     partition.getParentValue().edit(allocation_scope='close')
@@ -185,7 +154,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(None,
         software_instance.getAggregate(portal_type='Compute Partition'))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_does_not_fail_on_instance_with_damaged_sla_xml(self):
     software_instance, _, _ = self.makeAllocableSoftwareInstance()
 
@@ -197,7 +165,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
         portal_type='Compute Partition'))
     transaction.abort()
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_does_not_fail_on_slave_with_damaged_sla_xml(self):
     software_instance, _, _ = self.makeAllocableSoftwareInstance(shared=True, node="instance")
 
@@ -212,7 +179,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
   ##################################################
   # alarm slapos_allocate_instance
   ##################################################
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_alarm_software_instance_unallocated(self):
     software_instance, _, _ = self.makeAllocableSoftwareInstance()
 
@@ -224,7 +190,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
         'Visited by SoftwareInstance_tryToAllocatePartition',
         software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_alarm_slave_instance_unallocated(self):
     software_instance, _, _ = self.makeAllocableSoftwareInstance(shared=True, node="instance")
 
@@ -236,7 +201,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
         'Visited by SoftwareInstance_tryToAllocatePartition',
         software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_alarm_software_instance_allocated(self):
     software_instance, _, _ = self.makeAllocableSoftwareInstance(allocation_state='allocated')
 
@@ -248,7 +212,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
         'Visited by SoftwareInstance_tryToAllocatePartition',
         software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_alarm_slave_instance_allocated(self):
     software_instance, _, _ = self.makeAllocableSoftwareInstance(allocation_state='allocated', shared=True, node="instance")
 
@@ -263,7 +226,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
   ##################################################
   # SoftwareInstance_tryToAllocatePartition
   ##################################################
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_computer_guid(self):
     software_instance, compute_node, partition = self.makeAllocableSoftwareInstance()
 
@@ -286,7 +248,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(partition.getRelativeUrl(),
         software_instance.getAggregate(portal_type='Compute Partition'))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_instance_guid(self):
     software_instance, _, partition = self.makeAllocableSoftwareInstance(shared=True, node="instance")
     requested_software_instance = partition.getAggregateRelatedValue()
@@ -312,7 +273,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(partition.getRelativeUrl(),
         software_instance.getAggregate(portal_type='Compute Partition'))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_network_guid(self):
     software_instance, compute_node, partition = self.makeAllocableSoftwareInstance()
 
@@ -350,7 +310,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(partition.getRelativeUrl(),
         software_instance.getAggregate(portal_type='Compute Partition'))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_mode_unique_by_network_one_network(self):
     """
     Test that when mode is "unique_by_network", we deploy new instance on
@@ -432,7 +391,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
         software_instance2.getAggregate(portal_type='Compute Partition')
     )
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_mode_unique_by_network_several_network(self):
     """
     Test that when mode is "unique_by_network", we deploy new instance on
@@ -526,7 +484,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
         software_instance3.getAggregate(portal_type='Compute Partition')
     )
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_mode_unique_by_network_no_network(self):
     """
     Test that when we request instance with mode as 'unique_by_network',
@@ -547,7 +504,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
         software_instance.getAggregate(portal_type='Compute Partition')
     )
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_mode_unique_by_network_check_serialize_called(self):
     """
     Test that on being_requested serialise is being called
@@ -581,7 +537,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
 
     transaction.abort()
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_mode_unique_by_network_no_parallel(self):
     """
     Test that when we request two instances of the same Instance Tree
@@ -658,7 +613,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
         software_instance2.getAggregate(portal_type='Compute Partition')
     )
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_unexpected_sla_parameter(self):
     software_instance, _, _ = self.makeAllocableSoftwareInstance()
 
@@ -717,7 +671,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
       software_instance.getRelativeUrl()
     )
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_group_sla(self):
     return self.check_allocation_category_sla('group', 'vifib', 'ovh')
 
@@ -725,42 +678,33 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
   def test_allocation_cpu_core_sla(self):
     return self.check_allocation_category_sla('cpu_core', 'vifib', 'ovh')
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_cpu_frequency_sla(self):
     return self.check_allocation_category_sla('cpu_frequency', '1000', '2000')
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_cpu_type_sla(self):
     return self.check_allocation_category_sla('cpu_type', 'x86', 'x86/x86_32')
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_local_area_network_type_sla(self):
     return self.check_allocation_category_sla('local_area_network_type',
                                               'ethernet', 'wifi')
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_memory_size_sla(self):
     return self.check_allocation_category_sla('memory_size', '128', '256')
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_memory_type_sla(self):
     return self.check_allocation_category_sla('memory_type', 'ddr2', 'ddr3')
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_region_sla(self):
     return self.check_allocation_category_sla('region', 'africa',
                                               'america')
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_storage_capacity_sla(self):
     return self.check_allocation_category_sla('storage_capacity', 'finite',
                                               'infinite')
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_storage_interface_sla(self):
     return self.check_allocation_category_sla('storage_interface', 'nas', 'san')
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_storage_redundancy_sla(self):
     return self.check_allocation_category_sla('storage_redundancy', 'dht', 'raid')
 
@@ -801,7 +745,6 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(partition.getRelativeUrl(),
         software_instance.getAggregate(portal_type='Compute Partition'))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_capability(self):
     valid_id = self.generateNewId()
     capability = 'toto_' + valid_id
@@ -820,15 +763,12 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
         '.*',
     ))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_capability_percent(self):
     self.check_allocation_capability('%', ('_',))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_capability_ipv6(self):
     self.check_allocation_capability('fe80::1ff:fe23:4567:890a', ('fe80::1',))
 
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_capability_multiple(self):
     self.check_allocation_capability('toto\ntata', ('titi',), 'toto')
     self.check_allocation_capability('toto\ntata', ('titi',), 'tata')

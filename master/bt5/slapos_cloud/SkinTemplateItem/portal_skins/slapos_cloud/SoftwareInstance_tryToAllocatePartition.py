@@ -1,6 +1,5 @@
 from Products.DCWorkflow.DCWorkflow import ValidationFailed
 from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery
-from zExceptions import Unauthorized
 
 if context.getPortalType() not in ('Software Instance', 'Slave Instance'):
   raise TypeError('%s is not supported' % context.getPortalType())
@@ -46,8 +45,6 @@ def assignComputePartition(software_instance, instance_tree):
     person = instance_tree.getDestinationSectionValue(portal_type='Person')
     if person is None:
       raise ValueError('%s does not have person related' % instance_tree.getRelativeUrl())
-    if not person.Person_isAllowedToAllocate():
-      raise Unauthorized('Allocation disallowed')
 
     tag = None
     try:
@@ -132,9 +129,6 @@ try:
 except ValueError, e:
   # It was not possible to find free Compute Partition
   markHistory(software_instance, 'Allocation failed: no free Compute Partition %s' % e)
-except Unauthorized, e:
-  # user has bad balance
-  markHistory(software_instance, 'Allocation failed: %s' % e)
 else:
   if compute_partition_url is not None:
     try:

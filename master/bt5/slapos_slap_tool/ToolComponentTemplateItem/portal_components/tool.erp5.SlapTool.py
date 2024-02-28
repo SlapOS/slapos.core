@@ -991,8 +991,48 @@ class SlapTool(BaseTool):
     else:
       # requested as root, so done by human
       requester = portal.portal_membership.getAuthenticatedMember().getUserValue()
+
+      if project_reference is None:
+        # Compatibility with the slapos console client
+        # which does not send any project_reference parameter
+        # and always connect to a uniq url
+        # Try to guess the project reference automatically
+        project_list = portal.portal_catalog(portal_type='Project', limit=2)
+        if len(project_list) == 1:
+          # If the user only has access to one project
+          # we can easily suppose the request must be allocated here
+          kw['project_reference'] = project_list[0].getReference()
+        else:
+          release_variation_list = portal.portal_catalog(
+            portal_type='Software Product Release Variation',
+            url_string=software_release,
+            limit=2
+          )
+          if len(release_variation_list) == 1:
+            # If the user only has access to matching release variation
+            # we can easily suppose the request must be allocated on the same project
+            kw['project_reference'] = release_variation_list[0].getParentValue().getFollowUpReference()
+
+          # Finally, try to use the SLA parameter to guess where it could be
+          elif 'project_guid' in filter_kw:
+            kw['project_reference'] = filter_kw['project_guid']
+          elif 'computer_guid' in filter_kw:
+            computer_list = portal.portal_catalog(
+              portal_type=['Compute Node', 'Remote Node', 'Instance Node'],
+              limit=2
+            )
+            if len(computer_list == 1):
+              kw['project_reference'] = computer_list[0].getFollowUpReference()
+          elif 'network_guid' in filter_kw:
+            network_list = portal.portal_catalog(
+              portal_type='Computer Network',
+              limit=2
+            )
+            if len(network_list == 1):
+              kw['project_reference'] = network_list[0].getFollowUpReference()
+
       key = '_'.join([requester.getRelativeUrl(), partition_reference])
-    
+
     last_data = requester.getLastData(key)
     requested_software_instance = None
     value = dict(
@@ -1002,7 +1042,7 @@ class SlapTool(BaseTool):
     if last_data is not None and isinstance(last_data, type(value)):
       requested_software_instance = self.restrictedTraverse(
           last_data.get('request_instance'), None)
-    
+
     if last_data is None or not isinstance(last_data, type(value)) or \
       last_data.get('hash') != value['hash'] or \
       requested_software_instance is None:

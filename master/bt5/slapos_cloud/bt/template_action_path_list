@@ -25,7 +25,6 @@ Slave Instance | view_rename_and_request_stop
 Software Installation Module | view
 Software Installation | request_destroy
 Software Installation | view
-Software Instance Module | monitoring_view
 Software Instance Module | view
 Software Instance | jump_to_compute_partition
 Software Instance | jump_to_instance_tree

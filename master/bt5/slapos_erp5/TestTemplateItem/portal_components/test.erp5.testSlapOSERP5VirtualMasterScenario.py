@@ -479,153 +479,155 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
 
   def test_virtual_master_with_accounting_scenario(self):
-    currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
+    with PinnedDateTime(self, DateTime('2024/02/17')):
+      currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
 
-    self.logout()
-    # lets join as slapos administrator, which will manager the project
-    owner_reference = 'project-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, owner_reference)
+      self.logout()
+      # lets join as slapos administrator, which will manager the project
+      owner_reference = 'project-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, owner_reference)
 
-    self.login()
-    owner_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=owner_reference).getParentValue()
-    #owner_person.setCareerSubordinationValue(seller_organisation)
+      self.login()
+      owner_person = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=owner_reference).getParentValue()
+      #owner_person.setCareerSubordinationValue(seller_organisation)
 
-    self.tic()
+      self.tic()
 
-    # hooray, now it is time to create compute_nodes
-    self.logout()
-    self.login(sale_person.getUserId())
+      # hooray, now it is time to create compute_nodes
+      self.logout()
+      self.login(sale_person.getUserId())
 
-    project_relative_url = self.addProject(is_accountable=True, person=owner_person, currency=currency)
+      project_relative_url = self.addProject(is_accountable=True, person=owner_person, currency=currency)
 
-    self.logout()
+      self.logout()
 
-    self.login()
-    project = self.portal.restrictedTraverse(project_relative_url)
+      self.login()
+      project = self.portal.restrictedTraverse(project_relative_url)
 
-    payment_transaction = owner_person.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
-    payment_transaction.PaymentTransaction_acceptDepositPayment()
+      payment_transaction = owner_person.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
+      payment_transaction.PaymentTransaction_acceptDepositPayment()
 
-    preference = self.portal.portal_preferences.slapos_default_system_preference
-    preference.edit(
-      preferred_subscription_assignment_category_list=[
-        'function/customer',
-        'role/client',
-        'destination_project/%s' % project.getRelativeUrl()
-      ]
-    )
+      preference = self.portal.portal_preferences.slapos_default_system_preference
+      preference.edit(
+        preferred_subscription_assignment_category_list=[
+          'function/customer',
+          'role/client',
+          'destination_project/%s' % project.getRelativeUrl()
+        ]
+      )
 
-    public_server_software = self.generateNewSoftwareReleaseUrl()
-    public_instance_type = 'public type'
+      public_server_software = self.generateNewSoftwareReleaseUrl()
+      public_instance_type = 'public type'
 
-    software_product, release_variation, type_variation = self.addSoftwareProduct(
-      "instance product", project, public_server_software, public_instance_type
-    )
+      software_product, release_variation, type_variation = self.addSoftwareProduct(
+        "instance product", project, public_server_software, public_instance_type
+      )
 
-    self.logout()
-    self.login(sale_person.getUserId())
+      self.logout()
+      self.login(sale_person.getUserId())
 
-    sale_supply = self.portal.sale_supply_module.newContent(
-      portal_type="Sale Supply",
-      title="price for %s" % project.getRelativeUrl(),
-      source_project_value=project,
-      price_currency_value=currency
-    )
-    sale_supply.newContent(
-      portal_type="Sale Supply Line",
-      base_price=9,
-      resource_value=software_product
-    )
-    sale_supply.newContent(
-      portal_type="Sale Supply Line",
-      base_price=99,
-      resource="service_module/slapos_compute_node_subscription"
-    )
-    sale_supply.validate()
+      sale_supply = self.portal.sale_supply_module.newContent(
+        portal_type="Sale Supply",
+        title="price for %s" % project.getRelativeUrl(),
+        source_project_value=project,
+        price_currency_value=currency
+      )
+      sale_supply.newContent(
+        portal_type="Sale Supply Line",
+        base_price=9,
+        resource_value=software_product
+      )
+      sale_supply.newContent(
+        portal_type="Sale Supply Line",
+        base_price=99,
+        resource="service_module/slapos_compute_node_subscription"
+      )
+      sale_supply.validate()
 
-    # some preparation
-    self.logout()
+      # some preparation
+      self.logout()
 
-    # lets join as slapos administrator, which will own few compute_nodes
-    owner_reference = 'owner-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, owner_reference)
+      # lets join as slapos administrator, which will own few compute_nodes
+      owner_reference = 'owner-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, owner_reference)
 
-    self.login()
-    owner_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=owner_reference).getParentValue()
+      self.login()
+      owner_person = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=owner_reference).getParentValue()
 
-    # first slapos administrator assignment can only be created by
-    # the erp5 manager
-    self.addProjectProductionManagerAssignment(owner_person, project)
-    self.tic()
+      # first slapos administrator assignment can only be created by
+      # the erp5 manager
+      self.addProjectProductionManagerAssignment(owner_person, project)
+      self.tic()
 
-    # hooray, now it is time to create compute_nodes
-    self.login(owner_person.getUserId())
+      # hooray, now it is time to create compute_nodes
+      self.login(owner_person.getUserId())
 
-    public_server_title = 'Public Server for %s' % owner_reference
-    public_server_id = self.requestComputeNode(public_server_title, project.getReference())
-    public_server = self.portal.portal_catalog.getResultValue(
-        portal_type='Compute Node', reference=public_server_id)
-    self.setAccessToMemcached(public_server)
-    self.assertNotEqual(None, public_server)
-    self.setServerOpenPublic(public_server)
-    public_server.generateCertificate()
+      public_server_title = 'Public Server for %s' % owner_reference
+      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
+      public_server = self.portal.portal_catalog.getResultValue(
+          portal_type='Compute Node', reference=public_server_id)
+      self.setAccessToMemcached(public_server)
+      self.assertNotEqual(None, public_server)
+      self.setServerOpenPublic(public_server)
+      public_server.generateCertificate()
 
-    self.addAllocationSupply("for compute node", public_server, software_product,
-                             release_variation, type_variation)
+      self.addAllocationSupply("for compute node", public_server, software_product,
+                               release_variation, type_variation)
 
-    # and install some software on them
-    self.supplySoftware(public_server, public_server_software)
+      # and install some software on them
+      self.supplySoftware(public_server, public_server_software)
 
-    # format the compute_nodes
-    self.formatComputeNode(public_server)
+      # format the compute_nodes
+      self.formatComputeNode(public_server)
 
-    # join as the another visitor and request software instance on public
-    # compute_node
-    self.logout()
-    public_reference = 'public-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, public_reference)
+      # join as the another visitor and request software instance on public
+      # compute_node
+      self.logout()
+      public_reference = 'public-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, public_reference)
 
-    self.login()
-    public_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=public_reference).getParentValue()
+      self.login()
+      public_person = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=public_reference).getParentValue()
 
-    payment_transaction = public_person.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
-    payment_transaction.PaymentTransaction_acceptDepositPayment()
+      payment_transaction = public_person.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
+      payment_transaction.PaymentTransaction_acceptDepositPayment()
 
-    public_instance_title = 'Public title %s' % self.generateNewId()
-    self.checkInstanceAllocation(public_person.getUserId(),
-        public_reference, public_instance_title,
-        public_server_software, public_instance_type,
-        public_server, project.getReference())
+    with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
+      public_instance_title = 'Public title %s' % self.generateNewId()
+      self.checkInstanceAllocation(public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type,
+          public_server, project.getReference())
 
-    self.login()
-    public_person = self.portal.portal_catalog.getResultValue(
-      portal_type='ERP5 Login', reference=public_reference).getParentValue()
-    self.login(owner_person.getUserId())
+      self.login()
+      public_person = self.portal.portal_catalog.getResultValue(
+        portal_type='ERP5 Login', reference=public_reference).getParentValue()
+      self.login(owner_person.getUserId())
 
-    # and the instances
-    self.checkInstanceUnallocation(public_person.getUserId(),
-        public_reference, public_instance_title,
-        public_server_software, public_instance_type, public_server,
-        project.getReference())
+      # and the instances
+      self.checkInstanceUnallocation(public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type, public_server,
+          project.getReference())
 
-    # and uninstall some software on them
-    self.logout()
-    self.login(owner_person.getUserId())
-    self.supplySoftware(public_server, public_server_software,
-                        state='destroyed')
+      # and uninstall some software on them
+      self.logout()
+      self.login(owner_person.getUserId())
+      self.supplySoftware(public_server, public_server_software,
+                          state='destroyed')
 
-    self.logout()
-    # Uninstall from compute_node
-    self.login()
-    self.simulateSlapgridSR(public_server)
+      self.logout()
+      # Uninstall from compute_node
+      self.login()
+      self.simulateSlapgridSR(public_server)
 
-    self.tic()
+      self.tic()
 
     # Check stock
     inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{

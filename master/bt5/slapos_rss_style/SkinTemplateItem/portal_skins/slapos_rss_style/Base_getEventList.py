@@ -35,7 +35,7 @@ data_list = []
 for brain in portal.portal_simulation.getMovementHistoryList(
     security_query=portal.portal_catalog.getSecurityQuery(),
     # Limit only to listable portal types
-    portal_type=['Web Message', 'Mail Nessage'],
+    portal_type=['Web Message', 'Mail Message'],
     follow_up_simulation_state = ['validated','submitted', 'suspended', 'invalidated',
                                   # Unfortunally Upgrade decision uses diferent states.
                                   'confirmed', 'started', 'stopped', 'delivered'],

@@ -173,7 +173,7 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
         text_content='I need help !',
         start_date = DateTime(),
         source_value=person,
-        destination_value=self.portal.organisation_module.slapos,
+        #destination_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
     ).start()
     support_request.validate()
@@ -195,7 +195,7 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
         text_content='How can I help you ?',
         start_date = DateTime(),
         destination_value=person,
-        source_value=self.portal.organisation_module.slapos,
+        #source_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
     ).start()
     self.clearCache()
@@ -225,7 +225,7 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
         text_content='I need help !',
         source_value=person,
         start_date = DateTime(),
-        destination_value=self.portal.organisation_module.slapos,
+        #destination_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
     ).start()
     support_request.validate()
@@ -248,7 +248,7 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
         text_content='How can I help you ?',
         start_date = DateTime(),
         destination_value=person,
-        source_value=self.portal.organisation_module.slapos,
+        #source_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
     ).start()
     self.clearCache()
@@ -372,7 +372,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
         text_content="Test Support Request %s" % self.new_id,
         start_date = DateTime(),
         source_value=person,
-        destination_value=self.portal.organisation_module.slapos,
+        #destination_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
       )
       event.start()
@@ -419,7 +419,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
         text_content=ticket.getTitle(),
         start_date = DateTime(),
         source_value=person,
-        destination_value=self.portal.organisation_module.slapos,
+        #destination_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
       )
       ticket.immediateReindexObject()
@@ -464,7 +464,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
         text_content=ticket.getTitle(),
         start_date = DateTime(),
         source_value=person,
-        destination_value=self.portal.organisation_module.slapos,
+        #destination_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
       )
       ticket.immediateReindexObject()
@@ -508,7 +508,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
       text_content="Test Support Request %s" % self.new_id,
       start_date = DateTime(),
       source_value=person,
-      destination_value=self.portal.organisation_module.slapos,
+      #destination_value=self.portal.organisation_module.slapos,
       resource_value=self.portal.service_module.slapos_crm_monitoring
     )
     event.start()
@@ -643,7 +643,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
       text_content=ticket.getTitle(),
       start_date = DateTime(),
       source_value=person,
-      destination_value=self.portal.organisation_module.slapos,
+      #destination_value=self.portal.organisation_module.slapos,
       resource_value=self.portal.service_module.slapos_crm_monitoring
     )
     ticket.immediateReindexObject()
@@ -792,7 +792,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
         text_content="Test Support Request %s" % self.new_id,
         start_date = DateTime()-0.01,
         source_value=person,
-        destination_value=self.portal.organisation_module.slapos,
+        #destination_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
       )
       event.start()
@@ -884,7 +884,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
         text_content=ticket.getTitle(),
         start_date = DateTime()-0.005,
         source_value=person,
-        destination_value=self.portal.organisation_module.slapos,
+        #destination_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
       )
       ticket.immediateReindexObject()
@@ -975,7 +975,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
         text_content=ticket.getTitle(),
         start_date = DateTime(),
         source_value=person,
-        destination_value=self.portal.organisation_module.slapos,
+        #destination_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
       )
       ticket.immediateReindexObject()

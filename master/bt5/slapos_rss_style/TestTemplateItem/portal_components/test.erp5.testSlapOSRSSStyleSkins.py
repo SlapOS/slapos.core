@@ -33,7 +33,7 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
   def afterSetUp(self):
     SlapOSTestCaseMixinWithAbort.afterSetUp(self)
-    self.person = self.makePerson(new_id=self.new_id, index=0, user=0)
+    self.person = self.makePerson(self.addProject(), new_id=self.new_id, index=0, user=0)
     self.clearCache()
 
   def _cancelTestSupportRequestList(self, title="%"):
@@ -84,7 +84,7 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
 
   def _makeSoftwareInstallation(self):
-    self._makeComputeNode()
+    self._makeComputeNode(self.addProject())
     software_installation = self.portal\
        .software_installation_module.newContent(portal_type="Software Installation")
     software_installation.edit(
@@ -159,7 +159,7 @@ class TestSlapOSEvent_getRSSTextContent(TestRSSSyleSkinsMixin):
 class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
 
   def test_WebSection_viewTicketListAsRSS(self):
-    person = self.makePerson()
+    person = self.makePerson(self.addProject())
 
     module = self.portal.support_request_module
     support_request = module.newContent(
@@ -211,7 +211,7 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
     self.assertNotEqual([item.id for item in parsed.entries][0], first_entry_id)
 
   def test_WebSection_viewCriticalTicketListAsRSS(self):
-    person = self.makePerson()
+    person = self.makePerson(self.addProject())
 
     module = self.portal.support_request_module
     support_request = module.newContent(
@@ -363,7 +363,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
   def test_support_request(self):
     def newSupportRequest():
       self.portal.portal_skins.changeSkin('View')
-      person = self.makePerson()
+      person = self.makePerson(self.addProject())
       sr = self.portal.support_request_module.newContent(\
                         title="Test Support Request %s" % self.new_id)
       event = self.portal.event_module.newContent(
@@ -381,7 +381,8 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
       self.portal.portal_skins.changeSkin('RSS')
       return sr
 
-    person = self.makePerson(index=1, user=1)
+
+    person = self.makePerson(self.addProject(), index=1, user=1)
     person.newContent(portal_type="Assignment",
                       group="company").open()
     self.tic()
@@ -405,7 +406,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
   def test_regularisation_request(self):
     def newRegularisationRequest():
       self.portal.portal_skins.changeSkin('View')
-      person = self.makePerson()
+      person = self.makePerson(self.addProject())
       ticket = self.portal.regularisation_request_module.newContent(
         portal_type='Regularisation Request',
         title="Test Reg. Req.%s" % self.new_id,
@@ -427,7 +428,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
       self.portal.portal_skins.changeSkin('RSS')
       return ticket
 
-    person = self.makePerson(index=1, user=1)
+    person = self.makePerson(self.addProject(), index=1, user=1)
     person.newContent(portal_type="Assignment",
                       group="company").open()
     self.tic()
@@ -451,7 +452,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
   def test_upgrade_decision(self):
     def newUpgradeDecision():
       self.portal.portal_skins.changeSkin('View')
-      person = self.makePerson()
+      person = self.makePerson(self.addProject())
       ticket = self.portal.upgrade_decision_module.newContent(
         portal_type='Upgrade Decision',
         title="Upgrade Decision Test %s" % self.new_id,
@@ -473,7 +474,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
       return ticket
 
 
-    person = self.makePerson(index=1, user=1)
+    person = self.makePerson(self.addProject(), index=1, user=1)
     person.newContent(portal_type="Assignment",
                       group="company").open()
     self.tic()
@@ -498,7 +499,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
   def newSupportRequest(self):
     self.portal.portal_skins.changeSkin('View')
-    person = self.makePerson()
+    person = self.makePerson(self.addProject())
     sr = self.portal.support_request_module.newContent(\
                       title="Test Support Request %s" % self.new_id)
     event = self.portal.event_module.newContent(
@@ -517,7 +518,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
   def test_getTicketRelatedEventList_support_request_related_to_compute_node(self):
     self._test_getTicketRelatedEventList_support_request_related(
-      self._makeComputeNode()[0])
+      self._makeComputeNode(self.addProject())[0])
 
   def test_getTicketRelatedEventList_support_request_related_to_instance_tree(self):
     self._test_getTicketRelatedEventList_support_request_related(
@@ -528,7 +529,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
     ticket.setAggregateValue(document)
     event = ticket.getFollowUpRelatedValue()
 
-    person = self.makePerson(index=1, user=1)
+    person = self.makePerson(self.addProject(), index=1, user=1)
     person.newContent(portal_type="Assignment",
                       group="company").open()
     self.tic()
@@ -585,7 +586,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
   def test_getTicketRelatedEventList_cancelled_support_request_related_to_compute_node(self):
     self._test_getTicketRelatedEventList_cancelled_support_request_related(
-      self._makeComputeNode()[0])
+      self._makeComputeNode(self.addProject())[0])
 
   def test_getTicketRelatedEventList_cancelled_support_request_related_to_instance_tree(self):
     self._test_getTicketRelatedEventList_cancelled_support_request_related(
@@ -596,7 +597,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
     ticket = self.newSupportRequest()
     ticket.setAggregateValue(document)
     event = ticket.getFollowUpRelatedValue()
-    person = self.makePerson(index=1, user=1)
+    person = self.makePerson(self.addProject(), index=1, user=1)
     person.newContent(portal_type="Assignment",
                       group="company").open()
     self.tic()
@@ -631,7 +632,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
   def makeUpgradeDecision(self):
     self.portal.portal_skins.changeSkin('View')
-    person = self.makePerson()
+    person = self.makePerson(self.addProject())
     ticket = self.portal.upgrade_decision_module.newContent(
       portal_type='Upgrade Decision',
       title="Upgrade Decision Test %s" % self.new_id,
@@ -652,7 +653,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
   def test_getTicketRelatedEventList_upgrade_decision_related_to_compute_node(self):
     self._test_getTicketRelatedEventList_upgrade_decision_related(
-      self._makeComputeNode()[0])
+      self._makeComputeNode(self.addProject())[0])
 
   def test_getTicketRelatedEventList_upgrade_decision_related_to_instance_tree(self):
     self._test_getTicketRelatedEventList_upgrade_decision_related(
@@ -660,7 +661,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
   def _test_getTicketRelatedEventList_upgrade_decision_related(self, document):
     ticket = self.makeUpgradeDecision()
-    person = self.makePerson(index=1, user=1)
+    person = self.makePerson(self.addProject(), index=1, user=1)
     ticket.newContent(
       portal_type="Upgrade Decision Line"
     ).setAggregateValue(document)
@@ -741,7 +742,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
   def test_getTicketRelatedEventList_cancelled_upgrade_decision_related_to_compute_node(self):
     self._test_getTicketRelatedEventList_cancelled_upgrade_decision_related(
-      self._makeComputeNode()[0])
+      self._makeComputeNode(self.addProject())[0])
 
   def test_getTicketRelatedEventList_cancelled_upgrade_decision_related_to_instance_tree(self):
     self._test_getTicketRelatedEventList_cancelled_upgrade_decision_related(
@@ -749,7 +750,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
   def _test_getTicketRelatedEventList_cancelled_upgrade_decision_related(self, document):
     ticket = self.makeUpgradeDecision()
-    person = self.makePerson(index=1, user=1)
+    person = self.makePerson(self.addProject(), index=1, user=1)
     ticket.newContent(
       portal_type="Upgrade Decision Line"
     ).setAggregateValue(document)
@@ -801,7 +802,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
       self.portal.portal_skins.changeSkin('RSS')
       return sr
 
-    person = self.makePerson(index=1, user=1)
+    person = self.makePerson(self.addProject(), index=1, user=1)
     self.tic()
 
     self.portal.portal_skins.changeSkin('RSS')

@@ -795,7 +795,6 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
         destination_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
       )
-      sr.updateLocalRolesOnSecurityGroups()
       event.start()
       event.immediateReindexObject()
       sr.immediateReindexObject()
@@ -889,7 +888,6 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
         resource_value=self.portal.service_module.slapos_crm_monitoring
       )
       ticket.immediateReindexObject()
-      ticket.updateLocalRolesOnSecurityGroups()
       event.start()
       event.immediateReindexObject()
       self.portal.portal_skins.changeSkin('RSS')
@@ -980,7 +978,6 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
         destination_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
       )
-      ticket.updateLocalRolesOnSecurityGroups()
       ticket.immediateReindexObject()
       event.start()
       event.immediateReindexObject()

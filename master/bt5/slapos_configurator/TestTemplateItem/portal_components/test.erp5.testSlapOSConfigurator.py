@@ -271,8 +271,8 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
 
     self.assertSameSet(module_list, expected_module_list)
 
-    self.assertEqual(self.portal.portal_simulation.getIdGenerator(), "_generatePerDayId")    
-    self.assertEqual(self.portal.portal_activities.getIdGenerator(), "_generatePerDayId")
+    self.assertEqual(self.portal.portal_simulation.getIdGenerator(), "_generatePerDayNodeNumberId")    
+    self.assertEqual(self.portal.portal_activities.getIdGenerator(), "_generatePerDayNodeNumberId")
 
   def testConfiguredBusinessTemplateList(self):
     """ Make sure Installed business Templates are

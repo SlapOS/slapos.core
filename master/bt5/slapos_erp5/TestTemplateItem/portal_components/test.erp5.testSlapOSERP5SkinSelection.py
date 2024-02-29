@@ -141,6 +141,7 @@ class TestSlaposSkinSelectionMixin(SlapOSTestCaseMixin):
           'ODT',
           'RJS',
           'RedirectAssist',
+          'RSS',
           'SHACACHE',
           'SHADIR',
           'SlapOSHalRestricted',
@@ -419,6 +420,42 @@ slapos_panel_compatibility
        'slapos_folder_list': slapos_folder_list
       }
 
+  rss_selection_string_list = \
+"""
+custom
+erp5_font
+erp5_interaction_drop
+erp5_web_hal_json
+slapos_erp5
+slapos_upgrader
+slapos_rss_style
+%(slapos_folder_list)s
+erp5_rss_style
+erp5_officejs_codemirror
+erp5_officejs_common
+erp5_officejs_notebook
+erp5_officejs_pdf_viewer
+erp5_officejs_svg_editor
+erp5_text_editor
+erp5_km
+erp5_knowledge_pad
+erp5_simulation
+erp5_dms_base
+erp5_dms_web
+%(common2_folder_list)s
+%(common3_folder_list)s
+erp5_immobilisation
+erp5_ingestion
+erp5_integration
+erp5_invoicing
+%(common_folder_list)s
+external_method
+slapos_disaster_recovery
+""" % {'common_folder_list' : common_folder_list,
+       'common2_folder_list' : common2_folder_list,
+       'common3_folder_list' : common3_folder_list,
+       'slapos_folder_list': slapos_folder_list
+      }
 
   shadir_selection_string_list = \
 """
@@ -686,6 +723,10 @@ slapos_panel_compatibility
     self.assertSameSkinSelection("ODT",
       self.odt_selection_string_list)
 
+  def _test_15_RSS_selection(self):
+    self.assertSameSkinSelection("RSS",
+      self.rss_selection_string_list)
+
   def _test_16_SHACACHE_selection(self):
     self.assertSameSkinSelection("SHACACHE",
       self.shacache_selection_string_list)
@@ -718,6 +759,7 @@ class TestSlaposSkinSelection(TestSlaposSkinSelectionMixin):
   test_12_Download_selection = TestSlaposSkinSelectionMixin._test_12_Download_selection
   test_13_ODS_selection = TestSlaposSkinSelectionMixin._test_13_ODS_selection
   test_14_ODT_selection = TestSlaposSkinSelectionMixin._test_14_ODT_selection
+  test_15_RSS_selection = TestSlaposSkinSelectionMixin._test_15_RSS_selection
   test_16_SHACACHE_selection = TestSlaposSkinSelectionMixin._test_16_SHACACHE_selection
   test_17_SHADIR_selection = TestSlaposSkinSelectionMixin._test_17_SHADIR_selection
   test_18_RJS_selection = TestSlaposSkinSelectionMixin._test_18_RJS_selection

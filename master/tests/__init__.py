@@ -19,7 +19,8 @@ slapos_bt_list = [
     'slapos_configurator',
     'slapos_mysql_innodb_catalog',
     'slapos_panel_ui_test',
-    'slapos_abyss'
+    'slapos_abyss',
+    'slapos_rss_style'
   ]
 
 class SlapOSCloud(SavedTestSuite, ProjectTestSuite):

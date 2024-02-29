@@ -431,13 +431,6 @@ slapos_upgrader
 slapos_rss_style
 %(slapos_folder_list)s
 erp5_rss_style
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
 erp5_knowledge_pad
 erp5_simulation
 erp5_dms_base
@@ -451,6 +444,8 @@ erp5_invoicing
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,

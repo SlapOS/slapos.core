@@ -29,18 +29,18 @@ if follow_up_portal_type is None:
 
 context_kw = {}
 if context_related:
-  context_kw['follow_up_default_or_child_aggregate_uid'] = context.getUid()
+  context_kw['follow_up__uid'] = context.getUid()
 
 data_list = []
 for brain in portal.portal_simulation.getMovementHistoryList(
     security_query=portal.portal_catalog.getSecurityQuery(),
     # Limit only to listable portal types
     portal_type=['Web Message', 'Mail Message'],
-    follow_up_simulation_state = ['validated','submitted', 'suspended', 'invalidated',
+    follow_up__simulation_state = ['validated','submitted', 'suspended', 'invalidated',
                                   # Unfortunally Upgrade decision uses diferent states.
                                   'confirmed', 'started', 'stopped', 'delivered'],
     only_accountable=False,
-    follow_up_portal_type=follow_up_portal_type,
+    follow_up__portal_type=follow_up_portal_type,
     omit_input=True,
     simulation_state=('started', 'stopped', 'delivered'),
     limit=list_lines,

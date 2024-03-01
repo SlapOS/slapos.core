@@ -22,10 +22,10 @@ for user_id in sorted(user_id_list):
 
   info_list.append(info)
 
-print ','.join(['user_id', 'group_count',] + [x[1] for x in
-  uid_groups_columns_items])
+print(','.join(['user_id', 'group_count',] + [x[1] for x in
+  uid_groups_columns_items]))
 for info in info_list:
-  print ','.join([str(x) for x in info])
+  print(','.join([str(x) for x in info]))
 response = portal.REQUEST.RESPONSE
 response.setHeader('Content-Disposition', 'attachement;filename=%s-%s.csv' %
   (script.getId(), DateTime().strftime('%Y%m%d')))

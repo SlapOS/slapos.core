@@ -58,9 +58,9 @@ for group, reverse_security_uid_dict in reverse_group_security_uid_dict.iteritem
   used_security_uid_set = used_group_security_uid_dict[group]
   unused_security_uid_set = set(reverse_security_uid_dict).difference(used_security_uid_set)
   if unused_security_uid_set:
-    print '# Will delete', len(unused_security_uid_set), 'security_uids in group', repr(group)
+    print('# Will delete', len(unused_security_uid_set), 'security_uids in group', repr(group))
     for unused_security_uid in unused_security_uid_set:
-      print '   * ', unused_security_uid, reverse_security_uid_dict[unused_security_uid]
+      print('   * ', unused_security_uid, reverse_security_uid_dict[unused_security_uid])
       delitem((group, reverse_security_uid_dict[unused_security_uid]))
       portal.z_delete_security_uid_set_from_roles_and_users(uid=unused_security_uid)
 
@@ -68,25 +68,25 @@ for group, reverse_security_uid_dict in reverse_group_security_uid_dict.iteritem
 cataloged_security_uid_set = set([x.uid for x in portal.z_get_uid_group_from_roles_and_users()])
 existing_security_uid_set = set(dict(security_uid_dict).values())
 
-print '# Catalog secuirity_uid count', len(cataloged_security_uid_set)
-print '# ZODB secuirity_uid count', len(existing_security_uid_set)
+print('# Catalog secuirity_uid count', len(cataloged_security_uid_set))
+print('# ZODB secuirity_uid count', len(existing_security_uid_set))
 
 not_existing_security_uid_set = existing_security_uid_set.difference(cataloged_security_uid_set)
-print '# Not catalogued', len(not_existing_security_uid_set), 'security_uid'
+print('# Not catalogued', len(not_existing_security_uid_set), 'security_uid')
 for security_uid in not_existing_security_uid_set:
-  print '   * ', security_uid, reverse_groupless_security_uid_dict[security_uid]
+  print('   * ', security_uid, reverse_groupless_security_uid_dict[security_uid])
 
 not_existing_security_uid_set = cataloged_security_uid_set.difference(existing_security_uid_set)
 if not_existing_security_uid_set:
 
-  print '# Will uncatalog', len(not_existing_security_uid_set), 'security_uid'
-  print '    * like: ', list(not_existing_security_uid_set)[:10]
+  print('# Will uncatalog', len(not_existing_security_uid_set), 'security_uid')
+  print('    * like: ', list(not_existing_security_uid_set)[:10])
   for security_uid in not_existing_security_uid_set:
     assert security_uid not in reverse_groupless_security_uid_dict
     portal.z_delete_security_uid_set_from_roles_and_users(security_uid=security_uid)
 
 if 0:
-  print 'DRY'
+  print('DRY')
   context.REQUEST.RESPONSE.write(printed)
   raise Exception('dry')
 return printed

@@ -28,7 +28,7 @@ for document in portal.web_page_module.searchFolder(
       break
 
   if print_web_content:
-    print getWebContentHash(document)
+    print(getWebContentHash(document))
 
 container.REQUEST.RESPONSE.setHeader('content-type', 'text/plain')
 return '\n'.join(sorted(printed.splitlines()))

@@ -119,12 +119,14 @@ def convertToREST(function):
 def castToStr(dict_kw):
   instance = etree.Element('instance')
   for _id, _value in dict_kw.iteritems():
-    # cast everything to string
+    # cast everything to string.
+    text = _value
+    if not isinstance(_value, str):
+      text = str(_value)
     etree.SubElement(instance, "parameter",
-                     attrib={'id':_id}).text = str(_value)
+                    attrib={'id': _id}).text = text.decode("utf-8")
   return etree.tostring(instance, pretty_print=True,
                                   xml_declaration=True, encoding='utf-8')
-
 
 
 _MARKER = object()

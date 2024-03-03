@@ -153,7 +153,9 @@ def makeModuleSetUpAndTestCaseClass(
         base_directory=base_directory,
         server_ip=ipv4_address,
         server_port=getPortFromPath(base_directory),
-        shared_part_list=shared_part_list)
+        shared_part_list=shared_part_list,
+        manager_list=('nxdbom',),
+    )
   except PathTooDeepError:
     raise RuntimeError(
         'base directory ( {} ) is too deep, try setting '
@@ -209,6 +211,10 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
         cls.slap.software_directory,
         '*',
         '.installed.cfg',
+    )) + glob.glob(os.path.join(
+        cls.slap.software_directory,
+        '*',
+        'nxdbom*',
     )) + glob.glob(os.path.join(
         cls.slap.shared_directory,
         '*',

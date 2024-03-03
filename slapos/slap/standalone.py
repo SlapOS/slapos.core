@@ -219,6 +219,7 @@ class SlapOSConfigWriter(ConfigWriter):
         standalone_slapos._shared_part_list)
     partition_forward_configuration = '\n'.join(self._getPartitionForwardConfiguration())
     has_ipv6_range = ('false', 'true')[standalone_slapos._partitions_have_ipv6_range]
+    manager_list = '\n  '.join(standalone_slapos._manager_list)
     with open(path, 'w') as f:
       f.write(
           textwrap.dedent(
@@ -237,6 +238,8 @@ class SlapOSConfigWriter(ConfigWriter):
               pidfile_instance = {standalone_slapos._software_pid}
               pidfile_report =  {standalone_slapos._report_pid}
               forbid_supervisord_automatic_launch = true
+              manager_list =
+                {manager_list}
 
               [slapformat]
               input_definition_file = {standalone_slapos._slapformat_definition}
@@ -402,10 +405,11 @@ class StandaloneSlapOS(object):
       instance_root=None,
       shared_part_root=None,
       partition_forward_configuration=(),
+      manager_list=(),
       slapos_bin='slapos',
       local_software_release_root=os.sep,
     ):
-    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]], str, str) -> None
+    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]], Iterable[str], str, str) -> None
     """Constructor, creates a standalone slapos in `base_directory`.
 
     Arguments:
@@ -417,6 +421,7 @@ class StandaloneSlapOS(object):
       * `instance_root` -- directory to create instances, default to "inst" in `base_directory`
       * `shared_part_root` -- directory to hold shared parts software, default to "shared" in `base_directory`.
       * `partition_forward_configuration` -- configuration of partition request forwarding to external SlapOS master.
+      * `manager_list` -- list of managers to enable.
       * `slapos_bin` -- slapos executable to use, default to "slapos" (thus depending on the runtime PATH).
       * `local_software_release_root` -- root for local Software Releases paths in the SlapOS proxy, default to `/`.
 
@@ -436,6 +441,7 @@ class StandaloneSlapOS(object):
     self._base_directory = base_directory
     self._shared_part_list = list(shared_part_list)
     self._partition_forward_configuration = list(partition_forward_configuration)
+    self._manager_list = list(manager_list)
     self._partition_count = -1
     self._partition_base_name = 'slappart'
     self._ipv4_address = None

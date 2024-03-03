@@ -212,13 +212,24 @@ class SlapOSConfigWriter(ConfigWriter):
         config += "partition = {pfc.partition}\n".format(pfc=pfc)
       yield config
 
+  def _getManagerConfiguration(self):
+    # type: () -> Iterable[str]
+    for manager, manager_config in self._standalone_slapos._manager_dict.items():
+      yield '[manager-{manager}]'.format(manager=manager)
+      for k, v in (manager_config or {}).items():
+        yield '{k} = {v}'.format(k=k, v=v)
+
   def writeConfig(self, path):
     # type: (str) -> None
+    # TODO: use configparser instead of building with text
     standalone_slapos = self._standalone_slapos
     read_only_shared_part_list = '\n  '.join( #  pylint: disable=unused-variable; used in format()
         standalone_slapos._shared_part_list)
     partition_forward_configuration = '\n'.join(self._getPartitionForwardConfiguration())
     has_ipv6_range = ('false', 'true')[standalone_slapos._partitions_have_ipv6_range]
+    manager_list = '\n  '.join(standalone_slapos._manager_dict.keys())
+    manager_configuration = '\n'.join(self._getManagerConfiguration())
+
     with open(path, 'w') as f:
       f.write(
           textwrap.dedent(
@@ -237,6 +248,8 @@ class SlapOSConfigWriter(ConfigWriter):
               pidfile_instance = {standalone_slapos._software_pid}
               pidfile_report =  {standalone_slapos._report_pid}
               forbid_supervisord_automatic_launch = true
+              manager_list =
+                {manager_list}
 
               [slapformat]
               input_definition_file = {standalone_slapos._slapformat_definition}
@@ -255,6 +268,8 @@ class SlapOSConfigWriter(ConfigWriter):
               local_software_release_root = {standalone_slapos._local_software_release_root}
 
               {partition_forward_configuration}
+
+              {manager_configuration}
               """).format(**locals()))
 
 
@@ -402,10 +417,11 @@ class StandaloneSlapOS(object):
       instance_root=None,
       shared_part_root=None,
       partition_forward_configuration=(),
+      manager_dict=None,
       slapos_bin='slapos',
       local_software_release_root=os.sep,
     ):
-    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]], str, str) -> None
+    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]], Dict[str, Optional[Dict[str, str]]], str, str) -> None
     """Constructor, creates a standalone slapos in `base_directory`.
 
     Arguments:
@@ -417,6 +433,7 @@ class StandaloneSlapOS(object):
       * `instance_root` -- directory to create instances, default to "inst" in `base_directory`
       * `shared_part_root` -- directory to hold shared parts software, default to "shared" in `base_directory`.
       * `partition_forward_configuration` -- configuration of partition request forwarding to external SlapOS master.
+      * `manager_dict` -- managers to enable, optionally with their configuration.
       * `slapos_bin` -- slapos executable to use, default to "slapos" (thus depending on the runtime PATH).
       * `local_software_release_root` -- root for local Software Releases paths in the SlapOS proxy, default to `/`.
 
@@ -436,6 +453,7 @@ class StandaloneSlapOS(object):
     self._base_directory = base_directory
     self._shared_part_list = list(shared_part_list)
     self._partition_forward_configuration = list(partition_forward_configuration)
+    self._manager_dict = manager_dict or {}
     self._partition_count = -1
     self._partition_base_name = 'slappart'
     self._ipv4_address = None

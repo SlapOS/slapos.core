@@ -382,6 +382,14 @@ class SlapOSStandaloneTestCase(unittest.TestCase):
   # can set this class attribute to False to prevent this behavior.
   _auto_stop_standalone = True
 
+  def _getStandaloneSlapOSInitKw(self):
+    return {
+      'shared_part_list': [
+        os.path.expanduser(p) for p in os.environ.get(
+            'SLAPOS_TEST_SHARED_PART_LIST', '').split(os.pathsep) if p
+      ],
+    }
+
   def setUp(self):
     checkPortIsFree()
     working_dir = tempfile.mkdtemp(prefix=__name__)
@@ -390,10 +398,7 @@ class SlapOSStandaloneTestCase(unittest.TestCase):
         working_dir,
         SLAPOS_TEST_IPV4,
         SLAPOS_TEST_PORT,
-        shared_part_list=[
-            os.path.expanduser(p) for p in os.environ.get(
-                'SLAPOS_TEST_SHARED_PART_LIST', '').split(os.pathsep) if p
-        ],
+        **self._getStandaloneSlapOSInitKw()
     )
     self.addCleanup(self.stopStandalone)
     self.standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
@@ -530,6 +535,59 @@ class TestSlapOSStandaloneSoftware(SlapOSStandaloneTestCase):
 
       self.assertEqual(1, e.exception.args[0]['exitstatus'])
       self.assertIn("Red Green Blue", e.exception.args[0]['output'])
+
+
+class TestSlapOSStandaloneSoftwareManager(SlapOSStandaloneTestCase):
+  def _getStandaloneSlapOSInitKw(self):
+    return dict(super(
+      TestSlapOSStandaloneSoftwareManager, self)._getStandaloneSlapOSInitKw(),
+      manager_list=(
+        'nxdbom',
+      )
+    )
+
+  def test_install_software_with_nxdbom_manager(self):
+    with tempfile.NamedTemporaryFile(suffix="-%s.cfg" % self.id()) as f:
+      f.write(
+          textwrap.dedent(
+              '''
+              [buildout]
+              parts = instance plone.recipe.command
+              newest = false
+              [plone.recipe.command]
+              recipe = zc.recipe.egg
+              [instance]
+              recipe = plone.recipe.command
+              command = touch ${buildout:directory}/instance.cfg
+              [versions]
+              plone.recipe.command = 1.1
+      ''').encode())
+      f.flush()
+      self.standalone.supply(f.name)
+      self.standalone.waitForSoftware()
+
+      software_hash = hashlib.md5(f.name.encode()).hexdigest()
+      software_installation_path = os.path.join(
+          self.standalone.software_directory, software_hash)
+
+      # this produced reports
+      nxdbom_txt = os.path.join(software_installation_path, 'nxdbom.txt')
+      with open(nxdbom_txt) as f:
+        self.assertIn('https://pypi.org/project/plone.recipe.command/1.1/', f.read())
+      with open(os.path.join(software_installation_path, 'nxdbom.cdx.json')) as f:
+        cdx = json.load(f)
+        self.assertIn(
+          'pkg:pypi/plone.recipe.command@1.1',
+          [c['purl'] for c in cdx['components']])
+      nxdbom_txt_mtime = os.stat(nxdbom_txt).st_mtime
+
+      # reports are only produced when software is installed
+      self.standalone.waitForSoftware()
+      self.assertEqual(os.stat(nxdbom_txt).st_mtime, nxdbom_txt_mtime)
+
+      os.utime(os.path.join(software_installation_path, '.completed'))
+      self.standalone.waitForSoftware()
+      self.assertGreater(os.stat(nxdbom_txt).st_mtime, nxdbom_txt_mtime)
 
 
 class TestSlapOSStandaloneInstance(SlapOSStandaloneTestCase):

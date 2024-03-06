@@ -376,31 +376,35 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     self.login(person.getUserId())
     self._test_ticket(ticket, initial_amount + 2)
 
-  def test_upgrade_decision(self):
-    def newUpgradeDecision():
-      self.portal.portal_skins.changeSkin('View')
+  def newUpgradeDecision(self, person=None):
+    self.portal.portal_skins.changeSkin('View')
+    destination_decision_value = None
+    if person is None:
       person = self.makePerson(self.addProject())
-      ticket = self.portal.upgrade_decision_module.newContent(
-        portal_type='Upgrade Decision',
-        title="Upgrade Decision Test %s" % self.new_id,
-        reference="TESTUD-%s" % self.new_id)
+    else:
+      destination_decision_value = person
+    ticket = self.portal.upgrade_decision_module.newContent(
+      portal_type='Upgrade Decision',
+      title="Upgrade Decision Test %s" % self.new_id,
+      reference="TESTUD-%s" % self.new_id,
+      destination_decision_value=destination_decision_value)
 
-      event = self.portal.event_module.newContent(
-        portal_type='Web Message',
-        follow_up_value=ticket,
-        text_content=ticket.getTitle(),
-        start_date = DateTime(),
-        source_value=person,
-        #destination_value=self.portal.organisation_module.slapos,
-        resource_value=self.portal.service_module.slapos_crm_monitoring
-      )
-      ticket.immediateReindexObject()
-      event.start()
-      event.immediateReindexObject()
-      self.portal.portal_skins.changeSkin('RSS')
-      return ticket
+    event = self.portal.event_module.newContent(
+      portal_type='Web Message',
+      follow_up_value=ticket,
+      text_content=ticket.getTitle(),
+      start_date = DateTime(),
+      source_value=person,
+      #destination_value=self.portal.organisation_module.slapos,
+      resource_value=self.portal.service_module.slapos_crm_monitoring
+    )
+    ticket.immediateReindexObject()
+    event.start()
+    event.immediateReindexObject()
+    self.portal.portal_skins.changeSkin('RSS')
+    return ticket
 
-
+  def test_upgrade_decision(self):
     person = self.makePerson(self.addProject(), index=1, user=1)
     person.newContent(portal_type="Assignment",
                       group="company").open()
@@ -413,12 +417,12 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
       self.portal.upgrade_decision_module.Folder_getOpenTicketList())
 
     self.login()
-    ticket = newUpgradeDecision()
+    ticket = self.newUpgradeDecision()
     self.login(person.getUserId())
     self._test_upgrade_decision(ticket, initial_amount + 1)
 
     self.login()
-    ticket = newUpgradeDecision()
+    ticket = self.newUpgradeDecision()
     self.login(person.getUserId())
     self._test_upgrade_decision(ticket, initial_amount + 2)
 
@@ -888,31 +892,9 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
       regularisation_request.getTitle())
 
     # Now add one Upgrade Decision
-    def newUpgradeDecision(person):
-      self.portal.portal_skins.changeSkin('View')
-      ticket = self.portal.upgrade_decision_module.newContent(
-        portal_type='Upgrade Decision',
-        title="Upgrade Decision Test %s" % self.new_id,
-        reference="TESTUD-%s" % self.new_id,
-        destination_decision_value=person)
-
-      event = self.portal.event_module.newContent(
-        portal_type='Web Message',
-        follow_up_value=ticket,
-        text_content=ticket.getTitle(),
-        start_date = DateTime(),
-        source_value=person,
-        #destination_value=self.portal.organisation_module.slapos,
-        resource_value=self.portal.service_module.slapos_crm_monitoring
-      )
-      ticket.immediateReindexObject()
-      event.start()
-      event.immediateReindexObject()
-      self.portal.portal_skins.changeSkin('RSS')
-      return ticket
 
     self.login()
-    upgrade_decision = newUpgradeDecision(person)
+    upgrade_decision = self.newUpgradeDecision(person)
     self.login(person.getUserId())
 
     event_ud = upgrade_decision.getFollowUpRelatedValue()

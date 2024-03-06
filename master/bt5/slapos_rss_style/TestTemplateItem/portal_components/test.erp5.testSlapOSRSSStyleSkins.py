@@ -528,23 +528,14 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
     ticket = self.newSupportRequest(document)
     event = ticket.getFollowUpRelatedValue()
+
     person = self.makePerson(self.addProject(), index=1, user=1)
-    person.newContent(portal_type="Assignment",
-                      group="company").open()
+    self.addProjectProductionManagerAssignment(person, document.getFollowUpValue())
     self.tic()
 
     self.portal.portal_skins.changeSkin('RSS')
     self.login(person.getUserId())
-    open_related_ticket_list = document.Base_getTicketRelatedEventList()
-    # Not indexed yet
-    self.assertEqual(len(open_related_ticket_list), 0)
-    self.tic()
 
-    open_related_ticket_list = document.Base_getTicketRelatedEventList()
-    self.assertEqual(len(open_related_ticket_list), 0)
-
-    ticket.submit()
-    self.tic()
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
@@ -558,6 +549,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
     ticket.cancel()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 0)
 

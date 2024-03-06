@@ -39,7 +39,7 @@ if context_related:
     causality__uid=context.getUid(),
     portal_type=follow_up_portal_type,
     simulation_state=ticket_simulation_state
-  )]
+  )] or [-1]
 else:
   context_kw['follow_up__simulation_state'] = ticket_simulation_state
   context_kw['follow_up__portal_type'] = follow_up_portal_type,

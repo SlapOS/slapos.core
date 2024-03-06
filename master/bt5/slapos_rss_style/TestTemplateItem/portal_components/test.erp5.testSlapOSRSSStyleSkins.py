@@ -161,49 +161,40 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
   def test_WebSection_viewTicketListAsRSS(self):
     person = self.makePerson(self.addProject())
 
-    module = self.portal.support_request_module
-    support_request = module.newContent(
-        portal_type="Support Request",
-        title='Help',
-        destination_decision_value=person,
+    support_request = person.Entity_createTicketFromTradeCondition(
+      'service_module/slapos_crm_monitoring',
+      'Help',
+      'I need help !',
     )
-    self.portal.event_module.newContent(
-        portal_type='Web Message',
-        follow_up_value=support_request,
-        text_content='I need help !',
-        start_date = DateTime(),
-        source_value=person,
-        #destination_value=self.portal.organisation_module.slapos,
-        resource_value=self.portal.service_module.slapos_crm_monitoring
-    ).start()
-    support_request.validate()
-    self.clearCache()
+    support_request.Ticket_createProjectEvent(
+      support_request.getTitle(), 'incoming', 'Web Message',
+      support_request.getResource(),
+      text_content=support_request.getDescription(),
+      content_type='text/plain',
+      source=person.getRelativeUrl()
+    )
     self.tic()
 
     self.login(person.getUserId())
     self.portal.portal_skins.changeSkin('RSS')
-    self.clearCache()
-    transaction.commit()
     parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
     self.assertFalse(parsed.bozo)
     first_entry_id = [item.id for item in parsed.entries]
     self.assertEqual([item.summary for item in parsed.entries], ['I need help !'])
 
-    self.portal.event_module.newContent(
-        portal_type='Web Message',
-        follow_up_value=support_request,
-        text_content='How can I help you ?',
-        start_date = DateTime(),
-        destination_value=person,
-        #source_value=self.portal.organisation_module.slapos,
-        resource_value=self.portal.service_module.slapos_crm_monitoring
-    ).start()
-    self.clearCache()
+    self.logout()
+    self.login()
+    support_request.Ticket_createProjectEvent(
+      support_request.getTitle(), 'outgoing', 'Web Message',
+      support_request.getResource(),
+      text_content='How can I help you ?',
+      content_type='text/plain'
+    )
     self.tic()
 
+    self.logout()
+    self.login(person.getUserId())
     self.portal.portal_skins.changeSkin('RSS')
-    self.clearCache()
-    transaction.commit()
     parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
     self.assertFalse(parsed.bozo)
     self.assertEqual([item.summary for item in parsed.entries],
@@ -213,23 +204,18 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
   def test_WebSection_viewCriticalTicketListAsRSS(self):
     person = self.makePerson(self.addProject())
 
-    module = self.portal.support_request_module
-    support_request = module.newContent(
-        portal_type="Support Request",
-        title='Help',
-        destination_decision_value=person,
+    support_request = person.Entity_createTicketFromTradeCondition(
+      'service_module/slapos_crm_monitoring',
+      'Help',
+      'I need help !',
     )
-    self.portal.event_module.newContent(
-        portal_type='Web Message',
-        follow_up_value=support_request,
-        text_content='I need help !',
-        source_value=person,
-        start_date = DateTime(),
-        #destination_value=self.portal.organisation_module.slapos,
-        resource_value=self.portal.service_module.slapos_crm_monitoring
-    ).start()
-    support_request.validate()
-    self.clearCache()
+    support_request.Ticket_createProjectEvent(
+      support_request.getTitle(), 'incoming', 'Web Message',
+      support_request.getResource(),
+      text_content=support_request.getDescription(),
+      content_type='text/plain',
+      source=person.getRelativeUrl()
+    )
     self.tic()
 
     self.login(person.getUserId())
@@ -242,21 +228,19 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
     self.assertEqual(len(parsed.entries), 1)
     self.assertEqual([item.summary for item in parsed.entries], ['I need help !'])
 
-    self.portal.event_module.newContent(
-        portal_type='Web Message',
-        follow_up_value=support_request,
-        text_content='How can I help you ?',
-        start_date = DateTime(),
-        destination_value=person,
-        #source_value=self.portal.organisation_module.slapos,
-        resource_value=self.portal.service_module.slapos_crm_monitoring
-    ).start()
-    self.clearCache()
+    self.logout()
+    self.login()
+    support_request.Ticket_createProjectEvent(
+      support_request.getTitle(), 'outgoing', 'Web Message',
+      support_request.getResource(),
+      text_content='How can I help you ?',
+      content_type='text/plain'
+    )
     self.tic()
 
+    self.logout()
+    self.login(person.getUserId())
     self.portal.portal_skins.changeSkin('RSS')
-    self.clearCache()
-    transaction.commit()
     parsed = feedparser.parse(self.portal.WebSection_viewCriticalTicketListAsRSS())
     self.assertFalse(parsed.bozo)
     self.assertEqual([item.summary for item in parsed.entries],

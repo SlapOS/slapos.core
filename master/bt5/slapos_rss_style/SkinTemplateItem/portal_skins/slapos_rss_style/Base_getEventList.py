@@ -41,7 +41,6 @@ for brain in portal.portal_simulation.getMovementHistoryList(
                                   'confirmed', 'started', 'stopped', 'delivered'],
     only_accountable=False,
     follow_up__portal_type=follow_up_portal_type,
-    omit_input=True,
     simulation_state=('started', 'stopped', 'delivered'),
     limit=list_lines,
     sort_on=(('stock.date', 'desc'),

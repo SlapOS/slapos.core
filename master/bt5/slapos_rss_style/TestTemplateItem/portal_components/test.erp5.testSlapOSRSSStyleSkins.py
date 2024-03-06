@@ -100,6 +100,32 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
     return software_installation
 
+  def newUpgradeDecision(self, person=None, project=None):
+    self.portal.portal_skins.changeSkin('View')
+    destination_decision_value = None
+    if person is None:
+      destination_decision_value = self.makePerson(self.addProject())
+    else:
+      destination_decision_value = person
+    ticket = self.portal.upgrade_decision_module.newContent(
+      portal_type='Upgrade Decision',
+      title="Upgrade Decision Test %s" % self.new_id,
+      reference="TESTUD-%s" % self.new_id,
+      destination_value=destination_decision_value,
+      destination_decision_value=destination_decision_value,
+      destination_project_value=project
+    )
+
+    ticket.Ticket_createProjectEvent(
+      ticket.getTitle(), 'outgoing', 'Web Message',
+      'service_module/slapos_crm_monitoring',
+      text_content=ticket.getTitle(),
+      content_type='text/plain'
+    )
+    self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
+    return ticket
+
 
 class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
 
@@ -383,32 +409,6 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     ticket = newRegularisationRequest()
     self.login(person.getUserId())
     self._test_ticket(ticket, initial_amount + 2)
-
-  def newUpgradeDecision(self, person=None, project=None):
-    self.portal.portal_skins.changeSkin('View')
-    destination_decision_value = None
-    if person is None:
-      destination_decision_value = self.makePerson(self.addProject())
-    else:
-      destination_decision_value = person
-    ticket = self.portal.upgrade_decision_module.newContent(
-      portal_type='Upgrade Decision',
-      title="Upgrade Decision Test %s" % self.new_id,
-      reference="TESTUD-%s" % self.new_id,
-      destination_value=destination_decision_value,
-      destination_decision_value=destination_decision_value,
-      destination_project_value=project
-    )
-
-    ticket.Ticket_createProjectEvent(
-      ticket.getTitle(), 'outgoing', 'Web Message',
-      'service_module/slapos_crm_monitoring',
-      text_content=ticket.getTitle(),
-      content_type='text/plain'
-    )
-    self.tic()
-    self.portal.portal_skins.changeSkin('RSS')
-    return ticket
 
   def test_upgrade_decision(self):
     project = self.addProject()
@@ -743,6 +743,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 1)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -755,6 +756,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 1)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -767,6 +769,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 1)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -779,6 +782,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 1)
     # Extra checks
@@ -821,6 +825,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     event_rr = regularisation_request.getFollowUpRelatedValue()
     self.assertNotEqual(event_rr, None)
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 1)
 
@@ -829,6 +834,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 2)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -846,6 +852,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 2)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -858,6 +865,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 2)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -870,6 +878,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 2)
     # Extra checks
@@ -890,6 +899,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     event_ud = upgrade_decision.getFollowUpRelatedValue()
     self.assertNotEqual(event_ud, None)
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 2)
 
@@ -898,6 +908,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 2)
 
@@ -906,6 +917,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 3)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -915,9 +927,12 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     upgrade_decision.start()
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              "'disabled'", attribute='comment'):
+      self.tic()
     self.login(person.getUserId())
 
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 3)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -930,6 +945,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 3)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -942,6 +958,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
     self.assertEqual(len(open_ticket_list), 3)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -949,10 +966,10 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
       '{}-{}'.format(event_ud.getFollowUp(),
                      event_ud.getRelativeUrl()))
 
-    # check if ordering is correct.    
+    # check if ordering is correct.
     self.assertEqual(open_ticket_list[0].title,
       upgrade_decision.getTitle())
-    
+
     self.assertEqual(open_ticket_list[1].title,
       regularisation_request.getTitle())
 

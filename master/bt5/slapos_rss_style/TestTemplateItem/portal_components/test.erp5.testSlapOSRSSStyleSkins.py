@@ -200,7 +200,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     self.assertEqual(len(open_ticket_list), expected_amount-1)
 
     ticket.submit()
-    ticket.immediateReindexObject()
+    self.tic()
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -209,7 +209,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
                      event.getRelativeUrl()))
 
     ticket.validate()
-    ticket.immediateReindexObject()
+    self.tic()
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -217,7 +217,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
       '{}-{}'.format(event.getFollowUp(),
                      event.getRelativeUrl()))
     ticket.suspend()
-    ticket.immediateReindexObject()
+    self.tic()
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -225,7 +225,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
       '{}-{}'.format(event.getFollowUp(),
                      event.getRelativeUrl()))
     ticket.invalidate()
-    ticket.immediateReindexObject()
+    self.tic()
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     # Extra checks
@@ -246,12 +246,12 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     self.assertEqual(len(open_ticket_list), expected_amount-1)
 
     ticket.plan()
-    ticket.immediateReindexObject()
+    self.tic()
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount-1)
 
     ticket.confirm()
-    ticket.immediateReindexObject()
+    self.tic()
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
 
@@ -261,7 +261,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
                      event.getRelativeUrl()))
 
     ticket.start()
-    ticket.immediateReindexObject()
+    self.tic()
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -270,7 +270,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
                      event.getRelativeUrl()))
 
     ticket.stop()
-    ticket.immediateReindexObject()
+    self.tic()
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -279,7 +279,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
                      event.getRelativeUrl()))
 
     ticket.deliver()
-    ticket.immediateReindexObject()
+    self.tic()
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -303,8 +303,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
         resource_value=self.portal.service_module.slapos_crm_monitoring
       )
       event.start()
-      event.immediateReindexObject()
-      sr.immediateReindexObject()
+      self.tic()
       self.portal.portal_skins.changeSkin('RSS')
       return sr
 
@@ -349,9 +348,9 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
         #destination_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
       )
-      ticket.immediateReindexObject()
+      self.tic()
       event.start()
-      event.immediateReindexObject()
+      self.tic()
       self.portal.portal_skins.changeSkin('RSS')
       return ticket
 
@@ -398,16 +397,13 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
       #destination_value=self.portal.organisation_module.slapos,
       resource_value=self.portal.service_module.slapos_crm_monitoring
     )
-    ticket.immediateReindexObject()
     event.start()
-    event.immediateReindexObject()
+    self.tic()
     self.portal.portal_skins.changeSkin('RSS')
     return ticket
 
   def test_upgrade_decision(self):
     person = self.makePerson(self.addProject(), index=1, user=1)
-    person.newContent(portal_type="Assignment",
-                      group="company").open()
     self.tic()
 
     self.portal.portal_skins.changeSkin('RSS')
@@ -443,8 +439,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
       resource_value=self.portal.service_module.slapos_crm_monitoring
     )
     event.start()
-    event.immediateReindexObject()
-    sr.immediateReindexObject()
+    self.tic()
     return sr
 
   def test_getTicketRelatedEventList_support_request_related_to_compute_node(self):
@@ -478,7 +473,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
     self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.submit()
-    ticket.immediateReindexObject()
+    self.tic()
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
@@ -486,7 +481,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
       '{}-{}'.format(event.getFollowUp(),
                      event.getRelativeUrl()))
     ticket.validate()
-    ticket.immediateReindexObject()
+    self.tic()
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
@@ -494,7 +489,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
       '{}-{}'.format(event.getFollowUp(),
                      event.getRelativeUrl()))
     ticket.suspend()
-    ticket.immediateReindexObject()
+    self.tic()
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
@@ -503,7 +498,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
                      event.getRelativeUrl()))
 
     ticket.invalidate()
-    ticket.immediateReindexObject()
+    self.tic()
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
@@ -544,7 +539,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
     self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.submit()
-    ticket.immediateReindexObject()
+    self.tic()
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
@@ -557,7 +552,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
       ticket.getTitle())
 
     ticket.cancel()
-    ticket.immediateReindexObject()
+    self.tic()
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 0)
 
@@ -577,9 +572,9 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
       #destination_value=self.portal.organisation_module.slapos,
       resource_value=self.portal.service_module.slapos_crm_monitoring
     )
-    ticket.immediateReindexObject()
+    self.tic()
     event.start()
-    event.immediateReindexObject()
+    self.tic()
     return ticket
 
   def test_getTicketRelatedEventList_upgrade_decision_related_to_compute_node(self):
@@ -613,12 +608,12 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
     self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.plan()
-    ticket.immediateReindexObject()
+    self.tic()
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.confirm()
-    ticket.immediateReindexObject()
+    self.tic()
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
@@ -631,7 +626,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
       ticket.getTitle())
 
     ticket.start()
-    ticket.immediateReindexObject()
+    self.tic()
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
@@ -644,7 +639,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
       ticket.getTitle())
 
     ticket.stop()
-    ticket.immediateReindexObject()
+    self.tic()
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
@@ -658,7 +653,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
 
     ticket.deliver()
-    ticket.immediateReindexObject()
+    self.tic()
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
@@ -702,7 +697,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
     self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.cancel()
-    ticket.immediateReindexObject()
+    self.tic()
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 0)
 
@@ -727,8 +722,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
         resource_value=self.portal.service_module.slapos_crm_monitoring
       )
       event.start()
-      event.immediateReindexObject()
-      sr.immediateReindexObject()
+      self.tic()
       self.portal.portal_skins.changeSkin('RSS')
       return sr
 
@@ -749,7 +743,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     ticket.submit()
-    ticket.immediateReindexObject()
+    self.tic()
     self.login(person.getUserId())
 
     open_ticket_list = self.portal.Base_getEventList()
@@ -761,7 +755,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     ticket.validate()
-    ticket.immediateReindexObject()
+    self.tic()
     self.login(person.getUserId())
 
     open_ticket_list = self.portal.Base_getEventList()
@@ -773,7 +767,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     ticket.suspend()
-    ticket.immediateReindexObject()
+    self.tic()
     self.login(person.getUserId())
 
     open_ticket_list = self.portal.Base_getEventList()
@@ -785,7 +779,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     ticket.invalidate()
-    ticket.immediateReindexObject()
+    self.tic()
     self.login(person.getUserId())
 
     open_ticket_list = self.portal.Base_getEventList()
@@ -818,9 +812,9 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
         #destination_value=self.portal.organisation_module.slapos,
         resource_value=self.portal.service_module.slapos_crm_monitoring
       )
-      ticket.immediateReindexObject()
+      self.tic()
       event.start()
-      event.immediateReindexObject()
+      self.tic()
       self.portal.portal_skins.changeSkin('RSS')
       return ticket
 
@@ -835,7 +829,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     regularisation_request.submit()
-    regularisation_request.immediateReindexObject()
+    self.tic()
     self.login(person.getUserId())
 
     open_ticket_list = self.portal.Base_getEventList()
@@ -852,7 +846,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     regularisation_request.validate()
-    regularisation_request.immediateReindexObject()
+    self.tic()
     self.login(person.getUserId())
 
     open_ticket_list = self.portal.Base_getEventList()
@@ -864,7 +858,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     regularisation_request.suspend()
-    regularisation_request.immediateReindexObject()
+    self.tic()
     self.login(person.getUserId())
 
     open_ticket_list = self.portal.Base_getEventList()
@@ -876,7 +870,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     regularisation_request.invalidate()
-    regularisation_request.immediateReindexObject()
+    self.tic()
     self.login(person.getUserId())
 
     open_ticket_list = self.portal.Base_getEventList()
@@ -904,7 +898,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     upgrade_decision.plan()
-    upgrade_decision.immediateReindexObject()
+    self.tic()
     self.login(person.getUserId())
 
     open_ticket_list = self.portal.Base_getEventList()
@@ -912,7 +906,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     upgrade_decision.confirm()
-    upgrade_decision.immediateReindexObject()
+    self.tic()
     self.login(person.getUserId())
 
     open_ticket_list = self.portal.Base_getEventList()
@@ -924,7 +918,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     upgrade_decision.start()
-    upgrade_decision.immediateReindexObject()
+    self.tic()
     self.login(person.getUserId())
 
     open_ticket_list = self.portal.Base_getEventList()
@@ -936,7 +930,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     upgrade_decision.stop()
-    upgrade_decision.immediateReindexObject()
+    self.tic()
     self.login(person.getUserId())
 
     open_ticket_list = self.portal.Base_getEventList()
@@ -948,7 +942,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.login()
     upgrade_decision.deliver()
-    upgrade_decision.immediateReindexObject()
+    self.tic()
     self.login(person.getUserId())
 
     open_ticket_list = self.portal.Base_getEventList()

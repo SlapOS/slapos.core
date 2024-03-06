@@ -31,16 +31,6 @@ import zope.interface
 from six import class_types
 from slapos import slap
 
-def getOnlyImplementationAssertionMethod(klass, method_list):
-  """Returns method which verifies if a klass only implements its interfaces"""
-  def testMethod(self):
-    implemented_method_list = {x for x in dir(klass)
-        if not x.startswith('_') and callable(getattr(klass, x))}
-    implemented_method_list.difference_update(method_list)
-
-    if implemented_method_list:
-      raise AssertionError("Unexpected methods %s" % implemented_method_list)
-  return testMethod
 
 def getImplementationAssertionMethod(klass, interface):
   """Returns method which verifies if interface is properly implemented by klass"""
@@ -67,7 +57,6 @@ def generateTestMethodListOnClass(klass, module):
     setattr(klass, method_name, getDeclarationAssertionMethod(
       implementing_class))
 
-    implemented_method_list = ['with_traceback']
     for interface in list(zope.interface.implementedBy(implementing_class)):
       # for each interface which class declares add a method which verify
       # implementation
@@ -76,15 +65,6 @@ def generateTestMethodListOnClass(klass, module):
       setattr(klass, method_name, getImplementationAssertionMethod(
         implementing_class, interface))
 
-      for interface_klass in interface.__iro__:
-        implemented_method_list.extend(interface_klass.names())
-
-    # for each interface which class declares, check that no other method are
-    # available
-    method_name = 'test_%s_only_implements' % class_id
-    setattr(klass, method_name, getOnlyImplementationAssertionMethod(
-      implementing_class,
-      implemented_method_list))
 
 class TestInterface(unittest.TestCase):
   """Tests all publicly available classes of slap

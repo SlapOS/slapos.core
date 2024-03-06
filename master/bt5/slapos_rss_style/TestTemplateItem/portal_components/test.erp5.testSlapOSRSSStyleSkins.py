@@ -22,7 +22,8 @@
 ##############################################################################
 
 import transaction
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort, TemporaryAlarmScript
+
 from DateTime import DateTime
 import feedparser
 
@@ -242,16 +243,19 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     event = ticket.getFollowUpRelatedValue()
     self.assertNotEqual(event, None)
     module = ticket.getParentValue()
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount-1)
 
     ticket.plan()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount-1)
 
     ticket.confirm()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
 
@@ -261,7 +265,10 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
                      event.getRelativeUrl()))
 
     ticket.start()
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              "'disabled'", attribute='comment'):
+      self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -271,6 +278,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
 
     ticket.stop()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -280,6 +288,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
 
     ticket.deliver()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -375,35 +384,38 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     self.login(person.getUserId())
     self._test_ticket(ticket, initial_amount + 2)
 
-  def newUpgradeDecision(self, person=None):
+  def newUpgradeDecision(self, person=None, project=None):
     self.portal.portal_skins.changeSkin('View')
     destination_decision_value = None
     if person is None:
-      person = self.makePerson(self.addProject())
+      destination_decision_value = self.makePerson(self.addProject())
     else:
       destination_decision_value = person
     ticket = self.portal.upgrade_decision_module.newContent(
       portal_type='Upgrade Decision',
       title="Upgrade Decision Test %s" % self.new_id,
       reference="TESTUD-%s" % self.new_id,
-      destination_decision_value=destination_decision_value)
-
-    event = self.portal.event_module.newContent(
-      portal_type='Web Message',
-      follow_up_value=ticket,
-      text_content=ticket.getTitle(),
-      start_date = DateTime(),
-      source_value=person,
-      #destination_value=self.portal.organisation_module.slapos,
-      resource_value=self.portal.service_module.slapos_crm_monitoring
+      destination_value=destination_decision_value,
+      destination_decision_value=destination_decision_value,
+      destination_project_value=project
     )
-    event.start()
+
+    ticket.Ticket_createProjectEvent(
+      ticket.getTitle(), 'outgoing', 'Web Message',
+      'service_module/slapos_crm_monitoring',
+      text_content=ticket.getTitle(),
+      content_type='text/plain'
+    )
     self.tic()
     self.portal.portal_skins.changeSkin('RSS')
     return ticket
 
   def test_upgrade_decision(self):
-    person = self.makePerson(self.addProject(), index=1, user=1)
+    project = self.addProject()
+    person = self.makePerson(project, index=1, user=1)
+    self.addProjectProductionManagerAssignment(person, project)
+    person2 = self.makePerson(project, index=1, user=1)
+
     self.tic()
 
     self.portal.portal_skins.changeSkin('RSS')
@@ -413,12 +425,12 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
       self.portal.upgrade_decision_module.Folder_getOpenTicketList())
 
     self.login()
-    ticket = self.newUpgradeDecision()
+    ticket = self.newUpgradeDecision(person=person2, project=project)
     self.login(person.getUserId())
     self._test_upgrade_decision(ticket, initial_amount + 1)
 
     self.login()
-    ticket = self.newUpgradeDecision()
+    ticket = self.newUpgradeDecision(person=person2, project=project)
     self.login(person.getUserId())
     self._test_upgrade_decision(ticket, initial_amount + 2)
 

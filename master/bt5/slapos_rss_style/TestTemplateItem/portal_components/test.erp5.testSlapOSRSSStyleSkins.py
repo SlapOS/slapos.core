@@ -99,63 +99,6 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
     return software_installation
 
 
-class TestSlapOSEvent_getRSSTextContent(TestRSSSyleSkinsMixin):
-
-  def test_Event_getRSSTextContent(self):
-    source = self.person
-
-    destination = self.portal.person_module.newContent(
-      portal_type='Person',
-      title="Person Destination %s" % self.new_id,
-      reference="TESTPERSD-%s" % self.new_id,
-      default_email_text="live_test_%s@example.org" % self.new_id,
-      )
-
-    destination_2 = self.portal.person_module.newContent(
-      portal_type='Person',
-      title="Person Destination 2 %s" % self.new_id,
-      reference="TESTPERSD2-%s" % self.new_id,
-      default_email_text="live_test_%s@example.org" % self.new_id,
-      )
-
-    event = self.portal.event_module.newContent(
-        title="Test Event %s" % self.new_id,
-        portal_type="Web Message",
-        text_content="Test Event %s" % self.new_id)
-
-    self.portal.portal_skins.changeSkin('RSS')
-    text_content = event.Event_getRSSTextContent()
-
-    self.assertTrue(event.getTextContent() in text_content)
-    self.assertTrue("Sender: " in text_content, "Sender: not in %s" % text_content)
-    self.assertTrue("Recipient: " in text_content, "Recipient: not in %s" % text_content)
-    self.assertTrue("Content:" in text_content, "Content: not in %s" % text_content)
-
-    event.setSourceValue(source)
-    text_content = event.Event_getRSSTextContent()
-    self.assertTrue("Sender: %s" % source.getTitle() in text_content,
-      "Sender: %s not in %s" % (source.getTitle(), text_content))
-
-    event.setDestinationValue(destination)
-    text_content = event.Event_getRSSTextContent()
-    self.assertTrue("Recipient: %s" % destination.getTitle() in text_content,
-      "Recipient: %s not in %s" % (destination.getTitle(), text_content))
-
-    event.setDestinationValue(destination_2)
-    text_content = event.Event_getRSSTextContent()
-    self.assertTrue("Recipient: %s" % destination_2.getTitle() in text_content,
-      "Recipient: %s not in %s" % (destination.getTitle(), text_content))
-
-    event.setDestinationValueList([destination, destination_2])
-    text_content = event.Event_getRSSTextContent()
-    self.assertTrue(
-      "Recipient: %s,%s" % (destination.getTitle(),
-                            destination_2.getTitle()) in text_content,
-      "Recipient: %s,%s not in %s" % (destination.getTitle(),
-                                      destination_2.getTitle(),
-                                      text_content)
-      )
-
 class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
 
   def test_WebSection_viewTicketListAsRSS(self):

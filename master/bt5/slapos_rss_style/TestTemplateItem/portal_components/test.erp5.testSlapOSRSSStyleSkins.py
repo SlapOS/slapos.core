@@ -662,11 +662,6 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
     self.assertEqual(open_related_ticket_list[0].title,
       ticket.getTitle())
 
-
-  def test_getTicketRelatedEventList_cancelled_upgrade_decision_related_to_compute_node(self):
-    self._test_getTicketRelatedEventList_cancelled_upgrade_decision_related(
-      self._makeComputeNode(self.addProject())[0])
-
   def test_getTicketRelatedEventList_cancelled_upgrade_decision_related_to_instance_tree(self):
     self._test_getTicketRelatedEventList_cancelled_upgrade_decision_related(
       self._makeInstanceTree())

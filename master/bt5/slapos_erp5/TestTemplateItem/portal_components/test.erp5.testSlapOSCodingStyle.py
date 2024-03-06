@@ -268,7 +268,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_administration/Base_checkStoredBrokenState',
         'slapos_administration/ERP5Site_cleanUnusedSecurityUid',
         'slapos_administration/ERP5Site_getSecurityUidStat',
-        'slapos_administration/ERP5Site_updateAllLocalRolesOnSecurityGroupsForSlapOS',
         'slapos_administration/NotificationMessageModule_updateProductionNotificationId',
         'slapos_administration/TemplateTool_deleteObsoleteTemplateList',
         'slapos_administration/TemplateTool_unindexDeletedObjectList',

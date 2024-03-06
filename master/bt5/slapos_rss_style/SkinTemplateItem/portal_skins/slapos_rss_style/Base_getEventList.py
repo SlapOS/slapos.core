@@ -27,20 +27,29 @@ def getTicketInfo(event):
 if follow_up_portal_type is None:
   follow_up_portal_type = ['Support Request', 'Regularisation Request', 'Upgrade Decision']
 
+ticket_simulation_state = [
+  'validated','submitted', 'suspended', 'invalidated',
+  # Unfortunally Upgrade decision uses diferent states.
+  'confirmed', 'started', 'stopped', 'delivered'
+]
+
 context_kw = {}
 if context_related:
-  context_kw['follow_up__uid'] = context.getUid()
+  context_kw['follow_up__uid'] = [x.getUid() for x in portal.portal_catalog(
+    causality__uid=context.getUid(),
+    portal_type=follow_up_portal_type,
+    simulation_state=ticket_simulation_state
+  )]
+else:
+  context_kw['follow_up__simulation_state'] = ticket_simulation_state
+  context_kw['follow_up__portal_type'] = follow_up_portal_type,
 
 data_list = []
 for brain in portal.portal_simulation.getMovementHistoryList(
     security_query=portal.portal_catalog.getSecurityQuery(),
     # Limit only to listable portal types
     portal_type=['Web Message', 'Mail Message'],
-    follow_up__simulation_state = ['validated','submitted', 'suspended', 'invalidated',
-                                  # Unfortunally Upgrade decision uses diferent states.
-                                  'confirmed', 'started', 'stopped', 'delivered'],
     only_accountable=False,
-    follow_up__portal_type=follow_up_portal_type,
     simulation_state=('started', 'stopped', 'delivered'),
     limit=list_lines,
     sort_on=(('stock.date', 'desc'),

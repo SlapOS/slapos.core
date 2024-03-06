@@ -42,7 +42,7 @@ if context_related:
   )] or [-1]
 else:
   context_kw['follow_up__simulation_state'] = ticket_simulation_state
-  context_kw['follow_up__portal_type'] = follow_up_portal_type,
+  context_kw['follow_up__portal_type'] = follow_up_portal_type
 
 data_list = []
 for brain in portal.portal_simulation.getMovementHistoryList(

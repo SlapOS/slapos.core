@@ -95,6 +95,7 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
       text_content=ticket.getTitle(),
       content_type='text/plain'
     )
+    ticket.submit()
     self.tic()
     self.portal.portal_skins.changeSkin('RSS')
     return ticket
@@ -358,11 +359,13 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
 
     self.login()
     ticket = self.newRegularisationRequest(customer)
+    self.tic()
     self.login(person.getUserId())
     self._test_ticket(ticket, initial_amount + 1)
 
     self.login()
     ticket = self.newRegularisationRequest(customer)
+    self.tic()
     self.login(person.getUserId())
     self._test_ticket(ticket, initial_amount + 2)
 

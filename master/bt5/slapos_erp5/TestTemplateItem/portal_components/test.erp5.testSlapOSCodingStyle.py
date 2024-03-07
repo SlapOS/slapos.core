@@ -353,6 +353,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_web_renderjs_ui/WebSection_getLoginWarningMessage',
         'slapos_subscription_request/SubscriptionRequest_createOpenSaleOrder',
         'slapos_subscription_request/SubscriptionRequest_init',
+        'slapos_subscription_request/SubscriptionRequestModule_getTicketFeedUrl',
         'slapos_upgrader/Base_activateObjectMigrationToRemoteVirtualMaster',
         'slapos_upgrader/Base_activateObjectMigrationToVirtualMaster',
         'slapos_upgrader/Base_deleteProcessedDocumentDuringPurge',

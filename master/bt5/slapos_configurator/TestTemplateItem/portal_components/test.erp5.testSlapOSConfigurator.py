@@ -57,7 +57,9 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
         invoking checkConsistency """
     pref_tool = self.portal.portal_preferences
     self.portal.portal_preferences.fixConsistency()
-    self.assertEqual(pref_tool.checkConsistency(), [])
+    consistency_list = pref_tool.checkConsistency()
+    self.assertEqual(len(consistency_list), 1)
+    self.assertEqual(str(consistency_list[0]), 'The System Preference subscription assignment should have a destination_project')
 
     # Check if configuration is properly set:
     consistency_list = pref_tool.slapos_default_system_preference.SystemPreference_checkSystemPreferenceConsistency()

@@ -99,6 +99,26 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
     self.portal.portal_skins.changeSkin('RSS')
     return ticket
 
+  def newSupportRequest(self, person, causality_value):
+    self.portal.portal_skins.changeSkin('View')
+
+    support_request = person.Entity_createTicketFromTradeCondition(
+      'service_module/slapos_crm_monitoring',
+      "Test Support Request %s" % self.new_id,
+      '',
+      causality=causality_value.getRelativeUrl(),
+      source_project=causality_value.getFollowUp()
+    )
+    support_request.Ticket_createProjectEvent(
+      support_request.getTitle(), 'incoming', 'Web Message',
+      support_request.getResource(),
+      text_content="Test Support Request %s" % self.new_id,
+      content_type='text/plain',
+      source=person.getRelativeUrl()
+    )
+    self.tic()
+    return support_request
+
 
 class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
 
@@ -197,11 +217,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     event = ticket.getFollowUpRelatedValue()
     self.assertNotEqual(event, None)
     module = ticket.getParentValue()
-    open_ticket_list = module.Folder_getOpenTicketList()
-    self.assertEqual(len(open_ticket_list), expected_amount-1)
 
-    ticket.submit()
-    self.tic()
     self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
@@ -303,28 +319,11 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
                      event.getRelativeUrl()))
 
   def test_support_request(self):
-    def newSupportRequest():
-      self.portal.portal_skins.changeSkin('View')
-      person = self.makePerson(self.addProject())
-      sr = self.portal.support_request_module.newContent(\
-                        title="Test Support Request %s" % self.new_id)
-      event = self.portal.event_module.newContent(
-        portal_type='Web Message',
-        follow_up_value=sr,
-        text_content="Test Support Request %s" % self.new_id,
-        start_date = DateTime(),
-        source_value=person,
-        #destination_value=self.portal.organisation_module.slapos,
-        resource_value=self.portal.service_module.slapos_crm_monitoring
-      )
-      event.start()
-      self.tic()
-      self.portal.portal_skins.changeSkin('RSS')
-      return sr
-
-    project = self.addProject()
+    instance_tree = self._makeInstanceTree()
+    project = instance_tree.getFollowUpValue()
     person = self.makePerson(project, index=1, user=1)
     self.addProjectProductionManagerAssignment(person, project)
+    customer = self.makePerson(project)
     self.tic()
 
     self.portal.portal_skins.changeSkin('RSS')
@@ -334,12 +333,12 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
       self.portal.support_request_module.Folder_getOpenTicketList())
 
     self.login()
-    ticket = newSupportRequest()
+    ticket = self.newSupportRequest(customer, instance_tree)
     self.login(person.getUserId())
     self._test_ticket(ticket, initial_amount + 1)
 
     self.login()
-    ticket = newSupportRequest()
+    ticket = self.newSupportRequest(customer, instance_tree)
     self.login(person.getUserId())
     self._test_ticket(ticket, initial_amount + 2)
 
@@ -393,27 +392,6 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
 
 class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
-  def newSupportRequest(self, causality_value):
-    self.portal.portal_skins.changeSkin('View')
-
-    person = self.makePerson(self.addProject())
-    support_request = person.Entity_createTicketFromTradeCondition(
-      'service_module/slapos_crm_monitoring',
-      "Test Support Request %s" % self.new_id,
-      '',
-      causality=causality_value.getRelativeUrl(),
-      source_project=causality_value.getFollowUp()
-    )
-    support_request.Ticket_createProjectEvent(
-      support_request.getTitle(), 'incoming', 'Web Message',
-      support_request.getResource(),
-      text_content="Test Support Request %s" % self.new_id,
-      content_type='text/plain',
-      source=person.getRelativeUrl()
-    )
-    self.tic()
-    return support_request
-
   def test_getTicketRelatedEventList_support_request_related_to_compute_node(self):
     self._test_getTicketRelatedEventList_support_request_related(
       self._makeComputeNode(self.addProject())[0])
@@ -423,11 +401,12 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
       self._makeInstanceTree())
 
   def _test_getTicketRelatedEventList_support_request_related(self, document):
-    ticket = self.newSupportRequest(document)
+    project = document.getFollowUpValue()
+    ticket = self.newSupportRequest(self.makePerson(project), document)
     event = ticket.getFollowUpRelatedValue()
 
-    person = self.makePerson(self.addProject(), index=1, user=1)
-    self.addProjectProductionManagerAssignment(person, document.getFollowUpValue())
+    person = self.makePerson(project, index=1, user=1)
+    self.addProjectProductionManagerAssignment(person, project)
     self.tic()
 
     self.portal.portal_skins.changeSkin('RSS')
@@ -483,11 +462,12 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
   def _test_getTicketRelatedEventList_cancelled_support_request_related(self, document):
 
-    ticket = self.newSupportRequest(document)
+    project = document.getFollowUpValue()
+    ticket = self.newSupportRequest(self.makePerson(project), document)
     event = ticket.getFollowUpRelatedValue()
 
-    person = self.makePerson(self.addProject(), index=1, user=1)
-    self.addProjectProductionManagerAssignment(person, document.getFollowUpValue())
+    person = self.makePerson(project, index=1, user=1)
+    self.addProjectProductionManagerAssignment(person, project)
     self.tic()
 
     self.portal.portal_skins.changeSkin('RSS')

@@ -37,23 +37,6 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
     self.person = self.makePerson(self.addProject(), new_id=self.new_id, index=0, user=0)
     self.clearCache()
 
-  def _cancelTestSupportRequestList(self, title="%"):
-    for support_request in self.portal.portal_catalog(
-                        portal_type="Support Request",
-                        title=title,
-                        simulation_state=["validated", "suspended"]):
-      support_request.invalidate()
-    self.tic()
-
-  def _updatePersonAssignment(self, person, role='role/member'):
-    for assignment in person.contentValues(portal_type="Assignment"):
-      assignment.cancel()
-    assignment = person.newContent(portal_type='Assignment')
-    assignment.setRole(role)
-    assignment.setStartDate(DateTime())
-    assignment.open()
-    return assignment
-
   def _makeInstanceTree(self):
     person = self.portal.person_module\
          .newContent(portal_type="Person")
@@ -70,37 +53,7 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
     )
     return instance_tree
 
-  def _makeSoftwareInstance(self, instance_tree, software_url):
-
-    kw = dict(
-      software_release=software_url,
-      software_type=self.generateNewSoftwareType(),
-      instance_xml=self.generateSafeXml(),
-      sla_xml=self.generateSafeXml(),
-      shared=False,
-      software_title=instance_tree.getTitle(),
-      state='started'
-    )
-    instance_tree.requestStart(**kw)
-    instance_tree.requestInstance(**kw)
-
-
-  def _makeSoftwareInstallation(self):
-    self._makeComputeNode(self.addProject())
-    software_installation = self.portal\
-       .software_installation_module.newContent(portal_type="Software Installation")
-    software_installation.edit(
-       url_string=self.generateNewSoftwareReleaseUrl(),
-       aggregate=self.compute_node.getRelativeUrl(),
-       reference='TESTSOFTINSTS-%s' % self.generateNewId(),
-       title='Start requested for %s' % self.compute_node.getUid()
-     )
-    software_installation.validate()
-    software_installation.requestStart()
-
-    return software_installation
-
-  def newUpgradeDecision(self, person=None, project=None):
+  def newUpgradeDecision(self, person, project):
     self.portal.portal_skins.changeSkin('View')
     destination_decision_value = None
     if person is None:
@@ -115,6 +68,26 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
       destination_decision_value=destination_decision_value,
       destination_project_value=project
     )
+
+    ticket.Ticket_createProjectEvent(
+      ticket.getTitle(), 'outgoing', 'Web Message',
+      'service_module/slapos_crm_monitoring',
+      text_content=ticket.getTitle(),
+      content_type='text/plain'
+    )
+    self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
+    return ticket
+
+  def newRegularisationRequest(self, person):
+    self.portal.portal_skins.changeSkin('View')
+    ticket = self.portal.regularisation_request_module.newContent(
+      portal_type='Regularisation Request',
+      title="Test Reg. Req.%s" % self.new_id,
+      reference="TESTREGREQ-%s" % self.new_id,
+      destination_value=person,
+      destination_decision_value=person
+     )
 
     ticket.Ticket_createProjectEvent(
       ticket.getTitle(), 'outgoing', 'Web Message',
@@ -229,6 +202,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
 
     ticket.submit()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -238,22 +212,27 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
 
     ticket.validate()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
     self.assertEqual(open_ticket_list[0].guid,
       '{}-{}'.format(event.getFollowUp(),
                      event.getRelativeUrl()))
+
     ticket.suspend()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
     self.assertEqual(open_ticket_list[0].guid,
       '{}-{}'.format(event.getFollowUp(),
                      event.getRelativeUrl()))
+
     ticket.invalidate()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
     # Extra checks
@@ -365,33 +344,11 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     self._test_ticket(ticket, initial_amount + 2)
 
   def test_regularisation_request(self):
-    def newRegularisationRequest():
-      self.portal.portal_skins.changeSkin('View')
-      person = self.makePerson(self.addProject())
-      ticket = self.portal.regularisation_request_module.newContent(
-        portal_type='Regularisation Request',
-        title="Test Reg. Req.%s" % self.new_id,
-        reference="TESTREGREQ-%s" % self.new_id
-        )
 
-      event = self.portal.event_module.newContent(
-        portal_type='Web Message',
-        follow_up_value=ticket,
-        text_content=ticket.getTitle(),
-        start_date = DateTime(),
-        source_value=person,
-        #destination_value=self.portal.organisation_module.slapos,
-        resource_value=self.portal.service_module.slapos_crm_monitoring
-      )
-      self.tic()
-      event.start()
-      self.tic()
-      self.portal.portal_skins.changeSkin('RSS')
-      return ticket
-
-    person = self.makePerson(self.addProject(), index=1, user=1)
-    person.newContent(portal_type="Assignment",
-                      group="company").open()
+    project = self.addProject()
+    person = self.makePerson(project, index=1, user=1)
+    self.addSaleManagerAssignment(person)
+    customer = self.makePerson(project, index=1, user=1)
     self.tic()
 
     self.portal.portal_skins.changeSkin('RSS')
@@ -401,12 +358,12 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
       self.portal.regularisation_request_module.Folder_getOpenTicketList())
 
     self.login()
-    ticket = newRegularisationRequest()
+    ticket = self.newRegularisationRequest(customer)
     self.login(person.getUserId())
     self._test_ticket(ticket, initial_amount + 1)
 
     self.login()
-    ticket = newRegularisationRequest()
+    ticket = self.newRegularisationRequest(customer)
     self.login(person.getUserId())
     self._test_ticket(ticket, initial_amount + 2)
 
@@ -889,7 +846,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     # Now add one Upgrade Decision
 
     self.login()
-    upgrade_decision = self.newUpgradeDecision(person)
+    upgrade_decision = self.newUpgradeDecision(person, None)
     self.login(person.getUserId())
 
     event_ud = upgrade_decision.getFollowUpRelatedValue()

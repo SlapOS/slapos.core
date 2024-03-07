@@ -22,8 +22,8 @@ for sql_result in portal.portal_catalog(source_section__uid='%',
       missing_price_project_dict[software_product.getFollowUp()].append(software_product)
 
 
-print '<h1>Missing price</h1>'
-print '<ol>'
+print('<h1>Missing price</h1>')
+print('<ol>')
 
 print_info_list = []
 for _, software_product_list in missing_price_project_dict.items():
@@ -31,11 +31,11 @@ for _, software_product_list in missing_price_project_dict.items():
 
 print_info_list.sort()
 for print_info in print_info_list:
-  print '<li><p><b>%s</b></p><ul>' % print_info[0]
+  print('<li><p><b>%s</b></p><ul>' % print_info[0])
   for software_product in print_info[1]:
-    print '<li><i><a href="%s">%s</a></i></li>' % (software_product.getRelativeUrl(), software_product.getTitle())
-  print '</ul></li>'
-print '</ol>'
+    print('<li><i><a href="%s">%s</a></i></li>' % (software_product.getRelativeUrl(), software_product.getTitle()))
+  print('</ul></li>')
+print('</ol>')
 
 #############################################
 # Item without Subscription Request
@@ -59,8 +59,8 @@ for sql_result in portal.portal_catalog(
     orphaned_item_project_dict[item.getFollowUp()] = []
   orphaned_item_project_dict[item.getFollowUp()].append(item)
 
-print '<h1>Subscription not created</h1>'
-print '<ol>'
+print('<h1>Subscription not created</h1>')
+print('<ol>')
 
 print_info_list = []
 for _, item_list in orphaned_item_project_dict.items():
@@ -68,16 +68,16 @@ for _, item_list in orphaned_item_project_dict.items():
 
 print_info_list.sort()
 for print_info in print_info_list:
-  print '<li><p><b>%s</b></p><ul>' % print_info[0]
+  print('<li><p><b>%s</b></p><ul>' % print_info[0])
   for item in print_info[1]:
     product_dict = item.InstanceTree_getSoftwareProduct()
     if product_dict[0] is not None:
       product_title = product_dict[0].getTitle()
     else:
       product_title = ""
-    print '<li><i><a href="%s">%s</a></i> (%s)</li>' % (item.getRelativeUrl(), item.getTitle(), product_title)
-  print '</ul></li>'
-print '</ol>'
+    print('<li><i><a href="%s">%s</a></i> (%s)</li>' % (item.getRelativeUrl(), item.getTitle(), product_title))
+  print('</ul></li>')
+print('</ol>')
 
 context.REQUEST.RESPONSE.setHeader('Content-Type', 'text/html')
 return printed

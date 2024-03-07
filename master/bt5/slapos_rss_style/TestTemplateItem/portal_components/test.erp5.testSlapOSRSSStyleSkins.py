@@ -53,7 +53,7 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
     )
     return instance_tree
 
-  def newUpgradeDecision(self, person, project):
+  def newUpgradeDecision(self, person, project, item):
     self.portal.portal_skins.changeSkin('View')
     destination_decision_value = None
     if person is None:
@@ -66,7 +66,9 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
       reference="TESTUD-%s" % self.new_id,
       destination_value=destination_decision_value,
       destination_decision_value=destination_decision_value,
-      destination_project_value=project
+      destination_project_value=project,
+      aggregate_value=item,
+      causality_value=item
     )
 
     ticket.Ticket_createProjectEvent(
@@ -384,12 +386,12 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
       self.portal.upgrade_decision_module.Folder_getOpenTicketList())
 
     self.login()
-    ticket = self.newUpgradeDecision(person=person2, project=project)
+    ticket = self.newUpgradeDecision(person2, project, None)
     self.login(person.getUserId())
     self._test_upgrade_decision(ticket, initial_amount + 1)
 
     self.login()
-    ticket = self.newUpgradeDecision(person=person2, project=project)
+    ticket = self.newUpgradeDecision(person2, project, None)
     self.login(person.getUserId())
     self._test_upgrade_decision(ticket, initial_amount + 2)
 
@@ -505,7 +507,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
     project = document.getFollowUpValue()
     person = self.makePerson(project, index=1, user=1)
     self.addProjectProductionManagerAssignment(person, project)
-    ticket = self.newUpgradeDecision(person, project)
+    ticket = self.newUpgradeDecision(person, project, document)
     event = ticket.getFollowUpRelatedValue()
     self.tic()
 
@@ -541,7 +543,9 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
       ticket.getTitle())
 
     ticket.start()
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              "'disabled'", attribute='comment'):
+      self.tic()
     self.portal.portal_skins.changeSkin('RSS')
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
@@ -591,7 +595,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
     project = document.getFollowUpValue()
     person = self.makePerson(project, index=1, user=1)
     self.addProjectProductionManagerAssignment(person, project)
-    ticket = self.newUpgradeDecision(person, project)
+    ticket = self.newUpgradeDecision(person, project, document)
     self.tic()
 
     self.portal.portal_skins.changeSkin('RSS')
@@ -808,7 +812,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     # Now add one Upgrade Decision
 
     self.login()
-    upgrade_decision = self.newUpgradeDecision(person, None)
+    upgrade_decision = self.newUpgradeDecision(person, None, None)
     self.login(person.getUserId())
 
     event_ud = upgrade_decision.getFollowUpRelatedValue()

@@ -97,7 +97,7 @@
           ]);
         })
         .push(function (result) {
-          var parameter_hash,
+          var parameter_xml,
             parameter_dict,
             default_url;
 
@@ -107,13 +107,13 @@
             default_url = gadget.state.url_string;
           }
           if (gadget.state.parameter_output === undefined) {
-            parameter_hash = btoa('<?xml version="1.0" encoding="utf-8" ?><instance></instance>');
+            parameter_xml = '<?xml version="1.0" encoding="utf-8" ?><instance></instance>';
           } else {
-            parameter_hash = btoa(gadget.state.parameter_output);
+            parameter_xml = gadget.state.parameter_output;
           }
           parameter_dict = {
             'json_url':  gadget.state.url_string.split('?')[0] + ".json",
-            'parameter_hash': parameter_hash,
+            'parameter_xml': parameter_xml,
             'softwaretype': gadget.state.software_type,
             'restricted_softwaretype': false
           };

@@ -851,7 +851,7 @@ class TestBase_getTicketUrl(TestRSSSyleSkinsMixin):
     self.assertIn("%s/#/" % self.portal.absolute_url(),
                   ticket.Base_getTicketUrl())
 
-    web_site = self.portal.web_site_module.renderjs_oss
+    web_site = self.portal.web_site_module.slapos_master_panel
     self.assertIn("%s/#/" % web_site.absolute_url(),
                   web_site.support_request_module[ticket.getId()].Base_getTicketUrl())
 
@@ -861,7 +861,7 @@ class TestBase_getTicketUrl(TestRSSSyleSkinsMixin):
 
 class TestSlapOSSaleInvoiceTransaction_getRSSTitleAndDescription(TestRSSSyleSkinsMixin):
 
-  def test(self):
+  def test_sale_invoice(self):
     invoice = self.portal.accounting_module.newContent(\
                       portal_type="Sale Invoice Transaction",
                       reference="TESTINVOICE-%s" % self.new_id,
@@ -882,10 +882,10 @@ class TestSlapOSSaleInvoiceTransaction_getRSSTitleAndDescription(TestRSSSyleSkin
       invoice.SaleInvoiceTransaction_getRSSDescription())
 
     invoice_via_website = \
-      self.portal.web_site_module.renderjs_oss.accounting_module[invoice.getId()]
+      self.portal.web_site_module.slapos_master_panel.accounting_module[invoice.getId()]
     self.assertEqual(
       invoice_via_website.SaleInvoiceTransaction_getRSSTitle(),
-      "[RenderJS Runner] %s %s" % (text, invoice.getReference()))
+      "[SlapOS Master Panel] %s %s" % (text, invoice.getReference()))
 
     self.assertNotIn(
       invoice.Base_getTicketUrl(),
@@ -898,6 +898,6 @@ class TestSlapOSSaleInvoiceTransaction_getRSSTitleAndDescription(TestRSSSyleSkin
     invoice.setStartDate(DateTime("02/01/2018"))
     self.assertEqual(
       invoice_via_website.SaleInvoiceTransaction_getRSSTitle(),
-      "[RenderJS Runner] %s %s - (01/02/2018)" % (text, invoice.getReference()))
+      "[SlapOS Master Panel] %s %s - (01/02/2018)" % (text, invoice.getReference()))
 
   

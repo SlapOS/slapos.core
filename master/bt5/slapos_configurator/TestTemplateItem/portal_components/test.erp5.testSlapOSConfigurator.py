@@ -60,9 +60,9 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     self.assertEqual(pref_tool.checkConsistency(), [])
 
     # Check if configuration is properly set:
-    self.assertEqual(
-      pref_tool.slapos_default_system_preference.SystemPreference_checkSystemPreferenceConsistency(),
-      [])
+    consistency_list = pref_tool.slapos_default_system_preference.SystemPreference_checkSystemPreferenceConsistency()
+    self.assertEqual(len(consistency_list), 1)
+    self.assertEqual(str(consistency_list[0]), 'The System Preference subscription assignment should have a destination_project')
 
   def testConfiguredCertificateAuthoringConstraint(self):
     """Make sure Certificate Authoring was configured well,

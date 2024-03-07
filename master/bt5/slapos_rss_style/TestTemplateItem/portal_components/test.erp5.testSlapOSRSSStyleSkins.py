@@ -151,7 +151,7 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
     self.assertEqual([item.summary for item in parsed.entries], ['I need help !'])
 
     self.logout()
-    sleep(1)
+    sleep(2)
     self.login()
     support_request.Ticket_createProjectEvent(
       support_request.getTitle(), 'outgoing', 'Web Message',
@@ -198,7 +198,7 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
     self.assertEqual([item.summary for item in parsed.entries], ['I need help !'])
 
     self.logout()
-    sleep(1)
+    sleep(2)
     self.login()
     support_request.Ticket_createProjectEvent(
       support_request.getTitle(), 'outgoing', 'Web Message',
@@ -693,7 +693,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
       ticket.getTitle())
 
     # Now include a Regulatisation Request
-    sleep(1)
+    sleep(2)
     self.login()
     regularisation_request = self.newRegularisationRequest(person)
     self.login(person.getUserId())

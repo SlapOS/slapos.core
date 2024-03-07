@@ -493,27 +493,6 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 0)
 
-  def makeUpgradeDecision(self):
-    self.portal.portal_skins.changeSkin('View')
-    person = self.makePerson(self.addProject())
-    ticket = self.portal.upgrade_decision_module.newContent(
-      portal_type='Upgrade Decision',
-      title="Upgrade Decision Test %s" % self.new_id,
-      reference="TESTUD-%s" % self.new_id)
-    event = self.portal.event_module.newContent(
-      portal_type='Web Message',
-      follow_up_value=ticket,
-      text_content=ticket.getTitle(),
-      start_date = DateTime(),
-      source_value=person,
-      #destination_value=self.portal.organisation_module.slapos,
-      resource_value=self.portal.service_module.slapos_crm_monitoring
-    )
-    self.tic()
-    event.start()
-    self.tic()
-    return ticket
-
   def test_getTicketRelatedEventList_upgrade_decision_related_to_compute_node(self):
     self._test_getTicketRelatedEventList_upgrade_decision_related(
       self._makeComputeNode(self.addProject())[0])
@@ -523,13 +502,9 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
       self._makeInstanceTree())
 
   def _test_getTicketRelatedEventList_upgrade_decision_related(self, document):
-    ticket = self.makeUpgradeDecision()
-    person = self.makePerson(self.addProject(), index=1, user=1)
-    ticket.newContent(
-      portal_type="Upgrade Decision Line"
-    ).setAggregateValue(document)
-    person.newContent(portal_type="Assignment",
-                      group="company").open()
+    project = document.getFollowUpValue()
+    person = self.makePerson(project, index=1, user=1)
+    ticket = self.newUpgradeDecision(person, project)
     event = ticket.getFollowUpRelatedValue()
     self.tic()
 
@@ -607,13 +582,10 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
       self._makeInstanceTree())
 
   def _test_getTicketRelatedEventList_cancelled_upgrade_decision_related(self, document):
-    ticket = self.makeUpgradeDecision()
-    person = self.makePerson(self.addProject(), index=1, user=1)
-    ticket.newContent(
-      portal_type="Upgrade Decision Line"
-    ).setAggregateValue(document)
-    person.newContent(portal_type="Assignment",
-                      group="company").open()
+    project = document.getFollowUpValue()
+    person = self.makePerson(project, index=1, user=1)
+    self.addProjectProductionManagerAssignment(person, project)
+    ticket = self.newUpgradeDecision(person, project)
     self.tic()
 
     self.portal.portal_skins.changeSkin('RSS')
@@ -630,6 +602,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
     ticket.cancel()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 0)
 

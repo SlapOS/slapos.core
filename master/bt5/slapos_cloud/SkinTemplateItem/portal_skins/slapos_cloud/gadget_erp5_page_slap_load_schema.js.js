@@ -30,13 +30,6 @@
   }
 
   rJS(window)
-    .declareMethod("getBaseUrl", function (url) {
-      var base_url, url_uri = URI(url);
-      base_url = url_uri.path().split("/");
-      base_url.pop();
-      base_url = url.split(url_uri.path())[0] + base_url.join("/");
-      return base_url;
-    })
     .declareMethod("loadJSONSchema", function (url, serialisation) {
       var meta_schema_url = "slapos_load_meta_schema.json";
 
@@ -78,24 +71,6 @@
               }
               return software_json;
             });
-        });
-    })
-
-    .declareMethod("validateJSON", function (base_url, schema_url, generated_json) {
-      var parameter_schema_url = schema_url;
-
-      if (URI(parameter_schema_url).protocol() === "") {
-        if (base_url !== undefined) {
-          parameter_schema_url = base_url + "/" + parameter_schema_url;
-        }
-      }
-
-      return new RSVP.Queue()
-        .push(function () {
-          return $RefParser.dereference(parameter_schema_url);
-        })
-        .push(function (schema) {
-          return new Validator(schema, '7', false).validate(generated_json);
         });
     });
 }(window, rJS, RSVP, btoa, URI, Validator, jIO, JSON, $RefParser));

@@ -504,6 +504,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
   def _test_getTicketRelatedEventList_upgrade_decision_related(self, document):
     project = document.getFollowUpValue()
     person = self.makePerson(project, index=1, user=1)
+    self.addProjectProductionManagerAssignment(person, project)
     ticket = self.newUpgradeDecision(person, project)
     event = ticket.getFollowUpRelatedValue()
     self.tic()
@@ -521,11 +522,13 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
     ticket.plan()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 0)
 
     ticket.confirm()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
@@ -539,6 +542,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
     ticket.start()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
@@ -552,6 +556,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
     ticket.stop()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)
@@ -566,6 +571,7 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
     ticket.deliver()
     self.tic()
+    self.portal.portal_skins.changeSkin('RSS')
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertNotEqual(open_related_ticket_list[0].pubDate, None)

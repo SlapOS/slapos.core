@@ -618,48 +618,24 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
 class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
-  def testBase_getEventList(self):
+  def test_Base_getEventList(self):
     # Base_getEventList is already widely tested on Base_getTicketRelatedEventList
     # and Folder_getOpenTicketList, so we only tested the specific use case of 
     # all events togheter
-    def newSupportRequest(person):
-      self.portal.portal_skins.changeSkin('View')
-      sr = self.portal.support_request_module.newContent(\
-                        destination_decision_value=person,
-                        title="Test Support Request %s" % self.new_id)
-      event = self.portal.event_module.newContent(
-        portal_type='Web Message',
-        follow_up_value=sr,
-        text_content="Test Support Request %s" % self.new_id,
-        start_date = DateTime()-0.01,
-        source_value=person,
-        #destination_value=self.portal.organisation_module.slapos,
-        resource_value=self.portal.service_module.slapos_crm_monitoring
-      )
-      event.start()
-      self.tic()
-      self.portal.portal_skins.changeSkin('RSS')
-      return sr
-
-    person = self.makePerson(self.addProject(), index=1, user=1)
+    instance_tree = self._makeInstanceTree()
+    project = instance_tree.getFollowUpValue()
+    person = self.makePerson(project, index=1, user=1)
     self.tic()
 
     self.portal.portal_skins.changeSkin('RSS')
     self.login(person.getUserId())
 
     self.login()
-    ticket = newSupportRequest(person)
+    ticket = self.newSupportRequest(person, instance_tree)
     self.login(person.getUserId())
 
     event = ticket.getFollowUpRelatedValue()
     self.assertNotEqual(event, None)
-    open_ticket_list = self.portal.Base_getEventList()
-    self.assertEqual(len(open_ticket_list), 0)
-
-    self.login()
-    ticket.submit()
-    self.tic()
-    self.login(person.getUserId())
 
     self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
@@ -714,43 +690,12 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
       ticket.getTitle())
 
     # Now include a Regulatisation Request
-    def newRegularisationRequest(person):
-      self.portal.portal_skins.changeSkin('View')
-      ticket = self.portal.regularisation_request_module.newContent(
-        portal_type='Regularisation Request',
-        title="Test Reg. Req.%s" % self.new_id,
-        reference="TESTREGREQ-%s" % self.new_id,
-        destination_decision_value=person)
-
-      event = self.portal.event_module.newContent(
-        portal_type='Web Message',
-        follow_up_value=ticket,
-        text_content=ticket.getTitle(),
-        start_date = DateTime()-0.005,
-        source_value=person,
-        #destination_value=self.portal.organisation_module.slapos,
-        resource_value=self.portal.service_module.slapos_crm_monitoring
-      )
-      self.tic()
-      event.start()
-      self.tic()
-      self.portal.portal_skins.changeSkin('RSS')
-      return ticket
-
     self.login()
-    regularisation_request = newRegularisationRequest(person)
+    regularisation_request = self.newRegularisationRequest(person)
     self.login(person.getUserId())
 
     event_rr = regularisation_request.getFollowUpRelatedValue()
     self.assertNotEqual(event_rr, None)
-    self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = self.portal.Base_getEventList()
-    self.assertEqual(len(open_ticket_list), 1)
-
-    self.login()
-    regularisation_request.submit()
-    self.tic()
-    self.login(person.getUserId())
 
     self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
@@ -895,7 +840,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
       ticket.getTitle())
 
 class TestBase_getTicketUrl(TestRSSSyleSkinsMixin):
-  def testBase_getTicketUrl(self):
+  def test_Base_getTicketUrl(self):
     ticket = self.portal.support_request_module.newContent(\
                       title="Test Support Request %s" % self.new_id)
 

@@ -27,7 +27,7 @@ for sql_result in sql_result_list:
   soft_proj_dict[soft]['project_list'].append(project)
   soft_proj_dict[soft]['count'] = soft_proj_dict[soft]['count'] + int(sql_result['count(*)'])
 
-print '<ul>'
+print('<ul>')
 """
 for project, soft_dict in project_soft_dict.items():
   print '<li><p>%s</p><ul>' % project
@@ -38,13 +38,13 @@ for project, soft_dict in project_soft_dict.items():
 ordered_list = soft_proj_dict.items()
 ordered_list.sort()
 for soft, info_dict in ordered_list:
-  print '<li><p>%s <b>%i</b> %s</p>' % (soft, info_dict['count'], str(list(set(info_dict['project_list']))))
+  print('<li><p>%s <b>%i</b> %s</p>' % (soft, info_dict['count'], str(list(set(info_dict['project_list'])))))
   """
   for proj in list(set(info_dict['project_list'])):
     print '<li><p>%s</p></li>' % (proj)
   """
-  print '</li>'
-print '</ul>'
+  print('</li>')
+print('</ul>')
 
 context.REQUEST.RESPONSE.setHeader('Content-Type', 'text/html')
 return printed

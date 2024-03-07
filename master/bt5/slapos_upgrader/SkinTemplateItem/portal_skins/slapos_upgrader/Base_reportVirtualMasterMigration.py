@@ -1,7 +1,7 @@
 # https://playground.diagram.codes/d/graph
 
-print "ARROWS"
-print ""
+print("ARROWS")
+print("")
 
 project_dict = {}
 remote_project_dict = {}
@@ -46,8 +46,8 @@ for project_uid, project_value_dict in project_dict.items():
       display_dict[remote_key]['title'] = '%s\n%s' % (display_dict[remote_key]['title'], project_value_dict['title'])
 
 for display_key, display_value in display_dict.items():
-  print '"%s" as %s' % (display_value['title'], display_key)
-print ''
+  print('"%s" as %s' % (display_value['title'], display_key))
+print('')
 
 for display_key, display_value in display_dict.items():
   has_remote = False
@@ -55,10 +55,10 @@ for display_key, display_value in display_dict.items():
     if remote_uid in display_dict:
       # only not destroyed links
       has_remote = True
-      print '%s->%s' % (display_key, remote_uid)
+      print('%s->%s' % (display_key, remote_uid))
   if (not has_remote) and (display_key not in remote_project_dict):
-    print '%s->%s' % (display_key, display_key)
-print ''
+    print('%s->%s' % (display_key, display_key))
+print('')
 
 
 return printed

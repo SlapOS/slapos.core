@@ -1,6 +1,9 @@
 portal = context.getPortalObject()
 alarm_tool = portal.portal_alarms
 
+# Higher than simulable movement priority
+PRIORITY = 4
+
 if alarm_tool.isSubscribed() and len(alarm_id_list):
   # No alarm tool is not subscribed, respect this choice and do not activate any alarm
 
@@ -23,7 +26,7 @@ if alarm_tool.isSubscribed() and len(alarm_id_list):
                                                                   must_reindex_context=False)
       elif alarm.isActive():
         activate_kw = {}
-        activate_kw['priority'] = 3
+        activate_kw['priority'] = PRIORITY
         activate_kw['after_path_and_method_id'] = (alarm.getPath(), 'getId')
         # Wait for the previous alarm run to be finished
         # call on alarm tool to gather and drop with sqldict
@@ -36,6 +39,6 @@ if alarm_tool.isSubscribed() and len(alarm_id_list):
         # wait for the context to be reindexed before activating the alarm
         # ROMAIN: getId is used, because most alarm script ends with an getId activity
         # priority=3, to be executed after all reindex, but also execute simulation _expand
-        alarm.activate(priority=3).activeSense()
+        alarm.activate(priority=PRIORITY).activeSense()
         # Prevent 2 nodes to call activateSense concurrently
         alarm.serialize()

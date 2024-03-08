@@ -153,10 +153,7 @@ def upload_network_cached(software_root, software_url, cached_key,
 
     logger.info('Uploading %s binary into network cache.', software_url)
 
-    # YXU: "file" and "urlmd5" should be removed when server side is ready
     kw = dict(
-      file="file",
-      urlmd5="urlmd5",
       software_url=software_url,
       software_root=software_root,
       multiarch=multiarch(),

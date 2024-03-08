@@ -70,6 +70,25 @@
                 throw new Error("Non valid JSON for software.cfg.json:" + software_cfg_json);
               }
               return software_json;
+            })
+            .push(function (software_json) {
+              // Ensure you dont have duplicated entries
+              var index, entry_list = [], shared, software_type;
+              for (index in software_json['software-type']) {
+                if (software_json['software-type'].hasOwnProperty(index)) {
+                  shared = software_json['software-type'][index].shared ? true : false;
+                  software_type = software_json['software-type'][index]['software-type'];
+                  if (software_type === undefined) {
+                    software_type = index;
+                  }
+                  if (entry_list.includes(software_type + "@" + shared)) {
+                    throw new Error("Non valid JSON for software.cfg.json, duplicated entry (" +
+                      software_type + ", shared: " + shared + "):" + software_cfg_json);
+                  }
+                  entry_list.push(software_type + "@" + shared);
+                }
+              }
+              return software_json;
             });
         });
     });

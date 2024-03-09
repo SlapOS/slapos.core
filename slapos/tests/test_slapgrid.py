@@ -2392,7 +2392,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
 
       log_file = '%s/.slapgrid/log/instance.log' % instance.partition_path
       with open(log_file) as f:
-        self.assertTrue('Error Promise 254554802' in f.read())
+        self.assertIn('Error Promise 254554802', f.read())
       self.assertTrue(instance.error)
       self.assertIsNone(instance.state)
 
@@ -3135,7 +3135,7 @@ exit 0
       self._wait_prerm_script_finished(partition.partition_path)
       with open(os.path.join(partition.partition_path, '.0-prerm_slapos_pre_delete.log')) as f:
         # the script is well finished...
-        self.assertTrue("finished prerm script." in f.read())
+        self.assertIn("finished prerm script.", f.read())
 
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty

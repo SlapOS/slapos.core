@@ -54,7 +54,7 @@ class TestSlapOSShadowPerson(TestSlapOSSecurityMixin):
 
     self.login(shadow_user_id)
     user = getSecurityManager().getUser()
-    self.assertTrue('Authenticated' in user.getRoles())
+    self.assertIn('Authenticated', user.getRoles())
     self.assertSameSet(['R-SHADOW-PERSON', 'SHADOW-%s' % user_id],
       user.getGroups())
 
@@ -95,7 +95,7 @@ class TestSlapOSShadowComputeNode(TestSlapOSSecurityMixin):
 
     self.login(shadow_user_id)
     user = getSecurityManager().getUser()
-    self.assertTrue('Authenticated' in user.getRoles())
+    self.assertIn('Authenticated', user.getRoles())
     self.assertSameSet(['R-SHADOW-COMPUTENODE', 'SHADOW-%s' % user_id],
       user.getGroups())
 
@@ -135,7 +135,7 @@ class TestSlapOSShadowSoftwareInstance(TestSlapOSSecurityMixin):
 
     self.login(shadow_user_id)
     user = getSecurityManager().getUser()
-    self.assertTrue('Authenticated' in user.getRoles())
+    self.assertIn('Authenticated', user.getRoles())
     self.assertSameSet(['R-SHADOW-SOFTWAREINSTANCE', 'SHADOW-%s' % user_id],
       user.getGroups())
 

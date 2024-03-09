@@ -128,7 +128,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
   def isLiveTest(self):
     #return 'ERP5TypeLiveTestCase' in [q.__name__ for q in self.__class__.mro()]
     # XXX - What is the better way to know if we are in live test mode ?
-    return not os.environ.has_key('TEST_CA_PATH')
+    return 'TEST_CA_PATH' not in os.environ
 
   def beforeTearDown(self):
     if self.abort_transaction:

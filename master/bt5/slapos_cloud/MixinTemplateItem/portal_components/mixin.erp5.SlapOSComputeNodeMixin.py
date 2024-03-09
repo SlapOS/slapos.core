@@ -308,10 +308,10 @@ class SlapOSComputeNodeMixin(object):
         parameter_dict.pop('filter_xml'))
       partition_dict['_instance_guid'] = parameter_dict.pop('instance_guid')
       for slave_instance_dict in parameter_dict.get("slave_instance_list", []):
-        if slave_instance_dict.has_key("connection_xml"):
+        if "connection_xml" in slave_instance_dict:
           slave_instance_dict.update(self._instanceXmlToDict(
             slave_instance_dict.pop("connection_xml")))
-        if slave_instance_dict.has_key("xml"):
+        if "xml" in slave_instance_dict:
           slave_instance_dict.update(self._instanceXmlToDict(
             slave_instance_dict.pop("xml")))
       partition_dict['_parameter_dict'].update(parameter_dict)

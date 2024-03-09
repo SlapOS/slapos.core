@@ -46,9 +46,9 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
       return ''
     if context.getPortalType() in ["Software Instance", "Slave Instance"]:
       connection = context.getConnectionXmlAsDict()
-      if connection and connection.has_key('monitor-user') and \
-          connection.has_key('monitor-password') and \
-          connection.has_key('monitor-base-url'):
+      if connection and 'monitor-user' in connection and \
+          'monitor-password' in connection and \
+          'monitor-base-url' in connection:
         return 'https://monitor.app.officejs.com/#/?username=testuser&url=softinst-monitored/public/feeds&password=testpass&page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20AND%20title%3A%22Template%20Software%20Instance%22%20AND%20specialise_title%3A%22Template%20Instance%20Tree%22'
       else:
         return ''
@@ -56,9 +56,9 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
       soft_inst = context.getSuccessorValue()
       if soft_inst:
         connection = soft_inst.getConnectionXmlAsDict()
-        if connection and connection.has_key('monitor-user') and \
-          connection.has_key('monitor-password') and \
-          connection.has_key('monitor-base-url'):
+        if connection and 'monitor-user' in connection and \
+          'monitor-password' in connection and \
+          'monitor-base-url' in connection:
           return 'https://monitor.app.officejs.com/#/?username=testuser&url=softinst-monitored/public/feeds&password=testpass&page=ojsm_dispatch&query=portal_type%3A%22Instance%20Tree%22%20AND%20title%3A%22Template%20Instance%20Tree%22'
       return ''
 

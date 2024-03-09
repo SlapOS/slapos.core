@@ -28,7 +28,7 @@
 from Products.ERP5Type.Utils import initializeProduct, updateGlobals
 from AccessControl.Permissions import manage_users as ManageUsers
 import sys
-import Permissions
+from . import Permissions
 this_module = sys.modules[ __name__ ]
 document_classes = updateGlobals(this_module, globals(),
     permissions_module=Permissions)
@@ -38,10 +38,10 @@ content_constructors = ()
 portal_tools = ()
 from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
 
-import SlapOSShadowAuthenticationPlugin
+from . import SlapOSShadowAuthenticationPlugin
 
 def initialize(context):
-  import Document
+  from . import Document
   initializeProduct(context, this_module, globals(), document_module=Document,
     document_classes=document_classes, object_classes=object_classes,
     portal_tools=portal_tools, content_constructors=content_constructors,

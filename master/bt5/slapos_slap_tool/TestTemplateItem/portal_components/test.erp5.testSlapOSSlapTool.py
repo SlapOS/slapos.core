@@ -103,7 +103,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
       )
     )
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     self.assertEqual(first_etag, response.headers.get('etag'))
     self.assertEqual(first_body_fingerprint, hashData(response.body))
     self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
@@ -119,7 +119,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     self.assertEqual(first_etag, response.headers.get('etag'))
     self.assertEqual(first_body_fingerprint, hashData(response.body))
     self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
@@ -132,7 +132,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     second_etag = self.compute_node._calculateRefreshEtag()
     second_body_fingerprint = hashData(
       self.portal_slap._getSlapComputeNodeXMLFromDict(
@@ -154,7 +154,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     self.assertEqual(second_etag, response.headers.get('etag'))
     self.assertEqual(first_body_fingerprint, hashData(response.body))
     self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
@@ -179,7 +179,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     self.assertEqual(second_etag, response.headers.get('etag'))
     self.assertEqual(first_body_fingerprint, hashData(response.body))
     self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
@@ -193,7 +193,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     third_etag = self.compute_node._calculateRefreshEtag()
     self.assertNotEqual(second_etag, third_etag)
     self.assertEqual(third_etag, response.headers.get('etag'))
@@ -220,7 +220,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     self.assertEqual(third_etag, response.headers.get('etag'))
     self.assertEqual(third_body_fingerprint, hashData(response.body))
     self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
@@ -236,7 +236,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     fourth_etag = self.compute_node._calculateRefreshEtag()
     fourth_body_fingerprint = hashData(
       self.portal_slap._getSlapComputeNodeXMLFromDict(
@@ -269,7 +269,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertFalse('etag' in response.headers)
+    self.assertNotIn('etag', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
 
@@ -645,7 +645,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -693,7 +693,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
 
@@ -807,7 +807,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -1130,7 +1130,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -1161,7 +1161,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertFalse('etag' in response.headers)
+    self.assertNotIn('etag', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -1307,7 +1307,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -1357,7 +1357,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -1405,7 +1405,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -1535,7 +1535,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -2482,7 +2482,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -2530,7 +2530,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
 
@@ -2610,7 +2610,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -2662,7 +2662,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -2710,7 +2710,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -2840,7 +2840,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML

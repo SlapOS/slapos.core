@@ -127,7 +127,7 @@ class TestSlapOSEvent_getRSSTextContent(TestRSSSyleSkinsMixin):
     self.portal.portal_skins.changeSkin('RSS')
     text_content = event.Event_getRSSTextContent()
 
-    self.assertTrue(event.getTextContent() in text_content)
+    self.assertIn(event.getTextContent(), text_content)
     self.assertTrue("Sender: " in text_content, "Sender: not in %s" % text_content)
     self.assertTrue("Recipient: " in text_content, "Recipient: not in %s" % text_content)
     self.assertTrue("Content:" in text_content, "Content: not in %s" % text_content)

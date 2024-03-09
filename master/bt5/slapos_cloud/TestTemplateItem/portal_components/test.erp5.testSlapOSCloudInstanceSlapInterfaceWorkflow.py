@@ -1337,8 +1337,8 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
     self.assertNotEqual(certificate_login.getReference(), None)
     self.assertNotEqual(certificate_login.getDestinationReference(), None)
     serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
-    self.assertTrue(serial in self.software_instance.getSslCertificate())
-    self.assertTrue(certificate_login.getReference() in \
+    self.assertIn(serial, self.software_instance.getSslCertificate())
+    self.assertIn(certificate_login.getReference(), \
        self.software_instance.getSslCertificate().decode('string_escape'))
     self.assertRaises(ValueError, self.software_instance.generateCertificate)
 

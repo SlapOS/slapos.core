@@ -8,7 +8,7 @@ kwargs = state_change.kwargs
 try:
   computer_network_title = kwargs['network_title']
 except KeyError:
-  raise TypeError, "Person_requestNetwork takes exactly 1 argument"
+  raise TypeError("Person_requestNetwork takes exactly 1 argument")
 
 tag = "%s_%s_NetworkInProgress" % (person.getUid(), 
                                computer_network_title)

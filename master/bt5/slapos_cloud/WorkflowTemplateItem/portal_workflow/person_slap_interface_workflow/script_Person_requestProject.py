@@ -8,7 +8,7 @@ kwargs = state_change.kwargs
 try:
   project_title = kwargs['project_title']
 except KeyError:
-  raise TypeError, "Person_requestProject takes exactly 1 argument"
+  raise TypeError("Person_requestProject takes exactly 1 argument")
 
 tag = "%s_%s_ProjectInProgress" % (person.getUid(), 
                                project_title)

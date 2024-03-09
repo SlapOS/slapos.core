@@ -8,7 +8,7 @@ kwargs = state_change.kwargs
 try:
   compute_node_title = kwargs['compute_node_title']
 except KeyError:
-  raise TypeError, "Person_requestComputeNode takes exactly 1 argument"
+  raise TypeError("Person_requestComputeNode takes exactly 1 argument")
 
 tag = "%s_%s_ComputeNodeInProgress" % (person.getUid(), 
                                compute_node_title)

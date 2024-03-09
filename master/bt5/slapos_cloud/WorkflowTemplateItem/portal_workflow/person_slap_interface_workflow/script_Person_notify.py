@@ -11,7 +11,7 @@ try:
   # Aggregate can be None, so it isn't included on the kwargs
   aggregate = kwargs["aggregate"]
 except KeyError:
-  raise TypeError, "Person_requestSupportRequest takes exactly 3 arguments"
+  raise TypeError("Person_requestSupportRequest takes exactly 3 arguments")
 
 aggregate_value = portal.restrictedTraverse(aggregate)
 

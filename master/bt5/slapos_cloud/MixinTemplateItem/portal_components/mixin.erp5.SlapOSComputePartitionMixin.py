@@ -98,9 +98,9 @@ class SlapOSComputePartitionMixin(object):
         software_instance = _assertACI(software_instance_list[0].getObject())
       elif software_instance_count > 1:
         # XXX do not prevent the system to work if one partition is broken
-        raise NotImplementedError, "Too many instances %s linked to %s" % \
+        raise NotImplementedError("Too many instances %s linked to %s" % \
           ([x.path for x in software_instance_list],
-           self.getRelativeUrl())
+           self.getRelativeUrl()))
 
     if software_instance is not None:
       state = software_instance.getSlapState()

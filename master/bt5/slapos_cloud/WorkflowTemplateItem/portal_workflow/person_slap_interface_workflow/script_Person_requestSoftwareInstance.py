@@ -14,10 +14,10 @@ try:
   is_slave = kwargs["shared"]
   root_state = kwargs["state"]
 except KeyError:
-  raise TypeError, "Person_requestSoftwareInstance takes exactly 7 arguments"
+  raise TypeError("Person_requestSoftwareInstance takes exactly 7 arguments")
 
 if is_slave not in [True, False]:
-  raise ValueError, "shared should be a boolean"
+  raise ValueError("shared should be a boolean")
 
 instance_tree_portal_type = "Instance Tree"
 
@@ -38,14 +38,14 @@ request_instance_tree_list = portal.portal_catalog(
   limit=2,
   )
 if len(request_instance_tree_list) > 1:
-  raise NotImplementedError, "Too many instance tree %s found %s" % (software_title, [x.path for x in request_instance_tree_list])
+  raise NotImplementedError("Too many instance tree %s found %s" % (software_title, [x.path for x in request_instance_tree_list]))
 elif len(request_instance_tree_list) == 1:
   request_instance_tree = request_instance_tree_list[0].getObject()
   if (request_instance_tree.getSlapState() == "destroy_requested") or \
      (request_instance_tree.getTitle() != software_title) or \
      (request_instance_tree.getValidationState() != "validated") or \
      (request_instance_tree.getDestinationSection() != person.getRelativeUrl()):
-    raise NotImplementedError, "The system was not able to get the expected instance tree"
+    raise NotImplementedError("The system was not able to get the expected instance tree")
 else:
   if (root_state == "destroyed"):
     # No need to create destroyed subscription.
@@ -80,7 +80,7 @@ elif (root_state == "destroyed"):
   request_instance_tree.requestDestroy(**promise_kw)
   context.REQUEST.set('request_instance_tree', None)
 else:
-  raise ValueError, "state should be started, stopped or destroyed"
+  raise ValueError("state should be started, stopped or destroyed")
 
 request_instance_tree.requestInstance(
   software_release=software_release_url_string,

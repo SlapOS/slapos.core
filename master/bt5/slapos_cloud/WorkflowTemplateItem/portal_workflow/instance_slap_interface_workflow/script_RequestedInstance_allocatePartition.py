@@ -9,7 +9,7 @@ kwargs = state_change.kwargs
 try:
   compute_partition_url = kwargs['compute_partition_url']
 except KeyError:
-  raise TypeError, "RequestedInstance_allocatePartition takes exactly 1 argument"
+  raise TypeError("RequestedInstance_allocatePartition takes exactly 1 argument")
 
 assert instance.getAggregateValue() is None
 compute_partition = portal.restrictedTraverse(compute_partition_url)

@@ -11,8 +11,8 @@ if (instance.getSlapState() != "destroy_requested"):
     elif instance.getPortalType() == 'Slave Instance':
       is_slave = True
     else:
-      raise NotImplementedError, "Unknown portal type %s of %s" % \
-        (instance.getPortalType(), instance.getRelativeUrl())
+      raise NotImplementedError("Unknown portal type %s of %s" % \
+        (instance.getPortalType(), instance.getRelativeUrl()))
 
     if requester is None:
       # This instance has no successor (link removed) and should be trashed

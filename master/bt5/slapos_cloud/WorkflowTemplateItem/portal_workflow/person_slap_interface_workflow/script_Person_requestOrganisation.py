@@ -8,7 +8,7 @@ kwargs = state_change.kwargs
 try:
   organisation_title = kwargs['organisation_title']
 except KeyError:
-  raise TypeError, "Person_requestOrganisation takes exactly 1 argument"
+  raise TypeError("Person_requestOrganisation takes exactly 1 argument")
 
 role_id = context.REQUEST.get("role_id", "client")
 

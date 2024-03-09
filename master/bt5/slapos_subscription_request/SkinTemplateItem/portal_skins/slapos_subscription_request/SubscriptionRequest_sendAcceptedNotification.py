@@ -14,7 +14,7 @@ notification_reference = 'subscription_request-confirmation-%s' % notification_t
 notification_message = portal.portal_notifications.getDocumentValue(reference=notification_reference,
                                                                     language=language)
 if notification_message is None:
-  raise ValueError, 'Unable to found Notification Message with reference "%s".' % notification_reference
+  raise ValueError('Unable to found Notification Message with reference "%s".' % notification_reference)
 
 if reference is None:
   login_list = recipient.searchFolder(portal_type="ERP5 Login")

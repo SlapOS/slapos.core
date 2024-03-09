@@ -11,7 +11,7 @@ try:
   text_content = kwargs['event_content']
   source = kwargs['event_source']
 except KeyError:
-  raise TypeError, "Ticket_requestEvent takes at exactly 3 argument"
+  raise TypeError("Ticket_requestEvent takes at exactly 3 argument")
 
 web_message = portal.event_module.newContent(
   portal_type="Web Message",

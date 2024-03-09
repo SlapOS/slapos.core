@@ -16,8 +16,8 @@ if (instance_tree.getSlapState() == "stop_requested"):
   elif instance.getPortalType() == 'Slave Instance':
     is_slave = True
   else:
-    raise NotImplementedError, "Unknown portal type %s of %s" % \
-        (instance.getPortalType(), instance.getRelativeUrl())
+    raise NotImplementedError("Unknown portal type %s of %s" % \
+        (instance.getPortalType(), instance.getRelativeUrl()))
 
   # Buildout may not propagate the stop request
   requester = instance.getSuccessorRelatedValue()

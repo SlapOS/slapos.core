@@ -228,7 +228,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     self.tic()
     data_array = self._getRelatedDataArrayList(database_debian11)[0]
     # /home/test3/metadata-collect-agent/scan-filesystem/cython/command-line.main.pyx, /home/test3/metadata-collect-agent/scan-filesystem/cython/test.main.pyx
-    self.assertEquals(len(data_array.getArray()), 2)
+    self.assertEqual(len(data_array.getArray()), 2)
     database_debian11.edit(exclude_path_list=['/home/test3/metadata-collect-agent/scan-filesystem/cython'])
     self.tic()
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
@@ -247,7 +247,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
       if 'file_system_image/process_state/converted' in new_array.getPublicationSectionList():
         break
     self.assertIn('file_system_image/process_state/converted', new_array.getPublicationSectionList())
-    self.assertEquals(len(new_array.getArray()), 0)
+    self.assertEqual(len(new_array.getArray()), 0)
 
 
   def test_data_processing_for_the_first_access(self):

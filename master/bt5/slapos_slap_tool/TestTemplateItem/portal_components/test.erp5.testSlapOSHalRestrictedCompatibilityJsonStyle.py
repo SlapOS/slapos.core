@@ -14,8 +14,8 @@ class TestSlapOSHalRestrictedCompatibility(ERP5HALJSONStyleSkinsMixin):
     fake_request = do_fake_request("GET")
     self.logout()
     self.getHatoasWebSite().ERP5Document_getHateoas(REQUEST=fake_request, mode="search")
-    self.assertEquals(fake_request.RESPONSE.status, 401)
-    self.assertEquals(fake_request.RESPONSE.getHeader('WWW-Authenticate'),
+    self.assertEqual(fake_request.RESPONSE.status, 401)
+    self.assertEqual(fake_request.RESPONSE.getHeader('WWW-Authenticate'),
       'X-Delegate uri="%s/connection/login_form{?came_from}"' % self.getHatoasWebSite().absolute_url()
     )
 
@@ -32,8 +32,8 @@ class TestSlapOSHalRestrictedCompatibility(ERP5HALJSONStyleSkinsMixin):
       query='portal_type: "Hosting Subscription"'
     )
 
-    self.assertEquals(fake_request.RESPONSE.status, 200)
-    self.assertEquals(fake_request.RESPONSE.getHeader('Content-Type'),
+    self.assertEqual(fake_request.RESPONSE.status, 200)
+    self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
       "application/hal+json"
     )
     result_dict = json.loads(result)

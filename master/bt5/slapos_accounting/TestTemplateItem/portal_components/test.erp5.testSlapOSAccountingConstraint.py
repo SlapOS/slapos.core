@@ -362,9 +362,9 @@ class TestSalePackingListLine(TestSlapOSConstraintMixin):
   @withAbort
   def test_resource_arity(self):
     category = 'resource'
-    message = "Arity Error for Relation ['%s'] and Type ('Data Operation', 'Service'), arity is"\
+    message = "Arity Error for Relation ['%s'] and Type ('Data Operation', 'Service', 'Software Product'), arity is"\
         " equal to 0 but should be between 1 and 1" % category
-    message_2 = "Arity Error for Relation ['%s'] and Type ('Data Operation', 'Service'), arity is"\
+    message_2 = "Arity Error for Relation ['%s'] and Type ('Data Operation', 'Service', 'Software Product'), arity is"\
         " equal to 2 but should be between 1 and 1" % category
     delivery_line = self.portal.sale_packing_list_module.newContent(
         portal_type='Sale Packing List').newContent(

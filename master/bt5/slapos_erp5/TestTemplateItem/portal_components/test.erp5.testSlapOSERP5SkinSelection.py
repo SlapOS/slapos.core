@@ -51,7 +51,6 @@ erp5_access_token
 erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
-erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -75,11 +74,9 @@ erp5_data_notebook
 erp5_data_set
 erp5_deferred_style_core
 erp5_development
-erp5_dhtml_style
 erp5_diff
 erp5_dms
 erp5_fckeditor
-erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
@@ -203,11 +200,9 @@ erp5_data_set
 erp5_deferred_style
 erp5_deferred_style_core
 erp5_development
-erp5_dhtml_style
 erp5_diff
 erp5_dms
 erp5_fckeditor
-erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary

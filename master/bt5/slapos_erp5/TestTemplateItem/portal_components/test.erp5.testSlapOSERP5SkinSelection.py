@@ -51,6 +51,7 @@ erp5_access_token
 erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
+erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -79,7 +80,6 @@ erp5_dms
 erp5_fckeditor
 erp5_forge_release
 erp5_gadget
-erp5_glossary
 erp5_graph_editor"""
 
 common_folder_list = """erp5_jquery_sheet_editor
@@ -107,9 +107,7 @@ erp5_software_pdm
 erp5_svg_editor
 erp5_syncml
 erp5_system_event
-erp5_toolbox
 erp5_trade
-erp5_vcs
 erp5_web
 erp5_web_crm
 erp5_web_minimal_theme
@@ -205,7 +203,6 @@ erp5_dms
 erp5_fckeditor
 erp5_forge_release
 erp5_gadget
-erp5_glossary
 erp5_graph_editor
 erp5_immobilisation
 erp5_ingestion

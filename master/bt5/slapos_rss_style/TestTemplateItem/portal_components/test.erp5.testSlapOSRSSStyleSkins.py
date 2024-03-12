@@ -761,6 +761,7 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     # Now add one Upgrade Decision
 
     self.login()
+    sleep(2)
     upgrade_decision = self.newUpgradeDecision(person, None, None)
     self.login(person.getUserId())
 

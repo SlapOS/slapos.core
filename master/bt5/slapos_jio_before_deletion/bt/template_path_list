@@ -92,6 +92,8 @@ web_page_module/rjs_gadget_slapos_panel_html
 web_page_module/rjs_gadget_slapos_panel_js
 web_page_module/rjs_gadget_slapos_payment_result_js**
 web_page_module/rjs_gadget_slapos_utils_js
+web_page_module/rjs_leaflet_css
+web_page_module/rjs_leaflet_js
 web_page_module/slapos_admin_front_page
 web_site_module/hostingjs
 web_site_module/hostingjs/**

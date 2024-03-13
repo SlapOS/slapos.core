@@ -1,0 +1,32 @@
+{
+  "name": "Simple Demo",
+  "description": "Demo Simple",
+  "serialisation": "xml",
+  "software-type": {
+    "default": {
+      "title": "Default",
+      "description": "Default reference parameters",
+      "request": "instance-input-schema.json",
+      "response": "instance-output-schema.json",
+      "index": 0
+    },
+    "default-shared": {
+      "title": "Default Shared",
+      "description": "Default shared",
+      "request": "instance-shared-input-schema.json",
+      "response": "instance-output-schema.json",
+      "software-type": "default",
+      "shared": true,
+      "index": 1
+    },
+    "default-shared-duplicated": {
+      "title": "Duplicated another shared",
+      "description": "Default shared",
+      "request": "instance-shared-duplicated-input-schema.json",
+      "response": "instance-output-schema.json",
+      "software-type": "default",
+      "shared": true,
+      "index": 2
+    }
+  }
+}

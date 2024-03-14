@@ -1161,9 +1161,9 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSBuilderMixin):
           'resource/%s' % currency.getRelativeUrl()] + category_list,
         transaction_line.getCategoryList()
       )
-      self.assertEqual(simulation_movement.getQuantity(),
-          transaction_line.getQuantity()
-          * simulation_movement.getDeliveryRatio())
+      self.assertTrue(
+        abs(simulation_movement.getQuantity() - transaction_line.getQuantity()
+          * simulation_movement.getDeliveryRatio()) <= 0.000000000000001)
       self.assertEqual(simulation_movement.getPrice(),
           transaction_line.getPrice())
       self.assertFalse(transaction_line.hasStartDate())

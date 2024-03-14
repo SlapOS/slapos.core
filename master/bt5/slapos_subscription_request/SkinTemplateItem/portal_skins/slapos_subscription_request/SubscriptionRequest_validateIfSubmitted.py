@@ -34,8 +34,8 @@ if (((subscription_request.getSourceProjectValue() is not None) and
                      'Virtual master subscription is not valid.')
 
 # Accept the subscription only if user paid the security payment
-if (subscription_request.getSourceValue() is None) or \
-   (subscription_request.getSource() != subscription_request.getDestination()):
+total_price = subscription_request.getTotalPrice()
+if 0 < total_price:
 
   # Check that user has enough guarantee deposit to request a new service
   portal = context.getPortalObject()
@@ -64,7 +64,6 @@ if (subscription_request.getSourceValue() is None) or \
     grouping_reference=None,
     **assert_price_kw
   )
-  total_price = subscription_request.getTotalPrice()
 
   # XXX what is the guarantee deposit account_type?
   if deposit_amount < payable_amount + total_price:

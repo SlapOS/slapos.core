@@ -32,7 +32,9 @@ else:
 
 ######################################################
 # Find Sale Trade Condition and price
-# destination_section = subscriber_person_value.getCareerSubordination(subscriber_person_value.getRelativeUrl())
+# WARNING: do NOT use career_subordination. It is unrelated to who will pay.
+#          subordination is used for payroll only.
+#          Who pays comes from the trade conditions if needed.
 destination_section = subscriber_person_value.getRelativeUrl()
 
 # Create a temp Sale Order to calculate the real price and find the trade condition
@@ -46,7 +48,8 @@ tmp_sale_order = module.newContent(
   trade_condition_type=trade_condition_type,
   start_date=now,
   destination_value=subscriber_person_value,
-  destination_section=destination_section,
+  # Do NOT use destination_section to search the trade condition
+  # as trade condition will be used to decide who will pay
   #destination_decision_value=source_decision_value,
   destination_project_value=destination_project_value,
   source_project_value=source_project_value,
@@ -115,7 +118,7 @@ subscription_request = portal.subscription_request_module.newContent(
   portal_type='Subscription Request',
   temp_object=temp_object,
   destination_value=subscriber_person_value,
-  destination_section=destination_section,
+  destination_section=tmp_sale_order.getDestinationSection(destination_section),
   destination_decision_value=subscriber_person_value,
   destination_project_value=destination_project_value,
   start_date=now,

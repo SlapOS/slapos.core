@@ -292,7 +292,7 @@
     <tr>
       <td>type</td>
       <td>//input[@name='url_string']</td>
-      <td tal:content="python: 'https://lab.nexedi.com/nexedi/slapos/raw/%s/software/ors-amarisoft/software-%s.cfg' % (context.ERP5Site_getSoftwareReleaseTagVersion(), name)"></td>
+      <td tal:content="python: 'https://lab.nexedi.com/nexedi/slapos/raw/%s/software/ors-amarisoft/software-%s.cfg' % ('1.0.328', name)"></td>
       <td></td>
     </tr>
   </tal:block>

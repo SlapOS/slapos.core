@@ -51,6 +51,10 @@ if 0 < total_price:
     mirror_node_uid=portal.restrictedTraverse('account_module/deposit').getUid(),
     #node_category_strict_membership=['account_type/income'],
     simulation_state= ('stopped', 'delivered'),
+    # Do not gather deposit reimburse
+    # when it does not yet have a grouping_reference
+    omit_asset_decrease=1,
+    grouping_reference=None,
     #src__=1,
     **assert_price_kw
   )

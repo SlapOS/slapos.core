@@ -31,7 +31,7 @@ subscription_request.reindexObject(activate_kw=activate_kw)
 
 # XXX How to specify the trade condition containing the currency and trade model lines?
 specialise_value = subscription_request.getSpecialiseValue(portal_type="Sale Trade Condition")
-if ((specialise_value is not None) and
+while ((specialise_value is not None) and
     (len(specialise_value.contentValues(portal_type="Trade Model Line")) == 0)):
   specialise_value = specialise_value.getSpecialiseValue(portal_type="Sale Trade Condition")
 
@@ -64,6 +64,10 @@ if is_compute_node_payable:
     raise AssertionError('No source section found to generate the invoices')
 else:
   source_section_value = None
+
+destination_section_value = None
+if subscription_request.getDestinationSectionUid() != customer.getUid():
+  destination_section_value = subscription_request.getDestinationSectionValue()
 sale_trade_condition = portal.sale_trade_condition_module.newContent(
   portal_type="Sale Trade Condition",
   reference='%s-ComputeNode' % project.getReference(),
@@ -73,6 +77,8 @@ sale_trade_condition = portal.sale_trade_condition_module.newContent(
   source_value=subscription_request.getSourceValue(),
   source_section_value=source_section_value,
   #source_payment_value=seller_bank_account,
+  # The person will pay for all compute node
+  destination_section_value=destination_section_value,
   price_currency_value=currency_value,
   activate_kw=activate_kw
 )

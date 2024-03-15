@@ -58,6 +58,9 @@ if 0 < total_price:
   payable_amount = portal.portal_simulation.getInventoryAssetPrice(
     mirror_section_uid= subscription_request.getDestinationSectionUid(),
     section_uid= subscription_request.getSourceSectionUid(),
+    # Do not gather deposit receivable
+    # when it does not yet have a grouping_reference
+    omit_asset_decrease=1,
     node_category_strict_membership=['account_type/asset/receivable',
                                      'account_type/liability/payable'],
     simulation_state= ('planned', 'confirmed', 'started', 'stopped', 'delivered'),

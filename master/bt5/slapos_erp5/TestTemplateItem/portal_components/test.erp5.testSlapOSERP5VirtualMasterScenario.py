@@ -661,6 +661,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 allocation supply / line / cell
     # 1 compute node
     # 2 credential request
+    # 1 event
     # 1 instance tree
     # 6 open sale order / line
     # 5 (can reduce to 2) assignment
@@ -672,7 +673,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software instance
     # 1 software product
     # 3 subscription requests
-    self.assertRelatedObjectCount(project, 51)
+    self.assertRelatedObjectCount(project, 52)
 
     self.checkERP5StateBeforeExit()
 

@@ -478,6 +478,258 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.checkERP5StateBeforeExit()
 
 
+  def test_virtual_master_professional_account_with_accounting_scenario(self):
+    with PinnedDateTime(self, DateTime('2024/02/17')):
+      currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
+
+      self.logout()
+      # lets join as slapos administrator, which will manager the project
+      owner_reference = 'project-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, owner_reference)
+
+      self.login()
+      owner_person = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=owner_reference).getParentValue()
+
+      self.tic()
+
+      # hooray, now it is time to create compute_nodes
+      self.logout()
+      self.login(sale_person.getUserId())
+
+      customer_section_organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        title='TestOrganisation Section %s' % self.generateNewId()
+      )
+      customer_section_organisation.validate()
+
+      customer_subordination_organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        title='TestOrganisation Section %s' % self.generateNewId()
+      )
+      customer_subordination_organisation.validate()
+      owner_person.setCareerSubordinationValue(customer_subordination_organisation)
+
+      # XXX Compute Node / Virtual master will be paid by the organisation
+      self.tic()
+      virtual_master_trade_condition = self.portal.portal_catalog.getResultValue(
+        portal_type='Sale Trade Condition',
+        trade_condition_type__uid=self.portal.portal_categories.trade_condition_type.virtual_master.getUid(),
+        price_currency__uid=currency.getUid(),
+        validation_state='validated'
+      )
+      dedicated_trade_condition = self.portal.sale_trade_condition_module.newContent(
+        portal_type='Sale Trade Condition',
+        title='%s dedicated %s' % (virtual_master_trade_condition.getTitle(), owner_person.getTitle()),
+        reference='DEDICATED %s' % self.generateNewId(),
+        destination_value=owner_person,
+        destination_section_value=customer_section_organisation,
+        specialise_value=virtual_master_trade_condition,
+        price_currency=virtual_master_trade_condition.getPriceCurrency(),
+        trade_condition_type=virtual_master_trade_condition.getTradeConditionType()
+      )
+      dedicated_trade_condition.validate()
+      self.tic()
+
+      project_relative_url = self.addProject(is_accountable=True, person=owner_person, currency=currency)
+
+      self.logout()
+
+      self.login()
+      project = self.portal.restrictedTraverse(project_relative_url)
+
+      payment_transaction = customer_section_organisation.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
+      payment_transaction.PaymentTransaction_acceptDepositPayment()
+      self.tic()
+      self.portal.log('SubscriptionRequest_validateIfSubmitted %s' % payment_transaction.getSimulationState())
+
+      preference = self.portal.portal_preferences.slapos_default_system_preference
+      preference.edit(
+        preferred_subscription_assignment_category_list=[
+          'function/customer',
+          'role/client',
+          'destination_project/%s' % project.getRelativeUrl()
+        ]
+      )
+
+      public_server_software = self.generateNewSoftwareReleaseUrl()
+      public_instance_type = 'public type'
+
+      software_product, release_variation, type_variation = self.addSoftwareProduct(
+        "instance product", project, public_server_software, public_instance_type
+      )
+
+      self.logout()
+      self.login(sale_person.getUserId())
+
+      sale_supply = self.portal.sale_supply_module.newContent(
+        portal_type="Sale Supply",
+        title="price for %s" % project.getRelativeUrl(),
+        source_project_value=project,
+        price_currency_value=currency
+      )
+      sale_supply.newContent(
+        portal_type="Sale Supply Line",
+        base_price=9,
+        resource_value=software_product
+      )
+      sale_supply.newContent(
+        portal_type="Sale Supply Line",
+        base_price=99,
+        resource="service_module/slapos_compute_node_subscription"
+      )
+      sale_supply.validate()
+
+      # some preparation
+      self.logout()
+
+      # lets join as slapos administrator, which will own few compute_nodes
+      owner_reference = 'owner-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, owner_reference)
+
+      self.login()
+      owner_person = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=owner_reference).getParentValue()
+
+      # first slapos administrator assignment can only be created by
+      # the erp5 manager
+      self.addProjectProductionManagerAssignment(owner_person, project)
+      self.tic()
+
+      # hooray, now it is time to create compute_nodes
+      self.login(owner_person.getUserId())
+
+      public_server_title = 'Public Server for %s' % owner_reference
+      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
+      public_server = self.portal.portal_catalog.getResultValue(
+          portal_type='Compute Node', reference=public_server_id)
+      self.setAccessToMemcached(public_server)
+      self.assertNotEqual(None, public_server)
+      self.setServerOpenPublic(public_server)
+      public_server.generateCertificate()
+
+      self.addAllocationSupply("for compute node", public_server, software_product,
+                               release_variation, type_variation)
+
+      # and install some software on them
+      self.supplySoftware(public_server, public_server_software)
+
+      # format the compute_nodes
+      self.formatComputeNode(public_server)
+
+      # join as the another visitor and request software instance on public
+      # compute_node
+      self.logout()
+      public_reference = 'public-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, public_reference)
+
+      self.login()
+      public_person = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=public_reference).getParentValue()
+      public_person.setCareerSubordinationValue(customer_subordination_organisation)
+
+      # XXX Instance will be paid by the organisation
+      instance_trade_condition = self.portal.portal_catalog.getResultValue(
+        portal_type='Sale Trade Condition',
+        source_project__relative_url=project_relative_url,
+        trade_condition_type__uid=self.portal.portal_categories.trade_condition_type.instance_tree.getUid(),
+        validation_state='validated'
+      )
+      dedicated_trade_condition = self.portal.sale_trade_condition_module.newContent(
+        portal_type='Sale Trade Condition',
+        title='%s dedicated %s' % (instance_trade_condition.getTitle(), owner_person.getTitle()),
+        reference='DEDICATED %s' % self.generateNewId(),
+        source_project=instance_trade_condition.getSourceProject(),
+        destination_value=public_person,
+        destination_section_value=customer_section_organisation,
+        specialise_value=instance_trade_condition,
+        trade_condition_type=instance_trade_condition.getTradeConditionType()
+      )
+      dedicated_trade_condition.validate()
+      self.tic()
+
+    with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
+      public_instance_title = 'Public title %s' % self.generateNewId()
+      self.checkInstanceAllocation(public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type,
+          public_server, project.getReference())
+
+      self.login()
+      public_person = self.portal.portal_catalog.getResultValue(
+        portal_type='ERP5 Login', reference=public_reference).getParentValue()
+      self.login(owner_person.getUserId())
+
+      # and the instances
+      self.checkInstanceUnallocation(public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type, public_server,
+          project.getReference())
+
+      # and uninstall some software on them
+      self.logout()
+      self.login(owner_person.getUserId())
+      self.supplySoftware(public_server, public_server_software,
+                          state='destroyed')
+
+      self.logout()
+      # Uninstall from compute_node
+      self.login()
+      self.simulateSlapgridSR(public_server)
+
+      self.tic()
+
+    # Check stock
+    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
+      'group_by_section': False,
+      'group_by_node': True,
+      'group_by_variation': True,
+      'resource_uid': software_product.getUid(),
+      'node_uid': customer_section_organisation.getUid(),
+      'project_uid': None,
+      'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
+    })
+    assert len(inventory_list) == 1, len(inventory_list)
+    assert inventory_list[0].quantity == 1, inventory_list[0].quantity
+    resource_vcl = [
+      #'software_release/%s' % release_variation.getRelativeUrl(),
+      'software_type/%s' % type_variation.getRelativeUrl()
+    ]
+    resource_vcl.sort()
+    assert inventory_list[0].getVariationCategoryList() == resource_vcl, "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList())
+
+    # Check accounting
+    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(mirror_section_uid=customer_section_organisation.getUid())
+    assert len(transaction_list) == 2, len(transaction_list)
+    assert transaction_list[0].total_price == 990.0, transaction_list[0].total_price
+    assert transaction_list[1].total_price == -990.0, transaction_list[1].total_price
+
+    self.login()
+
+    # Ensure no unexpected object has been created
+    # 3 accounting transaction / line
+    # 3 allocation supply / line / cell
+    # 1 compute node
+    # 2 credential request
+    # 1 instance tree
+    # 6 open sale order / line
+    # 5 (can reduce to 2) assignment
+    # 16 simulation mvt
+    # 3 packing list / line
+    # 3 sale supply / line
+    # 2 sale trade condition
+    # 1 software installation
+    # 1 software instance
+    # 1 software product
+    # 3 subscription requests
+    self.assertRelatedObjectCount(project, 51)
+
+    self.checkERP5StateBeforeExit()
+
+
   def test_virtual_master_with_accounting_scenario(self):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person = self.bootstrapVirtualMasterTest()

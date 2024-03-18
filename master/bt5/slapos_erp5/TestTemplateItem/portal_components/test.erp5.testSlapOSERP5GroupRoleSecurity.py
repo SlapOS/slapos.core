@@ -181,7 +181,7 @@ class TestPaymentTransaction(TestSlapOSGroupRoleSecurityMixin):
     product = self.portal.accounting_module.newContent(
         portal_type='Payment Transaction')
     product.edit(
-        destination_section_value=person,
+        destination_value=person,
         )
     self.assertSecurityGroup(product,
         ['F-ACCMAN', 'F-ACCAGT', self.user_id], False)
@@ -196,7 +196,7 @@ class TestPaymentTransaction(TestSlapOSGroupRoleSecurityMixin):
     product = self.portal.accounting_module.newContent(
         portal_type='Payment Transaction')
     product.edit(
-        destination_section_value=person,
+        destination_value=person,
         ledger='automated'
         )
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
@@ -237,7 +237,7 @@ class TestSaleInvoiceTransaction(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Sale Invoice Transaction')
     product.edit(
         ledger='automated',
-        destination_section_value=person,
+        destination_value=person,
         )
     self.assertSecurityGroup(product,
         ['F-ACCOUNTING*', self.user_id, person.getUserId(),
@@ -1136,7 +1136,7 @@ class TestPayzenEvent(TestSlapOSGroupRoleSecurityMixin):
     event = self.portal.system_event_module.newContent(
         portal_type='Payzen Event')
     event.edit(
-        destination_section_value=person,
+        destination_value=person,
         )
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
     self.assertSecurityGroup(event,
@@ -1161,7 +1161,7 @@ class TestWechatEvent(TestSlapOSGroupRoleSecurityMixin):
     event = self.portal.system_event_module.newContent(
         portal_type='Wechat Event')
     event.edit(
-        destination_section_value=person,
+        destination_value=person,
         )
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
     self.assertSecurityGroup(event,
@@ -1466,7 +1466,7 @@ class TestOpenSaleOrder(TestSlapOSGroupRoleSecurityMixin):
 
     delivery.edit(
       ledger='automated',
-      destination_section_value=person
+      destination_value=person
     )
     self.assertSecurityGroup(delivery,
         ['F-SALE*', 'F-ACCOUNTING*', self.user_id, person.getUserId()], False)
@@ -1486,7 +1486,7 @@ class TestOpenSaleOrder(TestSlapOSGroupRoleSecurityMixin):
 
     delivery.edit(
       ledger='automated',
-      destination_section_value=None
+      destination_value=None
     )
     self.assertSecurityGroup(delivery,
         ['F-SALE*', 'F-ACCOUNTING*', self.user_id], False)

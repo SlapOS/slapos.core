@@ -688,7 +688,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       'group_by_node': True,
       'group_by_variation': True,
       'resource_uid': software_product.getUid(),
-      'node_uid': customer_section_organisation.getUid(),
+      'node_uid': public_person.getUid(),
       'project_uid': None,
       'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
     })
@@ -720,12 +720,12 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 16 simulation mvt
     # 3 packing list / line
     # 3 sale supply / line
-    # 2 sale trade condition
+    # 3 sale trade condition
     # 1 software installation
     # 1 software instance
     # 1 software product
     # 3 subscription requests
-    self.assertRelatedObjectCount(project, 51)
+    self.assertRelatedObjectCount(project, 52)
 
     self.checkERP5StateBeforeExit()
 

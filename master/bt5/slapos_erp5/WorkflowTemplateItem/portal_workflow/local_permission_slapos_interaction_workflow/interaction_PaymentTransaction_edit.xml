@@ -50,7 +50,7 @@
             <key> <string>trigger_method_id</string> </key>
             <value>
               <tuple>
-                <string>_setDestinationSection.*</string>
+                <string>_setDestination.*</string>
                 <string>_setLedger.*</string>
               </tuple>
             </value>

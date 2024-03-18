@@ -48,7 +48,7 @@ if 0 < total_price:
   deposit_amount = portal.portal_simulation.getInventoryAssetPrice(
     section_uid= subscription_request.getDestinationSectionUid(),
     mirror_section_uid= subscription_request.getSourceSectionUid(),
-    mirror_node_uid=portal.restrictedTraverse('account_module/deposit').getUid(),
+    mirror_node_uid=portal.restrictedTraverse('account_module/deposit_received').getUid(),
     #node_category_strict_membership=['account_type/income'],
     simulation_state= ('stopped', 'delivered'),
     # Do not gather deposit reimburse

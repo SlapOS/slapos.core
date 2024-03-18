@@ -5,7 +5,7 @@
 
 account_id = {
   'asset_receivable_subscriber': 'receivable',
-  'asset_deposit_subscriber': 'deposit',
+  'asset_deposit_subscriber': 'deposit_received',
   'collection': 'payment_to_encash',
   'payable': 'payable'
 }[use]

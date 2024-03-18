@@ -1136,7 +1136,7 @@ class TestPayzenEvent(TestSlapOSGroupRoleSecurityMixin):
     event = self.portal.system_event_module.newContent(
         portal_type='Payzen Event')
     event.edit(
-        destination_value=person,
+        destination_section_value=person,
         )
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
     self.assertSecurityGroup(event,
@@ -1161,7 +1161,7 @@ class TestWechatEvent(TestSlapOSGroupRoleSecurityMixin):
     event = self.portal.system_event_module.newContent(
         portal_type='Wechat Event')
     event.edit(
-        destination_value=person,
+        destination_section_value=person,
         )
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
     self.assertSecurityGroup(event,

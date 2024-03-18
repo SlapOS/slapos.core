@@ -149,6 +149,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       portal_type="Payment Transaction",
       payment_mode=payment_mode,
       causality_value=invoice,
+      destination=invoice.getDestination(),
       destination_section=invoice.getDestinationSection(),
       created_by_builder=1 # to prevent init script to create lines
     )
@@ -222,6 +223,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       portal_type="Payment Transaction",
       payment_mode=payment_mode,
       causality_value=invoice,
+      destination=invoice.getDestination(),
       destination_section=invoice.getDestinationSection(),
       created_by_builder=1 # to prevent init script to create lines
     )
@@ -248,6 +250,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       portal_type="Payment Transaction",
       payment_mode='wechat',
       causality_value=invoice,
+      destination=invoice.getDestination(),
       destination_section=invoice.getDestinationSection(),
       created_by_builder=1 # to prevent init script to create lines
     )
@@ -381,6 +384,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       payment_mode='payzen',
       ledger='automated',
       causality_value=invoice,
+      destination=invoice.getDestination(),
       destination_section=invoice.getDestinationSection(),
       created_by_builder=1 # to prevent init script to create lines
     )
@@ -403,6 +407,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       payment_mode='wechat',
       ledger='automated',
       causality_value=invoice,
+      destination=invoice.getDestination(),
       destination_section=invoice.getDestinationSection(),
       created_by_builder=1 # to prevent init script to create lines
     )

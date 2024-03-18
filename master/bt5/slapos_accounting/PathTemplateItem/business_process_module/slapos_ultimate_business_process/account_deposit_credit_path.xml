@@ -51,7 +51,8 @@
               <tuple>
                 <string>trade_phase/slapos/accounting</string>
                 <string>trade_date/trade_phase/slapos/invoicing</string>
-                <string>source/account_module/deposit</string>
+                <string>source/account_module/deposit_received</string>
+                <string>destination/account_module/deposit_paid</string>
               </tuple>
             </value>
         </item>

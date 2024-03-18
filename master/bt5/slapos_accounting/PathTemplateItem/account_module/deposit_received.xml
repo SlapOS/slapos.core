@@ -64,10 +64,10 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>account_type/income</string>
                 <string>gap/ias/ifrs/4/41/419</string>
                 <string>gap/fr/pcg/4/41/419/4191</string>
-                <string>financial_section/income</string>
+                <string>account_type/liability/payable</string>
+                <string>financial_section/liability/current/payable</string>
               </tuple>
             </value>
         </item>
@@ -79,7 +79,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>deposit</string> </value>
+            <value> <string>deposit_received</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -93,7 +93,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Deposit</string> </value>
+            <value> <string>Deposit Received</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -654,6 +654,147 @@
                           <state>
                             <tuple>
                               <float>1685696120.26</float>
+                              <string>UTC</string>
+                            </tuple>
+                          </state>
+                        </object>
+                      </value>
+                  </item>
+                </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>action</string> </key>
+                      <value> <string>edit</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>actor</string> </key>
+                      <value> <unicode>zope</unicode> </value>
+                  </item>
+                  <item>
+                      <key> <string>comment</string> </key>
+                      <value>
+                        <none/>
+                      </value>
+                  </item>
+                  <item>
+                      <key> <string>error_message</string> </key>
+                      <value> <string></string> </value>
+                  </item>
+                  <item>
+                      <key> <string>serial</string> </key>
+                      <value> <string>1011.24144.12135.18227</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>state</string> </key>
+                      <value> <string>current</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>time</string> </key>
+                      <value>
+                        <object>
+                          <klass> <reference id="4.1"/> </klass>
+                          <tuple>
+                            <reference id="4.2"/>
+                            <reference id="4.3"/>
+                            <none/>
+                          </tuple>
+                          <state>
+                            <tuple>
+                              <float>1710750536.57</float>
+                              <string>UTC</string>
+                            </tuple>
+                          </state>
+                        </object>
+                      </value>
+                  </item>
+                </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>action</string> </key>
+                      <value> <string>edit</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>actor</string> </key>
+                      <value> <unicode>zope</unicode> </value>
+                  </item>
+                  <item>
+                      <key> <string>comment</string> </key>
+                      <value>
+                        <none/>
+                      </value>
+                  </item>
+                  <item>
+                      <key> <string>error_message</string> </key>
+                      <value> <string></string> </value>
+                  </item>
+                  <item>
+                      <key> <string>serial</string> </key>
+                      <value> <string>1015.19548.61969.9028</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>state</string> </key>
+                      <value> <string>current</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>time</string> </key>
+                      <value>
+                        <object>
+                          <klass> <reference id="4.1"/> </klass>
+                          <tuple>
+                            <reference id="4.2"/>
+                            <reference id="4.3"/>
+                            <none/>
+                          </tuple>
+                          <state>
+                            <tuple>
+                              <float>1710750652.07</float>
+                              <string>UTC</string>
+                            </tuple>
+                          </state>
+                        </object>
+                      </value>
+                  </item>
+                </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>action</string> </key>
+                      <value> <string>edit</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>actor</string> </key>
+                      <value> <unicode>zope</unicode> </value>
+                  </item>
+                  <item>
+                      <key> <string>comment</string> </key>
+                      <value>
+                        <none/>
+                      </value>
+                  </item>
+                  <item>
+                      <key> <string>error_message</string> </key>
+                      <value> <string></string> </value>
+                  </item>
+                  <item>
+                      <key> <string>serial</string> </key>
+                      <value> <string>1015.19550.57105.20906</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>state</string> </key>
+                      <value> <string>current</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>time</string> </key>
+                      <value>
+                        <object>
+                          <klass> <reference id="4.1"/> </klass>
+                          <tuple>
+                            <reference id="4.2"/>
+                            <reference id="4.3"/>
+                            <none/>
+                          </tuple>
+                          <state>
+                            <tuple>
+                              <float>1710750683.1</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

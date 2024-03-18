@@ -987,6 +987,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       start_date=DateTime(),
       source_reference=new_source_reference,
       destination_reference=new_destination_reference,
+      destination_value=destination_section_value,
       destination_section_value=destination_section_value,
       destination_project_value=destination_project_value,
       payment_mode=payment_mode,

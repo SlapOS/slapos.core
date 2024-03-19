@@ -490,7 +490,9 @@ WebSection_getPanelPrecacheManifestList</string> </value>
         </item>
         <item>
             <key> <string>configuration_stylesheet_url</string> </key>
-            <value> <string>slapos_master_panel.css</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>configuration_translation_gadget_url</string> </key>
@@ -768,7 +770,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                   <item>
                       <key> <string>comment</string> </key>
                       <value>
-                        <persistent> <string encoding="base64">AAAAAAAAAAs=</string> </persistent>
+                        <none/>
                       </value>
                   </item>
                   <item>
@@ -777,7 +779,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1014.34969.36285.52701</string> </value>
+                      <value> <string>1014.53671.60829.41813</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -797,7 +799,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1707916460.85</float>
+                              <float>1710840530.34</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -807,33 +809,6 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                 </dictionary>
               </list>
             </value>
-        </item>
-      </dictionary>
-    </pickle>
-  </record>
-  <record id="11" aka="AAAAAAAAAAs=">
-    <pickle>
-      <global name="Message" module="Products.ERP5Type.Message"/>
-    </pickle>
-    <pickle>
-      <dictionary>
-        <item>
-            <key> <string>default</string> </key>
-            <value> <string>Translation data updated.</string> </value>
-        </item>
-        <item>
-            <key> <string>domain</string> </key>
-            <value> <string>erp5_ui</string> </value>
-        </item>
-        <item>
-            <key> <string>mapping</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
-            <key> <string>message</string> </key>
-            <value> <string>Translation data updated.</string> </value>
         </item>
       </dictionary>
     </pickle>

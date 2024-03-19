@@ -25,10 +25,11 @@ if hosting_subscription.getPeriodicityMinute() is None:
 if hosting_subscription.getPeriodicityMonthDay() is None:
   # do not use the same date for every users
   # to prevent overload of the server at this date
-  # Use the person creation date for now, as this document is always accessible
+  # Use the section creation date for now, as this document is always accessible
   # without relying on portal_catalog / serialize
-  customer_person = subscription_request.getDestinationDecisionValue()
-  start_date = getClosestDate(target_date=customer_person.getCreationDate(), precision='day')
+  # Section is the entity which want to pay the monthly invoice
+  section_entity = subscription_request.getDestinationSectionValue()
+  start_date = getClosestDate(target_date=section_entity.getCreationDate(), precision='day')
   while start_date.day() >= 29:
     start_date = addToDate(start_date, to_add={'day': -1})
   edit_kw['periodicity_month_day_list'] = [start_date.day()]

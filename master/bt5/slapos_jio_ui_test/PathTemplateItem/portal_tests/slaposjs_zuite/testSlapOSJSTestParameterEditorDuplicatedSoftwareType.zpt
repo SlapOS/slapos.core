@@ -1,0 +1,106 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Test Form don't render if there are duplicated entries on software.cfg.json </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Parameter editor (Duplicated Software Type)</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
+      <tr>
+        <td colspan="3"><b> Set URL for the software release </b></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@name='url_string']</td>
+        <td>${base_url}/web_site_module/hostingjs/hateoas/sample-software-schema/minimal_duplicated_software_type/software.cfg</td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;&lt;/instance&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;&lt;/instance&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[@class="error"]//span[@class="error_msg" and contains(text(), "Non valid JSON for software.cfg.json, duplicated entry")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[@class="error"]//span[@class="error_msg" and contains(text(), "Non valid JSON for software.cfg.json, duplicated entry")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;&lt;/instance&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>pause</td>
+        <td>500</td>
+        <td>500</td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;&lt;instance&gt;&lt;parameter id=&quot;_&quot;&gt;{&quot;simple-string-in-json&quot;: &quot;1024&quot;}&lt;/parameter&gt;&lt;/instance&gt;</td>
+      </tr>
+      <tr>
+        <td>assertValue</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;&lt;instance&gt;&lt;parameter id=&quot;_&quot;&gt;{&quot;simple-string-in-json&quot;: &quot;1024&quot;}&lt;/parameter&gt;&lt;/instance&gt;</td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/click_proceed_and_wait_for_hash" />
+
+      <tr>
+        <td>waitForTextPresent</td>
+        <td>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiID8</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertTextPresent</td>
+        <td>PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiID8+PGluc3RhbmNlPjxwYXJhbWV0ZXIgaWQ9Il8iPnsic2ltcGxlLXN0cmluZy1pbi1qc29uIjogIjEwMjQifTwvcGFyYW1ldGVyPjwvaW5zdGFuY2U+</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+
+</html>

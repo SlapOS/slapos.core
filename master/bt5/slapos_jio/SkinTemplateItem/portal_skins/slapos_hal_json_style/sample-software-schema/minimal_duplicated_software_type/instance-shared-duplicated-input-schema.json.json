@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "description": "Sample paremeters for a Simple Demo under json-in-xml",
+  "properties": {
+    "simple-string-y": {
+      "title": "Another String Y",
+      "description": "Example of Simple String",
+      "type": "string",
+      "default": "Y0"
+    },
+     "simple-integer-x": {
+      "title": "Another String X",
+      "description": "Example of Simple Integer",
+      "type": "integer",
+      "default": "X0"
+    }    
+  }
+}

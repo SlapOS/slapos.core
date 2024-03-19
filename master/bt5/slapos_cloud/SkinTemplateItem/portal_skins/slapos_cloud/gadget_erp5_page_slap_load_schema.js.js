@@ -30,13 +30,6 @@
   }
 
   rJS(window)
-    .declareMethod("getBaseUrl", function (url) {
-      var base_url, url_uri = URI(url);
-      base_url = url_uri.path().split("/");
-      base_url.pop();
-      base_url = url.split(url_uri.path())[0] + base_url.join("/");
-      return base_url;
-    })
     .declareMethod("loadJSONSchema", function (url, serialisation) {
       var meta_schema_url = "slapos_load_meta_schema.json";
 
@@ -77,25 +70,26 @@
                 throw new Error("Non valid JSON for software.cfg.json:" + software_cfg_json);
               }
               return software_json;
+            })
+            .push(function (software_json) {
+              // Ensure you dont have duplicated entries
+              var index, entry_list = [], shared, software_type;
+              for (index in software_json['software-type']) {
+                if (software_json['software-type'].hasOwnProperty(index)) {
+                  shared = software_json['software-type'][index].shared ? true : false;
+                  software_type = software_json['software-type'][index]['software-type'];
+                  if (software_type === undefined) {
+                    software_type = index;
+                  }
+                  if (entry_list.includes(software_type + "@" + shared)) {
+                    throw new Error("Non valid JSON for software.cfg.json, duplicated entry (" +
+                      software_type + ", shared: " + shared + "):" + software_cfg_json);
+                  }
+                  entry_list.push(software_type + "@" + shared);
+                }
+              }
+              return software_json;
             });
-        });
-    })
-
-    .declareMethod("validateJSON", function (base_url, schema_url, generated_json) {
-      var parameter_schema_url = schema_url;
-
-      if (URI(parameter_schema_url).protocol() === "") {
-        if (base_url !== undefined) {
-          parameter_schema_url = base_url + "/" + parameter_schema_url;
-        }
-      }
-
-      return new RSVP.Queue()
-        .push(function () {
-          return $RefParser.dereference(parameter_schema_url);
-        })
-        .push(function (schema) {
-          return new Validator(schema, '7', false).validate(generated_json);
         });
     });
 }(window, rJS, RSVP, btoa, URI, Validator, jIO, JSON, $RefParser));

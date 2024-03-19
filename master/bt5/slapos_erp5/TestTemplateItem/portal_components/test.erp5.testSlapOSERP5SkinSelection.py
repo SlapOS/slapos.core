@@ -78,6 +78,7 @@ erp5_deferred_style_core
 erp5_development
 erp5_dhtml_style
 erp5_diff
+erp5_disaster_recovery
 erp5_dms
 erp5_fckeditor
 erp5_forge
@@ -201,7 +202,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -239,6 +239,7 @@ erp5_deferred_style_core
 erp5_development
 erp5_dhtml_style
 erp5_diff
+erp5_disaster_recovery
 erp5_dms
 erp5_fckeditor
 erp5_forge
@@ -252,7 +253,6 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -290,7 +290,6 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -330,7 +329,6 @@ erp5_jquery
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -372,7 +370,6 @@ erp5_km_widget_library
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : '\n'.join(common_folder_list.split('\n')[3:]),
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -408,7 +405,6 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -445,7 +441,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -481,7 +476,6 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -517,7 +511,6 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -554,7 +547,6 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -592,7 +584,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -630,7 +621,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -668,7 +658,6 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -707,7 +696,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -744,7 +732,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -779,7 +766,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -814,7 +800,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -849,7 +834,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -901,7 +885,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -936,7 +919,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -971,7 +953,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -1006,7 +987,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -1041,7 +1021,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -1079,7 +1058,6 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_disaster_recovery
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,

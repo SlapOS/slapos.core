@@ -292,6 +292,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'erp5_wendelin',
       'erp5_development_wizard',
       'erp5_smart_assistant',
+      'erp5_disaster_recovery',
       'erp5_interaction_drop',
       'slapos_mysql_innodb_catalog',
       'slapos_cloud',

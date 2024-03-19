@@ -175,7 +175,7 @@ class TestPaymentTransaction_getSecurityCategoryFromUser(TestSlapOSCoreMixin):
   def test(self):
     person = self.createPerson()
     payment = self.portal.accounting_module.newContent(
-      portal_type='Payment Transaction', destination_section_value=person)
+      portal_type='Payment Transaction', destination_value=person)
 
     self.assertEqual([],
       self.portal.PaymentTransaction_getSecurityCategoryFromUser([], None, None, None))
@@ -185,10 +185,10 @@ class TestPaymentTransaction_getSecurityCategoryFromUser(TestSlapOSCoreMixin):
 
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
     self.assertEqual({'Assignee': [shadow_user_id]},
-      self.portal.PaymentTransaction_getSecurityCategoryFromUser(["destination_section"], None, payment, None)) 
+      self.portal.PaymentTransaction_getSecurityCategoryFromUser(["destination"], None, payment, None)) 
 
     self.assertEqual({'Assignee': [shadow_user_id]},
-      self.portal.PaymentTransaction_getSecurityCategoryFromUser(["couscous", "destination_section"], None, payment, None)) 
+      self.portal.PaymentTransaction_getSecurityCategoryFromUser(["couscous", "destination"], None, payment, None)) 
 
 class TestPayzenEvent_getSecurityCategoryFromUserr(TestSlapOSCoreMixin):
   def test(self):

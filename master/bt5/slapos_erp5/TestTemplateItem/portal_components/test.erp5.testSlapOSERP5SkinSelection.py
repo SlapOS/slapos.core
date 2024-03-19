@@ -78,7 +78,6 @@ erp5_deferred_style_core
 erp5_development
 erp5_dhtml_style
 erp5_diff
-erp5_disaster_recovery
 erp5_dms
 erp5_fckeditor
 erp5_forge
@@ -239,7 +238,6 @@ erp5_deferred_style_core
 erp5_development
 erp5_dhtml_style
 erp5_diff
-erp5_disaster_recovery
 erp5_dms
 erp5_fckeditor
 erp5_forge

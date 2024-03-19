@@ -1,5 +1,5 @@
 /*jslint nomen: true, maxlen: 200, indent: 2, unparam: true*/
-/*global rJS, console, window, btoa, atob, XMLSerializer,
+/*global rJS, console, window, XMLSerializer,
          DOMParser, URI, vkbeautify, domsugar, Boolean */
 
 (function (window, rJS, XMLSerializer, DOMParser, vkbeautify,
@@ -138,16 +138,11 @@
         return {};
       })
       .push(function (json_dict) {
-        var parameter_hash_input = g.element.querySelectorAll('.parameter_hash_output')[0],
-          serialisation_type = getSerialisationTypeFromForm(g.element),
-          xml_output;
+        var serialisation_type = getSerialisationTypeFromForm(g.element);
         if (serialisation_type === "json-in-xml") {
-          xml_output = jsonDictToParameterJSONInXML(json_dict);
-        } else {
-          xml_output = jsonDictToParameterXML(json_dict);
-        }
-        parameter_hash_input.value = btoa(xml_output);
-        return xml_output;
+          return jsonDictToParameterJSONInXML(json_dict);
+        } 
+        return jsonDictToParameterXML(json_dict);
       });
   }
 
@@ -513,14 +508,7 @@
     .declareMethod('render', function (options) {
       var restricted_softwaretype = false,
         software_type_list = [],
-        parameter_hash = options.parameter_hash,
-        // XXX Do we directly get parameter_xml parameter?
         parameter_xml = options.parameter_xml;
-
-      if (parameter_hash !== undefined) {
-        // A JSON where provided via gadgetfield
-        parameter_xml = atob(parameter_hash);
-      }
 
       if (options.software_type_list !== undefined) {
         software_type_list = options.software_type_list;

@@ -231,10 +231,10 @@
               'json_url': gadget.state.doc.url_string.split('?')[0] + ".json",
               'softwaretype': gadget.state.doc.source_reference,
               'shared': gadget.state.doc.root_slave ? 1 : 0,
-              'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance></instance>')
+              'parameter_xml': '<?xml version="1.0" encoding="utf-8" ?><instance></instance>'
             };
           if (gadget.state.doc.text_content !== undefined) {
-            parameter_dict.parameter_hash = btoa(gadget.state.doc.text_content);
+            parameter_dict.parameter_xml = gadget.state.doc.text_content;
           }
           return gadget.getSetting("hateoas_url")
             .push(function (url) {

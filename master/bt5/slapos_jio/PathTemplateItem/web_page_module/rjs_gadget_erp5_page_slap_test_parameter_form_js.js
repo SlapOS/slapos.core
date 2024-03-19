@@ -91,7 +91,7 @@
           ]);
         })
         .push(function (result) {
-          var parameter_hash,
+          var parameter_xml,
             parameter_dict,
             default_url;
 
@@ -101,13 +101,14 @@
             default_url = gadget.state.url_string;
           }
           if (gadget.state.parameter_output === undefined) {
-            parameter_hash = btoa('<?xml version="1.0" encoding="utf-8" ?><instance></instance>');
+            parameter_xml = '<?xml version="1.0" encoding="utf-8" ?><instance></instance>';
           } else {
-            parameter_hash = btoa(gadget.state.parameter_output);
+            parameter_xml = gadget.state.parameter_output;
           }
           parameter_dict = {
             'json_url':  gadget.state.url_string.split('?')[0] + ".json",
-            'parameter_hash': parameter_hash
+            'parameter_xml': parameter_xml,
+            'software_type_list': []
           };
           if (gadget.state.software_type_list) {
             parameter_dict.software_type_list = gadget.state.software_type_list.split(',');
@@ -167,7 +168,7 @@
                 "your_parameter_hash": {
                   "description": "",
                   "title": "Parameters Hash",
-                  "default": parameter_hash,
+                  "default": btoa(parameter_xml),
                   "css_class": "",
                   "required": 0,
                   "editable": 0,

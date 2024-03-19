@@ -116,7 +116,7 @@
           var doc = result[1],
             parameter_dict = {
               'json_url':  doc.url_string.split('?')[0] + ".json",
-              'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance/>')
+              'parameter_xml': '<?xml version="1.0" encoding="utf-8" ?><instance/>'
             };
           if (options.software_type) {
             parameter_dict['softwaretype'] = options.software_type;

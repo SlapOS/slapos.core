@@ -32,7 +32,7 @@ if obj is None:
 
 # XXX rename script to: setShadowUserAsAssignee
 # use base category instead of Hardcoding getDestinationSectionValue
-person = obj.getDestinationSectionValue(portal_type="Person")
+person = obj.getDestinationValue(portal_type="Person")
 if person is not None:
   if base_category_list:
     return {"Assignee": ["SHADOW-%s" % person.getUserId()]}

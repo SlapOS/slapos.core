@@ -91,6 +91,16 @@ open_order_line = open_sale_order.newContent(
   activate_kw=activate_kw
 )
 
+# XXX calculate tax
+contribution_list = open_order_line.getBaseContributionList()
+# raise NotImplementedError(str(open_order_line.getCategoryList()))
+if 'base_amount/invoicing/taxable' in contribution_list:
+  contribution_list = list(map(lambda x: x.replace('base_amount/invoicing/taxable', 'base_amount/invoicing/taxable/vat/normal_rate'), contribution_list))
+
+  open_order_line.edit(base_contribution_list=contribution_list)
+else:
+  raise NotImplementedError('Unexpected not taxable product %s' % open_order_line.getResource())
+
 if variation_category_list:
   base_id = 'path'
 

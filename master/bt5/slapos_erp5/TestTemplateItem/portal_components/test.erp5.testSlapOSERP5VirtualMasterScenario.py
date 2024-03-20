@@ -177,14 +177,25 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     )
     sale_trade_condition.newContent(
       portal_type="Trade Model Line",
-      reference="VAT",
+      reference="Normal Rate VAT",
       resource="service_module/slapos_tax",
-      base_application="base_amount/invoicing/taxable",
+      base_application="base_amount/invoicing/taxable/vat/normal_rate",
       trade_phase="slapos/tax",
       price=0.2,
       quantity=1.0,
       membership_criterion_base_category=('price_currency', 'base_contribution'),
-      membership_criterion_category=('price_currency/%s' % currency.getRelativeUrl(), 'base_contribution/base_amount/invoicing/taxable')
+      membership_criterion_category=('price_currency/%s' % currency.getRelativeUrl(), 'base_contribution/base_amount/invoicing/taxable/vat/normal_rate')
+    )
+    sale_trade_condition.newContent(
+      portal_type="Trade Model Line",
+      reference="Zero Rate VAT",
+      resource="service_module/slapos_tax",
+      base_application="base_amount/invoicing/taxable/vat/zero_rate",
+      trade_phase="slapos/tax",
+      price=0,
+      quantity=1.0,
+      membership_criterion_base_category=('price_currency', 'base_contribution'),
+      membership_criterion_category=('price_currency/%s' % currency.getRelativeUrl(), 'base_contribution/base_amount/invoicing/taxable/vat/zero_rate')
     )
     sale_trade_condition.validate()
 

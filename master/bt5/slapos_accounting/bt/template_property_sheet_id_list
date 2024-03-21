@@ -9,4 +9,5 @@ SlapOSAccountingSaleTradeConditionConstraint
 SlapOSCloudContractAccounting
 SlapOSCloudContractLineAccounting
 SlapOSLedgerConstraint
+SlapOSMovementConstraint
 SlapOSSaleProfileConstraint

@@ -11,7 +11,9 @@ Hosting Subscription | SlapOSAccountingHostingSubscriptionConstraint
 Hosting Subscription | SlapOSLedgerConstraint
 Internal Invoice Transaction | SlapOSLedgerConstraint
 Internal Invoice Transaction | SlapOSVirtualMasterSourceProjectConstraint
+Invoice Line | SlapOSMovementConstraint
 Open Sale Order Line | SlapOSAccountingOpenSaleOrderLineConstraint
+Open Sale Order Line | SlapOSMovementConstraint
 Open Sale Order | SlapOSAccountingOpenSaleOrderConstraint
 Open Sale Order | SlapOSLedgerConstraint
 Open Sale Order | SlapOSSaleProfileConstraint
@@ -23,11 +25,13 @@ Sale Invoice Transaction | SlapOSLedgerConstraint
 Sale Invoice Transaction | SlapOSSaleProfileConstraint
 Sale Order | SlapOSSaleProfileConstraint
 Sale Packing List Line | SlapOSAccountingSalePackingListLineConstraint
+Sale Packing List Line | SlapOSMovementConstraint
 Sale Packing List | SlapOSAccountingSalePackingListConstraint
 Sale Packing List | SlapOSLedgerConstraint
 Sale Packing List | SlapOSSaleProfileConstraint
 Sale Trade Condition | SlapOSAccountingSaleTradeConditionConstraint
 Sale Trade Condition | SlapOSSaleProfileConstraint
+Simulation Movement | SlapOSMovementConstraint
 Slave Instance | InstanceAccountingSynchronisation
 Software Instance | InstanceAccountingSynchronisation
 User Consumption HTML File | SortIndex

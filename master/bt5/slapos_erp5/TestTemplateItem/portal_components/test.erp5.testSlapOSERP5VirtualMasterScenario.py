@@ -155,7 +155,9 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       portal_type="Organisation",
       title="test-seller-%s" % self.generateNewId(),
       # required to generate accounting report
-      price_currency_value=currency
+      price_currency_value=currency,
+      # required to calculate the vat
+      default_address_region='europe/west/france'
     )
     seller_bank_account = seller_organisation.newContent(
       portal_type="Bank Account",
@@ -184,7 +186,10 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       price=0.2,
       quantity=1.0,
       membership_criterion_base_category=('price_currency', 'base_contribution'),
-      membership_criterion_category=('price_currency/%s' % currency.getRelativeUrl(), 'base_contribution/base_amount/invoicing/taxable/vat/normal_rate')
+      membership_criterion_category=(
+        'price_currency/%s' % currency.getRelativeUrl(),
+        'base_contribution/base_amount/invoicing/taxable/vat/normal_rate'
+      )
     )
     sale_trade_condition.newContent(
       portal_type="Trade Model Line",
@@ -195,7 +200,10 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       price=0,
       quantity=1.0,
       membership_criterion_base_category=('price_currency', 'base_contribution'),
-      membership_criterion_category=('price_currency/%s' % currency.getRelativeUrl(), 'base_contribution/base_amount/invoicing/taxable/vat/zero_rate')
+      membership_criterion_category=(
+        'price_currency/%s' % currency.getRelativeUrl(),
+        'base_contribution/base_amount/invoicing/taxable/vat/zero_rate'
+      )
     )
     sale_trade_condition.validate()
 

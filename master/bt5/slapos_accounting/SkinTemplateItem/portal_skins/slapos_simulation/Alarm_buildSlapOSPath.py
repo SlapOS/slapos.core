@@ -20,7 +20,10 @@ sql_result_list = portal.portal_catalog(
 )
 
 for sql_result in sql_result_list:
-  sql_result.getObject().activate(activity='SQLQueue', tag=tag).SimulationMovement_buildSlapOS(tag=tag)
+  movement = sql_result.getObject()
+  if not movement.checkConsistency():
+    # Only build simulation movement without a consistency error
+    movement.activate(activity='SQLQueue', tag=tag).SimulationMovement_buildSlapOS(tag=tag)
 
 # register activity on alarm object waiting for own tag in order to have only one alarm
 # running in same time

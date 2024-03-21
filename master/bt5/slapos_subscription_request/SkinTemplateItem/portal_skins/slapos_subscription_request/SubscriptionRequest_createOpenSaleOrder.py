@@ -91,20 +91,6 @@ open_order_line = open_sale_order.newContent(
   activate_kw=activate_kw
 )
 
-# XXX calculate tax
-contribution_list = open_order_line.getBaseContributionList()
-
-if 'base_amount/invoicing/taxable' in contribution_list:
-  new_contribution_list = []
-  for contribution in contribution_list:
-    if contribution == 'base_amount/invoicing/taxable':
-      contribution = 'base_amount/invoicing/taxable/vat/normal_rate'
-    new_contribution_list.append(contribution)
-
-  open_order_line.edit(base_contribution_list=new_contribution_list)
-else:
-  raise NotImplementedError('Unexpected not taxable product %s' % open_order_line.getResource())
-
 if variation_category_list:
   base_id = 'path'
 
@@ -133,6 +119,7 @@ open_order_cell.edit(
   activate_kw=activate_kw
 )
 
+open_sale_order.Delivery_fixBaseContributionTaxableRate()
 open_sale_order.plan()
 open_sale_order.validate()
 
@@ -166,6 +153,7 @@ if (subscription_request.getPrice() != 0) and (0 < unused_day_count):
     use=discount_service.getUse(),
     activate_kw=activate_kw
   )
+  sale_packing_list.Delivery_fixBaseContributionTaxableRate()
   sale_packing_list.confirm()
   sale_packing_list.stop()
   sale_packing_list.deliver()

@@ -121,6 +121,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       default_address_city="Campos",
       default_address_street_address="Av Pelinca",
       default_address_zip_code="28480",
+      default_address_region='europe/west/france',
     )
     parsed_url = six.moves.urllib.parse.urlparse(redirect_url)
     self.assertEqual(parsed_url.path.split('/')[-1], 'login_form')

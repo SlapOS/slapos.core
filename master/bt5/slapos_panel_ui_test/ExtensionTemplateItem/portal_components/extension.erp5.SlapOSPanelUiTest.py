@@ -58,7 +58,8 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
       organisation = portal.organisation_module.newContent(
         portal_type="Organisation",
         title="test-seller-%s" % self.generateNewId(),
-        price_currency_value=currency
+        price_currency_value=currency,
+        default_address_region='europe/west/france'
       )
       organisation.validate()
       seller_bank_account = organisation.newContent(
@@ -132,7 +133,8 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
       manager_person = portal.person_module.newContent(
         portal_type='Person',
         first_name='Manual test Project Manager',
-        default_email_coordinate_text='romain+manager@nexedi.com'
+        default_email_coordinate_text='romain+manager@nexedi.com',
+        default_address_region='europe/west/france'
       )
       manager_person.newContent(
         portal_type='ERP5 Login',
@@ -145,7 +147,8 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
       customer_person = portal.person_module.newContent(
         portal_type='Person',
         first_name='Manual test Project Customer',
-        default_email_coordinate_text='romain+customer@nexedi.com'
+        default_email_coordinate_text='romain+customer@nexedi.com',
+        default_address_region='europe/west/france'
       )
       customer_person.newContent(
         portal_type='ERP5 Login',
@@ -159,7 +162,8 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
         remote_customer_person = portal.person_module.newContent(
           portal_type='Person',
           first_name='Manual test Remote Project Customer',
-          default_email_coordinate_text='romain+remote+customer@nexedi.com'
+          default_email_coordinate_text='romain+remote+customer@nexedi.com',
+          default_address_region='europe/west/france'
         )
         remote_customer_person.newContent(
           portal_type='ERP5 Login',

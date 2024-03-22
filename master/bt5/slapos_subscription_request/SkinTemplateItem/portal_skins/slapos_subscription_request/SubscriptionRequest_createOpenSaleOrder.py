@@ -120,6 +120,7 @@ open_order_cell.edit(
 )
 
 open_sale_order.Delivery_fixBaseContributionTaxableRate()
+open_sale_order.Base_checkConsistency()
 open_sale_order.plan()
 open_sale_order.validate()
 
@@ -154,6 +155,7 @@ if (subscription_request.getPrice() != 0) and (0 < unused_day_count):
     activate_kw=activate_kw
   )
   sale_packing_list.Delivery_fixBaseContributionTaxableRate()
+  sale_packing_list.Base_checkConsistency()
   sale_packing_list.confirm()
   sale_packing_list.stop()
   sale_packing_list.deliver()

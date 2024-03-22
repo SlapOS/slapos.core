@@ -519,7 +519,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       customer_section_organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',
-        title='TestOrganisation Section %s' % self.generateNewId()
+        title='TestOrganisation Section %s' % self.generateNewId(),
+        default_address_region='europe/west/france',
+        vat_code=self.generateNewId()
       )
       customer_section_organisation.validate()
 

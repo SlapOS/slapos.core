@@ -85,7 +85,7 @@ if 0 < total_price:
 #return 'YES deposit_amount %s\npayable_amount %s\ntotal_price %s' % (deposit_amount, payable_amount, total_price)
 
 if subscription_request.checkConsistency():
-  return markHistory(subscription_request, str(subscription_request.checkConsistency()[0]))
+  return markHistory(subscription_request, str(subscription_request.checkConsistency()[0].getTranslatedMessage()))
 
 subscription_request.SubscriptionRequest_createOpenSaleOrder()
 subscription_request.validate()

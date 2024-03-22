@@ -5,6 +5,7 @@ Subscription Request | InstanceTree
 Subscription Request | Person
 Subscription Request | Price
 Subscription Request | Reference
+Subscription Request | SlapOSSaleProfileConstraint
 Subscription Request | SlapOSSubscriptionRequestConstraint
 Subscription Request | Task
 Subscription Request | Url

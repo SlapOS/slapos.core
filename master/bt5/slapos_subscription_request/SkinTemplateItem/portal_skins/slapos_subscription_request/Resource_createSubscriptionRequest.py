@@ -32,10 +32,6 @@ else:
 
 ######################################################
 # Find Sale Trade Condition and price
-# WARNING: do NOT use career_subordination. It is unrelated to who will pay.
-#          subordination is used for payroll only.
-#          Who pays comes from the trade conditions if needed.
-destination_section = subscriber_person_value.getRelativeUrl()
 
 # Create a temp Sale Order to calculate the real price and find the trade condition
 now = DateTime()
@@ -118,7 +114,13 @@ subscription_request = portal.subscription_request_module.newContent(
   portal_type='Subscription Request',
   temp_object=temp_object,
   destination_value=subscriber_person_value,
-  destination_section=tmp_sale_order.getDestinationSection(destination_section),
+  # Do not set a default destination section if it is not defined on a trade condition
+  # this will allow Sale Manager to review the subscription (to fill address, maybe create an organisation)
+  # and maybe even create a trade condition for the customer
+  # WARNING: do NOT use career_subordination. It is unrelated to who will pay.
+  #          subordination is used for payroll only.
+  #          Who pays comes from the trade conditions if needed.
+  destination_section=tmp_sale_order.getDestinationSection(),
   destination_decision_value=subscriber_person_value,
   destination_project_value=destination_project_value,
   start_date=now,
@@ -139,9 +141,6 @@ subscription_request = portal.subscription_request_module.newContent(
 )
 if temp_object:
   subscription_request.edit(reference="foo")
-
-if len(subscription_request.checkConsistency()) != 0:
-  raise AssertionError(subscription_request.checkConsistency())
 
 if not temp_object:
   subscription_request.submit()

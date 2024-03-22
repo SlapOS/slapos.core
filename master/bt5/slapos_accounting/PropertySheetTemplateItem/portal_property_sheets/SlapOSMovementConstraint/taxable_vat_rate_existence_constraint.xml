@@ -26,7 +26,7 @@
         </item>
         <item>
             <key> <string>expression</string> </key>
-            <value> <string>python: \'base_amount/invoicing/taxable\' not in context.getBaseContributionList()</string> </value>
+            <value> <string>python: (not context.hasSourceSection()) or (context.getSourceSection() == context.getDestinationSection()) or (\'base_amount/invoicing/taxable\' not in context.getBaseContributionList())</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

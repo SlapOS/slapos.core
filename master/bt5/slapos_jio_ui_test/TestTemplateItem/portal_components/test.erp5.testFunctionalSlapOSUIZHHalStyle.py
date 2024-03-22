@@ -37,7 +37,9 @@ class TestSlapOSUIZHHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
     ERP5TypeFunctionalTestCase.afterSetUp(self)
     SlapOSTestCaseMixin.afterSetUp(self)
     # set default available language as "zh" for Chinese UI test
-    self.getPortalObject().web_site_module.hostingjs.setDefaultAvailableLanguage('zh')
+    self.portal.web_site_module.hostingjs.setDefaultAvailableLanguage('zh')
+    # fix consistency to update translation
+    self.portal.web_site_module.hostingjs.fixConsistency()
     self.tic()
 
   def getBusinessTemplateList(self):

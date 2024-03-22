@@ -17,11 +17,11 @@ class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(
     self.tic()
 
     # check that no interaction has recreated the instance
-    self.assertFalse(self.instance_tree.getTitle() in
+    self.assertNotIn(self.instance_tree.getTitle(),
         self.instance_tree.getSuccessorTitleList())
 
     self.instance_tree.InstanceTree_assertSuccessor()
-    self.assertTrue(self.instance_tree.getTitle() in
+    self.assertIn(self.instance_tree.getTitle(),
         self.instance_tree.getSuccessorTitleList())
 
   def test_InstanceTree_assertSuccessor_stop_requested(self):
@@ -31,11 +31,11 @@ class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(
     self.tic()
 
     # check that no interaction has recreated the instance
-    self.assertFalse(self.instance_tree.getTitle() in
+    self.assertNotIn(self.instance_tree.getTitle(),
         self.instance_tree.getSuccessorTitleList())
 
     self.instance_tree.InstanceTree_assertSuccessor()
-    self.assertTrue(self.instance_tree.getTitle() in
+    self.assertIn(self.instance_tree.getTitle(),
         self.instance_tree.getSuccessorTitleList())
 
   def test_InstanceTree_assertSuccessor_destroy_requested(self):
@@ -45,11 +45,11 @@ class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(
     self.tic()
 
     # check that no interaction has recreated the instance
-    self.assertFalse(self.instance_tree.getTitle() in
+    self.assertNotIn(self.instance_tree.getTitle(),
         self.instance_tree.getSuccessorTitleList())
 
     self.instance_tree.InstanceTree_assertSuccessor()
-    self.assertFalse(self.instance_tree.getTitle() in
+    self.assertNotIn(self.instance_tree.getTitle(),
         self.instance_tree.getSuccessorTitleList())
 
   def test_InstanceTree_assertSuccessor_archived(self):
@@ -58,11 +58,11 @@ class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(
     self.tic()
 
     # check that no interaction has recreated the instance
-    self.assertFalse(self.instance_tree.getTitle() in
+    self.assertNotIn(self.instance_tree.getTitle(),
         self.instance_tree.getSuccessorTitleList())
 
     self.instance_tree.InstanceTree_assertSuccessor()
-    self.assertFalse(self.instance_tree.getTitle() in
+    self.assertNotIn(self.instance_tree.getTitle(),
         self.instance_tree.getSuccessorTitleList())
 
   def test_alarm_renamed(self):

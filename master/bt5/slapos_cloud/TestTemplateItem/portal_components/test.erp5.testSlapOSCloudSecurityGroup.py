@@ -100,7 +100,7 @@ class TestSlapOSComputeNodeSecurity(TestSlapOSSecurityMixin):
 
     self.login(user_id)
     user = getSecurityManager().getUser()
-    self.assertTrue('Authenticated' in user.getRoles())
+    self.assertIn('Authenticated', user.getRoles())
     self.assertSameSet(['R-COMPUTER'],
       user.getGroups())
 
@@ -136,7 +136,7 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
     # instance w/o subscription is loggable and it has some roles
     self.login(user_id)
     user = getSecurityManager().getUser()
-    self.assertTrue('Authenticated' in user.getRoles())
+    self.assertIn('Authenticated', user.getRoles())
     self.assertSameSet(['R-INSTANCE'],
       user.getGroups())
 
@@ -154,7 +154,7 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
     self.portal.portal_caches.clearAllCache()
     self.login(user_id)
     user = getSecurityManager().getUser()
-    self.assertTrue('Authenticated' in user.getRoles())
+    self.assertIn('Authenticated', user.getRoles())
     self.assertSameSet(['R-INSTANCE', subscription_reference],
       user.getGroups())
 
@@ -196,7 +196,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
 
     self.login(person.getUserId())
     user = getSecurityManager().getUser()
-    self.assertTrue('Authenticated' in user.getRoles())
+    self.assertIn('Authenticated', user.getRoles())
     self.assertSameSet([], user.getGroups())
 
 
@@ -209,7 +209,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     self.portal.portal_caches.clearAllCache()
     self.login(person.getUserId())
     user = getSecurityManager().getUser()
-    self.assertTrue('Authenticated' in user.getRoles())
+    self.assertIn('Authenticated', user.getRoles())
     self.assertSameSet(['G-COMPANY'], user.getGroups())
 
     # add to role category
@@ -220,7 +220,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     self.portal.portal_caches.clearAllCache()
     self.login(person.getUserId())
     user = getSecurityManager().getUser()
-    self.assertTrue('Authenticated' in user.getRoles())
+    self.assertIn('Authenticated', user.getRoles())
     self.assertSameSet(['R-MEMBER', 'G-COMPANY'], user.getGroups())
 
     # add to role for project
@@ -236,7 +236,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     self.portal.portal_caches.clearAllCache()
     self.login(person.getUserId())
     user = getSecurityManager().getUser()
-    self.assertTrue('Authenticated' in user.getRoles())
+    self.assertIn('Authenticated', user.getRoles())
     self.assertSameSet(['R-MEMBER', 'G-COMPANY', project.getReference()], user.getGroups())
 
     # add to role for project
@@ -253,7 +253,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     self.portal.portal_caches.clearAllCache()
     self.login(person.getUserId())
     user = getSecurityManager().getUser()
-    self.assertTrue('Authenticated' in user.getRoles())
+    self.assertIn('Authenticated', user.getRoles())
     self.assertSameSet(['R-MEMBER', 'G-COMPANY', organisation.getReference(),
       project.getReference()], user.getGroups())
 

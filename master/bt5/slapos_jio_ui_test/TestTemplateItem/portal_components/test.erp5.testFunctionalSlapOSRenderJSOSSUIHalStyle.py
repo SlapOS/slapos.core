@@ -37,7 +37,9 @@ class TestSlapOSRenderJSOSSUIHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTes
     ERP5TypeFunctionalTestCase.afterSetUp(self)
     SlapOSTestCaseMixin.afterSetUp(self)
     # Ensuring the default available language is "en" for English UI test
-    self.getPortalObject().web_site_module.renderjs_oss.setDefaultAvailableLanguage('en')
+    self.portal.web_site_module.renderjs_oss.setDefaultAvailableLanguage('en')
+    # fix consistency to update translation
+    self.portal.web_site_module.renderjs_oss.fixConsistency()
     self.tic()
 
 def test_suite():

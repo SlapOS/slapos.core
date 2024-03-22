@@ -88,7 +88,7 @@ class TestSlapOSCoreComputeNodeUpdateFromDict(SlapOSTestCaseMixinWithAbort):
     self.assertEqual(address.getIpAddress(), 'e')
     self.assertEqual(address.getNetmask(), 'f')
     # Existing document should be edited if possible
-    self.assertTrue(address.getId() in ('foo', 'bar'))
+    self.assertIn(address.getId(), ('foo', 'bar'))
 
   #############################################
   # Compute Partition network information

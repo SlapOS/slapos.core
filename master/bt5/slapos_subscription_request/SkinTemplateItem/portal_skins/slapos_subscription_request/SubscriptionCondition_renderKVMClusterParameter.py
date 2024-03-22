@@ -35,6 +35,11 @@ for i in range(amount):
 xml_parameter = """<?xml version="1.0" encoding="utf-8"?>
 <instance>
     <parameter id="_">%s</parameter>
-</instance>""" % json.dumps(json_parameter, indent=2)
+</instance>""" % json.dumps(json_parameter,
+  indent=2,
+  sort_keys=True,
+  # BBB PY2 https://github.com/python/cpython/issues/60537#issuecomment-1093598422
+  separators=(',', ': '),
+)
 
 return xml_parameter

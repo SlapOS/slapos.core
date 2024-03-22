@@ -966,9 +966,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       "TestSubscriptionSkins Notification Message %s %s" % (
         subscription_request.getLanguage(), notification_message),
       mail_message.getTitle())
-    self.assertTrue(subscription_request.getDefaultEmailText() in \
+    self.assertIn(subscription_request.getDefaultEmailText(), \
                  mail_message.getTextContent())
-    self.assertTrue(subscription_request.getDestinationSectionTitle() in \
+    self.assertIn(subscription_request.getDestinationSectionTitle(), \
       mail_message.getTextContent())
 
   def checkEmailPaymentNotification(self, subscription_request,
@@ -984,9 +984,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       mail_message.getTitle())
     invoice = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
     self.assertEqual(invoice.getSimulationState(), 'stopped')
-    self.assertTrue(invoice.getRelativeUrl() in \
+    self.assertIn(invoice.getRelativeUrl(), \
                  mail_message.getTextContent())
-    self.assertTrue(subscription_request.getDestinationSectionTitle() in \
+    self.assertIn(subscription_request.getDestinationSectionTitle(), \
       mail_message.getTextContent())
 
   def checkEmailInstanceNotification(self, subscription_request,
@@ -1002,9 +1002,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       mail_message.getTitle())
     instance_tree = subscription_request.getAggregateValue()
     self.assertEqual(instance_tree.getSlapState(), 'start_requested')
-    self.assertTrue(instance_tree.getRelativeUrl() in \
+    self.assertIn(instance_tree.getRelativeUrl(), \
                  mail_message.getTextContent())
-    self.assertTrue(subscription_request.getDestinationSectionTitle() in \
+    self.assertIn(subscription_request.getDestinationSectionTitle(), \
       mail_message.getTextContent())
 
   def checkRelatedInstance(self, subscription_request):

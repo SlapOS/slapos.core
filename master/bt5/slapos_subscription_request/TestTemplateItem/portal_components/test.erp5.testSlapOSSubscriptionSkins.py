@@ -122,11 +122,11 @@ class TestSubscriptionCondition_renderKVMClusterParameter(TestSubscriptionSkinsM
         "KVM0": {
             "cpu-count": 40,
             "cpu-max-count": 41,
-            "ram-size": 245760,
-            "ram-max-size": 245761,
+            "disable-ansible-promise": true,
             "disk-device-path": "/dev/sdb",
             "project-guid": "PROJ-XXXX",
-            "disable-ansible-promise": true
+            "ram-max-size": 245761,
+            "ram-size": 245760
         }
     }
 }</parameter>
@@ -144,13 +144,13 @@ class TestSubscriptionCondition_renderKVMClusterParameter(TestSubscriptionSkinsM
     <parameter id="_">{
   "kvm-partition-dict": {
     "KVM0": {
-      "disable-ansible-promise": true, 
-      "disk-device-path": "/dev/sdb", 
-      "cpu-count": 40, 
-      "ram-max-size": 245761, 
-      "ram-size": 245760, 
-      "project-guid": "PROJ-XXXX", 
-      "cpu-max-count": 41, 
+      "cpu-count": 40,
+      "cpu-max-count": 41,
+      "disable-ansible-promise": true,
+      "disk-device-path": "/dev/sdb",
+      "project-guid": "PROJ-XXXX",
+      "ram-max-size": 245761,
+      "ram-size": 245760,
       "sticky-computer": true
     }
   }
@@ -163,23 +163,23 @@ class TestSubscriptionCondition_renderKVMClusterParameter(TestSubscriptionSkinsM
     <parameter id="_">{
   "kvm-partition-dict": {
     "KVM0": {
-      "disable-ansible-promise": true, 
-      "disk-device-path": "/dev/sdb", 
-      "cpu-count": 40, 
-      "ram-max-size": 245761, 
-      "ram-size": 245760, 
-      "project-guid": "PROJ-XXXX", 
-      "cpu-max-count": 41, 
+      "cpu-count": 40,
+      "cpu-max-count": 41,
+      "disable-ansible-promise": true,
+      "disk-device-path": "/dev/sdb",
+      "project-guid": "PROJ-XXXX",
+      "ram-max-size": 245761,
+      "ram-size": 245760,
       "sticky-computer": true
-    }, 
+    },
     "KVM1": {
-      "disk-device-path": "/dev/sdb", 
-      "cpu-count": 40, 
-      "ram-max-size": 245761, 
-      "cpu-max-count": 41, 
-      "disable-ansible-promise": true, 
-      "ram-size": 245760, 
-      "project-guid": "PROJ-XXXX"
+      "cpu-count": 40,
+      "cpu-max-count": 41,
+      "disable-ansible-promise": true,
+      "disk-device-path": "/dev/sdb",
+      "project-guid": "PROJ-XXXX",
+      "ram-max-size": 245761,
+      "ram-size": 245760
     }
   }
 }</parameter>

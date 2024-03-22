@@ -8,7 +8,7 @@ kwargs = state_change.kwargs
 try:
   request_url = kwargs['request_url']
 except KeyError:
-  raise TypeError, "Person_requestToken takes exactly 1 argument"
+  raise TypeError("Person_requestToken takes exactly 1 argument")
 
 request_method = "POST"
 access_token = portal.access_token_module.newContent(

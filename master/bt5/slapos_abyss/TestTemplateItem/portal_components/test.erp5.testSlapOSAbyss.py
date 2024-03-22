@@ -228,7 +228,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     self.tic()
     data_array = self._getRelatedDataArrayList(database_debian11)[0]
     # /home/test3/metadata-collect-agent/scan-filesystem/cython/command-line.main.pyx, /home/test3/metadata-collect-agent/scan-filesystem/cython/test.main.pyx
-    self.assertEquals(len(data_array.getArray()), 2)
+    self.assertEqual(len(data_array.getArray()), 2)
     database_debian11.edit(exclude_path_list=['/home/test3/metadata-collect-agent/scan-filesystem/cython'])
     self.tic()
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
@@ -246,8 +246,8 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     for new_array in new_array_list:
       if 'file_system_image/process_state/converted' in new_array.getPublicationSectionList():
         break
-    self.assertTrue('file_system_image/process_state/converted' in new_array.getPublicationSectionList())
-    self.assertEquals(len(new_array.getArray()), 0)
+    self.assertIn('file_system_image/process_state/converted', new_array.getPublicationSectionList())
+    self.assertEqual(len(new_array.getArray()), 0)
 
 
   def test_data_processing_for_the_first_access(self):
@@ -295,7 +295,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     for compute_node in self.compute_node_list:
       data_array_list = self._getRelatedDataArrayList(compute_node)
       self.assertEqual(len(data_array_list), 1)
-      self.assertTrue("file_system_image/process_state/converted" in data_array_list[0].getPublicationSectionList())
+      self.assertIn("file_system_image/process_state/converted", data_array_list[0].getPublicationSectionList())
 
     self.portal.portal_alarms.wendelin_handle_analysis.activeSense()
     self.tic()
@@ -304,7 +304,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     for compute_node in self.compute_node_list:
       data_array_list = self._getRelatedDataArrayList(compute_node)
       self.assertEqual(len(data_array_list), 1)
-      self.assertTrue("file_system_image/process_state/converted" in data_array_list[0].getPublicationSectionList())
+      self.assertIn("file_system_image/process_state/converted", data_array_list[0].getPublicationSectionList())
 
     # process data array
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
@@ -315,7 +315,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     for compute_node in self.compute_node_list:
       data_array_list = self._getRelatedDataArrayList(compute_node)
       self.assertEqual(len(data_array_list), 2)
-      self.assertTrue("file_system_image/process_state/converted" in data_array_list[-1].getPublicationSectionList())
+      self.assertIn("file_system_image/process_state/converted", data_array_list[-1].getPublicationSectionList())
 
 
     self.portal.portal_alarms.wendelin_handle_analysis.activeSense()
@@ -324,7 +324,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     for compute_node in self.compute_node_list:
       data_array_list = self._getRelatedDataArrayList(compute_node)
       self.assertEqual(len(data_array_list), 2)
-      self.assertTrue("file_system_image/process_state/converted" in data_array_list[-1].getPublicationSectionList())
+      self.assertIn("file_system_image/process_state/converted", data_array_list[-1].getPublicationSectionList())
 
 
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
@@ -384,28 +384,28 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     for compute_node in self.compute_node_list:
       data_array_list = self._getRelatedDataArrayList(compute_node)
       self.assertEqual(len(data_array_list), 2)
-      self.assertTrue("file_system_image/process_state/converted" in data_array_list[-1].getPublicationSectionList())
+      self.assertIn("file_system_image/process_state/converted", data_array_list[-1].getPublicationSectionList())
 
 
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['database_debian10'])
     self.assertEqual(len(data_array_list), 2)
-    self.assertTrue("file_system_image/process_state/archived" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/archived", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
 
 
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['database_debian11'])
     self.assertEqual(len(data_array_list), 2)
-    self.assertTrue("file_system_image/process_state/archived" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/archived", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
 
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])
     self.assertEqual(len(data_array_list), 2)
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
 
-    self.assertTrue('file_system_image/diff_end/identical' in data_array_list[1].getPublicationSectionList())
+    self.assertIn('file_system_image/diff_end/identical', data_array_list[1].getPublicationSectionList())
 
     # now ingest different data for node_debian10
     request_dict =  {
@@ -421,24 +421,24 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     self.tic()
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])
     self.assertEqual(len(data_array_list), 3)
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
     # This is the new one with different value
-    self.assertTrue("file_system_image/process_state/converted" in data_array_list[2].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", data_array_list[2].getPublicationSectionList())
 
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])
     self.assertEqual(len(data_array_list), 4)
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[2].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[2].getPublicationSectionList())
     # array 3 is the result of array 0 and array 2, Note: array 0 is the first access data
-    self.assertTrue("file_system_image/process_state/converted" in data_array_list[3].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", data_array_list[3].getPublicationSectionList())
 
     predecessor_list = [x.getRelativeUrl() for x in data_array_list[3].getPredecessorValueList(portal_type='Data Array')]
-    self.assertTrue(data_array_list[0].getRelativeUrl() in predecessor_list)
-    self.assertTrue(data_array_list[2].getRelativeUrl() in predecessor_list)
+    self.assertIn(data_array_list[0].getRelativeUrl(), predecessor_list)
+    self.assertIn(data_array_list[2].getRelativeUrl(), predecessor_list)
     # only have one diff
     self.assertTrue(len(data_array_list[3].getArray()), 1)
 
@@ -447,17 +447,17 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     # array 3 compare with database_debian10
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])
     self.assertEqual(len(data_array_list), 5)
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[2].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[3].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[2].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[3].getPublicationSectionList())
     # array 4 is result of array 3 and database_debian10
-    self.assertTrue("file_system_image/process_state/converted" in data_array_list[4].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", data_array_list[4].getPublicationSectionList())
 
     predecessor_list = [x.getRelativeUrl() for x in data_array_list[4].getPredecessorValueList(portal_type='Data Array')]
     last_detabase_debian10 = self._getRelatedDataArrayList(self.portal.compute_node_module['database_debian10'])[-1]
-    self.assertTrue(last_detabase_debian10.getRelativeUrl() in predecessor_list)
-    self.assertTrue(data_array_list[3].getRelativeUrl() in predecessor_list)
+    self.assertIn(last_detabase_debian10.getRelativeUrl(), predecessor_list)
+    self.assertIn(data_array_list[3].getRelativeUrl(), predecessor_list)
     self.assertTrue(len(data_array_list[4].getArray()), 1)
 
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
@@ -465,25 +465,25 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     # array 4 compare with database_debian11
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])
     self.assertEqual(len(data_array_list), 6)
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[2].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[3].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[4].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[2].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[3].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[4].getPublicationSectionList())
     # array 5 is result of array 4 and database_debian11
-    self.assertTrue("file_system_image/process_state/converted" in data_array_list[5].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", data_array_list[5].getPublicationSectionList())
 
     predecessor_list = [x.getRelativeUrl() for x in data_array_list[5].getPredecessorValueList(portal_type='Data Array')]
     last_detabase_debian11 = self._getRelatedDataArrayList(self.portal.compute_node_module['database_debian11'])[-1]
-    self.assertTrue(last_detabase_debian11.getRelativeUrl() in predecessor_list)
-    self.assertTrue(data_array_list[4].getRelativeUrl() in predecessor_list)
+    self.assertIn(last_detabase_debian11.getRelativeUrl(), predecessor_list)
+    self.assertIn(data_array_list[4].getRelativeUrl(), predecessor_list)
     self.assertTrue(len(data_array_list[5].getArray()), 1)
 
     # no more database to compare
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[5].getPublicationSectionList())
-    self.assertTrue('file_system_image/diff_end/different' in data_array_list[5].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[5].getPublicationSectionList())
+    self.assertIn('file_system_image/diff_end/different', data_array_list[5].getPublicationSectionList())
 
   def test_data_processing_for_multi_data_ingestion(self):
     # almost same as test_data_processing_for_sequence_data_ingestion
@@ -516,7 +516,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     for compute_node in self.compute_node_list:
       data_array_list = self._getRelatedDataArrayList(compute_node)
       self.assertEqual(len(data_array_list), 1)
-      self.assertTrue("file_system_image/process_state/converted" in data_array_list[0].getPublicationSectionList())
+      self.assertIn("file_system_image/process_state/converted", data_array_list[0].getPublicationSectionList())
 
 
     # process data array
@@ -524,17 +524,17 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     self.tic()
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['database_debian10'])
     self.assertEqual(len(data_array_list), 1)
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[0].getPublicationSectionList())
 
 
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['database_debian11'])
     self.assertEqual(len(data_array_list), 1)
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[0].getPublicationSectionList())
 
 
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])
     self.assertEqual(len(data_array_list), 1)
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[0].getPublicationSectionList())
 
 
     self.portal.portal_alarms.wendelin_handle_analysis.activeSense()
@@ -543,49 +543,49 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     for compute_node in self.compute_node_list:
       data_array_list = self._getRelatedDataArrayList(compute_node)
       self.assertEqual(len(data_array_list), 2)
-      self.assertTrue("file_system_image/process_state/converted" in data_array_list[-1].getPublicationSectionList())
+      self.assertIn("file_system_image/process_state/converted", data_array_list[-1].getPublicationSectionList())
 
 
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['database_debian10'])
     self.assertEqual(len(data_array_list), 2)
-    self.assertTrue("file_system_image/process_state/archived" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/archived", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
 
 
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['database_debian11'])
     self.assertEqual(len(data_array_list), 2)
-    self.assertTrue("file_system_image/process_state/archived" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/archived", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
 
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])
     self.assertEqual(len(data_array_list), 2)
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
-    self.assertTrue('file_system_image/diff_end/identical' in data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
+    self.assertIn('file_system_image/diff_end/identical', data_array_list[1].getPublicationSectionList())
 
     self.portal.ERP5Site_createDataAnalysisList()
     self.portal.ERP5Site_executeDataAnalysisList()
     self.tic()
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])
     self.assertEqual(len(data_array_list), 3)
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
     # This is the new one with different value
-    self.assertTrue("file_system_image/process_state/converted" in data_array_list[2].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", data_array_list[2].getPublicationSectionList())
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])
     self.assertEqual(len(data_array_list), 4)
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[2].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[2].getPublicationSectionList())
     # array 3 is the result of array 0 and array 2, Note: array 0 is the first access data
-    self.assertTrue("file_system_image/process_state/converted" in data_array_list[3].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", data_array_list[3].getPublicationSectionList())
     predecessor_list = [x.getRelativeUrl() for x in data_array_list[3].getPredecessorValueList(portal_type='Data Array')]
-    self.assertTrue(data_array_list[0].getRelativeUrl() in predecessor_list)
-    self.assertTrue(data_array_list[2].getRelativeUrl() in predecessor_list)
+    self.assertIn(data_array_list[0].getRelativeUrl(), predecessor_list)
+    self.assertIn(data_array_list[2].getRelativeUrl(), predecessor_list)
     # only have one diff
     self.assertTrue(len(data_array_list[3].getArray()), 1)
 
@@ -594,16 +594,16 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     # array 3 compare with database_debian10
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])
     self.assertEqual(len(data_array_list), 5)
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[2].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[3].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[2].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[3].getPublicationSectionList())
     # array 4 is result of array 3 and database_debian10
-    self.assertTrue("file_system_image/process_state/converted" in data_array_list[4].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", data_array_list[4].getPublicationSectionList())
     predecessor_list = [x.getRelativeUrl() for x in data_array_list[4].getPredecessorValueList(portal_type='Data Array')]
     last_detabase_debian10 = self._getRelatedDataArrayList(self.portal.compute_node_module['database_debian10'])[-1]
-    self.assertTrue(last_detabase_debian10.getRelativeUrl() in predecessor_list)
-    self.assertTrue(data_array_list[3].getRelativeUrl() in predecessor_list)
+    self.assertIn(last_detabase_debian10.getRelativeUrl(), predecessor_list)
+    self.assertIn(data_array_list[3].getRelativeUrl(), predecessor_list)
     self.assertTrue(len(data_array_list[4].getArray()), 1)
 
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
@@ -611,25 +611,25 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     # array 4 compare with database_debian11
     data_array_list = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])
     self.assertEqual(len(data_array_list), 6)
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[0].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[1].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[2].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[3].getPublicationSectionList())
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[4].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[0].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[1].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[2].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[3].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[4].getPublicationSectionList())
     # array 5 is result of array 4 and database_debian11
-    self.assertTrue("file_system_image/process_state/converted" in data_array_list[5].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", data_array_list[5].getPublicationSectionList())
 
     predecessor_list = [x.getRelativeUrl() for x in data_array_list[5].getPredecessorValueList(portal_type='Data Array')]
     last_detabase_debian11 = self._getRelatedDataArrayList(self.portal.compute_node_module['database_debian11'])[-1]
-    self.assertTrue(last_detabase_debian11.getRelativeUrl() in predecessor_list)
-    self.assertTrue(data_array_list[4].getRelativeUrl() in predecessor_list)
+    self.assertIn(last_detabase_debian11.getRelativeUrl(), predecessor_list)
+    self.assertIn(data_array_list[4].getRelativeUrl(), predecessor_list)
     self.assertTrue(len(data_array_list[5].getArray()), 1)
 
     # no more database to compare
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
-    self.assertTrue("file_system_image/process_state/processed" in data_array_list[5].getPublicationSectionList())
-    self.assertTrue('file_system_image/diff_end/different' in data_array_list[5].getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/processed", data_array_list[5].getPublicationSectionList())
+    self.assertIn('file_system_image/diff_end/different', data_array_list[5].getPublicationSectionList())
 
 
   def test_data_processing_check_copmute_node_state(self):
@@ -666,8 +666,8 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
     last_diff_array = self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])[-1]
-    self.assertTrue(modified_array.getReference() in last_diff_array.getReference())
-    self.assertTrue(default_array.getReference() in last_diff_array.getReference())
+    self.assertIn(modified_array.getReference(), last_diff_array.getReference())
+    self.assertIn(default_array.getReference(), last_diff_array.getReference())
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
@@ -696,7 +696,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     self.tic()
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
-    self.assertTrue('file_system_image/diff_end/identical' in self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])[-1].getPublicationSectionList())
+    self.assertIn('file_system_image/diff_end/identical', self._getRelatedDataArrayList(self.portal.compute_node_module['node_debian10'])[-1].getPublicationSectionList())
     self.assertTrue(self.portal.compute_node_module['node_debian10'].ComputeNode_hasModifiedFile() is None)
 
 
@@ -782,42 +782,42 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
 
     diff_server_data_array_list = []
     for i in server_data_array_list:
-      self.assertTrue("file_system_image/process_state/processed" in i.getPublicationSectionList())
+      self.assertIn("file_system_image/process_state/processed", i.getPublicationSectionList())
       diff_server_data_array_list.append(i.getPredecessorRelatedValue(portal_type='Data Array'))
 
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
 
-    self.assertTrue(diff_server_data_array_list[0].getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[0].getPredecessorRelatedValueList(portal_type='Data Array'))
+    self.assertIn(diff_server_data_array_list[0].getPredecessorRelatedValue(portal_type='Data Array'), reference_data_array_list[0].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_1 = diff_server_data_array_list[0].getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_1.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertTrue("file_system_image/process_state/converted" in diff_1.getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", diff_1.getPublicationSectionList())
     self.assertTrue((diff_1.getArray() == [7, 9, 10, 11, 15, 17, 18]).all())
 
-    self.assertTrue(diff_server_data_array_list[1].getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[0].getPredecessorRelatedValueList(portal_type='Data Array'))
+    self.assertIn(diff_server_data_array_list[1].getPredecessorRelatedValue(portal_type='Data Array'), reference_data_array_list[0].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_2 = diff_server_data_array_list[1].getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_2.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertTrue("file_system_image/process_state/converted" in diff_2.getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", diff_2.getPublicationSectionList())
     self.assertTrue((diff_2.getArray() == [2, 8, 14]).all())
 
-    self.assertTrue(diff_server_data_array_list[2].getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[0].getPredecessorRelatedValueList(portal_type='Data Array'))
+    self.assertIn(diff_server_data_array_list[2].getPredecessorRelatedValue(portal_type='Data Array'), reference_data_array_list[0].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_3 = diff_server_data_array_list[2].getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_3.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertTrue("file_system_image/process_state/converted" in diff_3.getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", diff_3.getPublicationSectionList())
 
     self.assertTrue((diff_3.getArray() == [11, 17, 31]).all())
 
-    self.assertTrue(diff_server_data_array_list[3].getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
+    self.assertIn(diff_server_data_array_list[3].getPredecessorRelatedValue(portal_type='Data Array'), reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_4 = diff_server_data_array_list[3].getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_4.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertTrue("file_system_image/process_state/converted" in diff_4.getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", diff_4.getPublicationSectionList())
 
     self.assertTrue((diff_4.getArray() == [2, 24]).all())
 
-    self.assertTrue(diff_server_data_array_list[4].getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
+    self.assertIn(diff_server_data_array_list[4].getPredecessorRelatedValue(portal_type='Data Array'), reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_5 = diff_server_data_array_list[4].getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_5.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertTrue("file_system_image/process_state/converted" in diff_5.getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", diff_5.getPublicationSectionList())
 
     self.assertTrue((diff_5.getArray() == [17, 28, 31]).all(), diff_5.getRelativeUrl())
 
@@ -826,30 +826,30 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
 
 
 
-    self.assertTrue('file_system_image/diff_end/different' in diff_4.getPublicationSectionList())
-    self.assertTrue('file_system_image/diff_end/different' in diff_5.getPublicationSectionList())
+    self.assertIn('file_system_image/diff_end/different', diff_4.getPublicationSectionList())
+    self.assertIn('file_system_image/diff_end/different', diff_5.getPublicationSectionList())
 
-    self.assertTrue(diff_1.getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
+    self.assertIn(diff_1.getPredecessorRelatedValue(portal_type='Data Array'), reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_6 = diff_1.getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_6.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertTrue("file_system_image/process_state/converted" in diff_6.getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", diff_6.getPublicationSectionList())
     self.assertTrue((diff_6.getArray() == [15, 17, 18]).all(), diff_6.getRelativeUrl())
 
 
-    self.assertTrue(diff_2.getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
+    self.assertIn(diff_2.getPredecessorRelatedValue(portal_type='Data Array'), reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_7 = diff_2.getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_7.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertTrue("file_system_image/process_state/converted" in diff_7.getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", diff_7.getPublicationSectionList())
     self.assertTrue((diff_7.getArray() == [2]).all(), diff_7.getRelativeUrl())
 
-    self.assertTrue(diff_3.getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
+    self.assertIn(diff_3.getPredecessorRelatedValue(portal_type='Data Array'), reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_8 = diff_3.getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_8.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertTrue("file_system_image/process_state/converted" in diff_8.getPublicationSectionList())
+    self.assertIn("file_system_image/process_state/converted", diff_8.getPublicationSectionList())
 
     self.assertTrue((diff_8.getArray() == [17, 31]).all(), diff_8.getRelativeUrl())
 
     self.portal.portal_alarms.slapos_process_data_array.activeSense()
     self.tic()
     for i in [diff_6, diff_7, diff_8]:
-      self.assertTrue('file_system_image/diff_end/different' in i.getPublicationSectionList())
+      self.assertIn('file_system_image/diff_end/different', i.getPublicationSectionList())

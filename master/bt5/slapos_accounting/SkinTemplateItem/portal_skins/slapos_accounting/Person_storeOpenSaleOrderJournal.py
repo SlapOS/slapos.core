@@ -76,7 +76,7 @@ if open_sale_order_count == 0:
 elif open_sale_order_count == 1:
   open_sale_order = open_sale_order_list[0].getObject()
 else:
-  raise ValueError, "Too many open order '%s' found: %s" % (person.getRelativeUrl(), [x.path for x in open_sale_order_list])
+  raise ValueError("Too many open order '%s' found: %s" % (person.getRelativeUrl(), [x.path for x in open_sale_order_list]))
 
 delete_line_list = []
 add_line_list = []

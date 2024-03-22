@@ -14,7 +14,7 @@ try:
   vads_url_success = kwargs['vads_url_success']
   vads_url_return = kwargs['vads_url_return']
 except KeyError:
-  raise TypeError, "PayzenEvent_generateNavigationPage takes exactly 6 arguments"
+  raise TypeError("PayzenEvent_generateNavigationPage takes exactly 6 arguments")
 
 payment_transaction = payzen_event.getDestinationValue(portal_type="Payment Transaction")
 now = DateTime()
@@ -22,7 +22,7 @@ payment_transaction.AccountingTransaction_updateStartDate(now)
 
 transaction_date, transaction_number = payment_transaction.PaymentTransaction_generatePayzenId()
 if transaction_number is None:
-  raise ValueError, "Transaction already registered"
+  raise ValueError("Transaction already registered")
 
 transaction_id = transaction_date.Date().replace("/", "") + "-" + transaction_number
 

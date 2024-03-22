@@ -241,11 +241,11 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     self.tic()
 
     v = 'Visited by SoftwareRelease_findAndDestroySoftwareInstallation'
-    self.assertFalse(v in
+    self.assertNotIn(v,
       [q['comment'] for q in published_software_release.workflow_history['edit_workflow']])
-    self.assertTrue(v in
+    self.assertIn(v,
       [q['comment'] for q in archived_cleaned_software_release.workflow_history['edit_workflow']])
-    self.assertTrue(v in
+    self.assertIn(v,
       [q['comment'] for q in archived_software_release.workflow_history['edit_workflow']])
 
   @simulateByEditWorkflowMark('SoftwareInstallation_destroyWithSoftwareReleaseArchived')
@@ -304,9 +304,9 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     self.tic()
 
     v = 'Visited by SoftwareInstallation_destroyWithSoftwareReleaseArchived'
-    self.assertTrue(v in
+    self.assertIn(v,
       [q['comment'] for q in software_installation_validated_request_start.workflow_history['edit_workflow']])
-    self.assertFalse(v in
+    self.assertNotIn(v,
       [q['comment'] for q in software_installation_validated_request_destroy.workflow_history['edit_workflow']])
-    self.assertFalse(v in
+    self.assertNotIn(v,
       [q['comment'] for q in software_installation_invalidated_request_destroy.workflow_history['edit_workflow']])

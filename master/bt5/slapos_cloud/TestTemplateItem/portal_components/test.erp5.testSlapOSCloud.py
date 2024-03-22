@@ -115,7 +115,9 @@ class TestSlapOSCloudSlapOSCacheMixin(
           'since': '%s' % since,
           'state': "",
           "text": "#access TEST123 %s" % doc.getUid()
-        })
+        },
+        sort_keys=True,
+      )
     def getBaseExpectedDict(doc):
       return _decode_with_json({
           "portal_type": doc.getPortalType(),
@@ -187,7 +189,9 @@ class TestSlapOSCloudSlapOSCacheMixin(
           'since': '%s' % since,
           'state': "",
           "text": "#access TEST123 %s" % doc.getUid()
-        })
+        },
+        sort_keys=True,
+      )
     def getBaseExpectedDict(doc):
       return _decode_with_json({
           "portal_type": doc.getPortalType(),
@@ -267,7 +271,9 @@ class TestSlapOSCloudSlapOSCacheMixin(
           'since': '%s' % since,
           'state': "",
           "text": "#error TEST123 %s" % doc.getUid()
-        })
+        },
+        sort_keys=True,
+      )
     def getBaseExpectedDict(doc):
       return _decode_with_json({
           "portal_type": doc.getPortalType(),
@@ -338,7 +344,9 @@ class TestSlapOSCloudSlapOSCacheMixin(
           'since': '%s' % since,
           'state': "",
           "text": "#building TEST123 %s" % doc.getUid()
-        })
+        },
+        sort_keys=True,
+      )
     def getBaseExpectedDict(doc):
       return _decode_with_json({
           "portal_type": doc.getPortalType(),

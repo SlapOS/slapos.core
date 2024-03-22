@@ -32,29 +32,29 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
     )
 
     # Nothing to migrate
-    self.assertFalse(migration_message in getMessageList(instance_nothing_to_migrate))
-    self.assertFalse(error_message in getMessageList(instance_nothing_to_migrate))
+    self.assertNotIn(migration_message, getMessageList(instance_nothing_to_migrate))
+    self.assertNotIn(error_message, getMessageList(instance_nothing_to_migrate))
 
     # Migrate
-    self.assertTrue(migration_message in getMessageList(instance_to_migrate))
-    self.assertFalse(error_message in getMessageList(instance_to_migrate))
+    self.assertIn(migration_message, getMessageList(instance_to_migrate))
+    self.assertNotIn(error_message, getMessageList(instance_to_migrate))
     instance_to_migrate.fixConsistency()
     self.assertEqual(None, instance_to_migrate.getPredecessor())
     self.assertEqual(instance_nothing_to_migrate.getRelativeUrl(),
                      instance_to_migrate.getSuccessor())
-    self.assertFalse(migration_message in getMessageList(instance_to_migrate))
-    self.assertFalse(error_message in getMessageList(instance_to_migrate))
+    self.assertNotIn(migration_message, getMessageList(instance_to_migrate))
+    self.assertNotIn(error_message, getMessageList(instance_to_migrate))
 
     # Error
-    self.assertFalse(migration_message in getMessageList(instance_badly_migrated))
-    self.assertTrue(error_message in getMessageList(instance_badly_migrated))
+    self.assertNotIn(migration_message, getMessageList(instance_badly_migrated))
+    self.assertIn(error_message, getMessageList(instance_badly_migrated))
     instance_badly_migrated.fixConsistency()
     self.assertEqual(instance_nothing_to_migrate.getRelativeUrl(),
                      instance_badly_migrated.getPredecessor())
     self.assertEqual(instance_nothing_to_migrate.getRelativeUrl(),
                      instance_badly_migrated.getSuccessor())
-    self.assertFalse(migration_message in getMessageList(instance_badly_migrated))
-    self.assertTrue(error_message in getMessageList(instance_badly_migrated))
+    self.assertNotIn(migration_message, getMessageList(instance_badly_migrated))
+    self.assertIn(error_message, getMessageList(instance_badly_migrated))
 
   def test_upgrade_software_instance_predecessor(self):
     return self.check_upgrade_instance_predecessor('Software Instance')
@@ -107,10 +107,10 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
     self.tic()
 
     # Nothing to migrate
-    self.assertFalse(migration_message in getMessageList(hosting_subscription_nothing_to_migrate))
+    self.assertNotIn(migration_message, getMessageList(hosting_subscription_nothing_to_migrate))
 
     # To migrate
-    self.assertTrue(migration_message in getMessageList(hosting_subscription_to_migrate))
+    self.assertIn(migration_message, getMessageList(hosting_subscription_to_migrate))
     hosting_subscription_to_migrate.fixConsistency()
 
     self.commit()
@@ -145,8 +145,8 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
                      migrated_instance_tree.getCreationDate())
     # self.assertEqual(modification_date,
     #                  migrated_instance_tree.getModificationDate())
-    self.assertFalse('hosting_subscription_workflow' in migrated_instance_tree.workflow_history)
-    self.assertFalse(migration_message in getMessageList(migrated_instance_tree))
+    self.assertNotIn('hosting_subscription_workflow', migrated_instance_tree.workflow_history)
+    self.assertNotIn(migration_message, getMessageList(migrated_instance_tree))
     self.assertEqual(migrated_instance_tree.getRelativeUrl(),
                      software_instance.getAggregate())
     self.assertEqual(1, len(self.portal.portal_catalog(uid=migrated_instance_tree.getUid())))
@@ -213,10 +213,10 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
     self.tic()
 
     # Nothing to migrate
-    self.assertFalse(migration_message in getMessageList(computer_nothing_to_migrate))
+    self.assertNotIn(migration_message, getMessageList(computer_nothing_to_migrate))
 
     # To migrate
-    self.assertTrue(migration_message in getMessageList(computer_to_migrate))
+    self.assertIn(migration_message, getMessageList(computer_to_migrate))
     computer_to_migrate.fixConsistency()
 
     self.commit()
@@ -258,9 +258,9 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
                      migrated_compute_node.getCreationDate())
     # self.assertEqual(modification_date,
     #                  migrated_compute_node.getModificationDate())
-    self.assertFalse('computer_slap_interface_workflow' in migrated_compute_node.workflow_history)
+    self.assertNotIn('computer_slap_interface_workflow', migrated_compute_node.workflow_history)
 
-    self.assertFalse(migration_message in getMessageList(migrated_compute_node))
+    self.assertNotIn(migration_message, getMessageList(migrated_compute_node))
     self.assertEqual(migrated_compute_node.getRelativeUrl(),
                      software_installation.getAggregate())
     self.assertEqual(migrated_computer_partition.getRelativeUrl(),
@@ -318,10 +318,10 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
     self.tic()
 
     # Nothing to migrate
-    self.assertFalse(migration_message in getMessageList(computer_nothing_to_migrate))
+    self.assertNotIn(migration_message, getMessageList(computer_nothing_to_migrate))
 
     # To migrate
-    self.assertTrue(migration_message in getMessageList(computer_partition_to_migrate))
+    self.assertIn(migration_message, getMessageList(computer_partition_to_migrate))
     computer_partition_to_migrate.fixConsistency()
 
     self.commit()
@@ -344,8 +344,8 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
                      migrated_computer_partition.getCreationDate())
     # self.assertEqual(modification_date,
     #                  migrated_compute_node.getModificationDate())
-    self.assertFalse('computer_partition_slap_interface_workflow' in migrated_computer_partition.workflow_history)
+    self.assertNotIn('computer_partition_slap_interface_workflow', migrated_computer_partition.workflow_history)
 
-    self.assertFalse(migration_message in getMessageList(computer_partition_to_migrate))
+    self.assertNotIn(migration_message, getMessageList(computer_partition_to_migrate))
     self.assertEqual(1, len(self.portal.portal_catalog(uid=migrated_computer_partition.getUid())))
 

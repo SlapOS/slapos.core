@@ -26,7 +26,7 @@ request_software_instance_list = portal.portal_catalog(
   limit=1,
 )
 if len(request_software_instance_list) == 1:
-  raise ValueError, "Too many instances '%s' found: %s" % (software_title, [x.path for x in request_software_instance_list])
+  raise ValueError("Too many instances '%s' found: %s" % (software_title, [x.path for x in request_software_instance_list]))
 
 # Change the title
 previous_title = instance.getTitle()

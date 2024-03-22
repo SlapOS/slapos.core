@@ -23,7 +23,7 @@ notification_message = portal.portal_notifications.getDocumentValue(
     reference=notification_reference, language=language)
 
 if notification_message is None:
-  raise ValueError, 'Unable to found Notification Message with reference "%s".' % notification_reference
+  raise ValueError('Unable to found Notification Message with reference "%s".' % notification_reference)
 
 # Set notification mapping
 notification_mapping_dict = {

@@ -65,7 +65,7 @@ class TestDefaultInvoiceTransactionRule(SlapOSTestCaseMixin):
           start_date=start_date,
           stop_date=stop_date,
           base_contribution_list=['base_amount/invoicing/discounted',
-              'base_amount/invoicing/taxable'],
+              'base_amount/invoicing/taxable/vat/normal_rate'],
           price_currency=trade_condition.getPriceCurrency(),
           use='trade/sale',
           ledger='automated',
@@ -205,7 +205,7 @@ class TestDefaultInvoiceRule(SlapOSTestCaseMixin):
           start_date=start_date,
           stop_date=stop_date,
           base_contribution_list=['base_amount/invoicing/discounted',
-              'base_amount/invoicing/taxable'],
+              'base_amount/invoicing/taxable/vat/normal_rate'],
           price_currency='currency_module/EUR',
           use='trade/sale',
           trade_phase='slapos/invoicing',
@@ -286,7 +286,7 @@ class TestDefaultInvoicingRule(SlapOSTestCaseMixin):
           start_date=start_date,
           stop_date=stop_date,
           base_contribution_list=['base_amount/invoicing/discounted',
-              'base_amount/invoicing/taxable'],
+              'base_amount/invoicing/taxable/vat/normal_rate'],
           price_currency='currency_module/EUR',
           use='trade/sale',
           trade_phase='slapos/delivery',
@@ -731,14 +731,14 @@ class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
         portal_type="Trade Model Line",
         reference="VAT",
         resource="service_module/slapos_tax",
-        base_application="base_amount/invoicing/taxable",
+        base_application="base_amount/invoicing/taxable/vat/normal_rate",
         trade_phase="slapos/tax",
         price=0.2,
         quantity=1.0,
         membership_criterion_base_category=('price_currency', 'base_contribution'),
         membership_criterion_category=(
           'price_currency/%s' % price_currency.getRelativeUrl(),
-          'base_contribution/base_amount/invoicing/taxable'
+          'base_contribution/base_amount/invoicing/taxable/vat/normal_rate'
         )
       )
       trade_condition.validate()
@@ -770,7 +770,7 @@ class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
           start_date=start_date,
           stop_date=stop_date,
           base_contribution_list=['base_amount/invoicing/discounted',
-              'base_amount/invoicing/taxable'],
+              'base_amount/invoicing/taxable/vat/normal_rate'],
           price_currency_value=price_currency,
           use='trade/sale',
           trade_phase='slapos/invoicing',
@@ -884,7 +884,7 @@ class TestDefaultDeliveryRule(SlapOSTestCaseMixin):
         quantity_unit='unit/piece',
         aggregate_value=aggregate,
         base_contribution_list=['base_amount/invoicing/discounted',
-            'base_amount/invoicing/taxable'],
+            'base_amount/invoicing/taxable/vat/normal_rate'],
         price=1.23,
         quantity=4.56
     )
@@ -976,7 +976,7 @@ class TestDefaultDeliveryRuleConsumption(SlapOSTestCaseMixin):
         quantity_unit='unit/piece',
         aggregate_value=aggregate,
         base_contribution_list=['base_amount/invoicing/discounted',
-            'base_amount/invoicing/taxable'],
+            'base_amount/invoicing/taxable/vat/normal_rate'],
         price=.0,
         quantity=1.0
     )

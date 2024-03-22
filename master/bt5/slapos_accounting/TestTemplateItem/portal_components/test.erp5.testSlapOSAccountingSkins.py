@@ -29,6 +29,8 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort
 
 from DateTime import DateTime
+from zExceptions import Unauthorized
+
 
 class TestSlapOSAccounting(SlapOSTestCaseMixin):
 
@@ -457,3 +459,178 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.assertIn('account_module/receivable',
       [i.getRelativeUrl() for i in account_list])
 
+  #################################################################
+  # Delivery_fixBaseContributionTaxableRate
+  #################################################################
+  def _createEntityForVatCalculation(self, portal_type, region=None, vat_code=None):
+    module = self.portal.getDefaultModuleValue(portal_type)
+    return module.newContent(
+      portal_type=portal_type,
+      default_address_region=region,
+      vat_code=vat_code
+    )
+
+  def _createSalePackingListForVatCalculation(self, source_section_value,
+                                              destination_section_value):
+    delivery = self.portal.sale_packing_list_module.newContent(
+      portal_type='Sale Packing List',
+      source_section_value=source_section_value,
+      destination_section_value=destination_section_value
+    )
+    line = delivery.newContent(
+      portal_type='Sale Packing List Line',
+      resource='service_module/slapos_virtual_master_subscription'
+    )
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
+    return delivery, line
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_unauthorized(self):
+    self.assertRaises(
+      Unauthorized,
+      self.portal.Delivery_fixBaseContributionTaxableRate,
+      REQUEST=1)
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_noSourceOrganisation(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='europe/west/france'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_noSourceRegion(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation'),
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='europe/west/france'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_notManagedSourceRegion(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/germany'),
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='europe/west/france'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceNotDestinationRegion(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Person'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToFrancePerson(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='europe/west/france'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable/vat/normal_rate' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToFranceOrganisation(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france',
+                                          vat_code='foobar'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable/vat/normal_rate' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToFranceOrganisationWithoutVatCode(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToEuropePerson(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='europe/west/germany'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable/vat/normal_rate' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToEuropeOrganisation(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/germany',
+                                          vat_code='foobar'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable/vat/zero_rate' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToEuropeOrganisationWithoutVatCode(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/germany'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToWorldPerson(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='america/south/brazil'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable/vat/zero_rate' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToWorldOrganisation(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='america/south/brazil'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable/vat/zero_rate' in line.getBaseContributionList())

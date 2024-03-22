@@ -1,3 +1,7 @@
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
+
 delivery = context
 portal = context.getPortalObject()
 
@@ -18,7 +22,12 @@ if source_section_country == 'europe/west/france':
 
   destination_section_country = destination_section_value.getDefaultAddressRegion('')
   if destination_section_country == 'europe/west/france':
-    taxable_suffix = 'vat/normal_rate'
+    if (destination_section_value.getPortalType() == 'Person'):
+      taxable_suffix = 'vat/normal_rate'
+    elif (destination_section_value.getVatCode('') != ''):
+      taxable_suffix = 'vat/normal_rate'
+    else:
+      return
   elif destination_section_country.startswith('europe'):
     if (destination_section_value.getPortalType() == 'Person'):
       taxable_suffix = 'vat/normal_rate'

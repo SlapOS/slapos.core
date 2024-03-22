@@ -703,6 +703,10 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       #is_accountable=is_accountable
     )
     person = self.makePerson(project)
+    person.edit(
+      # required to calculate the vat
+      default_address_region='europe/west/france'
+    )
     if has_organisation:
       organisation = self.portal.organisation_module.newContent(
         portal_type="Organisation",
@@ -722,7 +726,11 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       currency.validate()
       seller_organisation = self.portal.organisation_module.newContent(
         portal_type="Organisation",
-        title="seller-%s" % self.generateNewId()
+        title="seller-%s" % self.generateNewId(),
+        # required to generate accounting report
+        price_currency_value=currency,
+        # required to calculate the vat
+        default_address_region='europe/west/france'
       )
       seller_bank_account = seller_organisation.newContent(
         portal_type="Bank Account",

@@ -120,7 +120,8 @@ subscription_request = portal.subscription_request_module.newContent(
   # WARNING: do NOT use career_subordination. It is unrelated to who will pay.
   #          subordination is used for payroll only.
   #          Who pays comes from the trade conditions if needed.
-  destination_section=tmp_sale_order.getDestinationSection(),
+  # XXX TODO
+  destination_section=tmp_sale_order.getDestinationSection(subscriber_person_value.getRelativeUrl()),
   destination_decision_value=subscriber_person_value,
   destination_project_value=destination_project_value,
   start_date=now,

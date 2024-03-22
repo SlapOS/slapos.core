@@ -290,3 +290,61 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     with PinnedDateTime(self, creation_date + 5):
       self.checkERP5StateBeforeExit()
+
+  def test_vatFranceToWorldScenario(self):
+    """
+    Check that VAT rules are applied by default
+    """
+    creation_date = DateTime('2024/02/19')
+    with PinnedDateTime(self, creation_date):
+      owner_person, currency, project = self.bootstrapAccountingTest()
+      owner_person.edit(default_address_region='america/south/brazil')
+
+    # Ensure no unexpected object has been created
+    # 2 assignment
+    # 2 sale trade condition
+    # 1 subscription requests
+    self.assertRelatedObjectCount(project, 5)
+
+    ##################################################
+    # Add deposit (0.1 to prevent discount generation)
+    with PinnedDateTime(self, creation_date + 0.1):
+      payment_transaction = owner_person.Person_addDepositPayment(99*100, currency.getRelativeUrl(), 1)
+      payment_transaction.PaymentTransaction_acceptDepositPayment()
+
+      self.logout()
+      self.login()
+      # Execute activities for all services
+      # To try detection bad activity tag dependencies
+      self.tic()
+      invoice = self.portal.portal_catalog.getResultValue(
+        portal_type='Sale Invoice Transaction',
+        destination__uid=owner_person.getUid(),
+        simulation_state='confirmed'
+      )
+      tax_line = self.portal.portal_catalog.getResultValue(
+        portal_type='Invoice Line',
+        parent_uid=invoice.getUid(),
+        resource__uid=self.portal.service_module.slapos_tax.getUid()
+      )
+      self.assertEquals(tax_line.getPrice(), 0)
+      self.assertEquals(invoice.getTotalPrice(), 42)
+
+    with PinnedDateTime(self, creation_date + 35):
+      self.portal.portal_alarms.update_open_order_simulation.activeSense()
+      self.tic()
+
+      self.assertEquals(invoice.getTotalPrice(), 42)
+      self.assertEquals(invoice.getSimulationState(), 'stopped')
+
+      # Ensure no unexpected object has been created
+      # 2 invoice lines
+      # 1 open order
+      # 2 assignment
+      # 4 simulation movements
+      # 2 sale packing lists
+      # 2 sale trade condition
+      # 1 subscription requests
+      self.assertRelatedObjectCount(project, 14)
+
+      self.checkERP5StateBeforeExit()

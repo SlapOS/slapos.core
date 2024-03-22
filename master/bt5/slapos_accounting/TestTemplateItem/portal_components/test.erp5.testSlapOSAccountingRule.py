@@ -871,6 +871,7 @@ class TestDefaultDeliveryRule(SlapOSTestCaseMixin):
         destination_value=destination,
         source_section_value=source,
         destination_section_value=destination,
+        destination_decision_value=destination,
         destination_project_value=project,
         price_currency_value=price_currency,
         specialise_value=trade_condition,

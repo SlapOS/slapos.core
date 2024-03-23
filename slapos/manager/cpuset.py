@@ -140,7 +140,10 @@ class Manager(object):
         with open(request_file, "at") as fo:
           fo.write(str(request_pid) + "\n")
 
-  def instanceTearDown(self):
+  def instanceTearDown(self, instance):
+    pass
+
+  def report(self, partition):
     pass
 
   def _cpu_folder_list(self):

@@ -125,7 +125,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
   def requestComputeNode(self, title):
     requestXml = self.portal.portal_slap.requestComputer(title)
     self.tic()
-    self.assertTrue('marshal' in requestXml)
+    self.assertIn('marshal', requestXml)
     compute_node = xml_marshaller.xml_marshaller.loads(requestXml)
     compute_node_id = getattr(compute_node, '_computer_id', None)
     self.assertNotEqual(None, compute_node_id)

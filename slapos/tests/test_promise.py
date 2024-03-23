@@ -664,7 +664,7 @@ class RunPromise(GenericPromise):
     def test_method(result):
       self.assertTrue(isinstance(result, PromiseQueueResult))
       self.assertTrue(isinstance(result.item, TestResult))
-      self.assertTrue(result.name in [promise_failed, promise_name])
+      self.assertIn(result.name, [promise_failed, promise_name])
       if result.name == promise_failed:
         self.assertEqual(result.item.hasFailed(), True)
         self.assertEqual(result.item.message, "failed")
@@ -705,7 +705,7 @@ class RunPromise(GenericPromise):
     def test_method(result):
       self.assertTrue(isinstance(result, PromiseQueueResult))
       self.assertTrue(isinstance(result.item, TestResult))
-      self.assertTrue(result.name in [first_promise, second_promise, third_promise])
+      self.assertIn(result.name, [first_promise, second_promise, third_promise])
       self.assertEqual(result.item.hasFailed(), False)
       self.assertEqual(result.item.message, "success")
       self.counter += 1
@@ -771,7 +771,7 @@ class RunPromise(GenericPromise):
     self.counter = 0
 
     def test_method_first(result):
-      self.assertTrue(result.name in [first_promise, second_promise])
+      self.assertIn(result.name, [first_promise, second_promise])
       self.assertEqual(result.item.hasFailed(), False)
       self.assertEqual(result.item.message, "success")
       self.counter += 1
@@ -809,7 +809,7 @@ class RunPromise(GenericPromise):
     self.counter = 0
 
     def test_method(result):
-      self.assertTrue(result.name in [first_promise, second_promise])
+      self.assertIn(result.name, [first_promise, second_promise])
       self.assertEqual(result.item.hasFailed(), False)
       self.assertEqual(result.item.message, "success")
       self.counter += 1
@@ -956,7 +956,7 @@ class RunPromise(GenericPromise):
     self.counter = 0
 
     def test_method(result):
-      self.assertTrue(result.name in [first_promise, second_promise])
+      self.assertIn(result.name, [first_promise, second_promise])
       self.assertEqual(result.item.hasFailed(), False)
       self.assertEqual(result.item.message, "success")
       self.counter += 1
@@ -1082,7 +1082,7 @@ exit 0
     self.counter = 0
     self.check_list = [first_promise, second_promise, third_promise]
     def test_method(result):
-      self.assertTrue(result.name in self.check_list)
+      self.assertIn(result.name, self.check_list)
       self.assertEqual(result.item.hasFailed(), False)
       self.assertEqual(result.item.message, "success")
       self.counter += 1
@@ -1110,7 +1110,7 @@ exit 0
     self.counter = 0
     self.check_list = [first_promise, second_promise, third_promise]
     def test_method(result):
-      self.assertTrue(result.name in self.check_list)
+      self.assertIn(result.name, self.check_list)
       self.assertEqual(result.item.hasFailed(), False)
       self.assertEqual(result.item.message, "success")
       self.counter += 1
@@ -1186,7 +1186,7 @@ exit 0
       self.assertTrue(result.execution_time >= 1)
       self.assertEqual(result.title, 'my_promise')
       self.assertEqual(result.name, promise_name)
-      self.assertTrue("Promise timed out after" in result.item.message)
+      self.assertIn("Promise timed out after", result.item.message)
       self.assertEqual(result.item.hasFailed(), True)
 
     self.configureLauncher(save_method=test_method, enable_anomaly=True, timeout=1)
@@ -1218,7 +1218,7 @@ echo "success"
       self.assertEqual(result.title, promise_name)
       self.assertEqual(result.name, promise_name)
       self.assertEqual(result.path, promise_path)
-      self.assertTrue("Promise timed out after" in result.item.message)
+      self.assertIn("Promise timed out after", result.item.message)
       self.assertEqual(result.item.hasFailed(), True)
       self.assertTrue(isinstance(result.item.date, datetime))
 

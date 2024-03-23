@@ -138,7 +138,7 @@ class SlapOSCacheMixin:
       'state': state,
       'reference': self.getReference(),
       'portal_type': self.getPortalType()
-    })
+    }, sort_keys=True)
 
     cache_duration = self._getAccessStatusCacheFactory().cache_duration
     self._getAccessStatusPlugin().set(self._getAccessStatusCacheKey(),

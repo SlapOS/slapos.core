@@ -12,7 +12,6 @@ import time
 # blurb to make nice XML comparisions
 from lxml import etree
 
-import difflib
 import hashlib
 import json
 from binascii import hexlify
@@ -38,7 +37,16 @@ class Simulator:
     l.append({'recmethod': self.method,
       'recargs': args,
       'reckwargs': kwargs})
-    open(self.outfile, 'w').write(repr(l))
+    with open(self.outfile, 'w') as f:
+      f.write(repr(l))
+
+
+def canonical_xml(xml):
+  return etree.tostring(
+    etree.fromstring(xml),
+    method="c14n",
+  ).decode('utf-8')
+
 
 class TestSlapOSSlapToolMixin(SlapOSTestCaseMixin):
   def afterSetUp(self):
@@ -69,6 +77,9 @@ class TestSlapOSSlapToolMixin(SlapOSTestCaseMixin):
     self.unpinDateTime()
     self._cleaupREQUEST()
 
+  def assertXMLEqual(self, first, second):
+    self.assertEqual(canonical_xml(first), canonical_xml(second))
+
 
 class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
   def test_activate_getFullComputerInformation_first_access(self):
@@ -92,7 +103,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
       )
     )
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     self.assertEqual(first_etag, response.headers.get('etag'))
     self.assertEqual(first_body_fingerprint, hashData(response.body))
     self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
@@ -108,7 +119,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     self.assertEqual(first_etag, response.headers.get('etag'))
     self.assertEqual(first_body_fingerprint, hashData(response.body))
     self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
@@ -121,7 +132,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     second_etag = self.compute_node._calculateRefreshEtag()
     second_body_fingerprint = hashData(
       self.portal_slap._getSlapComputeNodeXMLFromDict(
@@ -143,7 +154,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     self.assertEqual(second_etag, response.headers.get('etag'))
     self.assertEqual(first_body_fingerprint, hashData(response.body))
     self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
@@ -168,7 +179,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     self.assertEqual(second_etag, response.headers.get('etag'))
     self.assertEqual(first_body_fingerprint, hashData(response.body))
     self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
@@ -182,7 +193,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     third_etag = self.compute_node._calculateRefreshEtag()
     self.assertNotEqual(second_etag, third_etag)
     self.assertEqual(third_etag, response.headers.get('etag'))
@@ -209,7 +220,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     self.assertEqual(third_etag, response.headers.get('etag'))
     self.assertEqual(third_body_fingerprint, hashData(response.body))
     self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
@@ -225,7 +236,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
-    self.assertTrue('last-modified' not in response.headers)
+    self.assertNotIn('last-modified', response.headers)
     fourth_etag = self.compute_node._calculateRefreshEtag()
     fourth_body_fingerprint = hashData(
       self.portal_slap._getSlapComputeNodeXMLFromDict(
@@ -258,7 +269,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertFalse('etag' in response.headers)
+    self.assertNotIn('etag', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
 
@@ -618,8 +629,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   start_requested_url=self.start_requested_software_installation.getUrlString(),
   access_status="#error no data found!",
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_getComputeNodeInformation(self):
     self.assertEqual('getFullComputerInformation',
@@ -635,7 +645,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -669,8 +679,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   since=since,
   compute_node_id=self.compute_node_id
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_accessed_getComputerStatus(self):
     self.login(self.compute_node_user_id)
@@ -684,7 +693,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
 
@@ -721,8 +730,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   since=since,
   compute_node_id=self.compute_node_id
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def assertComputeNodeBangSimulator(self, args, kwargs):
     stored = eval(open(self.compute_node_bang_simulator).read()) #pylint: disable=eval-used
@@ -799,7 +807,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -833,8 +841,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   since=since,
   reference=software_installation.getReference()
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
     
 
   def test_destroyedSoftwareRelease_noSoftwareInstallation(self):
@@ -907,8 +914,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     compute_node_id=self.compute_node_id,
     reference=software_installation.getReference()
   )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_buildingSoftwareRelease(self):
     self._makeComplexComputeNode()
@@ -957,8 +963,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     compute_node_id=self.compute_node_id,
     reference=software_installation.getReference()
   )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_softwareReleaseError(self):
     self._makeComplexComputeNode()
@@ -1007,8 +1012,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     compute_node_id=self.compute_node_id,
     reference=software_installation.getReference()
   )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_useComputer_wrong_xml(self):
     self.login(self.compute_node_user_id)
@@ -1126,7 +1130,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -1146,8 +1150,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   instance_certificate=self.start_requested_software_instance.getSslCertificate(),
   instance_key=self.start_requested_software_instance.getSslKey()
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_getFullComputerInformation(self):
     self._makeComplexComputeNode(with_slave=True)
@@ -1158,7 +1161,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertFalse('etag' in response.headers)
+    self.assertNotIn('etag', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -1288,8 +1291,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     slave_1_title=self.start_requested_slave_instance.getTitle(),
     access_status="#error no data found for %s" % self.start_requested_software_instance.getReference(),
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_getComputerPartitionStatus(self):
     self._makeComplexComputeNode()
@@ -1305,7 +1307,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -1338,8 +1340,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   since=since,
   instance_guid=self.start_requested_software_instance.getReference(),
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_getComputerPartitionStatus_visited(self):
     self._makeComplexComputeNode()
@@ -1356,7 +1357,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -1391,8 +1392,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   compute_node_id=self.compute_node_id,
   partition_id=partition_id
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_registerComputerPartition_withSlave(self):
     self._makeComplexComputeNode(with_slave=True)
@@ -1405,7 +1405,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -1522,8 +1522,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   slave_1_instance_guid=self.start_requested_slave_instance.getReference(),
   slave_1_title=self.start_requested_slave_instance.getTitle(),
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_registerComputerPartition(self):
     self._makeComplexComputeNode()
@@ -1536,7 +1535,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -1634,8 +1633,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   root_instance_title=self.start_requested_software_instance.getSpecialiseValue().getTitle(),
   software_type=self.start_requested_software_instance.getSourceReference()
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def assertInstanceUpdateConnectionSimulator(self, args, kwargs):
     stored = eval(open(self.instance_update_connection_simulator).read()) #pylint: disable=eval-used
@@ -1757,8 +1755,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   since = since,
   instance_guid=self.start_requested_software_instance.getReference(),
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_softwareInstanceError_twice(self):
     self._makeComplexComputeNode()
@@ -1805,8 +1802,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   since = since,
   instance_guid=self.start_requested_software_instance.getReference(),
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
     self.unpinDateTime()
     time.sleep(1)
@@ -1855,8 +1851,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   since = since,
   instance_guid=self.start_requested_software_instance.getReference(),
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def assertInstanceBangSimulator(self, args, kwargs):
     stored = eval(open(self.instance_bang_simulator).read()) #pylint: disable=eval-used
@@ -1915,8 +1910,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     since=since,
     instance_guid=self.start_requested_software_instance.getReference(),
   )
-      self.assertEqual(expected_xml, got_xml,
-          '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+      self.assertXMLEqual(expected_xml, got_xml)
       self.assertInstanceBangSimulator((), {'comment': error_log, 'bang_tree': True})
     finally:
       if os.path.exists(self.instance_bang_simulator):
@@ -2254,8 +2248,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   since=since,
   instance_guid=self.start_requested_software_instance.getReference(),
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_startedComputePartition(self):
     self._makeComplexComputeNode()
@@ -2301,8 +2294,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   since=since,
   instance_guid=self.start_requested_software_instance.getReference(),
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_getSoftwareReleaseListFromSoftwareProduct(self):
     new_id = self.generateNewId()
@@ -2344,8 +2336,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   </list>
 </marshal>
 """ % (software_release2.getUrlString(), software_release1.getUrlString())
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
   
   def test_getSoftwareReleaseListFromSoftwareProduct_effectiveDate(self):
     new_id = self.generateNewId()
@@ -2391,8 +2382,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % (software_release3.getUrlString(), software_release1.getUrlString(),
         software_release2.getUrlString())
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_getSoftwareReleaseListFromSoftwareProduct_emptySoftwareProduct(self):
     new_id = self.generateNewId()
@@ -2408,8 +2398,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <list id="i2"/>
 </marshal>
 """ 
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_getSoftwareReleaseListFromSoftwareProduct_NoSoftwareProduct(self):
     response = self.portal_slap.getSoftwareReleaseListFromSoftwareProduct(
@@ -2422,8 +2411,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <list id="i2"/>
 </marshal>
 """ 
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_getSoftwareReleaseListFromSoftwareProduct_fromUrl(self):
     new_id = self.generateNewId()
@@ -2464,8 +2452,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   </list>
 </marshal>
 """ % (software_release2.getUrlString(), software_release1.getUrlString())
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
 
 class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
@@ -2495,7 +2482,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -2529,8 +2516,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   since=since,
   compute_node_id=self.compute_node_id
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_accessed_getComputerStatus(self):
     self.login(self.compute_node_user_id)
@@ -2544,7 +2530,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
 
@@ -2581,8 +2567,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   since=since,
   compute_node_id=self.compute_node_id
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def assertComputeNodeBangSimulator(self, args, kwargs):
     stored = eval(open(self.compute_node_bang_simulator).read()) #pylint: disable=eval-used
@@ -2625,7 +2610,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -2658,8 +2643,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   since=since,
   instance_guid=self.start_requested_software_instance.getReference(),
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_getComputerPartitionStatus_visited(self):
     self._makeComplexComputeNode(person=self.person)
@@ -2678,7 +2662,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -2713,8 +2697,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   compute_node_id=self.compute_node_id,
   partition_id=partition_id
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_registerComputerPartition_withSlave(self):
     self._makeComplexComputeNode(person=self.person, with_slave=True)
@@ -2727,7 +2710,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -2844,8 +2827,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   slave_1_instance_guid=self.start_requested_slave_instance.getReference(),
   slave_1_title=self.start_requested_slave_instance.getTitle(),
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def test_registerComputerPartition(self):
     self._makeComplexComputeNode(person=self.person)
@@ -2858,7 +2840,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertIn('last-modified', response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML
@@ -2956,8 +2938,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   root_instance_title=self.start_requested_software_instance.getSpecialiseValue().getTitle(),
   software_type=self.start_requested_software_instance.getSourceReference()
 )
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def assertInstanceBangSimulator(self, args, kwargs):
     stored = eval(open(self.instance_bang_simulator).read()) #pylint: disable=eval-used
@@ -3018,8 +2999,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     person_reference=self.person_reference,
     instance_guid=self.start_requested_software_instance.getReference()
   )
-      self.assertEqual(expected_xml, got_xml,
-          '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+      self.assertXMLEqual(expected_xml, got_xml)
       self.assertInstanceBangSimulator((), {'comment': error_log, 'bang_tree': True})
     finally:
       if os.path.exists(self.instance_bang_simulator):
@@ -3201,9 +3181,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     ip=self.start_requested_software_instance.getAggregateValue()\
                .getDefaultNetworkAddressIpAddress(),
   )
-    self.assertEqual(expected_xml, got_xml,
-      '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'),
-                                                 got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
 
   def assertSupplySimulator(self, args, kwargs):
     stored = eval(open(self.compute_node_supply_simulator).read()) #pylint: disable=eval-used
@@ -3269,8 +3247,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % {'compute_node_id': compute_node_reference}
 
-      self.assertEqual(expected_xml, got_xml,
-          '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+      self.assertXMLEqual(expected_xml, got_xml)
       self.assertRequestComputeNodeSimulator((), {'compute_node_title': compute_node_id})
     finally:
       if os.path.exists(self.compute_node_request_compute_node_simulator):
@@ -3310,8 +3287,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % {'compute_node_key': compute_node_key, 'compute_node_certificate': compute_node_certificate}
 
-      self.assertEqual(expected_xml, got_xml,
-          '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+      self.assertXMLEqual(expected_xml, got_xml)
       self.assertGenerateComputeNodeCertificateSimulator((), {})
     finally:
       if os.path.exists(self.generate_compute_node_certificate_simulator):

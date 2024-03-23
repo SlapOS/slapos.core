@@ -1403,7 +1403,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
       self.assertFalse(transaction_line.hasStopDate())
       self.assertEqual([], transaction_line.contentValues(
           portal_type='Delivery Cell'))
-      self.assertTrue(simulation_movement.getRelativeUrl() in 
+      self.assertIn(simulation_movement.getRelativeUrl(),
           transaction_line.getDeliveryRelatedList(
               portal_type='Simulation Movement'))
 
@@ -1741,7 +1741,7 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
       self.assertFalse(transaction_line.hasStopDate())
       self.assertEqual([], transaction_line.contentValues(
           portal_type='Delivery Cell'))
-      self.assertTrue(simulation_movement.getRelativeUrl() in
+      self.assertIn(simulation_movement.getRelativeUrl(),
           transaction_line.getDeliveryRelatedList(
               portal_type='Simulation Movement'))
 

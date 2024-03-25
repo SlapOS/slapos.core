@@ -295,7 +295,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     """
     Check that VAT rules are applied by default
     """
-    creation_date = DateTime('2024/02/19')
+    creation_date = DateTime('2020/02/19')
     with PinnedDateTime(self, creation_date):
       owner_person, currency, project = self.bootstrapAccountingTest()
       owner_person.edit(default_address_region='america/south/brazil')

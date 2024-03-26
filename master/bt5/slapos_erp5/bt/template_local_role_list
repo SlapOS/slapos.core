@@ -15,7 +15,7 @@ account_module/sales
 accounting_module
 allocation_supply_module
 business_process_module
-business_process_module/slapos_ultimate_business_process
+business_process_module/slapos_sale_subscription_business_process
 cloud_contract_module
 compute_node_module
 computer_model_module

@@ -12,8 +12,8 @@ account_module/purchase
 account_module/receivable
 account_module/refundable_vat
 account_module/sales
-business_process_module/slapos_ultimate_business_process
-business_process_module/slapos_ultimate_business_process/**
+business_process_module/slapos_sale_subscription_business_process
+business_process_module/slapos_sale_subscription_business_process/**
 currency_module/CNY
 currency_module/EUR
 portal_alarms/slapos_accounting_generate_packing_list_from_tioxml

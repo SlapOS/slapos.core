@@ -30,6 +30,7 @@ import random
 import transaction
 import unittest
 from Products.ERP5Type.tests.ERP5TypeTestCase import ERP5TypeTestCase
+from Products.ERP5Type.tests.ERP5TypeCaucaseTestCase import ERP5TypeCaucaseTestCase
 from Products.ERP5Type.Utils import convertToUpperCase
 import os
 import glob
@@ -40,9 +41,10 @@ from App.config import getConfiguration
 
 config = getConfiguration()
 
-class testSlapOSMixin(ERP5TypeTestCase):
+class testSlapOSMixin(ERP5TypeCaucaseTestCase):
 
   abort_transaction = 0
+  launch_caucase = 0
 
   def clearCache(self):
     self.portal.portal_caches.clearAllCache()
@@ -63,67 +65,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
       if alarm.isEnabled():
         setattr(self, 'stepCall' + convertToUpperCase(alarm.getId()) \
           + 'Alarm', makeCallAlarm(alarm))
-
-  def createCertificateAuthorityFile(self):
-    """Sets up portal_certificate_authority"""
-
-    if 'TEST_CA_PATH' not in os.environ:
-      return
-
-    ca_path = os.path.join(os.environ['TEST_CA_PATH'],
-                           self.__class__.__name__)
-
-    if os.path.exists(ca_path):
-      shutil.rmtree(ca_path)
-
-    os.mkdir(ca_path)
-    os.mkdir(os.path.join(ca_path, 'private'))
-    os.mkdir(os.path.join(ca_path, 'crl'))
-    os.mkdir(os.path.join(ca_path, 'certs'))
-    os.mkdir(os.path.join(ca_path, 'requests'))
-    os.mkdir(os.path.join(ca_path, 'newcerts'))
-
-    original_openssl_cnf = open(
-      os.path.join(os.environ['TEST_CA_PATH'], 'openssl.cnf'), "r").read()
-
-    openssl_cnf_with_updated_path = original_openssl_cnf.replace(
-            os.environ['TEST_CA_PATH'], ca_path)
-
-    # SlapOS Master requires unique subjects
-    openssl_cnf = openssl_cnf_with_updated_path.replace(
-            "unique_subject  = no", "unique_subject  = yes")
-
-    with open(os.path.join(ca_path, 'openssl.cnf'), "w") as f:
-      f.write(openssl_cnf)
-
-    shutil.copy(os.path.join(os.environ['TEST_CA_PATH'], 'cacert.pem'),
-            os.path.join(ca_path, 'cacert.pem'))
-
-    shutil.copy(os.path.join(os.environ['TEST_CA_PATH'], 'private', 'cakey.pem'),
-            os.path.join(ca_path, 'private', 'cakey.pem'))
-
-    # reset test CA to have it always count from 0
-    open(os.path.join(ca_path, 'serial'), 'w').write('01')
-    open(os.path.join(ca_path, 'crlnumber'), 'w').write('01')
-    open(os.path.join(ca_path, 'index.txt'), 'w').write('')
-    private_list = glob.glob('%s/*.key' % os.path.join(ca_path, 'private'))
-    for private in private_list:
-      os.remove(private)
-
-    crl_list = glob.glob('%s/*' % os.path.join(ca_path, 'crl'))
-    for crl in crl_list:
-      os.remove(crl)
-
-    certs_list = glob.glob('%s/*' % os.path.join(ca_path, 'certs'))
-    for cert in certs_list:
-      os.remove(cert)
-
-    newcerts_list = glob.glob('%s/*' % os.path.join(ca_path, 'newcerts'))
-    for newcert in newcerts_list:
-      os.remove(newcert)
-
-    self.portal.portal_certificate_authority.manage_editCertificateAuthorityTool(
-      certificate_authority_path=ca_path)
 
   def isLiveTest(self):
     #return 'ERP5TypeLiveTestCase' in [q.__name__ for q in self.__class__.mro()]
@@ -147,6 +88,8 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.portal.email_from_address = 'romain@nexedi.com'
     self.portal.email_to_address = 'romain@nexedi.com'
 
+    if not self.isLiveTest() and self.launch_caucase:
+      self.setUpCaucase()
 
     if getattr(self.portal.portal_caches, 'erp5_site_global_id', None):
       # we are not on live test so multiple tests can run in parallel
@@ -154,9 +97,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
       self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
       self.portal.portal_caches._p_changed = 1
 
-    if self.isLiveTest():
-      return
-    self.createCertificateAuthorityFile() 
     self.commit()
     self.portal.portal_caches.updateCache()
 

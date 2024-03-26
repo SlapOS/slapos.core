@@ -30,6 +30,8 @@ from AccessControl.SecurityManagement import getSecurityManager, \
 
 class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
+  launch_caucase = 1
+
   def afterSetUp(self):
     TestSlapOSSecurityMixin.afterSetUp(self)
     preference = self.portal.portal_preferences.slapos_default_system_preference

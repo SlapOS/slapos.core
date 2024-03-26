@@ -598,6 +598,7 @@ class TestPerson_newLogin(TestSlapOSHalJsonStyleMixin):
     self.assertIn(person.getRelativeUrl(), result)
     
 class TestPerson_get_Certificate(TestSlapOSHalJsonStyleMixin):
+  launch_caucase = 1
   def test_Person_getCertificate_unauthorized(self):
     person = self._makePerson(user=1)
     self.assertEqual(1 , len(person.objectValues(portal_type="ERP5 Login")))
@@ -617,7 +618,7 @@ class TestPerson_get_Certificate(TestSlapOSHalJsonStyleMixin):
 
     self.assertSameSet(response_dict.keys(), ["common_name", "certificate", "id", "key"])
 
-    self.assertEqual(response_dict["id"], login.getDestinationReference())
+    self.assertEqual(response_dict["id"], login.getCsrId())
     self.assertEqual(json.dumps(response_dict["common_name"]), json.dumps(login.getReference()))
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
 
@@ -631,11 +632,11 @@ class TestPerson_get_Certificate(TestSlapOSHalJsonStyleMixin):
     self.assertEqual("validated" , login.getValidationState())
     self.assertEqual("validated" , new_login.getValidationState())
     self.assertNotEqual(login.getReference(), new_login.getReference())
-    self.assertNotEqual(login.getDestinationReference(), new_login.getDestinationReference())
+    self.assertNotEqual(login.getCsrId(), new_login.getCsrId())
 
     self.assertSameSet(new_response_dict.keys(), ["common_name", "certificate", "id", "key"])
     self.assertEqual(json.dumps(new_response_dict["common_name"]), json.dumps(new_login.getReference()))
-    self.assertEqual(new_response_dict["id"], new_login.getDestinationReference())
+    self.assertEqual(new_response_dict["id"], new_login.getCsrId())
     
     self.assertNotEqual(new_response_dict["common_name"], response_dict["common_name"])
     self.assertNotEqual(new_response_dict["id"], response_dict["id"])
@@ -700,6 +701,7 @@ class TestERP5Site_invalidate(TestSlapOSHalJsonStyleMixin):
 
 
 class TestComputeNode_get_revoke_Certificate(TestSlapOSHalJsonStyleMixin):
+  launch_caucase = 1
   def test_ComputeNode_getCertificate(self):
     compute_node = self._makeComputeNode()
     self.assertEqual(0, len(compute_node.objectValues(portal_type=["ERP5 Login", "Certificate Login"])))
@@ -1571,6 +1573,8 @@ return []""")
     )
 
 class TestSoftwareInstance_getAllocationInformation(TestSlapOSHalJsonStyleMixin):
+
+  launch_caucase = 1
 
   def test_SoftwareInstance_getAllocationInformation_not_allocated(self):
     self._makeTree()

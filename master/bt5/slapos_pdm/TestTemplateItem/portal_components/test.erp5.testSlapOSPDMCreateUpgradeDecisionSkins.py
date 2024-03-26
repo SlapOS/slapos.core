@@ -24,6 +24,9 @@ from DateTime import DateTime
 import transaction
 
 class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
+
+  launch_caucase = 1
+
   def _makeSoftwareProductCatalog(self):
     self.software_product = self._makeSoftwareProduct(self.generateNewId())
     self.previous_software_release = self._makeSoftwareRelease(self.generateNewId())

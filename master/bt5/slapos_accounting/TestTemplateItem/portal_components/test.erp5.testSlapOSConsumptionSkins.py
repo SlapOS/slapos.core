@@ -256,6 +256,8 @@ class TestSlapOSComputerConsumptionTioXMLFile_parseXml(SlapOSTestCaseMixinWithAb
 class TestSlapOSComputerConsumptionTioXMLFile_solveInvoicingGeneration(
                                                            SlapOSTestCaseMixin):
 
+  launch_caucase = 1
+
   def createTioXMLFile(self):
     document = self.portal.consumption_document_module.newContent(
       title=self.generateNewId(),

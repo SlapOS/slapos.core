@@ -49,7 +49,7 @@ class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(SlapOSTestCaseMixin):
 
     # check that no interaction has recreated the instance
     self.assertNotEqual(instance_tree.getTitle(), software_instance.getTitle())
-    self.assertNot(instance_tree.getTitle(), instance_tree.getSuccessorTitleList())
+    self.assertNotEqual(instance_tree.getTitle(), instance_tree.getSuccessorTitleList())
 
     with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
       instance_tree.InstanceTree_assertSuccessor()

@@ -2334,8 +2334,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   </list>
 </marshal>
 """ % (software_release2.getUrlString(), software_release1.getUrlString())
-    self.assertEqual(expected_xml, got_xml,
-        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+    self.assertXMLEqual(expected_xml, got_xml)
   
   def test_getSoftwareReleaseListFromSoftwareProduct_effectiveDate(self):
     new_id = self.generateNewId()

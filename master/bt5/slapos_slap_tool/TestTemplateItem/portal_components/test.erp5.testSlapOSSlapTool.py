@@ -2430,7 +2430,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <string>%s</string>
   </list>
 </marshal>
-""" % (software_release2.getUrlString(), software_release1.getUrlString())
+""" % (software_release1.getUrlString(), software_release2.getUrlString())
     self.assertXMLEqual(expected_xml, got_xml)
 
 

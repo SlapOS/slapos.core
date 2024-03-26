@@ -745,7 +745,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         source_section_value=seller_organisation,
         source_project_value=project,
         price_currency_value=currency,
-        specialise="business_process_module/slapos_ultimate_business_process"
+        specialise="business_process_module/slapos_sale_subscription_business_process"
       )
       sale_trade_condition.validate()
       if (base_price is not None):

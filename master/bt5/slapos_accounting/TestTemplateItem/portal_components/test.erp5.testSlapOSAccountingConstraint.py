@@ -185,7 +185,7 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
       reference="Tax/payment for: %s" % currency.getRelativeUrl(),
       trade_condition_type="default",
       # XXX hardcoded
-      specialise="business_process_module/slapos_ultimate_business_process",
+      specialise="business_process_module/slapos_sale_subscription_business_process",
       price_currency_value=currency,
       payment_condition_payment_mode='test-%s' % self.generateNewId()
     )
@@ -230,7 +230,7 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
       reference="Tax/payment for: %s" % currency.getRelativeUrl(),
       trade_condition_type="default",
       # XXX hardcoded
-      specialise="business_process_module/slapos_ultimate_business_process",
+      specialise="business_process_module/slapos_sale_subscription_business_process",
       price_currency_value=currency,
       payment_condition_payment_mode='test-%s' % self.generateNewId()
     )

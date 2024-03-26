@@ -455,7 +455,7 @@ class TestDefaultPaymentRule(SlapOSTestCaseMixin):
 class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
   def _prepare(self):
     trade_condition = self.portal.sale_trade_condition_module.newContent(
-      specialise_value=self.portal.business_process_module.slapos_ultimate_business_process
+      specialise_value=self.portal.business_process_module.slapos_sale_subscription_business_process
     )
     trade_condition.validate()
 
@@ -725,7 +725,7 @@ class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
       aggregate = project
       price_currency = self.portal.currency_module.newContent()
       trade_condition = self.portal.sale_trade_condition_module.newContent(
-        specialise_value=self.portal.business_process_module.slapos_ultimate_business_process
+        specialise_value=self.portal.business_process_module.slapos_sale_subscription_business_process
       )
       trade_condition.newContent(
         portal_type="Trade Model Line",

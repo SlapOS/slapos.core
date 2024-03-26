@@ -1,5 +1,4 @@
 test.erp5.testSlapOSPDMAlarm
 test.erp5.testSlapOSPDMSkins
-test.erp5.testSlapOSPDMDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm
+test.erp5.testSlapOSPDMDestroySoftwareInstallation
 test.erp5.testSlapOSPDMCreateUpgradeDecisionSkins
-test.erp5.testSlapOSCloudUpgradeSlapInterfaceWorkflow

@@ -19,411 +19,538 @@
 #
 ##############################################################################
 
-from erp5.component.test.testSlapOSPDMSkins import TestSlapOSPDMMixinSkins
-from DateTime import DateTime
-import transaction
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
-class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
-  def _makeSoftwareProductCatalog(self):
-    self.software_product = self._makeSoftwareProduct(self.generateNewId())
-    self.previous_software_release = self._makeSoftwareRelease(self.generateNewId())
-    self.new_software_release = self._makeSoftwareRelease(self.generateNewId())
+class TestSlapOSPDMCreateUpgradeDecisionSkins(SlapOSTestCaseMixin):
 
-    self.previous_software_release.publish()
-    self.new_software_release.publish()
+  def test_createUpgradeDecision_destroyed_instance(self):
+    instance_tree = self.portal.instance_tree_module.newContent(
+      portal_type="Instance Tree"
+    )
+    self.portal.portal_workflow._jumpToStateFor(instance_tree,
+                                                'destroy_requested')
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
 
-    self.previous_software_release.edit(
-      aggregate=self.software_product.getRelativeUrl(),
-      url_string=self.generateNewSoftwareReleaseUrl(),
-      version='1',
-      effective_date=DateTime()-1,
+  def test_createUpgradeDecision_without_softwareProduct(self):
+    instance_tree = self.portal.instance_tree_module.newContent(
+      portal_type="Instance Tree"
+    )
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  def checkCreatedUpgradeDecision(self, upgrade_decision, instance_tree,
+                                  software_product, release_variation,
+                                  type_variation):
+    self.assertEqual('confirmed', upgrade_decision.getSimulationState())
+    project = instance_tree.getFollowUpValue()
+    self.assertEqual(instance_tree.getRelativeUrl(),
+                     upgrade_decision.getAggregate())
+    self.assertEqual(software_product.getRelativeUrl(),
+                     upgrade_decision.getResource())
+    self.assertEqual(release_variation.getRelativeUrl(),
+                     upgrade_decision.getSoftwareRelease())
+    self.assertEqual(type_variation.getRelativeUrl(),
+                     upgrade_decision.getSoftwareType())
+    self.assertEqual(project.getRelativeUrl(),
+                     upgrade_decision.getDestinationProject())
+    person = instance_tree.getDestinationSectionValue()
+    self.assertEqual(person.getRelativeUrl(),
+                     upgrade_decision.getDestinationDecision())
+    self.assertEqual(person.getRelativeUrl(),
+                     upgrade_decision.getDestinationSection())
+    # Check that software release url is not the same
+    self.assertEqual(type_variation.getTitle(),
+                     instance_tree.getSourceReference())
+    self.assertNotEqual(release_variation.getUrlString(),
+                        instance_tree.getUrlString())
+
+  ##########################################################################
+  # Not allocated
+  ##########################################################################
+  def test_createUpgradeDecision_notAllocated_newReleaseOnComputeNode(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree()
+    self.tic()
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation, type_variation
     )
 
-    self.new_software_release.edit(
-      aggregate=self.software_product.getRelativeUrl(),
-      url_string=self.generateNewSoftwareReleaseUrl(),
-      version='2',
-      effective_date=DateTime(),
+  def test_createUpgradeDecision_notAllocated_newReleaseOnRemoteNode(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(node="remote")
+    self.tic()
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for remote node", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+
+  def test_createUpgradeDecision_notAllocated_newReleaseOnInstanceNode(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state="impossible", node="instance")
+    self.tic()
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for instance node", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  def test_createUpgradeDecision_notAllocated_sameRelease(self):
+    software_product, release_variation, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree()
+    self.tic()
+
+    self.addAllocationSupply(
+      "for compute node", compute_node, software_product,
+      release_variation, type_variation, disable_alarm=True)
+
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  def test_createUpgradeDecision_notAllocated_twoRelease(self):
+    software_product, release_variation, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree()
+    self.tic()
+
+    self.addAllocationSupply(
+      "for compute node", compute_node, software_product,
+      release_variation, type_variation, disable_alarm=True)
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node 2", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  def test_createUpgradeDecision_notAllocated_newRelease_ongoingDecision(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree()
+    self.tic()
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node 2", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation, type_variation
     )
     self.tic()
 
-  def _installSoftwareOnTheComputeNode(self, software_release_url_list):
-    for software_release in software_release_url_list:
-      software_installation = self.portal.software_installation_module\
-        .newContent(portal_type='Software Installation',
-        url_string=software_release,
-        aggregate=self.compute_node.getRelativeUrl())
-      software_installation.validate()
-      software_installation.requestStart()
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  def test_createUpgradeDecision_notAllocated_newRelease_ongoingDecisionActivity(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree()
     self.tic()
 
-  def _createInstance(self, url_string, shared=False):
-    instance_tree = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
-    instance_tree.edit(
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node 2", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation, type_variation
     )
-    instance_tree.validate()
-    instance_tree.edit(
-        title=self.generateNewSoftwareTitle(),
-        reference="TESTHS-%s" % self.generateNewId(),
-        destination_section_value=self.person
-    )
-    request_kw = dict(
-      software_release=url_string,
-      software_type=self.generateNewSoftwareType(),
-      instance_xml=self.generateSafeXml(),
-      sla_xml=self.generateSafeXml(),
-      shared=shared,
-      software_title=instance_tree.getTitle(),
-      state='started'
-    )
-    instance_tree.requestStart(**request_kw)
-    instance_tree.requestInstance(**request_kw)
+    self.commit()
 
-    instance = instance_tree.getSuccessorValue()
-    self.tic()
-    return instance_tree, instance
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
 
-  def _makeTreeForTestSlapOSPDMCreateUpgradeDecisionSkins(self, software_release_url):
-    self.instance_tree, self.instance = self._createInstance(software_release_url)
-    self.shared_instance_tree, self.shared_instance = self._createInstance(software_release_url, True)
-    self.instance.setAggregate(self.partition.getRelativeUrl())
-    self.shared_instance.setAggregate(self.partition.getRelativeUrl())
-    self.partition.markBusy()
+  def test_createUpgradeDecision_notAllocated_newRelease_cancelledDecision(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree()
     self.tic()
 
-  def afterSetUp(self):
-    TestSlapOSPDMMixinSkins.afterSetUp(self)
-    preference =  self.portal.portal_preferences.getActiveSystemPreference()
-    preference.setPreferredCloudContractEnabled(True)
-    self.tic()
-    self._makeComputeNode()
-    self._makeSoftwareProductCatalog()
-    self._installSoftwareOnTheComputeNode([
-      self.previous_software_release.getUrlString(),
-      self.new_software_release.getUrlString()
-    ])
-    self.person = self.makePerson()
-    self.tic()
-    self._makeTreeForTestSlapOSPDMCreateUpgradeDecisionSkins(
-       self.previous_software_release.getUrlString())
-
-  def test_InstanceTree_createUpgradeDecision_upgradeScopeConfirmation(self):
-    # check upgrade decision on HS
-    self.instance_tree.setUpgradeScope('manual')
-    self.tic()
-    upgrade_decision = self.instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual('planned', upgrade_decision.getSimulationState())
-    shared_upgrade_decision = self.shared_instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual(None, shared_upgrade_decision)
-
-    # simulate upgrade of the instance tree
-    upgrade_decision.confirm()
-    upgrade_decision.start()
-    upgrade_decision.stop()
-    upgrade_decision.deliver()
-    self.instance_tree.edit(url_string=self.new_software_release.getUrlString())
-    self.instance.edit(url_string=self.new_software_release.getUrlString())
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node 2", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
     self.tic()
 
-    # check upgrade decision on shared HS related to upgraded HS
-    self.shared_instance_tree.setUpgradeScope('manual')
-
-    shared_upgrade_decision = self.shared_instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual('started', shared_upgrade_decision.getSimulationState())
-
-  def test_InstanceTree_createUpgradeDecision_upgradeScopeAuto(self):
-    # check upgrade decision on HS
-    self.instance_tree.setUpgradeScope('auto')
-    self.tic()
-    upgrade_decision = self.instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual('started', upgrade_decision.getSimulationState())
-    shared_upgrade_decision = self.shared_instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual(None, shared_upgrade_decision)
-
-    # simulate upgrade of the instance tree
-    upgrade_decision.stop()
-    upgrade_decision.deliver()
-    self.instance_tree.edit(url_string=self.new_software_release.getUrlString())
-    self.instance.edit(url_string=self.new_software_release.getUrlString())
-    self.tic()
-
-    # check upgrade decision on shared HS related to upgraded HS
-    self.shared_instance_tree.setUpgradeScope('auto')
-
-    shared_upgrade_decision = self.shared_instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual('started', shared_upgrade_decision.getSimulationState())
-
-  def test_InstanceTree_createUpgradeDecision_upgradeScopeDisabled(self):
-    # check upgrade decision on HS
-    self.instance_tree.setUpgradeScope('disabled')
-    self.tic()
-    upgrade_decision = self.instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual(None, upgrade_decision)
-    shared_upgrade_decision = self.shared_instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual(None, shared_upgrade_decision)
-
-
-  def testInstanceTree_createUpgradeDecision_no_newer(self):
-    person = self._makePerson()
-    compute_node, _ = self._makeComputeNode(owner=person)
-    self._makeComputePartitions(compute_node)
-    software_product = self._makeSoftwareProduct()
-    software_release = self._requestSoftwareRelease(
-                                    software_product.getRelativeUrl())
-    url_string = software_release.getUrlString()
-    self._makeSoftwareInstallation(compute_node, url_string)
-    self.tic()
-
-    # Create Instance Tree
-    instance_tree = self._makeFullInstanceTree(
-                                    url_string, person)
-    self.tic()
-    
     upgrade_decision = instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual(upgrade_decision, None)
-    
-    self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputePartitionBusy(compute_node,
-                                    instance_tree.getSuccessorValue())
-    
-    self._requestSoftwareRelease(software_product.getRelativeUrl())
+    self.checkCreatedUpgradeDecision(
+      upgrade_decision,
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+    upgrade_decision.cancel()
     self.tic()
-    
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+
+  def test_createUpgradeDecision_notAllocated_newRelease_rejectedDecisionSameRelease(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree()
+    self.tic()
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node 2", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
     upgrade_decision = instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual(upgrade_decision, None)
+    self.checkCreatedUpgradeDecision(
+      upgrade_decision,
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+    upgrade_decision.reject()
+    self.tic()
 
-  def testInstanceTree_createUpgradeDecision_closed_compute_node(self):
-    person = self._makePerson()
-    compute_node, _ = self._makeComputeNode(owner=person, allocation_scope="close/outdated")
-    self._makeComputePartitions(compute_node)
-    software_product = self._makeSoftwareProduct()
-    software_release = self._requestSoftwareRelease(
-                                    software_product.getRelativeUrl())
-    url_string = software_release.getUrlString()
-    
-    self._makeSoftwareInstallation( compute_node, url_string)
-    
-    # Create Instance Tree and Software Instance
-    instance_tree = self._makeFullInstanceTree(
-                                    url_string, person)
-    self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputePartitionBusy(compute_node,
-                                    instance_tree.getSuccessorValue())
-    
-    # Install the Newest software release
-    software_release2 = self._requestSoftwareRelease(
-                                      software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(compute_node,
-                                    software_release2.getUrlString())
-    self.tic()
-    
-    up_decision = instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertNotEqual(up_decision, None)
-    self.assertEqual(up_decision.getSimulationState(), 'planned')
-    
-    self.assertEqual(up_decision.UpgradeDecision_getAggregateValue("Instance Tree").\
-                      getReference(), instance_tree.getReference())
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
 
-    self.assertEqual(software_release2.getUrlString(),
-      up_decision.UpgradeDecision_getAggregateValue("Software Release").\
-                              getUrlString())
+  def test_createUpgradeDecision_notAllocated_newRelease_rejectedDecisionAnotherRelease(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree()
+    self.tic()
 
-  def testInstanceTree_createUpgradeDecision_create_once_transaction(self):
-    person = self._makePerson()
-    compute_node, _ = self._makeComputeNode(owner=person, allocation_scope="open/personal")
-    self._makeComputePartitions(compute_node)
-    software_product = self._makeSoftwareProduct()
-    software_release = self._requestSoftwareRelease(
-                                    software_product.getRelativeUrl())
-    url_string = software_release.getUrlString()
-    
-    self._makeSoftwareInstallation( compute_node, url_string)
-    
-    # Create Instance Tree and Software Instance
-    instance_tree = self._makeFullInstanceTree(
-                                    url_string, person)
-    self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputePartitionBusy(compute_node,
-                                    instance_tree.getSuccessorValue())
-    
-    # Install the Newest software release
-    software_release2 = self._requestSoftwareRelease(
-                                      software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(compute_node,
-                                    software_release2.getUrlString())
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    supply = self.addAllocationSupply("for compute node 2", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
     self.tic()
-    
-    up_decision = instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertNotEqual(up_decision, None)
-    self.assertEqual(up_decision.getSimulationState(), 'planned')
-    transaction.commit()
-    # call a second time without tic
-    up_decision = instance_tree.InstanceTree_createUpgradeDecision()
-    # no new Upgrade decision created
-    self.assertEqual(up_decision, None)
 
-  def testInstanceTree_createUpgradeDecision(self):
-    person = self._makePerson()
-    compute_node, _ = self._makeComputeNode(owner=person)
-    self._makeComputePartitions(compute_node)
-    software_product = self._makeSoftwareProduct()
-    software_release = self._requestSoftwareRelease(
-                                    software_product.getRelativeUrl())
-    url_string = software_release.getUrlString()
-    
-    self._makeSoftwareInstallation( compute_node, url_string)
-    
-    # Create Instance Tree and Software Instance
-    instance_tree = self._makeFullInstanceTree(
-                                    url_string, person)
-    self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputePartitionBusy(compute_node,
-                                    instance_tree.getSuccessorValue())
-    
-    # Install the Newest software release
-    software_release2 = self._requestSoftwareRelease(
-                                      software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(compute_node,
-                                    software_release2.getUrlString())
+    upgrade_decision = instance_tree.InstanceTree_createUpgradeDecision()
+    self.checkCreatedUpgradeDecision(
+      upgrade_decision,
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+    upgrade_decision.reject()
+    supply.invalidate()
     self.tic()
-    
-    up_decision = instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertNotEqual(up_decision, None)
-    self.assertEqual(up_decision.getSimulationState(), 'planned')
-    
-    self.assertEqual(up_decision.UpgradeDecision_getAggregateValue("Instance Tree").\
-                      getReference(), instance_tree.getReference())
 
-    self.assertEqual(software_release2.getUrlString(),
-      up_decision.UpgradeDecision_getAggregateValue("Software Release").\
-                              getUrlString())
-    
+    new_release_variation2 = self._makeSoftwareRelease(software_product)
+    supply = self.addAllocationSupply("for compute node 3", compute_node, software_product,
+                             new_release_variation2, type_variation, disable_alarm=True)
     self.tic()
-    up_decision2 = instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual(up_decision2, None)
-  
-  
-  def testInstanceTree_createUpgradeDecision_with_exist(self):
-    person = self._makePerson()
-    compute_node, _ = self._makeComputeNode(owner=person)
-    self._makeComputePartitions(compute_node)
-    software_product = self._makeSoftwareProduct()
-    software_release = self._requestSoftwareRelease(
-                                    software_product.getRelativeUrl())
-    url_string = software_release.getUrlString()
-    
-    self._makeSoftwareInstallation( compute_node, url_string)
-    
-    # Create Instance Tree and Software Instance
-    instance_tree = self._makeFullInstanceTree(
-                                    url_string, person)
-    self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputePartitionBusy(compute_node,
-                                    instance_tree.getSuccessorValue())
-    
-    # Install the Newest software release
-    software_release2 = self._requestSoftwareRelease(
-                                      software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(compute_node, software_release2.getUrlString())
-    self.tic()
-    
-    up_decision = instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual(up_decision.getSimulationState(), 'planned')
-    
-    # Install the another software release
-    software_release3 = self._requestSoftwareRelease(
-      software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(compute_node, software_release3.getUrlString())
-    self.tic()
-    
-    up_decision2 = instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual(up_decision2.getSimulationState(), 'planned')
-    self.assertEqual(up_decision.getSimulationState(), 'cancelled')
-    release = up_decision2.UpgradeDecision_getAggregateValue("Software Release")
-    self.assertEqual(release.getUrlString(),
-                                software_release3.getUrlString())
 
-  def testInstanceTree_createUpgradeDecision_rejected(self):
-    person = self._makePerson()
-    compute_node, _ = self._makeComputeNode(owner=person)
-    self._makeComputePartitions(compute_node)
-    software_product = self._makeSoftwareProduct()
-    software_release = self._requestSoftwareRelease(
-                                    software_product.getRelativeUrl())
-    url_string = software_release.getUrlString()
-    
-    self._makeSoftwareInstallation(compute_node, url_string)
-    
-    # Create Instance Tree and Software Instance
-    instance_tree = self._makeFullInstanceTree(
-                                    url_string, person)
-    self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputePartitionBusy(compute_node,
-                                    instance_tree.getSuccessorValue())
-    
-    # Install the Newest software release
-    software_release2 = self._requestSoftwareRelease(
-                                      software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(compute_node, software_release2.getUrlString())
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation2, type_variation
+    )
+  ##########################################################################
+  # Shared not allocated
+  ##########################################################################
+  def test_createUpgradeDecision_sharedNotAllocated_newReleaseOnComputeNode(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(shared=True)
     self.tic()
-    
-    up_decision = instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual(up_decision.getSimulationState(), 'planned')
-    
-    # Reject upgrade decision
-    up_decision.reject()
-    self.tic()
-    
-    in_progress = software_release2.SoftwareRelease_getUpgradeDecisionInProgress(
-                                instance_tree.getUid())
-    up_decision = instance_tree.InstanceTree_createUpgradeDecision()
-    # There is an upgrade decision in progress
-    self.assertNotEqual(in_progress, None)
-    # No new upgrade decision created with software_release2
-    self.assertEqual(up_decision, None)
 
-  def testInstanceTree_createUpgradeDecision_rejected_2(self):
-    person = self._makePerson()
-    compute_node, _ = self._makeComputeNode(owner=person)
-    self._makeComputePartitions(compute_node)
-    software_product = self._makeSoftwareProduct()
-    software_release = self._requestSoftwareRelease(
-                                    software_product.getRelativeUrl())
-    url_string = software_release.getUrlString()
-    
-    self._makeSoftwareInstallation(compute_node, url_string)
-    
-    # Create Instance Tree and Software Instance
-    instance_tree = self._makeFullInstanceTree(
-                                    url_string, person)
-    self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputePartitionBusy(compute_node,
-                                    instance_tree.getSuccessorValue())
-    
-    # Install the Newest software release
-    software_release2 = self._requestSoftwareRelease(
-                                      software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(compute_node, software_release2.getUrlString())
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
     self.tic()
-    
-    up_decision = instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual(up_decision.getSimulationState(), 'planned')
-    
-    # Reject upgrade decision
-    up_decision.reject()
+
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  def test_createUpgradeDecision_sharedNotAllocated_newReleaseOnRemoteNode(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(shared=True, node="remote")
     self.tic()
-    
-    # Install the another software release
-    software_release3 = self._requestSoftwareRelease(
-                                      software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(compute_node, software_release3.getUrlString())
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for remote node", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
     self.tic()
-    
-    decision2 = instance_tree.InstanceTree_createUpgradeDecision()
-    self.assertEqual(decision2.getSimulationState(), 'planned')
-    self.assertEqual(up_decision.getSimulationState(), 'rejected')
-    release = decision2.UpgradeDecision_getAggregateValue("Software Release")
-    self.assertEqual(release.getUrlString(),
-                                software_release3.getUrlString())
-  
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+
+  def test_createUpgradeDecision_sharedNotAllocated_newReleaseOnInstanceNode(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(shared=True, node="instance")
+    self.tic()
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for instance node", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+
+  ##########################################################################
+  # Allocated on Compute Node
+  ##########################################################################
+  def test_createUpgradeDecision_allocatedOnComputeNode_newReleaseOnAnotherComputeNode(self):
+    software_product, _, type_variation, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+
+    project = instance_tree.getFollowUpValue()
+    person = instance_tree.getDestinationSectionValue()
+
+    person.requestComputeNode(compute_node_title='another test compute node',
+                              project_reference=project.getReference())
+    self.tic()
+    compute_node2 = self.portal.portal_catalog.getResultValue(
+      portal_type='Compute Node',
+      reference=self.portal.REQUEST.get('compute_node_reference')
+    )
+    assert compute_node2 is not None
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node 2", compute_node2, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  def test_createUpgradeDecision_allocatedOnComputeNode_newReleaseOnComputeNode(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+
+  def test_createUpgradeDecision_allocatedOnComputeNode_newReleaseOnComputeNodeAndCorrectTarget(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(
+        target_software_release=new_release_variation,
+        target_software_type=type_variation
+      ),
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+
+  def test_createUpgradeDecision_allocatedOnComputeNode_newReleaseOnComputeNodeAndIncorrectTarget(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    incorrect_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.assertEqual(
+      None,
+      instance_tree.InstanceTree_createUpgradeDecision(
+        target_software_release=incorrect_release_variation,
+        target_software_type=type_variation
+      )
+    )
+
+  def test_createUpgradeDecision_allocatedOnComputeNode_twoRelease(self):
+    software_product, release_variation, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    self.tic()
+
+    self.addAllocationSupply(
+      "for compute node", compute_node, software_product,
+      release_variation, type_variation, disable_alarm=True)
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node 2", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  def test_createUpgradeDecision_allocatedOnComputeNode_twoReleaseAndCorrectTarget(self):
+    software_product, release_variation, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    self.tic()
+
+    self.addAllocationSupply(
+      "for compute node", compute_node, software_product,
+      release_variation, type_variation, disable_alarm=True)
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node 2", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(
+        target_software_release=new_release_variation,
+        target_software_type=type_variation
+      ),
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+
+  def test_createUpgradeDecision_allocatedOnComputeNode_twoReleaseAndIncorrectTarget(self):
+    software_product, release_variation, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    self.tic()
+
+    self.addAllocationSupply(
+      "for compute node", compute_node, software_product,
+      release_variation, type_variation, disable_alarm=True)
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    incorrect_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node 2", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.assertEqual(
+      instance_tree.InstanceTree_createUpgradeDecision(
+        target_software_release=incorrect_release_variation,
+        target_software_type=type_variation
+      ),
+      None
+    )
+
+  ##########################################################################
+  # Shared allocated on Compute Node
+  ##########################################################################
+  def test_createUpgradeDecision_slaveAllocatedOnComputeNodeSameTree_newReleaseOnComputeNodeButNotTree(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', shared=True)
+    self.tic()
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  def test_createUpgradeDecision_slaveAllocatedOnComputeNodeSameTree_newReleaseOnComputeNode(self):
+    # A Slave Instance can not be the root instance and allocated on the same tree
+    # at the same time
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', shared=True)
+    self.tic()
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node", compute_node, software_product,
+                             new_release_variation, type_variation,
+                             is_slave_on_same_instance_tree_allocable=True, disable_alarm=True)
+    self.tic()
+
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  ##########################################################################
+  # Allocated on Remote Node
+  ##########################################################################
+  def test_createUpgradeDecision_allocatedOnRemoteNode_newReleaseOnRemoteNode(self):
+    software_product, _, type_variation, remote_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', node="remote")
+    self.tic()
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for remote node", remote_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+
+  def test_createUpgradeDecision_allocatedOnRemoteNode_twoRelease(self):
+    software_product, release_variation, type_variation, remote_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', node="remote")
+    self.tic()
+
+    self.addAllocationSupply(
+      "for remote node", remote_node, software_product,
+      release_variation, type_variation, disable_alarm=True)
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node 2", remote_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  def test_createUpgradeDecision_allocatedOnRemoteNode_newReleaseOnAnoterRemoteNode(self):
+    software_product, _, type_variation, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', node="remote")
+    self.tic()
+
+    project = instance_tree.getFollowUpValue()
+    remote_node2 = self.portal.compute_node_module.newContent(
+      portal_type="Remote Node",
+      follow_up_value=project
+    )
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for remote node 2", remote_node2, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  ##########################################################################
+  # Shared allocated on Remote Node
+  ##########################################################################
+  def test_createUpgradeDecision_slaveAllocatedOnRemoteNode_newReleaseOnComputeNode(self):
+    software_product, _, type_variation, remote_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', shared=True, node="remote")
+    self.tic()
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for remote node", remote_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+
+  def test_createUpgradeDecision_slaveAllocatedOnRemoteNode_twoRelease(self):
+    software_product, release_variation, type_variation, remote_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', shared=True, node="remote")
+    self.tic()
+
+    self.addAllocationSupply(
+      "for remote node", remote_node, software_product,
+      release_variation, type_variation, disable_alarm=True)
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node 2", remote_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  def test_createUpgradeDecision_slaveAllocatedOnRemoteNode_newReleaseOnAnoterRemoteNode(self):
+    software_product, _, type_variation, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', shared=True, node="remote")
+    self.tic()
+
+    project = instance_tree.getFollowUpValue()
+    remote_node2 = self.portal.compute_node_module.newContent(
+      portal_type="Remote Node",
+      follow_up_value=project
+    )
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for remote node 2", remote_node2, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+
+  ##########################################################################
+  # Shared allocated on Instance Node
+  ##########################################################################
+  def test_createUpgradeDecision_slaveAllocatedOnInstanceNode_newReleaseOnInstanceNode(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', shared=True, node="instance")
+    self.tic()
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+  def test_createUpgradeDecision_slaveAllocatedOnInstanceNode_newReleaseOnAnotherInstanceNode(self):
+    software_product, _, type_variation, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', shared=True, node="instance")
+    self.tic()
+
+    project = instance_tree.getFollowUpValue()
+    instance_node2 = self.portal.compute_node_module.newContent(
+      portal_type="Instance Node",
+      follow_up_value=project
+    )
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node", instance_node2, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())

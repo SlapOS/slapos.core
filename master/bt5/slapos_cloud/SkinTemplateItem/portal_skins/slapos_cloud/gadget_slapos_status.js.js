@@ -234,6 +234,8 @@
           'status gadget did not receive jio_key  and result values'
         );
       }
+      // Save will force the gadget to be updated so
+      // result is empty.
       var state_dict = options.result || {};
       state_dict.jio_key = options.jio_key;
       return this.changeState(state_dict);

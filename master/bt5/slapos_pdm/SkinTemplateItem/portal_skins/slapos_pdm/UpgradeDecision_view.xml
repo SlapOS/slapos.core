@@ -53,9 +53,7 @@
                 <item>
                     <key> <string>bottom</string> </key>
                     <value>
-                      <list>
-                        <string>listbox</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -67,11 +65,7 @@
                 <item>
                     <key> <string>hidden</string> </key>
                     <value>
-                      <list>
-                        <string>listbox_aggregate_title_list</string>
-                        <string>listbox_reference</string>
-                        <string>listbox_stop_date</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -81,6 +75,8 @@
                         <string>my_title</string>
                         <string>my_reference</string>
                         <string>my_resource_title</string>
+                        <string>my_variation_category_list</string>
+                        <string>my_aggregate_title</string>
                       </list>
                     </value>
                 </item>

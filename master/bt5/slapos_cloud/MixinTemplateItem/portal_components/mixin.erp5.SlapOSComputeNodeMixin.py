@@ -198,9 +198,7 @@ class SlapOSComputeNodeMixin(object):
         }
 
     if user_type == 'Software Instance':
-      compute_partition_list = self.contentValues(
-        portal_type="Compute Partition",
-        checked_permission="View")
+      compute_partition_list = [user_document.getAggregateValue()]
     else:
       unrestrictedSearchResults = self.getPortalObject().portal_catalog.unrestrictedSearchResults
       compute_partition_list = unrestrictedSearchResults(

@@ -353,16 +353,6 @@
                       <value> <string>string</string> </value>
                   </item>
                 </dictionary>
-                <dictionary>
-                  <item>
-                      <key> <string>id</string> </key>
-                      <value> <string>configuration_payment_url_template</string> </value>
-                  </item>
-                  <item>
-                      <key> <string>type</string> </key>
-                      <value> <string>string</string> </value>
-                  </item>
-                </dictionary>
               </tuple>
             </value>
         </item>
@@ -457,17 +447,8 @@
             <value> <string>slap_payment_result</string> </value>
         </item>
         <item>
-            <key> <string>configuration_payment_url_template</string> </key>
-            <value> <string encoding="cdata"><![CDATA[
-
-%(url)s/#/%(payment_transaction_url)s?page=slap_payment_result&result=%(result)s
-
-]]></string> </value>
-        </item>
-        <item>
             <key> <string>configuration_precache_manifest_script_list</string> </key>
-            <value> <string>WebSection_getHostingJSPrecacheManifestList\n
-WebSection_getJsonEditorPrecacheManifestList</string> </value>
+            <value> <string>WebSection_getHostingJSPrecacheManifestList</string> </value>
         </item>
         <item>
             <key> <string>configuration_service_worker_url</string> </key>
@@ -712,12 +693,12 @@ WebSection_getJsonEditorPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
                       <value>
-                        <none/>
+                        <persistent> <string encoding="base64">AAAAAAAAAAs=</string> </persistent>
                       </value>
                   </item>
                   <item>
@@ -726,7 +707,7 @@ WebSection_getJsonEditorPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1012.36758.49018.20019</string> </value>
+                      <value> <string>1010.14961.23101.61474</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -746,7 +727,7 @@ WebSection_getJsonEditorPrecacheManifestList</string> </value>
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1701890500.23</float>
+                              <float>1691160390.06</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -756,6 +737,33 @@ WebSection_getJsonEditorPrecacheManifestList</string> </value>
                 </dictionary>
               </list>
             </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="11" aka="AAAAAAAAAAs=">
+    <pickle>
+      <global name="Message" module="Products.ERP5Type.Message"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>default</string> </key>
+            <value> <string>Translation data updated.</string> </value>
+        </item>
+        <item>
+            <key> <string>domain</string> </key>
+            <value> <string>erp5_ui</string> </value>
+        </item>
+        <item>
+            <key> <string>mapping</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>message</string> </key>
+            <value> <string>Translation data updated.</string> </value>
         </item>
       </dictionary>
     </pickle>

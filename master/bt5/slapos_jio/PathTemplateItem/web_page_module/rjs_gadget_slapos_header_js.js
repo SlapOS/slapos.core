@@ -41,7 +41,6 @@
       // Include SlapOS specific items
       ['ticket_url', 'Add Ticket', 'ticket'],
       ['add_login_url', 'Add Login', 'plus'],
-      ['add_organisation_url', 'Add Organisation', 'plus'],
       ['token_url', 'Token', 'key'],
       ['invitation_url', 'Invite User', 'key'],
       ['request_certificate_url', 'Request Certificate', 'certificate'],

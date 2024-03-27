@@ -18,8 +18,8 @@ event_portal_type = "Mail Message"
 
 event = portal.portal_catalog.getResultValue(
   portal_type=event_portal_type,
-  default_resource_uid=service.getUid(),
-  default_follow_up_uid=ticket.getUid(),
+  resource__uid=service.getUid(),
+  follow_up__uid=ticket.getUid(),
 )
 
 if (event is None) and (ticket.getSimulationState() == 'suspended'):
@@ -31,20 +31,15 @@ if (event is None) and (ticket.getSimulationState() == 'suspended'):
   # Prevent concurrent transaction to create 2 events for the same ticket
   ticket.edit(resource=service_relative_url)
 
-  event = portal.event_module.newContent(
-    portal_type=event_portal_type,
-    start_date=DateTime(),
-    destination=ticket.getDestination(),
-    follow_up=ticket.getRelativeUrl(),
-    source=context.getSource(),
-    title=title,
-    resource=service_relative_url,
+  event = ticket.Ticket_createProjectEvent(
+    title, 'outgoing', 'Mail Message',
+    service_relative_url,
     text_content=text_content,
+    content_type='text/plain',
+    notification_message=notification_message,
+    substitution_method_parameter_dict=substitution_method_parameter_dict,
+    comment=comment
   )
-
-  event.start(send_mail=True, comment=comment)
-  event.stop(comment=comment)
-  event.deliver(comment=comment)
   event.reindexObject(activate_kw={'tag': tag})
 
 return event

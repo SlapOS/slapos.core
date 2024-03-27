@@ -7,10 +7,26 @@
     <pickle>
       <dictionary>
         <item>
+            <key> <string>allow_simple_one_argument_traversal</string> </key>
+            <value> <int>0</int> </value>
+        </item>
+        <item>
             <key> <string>arguments_src</string> </key>
-            <value> <string>uid\r\n
-getUrlString\r\n
+            <value> <string>uid\n
+getUrlString\n
 getPortalType</string> </value>
+        </item>
+        <item>
+            <key> <string>class_file_</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>class_name_</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>connection_id</string> </key>
@@ -18,7 +34,7 @@ getPortalType</string> </value>
         </item>
         <item>
             <key> <string>expression</string> </key>
-            <value> <string>python: context.getPortalType() in (\'Email\', \'Fax\', \'Telephone\', \'Software Release\', \'Software Installation\', \'Software Instance\', \'Instance Tree\')</string> </value>
+            <value> <string>python: context.getPortalType() in (\'Email\', \'Fax\', \'Telephone\', \'Software Release\', \'Software Product Release Variation\', \'Software Installation\', \'Software Instance\', \'Instance Tree\')</string> </value>
         </item>
         <item>
             <key> <string>expression_cache_key</string> </key>
@@ -42,7 +58,7 @@ getPortalType</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string></string> </value>
+            <value> <string>z_catalog_email_list</string> </value>
         </item>
         <item>
             <key> <string>type</string> </key>

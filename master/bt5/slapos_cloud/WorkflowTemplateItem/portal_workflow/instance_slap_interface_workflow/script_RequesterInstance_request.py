@@ -3,6 +3,8 @@ portal = requester_instance.getPortalObject()
 # Get required arguments
 kwargs = state_change.kwargs
 
+context.REQUEST.set('request_instance', None)
+
 # Required args
 # Raise TypeError if all parameters are not provided
 try:
@@ -23,6 +25,18 @@ if is_slave not in [True, False]:
 # Instance tree is used as the root of the instance tree
 if requester_instance.getPortalType() == "Instance Tree":
   instance_tree = requester_instance
+
+  # Do not propagate instante tree changes if current user
+  # subscription status is not OK
+  subscription_state = instance_tree.Item_getSubscriptionStatus()
+  if subscription_state in ('not_subscribed', 'nopaid'):
+    context.REQUEST.set('request_instance', None)
+    return
+  elif subscription_state in ('subscribed', 'todestroy'):
+    pass
+  else:
+    raise NotImplementedError('Unhandled subscription state: %s' % subscription_state)
+
 else:
   instance_tree = requester_instance.getSpecialiseValue(portal_type="Instance Tree")
 
@@ -91,6 +105,7 @@ if (request_software_instance is None):
       portal_type=software_instance_portal_type,
       title=software_title,
       specialise_value=instance_tree,
+      follow_up_value=instance_tree.getFollowUpValue(portal_type='Project'),
       reference=reference,
       activate_kw={'tag': tag}
     )

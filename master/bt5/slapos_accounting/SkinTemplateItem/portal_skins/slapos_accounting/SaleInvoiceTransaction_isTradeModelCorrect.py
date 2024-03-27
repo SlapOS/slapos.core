@@ -4,15 +4,9 @@ if specialise is None or specialise.getSpecialiseValue() is None:
   # A business process
   return True
 
-amount_list = specialise.getAggregatedAmountList(context)
-if len(amount_list) < 1:
-  return False
-
 precision = context.getPriceCurrencyValue().getQuantityPrecision()
 
-amount = amount_list[0]
-
-total_price = amount.getTotalPrice()
+total_price = sum([amount.getTotalPrice() for amount in specialise.getAggregatedAmountList(context)])
 
 invoice_tax = 0.
 for line in context.getMovementList(context.getPortalInvoiceMovementTypeList()):

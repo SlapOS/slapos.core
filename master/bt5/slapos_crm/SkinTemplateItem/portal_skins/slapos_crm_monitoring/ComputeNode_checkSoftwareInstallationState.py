@@ -1,15 +1,13 @@
 from DateTime import DateTime
 portal = context.getPortalObject()
 
-person = context.getSourceAdministrationValue(portal_type="Person")
-if not person or \
-   context.getMonitorScope("disabled") == "disabled" or \
+if (context.getMonitorScope() == "disabled") or \
    portal.ERP5Site_isSupportRequestCreationClosed():
-  return 
+  return
 
 software_installation_list = portal.portal_catalog(
       portal_type='Software Installation',
-      default_aggregate_uid=context.getUid(),
+      aggregate__uid=context.getUid(),
       validation_state='validated',
       sort_on=(('creation_date', 'DESC'),)
     )
@@ -26,15 +24,20 @@ for software_installation in software_installation_list:
     # Give it 12 hours to deploy.
     continue
 
+  if software_installation.getSlapState() != 'start_requested':
+    continue
+
   reference = software_installation.getReference()
   d = software_installation.getAccessStatus()
   if d.get("no_data", None) == 1:
+    should_notify = True
+    last_contact = "No Contact Information"
     ticket_title = "[MONITORING] No information for %s on %s" % (reference, compute_node_reference)
     description = "The software release %s did not started to build on %s since %s" % \
         (software_installation.getUrlString(), compute_node_title, software_installation.getCreationDate())
   else:
     last_contact = DateTime(d.get('created_at'))
-    if d.get("text").startswith("building"):
+    if d.get("text").startswith("#building"):
       should_notify = True
       ticket_title = "[MONITORING] %s is building for too long on %s" % (reference, compute_node_reference)
       description = "The software release %s is building for mode them 12 hours on %s, started on %s" % \
@@ -49,42 +52,34 @@ for software_installation in software_installation_list:
         (software_installation.getUrlString(), compute_node_title, software_installation.getCreationDate())
 
   if should_notify:
-    support_request = person.Base_getSupportRequestInProgress(
-      title=ticket_title,
-      aggregate=software_installation.getRelativeUrl())
 
-    if support_request is None:
-      person.notify(support_request_title=ticket_title,
-              support_request_description=description,
-              aggregate=software_installation.getRelativeUrl())
+    project = context.getFollowUpValue()
+    support_request = project.Project_createSupportRequestWithCausality(
+      ticket_title,
+      description,
+      causality=context.getRelativeUrl(),
+      destination_decision=project.getDestination()
+    )
 
-      support_request_relative_url = context.REQUEST.get("support_request_relative_url")
-      if support_request_relative_url is None:
-        return
-
-      support_request = portal.restrictedTraverse(support_request_relative_url)
-    
     if support_request is None:
       return
 
-    # Send Notification message
-    notification_reference = 'slapos-crm-compute_node_software_installation_state.notification'
-    notification_message = portal.portal_notifications.getDocumentValue(
-                 reference=notification_reference)
-
-    if notification_message is None:
-      message = """%s""" % description
-    else:
-      mapping_dict = {'compute_node_title':context.getTitle(),
-                      'compute_node_id':reference,
-                      'last_contact':last_contact}
-
-      message = notification_message.asText(
-              substitution_method_parameter_dict={'mapping_dict':mapping_dict})
-
+    notification_message_reference = 'slapos-crm-compute_node_software_installation_state.notification'
     event = support_request.SupportRequest_getLastEvent(ticket_title)
     if event is None:
-      support_request.notify(message_title=ticket_title, message=message)
+      support_request.Ticket_createProjectEvent(
+        ticket_title, 'outgoing', 'Web Message',
+        portal.service_module.slapos_crm_information.getRelativeUrl(),
+        text_content=description,
+        content_type='text/plain',
+        notification_message=notification_message_reference,
+        #language=XXX,
+        substitution_method_parameter_dict={
+          'compute_node_title':context.getTitle(),
+          'compute_node_id':reference,
+          'last_contact':last_contact
+        }
+      )
 
     support_request_list.append(support_request)
 

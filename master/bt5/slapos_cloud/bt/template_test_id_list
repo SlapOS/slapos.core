@@ -1,4 +1,5 @@
 test.erp5.testSlapOSCloudAlarm
+test.erp5.testSlapOSAllocationSupply
 test.erp5.testSlapOSCloudAllocationAlarm
 test.erp5.testSlapOSCloudComputePartitionSlapInterfaceWorkflow
 test.erp5.testSlapOSCloudInteractionWorkflow
@@ -7,7 +8,6 @@ test.erp5.testSlapOSCloudNetworkSlapInterfaceWorkflow
 test.erp5.testSlapOSCloudComputeNodeSlapInterfaceWorkflow
 test.erp5.testSlapOSCloudInstanceSlapInterfaceWorkflow
 test.erp5.testSlapOSCloudProjectSlapInterfaceWorkflow
-test.erp5.testSlapOSCloudOrganisationSlapInterfaceWorkflow
 test.erp5.testSlapOSCloudSecurityGroup
 test.erp5.testSlapOSCloudConstraint
 test.erp5.testSlapOSCloudUpgrader

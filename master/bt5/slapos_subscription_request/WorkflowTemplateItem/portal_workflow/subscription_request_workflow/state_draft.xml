@@ -20,9 +20,17 @@
                 <string>destination/portal_workflow/subscription_request_workflow/transition_cancel_action</string>
                 <string>destination/portal_workflow/subscription_request_workflow/transition_delete</string>
                 <string>destination/portal_workflow/subscription_request_workflow/transition_delete_action</string>
-                <string>destination/portal_workflow/subscription_request_workflow/transition_plan</string>
-                <string>destination/portal_workflow/subscription_request_workflow/transition_plan_action</string>
+                <string>destination/portal_workflow/subscription_request_workflow/transition_submit</string>
+                <string>destination/portal_workflow/subscription_request_workflow/transition_submit_action</string>
+                <string>destination/portal_workflow/subscription_request_workflow/transition_validate</string>
+                <string>destination/portal_workflow/subscription_request_workflow/transition_validate_action</string>
               </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>comment</string> </key>
+            <value>
+              <none/>
             </value>
         </item>
         <item>
@@ -72,10 +80,8 @@
                     <key> <string>Access contents information</string> </key>
                     <value>
                       <tuple>
-                        <string>Assignee</string>
                         <string>Assignor</string>
-                        <string>Associate</string>
-                        <string>Auditor</string>
+                        <string>Assignee</string>
                         <string>Manager</string>
                         <string>Owner</string>
                       </tuple>
@@ -85,9 +91,8 @@
                     <key> <string>Add portal content</string> </key>
                     <value>
                       <tuple>
-                        <string>Assignee</string>
                         <string>Assignor</string>
-                        <string>Associate</string>
+                        <string>Assignee</string>
                         <string>Manager</string>
                         <string>Owner</string>
                       </tuple>
@@ -97,11 +102,10 @@
                     <key> <string>Delete objects</string> </key>
                     <value>
                       <tuple>
-                        <string>Assignee</string>
-                        <string>Assignor</string>
-                        <string>Associate</string>
-                        <string>Manager</string>
                         <string>Owner</string>
+                        <string>Assignee</string>
+                        <string>Manager</string>
+                        <string>Assignor</string>
                       </tuple>
                     </value>
                 </item>
@@ -109,11 +113,10 @@
                     <key> <string>Modify portal content</string> </key>
                     <value>
                       <tuple>
-                        <string>Assignee</string>
                         <string>Assignor</string>
-                        <string>Associate</string>
-                        <string>Manager</string>
                         <string>Owner</string>
+                        <string>Manager</string>
+                        <string>Assignee</string>
                       </tuple>
                     </value>
                 </item>
@@ -121,12 +124,10 @@
                     <key> <string>View</string> </key>
                     <value>
                       <tuple>
-                        <string>Assignee</string>
-                        <string>Assignor</string>
-                        <string>Associate</string>
-                        <string>Auditor</string>
-                        <string>Manager</string>
                         <string>Owner</string>
+                        <string>Assignee</string>
+                        <string>Manager</string>
+                        <string>Assignor</string>
                       </tuple>
                     </value>
                 </item>

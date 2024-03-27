@@ -14,7 +14,7 @@ if document is None:
 
 aggregate_portal_type = document.getPortalType()
 if aggregate_portal_type == "Compute Node":
-  if document.getMonitorScope("disabled") == "disabled":
+  if document.getMonitorScope() == "disabled":
     return "Monitor is disabled to the related %s." % document.getPortalType()
 
   d = document.getAccessStatus()
@@ -65,7 +65,7 @@ if aggregate_portal_type == "Compute Node":
 
 if aggregate_portal_type == "Software Installation":
   compute_node_title = document.getAggregateTitle()
-  if document.getAggregateValue().getMonitorScope("disabled") == "disabled":
+  if document.getAggregateValue().getMonitorScope() == "disabled":
     return "Monitor is disabled to the related %s." % document.getPortalType()
 
   if document.getSlapState() not in ["start_requested", "stop_requested"]:
@@ -87,7 +87,7 @@ if aggregate_portal_type == "Software Installation":
       (document.getUrlString(), compute_node_title, document.getCreationDate())
 
 if aggregate_portal_type == "Instance Tree":
-  if document.getMonitorScope("disabled") == "disabled":
+  if document.getMonitorScope() == "disabled":
     return "Monitor is disabled to the related %s." % document.getPortalType()
 
   message_list = []
@@ -109,6 +109,11 @@ if aggregate_portal_type == "Instance Tree":
         message_list.append("%s has error (%s, %s at %s scope %s)" % (instance.getReference(), instance.getTitle(),
                                                                       instance.getUrlString(), compute_node.getReference(),
                                                                       compute_node.getAllocationScope()))
+      if instance.getPortalType() == "Software Instance" and \
+          compute_node.getAllocationScope() in ["closed/outdated"] and \
+          instance.getSlapState() == "start_requested" and \
+          instance.SoftwareInstance_hasReportedError():
+        message_list.append("%s on a %s compute_node" % (instance.getReference(), compute_node.getAllocationScope()) )
     else:
       message_list.append("%s is not allocated" % instance.getReference())
   return ",".join(message_list)

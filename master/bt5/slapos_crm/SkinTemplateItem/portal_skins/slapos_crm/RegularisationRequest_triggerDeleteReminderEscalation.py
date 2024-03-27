@@ -2,19 +2,10 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
-portal = context.getPortalObject()
 ndays = 10
-language = "en"
-recipient = context.getDestinationSectionValue()
-if recipient is not None:
-  language = recipient.getLanguage("en")
 
-notification_message = portal.portal_notifications.getDocumentValue(
-  language=language, reference="slapos-crm.delete.reminder.escalation")
-
-if notification_message is None:
-  subject = 'Acknowledgment: instances deleted'
-  body = """Dear user,
+subject = 'Acknowledgment: instances deleted'
+body = """Dear user,
 
 Despite our last reminder, you still have an unpaid invoice on %s.
 We will now delete all your instances.
@@ -22,20 +13,6 @@ We will now delete all your instances.
 Regards,
 The slapos team
 """ % context.getPortalObject().portal_preferences.getPreferredSlaposWebSiteUrl()
-else:
-  notification_mapping_dict = {
-     'user_name': context.getDestinationSectionTitle(),
-     'days': ndays}
-
-  subject = notification_message.getTitle()
-
-  # Preserve HTML else convert to text
-  if notification_message.getContentType() == "text/html":
-    body = notification_message.asEntireHTML(
-        substitution_method_parameter_dict={'mapping_dict':notification_mapping_dict})
-  else:
-    body = notification_message.asText(
-        substitution_method_parameter_dict={'mapping_dict':notification_mapping_dict})
 
 return context.RegularisationRequest_checkToTriggerNextEscalationStep(
   delay_period_in_days=ndays,
@@ -44,4 +21,9 @@ return context.RegularisationRequest_checkToTriggerNextEscalationStep(
   title=subject,
   text_content=body,
   comment='Deleting acknowledgment.',
+  notification_message="slapos-crm.delete.reminder.escalation",
+  substitution_method_parameter_dict={
+    'user_name': context.getDestinationSectionTitle(),
+    'days': ndays
+  }
 )

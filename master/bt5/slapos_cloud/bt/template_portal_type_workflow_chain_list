@@ -1,14 +1,27 @@
+Allocation Supply Cell | supply_cell_interaction_workflow
+Allocation Supply Line | edit_workflow
+Allocation Supply Line | reindex_object_interaction_workflow
+Allocation Supply Line | supply_line_interaction_workflow
+Allocation Supply | edit_workflow
+Allocation Supply | validation_workflow
 Compute Node | compute_node_slap_interface_workflow
 Compute Node | slapos_cloud_interaction_workflow
 Compute Partition | compute_partition_slap_interface_workflow
 Computer Network | network_slap_interface_workflow
 Hosting Subscription | edit_workflow
+Hosting Subscription | hosting_subscription_workflow
+Instance Node | edit_workflow
+Instance Node | validation_workflow
 Instance Tree | edit_workflow
 Instance Tree | instance_slap_interface_workflow
 Instance Tree | instance_tree_workflow
-Organisation | organisation_slap_interface_workflow
+One Time Virtual Master Access Token | edit_workflow
+One Time Virtual Master Access Token | validation_workflow
 Person | person_slap_interface_workflow
 Project | project_slap_interface_workflow
+Remote Node | compute_node_slap_interface_workflow
+Remote Node | edit_workflow
+Remote Node | validation_workflow
 Slave Instance | edit_workflow
 Slave Instance | instance_slap_interface_workflow
 Slave Instance | item_workflow

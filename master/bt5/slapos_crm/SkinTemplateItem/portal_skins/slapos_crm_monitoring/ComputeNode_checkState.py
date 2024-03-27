@@ -1,9 +1,7 @@
 from DateTime import DateTime
 portal = context.getPortalObject()
 
-person = context.getSourceAdministrationValue(portal_type="Person")
-if not person or \
-   context.getMonitorScope("disabled") == "disabled" or \
+if (context.getMonitorScope() == "disabled") or \
    portal.ERP5Site_isSupportRequestCreationClosed():
   return
 
@@ -56,7 +54,7 @@ if not should_notify:
   if compute_partition_uid_list:
     instance_list = portal.portal_catalog(
       portal_type='Software Instance',
-      default_aggregate_uid=compute_partition_uid_list)
+      aggregate__uid=compute_partition_uid_list)
 
     if instance_list:
       should_notify = True
@@ -78,45 +76,36 @@ if not should_notify:
         context.getTitle(), context.getReference(), last_contact)
 
 if should_notify:
-  support_request = person.Base_getSupportRequestInProgress(
-      title=node_ticket_title,
-      aggregate=context.getRelativeUrl())
+  support_request = context.Base_getSupportRequestInProgress(
+      title=node_ticket_title)
 
   if support_request is None:
-    support_request = person.Base_getSupportRequestInProgress(
-      title=ticket_title,
-      aggregate=context.getRelativeUrl())
-
-  if support_request is None:
-    person.notify(support_request_title=ticket_title,
-      support_request_description=description,
-      aggregate=context.getRelativeUrl())
-
-    support_request_relative_url = context.REQUEST.get("support_request_relative_url")
-    if support_request_relative_url is None:
-      return
-
-    support_request = portal.restrictedTraverse(support_request_relative_url)
+    project = context.getFollowUpValue()
+    support_request = project.Project_createSupportRequestWithCausality(
+      ticket_title,
+      description,
+      causality=context.getRelativeUrl(),
+      destination_decision=project.getDestination()
+    )
 
   if support_request is None:
     return
 
-  # Send Notification message
-  notification_message = portal.portal_notifications.getDocumentValue(
-    reference=notification_message_reference)
-
-  if notification_message is None:
-    message = """%s""" % description
-  else:
-    mapping_dict = {'compute_node_title':context.getTitle(),
-                    'compute_node_id':reference,
-                    'last_contact':last_contact,
-                    'issue_document_reference': issue_document_reference}
-    message = notification_message.asText(
-              substitution_method_parameter_dict={'mapping_dict': mapping_dict})
-
   event = support_request.SupportRequest_getLastEvent(ticket_title)
   if event is None:
-    support_request.notify(message_title=ticket_title, message=message)
+    support_request.Ticket_createProjectEvent(
+      ticket_title, 'outgoing', 'Web Message',
+      portal.service_module.slapos_crm_information.getRelativeUrl(),
+      text_content=description,
+      content_type='text/plain',
+      notification_message=notification_message_reference,
+      #language=XXX,
+      substitution_method_parameter_dict={
+        'compute_node_title':context.getTitle(),
+        'compute_node_id':reference,
+        'last_contact':last_contact,
+        'issue_document_reference': issue_document_reference
+      }
+    )
 
   return support_request

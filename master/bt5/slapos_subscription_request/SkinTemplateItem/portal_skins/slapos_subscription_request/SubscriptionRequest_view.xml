@@ -61,19 +61,14 @@
                 <item>
                     <key> <string>center</string> </key>
                     <value>
-                      <list>
-                        <string>my_root_slave</string>
-                        <string>my_source_reference</string>
-                        <string>my_url_string</string>
-                        <string>my_text_content</string>
-                        <string>my_sla_xml</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
                     <key> <string>hidden</string> </key>
                     <value>
                       <list>
+                        <string>my_stop_date</string>
                         <string>listbox_content</string>
                         <string>listbox_delivery_start_date</string>
                         <string>listbox_destination_title</string>
@@ -85,12 +80,13 @@
                     <value>
                       <list>
                         <string>my_title</string>
-                        <string>my_default_email_text</string>
-                        <string>my_aggregate_title_list</string>
-                        <string>my_specialise_title_list</string>
-                        <string>my_causality_title_list</string>
-                        <string>my_destination_section_title_list</string>
+                        <string>my_source_title</string>
                         <string>my_source_section_title</string>
+                        <string>my_source_project_title</string>
+                        <string>my_specialise_title</string>
+                        <string>my_resource_title</string>
+                        <string>my_variation_category_list</string>
+                        <string>my_aggregate_title_list</string>
                       </list>
                     </value>
                 </item>
@@ -98,14 +94,16 @@
                     <key> <string>right</string> </key>
                     <value>
                       <list>
+                        <string>my_reference</string>
+                        <string>my_destination_title</string>
+                        <string>my_destination_section_title</string>
+                        <string>my_destination_project_title</string>
+                        <string>my_start_date</string>
                         <string>my_quantity</string>
+                        <string>my_quantity_unit</string>
                         <string>my_price</string>
                         <string>my_price_currency</string>
-                        <string>my_start_date</string>
-                        <string>my_stop_date</string>
                         <string>my_translated_simulation_state_title</string>
-                        <string>my_translated_validation_state_title</string>
-                        <string>my_subject_list</string>
                       </list>
                     </value>
                 </item>

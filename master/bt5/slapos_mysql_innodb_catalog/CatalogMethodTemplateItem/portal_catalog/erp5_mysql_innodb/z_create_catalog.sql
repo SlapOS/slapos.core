@@ -5,12 +5,12 @@
 CREATE TABLE `catalog` (
   `uid` BIGINT UNSIGNED NOT NULL,
   `security_uid` INT UNSIGNED,
+  `function_security_uid` INT UNSIGNED,
   `group_security_uid` INT UNSIGNED,
   `shadow_security_uid` INT UNSIGNED,
   `computer_security_uid` INT UNSIGNED,
   `user_security_uid` INT UNSIGNED,
   `subscription_security_uid` INT UNSIGNED,
-  `organisation_security_uid` INT UNSIGNED,
   `project_security_uid` INT UNSIGNED,
   `owner` varbinary(255) NOT NULL default '',
   `viewable_owner` varbinary(255) NOT NULL default '',

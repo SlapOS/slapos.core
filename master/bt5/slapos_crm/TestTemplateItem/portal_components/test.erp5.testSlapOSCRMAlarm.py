@@ -506,10 +506,11 @@ class TestSlapOSCrmTriggerEscalationOnAcknowledgmentRegularisationRequest(SlapOS
             'next_service_relative_url, title, text_content, comment, ' \
             'notification_message=None, substitution_method_parameter_dict=None, ' \
             'REQUEST=None',
+  'import json\n' \
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, notification_message, substitution_method_parameter_dict))')
+  '%s %s %s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, notification_message, json.dumps(substitution_method_parameter_dict, sort_keys=True)))')
   def test_RegularisationRequest_triggerAcknowledgmentEscalation_script_matchingEvent(self):
     ticket = self.createRegularisationRequest()
     ticket.RegularisationRequest_triggerAcknowledgmentEscalation()
@@ -530,7 +531,7 @@ The slapos team
 """ % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
        'Stopping reminder.',
        'slapos-crm.acknowledgment.escalation',
-       "{'user_name': None, 'days': 15}"),
+       '{"days": 15, "user_name": null}'),
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
 
@@ -593,10 +594,11 @@ class TestSlapOSCrmTriggerEscalationOnStopReminderRegularisationRequest(SlapOSTe
             'next_service_relative_url, title, text_content, comment, ' \
             'notification_message=None, substitution_method_parameter_dict=None, ' \
             'REQUEST=None',
+            'import json\n' \
             'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, notification_message, substitution_method_parameter_dict))')
+  '%s %s %s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, notification_message, json.dumps(substitution_method_parameter_dict, sort_keys=True)))')
   def test_RegularisationRequest_triggerStopReminderEscalation_script_matchingEvent(self):
     ticket = self.createRegularisationRequest()
     ticket.RegularisationRequest_triggerStopReminderEscalation()
@@ -617,7 +619,7 @@ The slapos team
 """ % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
        'Stopping acknowledgment.',
        'slapos-crm.stop.reminder.escalation',
-       "{'user_name': None, 'days': 7}"),
+       '{"days": 7, "user_name": null}'),
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
 
@@ -680,10 +682,11 @@ class TestSlapOSCrmTriggerEscalationOnStopAcknowledgmentRegularisationRequest(Sl
             'next_service_relative_url, title, text_content, comment, ' \
             'notification_message=None, substitution_method_parameter_dict=None, ' \
             'REQUEST=None',
+            'import json\n' \
             'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, notification_message, substitution_method_parameter_dict))')
+  '%s %s %s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, notification_message, json.dumps(substitution_method_parameter_dict, sort_keys=True)))')
   def test_RegularisationRequest_triggerStopAcknowledgmentEscalation_script_matchingEvent(self):
     ticket = self.createRegularisationRequest()
     ticket.RegularisationRequest_triggerStopAcknowledgmentEscalation()
@@ -704,7 +707,7 @@ The slapos team
 """ % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
        'Deleting reminder.',
        'slapos-crm.stop.acknowledgment.escalation',
-       "{'user_name': None, 'days': 7}"),
+       '{"days": 7, "user_name": null}'),
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
 
@@ -764,10 +767,11 @@ class TestSlapOSCrmTriggerEscalationOnDeleteReminderRegularisationRequest(SlapOS
             'next_service_relative_url, title, text_content, comment, ' \
             'notification_message=None, substitution_method_parameter_dict=None, ' \
             'REQUEST=None',
+            'import json\n' \
             'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, notification_message, substitution_method_parameter_dict))')
+  '%s %s %s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, notification_message, json.dumps(substitution_method_parameter_dict, sort_keys=True)))')
   def test_RegularisationRequest_triggerDeleteReminderEscalation_script_matchingEvent(self):
     ticket = self.createRegularisationRequest()
     ticket.RegularisationRequest_triggerDeleteReminderEscalation()
@@ -788,7 +792,7 @@ The slapos team
 """ % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
        'Deleting acknowledgment.',
        'slapos-crm.delete.reminder.escalation',
-       "{'user_name': None, 'days': 10}"),
+       '{"days": 10, "user_name": null}'),
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
 

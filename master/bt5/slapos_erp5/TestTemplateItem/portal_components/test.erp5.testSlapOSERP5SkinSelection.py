@@ -503,9 +503,9 @@ slapos_panel_compatibility
 custom
 erp5_font
 erp5_interaction_drop
+slapos_web_renderjs_ui
 erp5_web_hal_json
 erp5_web_renderjs_ui
-slapos_web_renderjs_ui
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s

@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Web Page" module="erp5.portal_type"/>
+      <global name="Web Script" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -69,11 +69,13 @@
         </item>
         <item>
             <key> <string>content_type</string> </key>
-            <value> <string>text/html</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_test_parameter_form.html</string> </value>
+            <value> <string>slapos_master_panel_test_parameter_editor.js</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -83,15 +85,17 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_master_panel_page_slap_test_parameter_form_html</string> </value>
+            <value> <string>slapos_master_panel_test_parameter_editor_js</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
-            <value> <string>en</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Web Page</string> </value>
+            <value> <string>Web Script</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
@@ -101,11 +105,13 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Test Parameter Form</string> </value>
+            <value> <string>slapos_master_panel_test_parameter_editor_js</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>003</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -167,7 +173,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -191,7 +197,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1651706016.32</float>
+                              <float>1712089365.26</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -240,7 +246,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1015.12744.62617.8106</string> </value>
+                      <value> <string>1015.44416.55889.43537</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -260,7 +266,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1710342518.63</float>
+                              <float>1712260056.81</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -291,7 +297,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -323,7 +329,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1651705738.5</float>
+                              <float>1712089341.53</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

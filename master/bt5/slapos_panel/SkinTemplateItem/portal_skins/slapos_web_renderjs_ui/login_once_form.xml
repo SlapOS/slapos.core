@@ -46,7 +46,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>login_form</string> </value>
+            <value> <string>login_once_form</string> </value>
         </item>
         <item>
             <key> <string>output_encoding</string> </key>

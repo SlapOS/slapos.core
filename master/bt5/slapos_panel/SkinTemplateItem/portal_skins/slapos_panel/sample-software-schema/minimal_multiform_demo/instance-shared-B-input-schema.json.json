@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Shared B",
+  "type": "object",
+  "oneOf": [
+    {"$ref": "./instance-shared-B-part1-input-schema.json"},
+    {"$ref": "./instance-shared-B-part2-input-schema.json"}
+  ]
+}
+

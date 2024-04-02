@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Shared type A2",
+  "type": "object",
+  "required": ["A"],
+  "properties": {
+    "A" : {
+      "title": "A",
+      "type": "object",
+      "required": ["A2"],
+      "properties": {
+        "A2": {
+          "title": "A2",
+          "type": "object",
+          "properties": {
+            "string-type-A2": {
+              "title": "String Type A2",
+              "description": "Description for Type A2",
+              "default": "Type A2",
+              "type": "string"
+            },
+            "boolean-type-A2": {
+              "title": "Boolean Type A2",
+              "description": "Description for Boolean Type A2",
+              "default": true,
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  }
+}

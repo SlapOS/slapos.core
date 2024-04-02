@@ -514,6 +514,11 @@
         software_type_list = options.software_type_list;
       }
 
+      if (options.softwaretype == "" || options.softwaretype === null) {
+        // Drop emtpy value for consistency
+        delete options.softwaretype;
+      }
+
       if (options.softwaretype !== undefined) {
         restricted_softwaretype = true;
         // exceptional situation where the default item must be in

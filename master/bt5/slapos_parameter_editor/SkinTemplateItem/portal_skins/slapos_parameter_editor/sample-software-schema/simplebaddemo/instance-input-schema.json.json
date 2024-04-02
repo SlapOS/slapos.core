@@ -18,6 +18,14 @@
       "description": "Correct Boolean definition",
       "type": "boolean",
       "default": true
+    },
+    "simple-string-with-template": {
+      "title": "Simple String with template and options",
+      "description": "Example of Simple String with template and options, both MUST NOT WORK",
+      "type": "string",
+      "default": "Simple string",
+      "template": "COUSXCOUS",
+      "options": { "hidden": true }
     }
   }
 }

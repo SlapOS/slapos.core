@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Web Script" module="erp5.portal_type"/>
+      <global name="Web Page" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -62,30 +62,18 @@
             </value>
         </item>
         <item>
-            <key> <string>categories</string> </key>
-            <value>
-              <tuple>
-                <string>contributor/person_module/1</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
             <key> <string>content_md5</string> </key>
             <value>
               <none/>
             </value>
         </item>
         <item>
-            <key> <string>creators</string> </key>
-            <value>
-              <tuple>
-                <string>cedric.le.ninivin</string>
-              </tuple>
-            </value>
+            <key> <string>content_type</string> </key>
+            <value> <string>text/html</string> </value>
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_test_parameter_form.js</string> </value>
+            <value> <string>gadget_erp5_page_slapos_master_panel_test_parameter_editor.html</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -95,7 +83,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_master_panel_page_slap_test_parameter_form_js</string> </value>
+            <value> <string>slapos_master_panel_test_parameter_editor_html</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -104,29 +92,8 @@
             </value>
         </item>
         <item>
-            <key> <string>modification_date</string> </key>
-            <value>
-              <object>
-                <klass>
-                  <global name="_reconstructor" module="copy_reg"/>
-                </klass>
-                <tuple>
-                  <global name="DateTime" module="DateTime.DateTime"/>
-                  <global name="object" module="__builtin__"/>
-                  <none/>
-                </tuple>
-                <state>
-                  <tuple>
-                    <float>1455284351.49</float>
-                    <string>UTC</string>
-                  </tuple>
-                </state>
-              </object>
-            </value>
-        </item>
-        <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Web Script</string> </value>
+            <value> <string>Web Page</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
@@ -136,17 +103,13 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>SlapOS Test Parameter Form JS</string> </value>
-        </item>
-        <item>
-            <key> <string>url_string</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>slapos_master_panel_test_parameter_editor</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>001</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -208,7 +171,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -232,7 +195,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1651720603.43</float>
+                              <float>1712089325.17</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -281,7 +244,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1015.12705.32876.8379</string> </value>
+                      <value> <string>1015.41862.5660.48622</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -301,7 +264,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1710342286.39</float>
+                              <float>1712090505.27</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -332,7 +295,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -364,7 +327,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1651705914.51</float>
+                              <float>1712088832.67</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

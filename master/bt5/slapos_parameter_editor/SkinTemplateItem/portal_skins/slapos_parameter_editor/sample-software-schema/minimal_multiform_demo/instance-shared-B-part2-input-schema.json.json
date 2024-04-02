@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Shared type B2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["B"],
+  "properties": {
+    "B" : {
+      "title": "B",
+      "type": "object",
+      "required": ["B2"],
+      "additionalProperties": false,
+      "properties": {
+        "B2": {
+          "title": "B2",
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "string-type-B2": {
+              "title": "String Type B2",
+              "description": "Description for Type B2",
+              "default": "Type B2",
+              "type": "string"
+            },
+            "boolean-type-B2": {
+              "title": "Boolean Type B2",
+              "description": "Description for Boolean Type B2",
+              "default": true,
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Shared type B1",
+  "type": "object",
+  "required": ["B"],
+  "additionalProperties": false,
+  "properties": {
+    "B" : {
+      "title": "B",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["B1"],
+      "properties": {
+        "B1": {
+          "title": "B1",
+          "type": "object",
+          "additionalProperties": true,
+          "required": ["string-type-B1"],
+          "properties": {
+            "string-type-B1": {
+              "title": "String Type B1",
+              "description": "Description for Type B1",
+              "default": "Type B1",
+              "type": "string"
+            },
+            "boolean-type-B1": {
+              "title": "Boolean Type B1",
+              "description": "Description for Boolean Type B1",
+              "default": true,
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -987,7 +987,3 @@ class TestDefaultDeliveryRuleConsumption(SlapOSTestCaseMixin):
 
     applied_rule_list = delivery.getCausalityRelatedValueList()
     self.assertEqual(0, len(applied_rule_list))
-
-class TestDefaultDeliveryRuleSubscription(SlapOSTestCaseMixin):
-  trade_condition = 'sale_trade_condition_module/slapos_subscr'\
-      'iption_trade_condition'

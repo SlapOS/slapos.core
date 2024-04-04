@@ -11,7 +11,9 @@ subscribed_uid_list = [x.uid for x in portal.portal_catalog(
 
 sql_kw = {}
 if subscribed_uid_list:
-  sql_kw['uid'] = NegatedQuery(SimpleQuery(uid=subscribed_uid_list))
+  # Use 'catalog.uid', because searchAndActivate will use 'uid' to order the
+  # results and iterate other them
+  sql_kw['catalog.uid'] = NegatedQuery(SimpleQuery(uid=subscribed_uid_list))
 portal.portal_catalog.searchAndActivate(
   method_id='Item_createSubscriptionRequest',
   portal_type=["Compute Node", "Instance Tree"],

@@ -1,0 +1,180 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Parameter editor Change Serialisation </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Parameter editor (Change Serialisation)</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
+                       software_release_url python: '${base_url}/web_site_module/slapos_master_panel/hateoas/sample-software-schema/minimal_dual_type/software.cfg'">
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
+
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+  
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
+
+      <tal:block tal:define="name python:'root[simple-string]'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/select_software_type_json_in_xml" />
+
+      <tal:block tal:define="name python:'root[simple-string-in-json]'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+      </tal:block>
+
+      <tr>
+        <td>assertElementNotPresent</td>
+        <td>//input[@name="root[simple-string]" and @type="text"]</td>
+        <td></td>
+      </tr>
+
+
+      <tr>
+        <td colspan="3"><b> Change back Software type</b></td>
+      </tr>
+
+      <tr>
+        <td>select</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]
+        </td>
+        <td>Default</td>
+      </tr>
+
+      <tal:block tal:define="name python:'root[simple-string]'; value python: 'this is a simple string'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-integer]'; value python: 1">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tr>
+        <td>select</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]
+        </td>
+        <td>JSON in XML</td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[@class="error"]//span[@class="error_msg" and text() = "Error: The current parameter should contains only _ parameter (json-in-xml)."]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[@class="error"]//span[@class="error_msg" and text() = "Error: The current parameter should contains only _ parameter (json-in-xml)."]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//button[contains(@class,"slapos-show-form")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//button[contains(@class,"slapos-show-form")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//button[contains(@class,"slapos-show-form")]</td>
+        <td></td>
+      </tr>  
+
+      <tal:block tal:define="name python:'root[simple-string-in-json]'; value python: 'this is a simple string'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-integer-in-json]'; value python: 1">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tr>
+        <td>select</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]
+        </td>
+        <td>Default</td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[@class="error"]//span[@class="error_msg" and text() = "Error: The current parameter values should NOT contains _ parameter (xml)."]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[@class="error"]//span[@class="error_msg" and text() = "Error: The current parameter values should NOT contains _ parameter (xml)."]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//button[contains(@class,"slapos-show-form")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//button[contains(@class,"slapos-show-form")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//button[contains(@class,"slapos-show-form")]</td>
+        <td></td>
+      </tr>  
+      <tal:block tal:define="name python:'root[simple-string]'; value python: 'this is a simple string'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-integer]'; value python: 1">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="parameter_hash string:9bed5f5bd1959d3e2f368af94759bb92">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
+      </tal:block>
+    </tbody>
+  </table>
+</body>
+
+</html>

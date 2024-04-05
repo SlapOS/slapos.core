@@ -7,7 +7,6 @@ slapos_bt_list = [
     'erp5_web_shacache',
     'erp5_web_shadir',
     'slapos_accounting',
-    'slapos_cache',
     'slapos_subscription_request',
     'slapos_cloud',
     'slapos_erp5',
@@ -19,6 +18,7 @@ slapos_bt_list = [
     'slapos_configurator',
     'slapos_mysql_innodb_catalog',
     'slapos_panel_ui_test',
+    'slapos_parameter_editor_ui_test',
     'slapos_abyss',
     'slapos_rss_style'
   ]

@@ -1,0 +1,196 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Parameter editor Change Serialisation </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Parameter editor (Change Serialisation)</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
+                       software_release_url python: '${base_url}/web_site_module/slapos_master_panel/hateoas/sample-software-schema/minimal_dual_type/software.cfg'">
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/select_software_type_json_in_xml" />
+
+
+      <tal:block tal:define="name python:'root[simple-string]'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_raw_parameter" />
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance/&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance/&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;&lt;instance&gt;&lt;parameter id=&quot;simple-string&quot;&gt;1024&lt;/parameter&gt;&lt;/instance&gt;</td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
+
+      <tal:block tal:define="name python:'root[simple-string]'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+      </tal:block>
+
+      <tr>
+        <td>assertValue</td>
+        <td>//input[@name="root[simple-string]" and @type="text"]</td>
+        <td>1024</td>
+      </tr>
+
+      <tr>
+        <td>select</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]
+        </td>
+        <td>JSON in XML</td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[@class="error"]//span[@class="error_msg" and text() = "Error: The current parameter should contains only _ parameter (json-in-xml)."]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[@class="error"]//span[@class="error_msg" and text() = "Error: The current parameter should contains only _ parameter (json-in-xml)."]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;parameter id=&quot;simple-string&quot;&gt;1024&lt;/parameter&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;/instance&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[@class="error"]//span[@class="error_msg" and text() = "Error: The current parameter should contains only _ parameter (json-in-xml)."]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[@class="error"]//span[@class="error_msg" and text() = "Error: The current parameter should contains only _ parameter (json-in-xml)."]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>  
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;parameter id=&quot;simple-string&quot;&gt;1024&lt;/parameter&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;/instance&gt;')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>pause</td>
+        <td>500</td>
+        <td>500</td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;instance&gt;&lt;parameter id=&quot;_&quot;&gt;{&quot;simple-string-in-json&quot;: &quot;1024&quot;}&lt;/parameter&gt;&lt;/instance&gt;</td>
+      </tr>
+      <tr>
+        <td>assertValue</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;instance&gt;&lt;parameter id=&quot;_&quot;&gt;{&quot;simple-string-in-json&quot;: &quot;1024&quot;}&lt;/parameter&gt;&lt;/instance&gt;</td>
+      </tr>
+
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
+
+      <tal:block tal:define="name python:'root[simple-string-in-json]'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+      </tal:block>
+
+      <tr>
+        <td>assertValue</td>
+        <td>//input[@name="root[simple-string-in-json]" and @type="text"]</td>
+        <td>1024</td>
+      </tr>
+
+      <tal:block tal:define="parameter_hash string:17705a2680533a5ea29772bb6148d06b">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
+      </tal:block>
+    </tbody>
+  </table>
+</body>
+
+</html>

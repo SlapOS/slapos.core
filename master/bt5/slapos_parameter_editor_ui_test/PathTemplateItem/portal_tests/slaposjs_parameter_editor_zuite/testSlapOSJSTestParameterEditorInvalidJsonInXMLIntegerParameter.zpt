@@ -1,0 +1,80 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Parameter editor Change Serialisation </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Parameter editor (Invalid Integer in JSONinXML)</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
+                       software_release_url python: '${base_url}/web_site_module/slapos_master_panel/hateoas/sample-software-schema/simpledemo/software.cfg'">
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/select_software_type_json_in_xml" />
+
+      <tal:block tal:define="name python:'root[simple-numeric-integer]'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_raw_parameter" />
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '{}')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '{}')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;instance&gt;&lt;parameter id=&quot;_&quot;&gt;{&quot;simple-numeric-integer&quot;: &quot;b&quot;, &quot;simple-numeric-float&quot;: &quot;z&quot;}&lt;/parameter&gt;&lt;/instance&gt;</td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
+
+      <tal:block tal:define="name python:'root[simple-numeric-integer]'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+      </tal:block>
+
+      <tr>
+        <td>assertValue</td>
+        <td>//input[@name="root[simple-numeric-integer]" and @type="text"]</td>
+        <td>b</td>
+      </tr>
+
+      <tal:block tal:define="name python:'root[simple-numeric-float]'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+      </tal:block>
+
+      <tr>
+        <td>assertValue</td>
+        <td>//input[@name="root[simple-numeric-float]" and @type="text"]</td>
+        <td>z</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><b>Post raw since due validation the form cannot be posted</b></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_raw_parameter" />
+
+      <tal:block tal:define="parameter_hash string:460cad7ca03045574472fea644af60ee">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
+      </tal:block>
+    </tbody>
+  </table>
+</body>
+
+</html>

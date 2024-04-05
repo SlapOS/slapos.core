@@ -1,0 +1,127 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Parameter editor (AllOf) </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Parameter editor (AllOf)</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
+                       software_release_url python: '${base_url}/web_site_module/slapos_master_panel/hateoas/sample-software-schema/simpledemo/software.cfg'">
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/select_software_type_json_in_xml" />
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[@class="alert alert-danger" and text() = "Object is missing the required property 'simple-object-is-required'"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[@class="alert alert-danger" and text() = "Object is missing the required property 'simple-object-is-required'"]</td>
+        <td></td>
+      </tr>
+
+      <tal:block tal:define="name python:'root[simple-string]'; value python: 'this is a simple string'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-string-with-enum]'; value python: 'simple string B'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-boolean]'; value python: 'true'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-integer]'; value python: 1">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-integer-with-enum]'; value python: 7">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-numeric-integer]'; value python: 2">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-numeric-integer-enum]'; value python: 13">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-numeric-float]'; value python: 2">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-numeric-float-enum]'; value python: '1.25'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+
+      <tal:block tal:define="name python:'root[simple-string-with-text-area]'; value python: 'this is a simple string on a text area'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_textarea" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-object][sample-object-string]'; value python: 'this is a simple string on an object'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-object][simple-object-with-integer]'; value python: '99'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+
+      <tal:block tal:define="name python:'root[simple-object][simple-object-with-integer-with-enum]'; value python: '2'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tr>
+        <td colspan="3"><b> Add one object </b></td>
+      </tr>
+
+      <tal:block tal:define="name python:'root.simple-object-dict'; value python: 'Example of Simple object'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/json_add_property" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-object-dict][Example of Simple object][simple-object-dict-string-example]';
+                             value python: 'This an example of a string on an object'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-object-dict][Example of Simple object][simple-object-dict-string-with-enum]';
+                             value python: 'String Sample A'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-string-required]'; value python: 'required string'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-string-with-enum-required]'; value python: 'required string A'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-object-is-required][sample-object-string]'; value python: 'required object'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+
+      <tal:block tal:define="parameter_hash string:9a7dabf285707a440cd59bbac0bcf0b0">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
+      </tal:block>
+
+    </tbody>
+  </table>
+</body>
+
+</html>

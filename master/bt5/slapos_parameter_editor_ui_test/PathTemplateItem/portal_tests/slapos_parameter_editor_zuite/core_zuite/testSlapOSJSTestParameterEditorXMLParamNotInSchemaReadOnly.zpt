@@ -1,0 +1,81 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Parameter editor (XML Serialisation) </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Parameter editor (XML Read Only)</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
+                       software_release_url python: '${base_url}/web_site_module/slapos_master_panel/hateoas/sample-software-schema/minimal_xml_demo/software.cfg'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init_readonly" />
+
+      <tr>
+        <td>type</td>
+        <td>//textarea[@name='field_your_text_content']</td>
+        <td tal:content="python: '<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><instance><parameter id=&quot;simple-stringxxx&quot;>this is a simple stringxx</parameter><parameter id=&quot;simple-string-with-enum&quot;>simple string B</parameter><parameter id=&quot;simple-boolean&quot;>true</parameter><parameter id=&quot;simple-string-with-text-area&quot;>this is a simple string on a text area</parameter><parameter id=&quot;simple-integer&quot;>1</parameter><parameter id=&quot;simple-integer-with-enum&quot;>7</parameter><parameter id=&quot;simple-numeric-integer&quot;>2</parameter><parameter id=&quot;simple-numeric-integer-enum&quot;>13</parameter><parameter id=&quot;simple-numeric-float&quot;>2</parameter><parameter id=&quot;simple-numeric-float-enum&quot;>1.25</parameter></instance>'"></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
+
+      <tal:block tal:define="name python:'root[simple-stringxxx]'; value python: 'this is a simple stringxx'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-string-with-enum]'; value python: 'simple string B'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+      </tal:block>
+
+
+      <tal:block tal:define="name python:'root[simple-boolean]'; value python: 'true'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-integer]'; value python: 1">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-integer-with-enum]'; value python: 7">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-numeric-integer]'; value python: 2">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-numeric-integer-enum]'; value python: 13">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-numeric-float]'; value python: 2">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-numeric-float-enum]'; value python: '1.25'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-string-with-text-area]'; value python: 'this is a simple string on a text area'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_textarea" />
+      </tal:block>
+
+      <tr>
+        <td colspan="3"><b> Assert the simple string NOT Present</b></td>
+      </tr>
+      <tr>
+        <td>assertElementNotPresent</td>
+        <td>//input[@name="root[simple-string]"]</td>
+        <td></td>
+      </tr>
+
+    </tbody>
+  </table>
+</body>
+
+</html>

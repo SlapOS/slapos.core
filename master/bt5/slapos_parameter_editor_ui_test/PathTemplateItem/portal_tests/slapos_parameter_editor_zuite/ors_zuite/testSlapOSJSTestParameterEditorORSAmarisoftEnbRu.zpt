@@ -1,0 +1,186 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Core eNB/gNB  </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Core eNB/gNB</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
+                       software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/-/raw/cb3cd7a7286f141e355b734deea101b6c5373d7b/software/ors-amarisoft/software.cfg'">
+                             
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+      <tr>
+        <td colspan="3"><b>Change Software type:&rarr; eNB/gNB | Radio Unit / Cell / Peer / Peer Cell</b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[contains(text(), "eNB/gNB | Radio Unit / Cell / Peer / Peer Cell")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[contains(text(), "eNB/gNB | Radio Unit / Cell / Peer / Peer Cell")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>select</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
+        <td>→  eNB/gNB | Radio Unit / Cell / Peer / Peer Cell</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><b>Select Radio Unity </b></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="Radio Unit"]//parent::select</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="Radio Unit"]//parent::select</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>select</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="Radio Unit"]//parent::select</td>
+        <td>Radio Unit</td>
+      </tr>
+
+
+      <tr>
+        <td colspan="3"><b>Select Radio Unity - Lopcomm ORAN </b></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="Lopcomm ORAN"]//parent::select</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="Lopcomm ORAN"]//parent::select</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>select</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="Lopcomm ORAN"]//parent::select</td>
+        <td>Lopcomm ORAN</td>
+      </tr>
+
+
+      <tal:block tal:define="name python:'root[ru_type]'; value python: 'lopcomm'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[ru_link_type]'; value python: 'cpri'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[n_antenna_dl]'; value python: '1'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[n_antenna_ul]'; value python: '1'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[tx_gain]'; value python: '-20'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[rx_gain]'; value python: '-20'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[mac_addr]'; value python: '00:0A:45:00:00:00'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[txrx_active]'; value python: 'INACTIVE'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[cpri_link][sdr_dev]'; value python: '0'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[cpri_link][sfp_port]'; value python: '1'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[cpri_link][mult]'; value python: '4'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[cpri_link][mapping]'; value python: 'hw'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[cpri_link][rx_delay]'; value python: '25.11'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[cpri_link][tx_delay]'; value python: '14.71'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[cpri_link][tx_dbm]'; value python: '63'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_raw_parameter" />
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'tx_dbm')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'tx_dbm')]</td>
+        <td></td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
+
+      <tal:block tal:define="name python:'root[cpri_link][tx_dbm]'; value python: '63'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_input_text" />
+      </tal:block>
+
+
+      <tal:block tal:define="parameter_hash string:eee5fd2ffabfe7ea23ddb804388d9441">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
+      </tal:block>
+    </tbody>
+  </table>
+</body>
+
+</html>

@@ -1,0 +1,157 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Core eNB/gNB  </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Core eNB/gNB</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
+                       software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/-/raw/cb3cd7a7286f141e355b734deea101b6c5373d7b/software/ors-amarisoft/software.cfg'">
+                             
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+      <tr>
+        <td colspan="3"><b>Change Software type:&rarr; UEsim | Radio Unit / UE / UE Cell</b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[contains(text(), "UEsim | Radio Unit / UE / UE Cell")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[contains(text(), "UEsim | Radio Unit / UE / UE Cell")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>select</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
+        <td>→ UEsim | Radio Unit / UE / UE Cell</td>
+      </tr>
+  
+      <tr>
+        <td colspan="3"><b>Select Radio Unity - UE Cell </b></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="UE Cell"]//parent::select</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="UE Cell"]//parent::select</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>select</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="UE Cell"]//parent::select</td>
+        <td>UE Cell</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><b>Select Radio Unity - LTE Cell </b></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="LTE Cell"]//parent::select</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="LTE Cell"]//parent::select</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>select</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="LTE Cell"]//parent::select</td>
+        <td>LTE Cell</td>
+      </tr>
+
+      <tal:block tal:define="name python:'root[cell_type]'; value python: 'lte'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[cell_kind]'; value python: 'ue'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[rf_mode]'; value python: 'fdd'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[bandwidth]'; value python: '10'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[dl_earfcn]'; value python: '300'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+
+      <tal:block tal:define="name python:'root[ru][ru_type]'; value python: 'ru_ref'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[ru][ru_ref]'; value python: 'CB5-UE.RU'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_raw_parameter" />
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'bandwidth')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'bandwidth')]</td>
+        <td></td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
+
+      <tal:block tal:define="name python:'root[rf_mode]'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_select" />
+      </tal:block>
+
+      <tr>
+        <td>assertValue</td>
+        <td>//select[@name="root[rf_mode]"]</td>
+        <td>fdd</td>
+      </tr>
+
+      <tal:block tal:define="parameter_hash string:1c396575a15211930ee6db52219fb521">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
+      </tal:block>
+    </tbody>
+  </table>
+</body>
+
+</html>

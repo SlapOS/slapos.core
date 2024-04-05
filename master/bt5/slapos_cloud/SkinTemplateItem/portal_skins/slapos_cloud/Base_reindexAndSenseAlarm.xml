@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>alarm_id_list, must_reindex_context=True</string> </value>
+            <value> <string>alarm_id_list, must_reindex_context=True, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

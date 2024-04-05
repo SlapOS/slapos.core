@@ -22,7 +22,9 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 import difflib
 
-slapos_folder_list = """slapos_abyss
+slapos_folder_list = """slapos_erp5
+slapos_upgrader
+slapos_abyss
 slapos_base
 slapos_contract
 slapos_subscription_request
@@ -38,6 +40,9 @@ slapos_pdm
 slapos_simulation
 slapos_slap_tool
 slapos_wechat
+slapos_panel
+slapos_panel_compatibility
+slapos_parameter_editor
 slapos_configurator"""
 
 common2_folder_list = """erp5_accounting_l10n_fr
@@ -150,8 +155,6 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
 %(slapos_folder_list)s
 erp5_web_redirect_assist
 erp5_knowledge_pad
@@ -167,11 +170,9 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
        'slapos_folder_list': slapos_folder_list
     } 
 
@@ -181,8 +182,6 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
 %(slapos_folder_list)s
 erp5_knowledge_pad
 erp5_simulation
@@ -209,11 +208,8 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
        'slapos_folder_list': slapos_folder_list
     }
 
@@ -226,8 +222,6 @@ erp5_interaction_drop
 slapos_deploy_theme
 erp5_web_hal_json
 erp5_web_renderjs_ui
-slapos_erp5
-slapos_upgrader
 %(slapos_folder_list)s
 erp5_knowledge_pad
 erp5_simulation
@@ -241,11 +235,9 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       }
 
@@ -255,8 +247,6 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
 %(slapos_folder_list)s
 erp5_xhtml_disabled
 erp5_knowledge_pad
@@ -274,11 +264,9 @@ erp5_jquery
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       }
 
@@ -288,8 +276,6 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
 %(slapos_folder_list)s
 erp5_commerce_multiflex_layout
 erp5_knowledge_pad
@@ -304,11 +290,9 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       }
 
@@ -318,8 +302,6 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
 %(slapos_folder_list)s
 erp5_web_download_theme
 erp5_knowledge_pad
@@ -335,11 +317,9 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       }
 
@@ -349,8 +329,6 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
 %(slapos_folder_list)s
 erp5_knowledge_pad
 erp5_simulation
@@ -365,11 +343,9 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       }
 
@@ -379,8 +355,6 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
 %(slapos_folder_list)s
 erp5_knowledge_pad
 erp5_simulation
@@ -395,11 +369,9 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       }
 
@@ -409,8 +381,6 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
 slapos_rss_style
 %(slapos_folder_list)s
 erp5_rss_style
@@ -426,11 +396,9 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       }
 
@@ -440,8 +408,6 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
 %(slapos_folder_list)s
 erp5_web_shadir
 erp5_web_download_theme
@@ -458,11 +424,9 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       }
 
@@ -472,8 +436,6 @@ custom
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
 %(slapos_folder_list)s
 erp5_web_shacache
 erp5_web_download_theme
@@ -490,11 +452,9 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       }
 
@@ -506,8 +466,6 @@ erp5_interaction_drop
 slapos_web_renderjs_ui
 erp5_web_hal_json
 erp5_web_renderjs_ui
-slapos_erp5
-slapos_upgrader
 %(slapos_folder_list)s
 erp5_knowledge_pad
 erp5_simulation
@@ -521,11 +479,9 @@ erp5_integration
 erp5_invoicing
 %(common_folder_list)s
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       }
 
@@ -538,8 +494,6 @@ erp5_interaction_drop
 erp5_hal_json_restricted_style
 erp5_hal_json_style
 erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
 %(slapos_folder_list)s
 erp5_knowledge_pad
 erp5_simulation
@@ -554,11 +508,9 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       }
 
@@ -567,24 +519,7 @@ slapos_panel_compatibility
 erp5_font
 erp5_interaction_drop
 erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
-slapos_abyss
-slapos_base
-slapos_contract
-slapos_subscription_request
-slapos_crm_monitoring
-slapos_accounting
-slapos_administration
-slapos_cloud
-slapos_consumption
-slapos_core
-slapos_crm
-slapos_payzen
-slapos_pdm
-slapos_simulation
-slapos_slap_tool
-slapos_wechat
+%(slapos_folder_list)s
 erp5_slideshow_style
 slapos_configurator
 erp5_knowledge_pad
@@ -600,12 +535,10 @@ erp5_invoicing
 %(common_folder_list)s
 erp5_xhtml_style
 external_method
-slapos_panel
-slapos_panel_compatibility
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
-       'slapos_folder_list': slapos_folder_list
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
+       'slapos_folder_list': "\n".join(slapos_folder_list.splitlines()[:-1])
       } 
 
   def getTitle(self):
@@ -631,7 +564,7 @@ slapos_panel_compatibility
     selection_string_list = selection_string_list.split('\n')
 
     installed_selection_string_list = \
-      [ i for i in installed_selection_string_list.split(',')
+      [i for i in installed_selection_string_list.split(',')
                              if i not in self.ignore_list]
     if selection_string_list != installed_selection_string_list:
       message = '\nSkin "%s" is different from production server:\n' % skin_name

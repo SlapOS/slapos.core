@@ -141,7 +141,7 @@
         var serialisation_type = getSerialisationTypeFromForm(g.element);
         if (serialisation_type === "json-in-xml") {
           return jsonDictToParameterJSONInXML(json_dict);
-        } 
+        }
         return jsonDictToParameterXML(json_dict);
       });
   }
@@ -514,7 +514,7 @@
         software_type_list = options.software_type_list;
       }
 
-      if (options.softwaretype == "" || options.softwaretype === null) {
+      if (options.softwaretype === "" || options.softwaretype === null) {
         // Drop emtpy value for consistency
         delete options.softwaretype;
       }
@@ -642,7 +642,35 @@
           content_dict.text_content = xml_result;
           return content_dict;
         });
-    }, {mutex: 'statechange'});
+    }, {mutex: 'statechange'})
+
+    .declareMethod('checkValidity', function () {
+      var g = this;
+      return g.getElement()
+        .push(function (element) {
+          var text_content = element.querySelector('textarea[name=text_content]'),
+            doc;
+          if (!g.state.editable) {
+            // Anything not editable is valid.
+            return true;
+          }
+          if (text_content !== null) {
+            if (text_content.value === "") {
+              // This would use standard value from getContent (which is valid).
+              return true;
+            }
+            doc = new DOMParser().parseFromString(text_content.value, "text/xml");
+            if (doc.querySelector('parsererror') !== null) {
+              return false;
+            }
+            return true;
+          }
+          return g.getDeclaredGadget('json_form')
+            .push(function (gadget) {
+              return gadget.checkValidity();
+            });
+        });
+    });
 
 }(window, rJS, XMLSerializer, DOMParser, vkbeautify,
       domsugar, Boolean, URI));

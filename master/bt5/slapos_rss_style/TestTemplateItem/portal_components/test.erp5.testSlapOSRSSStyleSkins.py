@@ -292,10 +292,14 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
       '{}-{}'.format(event.getFollowUp(),
                      event.getRelativeUrl()))
 
+    self.logout()
+    self.login()
     ticket.start()
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
                               "'disabled'", attribute='comment'):
       self.tic()
+    self.login(ticket.getDestinationDecisionValue().getUserId())
+
     self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = module.Folder_getOpenTicketList()
     self.assertEqual(len(open_ticket_list), expected_amount)
@@ -545,10 +549,14 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
     self.assertEqual(open_related_ticket_list[0].title,
       ticket.getTitle())
 
+    self.logout()
+    self.login()
     ticket.start()
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
                               "'disabled'", attribute='comment'):
       self.tic()
+    self.login(person.getUserId())
+
     self.portal.portal_skins.changeSkin('RSS')
     open_related_ticket_list = document.Base_getTicketRelatedEventList()
     self.assertEqual(len(open_related_ticket_list), 1)

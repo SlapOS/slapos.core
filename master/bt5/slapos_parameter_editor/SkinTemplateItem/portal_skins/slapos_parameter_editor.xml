@@ -35,7 +35,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_panel_compatibility</string> </value>
+            <value> <string>slapos_parameter_editor</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

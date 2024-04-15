@@ -9,6 +9,45 @@ instance_tree = context.getObject()
 instance_tree_virtual_master = instance_tree.getFollowUpValue()
 instance_tree_virtual_master_relative_url = instance_tree_virtual_master.getRelativeUrl()
 
+#######################################################################
+# If root instance is not allocated on the same virtual master than instance tree
+# remove the instance tree virtual master
+# and rerun the migration
+#######################################################################
+root_software_instance = ([x for x in instance_tree.getSuccessorValueList() if x.getTitle()==instance_tree.getTitle()] + [None])[0]
+sla_xml_dict = {}
+if root_software_instance is not None:
+  try:
+    sla_xml_dict = root_software_instance.getSlaXmlAsDict()
+  except: # pylint: disable=bare-except
+    # XMLSyntaxError
+    pass
+
+  root_partition = root_software_instance.getAggregateValue()
+  if root_partition is not None:
+    root_instance_virtual_master_relative_url = root_partition.getParentValue().getFollowUp(None)
+    if ((root_instance_virtual_master_relative_url is not None) and
+        (root_instance_virtual_master_relative_url != instance_tree_virtual_master_relative_url) and
+        (not sla_xml_dict)):
+
+      edit_kw ={'follow_up_value': None}
+      activate_kw = {'tag': tag}
+      instance_tree.edit(**edit_kw)
+      instance_tree.reindexObject(activate_kw=activate_kw)
+      for sql_result in portal.portal_catalog(
+        specialise__uid=instance_tree.getUid(),
+        portal_type=['Software Instance', 'Slave Instance']
+      ):
+        instance = sql_result.getObject()
+        instance.edit(**edit_kw)
+        instance.reindexObject(activate_kw=activate_kw)
+      return
+
+#######################################################################
+# If instance is not allocated on the same virtual master than instance tree
+# create remote node
+#######################################################################
+
 # Check recursively the instance tree
 # and detect orphaned nodes
 is_orphaned_instance_dict = {}

@@ -1,0 +1,528 @@
+<tal:block xmlns:tal="http://xml.zope.org/namespaces/tal"
+           xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+
+  <tal:block metal:define-macro="wait_software_type_selection">
+      <tr>
+        <td colspan="3"><b> Wait for software type </b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
+        <td></td>
+      </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="wait_software_type_selection_custom">
+    <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python:'//div[contains(@data-gadget-url, \'gadget_erp5_page_slap_parameter_form.html\')]//select[@name=\'software_type\']//option[text()=\'%s\']' % software_type"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python:'//div[contains(@data-gadget-url, \'gadget_erp5_page_slap_parameter_form.html\')]//select[@name=\'software_type\']//option[text()=\'%s\']' % software_type"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="select_software_type_custom">
+    <tr>
+      <td colspan="3"><b tal:content="python: 'Change Software type: %s' % software_type"></b></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_custom" />
+    <tr>
+      <td>select</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
+      <td tal:content='python: software_type'></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="wait_software_type_selection_default">
+    <tal:block define="software_type string:Default">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_custom" />
+    </tal:block>
+  </tal:block>
+
+  <tal:block metal:define-macro="select_software_type_json_in_xml">
+    <tal:block define="software_type python:'JSON in XML'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/select_software_type_custom" />
+    </tal:block>
+  </tal:block>
+
+  <tal:block metal:define-macro="init">
+    <tal:block tal:define="init_configuration python: {'scenario': 'customer'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/slapos_init" />
+    </tal:block>
+
+    <tr>
+      <td>open</td>
+      <td>${base_url}/web_site_module/slapos_master_panel/#/?page=slapos_master_panel_test_parameter_editor</td>
+      <td></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_app_loaded" />
+
+    <tal:block tal:define="login_configuration python: {'user': user_configuration['manager_login'], 'password': user_configuration['passwd']}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/login" />
+    </tal:block>
+    
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@name='field_your_url_string' and@type="text"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//input[@name='field_your_url_string' and@type="text"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@name='field_your_read_only' and@type='checkbox']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//input[@name='field_your_read_only' and@type='checkbox']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//textarea[@name='field_your_text_content']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//textarea[@name='field_your_text_content']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td colspan="3"><b> Set URL for the software release </b></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@name='field_your_url_string']</td>
+      <td tal:content='python: software_release_url'></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="init_readonly">
+    <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@name="field_your_read_only" and @type="checkbox"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//input[@name="field_your_read_only" and @type="checkbox"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//input[@name="field_your_read_only" and @type="checkbox"]</td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="submit_dialog_and_assert_hash">
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//pre[@id="field_your_text_content"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//pre[@id="field_your_text_content"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//pre[@id="field_your_text_content_hash"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//pre[@id="field_your_text_content_hash"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForTextPresent</td>
+      <td tal:content='python: parameter_hash'></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertTextPresent</td>
+      <td tal:content='python: parameter_hash'></td>
+      <td></td>
+    </tr>
+    
+  </tal:block>
+
+  <tal:block metal:define-macro="show_raw_parameter">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-raw-parameter")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-raw-parameter")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-raw-parameter")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//textarea[@name="text_content"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//textarea[@name="text_content"]</td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="show_form_parameter">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-form")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-form")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-form")]</td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="assert_invalid_feedback">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//p[@class=\'invalid-feedback\' and text() = \'%s\']' % (name, value)" ></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//p[@class=\'invalid-feedback\' and text() = \'%s\']' % (name, value)"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="assert_not_invalid_feedback">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//p[@class=\'invalid-feedback\' and text() = \'%s\' and @style=\'display: none;\']' % (name, value)" ></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//p[@class=\'invalid-feedback\' and text() = \'%s\'  and @style=\'display: none;\']' % (name, value)"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="wait_for_input_text">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\']' % name"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="input_text">
+    <tr>
+      <td colspan="3"><b tal:content="python: 'Fill %s' % name"></b></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+    <tr>
+      <td>type</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\']' % name"></td>
+      <td tal:content="python: value"></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="input_textarea">
+    <tr>
+      <td colspan="3"><b tal:content="python: 'Fill %s (textarea)' % name"></b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//textarea[@name=\'%s\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//textarea[@name=\'%s\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td tal:content="python: '//textarea[@name=\'%s\']' % name"></td>
+      <td tal:content="python: value"></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="assert_readonly_input_text">
+    <tr>
+      <td colspan="3"><b tal:content="python: 'Asssert readonly on %s' % name"></b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\' and @readonly=\'true\'][@disabled]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\' and @readonly=\'true\'][@disabled]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertValue</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\' and @readonly=\'true\'][@disabled]' % name"></td>
+      <td tal:content="python: value"></td>
+    </tr>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="assert_readonly_input_textarea">
+    <tr>
+      <td colspan="3"><b tal:content="python: 'Asssert readonly on %s' % name"></b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//textarea[@name=\'%s\' and @readonly=\'true\'][@disabled]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//textarea[@name=\'%s\' and @readonly=\'true\'][@disabled]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertValue</td>
+      <td tal:content="python: '//textarea[@name=\'%s\' and @readonly=\'true\'][@disabled]' % name"></td>
+      <td tal:content="python: value"></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="assert_input_text">
+    <tr>
+      <td colspan="3"><b tal:content="python: 'Asssert on %s' % name"></b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertValue</td>
+      <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\']' % name"></td>
+      <td tal:content="python: value"></td>
+    </tr>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="wait_for_input_select">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//select[@name=\'%s\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//select[@name=\'%s\']' % name"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="input_select">
+    <tr>
+      <td colspan="3"><b tal:content="python: 'Select on %s' % name"></b></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_select" />
+    <tr>
+      <td>select</td>
+      <td tal:content="python: '//select[@name=\'%s\']' % name"></td>
+      <td tal:content="python: value"></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="assert_readonly_input_select">
+        <tr>
+      <td colspan="3"><b tal:content="python: 'Assert read only on select for %s' % name"></b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//select[@name=\'%s\'][@disabled]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//select[@name=\'%s\'][@disabled]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>select</td>
+      <td tal:content="python: '//select[@name=\'%s\'][@disabled]' % name"></td>
+      <td tal:content="python: value"></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="json_del_property">
+    <tr>
+      <td colspan="3"><b tal:content="python: 'Remove one extra property/object on %s' % name"></b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']/span/button[contains(@class, \'json-editor-btn-edit_properties\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']/span/button[contains(@class, \'json-editor-btn-edit_properties\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']/span/button[contains(@class, \'json-editor-btn-edit_properties\')]' % name"></td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//label[contains(text(), \'%s\')]/..//input[@type=\'checkbox\' and @class=\'form-check-input\']' % (name, value)"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//label[contains(text(), \'%s\')]/..//input[@type=\'checkbox\' and @class=\'form-check-input\']' % (name, value)"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//label[contains(text(), \'%s\')]/..//input[@type=\'checkbox\' and @class=\'form-check-input\']' % (name, value)"></td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']/span/button[contains(@class, \'json-editor-btn-edit_properties\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']/span/button[contains(@class, \'json-editor-btn-edit_properties\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']/span/button[contains(@class, \'json-editor-btn-edit_properties\')]' % name"></td>
+      <td></td>
+    </tr>
+
+  </tal:block>
+
+  <tal:block metal:define-macro="json_add_property">
+    <tr>
+      <td colspan="3"><b tal:content="python: 'Add one extra property/object on %s' % name"></b></td>
+    </tr>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']/span/button[contains(@class, \'json-editor-btn-edit_properties\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']/span/button[contains(@class, \'json-editor-btn-edit_properties\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']/span/button[contains(@class, \'json-editor-btn-edit_properties\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//input[@type = \'text\' and contains(@class, \'property-selector-input\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//input[@type = \'text\' and contains(@class, \'property-selector-input\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//input[@type = \'text\' and contains(@class, \'property-selector-input\')]' % name"></td>
+      <td tal:content="python: value"></td>
+    </tr>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//button[contains(@class, \'json-editor-btn-add\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//button[contains(@class, \'json-editor-btn-add\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//button[contains(@class, \'json-editor-btn-add\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']/span/button[contains(@class, \'json-editor-btn-edit_properties\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']/span/button[contains(@class, \'json-editor-btn-edit_properties\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']/span/button[contains(@class, \'json-editor-btn-edit_properties\')]' % name"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+</tal:block>

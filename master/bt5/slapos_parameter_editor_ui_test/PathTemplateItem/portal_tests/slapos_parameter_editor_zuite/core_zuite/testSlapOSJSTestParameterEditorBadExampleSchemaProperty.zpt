@@ -1,0 +1,72 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Parameter editor (XML Serialisation) </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Parameter editor (XML Serialisation)</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
+                       software_release_url python: '${base_url}/web_site_module/slapos_master_panel/hateoas/sample-software-schema/simplebaddemo/software.cfg'">
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
+
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
+
+      <tal:block tal:define="name python:'root[simple-string-with-template]'; value python: 'this is a simple string'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_for_input_text" />
+        <!-- Ensure input is visible -->
+        <tr>
+          <td>waitForElementPresent</td>
+          <td>//div[@data-schemapath='root.simple-string-with-template']</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>assertElementPresent</td>
+          <td>//div[@data-schemapath='root.simple-string-with-template']</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>waitForElementNotPresent</td>
+          <td>//div[@data-schemapath='root.simple-string-with-template' and @style='display: none;']</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>assertElementNotPresent</td>
+          <td>//div[@data-schemapath='root.simple-string-with-template' and @style='display: none;']</td>
+          <td></td>
+        </tr>
+        <!-- Ensure value is empty and not template -->
+        <tr>
+          <td>assertValue</td>
+          <td tal:content="python: '//input[@name=\'%s\' and @type=\'text\']' % name"></td>
+          <td></td>
+        </tr>
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-boolean-as-string]'; value python: 'false'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[simple-boolean]'; value python: 'true'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="parameter_hash string:d01ea00ea6adc5b47c9652fb1d1cf99c">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
+      </tal:block>
+
+    </tbody>
+  </table>
+</body>
+
+</html>

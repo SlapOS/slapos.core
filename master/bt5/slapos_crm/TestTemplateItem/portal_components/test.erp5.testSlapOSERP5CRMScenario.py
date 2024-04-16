@@ -101,7 +101,7 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
         portal_type='Regularisation Request',
         destination__uid=owner_person.getUid()
       )
-      self.assertEquals(regularisation_request.getSimulationState(), 'suspended')
+      self.assertEqual(regularisation_request.getSimulationState(), 'suspended')
 
     ##################################################
     # Trigger regularisation request escalation
@@ -124,21 +124,21 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Items must be deleted
     # Open Order must be archived
     # Invoice must be paid with Deposit
-    self.assertEquals(project.getValidationState(), 'invalidated')
-    self.assertEquals(instance_tree.getValidationState(), 'archived')
-    self.assertEquals(instance_tree.getSlapState(), 'destroy_requested')
-    self.assertEquals(compute_node.getValidationState(), 'invalidated')
+    self.assertEqual(project.getValidationState(), 'invalidated')
+    self.assertEqual(instance_tree.getValidationState(), 'archived')
+    self.assertEqual(instance_tree.getSlapState(), 'destroy_requested')
+    self.assertEqual(compute_node.getValidationState(), 'invalidated')
     open_order_list = self.portal.portal_catalog(
       portal_type='Open Sale Order',
       destination_section__uid=owner_person.getUid()
     )
     hosting_subscription_list = []
-    self.assertEquals(len(open_order_list), 3)
+    self.assertEqual(len(open_order_list), 3)
     for open_order in open_order_list:
-      self.assertEquals(open_order.getValidationState(), 'archived')
-      self.assertNotEquals(open_order.getStopDate(), open_order.getStartDate())
-      self.assertNotEquals(open_order.getStopDate(), None)
-      self.assertEquals(open_order.getStopDate(), DateTime('2020/07/17'))
+      self.assertEqual(open_order.getValidationState(), 'archived')
+      self.assertNotEqual(open_order.getStopDate(), open_order.getStartDate())
+      self.assertNotEqual(open_order.getStopDate(), None)
+      self.assertEqual(open_order.getStopDate(), DateTime('2020/07/17'))
 
       for line in open_order.contentValues():
         for cell in line.contentValues():
@@ -149,12 +149,12 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
         if tmp is not None:
           hosting_subscription_list.append(tmp)
 
-    self.assertEquals(len(hosting_subscription_list), 3)
+    self.assertEqual(len(hosting_subscription_list), 3)
     for hosting_subscription in hosting_subscription_list:
-      self.assertEquals(hosting_subscription.getValidationState(), 'archived')
+      self.assertEqual(hosting_subscription.getValidationState(), 'archived')
 
-    self.assertEquals(regularisation_request.getSimulationState(), 'suspended')
-    self.assertEquals(regularisation_request.getResourceId(),
+    self.assertEqual(regularisation_request.getSimulationState(), 'suspended')
+    self.assertEqual(regularisation_request.getResourceId(),
                       'slapos_crm_delete_acknowledgement')
 
     # No planned invoice is expected
@@ -162,15 +162,15 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
     outstanding_amount_list = owner_person.Entity_getOutstandingAmountList(
       ledger_uid=ledger_uid
     )
-    self.assertEquals(len(outstanding_amount_list), 1)
-    self.assertEquals(outstanding_amount_list[0].total_price, 132)
+    self.assertEqual(len(outstanding_amount_list), 1)
+    self.assertEqual(outstanding_amount_list[0].total_price, 132)
 
     planned_outstanding_amount_list = owner_person.Entity_getOutstandingAmountList(
       ledger_uid=ledger_uid,
       include_planned=True
     )
-    self.assertEquals(len(planned_outstanding_amount_list), 1)
-    self.assertEquals(outstanding_amount_list[0].total_price,
+    self.assertEqual(len(planned_outstanding_amount_list), 1)
+    self.assertEqual(outstanding_amount_list[0].total_price,
                       planned_outstanding_amount_list[0].total_price)
 
 

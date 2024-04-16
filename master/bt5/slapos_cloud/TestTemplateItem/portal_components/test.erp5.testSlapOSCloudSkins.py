@@ -75,7 +75,7 @@ class TestBase_reindexAndSenseAlarm(SlapOSTestCaseMixinWithAbort):
     # check that alarm was called after the object was reindexed
     self.assertTrue(next_indexation_timestamp < edit_timestamp)
 
-    self.assertEquals(
+    self.assertEqual(
       len(alarm.workflow_history['edit_workflow']),
       workflow_history_count + 1
     )
@@ -101,11 +101,11 @@ class TestBase_reindexAndSenseAlarm(SlapOSTestCaseMixinWithAbort):
     next_indexation_timestamp = self.getIndexationDate(document)
     edit_timestamp = alarm.getModificationDate()
     # check that the document was not reindexed
-    self.assertEquals(previous_indexation_timestamp, next_indexation_timestamp)
+    self.assertEqual(previous_indexation_timestamp, next_indexation_timestamp)
     # check that alarm was called after the object was reindexed
     self.assertTrue(next_indexation_timestamp < edit_timestamp)
 
-    self.assertEquals(
+    self.assertEqual(
       len(alarm.workflow_history['edit_workflow']),
       workflow_history_count + 1
     )
@@ -129,9 +129,9 @@ class TestBase_reindexAndSenseAlarm(SlapOSTestCaseMixinWithAbort):
 
     next_indexation_timestamp = self.getIndexationDate(document)
     # check that the document was not reindex
-    self.assertEquals(previous_indexation_timestamp, next_indexation_timestamp)
+    self.assertEqual(previous_indexation_timestamp, next_indexation_timestamp)
     # check that the alarm was not triggered
-    self.assertEquals(
+    self.assertEqual(
       len(alarm.workflow_history['edit_workflow']),
       workflow_history_count
     )
@@ -157,7 +157,7 @@ class TestBase_reindexAndSenseAlarm(SlapOSTestCaseMixinWithAbort):
     # check that alarm was called ONCE after the object was reindexed
     self.assertTrue(next_indexation_timestamp < edit_timestamp)
 
-    self.assertEquals(
+    self.assertEqual(
       len(alarm.workflow_history['edit_workflow']),
       workflow_history_count + 1
     )
@@ -182,7 +182,7 @@ class TestBase_reindexAndSenseAlarm(SlapOSTestCaseMixinWithAbort):
       self.tic()
 
     # check that alarm was called ONCE
-    self.assertEquals(
+    self.assertEqual(
       len(alarm.workflow_history['edit_workflow']),
       workflow_history_count + 1
     )
@@ -213,7 +213,7 @@ class TestBase_reindexAndSenseAlarm(SlapOSTestCaseMixinWithAbort):
     # check that alarm was called ONCE after the object was reindexed
     self.assertTrue(next_indexation_timestamp < edit_timestamp)
 
-    self.assertEquals(
+    self.assertEqual(
       len(alarm.workflow_history['edit_workflow']),
       workflow_history_count + 1
     )
@@ -241,7 +241,7 @@ class TestBase_reindexAndSenseAlarm(SlapOSTestCaseMixinWithAbort):
     with TemporaryAlarmScript(alarm, 'Alarm_allocateInstance'):
       self.tic()
 
-    self.assertEquals(
+    self.assertEqual(
       len(alarm.workflow_history['edit_workflow']),
       workflow_history_count + 3
     )
@@ -277,7 +277,7 @@ class TestBase_reindexAndSenseAlarm(SlapOSTestCaseMixinWithAbort):
     self.assertTrue(next_indexation_timestamp1 < edit_timestamp)
     self.assertTrue(next_indexation_timestamp2 < edit_timestamp)
 
-    self.assertEquals(
+    self.assertEqual(
       len(alarm.workflow_history['edit_workflow']),
       workflow_history_count + 1
     )
@@ -314,7 +314,7 @@ class TestBase_reindexAndSenseAlarm(SlapOSTestCaseMixinWithAbort):
     self.assertTrue(next_indexation_timestamp1 < edit_timestamp)
     self.assertTrue(next_indexation_timestamp2 < edit_timestamp)
 
-    self.assertEquals(
+    self.assertEqual(
       len(alarm.workflow_history['edit_workflow']),
       workflow_history_count + 1
     )
@@ -349,7 +349,7 @@ class TestBase_reindexAndSenseAlarm(SlapOSTestCaseMixinWithAbort):
     self.assertTrue(next_indexation_timestamp < edit_timestamp1)
     self.assertTrue(next_indexation_timestamp < edit_timestamp2)
 
-    self.assertEquals(
+    self.assertEqual(
       len(alarm1.workflow_history['edit_workflow']),
       workflow_history_count1 + 1
     )
@@ -357,7 +357,7 @@ class TestBase_reindexAndSenseAlarm(SlapOSTestCaseMixinWithAbort):
       'Visited by Alarm_allocateInstance',
       alarm1.workflow_history['edit_workflow'][-1]['comment']
     )
-    self.assertEquals(
+    self.assertEqual(
       len(alarm2.workflow_history['edit_workflow']),
       workflow_history_count2 + 1
     )

@@ -92,11 +92,11 @@ def convertToREST(function):
     """
     try:
       retval = function(self, *args, **kwd)
-    except (ValueError, AttributeError), log:
+    except (ValueError, AttributeError) as log:
       LOG('SlapTool', INFO, 'Converting ValueError to NotFound, real error:',
           error=True)
       raise NotFound(log)
-    except SoftwareInstanceNotReady, log:
+    except SoftwareInstanceNotReady as log:
       self.REQUEST.response.setStatus(408)
       self.REQUEST.response.setHeader('Cache-Control', 'private')
       return self.REQUEST.response

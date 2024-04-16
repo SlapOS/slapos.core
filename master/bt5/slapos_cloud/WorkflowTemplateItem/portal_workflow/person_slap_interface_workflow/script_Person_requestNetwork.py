@@ -8,12 +8,12 @@ kwargs = state_change.kwargs
 try:
   computer_network_title = kwargs['network_title']
 except KeyError:
-  raise TypeError, "Person_requestNetwork takes exactly 2 arguments. Missing network_title."
+  raise TypeError("Person_requestNetwork takes exactly 2 arguments. Missing network_title.")
 
 try:
   project_reference = kwargs['project_reference']
 except KeyError:
-  raise TypeError, "Person_requestNetwork takes exactly 2 arguments. Missing project_reference."
+  raise TypeError("Person_requestNetwork takes exactly 2 arguments. Missing project_reference.")
 
 tag = "%s_%s_NetworkInProgress" % (person.getUid(),
                                computer_network_title)

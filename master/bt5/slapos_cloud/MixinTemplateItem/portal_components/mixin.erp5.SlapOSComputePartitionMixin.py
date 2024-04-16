@@ -98,9 +98,9 @@ class SlapOSComputePartitionMixin(object):
         software_instance = _assertACI(software_instance_list[0].getObject())
       elif software_instance_count > 1:
         # XXX do not prevent the system to work if one partition is broken
-        raise NotImplementedError, "Too many instances %s linked to %s" % \
+        raise NotImplementedError("Too many instances %s linked to %s" % \
           ([x.path for x in software_instance_list],
-           self.getRelativeUrl())
+           self.getRelativeUrl()))
 
     if software_instance is not None:
       state = software_instance.getSlapState()
@@ -129,13 +129,13 @@ class SlapOSComputePartitionMixin(object):
         parameter_dict.pop('filter_xml'))
       partition_dict['_instance_guid'] = parameter_dict.pop('instance_guid')
       for slave_instance_dict in parameter_dict.get("slave_instance_list", []):
-        if slave_instance_dict.has_key("connection_xml"):
+        if "connection_xml" in slave_instance_dict:
           connection_dict = software_instance._instanceXmlToDict(
             slave_instance_dict.pop("connection_xml"))
           slave_instance_dict.update(connection_dict)
           slave_instance_dict['connection-parameter-hash'] = \
             calculate_dict_hash(connection_dict)
-        if slave_instance_dict.has_key("xml"):
+        if "xml" in slave_instance_dict:
           slave_instance_dict.update(software_instance._instanceXmlToDict(
             slave_instance_dict.pop("xml")))
       partition_dict['_parameter_dict'].update(parameter_dict)

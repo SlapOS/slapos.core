@@ -26,7 +26,7 @@ current_username = context.getPortalObject().portal_membership.getAuthenticatedM
 
 if current_username == original_login:
   # We should logout immediately
-  if context.REQUEST.has_key('portal_skin'):
+  if 'portal_skin' in context.REQUEST:
     context.portal_skins.clearSkinCookie()
   context.REQUEST.RESPONSE.expireCookie('__ac', path='/')
   context.REQUEST.RESPONSE.expireCookie('__ac_google_hash', path='/')

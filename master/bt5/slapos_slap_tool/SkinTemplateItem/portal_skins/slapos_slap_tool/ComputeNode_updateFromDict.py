@@ -14,7 +14,7 @@ def compareAndUpdateAddressList(document, address_list, additional_dict=None):
       to_add_ip_dict_list.remove(current_dict)
     else:
       # XXX - Only delete if Network interface are supposed to be the same
-      if additional_dict.has_key('network_interface'):
+      if 'network_interface' in additional_dict:
         if address.getNetworkInterface('') and additional_dict['network_interface'] != address.getNetworkInterface():
           continue
       to_delete_ip_id_list.append(address.getId())
@@ -94,7 +94,7 @@ for send_partition in compute_node_dict['partition_list']:
   compareAndUpdateAddressList(partition, send_partition['address_list'], {'network_interface': network_interface})
   tap_addr_list = []
   additional_dict = {'network_interface':  'route_' + network_interface}
-  if send_partition['tap'].has_key('ipv4_addr') and send_partition['tap']['ipv4_addr']:
+  if 'ipv4_addr' in send_partition['tap'] and send_partition['tap']['ipv4_addr']:
     tap_addr_list.append({
             'addr': send_partition['tap']['ipv4_addr'],
             'netmask': send_partition['tap']['ipv4_netmask']

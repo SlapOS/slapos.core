@@ -291,6 +291,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'erp5_interaction_drop',
       'erp5_json_editor',
       'slapos_mysql_innodb_catalog',
+      'slapos_parameter_editor',
       'slapos_cloud',
       'slapos_slap_tool',
       'slapos_category',

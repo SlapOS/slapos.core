@@ -48,7 +48,7 @@ class SlapOSCatalogToolCacheMixin(object):
         validation_state="validated",
         reference=reference)
     if len(compute_node_list) != 1:
-      raise NotFound, "No document found with parameters: %s" % reference
+      raise NotFound("No document found with parameters: %s" % reference)
     else:
       return _assertACI(compute_node_list[0].getObject()).getRelativeUrl()
 
@@ -88,7 +88,7 @@ class SlapOSCatalogToolCacheMixin(object):
       parent_uid=self._getNonCachedComputeNodeUid(
           compute_node_reference))
     if len(compute_partition_list) != 1:
-      raise NotFound, "No document found with parameters: %s %s" % \
-        (compute_node_reference, compute_partition_reference)
+      raise NotFound("No document found with parameters: %s %s" % \
+        (compute_node_reference, compute_partition_reference))
     else:
       return _assertACI(compute_partition_list[0].getObject())

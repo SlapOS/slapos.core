@@ -7,7 +7,7 @@ payment_transaction.AccountingTransaction_updateStartDate(now)
 
 _, transaction_id = payment_transaction.PaymentTransaction_generateWechatId()
 if transaction_id is None:
-  raise ValueError, "Transaction already registered"
+  raise ValueError("Transaction already registered")
 
 wechat_dict = {
   'out_trade_no': payment_transaction.getId().encode('utf-8'),

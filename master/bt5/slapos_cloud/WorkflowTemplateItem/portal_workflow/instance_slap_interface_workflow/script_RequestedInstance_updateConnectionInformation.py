@@ -4,7 +4,7 @@ instance = state_change['object']
 try:
   connection_xml = state_change.kwargs['connection_xml']
 except KeyError:
-  raise TypeError, "RequestedInstance_updateConnectionInformation takes exactly 1 arguments"
+  raise TypeError("RequestedInstance_updateConnectionInformation takes exactly 1 arguments")
 
 edit_kw = {
   'connection_xml': connection_xml,

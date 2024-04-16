@@ -20,7 +20,7 @@ except KeyError:
   #raise TypeError, "RequesterInstance_request takes exactly 7 arguments"
 
 if is_slave not in [True, False]:
-  raise ValueError, "shared should be a boolean"
+  raise ValueError("shared should be a boolean")
 
 # Instance tree is used as the root of the instance tree
 if requester_instance.getPortalType() == "Instance Tree":
@@ -80,7 +80,7 @@ if instance_count == 0:
 elif instance_count == 1:
   request_software_instance = request_software_instance_list[0].getObject()
 else:
-  raise ValueError, "Too many instances '%s' found: %s" % (software_title, [x.path for x in request_software_instance_list])
+  raise ValueError("Too many instances '%s' found: %s" % (software_title, [x.path for x in request_software_instance_list]))
 
 if (request_software_instance is None):
   if (root_state == "destroyed"):
@@ -161,7 +161,7 @@ if instance_found:
     request_software_instance.requestDestroy(**promise_kw)
     context.REQUEST.set('request_instance', None)
   else:
-    raise ValueError, "state should be started, stopped or destroyed"
+    raise ValueError("state should be started, stopped or destroyed")
 
   successor_list = requester_instance.getSuccessorList()
   successor_uid_list = requester_instance.getSuccessorUidList()

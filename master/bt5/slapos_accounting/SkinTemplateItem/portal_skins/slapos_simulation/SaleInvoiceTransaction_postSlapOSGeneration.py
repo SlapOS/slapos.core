@@ -7,7 +7,7 @@ from DateTime import DateTime
 portal = context.getPortalObject()
 
 if related_simulation_movement_path_list is None:
-  raise RuntimeError, 'related_simulation_movement_path_list is missing. Update ERP5 Product.'
+  raise RuntimeError('related_simulation_movement_path_list is missing. Update ERP5 Product.')
 
 invoice = context
 price_currency = invoice.getPriceCurrency()

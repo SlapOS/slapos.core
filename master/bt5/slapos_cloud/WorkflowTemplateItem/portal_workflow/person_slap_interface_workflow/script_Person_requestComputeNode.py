@@ -8,12 +8,12 @@ kwargs = state_change.kwargs
 try:
   compute_node_title = kwargs['compute_node_title']
 except KeyError:
-  raise TypeError, "Person_requestComputeNode takes exactly 2 arguments. Missing compute_node_title."
+  raise TypeError("Person_requestComputeNode takes exactly 2 arguments. Missing compute_node_title.")
 
 try:
   project_reference = kwargs['project_reference']
 except KeyError:
-  raise TypeError, "Person_requestComputeNode takes exactly 2 arguments. Missing project_reference."
+  raise TypeError("Person_requestComputeNode takes exactly 2 arguments. Missing project_reference.")
 
 tag = "%s_%s_ComputeNodeInProgress" % (person.getUid(), 
                                compute_node_title)

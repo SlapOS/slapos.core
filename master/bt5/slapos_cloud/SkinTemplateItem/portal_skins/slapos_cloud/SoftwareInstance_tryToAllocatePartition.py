@@ -126,7 +126,7 @@ try:
     instance_tree.activate(activity="SQLQueue", tag=tag,
         after_tag="allocate_%s" % compute_partition_url).getId()
 
-except ValueError, e:
+except ValueError as e:
   # It was not possible to find free Compute Partition
   markHistory(software_instance, 'Allocation failed: no free Compute Partition %s' % e)
 else:

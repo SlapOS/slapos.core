@@ -72,11 +72,6 @@ _ALLOWED_CLASS_SET = frozenset((
 ))
 
 
-class UndefinedSerializationError(ValueError):
-    """Raised when the serialization type is not found"""
-    pass
-
-
 class SafeXMLMarshaller(Marshaller):
   def m_instance(self, value, kw):
     cls = value.__class__
@@ -406,30 +401,32 @@ def rmtree(path):
 
 
 
-def _readAsJson(url):
+def _readAsJson(url, set_schema_id=False):
   # type: (str) -> Optional[Dict]
   """Reads and parse the json file located at `url`.
 
   `url` can also be the path of a local file.
   """
-  if url.startswith('file://'):
-    url = url[len('file://'):]
-  path = url if os.path.exists(url) else None
-
-  if path:
-    with open(path) as f:
-      try:
-        return json.load(f)
-      except ValueError:
-        return None
-  if url.startswith('http://') or url.startswith('https://'):
-    try:
+  try:
+    if url.startswith('http://') or url.startswith('https://'):
       r = requests.get(url, timeout=60) # we need a timeout !
       r.raise_for_status()
-      return r.json()
-    except (requests.exceptions.RequestException, ValueError):
-      return None
-  return None
+      r = r.json()
+    else:
+      # XXX: https://discuss.python.org/t/file-uris-in-python/15600
+      if url.startswith('file://'):
+        path = url[7:]
+      else:
+        path = url
+        url = 'file:' + url
+      with open(path) as f:
+        r = json.load(f)
+    if set_schema_id and r:
+      r.setdefault('$id', url)
+    return r
+  except Exception as e:
+    warnings.warn("Unable to load JSON %s (%s: %s)"
+                  % (url, type(e).__name__, e))
 
 
 class SoftwareReleaseSerialisation(str, enum.Enum):
@@ -438,53 +435,61 @@ class SoftwareReleaseSerialisation(str, enum.Enum):
 
 
 class SoftwareReleaseSchema(object):
+
   def __init__(self, software_url, software_type):
     # type: (str, Optional[str]) ->  None
     self.software_url = software_url
-    self.software_type = software_type
+    # XXX: Transition from DEFAULT_SOFTWARE_TYPE ("RootSoftwareInstance")
+    #      to "default" is already complete for SR schemas.
+    from slapos.slap.slap import DEFAULT_SOFTWARE_TYPE
+    if software_type == DEFAULT_SOFTWARE_TYPE:
+      software_type = None
+    self.software_type = software_type or 'default'
+
+  def _warn(self, message, e):
+    warnings.warn(
+      "%s for software type %r of software release %s (%s: %s)"
+      % (message, self.software_type, self.software_url, type(e).__name__, e),
+      stacklevel=2)
 
   def getSoftwareSchema(self):
     # type: () -> Optional[Dict]
     """Returns the schema for this software.
     """
-    return _readAsJson(self.software_url + '.json')
+    try:
+      return self._software_schema
+    except AttributeError:
+      schema = self._software_schema = _readAsJson(self.software_url + '.json')
+    return schema
 
   def getSoftwareTypeSchema(self):
     # type: () -> Optional[Dict]
     """Returns schema for this software type.
     """
     software_schema = self.getSoftwareSchema()
-    if software_schema is None:
-      return None
+    if software_schema is not None:
+      try:
+        return software_schema['software-type'][self.software_type]
+      except Exception as e:
+        self._warn("No schema defined", e)
 
-    software_type = self.software_type
-    from slapos.slap.slap import DEFAULT_SOFTWARE_TYPE
-    if software_type is None:
-      software_type = DEFAULT_SOFTWARE_TYPE
-    # XXX Some software are using "default" for default software type, because
-    # we are transitionning from DEFAULT_SOFTWARE_TYPE ("RootSoftwareInstance")
-    # to "default".
-    if software_type == DEFAULT_SOFTWARE_TYPE \
-        and software_type not in software_schema['software-type'] \
-        and 'default' in software_schema['software-type']:
-      warnings.warn(
-          "Software release {} does not have schema for DEFAULT_SOFTWARE_TYPE but has one for 'default'."
-          " Using 'default' instead.".format(self.software_url),
-          UserWarning,
-      )
-      software_type = 'default'
-    return software_schema['software-type'].get(software_type)
-
-  def getSerialisation(self):
-    # type: () -> SoftwareReleaseSerialisation
+  def getSerialisation(self, strict=False):
+    # type: (bool) -> SoftwareReleaseSerialisation
     """Returns the serialisation method used for parameters.
+
+    If strict is False, catch exceptions and return JsonInXml.
     """
     software_schema = self.getSoftwareTypeSchema()
     if software_schema is None or 'serialisation' not in software_schema:
       software_schema = self.getSoftwareSchema()
-    if software_schema is None:
-      raise UndefinedSerializationError
-    return SoftwareReleaseSerialisation(software_schema['serialisation'])
+    try:
+      return SoftwareReleaseSerialisation(software_schema['serialisation'])
+    except Exception as e:
+      if software_schema is not None: # else there was already a warning
+        self._warn("Invalid or undefined serialisation", e)
+      if strict:
+        raise
+    return SoftwareReleaseSerialisation.JsonInXml
 
   def getInstanceRequestParameterSchemaURL(self):
     # type: () -> Optional[str]
@@ -493,22 +498,18 @@ class SoftwareReleaseSchema(object):
     software_type_schema = self.getSoftwareTypeSchema()
     if software_type_schema is None:
       return None
-    software_url = self.software_url
-    if os.path.exists(software_url):
-      software_url = 'file://' + software_url
-    return urljoin(software_url, software_type_schema['request'])
+    return urljoin(self.software_url, software_type_schema['request'])
 
   def getInstanceRequestParameterSchema(self):
     # type: () -> Optional[Dict]
     """Returns the schema defining instance parameters.
     """
-    instance_parameter_schema_url = self.getInstanceRequestParameterSchemaURL()
-    if instance_parameter_schema_url is None:
-      return None
-    schema = _readAsJson(instance_parameter_schema_url)
-    if schema:
-      # so that jsonschema knows how to resolve references
-      schema.setdefault('$id', instance_parameter_schema_url)
+    try:
+      return self._request_schema
+    except AttributeError:
+      url = self.getInstanceRequestParameterSchemaURL()
+      schema = None if url is None else _readAsJson(url, True)
+      self._request_schema = schema
     return schema
 
   def getInstanceConnectionParameterSchemaURL(self):
@@ -524,13 +525,12 @@ class SoftwareReleaseSchema(object):
     # type: () -> Optional[Dict]
     """Returns the schema defining connection parameters published by the instance.
     """
-    instance_parameter_schema_url = self.getInstanceConnectionParameterSchemaURL()
-    if instance_parameter_schema_url is None:
-      return None
-    schema = _readAsJson(instance_parameter_schema_url)
-    if schema:
-      # so that jsonschema knows how to resolve references
-      schema.setdefault('$id', instance_parameter_schema_url)
+    try:
+      return self._response_schema
+    except AttributeError:
+      url = self.getInstanceConnectionParameterSchemaURL()
+      schema = None if url is None else _readAsJson(url, True)
+      self._response_schema = schema
     return schema
 
   def validateInstanceParameterDict(self, parameter_dict):
@@ -539,19 +539,15 @@ class SoftwareReleaseSchema(object):
 
     Raise jsonschema.ValidationError if parameters does not validate.
     """
-    schema_url = self.getInstanceRequestParameterSchemaURL()
-    if schema_url:
-      instance = parameter_dict
-      if self.getSerialisation() == SoftwareReleaseSerialisation.JsonInXml:
+    schema = self.getInstanceRequestParameterSchema()
+    if schema:
+      if self.getSerialisation(strict=True) == SoftwareReleaseSerialisation.JsonInXml:
         try:
-          instance = json.loads(parameter_dict['_'])
+          parameter_dict = json.loads(parameter_dict['_'])
         except KeyError:
-          instance = parameter_dict
-      instance.pop('$schema', None)
-      jsonschema.validate(
-          instance=instance,
-          schema=self.getInstanceRequestParameterSchema(),
-      )
+          pass
+      parameter_dict.pop('$schema', None)
+      jsonschema.validate(instance=parameter_dict, schema=schema)
 
 
 # BBB on python3 we can use pprint.pformat

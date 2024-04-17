@@ -40,7 +40,7 @@ import pkg_resources
 from contextlib import contextmanager
 from mock import patch, create_autospec
 import mock
-from slapos.util import sqlite_connect, bytes2str, UndefinedSerializationError, dict2xml
+from slapos.util import sqlite_connect, bytes2str, dict2xml
 from slapos.slap.slap import DEFAULT_SOFTWARE_TYPE
 
 import slapos.cli.console
@@ -83,13 +83,33 @@ x2IMeSwJ82BpdEI5niXxB+iT0HxhmR+XaMI=
 def raiseNotFoundError(*args, **kwargs):
   raise slapos.slap.NotFoundError()
 
+
 class CliMixin(unittest.TestCase):
+
   def setUp(self):
     slap = slapos.slap.slap()
     self.logger = create_autospec(logging.Logger)
     self.local = {'slap': slap, 'product': SoftwareProductCollection(self.logger, slap)}
     self.conf = create_autospec(ClientConfig)
     self.sign_cert_list = signature_certificate_list
+
+  def _do_request(self, connection_dict={}, json_in_xml=False):
+    cp = slapos.slap.ComputerPartition(
+        'computer_' + self.id(),
+        'partition_' + self.id())
+    cp._requested_state = 'started'
+    cp._connection_dict = {'_': json.dumps(connection_dict)} \
+        if json_in_xml else connection_dict
+
+    with patch.object(
+        slapos.slap.slap,
+        'registerOpenOrder',
+        return_value=mock.create_autospec(slapos.slap.OpenOrder)) as registerOpenOrder:
+      registerOpenOrder().request.return_value = cp
+      slapos.cli.request.do_request(self.logger, self.conf, self.local)
+
+    return registerOpenOrder().request
+
 
 class TestCliCacheBinarySr(CliMixin):
 
@@ -901,9 +921,9 @@ class TestCliRequest(CliMixin):
     self.assertEqual(parse_option_dict(['a=a\nb']), {'a': 'a\nb'})
     self.assertEqual(parse_option_dict([]), {})
 
-  def test_request(self):
+  def _test_request(self, software_url, json_in_xml=False):
     self.conf.reference = 'instance reference'
-    self.conf.software_url = 'software URL'
+    self.conf.software_url = software_url
     self.conf.parameters = {'key': 'value'}
     self.conf.parameters_file = None
     self.conf.node = {'computer_guid': 'COMP-1234'}
@@ -912,14 +932,9 @@ class TestCliRequest(CliMixin):
     self.conf.slave = False
     self.conf.force_serialisation = None
 
-    with patch.object(
-        slapos.slap.slap,
-        'registerOpenOrder',
-        return_value=mock.create_autospec(slapos.slap.OpenOrder)) as registerOpenOrder:
-      slapos.cli.request.do_request(self.logger, self.conf, self.local)
-
-    registerOpenOrder().request.assert_called_once_with(
-        software_release='software URL',
+    connection_dict = {'foo': 'bar'}
+    self._do_request(connection_dict, json_in_xml).assert_called_once_with(
+        software_release=software_url,
         partition_reference='instance reference',
         partition_parameter_kw={'key': 'value'},
         software_type=None,
@@ -927,17 +942,23 @@ class TestCliRequest(CliMixin):
         state=None,
         shared=False,
     )
+    self.assertEqual(self.logger.info.mock_calls, [
+        mock.call('Requesting %s as instance of %s...',
+                  'instance reference', software_url),
+        mock.call('Instance requested.\nState is : %s.', 'started'),
+        mock.call('Connection parameters of instance are:'),
+        mock.call("{'foo': 'bar'}"),
+        mock.call('You can rerun the command to get up-to-date information.'),
+    ])
 
-    self.logger.info.assert_any_call(
-        'Requesting %s as instance of %s...',
-        'instance reference',
-        'software URL',
-    )
+  def test_request(self):
+    self._test_request('software URL', {'foo': 'bar'})
 
   def test_request_json_in_xml_published_parameters(self):
     tmpdir = tempfile.mkdtemp()
     self.addCleanup(shutil.rmtree, tmpdir)
-    with open(os.path.join(tmpdir, 'software.cfg.json'), 'w') as f:
+    sr = os.path.join(tmpdir, 'software.cfg')
+    with open(sr + '.json', 'w') as f:
       json.dump(
           {
               "name": "Test Software",
@@ -953,40 +974,7 @@ class TestCliRequest(CliMixin):
                   },
               }
           }, f)
-
-    self.conf.reference = 'instance reference'
-    self.conf.software_url = os.path.join(tmpdir, 'software.cfg')
-    self.conf.parameters = {'key': 'value'}
-    self.conf.parameters_file = None
-    self.conf.node = {'computer_guid': 'COMP-1234'}
-    self.conf.type = None
-    self.conf.state = None
-    self.conf.slave = False
-    self.conf.force_serialisation = None
-
-    cp = slapos.slap.ComputerPartition(
-        'computer_%s' % self.id(),
-        'partition_%s' % self.id())
-    cp._requested_state = 'started'
-    cp._connection_dict = {'_': json.dumps({'foo': 'bar'})}
-
-    with patch.object(
-        slapos.slap.slap,
-        'registerOpenOrder',
-        return_value=mock.create_autospec(slapos.slap.OpenOrder)) as registerOpenOrder:
-      registerOpenOrder().request.return_value = cp
-      slapos.cli.request.do_request(self.logger, self.conf, self.local)
-
-    registerOpenOrder().request.assert_called_once()
-
-    self.assertEqual(self.logger.info.mock_calls, [
-        mock.call('Requesting %s as instance of %s...', self.conf.reference,
-                  self.conf.software_url),
-        mock.call('Instance requested.\nState is : %s.', 'started'),
-        mock.call('Connection parameters of instance are:'),
-        mock.call("{'foo': 'bar'}"),
-        mock.call('You can rerun the command to get up-to-date information.'),
-    ])
+    self._test_request(sr, True)
 
 
 class TestCliRequestParameterFile(CliMixin):
@@ -1031,7 +1019,7 @@ class TestCliRequestParameterFileUndefinedSerialization(TestCliRequestParameterF
   def test_request_parameters_file(self):
     self._request_parameters_file_setup()
     self.assertRaises(
-        UndefinedSerializationError,
+        TypeError,
         slapos.cli.request.do_request,
         self.logger,
         self.conf,
@@ -1055,13 +1043,9 @@ class TestCliRequestParametersFileJson(TestCliRequestParameterFile):
     with mock.patch(
         'slapos.cli.request.SoftwareReleaseSchema.getSerialisation',
         return_value=self.serialization):
-      with patch.object(
-          slapos.slap.slap,
-          'registerOpenOrder',
-          return_value=mock.create_autospec(slapos.slap.OpenOrder)) as registerOpenOrder:
-        slapos.cli.request.do_request(self.logger, self.conf, self.local)
-
-      registerOpenOrder().request.assert_called_once_with(
+      self._do_request(
+          json_in_xml=self.serialization!='xml',
+      ).assert_called_once_with(
           software_release='software URL',
           partition_reference='instance reference',
           partition_parameter_kw=self.expected_partition_parameter_kw,
@@ -1138,13 +1122,7 @@ class TestCliRequestForceSerialisation(TestCliRequestParameterFile):
   def test_request_parameters_file(self):
     self._request_parameters_file_setup()
     self.conf.force_serialisation = 'json-in-xml'
-    with patch.object(
-        slapos.slap.slap,
-        'registerOpenOrder',
-        return_value=mock.create_autospec(slapos.slap.OpenOrder)) as registerOpenOrder:
-      slapos.cli.request.do_request(self.logger, self.conf, self.local)
-
-    registerOpenOrder().request.assert_called_once_with(
+    self._do_request(json_in_xml=True).assert_called_once_with(
         software_release='software URL',
         partition_reference='instance reference',
         partition_parameter_kw=self.expected_partition_parameter_kw,

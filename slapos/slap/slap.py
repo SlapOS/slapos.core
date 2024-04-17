@@ -49,7 +49,7 @@ import six
 from .exception import ResourceNotReady, ServerError, NotFoundError, \
           ConnectionError
 from .hateoas import SlapHateoasNavigator, ConnectionHelper
-from slapos.util import (SoftwareReleaseSchema, UndefinedSerializationError,
+from slapos.util import (SoftwareReleaseSchema,
                          bytes2str, calculate_dict_hash, dict2xml, dumps, loads,
                          unicode2str, xml2dict)
 
@@ -108,11 +108,6 @@ class SlapRequester(SlapDocument):
     except jsonschema.ValidationError as e:
       warnings.warn(
         "Request parameters do not validate against schema definition:\n{e}".format(e=e),
-        UserWarning,
-      )
-    except UndefinedSerializationError as e:
-      warnings.warn(
-        "No serialization type found:\n{e}".format(e=e),
         UserWarning,
       )
     except Exception as e:

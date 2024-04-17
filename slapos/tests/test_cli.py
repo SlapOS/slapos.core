@@ -40,7 +40,7 @@ import pkg_resources
 from contextlib import contextmanager
 from mock import patch, create_autospec
 import mock
-from slapos.util import sqlite_connect, bytes2str, UndefinedSerializationError, dict2xml
+from slapos.util import sqlite_connect, bytes2str, dict2xml
 from slapos.slap.slap import DEFAULT_SOFTWARE_TYPE
 
 import slapos.cli.console
@@ -1031,7 +1031,7 @@ class TestCliRequestParameterFileUndefinedSerialization(TestCliRequestParameterF
   def test_request_parameters_file(self):
     self._request_parameters_file_setup()
     self.assertRaises(
-        UndefinedSerializationError,
+        TypeError,
         slapos.cli.request.do_request,
         self.logger,
         self.conf,

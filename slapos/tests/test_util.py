@@ -38,7 +38,6 @@ from six.moves import SimpleHTTPServer
 import jsonschema
 
 import slapos.util
-from slapos.slap.slap import DEFAULT_SOFTWARE_TYPE
 from slapos.testing.utils import ManagedHTTPServer
 from slapos.util import (SoftwareReleaseSchema, SoftwareReleaseSerialisation,
                          string_to_boolean, unicode2str)
@@ -270,11 +269,11 @@ class SoftwareReleaseSchemaTestMixin(object):
 
   def test_serialisation(self):
     schema = SoftwareReleaseSchema(self.software_url, None)
-    self.assertEqual(schema.getSerialisation(), self.serialisation)
+    self.assertEqual(schema.getSerialisation(strict=True), self.serialisation)
 
   def test_serialisation_alternate_software_type(self):
     schema = SoftwareReleaseSchema(self.software_url, 'alternate')
-    self.assertEqual(schema.getSerialisation(), self.serialisation_alt)
+    self.assertEqual(schema.getSerialisation(strict=True), self.serialisation_alt)
 
   def test_instance_request_parameter_schema_default_software_type(self):
     schema = SoftwareReleaseSchema(self.software_url, None)
@@ -354,7 +353,7 @@ class SoftwareReleaseSchemaTestFileSoftwareReleaseMixin(SoftwareReleaseSchemaTes
               "description": "Dummy software for Test",
               "serialisation": self.serialisation,
               "software-type": {
-                  DEFAULT_SOFTWARE_TYPE: {
+                  'default': {
                       "title": "Default",
                       "description": "Default type",
                       "request": "instance-default-input-schema.json",

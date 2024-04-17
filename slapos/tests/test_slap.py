@@ -1036,11 +1036,11 @@ class TestComputerPartition(SlapMixin):
             })
       raise ValueError(404)
 
-    for handler, warning_expected in (
-        (broken_reference, True),
-        (wrong_software_cfg_schema, False),
-        (wrong_instance_parameter_schema, True),
-        (invalid_instance_parameter_schema, True),
+    for handler in (
+      broken_reference,
+      wrong_software_cfg_schema,
+      wrong_instance_parameter_schema,
+      invalid_instance_parameter_schema,
     ):
       with httmock.HTTMock(handler):
         with mock.patch.object(warnings, 'warn') as warn:
@@ -1050,10 +1050,7 @@ class TestComputerPartition(SlapMixin):
           cp.request(
               'https://example.com/software.cfg', 'default', 'reference',
               partition_parameter_kw={'foo': 'bar'})
-        if warning_expected:
-          warn.assert_called()
-        else:
-          warn.assert_not_called()
+        warn.assert_called()
 
   def _test_new_computer_partition_state(self, state):
     """

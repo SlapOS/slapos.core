@@ -40,7 +40,6 @@ from slapos.util import (
   SoftwareReleaseSchema,
   SoftwareReleaseSerialisation,
   StrPrettyPrinter,
-  UndefinedSerializationError,
   xml2dict,
 )
 
@@ -94,11 +93,7 @@ def do_info(logger, conf, local):
     else:
         # this is slapproxy connection dict
         connection_parameter_dict = xml2dict(instance._connection_dict)
-    try:
-        software_serialisation = software_schema.getSerialisation()
-    except UndefinedSerializationError:
-        software_serialisation = SoftwareReleaseSerialisation.JsonInXml
-    if software_serialisation == SoftwareReleaseSerialisation.JsonInXml:
+    if software_schema.getSerialisation() == SoftwareReleaseSerialisation.JsonInXml:
         if '_' in connection_parameter_dict:
             connection_parameter_dict = json.loads(connection_parameter_dict['_'])
 

@@ -41,7 +41,7 @@ from slapos.client import (ClientConfig, _getSoftwareReleaseFromSoftwareString,
                            init)
 from slapos.slap import ResourceNotReady
 from slapos.util import (SoftwareReleaseSchema, SoftwareReleaseSerialisation,
-                         UndefinedSerializationError, StrPrettyPrinter)
+                         StrPrettyPrinter)
 
 try:
     from typing import IO, Dict
@@ -153,13 +153,13 @@ def do_request(logger, conf, local):
         conf.software_url = local[conf.software_url]
 
     software_schema = SoftwareReleaseSchema(conf.software_url, conf.type)
-    parameters = conf.parameters
     if conf.parameters_file:
-        if conf.force_serialisation:
-            parameters = getParametersFromFile(conf.parameters_file, SoftwareReleaseSerialisation(conf.force_serialisation))
-        else:
-            # getSerialisation will throw an exception if serialization cannot be found
-            parameters = getParametersFromFile(conf.parameters_file, software_schema.getSerialisation())
+        serialisation = conf.force_serialisation
+        parameters = getParametersFromFile(conf.parameters_file,
+            SoftwareReleaseSerialisation(serialisation) if serialisation else
+            software_schema.getSerialisation(strict=True))
+    else:
+        parameters = conf.parameters
     try:
         partition = local['slap'].registerOpenOrder().request(
             software_release=conf.software_url,
@@ -173,12 +173,11 @@ def do_request(logger, conf, local):
         logger.info('Instance requested.\nState is : %s.', partition.getState())
         logger.info('Connection parameters of instance are:')
         connection_parameter_dict = partition.getConnectionParameterDict()
-        try:
-            if software_schema.getSerialisation() == SoftwareReleaseSerialisation.JsonInXml:
-                if '_' in connection_parameter_dict:
-                    connection_parameter_dict = json.loads(connection_parameter_dict['_'])
-        except UndefinedSerializationError:
-            pass
+        if software_schema.getSerialisation() == SoftwareReleaseSerialisation.JsonInXml:
+            try:
+                connection_parameter_dict = json.loads(connection_parameter_dict['_'])
+            except KeyError:
+                pass
         logger.info(StrPrettyPrinter().pformat(connection_parameter_dict))
         logger.info('You can rerun the command to get up-to-date information.')
     except ResourceNotReady:

@@ -17,7 +17,7 @@ currency_value = portal.restrictedTraverse(price_currency)
 # create the subscription request, which will lead to the Open Order
 try:
   subscription_request = resource.Resource_createSubscriptionRequest(customer, [], project, currency_value=currency_value)
-except AssertionError, e:
+except AssertionError as e:
   if batch:
     raise
   return context.Base_redirect(

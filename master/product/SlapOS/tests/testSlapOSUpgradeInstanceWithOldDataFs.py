@@ -26,7 +26,7 @@
 #
 ##############################################################################
 
-from testSlapOSMixin import testSlapOSMixin
+from .testSlapOSMixin import testSlapOSMixin
 import unittest
 
 class TestUpgradeInstanceWithOldDataFs(testSlapOSMixin):

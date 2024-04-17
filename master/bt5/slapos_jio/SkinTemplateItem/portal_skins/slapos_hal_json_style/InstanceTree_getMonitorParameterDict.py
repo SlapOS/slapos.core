@@ -29,9 +29,9 @@ parameter_dict = instance.getConnectionXmlAsDict()
 
 url_string = parameter_dict.get('monitor-setup-url', '')
 if url_string:
-  if parameter_dict.has_key('monitor-user') and \
-      parameter_dict.has_key('monitor-password') and \
-      parameter_dict.has_key('monitor-base-url'):
+  if 'monitor-user' in parameter_dict and \
+      'monitor-password' in parameter_dict and \
+      'monitor-base-url' in parameter_dict:
     username = parameter_dict.get('monitor-user')
     password = parameter_dict.get('monitor-password')
     url = parameter_dict.get('monitor-base-url') + '/public/feeds'

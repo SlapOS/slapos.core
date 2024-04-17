@@ -58,7 +58,7 @@ if destination_decision_value is None:
 
 try:
   subscription_request = service.Resource_createSubscriptionRequest(destination_decision_value, resource_vcl, project_value, currency_value=currency_value, default_price=default_price)
-except AssertionError, error:
+except AssertionError as error:
   storeWorkflowComment(item, str(error))
   return
 subscription_request.setAggregateValue(item)

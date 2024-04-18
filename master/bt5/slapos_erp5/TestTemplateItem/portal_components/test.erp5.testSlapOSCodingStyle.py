@@ -49,18 +49,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
       slapos_cloud/PreferenceTemplateItem/portal_preferences/slapos_default_system_preference.xml
       slapos_cloud/PreferenceTemplateItem/portal_preferences/slapos_default_site_preference.xml
 
-      # Since the sections can be overwriten on project context, keep it on ignore list.
-      slapos_jio/PathTemplateItem/web_site_module/hostingjs/feed.xml
-      slapos_jio/PathTemplateItem/web_site_module/hostingjs/feed/critical.xml
-      slapos_jio/PathTemplateItem/web_site_module/hostingjs/feed/invoice.xml
-
-      # WebSite is updated after the installation to re-generate the translation data.
-      # This list should be reconsider later so we can keep information accurated.
-      slapos_jio/PathTemplateItem/web_site_module/hostingjs.xml
-      slapos_jio/PathTemplateItem/web_page_module/rjs_gadget_slapos_translation_data_js.js
-      slapos_jio/PathTemplateItem/web_page_module/rjs_gadget_slapos_translation_data_js.xml
-      slapos_jio/PathTemplateItem/web_site_module/renderjs_oss.xml
-
       # Modified by subprojects during tests
       slapos_crm/PathTemplateItem/sale_trade_condition_module/slapos_ticket_trade_condition.xml
       slapos_payzen/PathTemplateItem/portal_secure_payments/slapos_payzen_test.xml
@@ -205,52 +193,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_upgrader/ERP5Site_upgradeUpgraderBusinessTemplate',
         'slapos_rss_style/SubscriptionRequest_getRSSDescription',
         'slapos_rss_style/WebSection_getLegacyMessageList',
-        'slapos_hal_json_style/AccountingTransaction_getPaymentStateAsHateoas',
-        'slapos_hal_json_style/AcknowledgementTool_getUserUnreadAcknowledgementValueList',
-        'slapos_hal_json_style/Base_getComputerToken',
-        'slapos_hal_json_style/Base_getContextualHelpList',
-        'slapos_hal_json_style/Base_getCriticalFeedUrl',
-        'slapos_hal_json_style/Base_getFeedUrl',
-        'slapos_hal_json_style/Base_getInvitationLink',
-        'slapos_hal_json_style/Base_getNewsDictFromComputeNodeList',
-        'slapos_hal_json_style/Base_getOpenComputeNodeList',
-        'slapos_hal_json_style/Category_getCategoryChildTranslatedCompactTitleItemListAsJSON',
-        'slapos_hal_json_style/Document_getNewsDict',
-        'slapos_hal_json_style/ERP5Site_callbackFacebookLogin',
-        'slapos_hal_json_style/ERP5Site_receiveGoogleCallback',
-        'slapos_hal_json_style/Event_getAcknowledgementDict',
-        'slapos_hal_json_style/InstanceTree_getConnectionParameterList',
-        'slapos_hal_json_style/Item_getCurrentProjectTitle',
-        'slapos_hal_json_style/Item_getCurrentSiteTitle',
-        'slapos_hal_json_style/Login_edit',
-        'slapos_hal_json_style/Organisation_acceptInvitation',
-        'slapos_hal_json_style/Organisation_closeRelatedAssignment',
-        'slapos_hal_json_style/Organisation_getAssociatedPersonList',
-        'slapos_hal_json_style/Organisation_hasItem',
-        'slapos_hal_json_style/PasswordTool_changeUserPassword',
-        'slapos_hal_json_style/Person_getAssignmentDestinationList',
-        'slapos_hal_json_style/Person_getCloudContractRelated',
-        'slapos_hal_json_style/Person_requestComputeNode',
-        'slapos_hal_json_style/Person_requestHateoasInstanceTree',
-        'slapos_hal_json_style/Person_requestSupport',
-        'slapos_hal_json_style/Project_acceptInvitation',
-        'slapos_hal_json_style/Project_closeRelatedAssignment',
-        'slapos_hal_json_style/Project_hasItem',
-        'slapos_hal_json_style/Document_isRequesterOrOwner',
-        'slapos_hal_json_style/Project_getComputeNodeTrackingList',
-        'slapos_hal_json_style/SaleInvoiceTransaction_getRelatedInstanceTreeReportLineList',
-        'slapos_hal_json_style/SaleInvoiceTransaction_getRelatedPaymentTransactionIntegrationId',
-        'slapos_hal_json_style/SoftwareInstallation_getSoftwareReleaseInformation',
-        'slapos_hal_json_style/SoftwareInstance_getReportedState',
-        'slapos_hal_json_style/SoftwareRelease_requestInstanceTree',
-        'slapos_hal_json_style/SoftwareRelease_requestSoftwareInstallation',
-        'slapos_hal_json_style/SupportRequest_close',
-        'slapos_hal_json_style/Ticket_getResourceItemListAsJSON',
-        'slapos_hal_json_style/WebSection_getDocumentValue',
-        'slapos_hal_json_style/WebSection_getLoginWarningMessage',
-        'slapos_hal_json_style/Ticket_requestEvent',
-        'slapos_hal_json_style/ComputerNetwork_getComputeNodeList',
-        'slapos_hal_json_style/Base_getStatusMonitorUrl',
         'slapos_administration/ActivityTool_getDateForActivityMessage',
         'slapos_administration/ActivityTool_zGetDateForSQLDictMessage',
         'slapos_administration/ActivityTool_zGetDateForSQLQueueMessage',

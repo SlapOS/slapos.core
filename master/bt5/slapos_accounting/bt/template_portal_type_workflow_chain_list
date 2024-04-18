@@ -10,6 +10,7 @@ Hosting Subscription | slapos_accounting_interaction_workflow
 Instance Tree | slapos_accounting_interaction_workflow
 Open Sale Order | slapos_accounting_interaction_workflow
 Open Sale Order | slapos_simulation_interaction_workflow
+Payment Transaction | slapos_accounting_interaction_workflow
 Project | slapos_accounting_interaction_workflow
 Sale Invoice Transaction | slapos_accounting_interaction_workflow
 Sale Invoice Transaction | slapos_simulation_interaction_workflow

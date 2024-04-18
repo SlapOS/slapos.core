@@ -489,7 +489,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.tic()
     self.logout()
     self.login()
-    payment_transaction.PaymentTransaction_acceptDepositPayment()
+    # payzen interface will only stop the payment
+    payment_transaction.stop()
     self.tic()
 
     assert payment_transaction.receivable.getGroupingReference(None) is not None
@@ -561,7 +562,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       project = self.portal.restrictedTraverse(project_relative_url)
 
       payment_transaction = customer_section_organisation.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
-      payment_transaction.PaymentTransaction_acceptDepositPayment()
+      # payzen interface will only stop the payment
+      payment_transaction.stop()
       self.tic()
       self.portal.log('SubscriptionRequest_validateIfSubmitted %s' % payment_transaction.getSimulationState())
 
@@ -780,7 +782,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       project = self.portal.restrictedTraverse(project_relative_url)
 
       payment_transaction = owner_person.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
-      payment_transaction.PaymentTransaction_acceptDepositPayment()
+      # payzen interface will only stop the payment
+      payment_transaction.stop()
 
       preference = self.portal.portal_preferences.slapos_default_system_preference
       preference.edit(
@@ -869,7 +872,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         reference=public_reference).getParentValue()
 
       payment_transaction = public_person.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
-      payment_transaction.PaymentTransaction_acceptDepositPayment()
+      # payzen interface will only stop the payment
+      payment_transaction.stop()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()

@@ -32,6 +32,10 @@
   <workflow>slapos_accounting_interaction_workflow, slapos_simulation_interaction_workflow</workflow>
  </chain>
  <chain>
+  <type>Payment Transaction</type>
+  <workflow>slapos_accounting_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Project</type>
   <workflow>slapos_accounting_interaction_workflow</workflow>
  </chain>

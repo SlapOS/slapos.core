@@ -57,7 +57,8 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Add deposit
     with PinnedDateTime(self, creation_date):
       payment_transaction = owner_person.Person_addDepositPayment(99*100, currency.getRelativeUrl(), 1)
-      payment_transaction.PaymentTransaction_acceptDepositPayment()
+      # payzen interface will only stop the payment
+      payment_transaction.stop()
 
     ##################################################
     # Add first batch of service, and generate invoices

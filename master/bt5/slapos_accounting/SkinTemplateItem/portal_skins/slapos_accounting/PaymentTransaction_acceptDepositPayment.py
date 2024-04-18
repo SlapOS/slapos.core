@@ -1,9 +1,18 @@
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
+
 from DateTime import DateTime
 
 portal = context.getPortalObject()
 payment_transaction = context
 
-payment_transaction.stop()
+assert payment_transaction.getSimulationState() == 'stopped'
+trade_condition = payment_transaction.getSpecialiseValue()
+assert trade_condition is not None
+assert trade_condition.getTradeConditionType() == 'deposit'
+# Ensure the payment has no grouping reference
+assert not [x for x in trade_condition.contentValues(portal_type='Accounting Transaction Line') if x.getGroupingReference(None) is not None]
 
 start_date = DateTime()
 stop_date = None
@@ -14,7 +23,12 @@ quantity_unit_value = resource_value.getQuantityUnitValue()
 order_portal_type = 'Sale Packing List'
 order_line_portal_type = 'Sale Packing List Line'
 
-activate_kw = None
+existing_packing_list = portal.portal_catalog.getResultValue(
+  portal_type=order_portal_type,
+  causality__uid=payment_transaction.getUid()
+)
+if existing_packing_list is not None:
+  return
 
 #######################################################
 # Open Sale Order

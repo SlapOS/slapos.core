@@ -35,7 +35,8 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     with PinnedDateTime(self, DateTime('2021/04/04')):
       payment_transaction = owner_person.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
-      payment_transaction.PaymentTransaction_acceptDepositPayment()
+      # payzen interface will only stop the payment
+      payment_transaction.stop()
       self.tic()
 
     self.assertTrue(owner_person.Entity_hasOutstandingAmount(include_planned=True))
@@ -209,7 +210,8 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     with PinnedDateTime(self, creation_date + 2):
       for person in person_list:
         payment_transaction = person.Person_addDepositPayment(99*100, currency.getRelativeUrl(), 1)
-        payment_transaction.PaymentTransaction_acceptDepositPayment()
+        # payzen interface will only stop the payment
+        payment_transaction.stop()
 
     ##################################################
     # Add first batch of service, and generate invoices
@@ -310,7 +312,8 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Add deposit (0.1 to prevent discount generation)
     with PinnedDateTime(self, creation_date + 0.1):
       payment_transaction = owner_person.Person_addDepositPayment(99*100, currency.getRelativeUrl(), 1)
-      payment_transaction.PaymentTransaction_acceptDepositPayment()
+      # payzen interface will only stop the payment
+      payment_transaction.stop()
 
       self.logout()
       self.login()

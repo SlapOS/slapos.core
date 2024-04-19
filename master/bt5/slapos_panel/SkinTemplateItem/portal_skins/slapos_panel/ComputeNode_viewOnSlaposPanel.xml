@@ -113,7 +113,6 @@
                     <key> <string>right</string> </key>
                     <value>
                       <list>
-                        <string>my_source_title</string>
                         <string>my_follow_up_title</string>
                         <string>my_monitor_scope</string>
                         <string>my_allocation_scope</string>

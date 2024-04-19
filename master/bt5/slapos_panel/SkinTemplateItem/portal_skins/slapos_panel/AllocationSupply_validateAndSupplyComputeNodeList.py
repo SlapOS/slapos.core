@@ -8,7 +8,7 @@ for allocation_supply_line in allocation_supply.contentValues(portal_type="Alloc
   for allocation_supply_cell in allocation_supply_line.contentValues(portal_type="Allocation Supply Cell"):
     if allocation_supply_cell.isAllocable():
       release_variation = allocation_supply_cell.getSoftwareReleaseValue()
-      if release_variation is not None:
+      if release_variation is not None and release_variation.getUrlString() not in url_string_list:
         url_string_list.append(release_variation.getUrlString())
 
 for compute_node in allocation_supply.getAggregateValueList(portal_type="Compute Node"):

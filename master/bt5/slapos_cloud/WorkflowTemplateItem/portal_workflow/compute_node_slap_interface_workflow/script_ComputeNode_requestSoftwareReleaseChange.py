@@ -26,17 +26,33 @@ software_installation_list = portal.portal_catalog(
   url_string={'query': software_release_url, 'key': 'ExactMatch'},
   validation_state="validated",
   default_aggregate_uid=compute_node.getUid(),
-  limit=2,
+  # takes only a portion, usually it will be 1 or 0
+  limit=10,
   )
 
-if len(software_installation_list) > 1:
-  raise NotImplementedError("Too many Software Installation %s found %s" % (software_release_url, [x.path for x in software_installation_list]))
-elif len(software_installation_list) == 1:
-  software_installation = software_installation_list[0].getObject()
+def test_software_installation(software_installation):
   if (software_installation.getUrlString() != software_release_url) or \
      (software_installation.getValidationState() != "validated") or \
      (software_installation.getAggregate() != compute_node.getRelativeUrl()):
     raise NotImplementedError("The system was not able to get the expected Software Installation")
+  return software_installation
+
+if len(software_installation_list) > 1:
+  software_installation = test_software_installation(
+    software_installation_list[0].getObject())
+  for software_installation_found in list(software_installation_list)[1:]:
+    test_software_installation(software_installation_found.getObject())
+    if software_installation_found.getSlapState() == software_installation.getSlapState():
+      software_installation_found.requestDestroy(activate_kw={'tag': tag})
+      software_installation_found.invalidate()
+    else:
+      raise NotImplementedError(
+        "Too many Software Installation %s found %s (clean up not possible)" % (
+          software_release_url, [x.path for x in software_installation_list]))
+
+elif len(software_installation_list) == 1:
+  software_installation = test_software_installation(
+    software_installation_list[0].getObject())
 else:
   if (state == "destroyed"):
     # No need to create destroyed subscription.

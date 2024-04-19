@@ -179,6 +179,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
   def supplySoftware(self, server, url, state='available'):
     self.portal.portal_slap.supplySupply(url, server.getReference(), state)
     self.tic()
+    self.cleanUpRequest()
 
     software_installation = self.portal.portal_catalog.getResultValue(
         portal_type='Software Installation',

@@ -20,7 +20,6 @@
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 import transaction
-from unittest import expectedFailure
 from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
 
 
@@ -212,6 +211,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.compute_node.requestSoftwareRelease(software_release_url=url,
         state='available')
     self.tic()
+    self.cleanUpRequest()
     self.login()
     software_installation = self.compute_node.getAggregateRelatedValue(
         portal_type='Software Installation')
@@ -245,7 +245,6 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
         state='available')
     transaction.abort()
 
-  @expectedFailure
   def test_requestSoftwareRelease_same_transaction(self):
     self.person_user = self.makePerson(self.project)
     self.addProjectProductionManagerAssignment(self.person_user, self.project)
@@ -641,6 +640,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getReference())
 
     self.tic()
+    self.cleanUpRequest()
     self.compute_node.requestSoftwareRelease(state="available",
         software_release_url=software_release)
 
@@ -673,6 +673,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getReference())
 
     self.tic()
+    self.cleanUpRequest()
     self.compute_node.requestSoftwareRelease(state="destroyed",
         software_release_url=software_release)
 
@@ -714,6 +715,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getReference())
 
     self.tic()
+    self.cleanUpRequest()
     self.compute_node.requestSoftwareRelease(state="destroyed",
         software_release_url=software_release)
 
@@ -761,6 +763,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getReference())
 
     self.tic()
+    self.cleanUpRequest()
     self.compute_node.requestSoftwareRelease(state="destroyed",
         software_release_url=software_release)
 

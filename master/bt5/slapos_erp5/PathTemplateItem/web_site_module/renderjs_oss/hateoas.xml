@@ -102,7 +102,7 @@
                     <key>
                       <tuple>
                         <int>99</int>
-                        <string>ERP5 Web Section/unsafe</string>
+                        <string>ERP5 Web Section/hateoas</string>
                       </tuple>
                     </key>
                     <value>
@@ -113,9 +113,21 @@
             </value>
         </item>
         <item>
-            <key> <string>_identity_criterion</string> </key>
+            <key> <string>__translation_dict</string> </key>
+            <value>
+              <dictionary/>
+            </value>
+        </item>
+        <item>
+            <key> <string>_count</string> </key>
             <value>
               <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
+            </value>
+        </item>
+        <item>
+            <key> <string>_identity_criterion</string> </key>
+            <value>
+              <persistent> <string encoding="base64">AAAAAAAAAAQ=</string> </persistent>
             </value>
         </item>
         <item>
@@ -125,7 +137,7 @@
                 <dictionary>
                   <item>
                       <key> <string>id</string> </key>
-                      <value> <string>configuration_content_security_policy</string> </value>
+                      <value> <string>default_view_action_reference</string> </value>
                   </item>
                   <item>
                       <key> <string>type</string> </key>
@@ -135,7 +147,27 @@
                 <dictionary>
                   <item>
                       <key> <string>id</string> </key>
-                      <value> <string>configuration_x_frame_options</string> </value>
+                      <value> <string>view_action_category</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>string</string> </value>
+                  </item>
+                </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>configuration_login</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>string</string> </value>
+                  </item>
+                </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>configuration_logout</string> </value>
                   </item>
                   <item>
                       <key> <string>type</string> </key>
@@ -146,18 +178,54 @@
             </value>
         </item>
         <item>
-            <key> <string>_range_criterion</string> </key>
+            <key> <string>_mt_index</string> </key>
             <value>
-              <persistent> <string encoding="base64">AAAAAAAAAAQ=</string> </persistent>
+              <persistent> <string encoding="base64">AAAAAAAAAAU=</string> </persistent>
             </value>
         </item>
         <item>
-            <key> <string>configuration_content_security_policy</string> </key>
-            <value> <string>default-src \'self\' data: blob: ;  script-src \'self\' \'unsafe-eval\'; style-src \'self\' \'unsafe-inline\'</string> </value>
+            <key> <string>_range_criterion</string> </key>
+            <value>
+              <persistent> <string encoding="base64">AAAAAAAAAAY=</string> </persistent>
+            </value>
         </item>
         <item>
-            <key> <string>configuration_x_frame_options</string> </key>
-            <value> <string>SAMEORIGIN</string> </value>
+            <key> <string>_tree</string> </key>
+            <value>
+              <persistent> <string encoding="base64">AAAAAAAAAAc=</string> </persistent>
+            </value>
+        </item>
+        <item>
+            <key> <string>categories</string> </key>
+            <value>
+              <tuple>
+                <string>caching_policy/hateoas</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>configuration_login</string> </key>
+            <value> <string>connection/login_form{?came_from}</string> </value>
+        </item>
+        <item>
+            <key> <string>configuration_logout</string> </key>
+            <value> <string>connection/WebSite_logout{?came_from}</string> </value>
+        </item>
+        <item>
+            <key> <string>container_layout</string> </key>
+            <value> <string>ERP5Document_getHateoas</string> </value>
+        </item>
+        <item>
+            <key> <string>content_layout</string> </key>
+            <value> <string>ERP5Document_getHateoas</string> </value>
+        </item>
+        <item>
+            <key> <string>custom_render_method_id</string> </key>
+            <value> <string>ERP5Document_getHateoas</string> </value>
+        </item>
+        <item>
+            <key> <string>default_view_action_reference</string> </key>
+            <value> <string>view</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -167,23 +235,15 @@
         </item>
         <item>
             <key> <string>empty_criterion_valid</string> </key>
-            <value> <int>1</int> </value>
+            <value> <int>0</int> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>unsafe</string> </value>
+            <value> <string>hateoas</string> </value>
         </item>
         <item>
-            <key> <string>int_index</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
-            <key> <string>membership_criterion_category</string> </key>
-            <value>
-              <tuple/>
-            </value>
+            <key> <string>layout_configuration_form_id</string> </key>
+            <value> <string>WebSection_viewHateoasPreference</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -196,29 +256,25 @@
             </value>
         </item>
         <item>
-            <key> <string>string_index</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
-            <key> <string>test_method_id</string> </key>
-            <value>
-              <tuple/>
-            </value>
+            <key> <string>skin_selection_name</string> </key>
+            <value> <string>HalRestricted</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Unsafe</string> </value>
+            <value> <string>Restricted Hateoas</string> </value>
+        </item>
+        <item>
+            <key> <string>view_action_category</string> </key>
+            <value> <string>object_view</string> </value>
         </item>
         <item>
             <key> <string>visible</string> </key>
-            <value> <int>0</int> </value>
+            <value> <int>1</int> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
             <value>
-              <persistent> <string encoding="base64">AAAAAAAAAAU=</string> </persistent>
+              <persistent> <string encoding="base64">AAAAAAAAAAg=</string> </persistent>
             </value>
         </item>
       </dictionary>
@@ -234,18 +290,9 @@
   </record>
   <record id="3" aka="AAAAAAAAAAM=">
     <pickle>
-      <global name="PersistentMapping" module="Persistence.mapping"/>
+      <global name="Length" module="BTrees.Length"/>
     </pickle>
-    <pickle>
-      <dictionary>
-        <item>
-            <key> <string>data</string> </key>
-            <value>
-              <dictionary/>
-            </value>
-        </item>
-      </dictionary>
-    </pickle>
+    <pickle> <int>0</int> </pickle>
   </record>
   <record id="4" aka="AAAAAAAAAAQ=">
     <pickle>
@@ -264,6 +311,37 @@
   </record>
   <record id="5" aka="AAAAAAAAAAU=">
     <pickle>
+      <global name="OOBTree" module="BTrees.OOBTree"/>
+    </pickle>
+    <pickle>
+      <none/>
+    </pickle>
+  </record>
+  <record id="6" aka="AAAAAAAAAAY=">
+    <pickle>
+      <global name="PersistentMapping" module="Persistence.mapping"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>data</string> </key>
+            <value>
+              <dictionary/>
+            </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="7" aka="AAAAAAAAAAc=">
+    <pickle>
+      <global name="OOBTree" module="BTrees.OOBTree"/>
+    </pickle>
+    <pickle>
+      <none/>
+    </pickle>
+  </record>
+  <record id="8" aka="AAAAAAAAAAg=">
+    <pickle>
       <global name="PersistentMapping" module="Persistence.mapping"/>
     </pickle>
     <pickle>
@@ -275,13 +353,13 @@
                 <item>
                     <key> <string>category_publication_workflow</string> </key>
                     <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAY=</string> </persistent>
+                      <persistent> <string encoding="base64">AAAAAAAAAAk=</string> </persistent>
                     </value>
                 </item>
                 <item>
                     <key> <string>edit_workflow</string> </key>
                     <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAc=</string> </persistent>
+                      <persistent> <string encoding="base64">AAAAAAAAAAo=</string> </persistent>
                     </value>
                 </item>
               </dictionary>
@@ -290,7 +368,7 @@
       </dictionary>
     </pickle>
   </record>
-  <record id="6" aka="AAAAAAAAAAY=">
+  <record id="9" aka="AAAAAAAAAAk=">
     <pickle>
       <global name="WorkflowHistoryList" module="Products.ERP5Type.Workflow"/>
     </pickle>
@@ -309,7 +387,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -333,7 +411,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1671151442.01</float>
+                              <float>1713802767.67</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -351,7 +429,7 @@
       </dictionary>
     </pickle>
   </record>
-  <record id="7" aka="AAAAAAAAAAc=">
+  <record id="10" aka="AAAAAAAAAAo=">
     <pickle>
       <global name="WorkflowHistoryList" module="Products.ERP5Type.Workflow"/>
     </pickle>
@@ -368,7 +446,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -382,7 +460,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1005.1964.2264.20343</string> </value>
+                      <value> <string>1016.4883.30291.51916</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -402,7 +480,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1671151941.39</float>
+                              <float>1713803000.43</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

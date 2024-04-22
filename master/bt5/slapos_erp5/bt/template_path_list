@@ -8,3 +8,8 @@ portal_alarms/slapos_erp5_cleanup_business_template
 portal_alarms/slapos_renew_software_instance_certificate
 portal_caches/erp5_session_cache/distributed_ram_cache
 portal_categories/local_role_group/**
+web_page_module/rjs_gadget_erp5_page_slapos_access_html
+web_page_module/rjs_gadget_erp5_page_slapos_access_js
+web_page_module/slapos_admin_front_page
+web_site_module/renderjs_oss
+web_site_module/renderjs_oss/**

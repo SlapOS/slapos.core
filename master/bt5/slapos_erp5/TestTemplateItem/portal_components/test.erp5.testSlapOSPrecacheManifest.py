@@ -50,11 +50,6 @@ class TestSlapOSPanelPrecacheManifestList(SlapOSTestCaseMixinWithAbort):
 
     self.assertEqual(failure_list, [])
 
-
-class TestSlapOSRenderJSRunnerAccessPagePrecacheManifestList(
-    TestSlapOSPanelPrecacheManifestList):
-  manifest_script_id = 'WebSection_getRenderJSRunnerAccessPagePrecacheManifestList'
-
 class TestSlapOSMonacoEditorPrecacheManifestList(
     TestSlapOSPanelPrecacheManifestList):
   manifest_script_id = 'WebSection_getMonacoEditorPrecacheManifestList'

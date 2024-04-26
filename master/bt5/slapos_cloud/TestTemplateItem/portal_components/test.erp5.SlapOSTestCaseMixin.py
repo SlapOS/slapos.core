@@ -142,9 +142,8 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
   _custom_additional_bt5_list = []
 
   # Used by testSlapOSERP5GroupRoleSecurity.TestSlapOSGroupRoleSecurityCoverage for
-  # searh classes for assert overage
+  # search classes for assert overage
   security_group_role_test_id_list = ['test.erp5.testSlapOSERP5GroupRoleSecurity']
-
 
   def afterSetUp(self):
     testSlapOSMixin.afterSetUp(self)
@@ -155,6 +154,14 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
   def beforeDumpExpectedConfiguration(self):
     """Overwrite this function on project context to tweak production focus tests"""
     pass
+
+  def cleanUpRequest(self):
+    """ set None some values that can cause problems in tests
+    """
+    for key in self.portal.REQUEST.keys():
+      if key.endswith("_inProgress"):
+        # Reset values set on script_ComputeNode_requestSoftwareReleaseChange
+        self.portal.REQUEST.set(key, None)
 
   def addAccountingManagerAssignment(self, person):
     person.newContent(
@@ -290,7 +297,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       project_reference=project.getReference()
     )
  
-     # As the software url does not match any service, and any trade condition
+    # As the software url does not match any service, and any trade condition
     # no instance is automatically created.
     # except if we fake Item_getSubscriptionStatus
     with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
@@ -351,7 +358,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     )
     self.portal.portal_workflow._jumpToStateFor(self.software_instance, 'start_requested')
     self.software_instance.validate()
-
 
     self.requested_software_instance.edit(
         title=self.generateNewSoftwareTitle(),

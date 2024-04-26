@@ -62,15 +62,13 @@
             </value>
         </item>
         <item>
-            <key> <string>categories</string> </key>
+            <key> <string>content_md5</string> </key>
             <value>
-              <tuple>
-                <string>contributor/person_module/20200810-1332EB8</string>
-              </tuple>
+              <none/>
             </value>
         </item>
         <item>
-            <key> <string>content_md5</string> </key>
+            <key> <string>content_type</string> </key>
             <value>
               <none/>
             </value>
@@ -171,7 +169,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>superrafael</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -195,7 +193,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1654601892.37</float>
+                              <float>1713803864.52</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -230,7 +228,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -244,7 +242,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1001.26171.19762.42854</string> </value>
+                      <value> <string>1016.4897.32764.51763</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -264,7 +262,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1666384953.91</float>
+                              <float>1713803853.22</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -295,7 +293,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>superrafael</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -327,7 +325,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1654601044.85</float>
+                              <float>1713803379.19</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

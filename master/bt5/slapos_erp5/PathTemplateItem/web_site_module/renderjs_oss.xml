@@ -330,7 +330,7 @@
                   </item>
                   <item>
                       <key> <string>type</string> </key>
-                      <value> <string>string</string> </value>
+                      <value> <string>text</string> </value>
                   </item>
                 </dictionary>
               </tuple>
@@ -403,7 +403,7 @@
         </item>
         <item>
             <key> <string>configuration_icon_url</string> </key>
-            <value> <string>favicon.ico</string> </value>
+            <value> <string>slapos.cloud</string> </value>
         </item>
         <item>
             <key> <string>configuration_jio_gadget_url</string> </key>
@@ -421,7 +421,8 @@
         </item>
         <item>
             <key> <string>configuration_precache_manifest_script_list</string> </key>
-            <value> <string>WebSection_getMonacoEditorPrecacheManifestList\n
+            <value> <string>WebSection_getJsonEditorPrecacheManifestList\n
+WebSection_getMonacoEditorPrecacheManifestList\n
 WebSection_getRenderJSRunnerAccessPagePrecacheManifestList</string> </value>
         </item>
         <item>
@@ -444,9 +445,7 @@ WebSection_getRenderJSRunnerAccessPagePrecacheManifestList</string> </value>
         </item>
         <item>
             <key> <string>configuration_wallpaper_url</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>slapos.cloud</string> </value>
         </item>
         <item>
             <key> <string>configuration_x_frame_options</string> </key>
@@ -466,7 +465,7 @@ WebSection_getRenderJSRunnerAccessPagePrecacheManifestList</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>RenderJS Runner for OSS</string> </value>
+            <value> <string>Custom variation of web_site_module/renderjs_runner to custom frontage and eventually other actions, like pre-cache.</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
@@ -520,7 +519,7 @@ WebSection_getRenderJSRunnerAccessPagePrecacheManifestList</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>RenderJS Runner for OSS</string> </value>
+            <value> <string>RenderJS OSS</string> </value>
         </item>
         <item>
             <key> <string>visible</string> </key>
@@ -640,7 +639,7 @@ WebSection_getRenderJSRunnerAccessPagePrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -664,7 +663,7 @@ WebSection_getRenderJSRunnerAccessPagePrecacheManifestList</string> </value>
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1671565044.09</float>
+                              <float>1713803024.18</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -699,7 +698,7 @@ WebSection_getRenderJSRunnerAccessPagePrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -713,7 +712,7 @@ WebSection_getRenderJSRunnerAccessPagePrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1005.26963.15185.57002</string> </value>
+                      <value> <string>1016.4887.48286.21879</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -733,7 +732,7 @@ WebSection_getRenderJSRunnerAccessPagePrecacheManifestList</string> </value>
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1688452750.49</float>
+                              <float>1713804444.49</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

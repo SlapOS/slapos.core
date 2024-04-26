@@ -62,14 +62,6 @@
             </value>
         </item>
         <item>
-            <key> <string>categories</string> </key>
-            <value>
-              <tuple>
-                <string>group/vifib</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
             <key> <string>content_md5</string> </key>
             <value>
               <none/>
@@ -85,7 +77,9 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Front page of Administrator UI</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>id</string> </key>
@@ -107,7 +101,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Welcome to SlapOS | Decentralized Cloud Computing</string> </value>
+            <value> <string>SlapOS Administrator Home Page</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -173,7 +167,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -197,7 +191,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1666385748.74</float>
+                              <float>1713804184.85</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -232,7 +226,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -246,7 +240,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1004.6436.36702.26948</string> </value>
+                      <value> <string>1016.4906.7107.20053</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -266,7 +260,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1667961214.41</float>
+                              <float>1713804177.22</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -293,13 +287,11 @@
                 <dictionary>
                   <item>
                       <key> <string>action</string> </key>
-                      <value>
-                        <none/>
-                      </value>
+                      <value> <string>detect_converted_file</string> </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -311,7 +303,7 @@
                   </item>
                   <item>
                       <key> <string>external_processing_state</string> </key>
-                      <value> <string>empty</string> </value>
+                      <value> <string>converted</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
@@ -331,7 +323,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1666385674.21</float>
+                              <float>1713804090.7</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

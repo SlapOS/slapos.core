@@ -278,7 +278,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -302,7 +302,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1671151441.98</float>
+                              <float>1713802767.69</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -337,7 +337,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -371,7 +371,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1671151441.99</float>
+                              <float>1713802767.69</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -405,7 +405,7 @@
               <dictionary>
                 <item>
                     <key> <string>source_item</string> </key>
-                    <value> <string>/erp5/web_site_module/renderjs_runner</string> </value>
+                    <value> <unicode>/erp5/web_site_module/renderjs_runner</unicode> </value>
                 </item>
               </dictionary>
             </value>

@@ -17,14 +17,7 @@ if slapos_master_api is None:
 
 # This url is only used to call 1 (one) python script.
 # it could be whatever url able to reach erp5
-slapos_master_web_url = portal.portal_preferences.getPreferredHateoasUrl(web_site.absolute_url())
-if slapos_master_web_url is None:
-  return context.Base_redirect(
-    keep_items={
-      'portal_status_message': 'slapos_master_web_url is not configured',
-      'portal_status_level': 'error'
-    }
-  )
+slapos_master_web_url = web_site.absolute_url()
 
 # XXX this url is HARDCODED on the client side
 # and so, can not be modified
@@ -52,7 +45,7 @@ access_token.validate()
 
 compute_node_install_command_line = web_site.getLayoutProperty(
   "configuration_compute_node_install_command_line",
-  "wget https://deploy.erp5.net/slapos ; bash slapos")
+  "wget https://deploy.rapid.space/slapos ; bash slapos")
 
 return context.Base_renderForm(
   'Base_viewSlapOSComputeNodeTokenDialog',

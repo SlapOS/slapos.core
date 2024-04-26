@@ -431,7 +431,7 @@
                         </tuple>
                         <tuple>
                           <string>error_reported</string>
-                          <string>error_reported</string>
+                          <string>Reported Message</string>
                         </tuple>
                       </list>
                     </value>

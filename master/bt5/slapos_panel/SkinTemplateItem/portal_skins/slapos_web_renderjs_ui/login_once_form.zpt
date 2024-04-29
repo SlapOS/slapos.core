@@ -11,7 +11,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title tal:content="portal/getTitle"></title>
     <link rel="stylesheet" href="gadget_erp5_nojqm.css">
-    <link rel="stylesheet" href="gadget_slapos_login_page.css">
   </head>
 
   <body>

@@ -934,7 +934,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     )
     if disable_alarm:
       # disable generation of Upgrade Decision
-      with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'"):
+      with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
         allocation_supply.validate()
     else:
       allocation_supply.validate()

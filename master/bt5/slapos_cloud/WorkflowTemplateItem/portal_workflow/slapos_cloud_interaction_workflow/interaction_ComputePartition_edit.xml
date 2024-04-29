@@ -10,7 +10,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>after_script/portal_workflow/slapos_cloud_interaction_workflow/script_Instance_triggerAllocationAlarm</string>
+                <string>after_script/portal_workflow/slapos_cloud_interaction_workflow/script_Base_triggerAllocationAlarm</string>
               </tuple>
             </value>
         </item>
@@ -22,7 +22,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>interaction_Instance_validate</string> </value>
+            <value> <string>interaction_ComputePartition_edit</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -32,8 +32,7 @@
             <key> <string>portal_type_filter</string> </key>
             <value>
               <tuple>
-                <string>Slave Instance</string>
-                <string>Software Instance</string>
+                <string>Compute Partition</string>
               </tuple>
             </value>
         </item>
@@ -51,13 +50,15 @@
             <key> <string>trigger_method_id</string> </key>
             <value>
               <tuple>
-                <string>validate</string>
+                <string>_setSubject.*</string>
+                <string>markFree</string>
+                <string>markBusy</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>trigger_once_per_transaction</string> </key>
-            <value> <int>1</int> </value>
+            <value> <int>0</int> </value>
         </item>
         <item>
             <key> <string>trigger_type</string> </key>

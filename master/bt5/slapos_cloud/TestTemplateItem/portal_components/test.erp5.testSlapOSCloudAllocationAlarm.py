@@ -8,36 +8,38 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
 
   def makeAllocableComputeNode(self, project, software_product,
                                release_variation, type_variation):
-    compute_node, partition = self._makeComputeNode(project)
-    self.addAllocationSupply("for compute node", compute_node, software_product,
-                             release_variation, type_variation)
-    self._installSoftware(
-      compute_node,
-      release_variation.getUrlString()
-    )
-    open_order = self.portal.open_sale_order_module.newContent(
-      portal_type="Open Sale Order",
-    )
-    open_order.newContent(
-      aggregate_value=compute_node
-    )
-    self.portal.portal_workflow._jumpToStateFor(open_order, 'validated')
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
+      compute_node, partition = self._makeComputeNode(project)
+      self.addAllocationSupply("for compute node", compute_node, software_product,
+                               release_variation, type_variation)
+      self._installSoftware(
+        compute_node,
+        release_variation.getUrlString()
+      )
+      open_order = self.portal.open_sale_order_module.newContent(
+        portal_type="Open Sale Order",
+      )
+      open_order.newContent(
+        aggregate_value=compute_node
+      )
+      self.portal.portal_workflow._jumpToStateFor(open_order, 'validated')
+      self.tic()
     return compute_node, partition
 
   def makeAllocableSoftwareInstanceAndProduct(self, allocation_state='possible',
                                               shared=False, node="compute"):
-    software_product, release_variation, type_variation, compute_node, partition, instance_tree = \
-      self.bootstrapAllocableInstanceTree(allocation_state=allocation_state, shared=shared, node=node)
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
+      software_product, release_variation, type_variation, compute_node, partition, instance_tree = \
+        self.bootstrapAllocableInstanceTree(allocation_state=allocation_state, shared=shared, node=node)
 
-    self.addAllocationSupply("for compute node", compute_node, software_product,
-                             release_variation, type_variation)
-    real_compute_node = partition.getParentValue()
-    self._installSoftware(
-      real_compute_node,
-      release_variation.getUrlString()
-    )
-    self.tic()
+      self.addAllocationSupply("for compute node", compute_node, software_product,
+                               release_variation, type_variation)
+      real_compute_node = partition.getParentValue()
+      self._installSoftware(
+        real_compute_node,
+        release_variation.getUrlString()
+      )
+      self.tic()
 
     self.assertEqual(real_compute_node.getAllocationScope(), "open")
     self.assertEqual(real_compute_node.getCapacityScope(), "open")
@@ -287,7 +289,8 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     compute_node.edit(
       subordination_value=computer_network
     )
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
+      self.tic()
 
     self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
@@ -359,7 +362,8 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     )
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'start_requested')
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'validated')
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
+      self.tic()
 
     self.assertEqual(None,
       software_instance.getAggregateValue(portal_type='Compute Partition'))
@@ -421,7 +425,8 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     compute_node2.edit(subordination_value=computer_network1)
     compute_node3.edit(subordination_value=computer_network2)
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
+      self.tic()
 
     self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
@@ -560,7 +565,8 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     compute_node1.edit(subordination_value=computer_network)
     compute_node2.edit(subordination_value=computer_network)
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
+      self.tic()
 
     self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
@@ -581,8 +587,8 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     )
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'start_requested')
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'validated')
-    self.tic()
-
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
+      self.tic()
 
     self.assertEqual(None,
       software_instance.getAggregateValue(portal_type='Compute Partition'))
@@ -635,7 +641,8 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(compute_node.getAllocationScope(), "open")
     self.assertEqual(compute_node.getCapacityScope(), "open")
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
+      self.tic()
 
     self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
@@ -718,7 +725,8 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(compute_node.getAllocationScope(), "open")
     self.assertEqual(compute_node.getCapacityScope(), "open")
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
+      self.tic()
 
     self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))

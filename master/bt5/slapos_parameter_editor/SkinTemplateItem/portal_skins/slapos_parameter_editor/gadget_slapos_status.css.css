@@ -72,30 +72,8 @@
 .ui-btn-no-data a,
 .ui-btn-no-data:active a,
 .ui-btn-no-data:hover a {
-  color: grey !important;
-  background: grey !important;
-  text-align: center;
-}
-
-.ui-btn-color-white,
-.ui-btn-color-white:active,
-.ui-btn-color-white:hover,
-.ui-btn-color-white a,
-.ui-btn-color-white:active a,
-.ui-btn-color-white:hover a  {
   color: white !important;
   background: grey !important;
-  text-align: center;
-}
-
-
-.ui-btn-white,
-.ui-btn-white:active,
-.ui-btn-white:hover,
-.ui-btn-white a,
-.ui-btn-white:active a,
-.ui-btn-white:hover a {
-  background: white !important;
   text-align: center;
 }
 

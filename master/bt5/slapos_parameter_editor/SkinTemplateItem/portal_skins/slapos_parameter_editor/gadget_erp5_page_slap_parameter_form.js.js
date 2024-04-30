@@ -462,7 +462,7 @@
         show_form_button.classList.add("ui-icon-th-list");
         return changed;
       })
-      .fail(function (error) {
+      .push(undefined, function (error) {
         console.warn(error);
         console.log(error.stack);
         show_form_button.classList.remove("ui-icon-spinner");

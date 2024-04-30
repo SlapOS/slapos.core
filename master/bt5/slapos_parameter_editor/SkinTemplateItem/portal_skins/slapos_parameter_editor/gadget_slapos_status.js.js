@@ -48,6 +48,10 @@
       return 'ui-btn-no-data';
     }
 
+    if (!options.instance.length) {
+      return 'ui-btn-is-empty';
+    }
+
     for (instance in options.instance) {
       if (options.instance.hasOwnProperty(instance)) {
         if (options.instance[instance].text.startsWith("#error")) {
@@ -129,10 +133,10 @@
 
   function getStatus(gadget, result) {
     var status_class = 'ui-btn-no-data',
-      main_status_div = gadget.element.querySelector(".main-status"),
+      status_div = gadget.element.querySelector(".main-status"),
       monitor_url = '',
-      main_link_configuration_dict = {
-        "class": "ui-btn ui-btn-icon-left ui-icon-desktop"
+      configuration_dict = {
+        "class": "ui-btn ui-btn-icon-left"
       };
 
     if (result && result.monitor_url) {
@@ -140,78 +144,74 @@
     }
 
     if (result && result.portal_type && result.portal_type === "Compute Node") {
-      main_link_configuration_dict.text = 'Node';
-      main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
+      configuration_dict.text = 'Node';
       status_class = getComputeNodeStatus(result);
     } else if (result && result.portal_type &&
                result.portal_type === "Software Installation") {
       status_class = getSoftwareInstallationStatus(result);
-      main_link_configuration_dict.text = "Installation";
+      configuration_dict.text = "Installation";
       if (status_class === "ui-btn-is-building") {
-        main_link_configuration_dict.text = "Building";
+        configuration_dict.text = "Building";
         status_class = "ui-btn-no-data";
       } else if (status_class === "ui-btn-ok") {
-        main_link_configuration_dict.text = "Available";
+        configuration_dict.text = "Available";
       } else if (status_class === "ui-btn-error") {
-        main_link_configuration_dict.text = "Error";
+        configuration_dict.text = "Error";
       }
-      main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
     } else if (result && result.portal_type && (
         result.portal_type === "Software Instance" ||
         result.portal_type === "Slave Instance"
       )) {
+      configuration_dict.text = 'Instance';
       status_class = getInstanceStatus(result);
       if (status_class === 'ui-btn-is-slave') {
-        status_class = 'ui-btn-color-white';
-        main_link_configuration_dict.text = 'Slave';
-        main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
+        status_class = 'ui-btn-no-data';
+        configuration_dict.text = 'Slave';
       } else if (status_class === 'ui-btn-is-stopped') {
-        status_class = 'ui-btn-color-white';
-        main_link_configuration_dict.text = 'Stopped';
-        main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
+        status_class = 'ui-btn-no-data';
+        configuration_dict.text = 'Stopped';
       } else if (status_class === 'ui-btn-is-destroyed') {
-        status_class = 'ui-btn-color-white';
-        main_link_configuration_dict.text = 'Destroyed';
-        main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
+        status_class = 'ui-btn-no-data';
+        configuration_dict.text = 'Destroyed';
       } else {
-        main_link_configuration_dict.href = monitor_url;
-        main_link_configuration_dict.target = "_target";
-        main_link_configuration_dict.text = 'Instance';
+        configuration_dict.href = monitor_url;
+        configuration_dict.target = "_target";
+        configuration_dict["class"] += "ui-icon-desktop";
       }
     } else if (result && result.portal_type &&
               result.portal_type === "Instance Tree") {
+      configuration_dict.text = 'Instance';
       status_class = getInstanceTreeStatus(result);
       // it should verify if the monitor-base-url is ready.
       if (status_class === 'ui-btn-is-slave') {
-        status_class = 'ui-btn-color-white';
-        main_link_configuration_dict.text = 'Slave Only';
-        main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
+        status_class = 'ui-btn-no-data';
+        configuration_dict.text = 'Slave Only';
       } else if (status_class === 'ui-btn-is-stopped') {
-        status_class = 'ui-btn-color-white';
-        main_link_configuration_dict.text = 'Stopped';
-        main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
+        status_class = 'ui-btn-no-data';
+        configuration_dict.text = 'Stopped';
+      } else if (status_class === 'ui-btn-is-empty') {
+        status_class = 'ui-btn-error';
+        configuration_dict.text = 'Empty';
       } else if (status_class === 'ui-btn-is-destroyed') {
-        status_class = 'ui-btn-color-white';
-        main_link_configuration_dict.text = 'Destroyed';
-        main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
+        status_class = 'ui-btn-no-data';
+        configuration_dict.text = 'Destroyed';
       } else {
-        main_link_configuration_dict.href = monitor_url;
-        main_link_configuration_dict.target = "_target";
-        main_link_configuration_dict.text = 'Instance';
+        configuration_dict.href = monitor_url;
+        configuration_dict.target = "_target";
+        configuration_dict["class"] += " ui-icon-desktop";
       }
     } else {
-      main_link_configuration_dict.text = 'Node';
-      main_link_configuration_dict["class"] = "ui-btn ui-btn-icon-left";
+      configuration_dict.text = 'Node';
       status_class = getComputeNodeStatusList(result);
     }
 
-    main_link_configuration_dict.text = ' ' + main_link_configuration_dict.text;
-    domsugar(main_status_div.querySelector('div'),
+    configuration_dict.text = ' ' + configuration_dict.text;
+    domsugar(status_div.querySelector('div'),
       {
         "class": "ui-bar ui-corner-all first-child " + status_class
       }, [
-        domsugar(main_link_configuration_dict.href ? "a" : "span",
-                 main_link_configuration_dict)
+        domsugar(configuration_dict.href ? "a" : "span",
+                 configuration_dict)
       ]);
     return gadget;
   }

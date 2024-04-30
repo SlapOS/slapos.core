@@ -29,7 +29,7 @@ if person is None:
   raise Unauthorized("You cannot request without been logged in as a user.")
 
 if software_type in [None, ""]:
-  software_type = "RootSoftwareInstance"
+  raise ValueError("Software Type value was not propagated")
 
 if text_content in ["", None]:
   text_content = """<?xml version='1.0' encoding='utf-8' ?>

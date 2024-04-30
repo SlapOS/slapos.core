@@ -267,7 +267,7 @@ function GetOSVersion {
             os_VENDOR=OracleLinux
         fi
         os_PACKAGE="rpm"
-    elif [[ -r /etc/SuSE-release ]]; then
+    elif [[ -r /etc/os-release ]] && [[ -n "`grep \"suse\" /etc/os-release`" ]]; then
         for r in openSUSE "SUSE Linux"; do
             if [[ "$r" = "SUSE Linux" ]]; then
                 os_VENDOR="SUSE LINUX"
@@ -275,10 +275,9 @@ function GetOSVersion {
                 os_VENDOR=$r
             fi
 
-            if [[ -n "`grep \"$r\" /etc/SuSE-release`" ]]; then
-                os_CODENAME=`grep "CODENAME = " /etc/SuSE-release | sed 's:.* = ::g'`
-                os_RELEASE=`grep "VERSION = " /etc/SuSE-release | sed 's:.* = ::g'`
-                os_UPDATE=`grep "PATCHLEVEL = " /etc/SuSE-release | sed 's:.* = ::g'`
+            if [[ -n "`grep \"$r\" /etc/os-release`" ]]; then
+                os_CODENAME=$(awk '/VERSION=/' /etc/os-release | sed 's/VERSION=//' | sed 's/\"//g')
+                os_RELEASE=$(awk '/VERSION_ID=/' /etc/os-release | sed 's/VERSION_ID=//' | sed 's/\"//g')
                 break
             fi
             os_VENDOR=""

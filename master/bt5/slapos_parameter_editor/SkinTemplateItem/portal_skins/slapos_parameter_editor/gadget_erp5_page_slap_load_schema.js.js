@@ -17,15 +17,12 @@
         };
       }
     }
-    return new RSVP.Queue()
-      .push(function () {
-        return jIO.util.ajax({
-          url: url,
-          headers: headers
-        })
-          .then(function (evt) {
-            return evt.target.responseText;
-          });
+    return new RSVP.Queue(jIO.util.ajax({
+      url: url,
+      headers: headers
+    }))
+      .push(function (evt) {
+        return evt.target.responseText;
       });
   }
 
@@ -42,10 +39,7 @@
       }
       return getJSON(meta_schema_url)
         .push(function (meta_schema) {
-          return new RSVP.Queue()
-            .push(function () {
-              return $RefParser.dereference(url);
-            })
+          return new RSVP.Queue($RefParser.dereference(url))
             .push(function (schema) {
               var validator = new Validator(JSON.parse(meta_schema), '7');
               if (!validator.validate(schema)) {
@@ -58,11 +52,9 @@
     .declareMethod("loadSoftwareJSON", function (url) {
       return getJSON(url)
         .push(function (software_cfg_json) {
-          return new RSVP.Queue()
-            .push(function () {
-              return $RefParser
-                .dereference("slapos_load_software_schema.json");
-            })
+          return new RSVP.Queue($RefParser
+                .dereference("slapos_load_software_schema.json")
+            )
             .push(function (software_schema) {
               var software_json = JSON.parse(software_cfg_json),
                 validator = new Validator(software_schema, '7');

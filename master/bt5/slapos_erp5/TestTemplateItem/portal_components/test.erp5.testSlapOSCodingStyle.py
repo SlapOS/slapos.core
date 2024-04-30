@@ -270,6 +270,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/SoftwareInstallation_getNewsDict',
         'slapos_panel/SoftwareInstallation_getSoftwareReleaseInformation',
         'slapos_panel/SoftwareInstallation_requestDestruction',
+        'slapos_panel/SoftwareInstance_getAllocableNodeList',
         'slapos_panel/SoftwareInstance_getAllocationInformation',
         'slapos_panel/SoftwareInstance_getConnectionParameterList',
         'slapos_panel/SoftwareInstance_getNewsDict',

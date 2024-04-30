@@ -69,11 +69,13 @@ Sale Supply | slapos_fast_invalidate
 Sale Supply | slapos_fast_validate
 Sale Supply | slapos_panel_view
 Slave Instance | slapos_panel_view
+Slave Instance | slapos_panel_view_allocation_report
 Software Installation Module | slapos_panel_view
 Software Installation | request_slapos_destroy
 Software Installation | slapos_panel_view
 Software Instance Module | slapos_panel_view
 Software Instance | slapos_panel_view
+Software Instance | slapos_panel_view_allocation_report
 Software Product Module | slapos_panel_view
 Software Product Release Variation | slapos_panel_view
 Software Product Type Variation | slapos_panel_view

@@ -928,8 +928,11 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Check accounting
     transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(mirror_section_uid=public_person.getUid())
     assert len(transaction_list) == 2, len(transaction_list)
-    assert transaction_list[0].total_price == 990.0, transaction_list[0].total_price
-    assert transaction_list[1].total_price == -990.0, transaction_list[1].total_price
+    self.assertSameSet(
+      [x.total_price for x in transaction_list],
+      [990.0, -990.0],
+      [x.total_price for x in transaction_list]
+    )
 
     self.login()
 

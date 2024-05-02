@@ -46,10 +46,7 @@ for currency_value, secure_service_relative_url in [
           'payment_url': '%s/Entity_createExternalPaymentTransactionFromDepositAndRedirect?currency_reference=%s' % (entity.absolute_url(), currency_value.getReference())
         }
 
-if html_content:
-  if web_site.getLayoutProperty("configuration_payment_url_template", None) is None:
-    html_content = '<p>Please contact us to handle your payment</p>'
-else:
+if not html_content:
   html_content = '<p>Nothing to pay</p>'
 
 return html_content

@@ -1,6 +1,2 @@
-portal_tests/slapos_renderjs_oss_zuite
-portal_tests/slapos_renderjs_oss_zuite/**
 portal_tests/slaposjs_zuite
 portal_tests/slaposjs_zuite/**
-web_page_module/rjs_gadget_slapos_erp5_page_test_service_worker_html
-web_page_module/rjs_gadget_slapos_erp5_page_test_service_worker_js

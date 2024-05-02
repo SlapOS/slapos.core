@@ -82,6 +82,7 @@ Software Product Module | slapos_panel_view
 Software Product Release Variation | slapos_panel_view
 Software Product Type Variation | slapos_panel_view
 Software Product | add_slapos_software_release
+Software Product | add_slapos_software_type
 Software Product | jump_to_slapos_software_release
 Software Product | jump_to_slapos_software_type
 Software Product | slapos_panel_view

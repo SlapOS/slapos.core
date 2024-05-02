@@ -8,7 +8,6 @@ outstanding_amount = context
 web_site = context.getWebSiteValue()
 
 assert web_site is not None
-assert web_site.getLayoutProperty("configuration_payment_url_template", None) is not None
 assert outstanding_amount.getLedgerUid() == portal.portal_categories.ledger.automated.getUid()
 assert outstanding_amount.getDestinationSectionUid() == entity.getUid()
 

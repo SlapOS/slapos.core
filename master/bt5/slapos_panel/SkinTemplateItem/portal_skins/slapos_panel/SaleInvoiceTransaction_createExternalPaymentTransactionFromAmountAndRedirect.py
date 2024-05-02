@@ -23,13 +23,6 @@ for accepted_resource_uid, accepted_payment_mode, is_activated in [
 assert payment_mode is not None
 
 def wrapWithShadow(entity, outstanding_amount):
-  # In case of "Subscription Request"
-  if outstanding_amount.getPortalType() == 'Subscription Request':
-    return entity.Person_addDepositPayment(
-      outstanding_amount.getTotalPrice(),
-      outstanding_amount.getPriceCurrency(),
-      batch=1
-    )
   return entity.Entity_createPaymentTransaction(
     entity.Entity_getOutstandingAmountList(
       section_uid=outstanding_amount.getSourceSectionUid(),

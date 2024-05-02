@@ -55,7 +55,7 @@ for currency_uid, secure_service_relative_url in [
         """ % {
           'total_price': deposit_price,
           'currency': currency_uid,
-          'payment_url': '%s/SaleInvoiceTransaction_createExternalPaymentTransactionFromAmountAndRedirect' % entity.absolute_url()
+          'payment_url': '%s/SaleInvoiceTransaction_createExternalPaymentTransactionFromAmountAndRedirect' % subscription_request.absolute_url()
         }
 
 if html_content:

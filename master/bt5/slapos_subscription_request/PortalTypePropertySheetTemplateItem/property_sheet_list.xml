@@ -7,6 +7,7 @@
   <item>Person</item>
   <item>Price</item>
   <item>Reference</item>
+  <item>SlapOSLedgerConstraint</item>
   <item>SlapOSSaleProfileConstraint</item>
   <item>SlapOSSubscriptionRequestConstraint</item>
   <item>Task</item>

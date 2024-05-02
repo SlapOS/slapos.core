@@ -238,6 +238,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/ComputerNetwork_getNewsDict',
         'slapos_panel/ComputerNetwork_invalidateOnSlaposPanel',
         'slapos_panel/Document_getNewsDict',
+        'slapos_panel/Entity_createExternalPaymentTransactionFromDepositAndRedirect',
         'slapos_panel/Event_getSafeSourceTitle',
         'slapos_panel/InstanceNode_addSlapOSAllocationSupply',
         'slapos_panel/InstanceTreeModule_selectRequestProject',

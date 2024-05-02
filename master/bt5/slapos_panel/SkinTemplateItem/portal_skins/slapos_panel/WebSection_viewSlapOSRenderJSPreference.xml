@@ -80,7 +80,6 @@
                         <string>my_configuration_content_security_policy</string>
                         <string>my_configuration_x_frame_options</string>
                         <string>my_configuration_compute_node_install_command_line</string>
-                        <string>my_configuration_payment_url_template</string>
                         <string>my_configuration_slapos_master_api</string>
                       </list>
                     </value>

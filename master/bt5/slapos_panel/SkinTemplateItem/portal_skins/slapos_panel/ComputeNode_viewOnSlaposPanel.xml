@@ -116,6 +116,8 @@
                         <string>my_follow_up_title</string>
                         <string>my_monitor_scope</string>
                         <string>my_allocation_scope</string>
+                        <string>my_capacity_quantity</string>
+                        <string>my_capacity_scope_translated_title</string>
                       </list>
                     </value>
                 </item>

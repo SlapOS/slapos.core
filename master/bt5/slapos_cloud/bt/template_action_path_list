@@ -1,9 +1,7 @@
 Allocation Supply Line | view
 Allocation Supply Module | view
 Allocation Supply | view
-Compute Node | compute_node_usage
 Compute Node | tracking
-Compute Node | view_capacity
 Compute Node | view_certificate_login
 Compute Partition | unfiltered_tracking_list
 Computer Model | view_capacity

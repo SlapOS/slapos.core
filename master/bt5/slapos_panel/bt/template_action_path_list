@@ -11,6 +11,7 @@ Compute Node | add_slapos_support_request
 Compute Node | jump_to_slapos_allocation_supply
 Compute Node | request_slapos_certificate_action
 Compute Node | revoke_slapos_certificate
+Compute Node | slapos_panel_compute_node_usage
 Compute Node | slapos_panel_view
 Compute Node | supply_slapos
 Computer Network Module | slapos_panel_view

@@ -197,32 +197,12 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>total_debit</string>
-                          <string>Debit</string>
-                        </tuple>
-                        <tuple>
-                          <string>total_credit</string>
-                          <string>Credit</string>
-                        </tuple>
-                        <tuple>
                           <string>operation_date</string>
-                          <string>operation_date</string>
-                        </tuple>
-                        <tuple>
-                          <string>delivery_own_section_title</string>
-                          <string>delivery_own_section_title</string>
-                        </tuple>
-                        <tuple>
-                          <string>accounting_transaction_mirror_section_title</string>
-                          <string>accounting_transaction_mirror_section_title</string>
+                          <string>Date</string>
                         </tuple>
                         <tuple>
                           <string>total_price</string>
-                          <string>Total Price</string>
-                        </tuple>
-                        <tuple>
-                          <string>total_net_price</string>
-                          <string>Total Net Price</string>
+                          <string>Price</string>
                         </tuple>
                       </list>
                     </value>
@@ -275,12 +255,7 @@
                 <item>
                     <key> <string>search_columns</string> </key>
                     <value>
-                      <list>
-                        <tuple>
-                          <string>foo</string>
-                          <string></string>
-                        </tuple>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -296,12 +271,7 @@
                 <item>
                     <key> <string>sort_columns</string> </key>
                     <value>
-                      <list>
-                        <tuple>
-                          <string>foo</string>
-                          <string></string>
-                        </tuple>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>

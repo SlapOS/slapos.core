@@ -3,7 +3,12 @@ project = context
 
 causality_value = portal.restrictedTraverse(causality)
 
-if causality_value.Base_getSupportRequestInProgress(title=title) is not None:
+if portal.portal_catalog.getResultValue(
+  portal_type='Support Request',
+  title={'query': title, 'key': 'ExactMatch'},
+  simulation_state=["validated", "submitted", "suspended"],
+  causality__uid=causality_value.getUid(),
+) is not None:
   return
 
 destination_decision_value = portal.restrictedTraverse(destination_decision)

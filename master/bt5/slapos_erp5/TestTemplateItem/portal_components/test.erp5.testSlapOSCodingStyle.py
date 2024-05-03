@@ -186,7 +186,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_deploy_theme/WebSection_renderDefaultPageAsDeployScript',
         'slapos_upgrader/Base_getUpgradeBusinessTemplateList',
         'slapos_upgrader/ERP5Site_upgradeERP5CoreBusinessTemplate',
-        'slapos_upgrader/ERP5Site_upgradeSlapOSTestUICoreBusinessTemplate',
         'slapos_upgrader/ERP5Site_upgradeUpgraderBusinessTemplate',
         'slapos_rss_style/SubscriptionRequest_getRSSDescription',
         'slapos_rss_style/WebSection_getLegacyMessageList',

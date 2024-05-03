@@ -2033,7 +2033,7 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
     support_request = self._makeSupportRequest()
     support_request.setResource("service_module/slapos_crm_monitoring")
     hs = self._makeInstanceTree()
-    support_request.setAggregateValue(hs)
+    support_request.setCausalityValue(hs)
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_update_support_request_state

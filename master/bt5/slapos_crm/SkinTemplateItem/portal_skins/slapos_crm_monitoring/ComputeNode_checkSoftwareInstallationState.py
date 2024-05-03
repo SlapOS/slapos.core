@@ -65,21 +65,19 @@ for software_installation in software_installation_list:
       return
 
     notification_message_reference = 'slapos-crm-compute_node_software_installation_state.notification'
-    event = support_request.SupportRequest_getLastEvent(ticket_title)
-    if event is None:
-      support_request.Ticket_createProjectEvent(
-        ticket_title, 'outgoing', 'Web Message',
-        portal.service_module.slapos_crm_information.getRelativeUrl(),
-        text_content=description,
-        content_type='text/plain',
-        notification_message=notification_message_reference,
-        #language=XXX,
-        substitution_method_parameter_dict={
-          'compute_node_title':context.getTitle(),
-          'compute_node_id':reference,
-          'last_contact':last_contact
-        }
-      )
+    support_request.Ticket_createProjectEvent(
+      ticket_title, 'outgoing', 'Web Message',
+      portal.service_module.slapos_crm_information.getRelativeUrl(),
+      text_content=description,
+      content_type='text/plain',
+      notification_message=notification_message_reference,
+      #language=XXX,
+      substitution_method_parameter_dict={
+        'compute_node_title':context.getTitle(),
+        'compute_node_id':reference,
+        'last_contact':last_contact
+      }
+    )
 
     support_request_list.append(support_request)
 

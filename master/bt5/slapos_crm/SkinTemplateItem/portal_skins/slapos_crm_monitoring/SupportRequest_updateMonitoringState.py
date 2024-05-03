@@ -16,19 +16,17 @@ if document.getSlapState() == "destroy_requested":
   """
 
   ticket_title = "Instance Tree was destroyed was destroyed by the user"
-  event = context.SupportRequest_getLastEvent(ticket_title)
-  if event is None:
-    context.Ticket_createProjectEvent(
-      ticket_title, 'outgoing', 'Web Message',
-      portal.service_module.slapos_crm_information.getRelativeUrl(),
-      text_content=message,
-      content_type='text/plain',
-      notification_message="slapos-crm-support-request-close-destroyed-notification",
-      #language=XXX,
-      substitution_method_parameter_dict={
-        'instance_tree_title': document.getTitle()
-      }
-    )
+  event = context.Ticket_createProjectEvent(
+    ticket_title, 'outgoing', 'Web Message',
+    portal.service_module.slapos_crm_information.getRelativeUrl(),
+    text_content=message,
+    content_type='text/plain',
+    notification_message="slapos-crm-support-request-close-destroyed-notification",
+    #language=XXX,
+    substitution_method_parameter_dict={
+      'instance_tree_title': document.getTitle()
+    }
+  )
 
   try:
     context.validate()

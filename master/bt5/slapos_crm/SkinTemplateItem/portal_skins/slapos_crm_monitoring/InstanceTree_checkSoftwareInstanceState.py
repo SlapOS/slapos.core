@@ -32,6 +32,7 @@ for instance in software_instance_list:
   if compute_partition is None:
     notification_message_reference = 'slapos-crm-instance-tree-instance-allocation.notification'
   elif (instance.getPortalType() == "Software Instance") and \
+    (compute_partition.getParentValue().getPortalType() == "Compute Node") and \
     (compute_partition.getParentValue().getMonitorScope() == "enabled") and \
     instance.SoftwareInstance_hasReportedError(tolerance=30):
 

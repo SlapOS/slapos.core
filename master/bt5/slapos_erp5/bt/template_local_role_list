@@ -16,6 +16,7 @@ account_module/refundable_vat
 account_module/sales
 accounting_module
 allocation_supply_module
+assignment_request_module
 business_process_module
 business_process_module/slapos_sale_subscription_business_process
 compute_node_module

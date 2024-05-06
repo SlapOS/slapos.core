@@ -16,11 +16,11 @@ entity = portal.portal_membership.getAuthenticatedMember().getUserValue()
 if entity is None:
   return '<p>Nothing to pay with your account</p>'
 
-for currency_uid, secure_service_relative_url in [
-  (portal.currency_module.EUR.getUid(), portal.Base_getPayzenServiceRelativeUrl()),
-  # (portal.currency_module.CNY.getUid(), portal.Base_getWechatServiceRelativeUrl())
+for currency_value, secure_service_relative_url in [
+  (portal.currency_module.EUR, portal.Base_getPayzenServiceRelativeUrl()),
+  # (portal.currency_module.CNY, portal.Base_getWechatServiceRelativeUrl())
 ]:
-
+  currency_uid = currency_value.getCurrencyUid()
   if secure_service_relative_url is not None:
     # Existing invoices
     outstanding_amount_list = entity.Entity_getOutstandingAmountList(
@@ -36,26 +36,14 @@ for currency_uid, secure_service_relative_url in [
         'payment_url': '%s/SaleInvoiceTransaction_createExternalPaymentTransactionFromAmountAndRedirect' % outstanding_amount.absolute_url()
       }
 
-    # Existing subscription request
-    deposit_price = 0
-    for sql_subscription_request in portal.portal_catalog(
-      portal_type="Subscription Request",
-      simulation_state='submitted',
-      destination_section__uid=entity.getUid(),
-      price_currency__uid=currency_uid,
-      ledger__uid=ledger_uid
-    ):
-      subscription_request = sql_subscription_request.getObject()
-      subscription_request_total_price = subscription_request.getTotalPrice()
-      if 0 < subscription_request_total_price:
-        deposit_price += subscription_request_total_price
+    deposit_price = entity.Entity_getOutstandingDepositAmount(currency_uid)
     if 0 < deposit_price:
       html_content += """
         <p><a href="%(payment_url)s">%(total_price)s %(currency)s</a></p>
         """ % {
           'total_price': deposit_price,
-          'currency': currency_uid,
-          'payment_url': '%s/Entity_createExternalPaymentTransactionFromDepositAndRedirect?currency_uid=%s' % (entity.absolute_url(), currency_uid)
+          'currency': currency_value.getReference(),
+          'payment_url': '%s/Entity_createExternalPaymentTransactionFromDepositAndRedirect?currency_reference=%s' % (entity.absolute_url(), currency_value.getReference())
         }
 
 if not html_content:

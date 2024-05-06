@@ -411,8 +411,8 @@ class TestAssignment(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(assignment, 'F-ACCMAN', ['Auditor'])
     self.assertRoles(assignment, 'F-ACCAGT', ['Auditor'])
     self.assertRoles(assignment, self.user_id, ['Owner'])
-    self.assertRoles(assignment, 'F-SALEMAN', ['Assignor'])
-    self.assertRoles(assignment, 'F-SALEAGT', ['Assignee'])
+    self.assertRoles(assignment, 'F-SALEMAN', ['Auditor'])
+    self.assertRoles(assignment, 'F-SALEAGT', ['Auditor'])
 
 class TestComputeNodeModule(TestSlapOSGroupRoleSecurityMixin):
   def test_ComputeNodeModule(self):
@@ -1043,6 +1043,15 @@ class TestSoftwareProduct(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(product, '%s_F-CUSTOMER' % project.getReference(), ['Auditor'])
 
 
+class TestInvitationTokenModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_InvitationTokenModule(self):
+    module = self.portal.invitation_token_module
+    self.assertSecurityGroup(module,
+        ['F-PRODUCTION*', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-PRODUCTION*', ['Auditor', 'Author'])
+    self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
+
+
 class TestSupportRequestModule(TestSlapOSGroupRoleSecurityMixin):
   def test_SupportRequestModule(self):
     module = self.portal.support_request_module
@@ -1052,6 +1061,66 @@ class TestSupportRequestModule(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
     self.assertRoles(module, 'F-CUSTOMER', ['Auditor', 'Author'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
+
+
+class TestInvitationToken(TestSlapOSGroupRoleSecurityMixin):
+  ticket_portal_type = 'Invitation Token'
+
+  def test_InvitationToken_default(self):
+    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
+        portal_type=self.ticket_portal_type)
+    self.assertSecurityGroup(support_request,
+        [self.user_id], False)
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+
+  def test_InvitationToken_DestinationProject(self):
+    project = self.addProject()
+    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
+        portal_type=self.ticket_portal_type)
+    support_request.edit(
+        follow_up_value=project)
+    self.assertSecurityGroup(support_request, [self.user_id,
+        '%s_F-PRODMAN' % project.getReference()], False)
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, '%s_F-PRODMAN' % project.getReference(), ['Auditor'])
+
+
+class TestAssignmentRequestModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_AssignmentRequestModule(self):
+    module = self.portal.assignment_request_module
+    self.assertSecurityGroup(module,
+        ['F-PRODUCTION*', 'F-SALE*', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-PRODUCTION*', ['Auditor'])
+    self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
+    self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
+
+
+class TestAssignmentRequest(TestSlapOSGroupRoleSecurityMixin):
+  ticket_portal_type = 'Assignment Request'
+
+  def test_AssignmentRequest_default(self):
+    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
+        portal_type=self.ticket_portal_type)
+    self.assertSecurityGroup(support_request,
+        [self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
+    self.assertRoles(support_request, 'F-SALEAGT', ['Associate'])
+    self.assertRoles(support_request, 'F-SALEMAN', ['Associate'])
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+
+  def test_AssignmentRequest_DestinationProject(self):
+    project = self.addProject()
+    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
+        portal_type=self.ticket_portal_type)
+    support_request.edit(
+        destination_project_value=project)
+    self.assertSecurityGroup(support_request, [self.user_id, 'F-SALEAGT', 'F-SALEMAN',
+        '%s_F-PRODAGNT' % project.getReference(),
+        '%s_F-PRODMAN' % project.getReference()], False)
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, 'F-SALEAGT', ['Associate'])
+    self.assertRoles(support_request, 'F-SALEMAN', ['Associate'])
+    self.assertRoles(support_request, '%s_F-PRODMAN' % project.getReference(), ['Associate'])
+    self.assertRoles(support_request, '%s_F-PRODAGNT' % project.getReference(), ['Associate'])
 
 
 class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):

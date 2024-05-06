@@ -8,6 +8,8 @@ Acknowledgement
 Allocation Supply
 Allocation Supply Module
 Assignment
+Assignment Request
+Assignment Request Module
 Balance Transaction
 Bank Account
 Business Process
@@ -40,6 +42,7 @@ Instance Tree
 Instance Tree Module
 Integration Site
 Integration Tool
+Invitation Token
 Invitation Token Module
 Letter
 Mail Message

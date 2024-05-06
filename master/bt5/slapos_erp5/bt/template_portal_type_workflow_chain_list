@@ -1,6 +1,7 @@
 Accounting Transaction | local_permission_slapos_interaction_workflow
 Acknowledgement | local_permission_slapos_interaction_workflow
 Allocation Supply | local_permission_slapos_interaction_workflow
+Assignment Request | local_permission_slapos_interaction_workflow
 Balance Transaction | local_permission_slapos_interaction_workflow
 Compute Node | local_permission_slapos_interaction_workflow
 Compute Node | slapos_erp5_interaction_workflow
@@ -19,6 +20,7 @@ Inventory Cell | -immobilisation_movement_interaction_workflow
 Inventory Line | -immobilisation_movement_interaction_workflow
 Inventory | -immobilisation_movement_interaction_workflow
 Invitation Token | edit_workflow
+Invitation Token | local_permission_slapos_interaction_workflow
 Invitation Token | validation_workflow
 Mail Message | local_permission_slapos_interaction_workflow
 Open Sale Order | local_permission_slapos_interaction_workflow

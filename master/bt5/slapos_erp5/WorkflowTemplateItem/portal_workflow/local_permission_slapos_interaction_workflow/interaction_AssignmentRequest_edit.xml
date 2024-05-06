@@ -22,7 +22,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>interaction_SupportRequest_edit</string> </value>
+            <value> <string>interaction_AssignmentRequest_edit</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -32,10 +32,7 @@
             <key> <string>portal_type_filter</string> </key>
             <value>
               <tuple>
-                <string>Support Request</string>
-                <string>Upgrade Decision</string>
-                <string>Regularisation Request</string>
-                <string>Invitation Token</string>
+                <string>Assignment Request</string>
               </tuple>
             </value>
         </item>
@@ -51,14 +48,15 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>SupportRequest_edit</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>trigger_method_id</string> </key>
             <value>
               <tuple>
-                <string>_setDestination.*</string>
-                <string>_setSource.*</string>
+                <string>_setDestinationProject.*</string>
               </tuple>
             </value>
         </item>

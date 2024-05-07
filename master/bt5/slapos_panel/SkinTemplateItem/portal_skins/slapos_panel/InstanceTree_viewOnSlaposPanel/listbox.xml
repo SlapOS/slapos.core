@@ -198,6 +198,10 @@
                           <string>Upgrade Decision</string>
                           <string>Upgrade Decision</string>
                         </tuple>
+                        <tuple>
+                          <string>Subscription Request</string>
+                          <string>Subscription Request</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>
@@ -244,7 +248,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: [(\'causality__uid\', context.getUid()), (\'simulation_state\', ("submitted", "validated", "suspended", "confirmed", "started", "stopped"))]</string> </value>
+            <value> <string>python: [(\'causality_or_aggregate_uid\', context.getUid()), (\'simulation_state\', ("submitted", "validated", "suspended", "confirmed", "started", "stopped", "closed"))]</string> </value>
         </item>
       </dictionary>
     </pickle>

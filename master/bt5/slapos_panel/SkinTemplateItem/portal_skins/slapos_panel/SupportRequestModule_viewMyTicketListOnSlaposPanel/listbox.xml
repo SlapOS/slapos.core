@@ -229,18 +229,6 @@
                           <string>Message Text</string>
                         </tuple>
                         <tuple>
-                          <string>destination_decision_reference</string>
-                          <string>Requester Reference</string>
-                        </tuple>
-                        <tuple>
-                          <string>destination_project_title</string>
-                          <string>Requested Project</string>
-                        </tuple>
-                        <tuple>
-                          <string>source_project_title</string>
-                          <string>Handled Project</string>
-                        </tuple>
-                        <tuple>
                           <string>owner_title</string>
                           <string>Owner</string>
                         </tuple>
@@ -251,14 +239,6 @@
                         <tuple>
                           <string>modification_date</string>
                           <string>Modification Date</string>
-                        </tuple>
-                        <tuple>
-                          <string>SupportRequest_recheckMonitoring</string>
-                          <string>Recheck</string>
-                        </tuple>
-                        <tuple>
-                          <string>follow_up_title</string>
-                          <string>Incident Response</string>
                         </tuple>
                       </list>
                     </value>
@@ -272,12 +252,12 @@
                           <string>Title</string>
                         </tuple>
                         <tuple>
-                          <string>resource_title</string>
-                          <string>Type</string>
+                          <string>portal_type</string>
+                          <string>Portal Type</string>
                         </tuple>
                         <tuple>
-                          <string>source_decision_title</string>
-                          <string>Supervisor</string>
+                          <string>resource_title</string>
+                          <string>Type</string>
                         </tuple>
                         <tuple>
                           <string>creation_date</string>
@@ -288,20 +268,12 @@
                           <string>Requester</string>
                         </tuple>
                         <tuple>
-                          <string>follow_up_title</string>
-                          <string>Incident Response</string>
-                        </tuple>
-                        <tuple>
                           <string>modification_date</string>
                           <string>Modification Date</string>
                         </tuple>
                         <tuple>
                           <string>translated_simulation_state_title</string>
                           <string>State</string>
-                        </tuple>
-                        <tuple>
-                          <string>SupportRequest_recheckMonitoring</string>
-                          <string>Recheck</string>
                         </tuple>
                       </list>
                     </value>
@@ -352,6 +324,10 @@
                         <tuple>
                           <string>Support Request</string>
                           <string>Support Request</string>
+                        </tuple>
+                        <tuple>
+                          <string>Subscription Request</string>
+                          <string>Subscription Request</string>
                         </tuple>
                       </list>
                     </value>
@@ -468,14 +444,6 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>follow_up_title</string>
-                          <string>Incident ASC</string>
-                        </tuple>
-                        <tuple>
-                          <string>source_decision_title</string>
-                          <string>ASC</string>
-                        </tuple>
-                        <tuple>
                           <string>modification_date</string>
                           <string>DESC</string>
                         </tuple>
@@ -573,18 +541,6 @@
                         <tuple>
                           <string>owner_title</string>
                           <string>Owner</string>
-                        </tuple>
-                        <tuple>
-                          <string>creation_date</string>
-                          <string>Creation Date</string>
-                        </tuple>
-                        <tuple>
-                          <string>modification_date</string>
-                          <string>Modification Date</string>
-                        </tuple>
-                        <tuple>
-                          <string>follow_up_title</string>
-                          <string>Incident Response</string>
                         </tuple>
                       </list>
                     </value>

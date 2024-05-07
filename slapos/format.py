@@ -1320,7 +1320,7 @@ class Interface(object):
           # same network, try to add
           if self._addSystemAddress(addr, netmask, tap=tap):
             # succeed, return it
-            self._logger.info('Successfully added IPv6 %s to %s.' % (addr, tap.name or interface_name))
+            self._logger.info('Successfully added IPv6 %s to %s.' % (addr, getattr(tap, 'name', None) or interface_name))
             return dict_addr_netmask
           else:
             self._logger.warning('Impossible to add old public IPv6 %s. '

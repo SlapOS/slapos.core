@@ -182,7 +182,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: [(\'default_causality_uid\', context.getUid())]</string> </value>
+            <value> <string>python: [(\'causality__uid\', context.getUid()), (\'simulation_state\', \'!=invalidated\')]</string> </value>
         </item>
       </dictionary>
     </pickle>

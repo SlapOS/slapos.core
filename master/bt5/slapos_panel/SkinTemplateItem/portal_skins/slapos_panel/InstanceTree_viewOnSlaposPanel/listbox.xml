@@ -198,6 +198,10 @@
                           <string>Upgrade Decision</string>
                           <string>Upgrade Decision</string>
                         </tuple>
+                        <tuple>
+                          <string>Subscription Request</string>
+                          <string>Subscription Request</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

@@ -187,7 +187,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_upgrader/Base_getUpgradeBusinessTemplateList',
         'slapos_upgrader/ERP5Site_upgradeERP5CoreBusinessTemplate',
         'slapos_upgrader/ERP5Site_upgradeUpgraderBusinessTemplate',
-        'slapos_rss_style/SubscriptionRequest_getRSSDescription',
         'slapos_rss_style/WebSection_getLegacyMessageList',
         'slapos_administration/ActivityTool_getDateForActivityMessage',
         'slapos_administration/ActivityTool_zGetDateForSQLDictMessage',

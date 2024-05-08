@@ -1,4 +1,5 @@
-"""Returns all ticket related events for RSS
+"""
+  Returns all ticket related events for RSS
 """
 from Products.PythonScripts.standard import Object
 portal = context.getPortalObject()
@@ -25,7 +26,8 @@ def getTicketInfo(event):
     return getTicket_memo[follow_up]
 
 if follow_up_portal_type is None:
-  follow_up_portal_type = ['Support Request', 'Regularisation Request', 'Upgrade Decision']
+  follow_up_portal_type = ['Support Request', 'Regularisation Request',
+                           'Upgrade Decision', 'Subscription Request']
 
 ticket_simulation_state = [
   'validated','submitted', 'suspended', 'invalidated',

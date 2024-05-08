@@ -225,7 +225,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     module = ticket.getParentValue()
 
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = module.Folder_getOpenTicketList()
+    open_ticket_list = module.Folder_getOpenTicketList(list_lines=1000)
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
     self.assertEqual(open_ticket_list[0].guid,
@@ -235,7 +235,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     ticket.validate()
     self.tic()
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = module.Folder_getOpenTicketList()
+    open_ticket_list = module.Folder_getOpenTicketList(list_lines=1000)
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
     self.assertEqual(open_ticket_list[0].guid,
@@ -245,7 +245,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     ticket.suspend()
     self.tic()
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = module.Folder_getOpenTicketList()
+    open_ticket_list = module.Folder_getOpenTicketList(list_lines=1000)
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
     self.assertEqual(open_ticket_list[0].guid,
@@ -255,7 +255,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     ticket.invalidate()
     self.tic()
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = module.Folder_getOpenTicketList()
+    open_ticket_list = module.Folder_getOpenTicketList(list_lines=1000)
     self.assertEqual(len(open_ticket_list), expected_amount)
     # Extra checks
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -272,19 +272,19 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     self.assertNotEqual(event, None)
     module = ticket.getParentValue()
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = module.Folder_getOpenTicketList()
+    open_ticket_list = module.Folder_getOpenTicketList(list_lines=1000)
     self.assertEqual(len(open_ticket_list), expected_amount-1)
 
     ticket.plan()
     self.tic()
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = module.Folder_getOpenTicketList()
+    open_ticket_list = module.Folder_getOpenTicketList(list_lines=1000)
     self.assertEqual(len(open_ticket_list), expected_amount-1)
 
     ticket.confirm()
     self.tic()
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = module.Folder_getOpenTicketList()
+    open_ticket_list = module.Folder_getOpenTicketList(list_lines=1000)
     self.assertEqual(len(open_ticket_list), expected_amount)
 
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -301,7 +301,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     self.login(ticket.getDestinationDecisionValue().getUserId())
 
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = module.Folder_getOpenTicketList()
+    open_ticket_list = module.Folder_getOpenTicketList(list_lines=1000)
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
     self.assertEqual(open_ticket_list[0].guid,
@@ -311,7 +311,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     ticket.stop()
     self.tic()
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = module.Folder_getOpenTicketList()
+    open_ticket_list = module.Folder_getOpenTicketList(list_lines=1000)
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
     self.assertEqual(open_ticket_list[0].guid,
@@ -321,7 +321,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     ticket.deliver()
     self.tic()
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = module.Folder_getOpenTicketList()
+    open_ticket_list = module.Folder_getOpenTicketList(list_lines=1000)
     self.assertEqual(len(open_ticket_list), expected_amount)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
     self.assertEqual(open_ticket_list[0].guid,
@@ -340,7 +340,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     self.login(person.getUserId())
 
     initial_amount = len(
-      self.portal.support_request_module.Folder_getOpenTicketList())
+      self.portal.support_request_module.Folder_getOpenTicketList(list_lines=1000))
 
     self.login()
     ticket = self.newSupportRequest(customer, instance_tree)
@@ -364,7 +364,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     self.login(person.getUserId())
 
     initial_amount = len(
-      self.portal.regularisation_request_module.Folder_getOpenTicketList())
+      self.portal.regularisation_request_module.Folder_getOpenTicketList(list_lines=1000))
 
     self.login()
     ticket = self.newRegularisationRequest(customer)
@@ -390,7 +390,7 @@ class TestSlapOSFolder_getOpenTicketList(TestRSSSyleSkinsMixin):
     self.login(person.getUserId())
 
     initial_amount = len(
-      self.portal.upgrade_decision_module.Folder_getOpenTicketList())
+      self.portal.upgrade_decision_module.Folder_getOpenTicketList(list_lines=1000))
 
     self.login()
     ticket = self.newUpgradeDecision(person2, project, None)
@@ -629,6 +629,13 @@ class TestSlapOSBase_getTicketRelatedEventList(TestRSSSyleSkinsMixin):
 
 class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
+  def assertTicketAndEvent(self, open_ticket_list, event, amount):
+    self.assertEqual(len(open_ticket_list), amount)
+    self.assertNotEqual(open_ticket_list[0].pubDate, None)
+    self.assertEqual(open_ticket_list[0].guid,
+      '{}-{}'.format(event.getFollowUp(),
+                     event.getRelativeUrl()))
+
   def test_Base_getEventList(self):
     # Base_getEventList is already widely tested on Base_getTicketRelatedEventList
     # and Folder_getOpenTicketList, so we only tested the specific use case of 
@@ -649,12 +656,9 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.assertNotEqual(event, None)
 
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = self.portal.Base_getEventList()
-    self.assertEqual(len(open_ticket_list), 1)
-    self.assertNotEqual(open_ticket_list[0].pubDate, None)
-    self.assertEqual(open_ticket_list[0].guid,
-      '{}-{}'.format(event.getFollowUp(),
-                     event.getRelativeUrl()))
+    self.assertTicketAndEvent(self.portal.Base_getEventList(), event, 1)
+    self.assertTicketAndEvent(self.portal.Base_getEventList(
+      user_restricted=1), event, 1)
 
     self.login()
     ticket.validate()
@@ -662,12 +666,9 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.login(person.getUserId())
 
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = self.portal.Base_getEventList()
-    self.assertEqual(len(open_ticket_list), 1)
-    self.assertNotEqual(open_ticket_list[0].pubDate, None)
-    self.assertEqual(open_ticket_list[0].guid,
-      '{}-{}'.format(event.getFollowUp(),
-                     event.getRelativeUrl()))
+    self.assertTicketAndEvent(self.portal.Base_getEventList(), event, 1)
+    self.assertTicketAndEvent(self.portal.Base_getEventList(
+      user_restricted=1), event, 1)
 
     self.login()
     ticket.suspend()
@@ -675,12 +676,9 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.login(person.getUserId())
 
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = self.portal.Base_getEventList()
-    self.assertEqual(len(open_ticket_list), 1)
-    self.assertNotEqual(open_ticket_list[0].pubDate, None)
-    self.assertEqual(open_ticket_list[0].guid,
-      '{}-{}'.format(event.getFollowUp(),
-                     event.getRelativeUrl()))
+    self.assertTicketAndEvent(self.portal.Base_getEventList(), event, 1)
+    self.assertTicketAndEvent(self.portal.Base_getEventList(
+      user_restricted=1), event, 1)
 
     self.login()
     ticket.invalidate()
@@ -711,12 +709,14 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
 
     self.portal.portal_skins.changeSkin('RSS')
     open_ticket_list = self.portal.Base_getEventList()
-    self.assertEqual(len(open_ticket_list), 2)
-    self.assertNotEqual(open_ticket_list[0].pubDate, None)
-    self.assertEqual(open_ticket_list[0].guid,
-      '{}-{}'.format(event_rr.getFollowUp(),
-                     event_rr.getRelativeUrl()))
+    self.assertTicketAndEvent(open_ticket_list, event_rr, 2)
+    # check if previous still the same
+    self.assertEqual(open_ticket_list[1].guid,
+      '{}-{}'.format(event.getFollowUp(),
+                     event.getRelativeUrl()))
 
+    open_ticket_list = self.portal.Base_getEventList(user_restricted=1)
+    self.assertTicketAndEvent(open_ticket_list, event_rr, 2)
     # check if previous still the same
     self.assertEqual(open_ticket_list[1].guid,
       '{}-{}'.format(event.getFollowUp(),
@@ -728,12 +728,9 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.login(person.getUserId())
 
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = self.portal.Base_getEventList()
-    self.assertEqual(len(open_ticket_list), 2)
-    self.assertNotEqual(open_ticket_list[0].pubDate, None)
-    self.assertEqual(open_ticket_list[0].guid,
-      '{}-{}'.format(event_rr.getFollowUp(),
-                     event_rr.getRelativeUrl()))
+    self.assertTicketAndEvent(self.portal.Base_getEventList(), event_rr, 2)
+    self.assertTicketAndEvent(
+      self.portal.Base_getEventList(user_restricted=1), event_rr, 2)
 
     self.login()
     regularisation_request.suspend()
@@ -741,12 +738,9 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.login(person.getUserId())
 
     self.portal.portal_skins.changeSkin('RSS')
-    open_ticket_list = self.portal.Base_getEventList()
-    self.assertEqual(len(open_ticket_list), 2)
-    self.assertNotEqual(open_ticket_list[0].pubDate, None)
-    self.assertEqual(open_ticket_list[0].guid,
-      '{}-{}'.format(event_rr.getFollowUp(),
-                     event_rr.getRelativeUrl()))
+    self.assertTicketAndEvent(self.portal.Base_getEventList(), event_rr, 2)
+    self.assertTicketAndEvent(
+      self.portal.Base_getEventList(user_restricted=1), event_rr, 2)
 
     self.login()
     regularisation_request.invalidate()
@@ -767,7 +761,6 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
       regularisation_request.getTitle())
 
     # Now add one Upgrade Decision
-
     self.login()
     sleep(2)
     upgrade_decision = self.newUpgradeDecision(person, None, None)
@@ -852,6 +845,8 @@ class TestSlapOSBase_getEventList(TestRSSSyleSkinsMixin):
     self.assertEqual(open_ticket_list[2].title,
       ticket.getTitle())
 
+
+
 class TestBase_getTicketUrl(TestRSSSyleSkinsMixin):
   def test_Base_getTicketUrl(self):
     ticket = self.portal.support_request_module.newContent(\
@@ -912,5 +907,3 @@ class TestSlapOSSaleInvoiceTransaction_getRSSTitleAndDescription(TestRSSSyleSkin
     self.assertEqual(
       invoice_via_website.SaleInvoiceTransaction_getRSSTitle(),
       "[SlapOS Master Panel] %s %s - (01/02/2018)" % (text, invoice.getReference()))
-
-  

@@ -25,7 +25,8 @@ def getTicketInfo(event):
     return getTicket_memo[follow_up]
 
 if follow_up_portal_type is None:
-  follow_up_portal_type = ['Support Request', 'Regularisation Request', 'Upgrade Decision']
+  follow_up_portal_type = ['Support Request', 'Regularisation Request',
+                           'Upgrade Decision', 'Subscription Request']
 
 ticket_simulation_state = [
   'validated','submitted', 'suspended', 'invalidated',
@@ -36,13 +37,16 @@ ticket_simulation_state = [
 context_kw = {}
 if context_related:
   context_kw['follow_up__uid'] = [x.getUid() for x in portal.portal_catalog(
-    causality__uid=context.getUid(),
+    causality_or_aggregate_uid=context.getUid(),
     portal_type=follow_up_portal_type,
     simulation_state=ticket_simulation_state
   )] or [-1]
 else:
   context_kw['follow_up__simulation_state'] = ticket_simulation_state
   context_kw['follow_up__portal_type'] = follow_up_portal_type
+
+  # XXX The proper solution would be implement follow_up__destination_decision_uid
+  context_kw['related_source_or_destination'] = context.Base_getAuthenticatedPersonUid()
 
 data_list = []
 for brain in portal.portal_simulation.getMovementHistoryList(

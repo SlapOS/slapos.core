@@ -246,7 +246,7 @@
       <dictionary>
         <item>
             <key> <string>method_name</string> </key>
-            <value> <string>WebSection_getUserTicketList</string> </value>
+            <value> <string>Base_getTicketRelatedEventList</string> </value>
         </item>
       </dictionary>
     </pickle>

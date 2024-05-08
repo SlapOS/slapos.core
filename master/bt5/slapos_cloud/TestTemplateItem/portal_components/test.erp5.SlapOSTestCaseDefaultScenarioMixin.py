@@ -581,15 +581,16 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         if q.getTitle() == instance_title]
     self.assertEqual(0, len(instance_tree_list))
 
-  def checkServiceSubscriptionRequest(self, service):
+  def checkServiceSubscriptionRequest(self, service, simulation_state='invalidated'):
     self.login()
 
     subscription_request = self.portal.portal_catalog.getResultValue(
       portal_type="Subscription Request",
       aggregate__uid=service.getUid(),
-      simulation_state='invalidated'
+      simulation_state=simulation_state
     )
     self.assertNotEqual(subscription_request, None)
+    return subscription_request
 
   def checkInstanceAllocation(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server,
@@ -643,6 +644,90 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         ['http://%s/' % q.getIpAddress() for q in
             partition.contentValues(portal_type='Internet Protocol Address')],
         connection_dict.values())
+
+  def checkInstanceAllocationWithDeposit(self, person_user_id, person_reference,
+      instance_title, software_release, software_type, server,
+      project_reference, deposit_amount, currency):
+
+    self.login(person_user_id)
+
+    self.personRequestInstanceNotReady(
+      software_release=software_release,
+      software_type=software_type,
+      partition_reference=instance_title,
+      project_reference=project_reference
+    )
+    self.tic()
+
+    instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type="Instance Tree",
+      title=instance_title,
+      follow_up__reference=project_reference
+    )
+    person = instance_tree.getDestinationSectionValue()
+    self.assertEqual(person.getUserId(), person_user_id)
+
+    subscription_request = self.checkServiceSubscriptionRequest(instance_tree, 'submitted')
+    self.assertEqual(subscription_request.getTotalPrice(), deposit_amount)
+
+    self.tic()
+
+    amount = person.Entity_getOutstandingDepositAmount(
+        currency.getUid())
+    self.assertEqual(amount, deposit_amount)
+
+    # Action to submit project subscription
+    def wrapWithShadow(_person, *arg):
+      return _person.Person_addDepositPayment(*arg)
+    payment_transaction = person.Person_restrictMethodAsShadowUser(
+      shadow_document=person,
+      callable_object=wrapWithShadow,
+      argument_list=[person, deposit_amount, currency.getRelativeUrl(), 1])
+    self.tic()
+    self.logout()
+    self.login()
+    # payzen interface will only stop the payment
+    payment_transaction.stop()
+    self.tic()
+    assert payment_transaction.receivable.getGroupingReference(None) is not None
+    self.login(person_user_id)
+
+    self.checkServiceSubscriptionRequest(instance_tree, 'invalidated')
+
+    amount = person.Entity_getOutstandingDepositAmount(currency.getUid())
+    self.assertEqual(0, amount)
+
+    self.login(person_user_id)
+    self.personRequestInstance(
+      software_release=software_release,
+      software_type=software_type,
+      partition_reference=instance_title,
+      project_reference=project_reference
+    )
+
+    # now instantiate it on compute_node and set some nice connection dict
+    self.simulateSlapgridCP(server)
+
+    # let's find instances of user and check connection strings
+    instance_tree_list = [q.getObject() for q in
+        self._getCurrentInstanceTreeList()
+        if q.getTitle() == instance_title]
+    self.assertEqual(1, len(instance_tree_list))
+    instance_tree = instance_tree_list[0]
+
+    software_instance = instance_tree.getSuccessorValue()
+    self.assertEqual(software_instance.getTitle(),
+        instance_tree.getTitle())
+    connection_dict = software_instance.getConnectionXmlAsDict()
+    self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
+    self.login()
+    partition = software_instance.getAggregateValue()
+    self.assertSameSet(
+        ['http://%s/' % q.getIpAddress() for q in
+            partition.contentValues(portal_type='Internet Protocol Address')],
+        connection_dict.values())
+
+
 
   def findMessage(self, email, body):
     for candidate in reversed(self.portal.MailHost.getMessageList()):

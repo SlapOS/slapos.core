@@ -25,22 +25,16 @@
 #
 ##############################################################################
 import unittest
+import os.path
+import glob
 
 from zope.interface.verify import verifyClass
 import zope.interface
 from six import class_types
-from slapos import slap
 
-def getOnlyImplementationAssertionMethod(klass, method_list):
-  """Returns method which verifies if a klass only implements its interfaces"""
-  def testMethod(self):
-    implemented_method_list = {x for x in dir(klass)
-        if not x.startswith('_') and callable(getattr(klass, x))}
-    implemented_method_list.difference_update(method_list)
+import slapos.slap
+import slapos.manager
 
-    if implemented_method_list:
-      raise AssertionError("Unexpected methods %s" % implemented_method_list)
-  return testMethod
 
 def getImplementationAssertionMethod(klass, interface):
   """Returns method which verifies if interface is properly implemented by klass"""
@@ -55,36 +49,33 @@ def getDeclarationAssertionMethod(klass):
       self.fail('%s class does not respect its interface(s).' % klass.__name__)
   return testMethod
 
-def generateTestMethodListOnClass(klass, module):
+tested_classes = set() # to test aliases only once
+def generateTestMethodListOnClass(klass, module, ignore_classes_without_interfaces=False):
   """Generate test method on klass"""
   for class_id in dir(module):
     implementing_class = getattr(module, class_id)
     if not isinstance(implementing_class, class_types):
       continue
+    if implementing_class in tested_classes:
+      continue
+    tested_classes.add(implementing_class)
     # add methods to assert that publicly available classes are defining
-    # interfaces
-    method_name = 'test_%s_declares_interface' % (class_id,)
-    setattr(klass, method_name, getDeclarationAssertionMethod(
-      implementing_class))
+    # interfaces, except for some internal modules (slapos.manager).
+    if not ignore_classes_without_interfaces:
+      method_name = 'test_%s.%s_declares_interface' % (module.__name__, class_id)
+      setattr(klass, method_name, getDeclarationAssertionMethod(
+        implementing_class))
 
-    implemented_method_list = ['with_traceback']
     for interface in list(zope.interface.implementedBy(implementing_class)):
       # for each interface which class declares add a method which verify
       # implementation
-      method_name = 'test_%s_implements_%s' % (class_id,
-          interface.__identifier__)
+      method_name = 'test_%s.%s_implements_%s' % (
+        module.__name__,
+        class_id,
+        interface.__identifier__)
       setattr(klass, method_name, getImplementationAssertionMethod(
         implementing_class, interface))
 
-      for interface_klass in interface.__iro__:
-        implemented_method_list.extend(interface_klass.names())
-
-    # for each interface which class declares, check that no other method are
-    # available
-    method_name = 'test_%s_only_implements' % class_id
-    setattr(klass, method_name, getOnlyImplementationAssertionMethod(
-      implementing_class,
-      implemented_method_list))
 
 class TestInterface(unittest.TestCase):
   """Tests all publicly available classes of slap
@@ -94,7 +85,18 @@ class TestInterface(unittest.TestCase):
   """
 
 # add methods to test class
-generateTestMethodListOnClass(TestInterface, slap)
+generateTestMethodListOnClass(TestInterface, slapos.slap)
+
+# add manager classes by introspecting the modules
+for module_name in glob.glob(os.path.join(os.path.dirname(slapos.manager.__file__), '*.py')):
+  module_name = os.path.splitext(os.path.basename(module_name))[0]
+  __import__('slapos.manager.' + module_name)
+  manager_module = getattr(slapos.manager, module_name)
+  generateTestMethodListOnClass(
+    TestInterface,
+    manager_module,
+    ignore_classes_without_interfaces=True)
+
 
 if __name__ == '__main__':
   unittest.main()

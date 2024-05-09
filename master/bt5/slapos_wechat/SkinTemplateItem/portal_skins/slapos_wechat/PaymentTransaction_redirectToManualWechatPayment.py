@@ -4,7 +4,7 @@ person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
 def wrapWithShadow(payment_transaction, web_site, person_relative_url):
 
-  vads_url_dict = payment_transaction.PaymentTransaction_getVADSUrlDict(web_site)
+  vads_url_dict = payment_transaction.PaymentTransaction_getVADSUrlDict()
 
   _ , transaction_id = payment_transaction.PaymentTransaction_getWechatId()
   vads_url_already_registered = vads_url_dict.pop('vads_url_already_registered')

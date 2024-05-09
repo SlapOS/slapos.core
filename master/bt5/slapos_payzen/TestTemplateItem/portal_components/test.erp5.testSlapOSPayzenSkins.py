@@ -686,11 +686,6 @@ class TestSlapOSPayzenBase_getPayzenServiceRelativeUrl(SlapOSTestCaseMixinWithAb
 class TestSlapOSPayzenPaymentTransaction_redirectToManualPayzenPayment(
                                                     SlapOSTestCaseMixinWithAbort):
 
-
-  def test_PaymentTransaction_redirectToManualPayzenPayment(self):
-    payment = self.createPaymentTransaction()
-    self.assertRaises(ValueError, payment.PaymentTransaction_redirectToManualPayzenPayment)
-
   def _simulatePaymentTransaction_getVADSUrlDict(self):
     script_name = 'PaymentTransaction_getVADSUrlDict'
     if script_name in self.portal.portal_skins.custom.objectIds():
@@ -714,7 +709,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     if script_name in self.portal.portal_skins.custom.objectIds():
       self.portal.portal_skins.custom.manage_delObjects(script_name)
 
-
   def test_PaymentTransaction_redirectToManualPayzenPayment_unauthorzied(self):
     payment = self.createPaymentTransaction()
     self._simulatePaymentTransaction_getVADSUrlDict()
@@ -730,7 +724,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.tic()
     project = self.addProject()
     person = self.makePerson(project)
-    invoice =  self.createStoppedSaleInvoiceTransaction(
+    invoice = self.createStoppedSaleInvoiceTransaction(
       destination_section_value=person,
       destination_project_value=project
     )

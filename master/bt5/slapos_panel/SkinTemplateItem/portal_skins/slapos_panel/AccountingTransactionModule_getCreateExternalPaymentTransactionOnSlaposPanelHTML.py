@@ -20,7 +20,7 @@ for currency_value, secure_service_relative_url in [
   (portal.currency_module.EUR, portal.Base_getPayzenServiceRelativeUrl()),
   # (portal.currency_module.CNY, portal.Base_getWechatServiceRelativeUrl())
 ]:
-  currency_uid = currency_value.getCurrencyUid()
+  currency_uid = currency_value.getUid()
   if secure_service_relative_url is not None:
     # Existing invoices
     outstanding_amount_list = entity.Entity_getOutstandingAmountList(

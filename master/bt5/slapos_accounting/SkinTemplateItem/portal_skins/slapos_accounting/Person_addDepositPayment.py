@@ -1,3 +1,7 @@
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
+
 from DateTime import DateTime
 from Products.ERP5Type.Message import translateString
 
@@ -10,7 +14,6 @@ source_section = context
 # Create a temp Sale Order to calculate the real price and find the trade condition
 now = DateTime()
 module = portal.portal_trash
-
 
 tmp_sale_order = module.newContent(
   portal_type='Sale Order',
@@ -36,7 +39,6 @@ if (tmp_sale_order.getSourceSection(None) == tmp_sale_order.getDestinationSectio
   (tmp_sale_order.getSourceSection(None) is None):
   raise AssertionError('The trade condition does not generate accounting: %s' % tmp_sale_order.getSpecialise())
 
-
 #######################################################
 payment_transaction = portal.accounting_module.newContent(
   title="reservation payment",
@@ -53,7 +55,7 @@ payment_transaction = portal.accounting_module.newContent(
   destination_section=tmp_sale_order.getDestinationSection(),
   destination_decision=tmp_sale_order.getDestinationDecision(),
   destination_project=tmp_sale_order.getDestinationProject(),
-
+  payment_mode=payment_mode,
   ledger_value=portal.portal_categories.ledger.automated,
   resource=tmp_sale_order.getPriceCurrency(),
   created_by_builder=1, # XXX this prevent init script from creating lines.
@@ -84,9 +86,6 @@ payment_transaction.newContent(
 if len(payment_transaction.checkConsistency()) != 0:
   raise AssertionError(payment_transaction.checkConsistency()[0])
 
-#tag = '%s_update' % context.getDestinationReference()
-
-comment = translateString("Deposit payment.")
-payment_transaction.start(comment=comment)
+payment_transaction.start(comment=translateString("Deposit payment."))
 
 return payment_transaction

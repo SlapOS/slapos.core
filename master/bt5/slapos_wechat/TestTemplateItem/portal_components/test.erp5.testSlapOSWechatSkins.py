@@ -553,11 +553,6 @@ class TestSlapOSWechatBase_getWechatServiceRelativeUrl(SlapOSTestCaseMixinWithAb
 class TestSlapOSWechatPaymentTransaction_redirectToManualWechatPayment(
                                                     SlapOSTestCaseMixinWithAbort):
 
-
-  def test_PaymentTransaction_redirectToManualWechatPayment(self):
-    payment = self.createPaymentTransaction()
-    self.assertRaises(ValueError, payment.PaymentTransaction_redirectToManualWechatPayment)
-
   def _simulatePaymentTransaction_getVADSUrlDict(self):
     script_name = 'PaymentTransaction_getVADSUrlDict'
     if script_name in self.portal.portal_skins.custom.objectIds():

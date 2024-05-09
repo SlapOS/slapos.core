@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>price, currency_relative_url, batch=0</string> </value>
+            <value> <string>price, currency_relative_url, payment_mode=None, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

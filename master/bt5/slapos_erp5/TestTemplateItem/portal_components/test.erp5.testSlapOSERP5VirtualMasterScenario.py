@@ -485,7 +485,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     payment_transaction = owner_person.Person_restrictMethodAsShadowUser(
       shadow_document=owner_person,
       callable_object=wrapWithShadow,
-      argument_list=[owner_person, total_price, currency.getRelativeUrl(), 1])
+      argument_list=[owner_person, total_price, currency.getRelativeUrl()])
     self.tic()
     self.logout()
     self.login()
@@ -561,7 +561,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
 
-      payment_transaction = customer_section_organisation.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
+      payment_transaction = customer_section_organisation.Person_addDepositPayment(99*10, currency.getRelativeUrl())
       # payzen interface will only stop the payment
       payment_transaction.stop()
       self.tic()
@@ -869,7 +869,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       payment_transaction = project_owner_person.Person_restrictMethodAsShadowUser(
         shadow_document=project_owner_person,
         callable_object=wrapWithShadow,
-        argument_list=[project_owner_person, deposit_amount, currency.getRelativeUrl(), 1])
+        argument_list=[project_owner_person, deposit_amount, currency.getRelativeUrl()])
       self.tic()
       self.logout()
       self.login()

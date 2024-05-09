@@ -682,7 +682,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     payment_transaction = person.Person_restrictMethodAsShadowUser(
       shadow_document=person,
       callable_object=wrapWithShadow,
-      argument_list=[person, deposit_amount, currency.getRelativeUrl(), 1])
+      argument_list=[person, deposit_amount, currency.getRelativeUrl()])
     self.tic()
     self.logout()
     self.login()

@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>currency_reference</string> </value>
+            <value> <string>web_site=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Entity_createExternalPaymentTransactionFromDepositAndRedirect</string> </value>
+            <value> <string>PaymentTrasaction_redirectToManualPayment</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -1,9 +1,4 @@
 """ Return a dict with vads_urls required for payzen."""
-if web_site is None:
-  web_site = context.getWebSiteValue()
-
-if web_site is None:
-  raise ValueError("This script must be called from a web site")
 
 base = "%(payment_transaction_url)s/PaymentTransaction_triggerPaymentCheckAlarmAndRedirectToPanel?result=%(result)s"
 

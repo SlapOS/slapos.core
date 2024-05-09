@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>currency_reference</string> </value>
+            <value> <string>currency_uid</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Entity_createExternalPaymentTransactionFromDepositAndRedirect</string> </value>
+            <value> <string>Base_getPaymentModeForCurrency</string> </value>
         </item>
       </dictionary>
     </pickle>

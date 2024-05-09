@@ -34,7 +34,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.assertEqual(subscription_request.getSimulationState(), "submitted")
 
     with PinnedDateTime(self, DateTime('2021/04/04')):
-      payment_transaction = owner_person.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
+      payment_transaction = owner_person.Person_addDepositPayment(99*10, currency.getRelativeUrl())
       # payzen interface will only stop the payment
       payment_transaction.stop()
       self.tic()
@@ -209,7 +209,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Add deposit
     with PinnedDateTime(self, creation_date + 2):
       for person in person_list:
-        payment_transaction = person.Person_addDepositPayment(99*100, currency.getRelativeUrl(), 1)
+        payment_transaction = person.Person_addDepositPayment(99*100, currency.getRelativeUrl())
         # payzen interface will only stop the payment
         payment_transaction.stop()
 
@@ -311,7 +311,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     ##################################################
     # Add deposit (0.1 to prevent discount generation)
     with PinnedDateTime(self, creation_date + 0.1):
-      payment_transaction = owner_person.Person_addDepositPayment(99*100, currency.getRelativeUrl(), 1)
+      payment_transaction = owner_person.Person_addDepositPayment(99*100, currency.getRelativeUrl())
       # payzen interface will only stop the payment
       payment_transaction.stop()
 

@@ -48,6 +48,9 @@ if first_invoice.getDestinationSection() != context.getRelativeUrl():
 if start_date is None:
   start_date = DateTime()
 
+if payment_mode is None:
+  payment_mode = context.Base_getPaymentModeForCurrency(first_invoice.getPriceCurrencyUid())
+
 # create the payment transaction
 payment_transaction = portal.accounting_module.newContent(
   portal_type='Payment Transaction',
@@ -90,7 +93,8 @@ for index, line in enumerate(invoice_list):
       activate_kw=activate_kw,
     )
 
-assert len(payment_transaction.checkConsistency()) == 0
+if len(payment_transaction.checkConsistency()) != 0:
+  raise AssertionError(payment_transaction.checkConsistency()[0])
 
 payment_transaction.start()
 

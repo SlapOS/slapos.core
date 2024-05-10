@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>list_lines=50, follow_up_portal_type=None, context_related=False, **kw</string> </value>
+            <value> <string>list_lines=50, follow_up_portal_type=None, context_related=False, user_restricted=False, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

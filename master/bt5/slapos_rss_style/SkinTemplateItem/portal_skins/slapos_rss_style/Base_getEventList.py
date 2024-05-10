@@ -1,4 +1,5 @@
-"""Returns all ticket related events for RSS
+"""
+  Returns all ticket related events for RSS
 """
 from Products.PythonScripts.standard import Object
 portal = context.getPortalObject()
@@ -45,8 +46,9 @@ else:
   context_kw['follow_up__simulation_state'] = ticket_simulation_state
   context_kw['follow_up__portal_type'] = follow_up_portal_type
 
-  # XXX The proper solution would be implement follow_up__destination_decision_uid
-  context_kw['related_source_or_destination'] = context.Base_getAuthenticatedPersonUid()
+  if user_restricted:
+    # XXX The proper solution would be implement follow_up__destination_decision_uid
+    context_kw['related_source_or_destination'] = context.Base_getAuthenticatedPersonUid()
 
 data_list = []
 for brain in portal.portal_simulation.getMovementHistoryList(

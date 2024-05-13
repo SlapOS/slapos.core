@@ -16,17 +16,19 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>action_type/object_jio_action</string>
+                <string>action_type/object_jio_fast_input</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>category</string> </key>
-            <value> <string>object_jio_action</string> </value>
+            <value> <string>object_jio_fast_input</string> </value>
         </item>
         <item>
             <key> <string>condition</string> </key>
-            <value> <string></string> </value>
+            <value>
+              <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
+            </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -40,7 +42,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>view_rename_and_request_destroy</string> </value>
+            <value> <string>slapos_rename_and_request_destroy</string> </value>
         </item>
         <item>
             <key> <string>permissions</string> </key>
@@ -78,6 +80,19 @@
         <item>
             <key> <string>text</string> </key>
             <value> <string>string:${object_url}/SoftwareInstance_viewRenameAndRequestDestroyDialog</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="3" aka="AAAAAAAAAAM=">
+    <pickle>
+      <global name="Expression" module="Products.CMFCore.Expression"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>text</string> </key>
+            <value> <string>python: context.Base_hasSlapOSProjectUserGroup(project_relation=\'follow_up\', manager=True, agent=True)</string> </value>
         </item>
       </dictionary>
     </pickle>

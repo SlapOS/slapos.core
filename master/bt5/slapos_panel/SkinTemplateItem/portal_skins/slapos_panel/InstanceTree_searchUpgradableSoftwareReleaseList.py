@@ -13,4 +13,17 @@ allocation_cell_list = software_product.getFollowUpValue().Project_getSoftwarePr
   predicate_portal_type='Allocation Supply Cell'
 )
 
-return [x.getSoftwareReleaseValue() for x in allocation_cell_list if (x.getSoftwareReleaseValue().getUrlString() != instance_tree.getUrlString())]
+software_release_list = []
+software_release_uid_dict = {}
+instance_tree_url_string = instance_tree.getUrlString()
+
+for allocation_cell in allocation_cell_list:
+  software_release = allocation_cell.getSoftwareReleaseValue()
+  if (software_release.getUrlString() != instance_tree_url_string):
+    # Do not return duplicated release values
+    software_release_uid = software_release.getUid()
+    if software_release_uid not in software_release_uid_dict:
+      software_release_uid_dict[software_release_uid] = None
+      software_release_list.append(software_release)
+
+return software_release_list

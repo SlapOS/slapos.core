@@ -150,6 +150,10 @@
                           <string>Support Request</string>
                           <string>Support Request</string>
                         </tuple>
+                        <tuple>
+                          <string>Subscription Request</string>
+                          <string>Subscription Request</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

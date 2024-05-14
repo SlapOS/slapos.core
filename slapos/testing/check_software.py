@@ -119,6 +119,8 @@ def checkSoftware(slap, software_url):
       '*/libexec/ssh-keysign',
       # this library is just a test loading foo.so which doesn't exist
       '*/test/ELF/Inputs/version-use.so',
+      # this library is just a text file containing "GROUP( libtinfo.so )" so it is not a dynamic executable
+      '*/lib/libtermcap.so',
   ))
 
   software_hash = md5digest(software_url)

@@ -128,6 +128,7 @@ def checkSoftware(slap, software_url):
   ldd_so_resolved_re = re.compile(
       r'\t(?P<library_name>.*) => (?P<library_path>.*) \(0x')
   ldd_already_loaded_re = re.compile(r'\t(?P<library_name>.*) \(0x')
+  warning_execution_permission_re = re.compile(r'ldd: warning: you do not have execution permission for (?P<library_path>.*)')
   ldd_not_found_re = re.compile(r'\t(?P<library_name>.*) => not found.*')
 
   class DynamicLibraryNotFound(Exception):
@@ -161,12 +162,16 @@ def checkSoftware(slap, software_url):
     for line in ldd_output.splitlines():
       resolved_so_match = ldd_so_resolved_re.match(line)
       ldd_already_loaded_match = ldd_already_loaded_re.match(line)
+      warning_execution_permission_match = warning_execution_permission_re.match(line)
       not_found_match = ldd_not_found_re.match(line)
       if resolved_so_match:
         libraries[resolved_so_match.group(
             'library_name')] = resolved_so_match.group('library_path')
       elif ldd_already_loaded_match:
         # VDSO or ELF, ignore . See https://stackoverflow.com/a/35805410/7294664 for more about this
+        pass
+      elif warning_execution_permission_match:
+        # for now, ignore permission warnings
         pass
       elif not_found_match:
         library_name = not_found_match.group('library_name')

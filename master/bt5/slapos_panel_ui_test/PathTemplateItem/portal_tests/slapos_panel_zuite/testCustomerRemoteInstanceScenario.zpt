@@ -48,31 +48,13 @@
 
 
 
-      <tr>
-        <td colspan="3"><b>Add a software product</b></td>
-      </tr>
-      <tal:block tal:define="click_configuration python: {'text': 'Add Software Product'}">
-        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      <tal:block tal:define="software_product_configuration python: {
+                             'title': 'Theia',
+                             'software_release_list': ['https://lab.nexedi.com/nexedi/slapos/raw/1.0.289/software/theia/software.cfg'],
+                             'software_type_list': ['default', 'resilient']
+                             }">
+        <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/create_software_product_from_project" />
       </tal:block>
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name='field_your_product_import_json']</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>type</td>
-        <td>//input[@name='field_your_product_import_json']</td>
-        <td>https://lab.nexedi.com/nexedi/slapos/raw/1.0.289/software/theia/software.cfg</td>
-      </tr>
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
-      <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                                 'text': 'New Software Product created.'}">
-        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
-      </tal:block>
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
-
-
       <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/wait_for_activities" />
 
 
@@ -99,31 +81,13 @@
 
 
 
-      <tr>
-        <td colspan="3"><b>Add a software product</b></td>
-      </tr>
-      <tal:block tal:define="click_configuration python: {'text': 'Add Software Product'}">
-        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      <tal:block tal:define="software_product_configuration python: {
+                             'title': 'Theia',
+                             'software_release_list': ['https://lab.nexedi.com/nexedi/slapos/raw/1.0.289/software/theia/software.cfg'],
+                             'software_type_list': ['default', 'resilient']
+                             }">
+        <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/create_software_product_from_project" />
       </tal:block>
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@name='field_your_product_import_json']</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>type</td>
-        <td>//input[@name='field_your_product_import_json']</td>
-        <td>https://lab.nexedi.com/nexedi/slapos/raw/1.0.289/software/theia/software.cfg</td>
-      </tr>
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
-      <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                                 'text': 'New Software Product created.'}">
-        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
-      </tal:block>
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
-
-
 
       <tr>
         <td colspan="3"><b>Back to the project page</b></td>

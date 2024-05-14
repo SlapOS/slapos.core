@@ -1,4 +1,5 @@
 from Products.ERP5Type.Message import translateString
+# previous args: software_release, software_type_list, **kw
 
 portal = context.getPortalObject()
 software_product = context
@@ -22,6 +23,7 @@ software_release_variation = software_product.newContent(
   url_string=software_release
 )
 
+"""
 if same_type(software_type_list, ""):
   software_type_list = [software_type_list]
 for software_type in software_type_list:
@@ -36,7 +38,7 @@ for software_type in software_type_list:
       portal_type="Software Product Type Variation",
       title=software_type
     )
-
+"""
 return software_release_variation.Base_redirect(
   keep_items={
     'portal_status_message': translateString('New Software Release created.')

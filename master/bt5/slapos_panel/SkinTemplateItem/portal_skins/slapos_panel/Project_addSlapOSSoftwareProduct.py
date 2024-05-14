@@ -1,7 +1,10 @@
 from Products.ERP5Type.Message import translateString
+# previous args: title, software_release, software_type_list, description="", **kw
 
 portal = context.getPortalObject()
 
+
+"""
 # First, search if the release already exists
 software_release_variation = portal.portal_catalog.getResultValue(
   portal_type="Software Product Release Variation",
@@ -32,6 +35,24 @@ for software_type in software_type_list:
     portal_type="Software Product Type Variation",
     title=software_type
   )
+"""
+
+# First, search if the release already exists
+software_product = portal.portal_catalog.getResultValue(
+  portal_type="Software Product",
+  title=title,
+  follow_up__uid=context.getUid()
+)
+if software_product is not None:
+  return software_product.Base_redirect(
+    keep_items={
+      'portal_status_message': translateString('Software Product already exist.')
+    }
+  )
+software_product = portal.software_product_module.newContent(
+  title=title,
+  follow_up_value=context
+)
 software_product.validate()
 
 return software_product.Base_redirect(

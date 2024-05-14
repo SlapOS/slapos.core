@@ -187,4 +187,95 @@
     </tr>
   </tal:block>
 
+  <tal:block metal:define-macro="create_software_product_from_project">
+    <tr>
+      <td colspan="3"><b>Add a software product</b></td>
+    </tr>
+    <tal:block tal:define="click_configuration python: {'text': 'Add Software Product'}">
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+    </tal:block>
+    <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@name='field_your_title']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@name='field_your_title']</td>
+      <td tal:content="python: software_product_configuration['title']"></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+    <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                               'text': 'New Software Product created.'}">
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+    </tal:block>
+    <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+
+    <tal:block tal:repeat="field_your_software_type python: software_product_configuration['software_type_list']">
+      <tr>
+        <td colspan="3"><b>Add a software type</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Add Software Type'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name='field_your_software_type']</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@name='field_your_software_type']</td>
+        <td tal:content="field_your_software_type"></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'New Software Type created.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+    </tal:block>
+
+    <tal:block tal:repeat="field_your_software_release python: software_product_configuration['software_release_list']">
+      <tr>
+        <td colspan="3"><b>Add a software release</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Add Software Release'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name='field_your_software_release']</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@name='field_your_software_release']</td>
+        <td tal:content="field_your_software_release"></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'New Software Release created.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+      <tr>
+        <td colspan="3"><b>Back to the software product</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Software Product Release Variation: %s' % field_your_software_release}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_header_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+    </tal:block>
+
+    <tr>
+      <td colspan="3"><p></p></td>
+    </tr>
+  </tal:block>
+
 </tal:block>

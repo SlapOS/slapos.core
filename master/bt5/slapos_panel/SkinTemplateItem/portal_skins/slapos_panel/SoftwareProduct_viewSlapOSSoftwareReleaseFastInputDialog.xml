@@ -95,6 +95,7 @@
                     <value>
                       <list>
                         <string>your_product_import_json</string>
+                        <string>your_software_release</string>
                       </list>
                     </value>
                 </item>

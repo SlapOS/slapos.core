@@ -17,9 +17,9 @@ Person | jump_to_instance_tree
 Remote Node | view
 Slave Instance | jump_to_instance_tree
 Slave Instance | jump_to_software_instance
+Slave Instance | slapos_rename_and_request_destroy
 Slave Instance | unfiltered_tracking_list
 Slave Instance | view
-Slave Instance | view_rename_and_request_destroy
 Slave Instance | view_rename_and_request_stop
 Software Installation Module | view
 Software Installation | view
@@ -27,10 +27,10 @@ Software Instance Module | view
 Software Instance | jump_to_compute_partition
 Software Instance | jump_to_instance_tree
 Software Instance | jump_to_software_instance
+Software Instance | slapos_rename_and_request_destroy
 Software Instance | unfiltered_tracking_list
 Software Instance | view
 Software Instance | view_certificate_login
-Software Instance | view_rename_and_request_destroy
 Software Instance | view_rename_and_request_stop
 Software Release | usable_compute_node
 Software Release | usable_network

@@ -13,13 +13,4 @@ if context.getSlapState() not in ["stop_requested", "start_requested"]:
 # from a python script
 context.SoftwareInstance_renameAndRequestDestroy()
 
-# Request Destroy on all Slaves allocated on the same partition
-compute_partition = context.getAggregateValue(
-  portal_type="Compute Partition")
-
-if compute_partition is not None:
-  for slave in compute_partition.getAggregateRelatedValueList(
-    portal_type="Slave Instance"):
-    slave.SoftwareInstance_renameAndRequestDestroy()
-
 return context.Base_redirect(keep_items={"portal_status_message": "Destroy requested."})

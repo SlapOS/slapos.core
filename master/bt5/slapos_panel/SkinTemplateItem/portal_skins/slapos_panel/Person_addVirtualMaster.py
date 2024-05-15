@@ -43,12 +43,14 @@ if ((specialise_value is None) or
 # who can manage compute nodes and create instances
 customer.newContent(
   portal_type='Assignment',
+  title="Manager for %s" % project.getReference(),
   destination_project_value=project,
   function='production/manager',
   activate_kw=activate_kw
 ).open()
 customer.newContent(
   portal_type='Assignment',
+  title="Client for %s" % project.getReference(),
   destination_project_value=project,
   function='customer',
   activate_kw=activate_kw

@@ -22,7 +22,7 @@ def ERP5Site_activateAlarmSlapOSPanelTest(self):
 
 def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
                                       manager_login, remote_customer_login,
-                                      passwd):
+                                      passwd, currency=None):
 
   if step not in ['trade_condition', 'account']:
     raise ValueError('Unsupported bootstrap step: %s' % step)
@@ -45,14 +45,15 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
       portal.portal_alarms.upgrader_check_post_upgrade.activeSense(fixit=True)
 
       # Currency
-      currency = portal.currency_module.newContent(
-        portal_type="Currency",
-        reference="test-currency-%s" % self.generateNewId(),
-        short_title="tc%s" % self.generateNewId(),
-        title="Test currency",
-        base_unit_quantity=0.01
-      )
-      currency.validate()
+      if currency is None:
+        currency = portal.currency_module.newContent(
+          portal_type="Currency",
+          reference="test-currency-%s" % self.generateNewId(),
+          short_title="tc%s" % self.generateNewId(),
+          title="Test currency",
+          base_unit_quantity=0.01
+        )
+        currency.validate()
 
       # Organisation
       organisation = portal.organisation_module.newContent(
@@ -105,10 +106,21 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
       trade_condition.validate()
 
       if scenario == 'accounting':
-        # Sale trade condition
+
+        # Create trade condition for Deposit
+        portal.sale_trade_condition_module.newContent(
+          portal_type="Sale Trade Condition",
+          reference="Deposit for : %s" % currency.getRelativeUrl(),
+          trade_condition_type="deposit",
+          specialise_value=sale_trade_condition,
+          source_value=organisation,
+          source_section_value=organisation,
+          price_currency_value=currency).validate()
+
+        # Sale Supply for Virtual Master
         sale_supply = portal.sale_supply_module.newContent(
           portal_type="Sale Supply",
-          title="Test project",
+          title="Sale Supply for Virtual Master (%s)" % currency.getRelativeUrl(),
           price_currency_value=currency,
         )
         sale_supply.newContent(
@@ -117,7 +129,6 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
           resource="service_module/slapos_virtual_master_subscription"
         )
         sale_supply.validate()
-
     finally:
       setSecurityManager(sm)
 

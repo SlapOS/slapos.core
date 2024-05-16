@@ -5,7 +5,7 @@ if currency_reference:
   currency_value = portal.portal_catalog.getResultValue(
     portal_type="Currency",
     reference=currency_reference,
-    validation_state="validated")
+    validation_state=("validated", "published"))
 
 if currency_value is None:
   raise ValueError("Unknown Currency: %s" % currency_reference)
@@ -18,7 +18,7 @@ if 0 >= deposit_price:
   raise ValueError("Nothing to pay")
 
 def wrapWithShadow(entity, total_amount, currency_value, payment_mode):
-  return entity.Person_addDepositPayment(
+  return entity.Entity_addDepositPayment(
     total_amount,
     currency_value.getRelativeUrl(),
     payment_mode=payment_mode

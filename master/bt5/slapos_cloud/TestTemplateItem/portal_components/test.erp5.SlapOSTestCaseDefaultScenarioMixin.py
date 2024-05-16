@@ -678,7 +678,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     # Action to submit project subscription
     def wrapWithShadow(_person, *arg):
-      return _person.Person_addDepositPayment(*arg)
+      return _person.Entity_addDepositPayment(*arg)
     payment_transaction = person.Person_restrictMethodAsShadowUser(
       shadow_document=person,
       callable_object=wrapWithShadow,

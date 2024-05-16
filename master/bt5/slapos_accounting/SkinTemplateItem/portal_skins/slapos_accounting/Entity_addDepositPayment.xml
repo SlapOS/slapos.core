@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_addDepositPayment</string> </value>
+            <value> <string>Entity_addDepositPayment</string> </value>
         </item>
       </dictionary>
     </pickle>

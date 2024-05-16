@@ -481,7 +481,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     # Action to submit project subscription
     def wrapWithShadow(person, *arg):
-      return person.Person_addDepositPayment(*arg)
+      return person.Entity_addDepositPayment(*arg)
     payment_transaction = owner_person.Person_restrictMethodAsShadowUser(
       shadow_document=owner_person,
       callable_object=wrapWithShadow,
@@ -561,7 +561,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
 
-      payment_transaction = customer_section_organisation.Person_addDepositPayment(99*10, currency.getRelativeUrl())
+      payment_transaction = customer_section_organisation.Entity_addDepositPayment(99*10, currency.getRelativeUrl())
       # payzen interface will only stop the payment
       payment_transaction.stop()
       self.tic()
@@ -865,7 +865,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertEqual(amount, deposit_amount)
   
       def wrapWithShadow(_person, *arg):
-        return _person.Person_addDepositPayment(*arg)
+        return _person.Entity_addDepositPayment(*arg)
       payment_transaction = project_owner_person.Person_restrictMethodAsShadowUser(
         shadow_document=project_owner_person,
         callable_object=wrapWithShadow,

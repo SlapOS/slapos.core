@@ -717,7 +717,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     assert len(inventory_list) == 1, len(inventory_list)
     assert inventory_list[0].quantity == 1, inventory_list[0].quantity
     resource_vcl = [
-      #'software_release/%s' % release_variation.getRelativeUrl(),
+      # 'software_release/%s' % release_variation.getRelativeUrl(),
       'software_type/%s' % type_variation.getRelativeUrl()
     ]
     resource_vcl.sort()
@@ -817,7 +817,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       sale_supply.validate()
 
       self.tic()
-
       # some preparation
       self.logout()
 
@@ -855,13 +854,14 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # format the compute_nodes
       self.formatComputeNode(public_server)
-
       self.logout()
       self.login(project_owner_person.getUserId())
-      # Pay deposit to validate virtual master.
-      deposit_amount = 42.0 + 99.0
-      amount = project_owner_person.Entity_getOutstandingDepositAmount(
-          currency.getUid())
+
+      # Pay deposit to validate virtual master + one computer
+      deposit_amount = 42.0 + 99.0 
+      ledger = self.portal.portal_categories.ledger.automated
+      amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())])
       self.assertEqual(amount, deposit_amount)
   
       def wrapWithShadow(_person, *arg):
@@ -879,8 +879,11 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       assert payment_transaction.receivable.getGroupingReference(None) is not None
       self.login(project_owner_person.getUserId())
 
-      amount = project_owner_person.Entity_getOutstandingDepositAmount(currency.getUid())
+      amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())])
       self.assertEqual(0, amount)
+
+      self.logout()
 
       # join as the another visitor and request software instance on public
       # compute_node

@@ -118,6 +118,10 @@
                           <string>Software Product</string>
                           <string>Software Product</string>
                         </tuple>
+                        <tuple>
+                          <string>Service</string>
+                          <string>Service</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

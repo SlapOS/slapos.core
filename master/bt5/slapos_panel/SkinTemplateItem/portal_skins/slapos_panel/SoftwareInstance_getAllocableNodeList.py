@@ -1,8 +1,8 @@
 portal = context.getPortalObject()
 instance = context
 project = instance.getFollowUpValue()
-instance_tree = instance.getSpecialiseValue()
-customer_person = instance_tree.getDestinationSection()
+# instance_tree = instance.getSpecialiseValue()
+# customer_person = instance_tree.getDestinationSectionValue()
 
 node_list = []
 
@@ -22,7 +22,7 @@ allocation_cell_list = project.Project_getSoftwareProductPredicateList(
   software_product=software_product,
   software_product_type=type_variation,
   software_product_release=release_variation,
-  destination_value=customer_person,
+  # destination_value=customer_person,
   predicate_portal_type='Allocation Supply Cell'
 )
 

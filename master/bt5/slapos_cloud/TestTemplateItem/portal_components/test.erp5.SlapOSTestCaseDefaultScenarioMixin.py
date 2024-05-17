@@ -589,7 +589,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       aggregate__uid=service.getUid(),
       simulation_state=simulation_state
     )
-    self.assertNotEqual(subscription_request, None)
+    self.assertNotEqual(subscription_request, None,
+      "Not found subscription request for %s" % service.getRelativeUrl())
     return subscription_request
 
   def checkInstanceAllocation(self, person_user_id, person_reference,
@@ -672,8 +673,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     self.tic()
 
-    amount = person.Entity_getOutstandingDepositAmount(
-        currency.getUid())
+    amount = sum([i.total_price for i in person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=subscription_request.getLedgerUid())])
     self.assertEqual(amount, deposit_amount)
 
     # Action to submit project subscription
@@ -694,7 +695,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     self.checkServiceSubscriptionRequest(instance_tree, 'invalidated')
 
-    amount = person.Entity_getOutstandingDepositAmount(currency.getUid())
+    amount = sum([i.total_price for i in person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=subscription_request.getLedgerUid())])
     self.assertEqual(0, amount)
 
     self.login(person_user_id)

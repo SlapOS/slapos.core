@@ -7,6 +7,8 @@
   <title tal:content="here/title"></title>
 </head>
 <body onload="document.payment.submit();">
+<center><h2>Redirecting to payment processor...</h2></center>
+<p><center><img src="ERP5VCS_imgs/wait.gif"></center></p>
 <form method="POST" tal:attributes="action here/link_url_string" id="payment" name="payment">
 <tal:block tal:repeat="value here/field_list">
   <input type="hidden" tal:attributes="name python: value[0]; value python: value[1]">

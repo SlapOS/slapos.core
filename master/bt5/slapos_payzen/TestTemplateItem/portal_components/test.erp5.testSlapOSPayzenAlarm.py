@@ -99,7 +99,7 @@ class Foo:
   def updateStatus(self):
     pass
 return Foo()
-""" )
+""")
     self.commit()
 
   def _dropPaymentTransaction_createPayzenEvent(self):

@@ -240,7 +240,7 @@
                 </item>
                 <item>
                     <key> <string>selection_name</string> </key>
-                    <value> <string>project_slapos_assignment_selection</string> </value>
+                    <value> <string>project_module_slapos_assignment_selection</string> </value>
                 </item>
                 <item>
                     <key> <string>sort</string> </key>
@@ -271,7 +271,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: [(\'validation_state\', \'open\'), (\'destination_project__uid\', context.getUid())]</string> </value>
+            <value> <string>python: [(\'validation_state\', \'open\'), (\'function__uid\', [context.getPortalObject().portal_categories.function.restrictedTraverse(x).getUid() for x in (\'sale\', \'accounting\')])]</string> </value>
         </item>
       </dictionary>
     </pickle>

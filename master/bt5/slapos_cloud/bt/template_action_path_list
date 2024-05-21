@@ -14,6 +14,7 @@ Instance Tree | view
 Instance Tree | view_editor
 One Time Virtual Master Access Token | view
 Person | jump_to_instance_tree
+Project Module | view_assignment_list
 Project | view_assignment_list
 Remote Node | view
 Slave Instance | jump_to_instance_tree

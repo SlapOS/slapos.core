@@ -40,7 +40,7 @@ for software_type in software_type_list:
 # First, search if the release already exists
 software_product = portal.portal_catalog.getResultValue(
   portal_type="Software Product",
-  title=title,
+  title={'query': title, 'key': 'ExactMatch'},
   follow_up__uid=context.getUid()
 )
 if software_product is not None:

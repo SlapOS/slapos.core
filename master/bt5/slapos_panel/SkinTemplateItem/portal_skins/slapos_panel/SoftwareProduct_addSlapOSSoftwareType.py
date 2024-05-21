@@ -7,7 +7,7 @@ software_product = context
 software_type_variation = portal.portal_catalog.getResultValue(
   portal_type="Software Product Type Variation",
   parent_uid=software_product.getUid(),
-  title=software_type
+  title={'query': software_type, 'key': 'ExactMatch'}
 )
 if software_type_variation is not None:
   return software_product.Base_redirect(

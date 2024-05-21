@@ -275,6 +275,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/SoftwareProduct_addSlapOSSoftwareType',
         'slapos_panel/Ticket_addSlapOSEvent',
         'slapos_panel/Ticket_closeSlapOS',
+        'slapos_panel/Ticket_suspendSlapOS',
         'slapos_panel/UpgradeDecision_acceptOnSlaposPanel',
         'slapos_panel/UpgradeDecision_rejectOnSlaposPanel',
         'slapos_panel/AccountingTransactionModule_getCreateExternalPaymentTransactionOnSlaposPanelHTML',

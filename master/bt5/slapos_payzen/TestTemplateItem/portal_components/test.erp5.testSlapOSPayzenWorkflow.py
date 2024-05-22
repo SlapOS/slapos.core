@@ -18,8 +18,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort, \
-  simulate
+from erp5.component.test.SlapOSTestCaseMixin import simulate
+from erp5.component.test.testSlapOSPayzenSkins import TestSlapOSPayzenMixin
 
 import lxml.html
 from DateTime import DateTime
@@ -34,7 +34,7 @@ vads_url_refused = 'http://example.org/refused'
 vads_url_success = 'http://example.org/success'
 vads_url_return = 'http://example.org/return'
 
-class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPayzenInterfaceWorkflow(TestSlapOSPayzenMixin):
 
   def createPayzenService(self):
     self.payzen_secure_payment = self.portal.portal_secure_payments.newContent(
@@ -42,14 +42,6 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       reference="PSERV-Payzen-Test"
     )
     self.tic()
-
-  def beforeTearDown(self):
-    SlapOSTestCaseMixinWithAbort.beforeTearDown(self)
-    if getattr(self, "payzen_secure_payment", None):
-      self.portal.portal_secure_payments.manage_delObjects(
-        ids=[self.payzen_secure_payment.getId()])
-      self.tic()
-
 
   slapos_payzen_html = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">

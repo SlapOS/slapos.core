@@ -25,23 +25,71 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 from DateTime import DateTime
 from zExceptions import Unauthorized
 
-class PayzenServiceTestCase(SlapOSTestCaseMixin):
+class TestSlapOSPayzenMixin(SlapOSTestCaseMixin):
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self.payzen_secure_payment = self.portal.portal_secure_payments.newContent(
       portal_type="Payzen Service",
-      reference="PSERV-Payzen-Test"
+      reference="PSERV-Payzen-Test-%s" % self.generateNewId()
     )
+
+    # Include a simple Integration site
+    self.integration_site = self.portal.portal_integrations.newContent(
+      title="Integration site for: %s" % (self.payzen_secure_payment),
+      reference="payzen",
+      portal_type="Integration Site"
+    )
+    self.integration_site.newContent(
+      id="Causality",
+      portal_type="Integration Base Category Mapping",
+      default_source_reference="Causality",
+      default_destination_reference="causality"
+    )
+
+    resource_map = self.integration_site.newContent(
+      id="Resource",
+      portal_type="Integration Base Category Mapping",
+      default_source_reference="Resource",
+      default_destination_reference="resource"
+    )
+    resource_map.newContent(
+      # This is required for integration
+      id='978',
+      portal_type="Integration Category Mapping",
+      default_destination_reference='resource/currency_module/EUR',
+      default_source_reference='978'
+    )
+
+    system_preference = self.portal.portal_preferences.slapos_default_system_preference
+    self.older_service_reference = system_preference.getPreferredPayzenPaymentServiceReference()
+    system_preference.setPreferredPayzenPaymentServiceReference(
+      self.payzen_secure_payment.getReference())
+
+    self.older_integration_site = system_preference.getPreferredPayzenIntegrationSite()
+    system_preference.setPreferredPayzenIntegrationSite(
+      self.integration_site.getRelativeUrl()
+    )
+
     self.tic()
 
   def beforeTearDown(self):
     SlapOSTestCaseMixin.beforeTearDown(self)
     self.portal.portal_secure_payments.manage_delObjects(
       ids=[self.payzen_secure_payment.getId()])
+    self.portal.portal_integrations.manage_delObjects(
+      ids=[self.integration_site.getId()])
+
+    system_preference = self.portal.portal_preferences.slapos_default_system_preference
+    system_preference.setPreferredPayzenPaymentServiceReference(
+      self.older_service_reference)
+    system_preference.setPreferredPayzenIntegrationSite(
+      self.older_integration_site
+    )
+    
     self.tic()
 
 
-class TestSlapOSCurrency_getIntegrationMapping(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCurrency_getIntegrationMapping(TestSlapOSPayzenMixin):
 
   def test_integratedCurrency(self):
     currency = self.portal.currency_module.EUR
@@ -76,7 +124,7 @@ class TestSlapOSAccountingTransaction_updateStartDate(SlapOSTestCaseMixinWithAbo
       date, REQUEST={})
 
 
-class TestSlapOSPaymentTransaction_getPayzenId(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPaymentTransaction_getPayzenId(TestSlapOSPayzenMixin):
 
   def test_getPayzenId_newPaymentTransaction(self):
     payment_transaction = self.createPaymentTransaction()
@@ -116,7 +164,7 @@ class TestSlapOSPaymentTransaction_getPayzenId(SlapOSTestCaseMixinWithAbort):
       REQUEST={})
 
 
-class TestSlapOSPaymentTransaction_generatePayzenId(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPaymentTransaction_generatePayzenId(TestSlapOSPayzenMixin):
 
   def test_generatePayzenId_newPaymentTransaction(self):
     payment_transaction = self.createPaymentTransaction()
@@ -176,7 +224,7 @@ class TestSlapOSPaymentTransaction_generatePayzenId(SlapOSTestCaseMixinWithAbort
       REQUEST={})
 
 
-class TestSlapOSPaymentTransaction_createPayzenEvent(PayzenServiceTestCase):
+class TestSlapOSPaymentTransaction_createPayzenEvent(TestSlapOSPayzenMixin):
 
   def test_createPayzenEvent_REQUEST_disallowed(self):
     payment_transaction = self.createPaymentTransaction()
@@ -643,7 +691,7 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
         'Aborting refused payzen payment.',
         payment.workflow_history['accounting_workflow'][-1]['comment'])
 
-class TestSlapOSPayzenBase_getPayzenServiceRelativeUrl(PayzenServiceTestCase):
+class TestSlapOSPayzenBase_getPayzenServiceRelativeUrl(TestSlapOSPayzenMixin):
 
   def test_getPayzenServiceRelativeUrl_REQUEST_disallowed(self):
     self.assertRaises(
@@ -663,7 +711,7 @@ class TestSlapOSPayzenBase_getPayzenServiceRelativeUrl(PayzenServiceTestCase):
 
 
 class TestSlapOSPayzenPaymentTransaction_redirectToManualPayzenPayment(
-                                                    PayzenServiceTestCase):
+                                                    TestSlapOSPayzenMixin):
 
   @simulate("PaymentTransaction_getVADSUrlDict", '*args, **kwargs',
   """payment_transaction_url = context.getRelativeUrl()

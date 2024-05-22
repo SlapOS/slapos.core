@@ -169,9 +169,12 @@ if filter_kw.keys():
 if test_mode:
   return bool(len(context.portal_catalog(limit=1, **query_kw)))
 
-SQL_WINDOW_SIZE = 50
+SQL_WINDOW_SIZE = 1000
 
-# fetch at mot 50 random Compute Partitions, and check if they are ok
+# fetch at most 1000 random Compute Partitions, and check if they are ok
+# we use a huge number, because the randomization is done in python,
+# and not by using mysql RAND() function
+# compute node usually have at least 100 partitions
 isTransitionPossible = portal.portal_workflow.isTransitionPossible
 result_count = portal.portal_catalog.countResults(**query_kw)[0][0]
 offset = max(0, result_count-1)
@@ -180,8 +183,11 @@ if offset >= SQL_WINDOW_SIZE:
 else:
   limit = (0, SQL_WINDOW_SIZE)
 
-for compute_partition_candidate in portal.portal_catalog(
-                                         limit=limit, **query_kw):
+compute_partition_candidate_list = [x for x in portal.portal_catalog(limit=limit, **query_kw)]
+# reduce risk of always allocating on the same node
+random.shuffle(compute_partition_candidate_list)
+
+for compute_partition_candidate in compute_partition_candidate_list:
   compute_partition_candidate = compute_partition_candidate.getObject()
 
   if compute_partition_candidate.getParentValue().getCapacityScope() == "close":

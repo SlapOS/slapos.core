@@ -19,11 +19,11 @@
 #
 ##############################################################################
 
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.test.testSlapOSPayzenSkins import TestSlapOSPayzenMixin
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 from DateTime import DateTime
 
-class TestSlapOSPayzenUpdateStartedPayment(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPayzenUpdateStartedPayment(TestSlapOSPayzenMixin):
 
   def test_not_started_payment(self):
     new_id = self.generateNewId()
@@ -81,7 +81,7 @@ class Foo:
   def updateStatus(self):
     context.stop()
 return Foo()
-""" )
+""")
     self.commit()
 
   def _simulatePaymentTransaction_createNotPaidPayzenEvent(self):
@@ -168,7 +168,7 @@ return Foo()
                         '*args, **kwargs',
                         '# Script body\n'
 """portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by PaymentTransaction_updateStatus') """ )
+portal_workflow.doActionFor(context, action='edit_action', comment='Visited by PaymentTransaction_updateStatus') """)
     self.commit()
 
   def _dropPaymentTransaction_updateStatus(self):

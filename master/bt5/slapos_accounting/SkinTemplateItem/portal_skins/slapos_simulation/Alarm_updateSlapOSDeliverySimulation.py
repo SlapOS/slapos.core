@@ -22,7 +22,8 @@ portal.portal_catalog.searchAndActivate(
     # Only Packing List created to generate deposit Invoice need to be expanded
     'Payment Transaction',
     # Discount Sale Packing List
-    'Subscription Request'
+    'Subscription Request',
+    'Subscription Change Request'
   ],
   **kw
 )

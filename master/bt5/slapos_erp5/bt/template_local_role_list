@@ -75,6 +75,7 @@ service_module/zero_emission_ratio
 software_installation_module
 software_instance_module
 software_product_module
+subscription_change_request_module
 subscription_request_module
 support_request_module
 system_event_module

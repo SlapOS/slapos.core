@@ -1,4 +1,18 @@
 <property_sheet_list>
+ <portal_type id="Subscription Change Request">
+  <item>Amount</item>
+  <item>CredentialRequest</item>
+  <item>DublinCore</item>
+  <item>InstanceTree</item>
+  <item>Person</item>
+  <item>Price</item>
+  <item>Reference</item>
+  <item>SlapOSSaleProfileConstraint</item>
+  <item>SlapOSSubscriptionRequestConstraint</item>
+  <item>Task</item>
+  <item>Url</item>
+  <item>VariationRange</item>
+ </portal_type>
  <portal_type id="Subscription Request">
   <item>Amount</item>
   <item>CredentialRequest</item>

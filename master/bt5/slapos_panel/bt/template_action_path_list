@@ -34,6 +34,7 @@ Instance Tree | slapos_request_hs_stop
 Instance Tree | slapos_view_request_destroy
 Instance Tree | update_slapos_parameter
 Mail Message | slapos_panel_view
+Person | claim_slapos_item_subscription
 Person | create_slapos_project
 Person | slapos_panel_view
 Preference | slapos_panel_view

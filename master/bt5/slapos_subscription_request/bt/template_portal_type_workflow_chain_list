@@ -5,6 +5,9 @@ Open Sale Order | slapos_subscription_request_interaction_workflow
 Sale Invoice Transaction Line | slapos_subscription_request_interaction_workflow
 Sale Trade Condition | slapos_subscription_request_interaction_workflow
 Software Product | slapos_subscription_request_interaction_workflow
+Subscription Change Request | edit_workflow
+Subscription Change Request | slapos_subscription_request_interaction_workflow
+Subscription Change Request | subscription_request_workflow
 Subscription Request | edit_workflow
 Subscription Request | slapos_subscription_request_interaction_workflow
 Subscription Request | subscription_request_workflow

@@ -1,3 +1,7 @@
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
+
 subscription_request = context
 portal = context.getPortalObject()
 

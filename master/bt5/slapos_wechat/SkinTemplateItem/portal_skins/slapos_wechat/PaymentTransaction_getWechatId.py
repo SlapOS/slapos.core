@@ -3,7 +3,13 @@ if REQUEST is not None:
   raise Unauthorized
 
 portal = context.getPortalObject()
-integration_site = portal.restrictedTraverse(portal.portal_preferences.getPreferredWechatIntegrationSite())
+
+preferred_integration_site = portal.portal_preferences.getPreferredWechatIntegrationSite()
+integration_site = portal.restrictedTraverse(preferred_integration_site)
+
+if integration_site is None or not preferred_integration_site:
+  raise ValueError("Integration Site not found or not configured: %s" %
+    preferred_integration_site)
 
 wechat_id = integration_site.getCategoryFromMapping('Causality/%s' % context.getId().replace('-', '_'))
 if wechat_id != 'causality/%s' % context.getId().replace('-', '_'):

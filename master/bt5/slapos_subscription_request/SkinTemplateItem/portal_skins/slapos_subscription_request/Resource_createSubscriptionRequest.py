@@ -7,12 +7,15 @@ if subscriber_person_value is None:
 source_project_value = None
 destination_project_value = None
 trade_condition_type = None
-item = None
 
 if resource.getPortalType() == "Software Product":
   source_project_value = project_value
 
   trade_condition_type = "instance_tree"
+  if not temp_object:
+    assert item_value is not None
+    assert item_value.getPortalType() == 'Instance Tree'
+
 elif resource.getPortalType() == "Service":
   if resource.getRelativeUrl() == "service_module/slapos_compute_node_subscription":
     if project_value is None:
@@ -20,10 +23,15 @@ elif resource.getPortalType() == "Service":
     source_project_value = project_value
 
     trade_condition_type = "compute_node"
+    if not temp_object:
+      assert item_value is not None
+      assert item_value.getPortalType() == 'Compute Node'
+
   elif resource.getRelativeUrl() == "service_module/slapos_virtual_master_subscription":
     if project_value is None:
       raise AssertionError('Project is required for %s %s' % (resource.getRelativeUrl(), project_value))
-    item = project_value
+    assert item_value is None
+    item_value = project_value
     trade_condition_type = "virtual_master"
   else:
     raise NotImplementedError('Unsupported resource: %s' % resource.getRelativeUrl())
@@ -110,8 +118,8 @@ else:
   if not price:
     raise AssertionError('Can not find a price to generate the Subscription Request (%s)' % tmp_sale_order.getSpecialiseValue())
 
-subscription_request = portal.subscription_request_module.newContent(
-  portal_type='Subscription Request',
+subscription_request = portal.getDefaultModuleValue(portal_type).newContent(
+  portal_type=portal_type,
   temp_object=temp_object,
   destination_value=subscriber_person_value,
   # Do not set a default destination section if it is not defined on a trade condition
@@ -128,7 +136,7 @@ subscription_request = portal.subscription_request_module.newContent(
   effective_date=now,
   resource_value=resource,
   variation_category_list=variation_category_list,
-  aggregate_value=item,
+  aggregate_value=item_value,
   quantity_unit=resource.getQuantityUnit(),
   quantity=1,
   ledger="automated",
@@ -139,6 +147,7 @@ subscription_request = portal.subscription_request_module.newContent(
   price_currency=tmp_sale_order.getPriceCurrency(),
   price=price,
   # XXX activate_kw=activate_kw
+  causality_value=causality_value,
 )
 if temp_object:
   subscription_request.edit(reference="foo")

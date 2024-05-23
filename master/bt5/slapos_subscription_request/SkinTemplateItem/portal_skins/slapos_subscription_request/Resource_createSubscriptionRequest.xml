@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>subscriber_person_value, variation_category_list, project_value, currency_value=None, default_price=None, temp_object=False</string> </value>
+            <value> <string>subscriber_person_value, variation_category_list, project_value, currency_value=None, default_price=None, temp_object=False, portal_type=\'Subscription Request\', item_value=None, causality_value=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

@@ -1,4 +1,7 @@
 <allowed_content_type_list>
+ <portal_type id="Subscription Change Request Module">
+  <item>Subscription Change Request</item>
+ </portal_type>
  <portal_type id="Subscription Request">
   <item>Email</item>
  </portal_type>

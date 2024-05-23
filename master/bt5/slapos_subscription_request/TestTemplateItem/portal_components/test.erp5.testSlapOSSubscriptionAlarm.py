@@ -111,3 +111,26 @@ class TestSlapOSSubscriptionRequestValidateAlarm(SlapOSTestCaseMixin):
     subscription_request = self._createSubscriptionRequest()
     self.portal.portal_workflow._jumpToStateFor(subscription_request, 'submitted')
     self._test_alarm(alarm, subscription_request, script_name)
+
+
+class TestSlapOSSubscriptionChangeRequestValidateAlarm(SlapOSTestCaseMixin):
+  #################################################################
+  # slapos_subscription_change_request_validate_submitted
+  #################################################################
+  def _createSubscriptionChangeRequest(self):
+    return self.portal.subscription_change_request_module.newContent(
+      portal_type='Subscription Change Request',
+      title="Test subscription change %s" % (self.generateNewId())
+    )
+
+  def test_SubscriptionChangeRequest_validateIfSubmitted_alarm_notSubmitted(self):
+    script_name = "SubscriptionChangeRequest_validateIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_subscription_change_request_validate_submitted
+    self._test_alarm_not_visited(alarm, self._createSubscriptionChangeRequest(), script_name)
+
+  def test_SubscriptionChangeRequest_validateIfSubmitted_alarm_submitted(self):
+    script_name = "SubscriptionChangeRequest_validateIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_subscription_change_request_validate_submitted
+    subscription_request = self._createSubscriptionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(subscription_request, 'submitted')
+    self._test_alarm(alarm, subscription_request, script_name)

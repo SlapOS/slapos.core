@@ -1,3 +1,15 @@
+Subscription Change Request | Amount
+Subscription Change Request | CredentialRequest
+Subscription Change Request | DublinCore
+Subscription Change Request | InstanceTree
+Subscription Change Request | Person
+Subscription Change Request | Price
+Subscription Change Request | Reference
+Subscription Change Request | SlapOSSaleProfileConstraint
+Subscription Change Request | SlapOSSubscriptionRequestConstraint
+Subscription Change Request | Task
+Subscription Change Request | Url
+Subscription Change Request | VariationRange
 Subscription Request | Amount
 Subscription Request | CredentialRequest
 Subscription Request | DublinCore

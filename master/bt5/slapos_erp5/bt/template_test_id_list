@@ -7,6 +7,7 @@ test.erp5.testSlapOSERP5InteractionWorkflow
 test.erp5.testSlapOSERP5LocalPermissionSlapOSInteractionWorkflow
 test.erp5.testSlapOSERP5SiteDump
 test.erp5.testSlapOSERP5SkinSelection
+test.erp5.testSlapOSERP5SubscriptionChangeRequestScenario
 test.erp5.testSlapOSERP5VirtualMasterScenario
 test.erp5.testSlapOSPrecacheManifest
 test.erp5.testSlapOSPrecacheManifest

@@ -1653,6 +1653,26 @@ class TestSubscriptionRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, person.getUserId(), ['Associate'])
     self.assertRoles(delivery, "SHADOW-%s" % person.getUserId(), ['Auditor'])
 
+class TestSubscriptionChangeRequestModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_SubscriptionChangeRequestModule(self):
+    module = self.portal.subscription_change_request_module
+    self.assertSecurityGroup(module,
+        ['F-SALE*', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
+    self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
+
+
+class TestSubscriptionChangeRequest(TestSlapOSGroupRoleSecurityMixin):
+  def test_SubscriptionChangeRequest_default(self):
+    delivery = self.portal.subscription_change_request_module.newContent(
+        portal_type='Subscription Change Request')
+    self.assertSecurityGroup(delivery,
+        [self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
+    self.assertRoles(delivery, 'F-SALEAGT', ['Auditor'])
+    self.assertRoles(delivery, 'F-SALEMAN', ['Auditor'])
+
+
 class TestOrganisationModule(TestSlapOSGroupRoleSecurityMixin):
   def test_OrganisationModule(self):
     module = self.portal.organisation_module

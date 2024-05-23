@@ -231,6 +231,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'software_product_module',
        'software_publication_module',
        'software_release_module',
+       'subscription_change_request_module',
        'subscription_request_module',
        'support_request_module',
        'system_event_module',

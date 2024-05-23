@@ -1,5 +1,9 @@
 from erp5.component.module.DateUtils import getClosestDate, addToDate
 
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
+
 portal = context.getPortalObject()
 subscription_request = context
 
@@ -126,38 +130,11 @@ open_sale_order.validate()
 
 #######################################################
 # Discount
-unused_day_count = current_date - start_date
-if (subscription_request.getPrice() != 0) and (0 < unused_day_count):
-  # If the open order starts before today,
-  # generate a discount to the user on his next invoice
-
-  open_order_edit_kw['title'] = "first invoice discount for %s" % open_sale_order.getReference()
-  sale_packing_list = portal.sale_packing_list_module.newContent(
-    portal_type="Sale Packing List",
-    # It should match the first open order invoice
-    stop_date=next_period_date,
-    **open_order_edit_kw
-  )
-  price = -subscription_request.getPrice() * (unused_day_count / (next_period_date - start_date))
-  precision = context.getQuantityPrecisionFromResource(subscription_request.getPriceCurrencyValue())
-  # Use currency precision to reduce the float length
-  price = float(('%%0.%sf' % precision) % price)
-  discount_service = portal.restrictedTraverse('service_module/slapos_discount')
-  sale_packing_list.newContent(
-    portal_type="Sale Packing List Line",
-    resource_value=discount_service,
-    # Use a quantity of 1 to be able to count how many discount were distributed
-    quantity=1,
-    price=price,
-    quantity_unit_value=discount_service.getQuantityUnitValue(),
-    base_contribution_list=discount_service.getBaseContributionList(),
-    use=discount_service.getUse(),
-    activate_kw=activate_kw
-  )
-  sale_packing_list.Delivery_fixBaseContributionTaxableRate()
-  sale_packing_list.Base_checkConsistency()
-  sale_packing_list.confirm()
-  sale_packing_list.stop()
-  sale_packing_list.deliver()
+open_order_cell.OpenSaleOrderCell_createDiscountSalePackingList(
+  current_date,
+  "first invoice discount for %s" % open_sale_order.getReference(),
+  subscription_request,
+  activate_kw=activate_kw
+)
 
 return open_sale_order

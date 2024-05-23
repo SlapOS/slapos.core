@@ -19,7 +19,7 @@ for open_order_line in open_sale_order.contentValues(
     if item is None:
       raise AssertionError('No matching item on: %s' % open_order_cell.getRelativeUrl())
 
-    if item.getValidationState() not in ['invalidated', 'archived']:
+    if check_unused_item and (item.getValidationState() not in ['invalidated', 'archived']):
       # Do not touch if the item is not clean yet
       return
 

@@ -486,6 +486,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       shadow_document=owner_person,
       callable_object=wrapWithShadow,
       argument_list=[owner_person, total_price, currency.getRelativeUrl()])
+    
     self.tic()
     self.logout()
     self.login()
@@ -860,20 +861,23 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # Pay deposit to validate virtual master + one computer
       deposit_amount = 42.0 + 99.0 
       ledger = self.portal.portal_categories.ledger.automated
+      
       amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
           currency.getUid(), ledger_uid=ledger.getUid())])
       self.assertEqual(amount, deposit_amount)
   
-      def wrapWithShadow(_person, *arg):
-        return _person.Entity_addDepositPayment(*arg)
-      payment_transaction = project_owner_person.Person_restrictMethodAsShadowUser(
-        shadow_document=project_owner_person,
-        callable_object=wrapWithShadow,
-        argument_list=[project_owner_person, deposit_amount, currency.getRelativeUrl()])
+      project_owner_person.Entity_createExternalPaymentTransactionFromDepositAndRedirect(
+        currency.getReference())
       self.tic()
       self.logout()
       self.login()
-      # payzen interface will only stop the payment
+      payment_transaction = self.portal.portal_catalog.getResultValue(
+        portal_type="Payment Transaction",
+        destination_section_uid=project_owner_person.getUid(),
+        simulation_state="started"
+      )
+      self.assertEqual(payment_transaction.getSpecialiseValue().getTradeConditionType(), "deposit")
+      # payzen/wechat or accountant will only stop the payment
       payment_transaction.stop()
       self.tic()
       assert payment_transaction.receivable.getGroupingReference(None) is not None

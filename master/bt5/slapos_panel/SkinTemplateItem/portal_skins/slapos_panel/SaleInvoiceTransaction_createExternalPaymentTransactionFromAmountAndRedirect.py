@@ -10,7 +10,6 @@ assert outstanding_amount.getLedgerUid() == portal.portal_categories.ledger.auto
 assert outstanding_amount.getDestinationSectionUid() == entity.getUid()
 
 payment_mode = outstanding_amount.Base_getPaymentModeForCurrency(outstanding_amount.getPriceCurrencyUid())
-assert payment_mode is not None
 
 def wrapWithShadow(entity, outstanding_amount, payment_mode):
   return entity.Entity_createPaymentTransaction(

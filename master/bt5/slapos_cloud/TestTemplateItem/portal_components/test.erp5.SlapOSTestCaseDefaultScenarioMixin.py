@@ -673,20 +673,25 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     self.tic()
 
-    amount = sum([i.total_price for i in person.Entity_getOutstandingDepositAmountList(
-          currency.getUid(), ledger_uid=subscription_request.getLedgerUid())])
-    self.assertEqual(amount, deposit_amount)
+    outstanding_amount_list = person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=subscription_request.getLedgerUid())
 
-    # Action to submit project subscription
-    def wrapWithShadow(_person, *arg):
-      return _person.Entity_addDepositPayment(*arg)
-    payment_transaction = person.Person_restrictMethodAsShadowUser(
-      shadow_document=person,
-      callable_object=wrapWithShadow,
-      argument_list=[person, deposit_amount, currency.getRelativeUrl()])
+    self.assertEqual(sum([i.total_price for i in outstanding_amount_list]), deposit_amount)
+
+    self.login(person.getUserId())
+    # Ensure to pay from the website
+    outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
+    outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
+
     self.tic()
     self.logout()
     self.login()
+    payment_transaction = self.portal.portal_catalog.getResultValue(
+      portal_type="Payment Transaction",
+      destination_section_uid=person.getUid(),
+      simulation_state="started"
+    )
+    self.assertEqual(payment_transaction.getSpecialiseValue().getTradeConditionType(), "deposit")
     # payzen interface will only stop the payment
     payment_transaction.stop()
     self.tic()

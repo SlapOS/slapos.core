@@ -14,7 +14,6 @@ ledger_uid = portal.portal_categories.ledger.automated.getUid()
 currency_uid = currency_value.getUid()
 
 payment_mode = context.Base_getPaymentModeForCurrency(currency_value.getUid())
-assert payment_mode is not None
 
 outstanding_amount_list = context.Entity_getOutstandingDepositAmountList(
   resource_uid=currency_uid, ledger_uid=ledger_uid)
@@ -40,5 +39,4 @@ payment_transaction = context.Person_restrictMethodAsShadowUser(
   argument_list=[context, deposit_price, currency_value, payment_mode])
 
 web_site = context.getWebSiteValue()
-assert web_site is not None
 return payment_transaction.PaymentTransaction_redirectToManualPayment(web_site=web_site)

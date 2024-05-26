@@ -77,6 +77,7 @@ def checkSoftware(slap, software_url):
       'libresolv',
       'librt',
       'libstdc++',
+      'libquadmath',
       'libutil',
   ))
 

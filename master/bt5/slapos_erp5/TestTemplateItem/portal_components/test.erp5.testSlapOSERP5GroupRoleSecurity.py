@@ -1628,11 +1628,12 @@ class TestSubscriptionRequest(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Subscription Request')
     delivery.edit(destination_decision_value=person, ledger="automated")
     self.assertSecurityGroup(delivery,
-        ['F-SALE*', self.user_id, person.getUserId()], False)
+        ['F-SALE*', self.user_id, "R-SHADOW-PERSON",
+           person.getUserId()], False)
     self.assertRoles(delivery, self.user_id, ['Owner'])
     self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
     self.assertRoles(delivery, person.getUserId(), ['Associate'])
-
+    self.assertRoles(delivery, 'R-SHADOW-PERSON', ['Auditor'])
 
 class TestOrganisationModule(TestSlapOSGroupRoleSecurityMixin):
   def test_OrganisationModule(self):

@@ -250,6 +250,10 @@
                           <string>connection_value</string>
                           <string></string>
                         </tuple>
+                        <tuple>
+                          <string>SoftwareInstance_getAllocationInformation</string>
+                          <string>SoftwareInstance_getComputeNodeUrl</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

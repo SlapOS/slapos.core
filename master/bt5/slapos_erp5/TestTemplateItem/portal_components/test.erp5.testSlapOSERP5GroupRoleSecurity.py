@@ -715,11 +715,12 @@ class TestInstanceTreeModule(TestSlapOSGroupRoleSecurityMixin):
   def test_InstanceTreeModule(self):
     module = self.portal.instance_tree_module
     self.assertSecurityGroup(module,
-        ['F-PRODUCTION*', 'R-COMPUTER', 'F-CUSTOMER', 'R-INSTANCE', module.Base_getOwnerId()], False)
+        ['F-PRODUCTION*', 'R-COMPUTER', 'F-CUSTOMER', 'F-SALE*', 'R-INSTANCE', module.Base_getOwnerId()], False)
     self.assertRoles(module, 'F-CUSTOMER', ['Auditor', 'Author'])
     self.assertRoles(module, 'R-COMPUTER', ['Auditor'])
     self.assertRoles(module, 'R-INSTANCE', ['Auditor'])
     self.assertRoles(module, 'F-PRODUCTION*', ['Auditor'])
+    self.assertRoles(module, 'F-SALE*', ['Auditor'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
 
 
@@ -730,9 +731,10 @@ class TestInstanceTree(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Instance Tree')
     subscription.edit(reference=reference)
 
-    self.assertSecurityGroup(subscription, [self.user_id, reference], False)
+    self.assertSecurityGroup(subscription, [self.user_id, 'F-SALE*', reference], False)
     self.assertRoles(subscription, reference, ['Assignee'])
     self.assertRoles(subscription, self.user_id, ['Owner'])
+    self.assertRoles(subscription, 'F-SALE*', ['Auditor'])
 
   def test_InstanceTree_CustomOfTheInstanceTree(self):
     customer_reference = 'TESTPERSON-%s' % self.generateNewId()
@@ -744,9 +746,10 @@ class TestInstanceTree(TestSlapOSGroupRoleSecurityMixin):
     subscription.edit(
         destination_section_value=customer)
 
-    self.assertSecurityGroup(subscription, [self.user_id, reference,
+    self.assertSecurityGroup(subscription, [self.user_id, 'F-SALE*', reference,
         customer.getUserId()], False)
     self.assertRoles(subscription, reference, ['Assignee'])
+    self.assertRoles(subscription, 'F-SALE*', ['Auditor'])
     self.assertRoles(subscription, customer.getUserId(), ['Assignee'])
     self.assertRoles(subscription, self.user_id, ['Owner'])
 
@@ -759,11 +762,12 @@ class TestInstanceTree(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Instance Tree', reference=reference)
     subscription.edit(
         follow_up_value=project)
-    self.assertSecurityGroup(subscription, [self.user_id, reference,
+    self.assertSecurityGroup(subscription, [self.user_id, 'F-SALE*', reference,
         '%s_F-PRODAGNT' % project.getReference(),
         '%s_F-PRODMAN' % project.getReference()], False)
     self.assertRoles(subscription, reference, ['Assignee'])
     self.assertRoles(subscription, self.user_id, ['Owner'])
+    self.assertRoles(subscription, 'F-SALE*', ['Auditor'])
     self.assertRoles(subscription, '%s_F-PRODMAN' % project.getReference(), ['Assignor'])
     self.assertRoles(subscription, '%s_F-PRODAGNT' % project.getReference(), ['Assignee'])
 
@@ -989,8 +993,9 @@ class TestSoftwareProduct(TestSlapOSGroupRoleSecurityMixin):
     product = self.portal.software_product_module.newContent(
         portal_type='Software Product')
     self.assertSecurityGroup(product,
-        [self.user_id], False)
+        [self.user_id, 'F-SALE*'], False)
     self.assertRoles(product, self.user_id, ['Owner'])
+    self.assertRoles(product, 'F-SALE*', ['Auditor'])
 
   def test_SoftwareProduct_Project(self):
     project = self.addProject()
@@ -999,10 +1004,12 @@ class TestSoftwareProduct(TestSlapOSGroupRoleSecurityMixin):
     product.edit(
         follow_up_value=project)
     self.assertSecurityGroup(product, [self.user_id,
+        'F-SALE*',
         '%s_F-CUSTOMER' % project.getReference(),
         '%s_F-PRODAGNT' % project.getReference(),
         '%s_F-PRODMAN' % project.getReference()], False)
     self.assertRoles(product, self.user_id, ['Owner'])
+    self.assertRoles(product, 'F-SALE*', ['Auditor'])
     self.assertRoles(product, '%s_F-PRODMAN' % project.getReference(), ['Assignor'])
     self.assertRoles(product, '%s_F-PRODAGNT' % project.getReference(), ['Assignee'])
     self.assertRoles(product, '%s_F-CUSTOMER' % project.getReference(), ['Auditor'])

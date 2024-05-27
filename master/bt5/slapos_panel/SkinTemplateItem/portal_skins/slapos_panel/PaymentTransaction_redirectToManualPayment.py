@@ -1,5 +1,5 @@
 if (context.getPaymentMode() == "wechat"):
-  return context.PaymentTransaction_redirectToManualWechatPayment(web_site=web_site)
+  return context.PaymentTransaction_redirectToManualWechatPayment()
 elif (context.getPaymentMode() == "payzen"):
   return context.PaymentTransaction_redirectToManualPayzenPayment()
 else:

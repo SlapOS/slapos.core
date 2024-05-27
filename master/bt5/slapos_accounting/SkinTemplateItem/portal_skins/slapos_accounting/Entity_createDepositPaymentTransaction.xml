@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>price, currency_relative_url, payment_mode=None, REQUEST=None</string> </value>
+            <value> <string>subscription_list, payment_mode=None, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Entity_addDepositPayment</string> </value>
+            <value> <string>Entity_createDepositPaymentTransaction</string> </value>
         </item>
       </dictionary>
     </pickle>

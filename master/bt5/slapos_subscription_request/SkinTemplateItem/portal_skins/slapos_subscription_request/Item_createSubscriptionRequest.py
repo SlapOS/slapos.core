@@ -62,6 +62,7 @@ except AssertionError as error:
   storeWorkflowComment(item, str(error))
   return
 subscription_request.setAggregateValue(item)
+subscription_request.setCausalityValue(item)
 
 subscription_request.reindexObject(activate_kw=activate_kw)
 item.reindexObject(activate_kw=activate_kw)

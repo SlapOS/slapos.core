@@ -862,12 +862,15 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       deposit_amount = 42.0 + 99.0 
       ledger = self.portal.portal_categories.ledger.automated
       
-      amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
-          currency.getUid(), ledger_uid=ledger.getUid())])
+      outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())
+      amount = sum([i.total_price for i in outstanding_amount_list])
       self.assertEqual(amount, deposit_amount)
   
-      project_owner_person.Entity_createExternalPaymentTransactionFromDepositAndRedirect(
-        currency.getReference())
+      # Ensure to pay from the website
+      outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
+      outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
+
       self.tic()
       self.logout()
       self.login()

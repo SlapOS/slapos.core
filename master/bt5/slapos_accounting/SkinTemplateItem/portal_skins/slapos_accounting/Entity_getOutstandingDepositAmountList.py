@@ -1,10 +1,12 @@
 portal = context.getPortalObject()
-from Products.ERP5Type.Document import newTempBase
 
 query_kw = {
   "portal_type": "Subscription Request",
   "simulation_state": "submitted"
 }
+
+if section_uid:
+  query_kw['source_section__uid'] = section_uid
 
 if ledger_uid:
   query_kw['ledger__uid'] = ledger_uid
@@ -21,25 +23,14 @@ for subscription_request_brain in portal.portal_catalog(
   subscription_request = subscription_request_brain.getObject()
   subscription_request_total_price = subscription_request.getTotalPrice()
   if 0 < subscription_request_total_price:
-    currency = subscription_request.getPriceCurrency()
+    currency_uid = subscription_request.getPriceCurrencyUid()
     # Future proof in case we implement B2B payment
-    object_index = "%s_%s" % (currency, subscription_request.getDestinationSection())
+    object_index = "%s_%s" % (currency_uid, subscription_request.getSourceSection())
     if object_index not in object_dict:
-      object_dict[object_index] = dict(
-        causality_list=[],
-        uid=object_index,
-        price_currency=currency,
-        destination_section=subscription_request.getDestinationSection(),
-        total_price = 0)
+      object_dict[object_index] = [subscription_request, subscription_request_total_price]
+    else:
+      subscription_request_total_price += object_dict[object_index][1]
+      object_dict[object_index] = [object_dict[object_index][0],
+         subscription_request_total_price]
 
-    object_dict[object_index]['total_price'] = \
-      object_dict[object_index]['total_price'] + subscription_request_total_price
-    
-    object_dict[object_index]['causality_list'].append(subscription_request.getRelativeUrl())
-
-object_list = []
-for key in object_dict:
-  object_list.append(newTempBase(
-    portal, object_dict[key]['causality_list'][0], **object_dict[key])) 
-
-return object_list
+return [s.asContext(total_price=price) for s, price in object_dict.values()]

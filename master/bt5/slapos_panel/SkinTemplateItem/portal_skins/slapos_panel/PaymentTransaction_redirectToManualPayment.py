@@ -3,4 +3,4 @@ if (context.getPaymentMode() == "wechat"):
 elif (context.getPaymentMode() == "payzen"):
   return context.PaymentTransaction_redirectToManualPayzenPayment()
 else:
-  raise context.PaymentTransaction_triggerPaymentCheckAlarmAndRedirectToPanel(result="contact_us")
+  return context.PaymentTransaction_triggerPaymentCheckAlarmAndRedirectToPanel(result="contact_us")

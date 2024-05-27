@@ -7,9 +7,52 @@ from Products.ERP5Type.Message import translateString
 
 portal = context.getPortalObject()
 
+if not subscription_list:
+  raise ValueError('You need to provide at least one Invoice transaction')
+
+payment_tag = 'Entity_addDepositPayment_%s' % context.getUid()
+if context.REQUEST.get(payment_tag, None) is not None:
+  raise ValueError('This script was already called twice on the same transaction ')
+activate_kw = {
+  'tag': payment_tag
+}
+
+# Ensure all invoice use the same arrow and resource
+first_subscription = subscription_list[0]
+identical_dict = {
+  'getSource': first_subscription.getSource(),
+  'getSourceSection': first_subscription.getSourceSection(),
+  'getDestinationSection': first_subscription.getDestinationSection(),
+  'getPriceCurrency': first_subscription.getPriceCurrency(),
+  'getLedger': first_subscription.getLedger(),
+}
+
+price = 0
+for subscription in subscription_list:
+  for method_id, method_value in identical_dict.items():
+    if getattr(subscription, method_id)() != method_value:
+      raise ValueError('Subscription Requests do not match on method: %s' % method_id)
+  if subscription.total_price:
+    price += subscription.total_price
+
+  # Simulation state
+  if not subscription.isTempObject() and subscription.getSimulationState() != "submitted":
+    raise ValueError('Not on submitted state')
+
+  if subscription.getPortalType() != "Subscription Request":
+    raise ValueError('Not an Subscription Request')
+
+if not price:
+  raise ValueError("No price to to pay")
+
+if first_subscription.getDestinationSection() != context.getRelativeUrl():
+  raise ValueError("Subscription not related to the context")
+
 ######################################################
 # Find Sale Trade Condition
 source_section = context
+currency_relative_url = first_subscription.getPriceCurrency()
+ledger_relative_url = first_subscription.getLedger()
 
 # Create a temp Sale Order to calculate the real price and find the trade condition
 now = DateTime()
@@ -23,7 +66,7 @@ tmp_sale_order = module.newContent(
   destination_value=source_section,
   destination_section_value=source_section,
   destination_decision_value=source_section,
-  ledger_value=portal.portal_categories.ledger.automated,
+  ledger=ledger_relative_url,
   price_currency=currency_relative_url
 )
 tmp_sale_order.SaleOrder_applySaleTradeCondition(batch_mode=1, force=1)
@@ -40,7 +83,8 @@ if (tmp_sale_order.getSourceSection(None) == tmp_sale_order.getDestinationSectio
   raise AssertionError('The trade condition does not generate accounting: %s' % tmp_sale_order.getSpecialise())
 
 #######################################################
-payment_transaction = portal.accounting_module.newContent(
+# Use context, so we can handle acquisition.
+payment_transaction = context.accounting_module.newContent(
   title="reservation payment",
   portal_type="Payment Transaction",
   start_date=now,
@@ -56,10 +100,10 @@ payment_transaction = portal.accounting_module.newContent(
   destination_decision=tmp_sale_order.getDestinationDecision(),
   destination_project=tmp_sale_order.getDestinationProject(),
   payment_mode=payment_mode,
-  ledger_value=portal.portal_categories.ledger.automated,
+  ledger_value=ledger_relative_url,
   resource=tmp_sale_order.getPriceCurrency(),
   created_by_builder=1, # XXX this prevent init script from creating lines.
-  activate_kw={'tag':'%s_init' % context.getRelativeUrl()}
+  activate_kw=activate_kw
 )
 
 getAccountForUse = context.Base_getAccountForUse
@@ -70,7 +114,8 @@ payment_transaction.newContent(
   portal_type='Accounting Transaction Line',
   quantity=price,
   source_value=getAccountForUse('asset_receivable_subscriber'),
-  destination_value=getAccountForUse('payable')
+  destination_value=getAccountForUse('payable'),
+  activate_kw=activate_kw
 )
 
 # bank
@@ -80,12 +125,16 @@ payment_transaction.newContent(
   portal_type='Accounting Transaction Line',
   quantity=-price,
   source_value=collection_account,
-  destination_value=collection_account
+  destination_value=collection_account,
+  activate_kw=activate_kw
 )
 
 if len(payment_transaction.checkConsistency()) != 0:
   raise AssertionError(payment_transaction.checkConsistency()[0])
 
 payment_transaction.start(comment=translateString("Deposit payment."))
+
+# Set a flag on the request for prevent 2 calls on the same transaction
+context.REQUEST.set(payment_tag, 1)
 
 return payment_transaction

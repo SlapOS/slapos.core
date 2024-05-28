@@ -8,7 +8,7 @@ from Products.ERP5Type.Message import translateString
 portal = context.getPortalObject()
 
 if not subscription_list:
-  raise ValueError('You need to provide at least one Invoice transaction')
+  raise ValueError('You need to provide at least one Subscription Request')
 
 payment_tag = 'Entity_addDepositPayment_%s' % context.getUid()
 if context.REQUEST.get(payment_tag, None) is not None:

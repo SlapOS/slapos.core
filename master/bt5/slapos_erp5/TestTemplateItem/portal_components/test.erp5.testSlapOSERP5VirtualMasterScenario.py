@@ -338,7 +338,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     owner_person = self.portal.portal_catalog.getResultValue(
       portal_type="ERP5 Login",
       reference=owner_reference).getParentValue()
-    #owner_person.setCareerSubordinationValue(seller_organisation)
+    # owner_person.setCareerSubordinationValue(seller_organisation)
 
     self.tic()
 
@@ -479,9 +479,24 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # to check if other services are ok
     total_price = 1234
 
+
+
     # Action to submit project subscription
-    def wrapWithShadow(person, *arg):
-      return person.Entity_addDepositPayment(*arg)
+    def wrapWithShadow(person, total_price, currency):
+      # pre-include a large amount of w/o any subscription request using a temp
+      # object. It requires to be created under shadow user for security reasons.
+      tmp_subscription_request = self.portal.portal_trash.newContent(
+        portal_type='Subscription Request',
+        temp_object=True,
+        start_date=DateTime(),
+        destination_value=person,
+        destination_section_value=person,
+        ledger_value=self.portal.portal_categories.ledger.automated,
+        price_currency=currency,
+        total_price=total_price
+      )
+      return person.Entity_createDepositPaymentTransaction([tmp_subscription_request])
+  
     payment_transaction = owner_person.Person_restrictMethodAsShadowUser(
       shadow_document=owner_person,
       callable_object=wrapWithShadow,
@@ -495,6 +510,13 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.tic()
 
     assert payment_transaction.receivable.getGroupingReference(None) is not None
+
+    # Check if the Deposit lead to proper balance.
+    self.assertEqual(
+      owner_person.Entity_getDepositBalanceAmount(
+        currency_uid=currency.getUid(),
+        mirror_section_uid=payment_transaction.getSourceSectionUid()),
+      total_price)
 
     self.checkERP5StateBeforeExit()
 
@@ -561,11 +583,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
-
-      payment_transaction = customer_section_organisation.Entity_addDepositPayment(99*10, currency.getRelativeUrl())
-      # payzen interface will only stop the payment
-      payment_transaction.stop()
-      self.tic()
 
       preference = self.portal.portal_preferences.slapos_default_system_preference
       preference.edit(
@@ -674,6 +691,30 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       dedicated_trade_condition.validate()
       self.tic()
 
+      # Pay deposit to validate virtual master + one computer, for the organisation
+      # For now we cannot rely on user payments
+      deposit_amount = 42.0 + 99.0 
+      ledger = self.portal.portal_categories.ledger.automated
+      
+      outstanding_amount_list = customer_section_organisation.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())
+      amount = sum([i.total_price for i in outstanding_amount_list])
+      self.assertEqual(amount, deposit_amount)
+
+      payment_transaction = customer_section_organisation.Entity_createDepositPaymentTransaction(
+        outstanding_amount_list)
+
+      self.tic()
+      self.assertEqual(payment_transaction.getSpecialiseValue().getTradeConditionType(), "deposit")
+      # payzen/wechat or accountant will only stop the payment
+      payment_transaction.stop()
+      self.tic()
+      assert payment_transaction.receivable.getGroupingReference(None) is not None
+
+      outstanding_amount_list = customer_section_organisation.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())
+      self.assertEqual(0, sum([i.total_price for i in outstanding_amount_list]))
+
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
       self.checkInstanceAllocation(public_person.getUserId(),
@@ -727,8 +768,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Check accounting
     transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(mirror_section_uid=customer_section_organisation.getUid())
     assert len(transaction_list) == 2, len(transaction_list)
-    assert transaction_list[0].total_price == 990.0, transaction_list[0].total_price
-    assert transaction_list[1].total_price == -990.0, transaction_list[1].total_price
+    assert transaction_list[0].total_price == 141.0, transaction_list[0].total_price
+    assert transaction_list[1].total_price == -141.0, transaction_list[1].total_price
 
     self.login()
 
@@ -737,6 +778,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 allocation supply / line / cell
     # 1 compute node
     # 2 credential request
+    # 1 event
     # 1 instance tree
     # 6 open sale order / line
     # 5 (can reduce to 2) assignment
@@ -748,7 +790,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software instance
     # 1 software product
     # 3 subscription requests
-    self.assertRelatedObjectCount(project, 52)
+    self.assertRelatedObjectCount(project, 53)
 
     self.checkERP5StateBeforeExit()
 

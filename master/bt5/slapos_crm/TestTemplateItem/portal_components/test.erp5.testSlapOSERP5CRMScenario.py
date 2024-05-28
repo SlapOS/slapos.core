@@ -56,9 +56,38 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
     ##################################################
     # Add deposit
     with PinnedDateTime(self, creation_date):
-      payment_transaction = owner_person.Entity_addDepositPayment(99*100, currency.getRelativeUrl())
-      # payzen interface will only stop the payment
+      # Pay deposit to validate virtual master
+      self.login(owner_person.getUserId())
+      deposit_amount = 42.0
+      ledger = self.portal.portal_categories.ledger.automated
+      
+      outstanding_amount_list = owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())
+      amount = sum([i.total_price for i in outstanding_amount_list])
+      self.assertEqual(amount, deposit_amount)
+  
+      # Ensure to pay from the website
+      outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
+      outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
+
+      self.tic()
+      self.logout()
+      self.login()
+      payment_transaction = self.portal.portal_catalog.getResultValue(
+        portal_type="Payment Transaction",
+        destination_section_uid=owner_person.getUid(),
+        simulation_state="started"
+      )
+      self.assertEqual(payment_transaction.getSpecialiseValue().getTradeConditionType(), "deposit")
+      # payzen/wechat or accountant will only stop the payment
       payment_transaction.stop()
+      self.tic()
+      assert payment_transaction.receivable.getGroupingReference(None) is not None
+      self.login(owner_person.getUserId())
+
+      amount = sum([i.total_price for i in owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())])
+      self.assertEqual(0, amount)
 
     ##################################################
     # Add first batch of service, and generate invoices

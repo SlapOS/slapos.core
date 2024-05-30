@@ -26,11 +26,7 @@
         </item>
         <item>
             <key> <string>expression</string> </key>
-            <value> <string encoding="cdata"><![CDATA[
-
-python: 0 < context.getTotalQuantity()
-
-]]></string> </value>
+            <value> <string>python: 0 != context.getTotalQuantity()</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

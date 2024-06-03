@@ -459,7 +459,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
 
   def test_deposit_with_accounting_scenario(self):
-    currency, _, _, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
+    currency, seller_organisation, _, _ = \
+      self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
 
     self.logout()
     # lets join as slapos administrator, which will own few compute_nodes
@@ -479,28 +480,32 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # to check if other services are ok
     total_price = 1234
 
-
-
-    # Action to submit project subscription
-    def wrapWithShadow(person, total_price, currency):
-      # pre-include a large amount of w/o any subscription request using a temp
-      # object. It requires to be created under shadow user for security reasons.
-      tmp_subscription_request = self.portal.portal_trash.newContent(
+    def createTempSubscription(person, source_section, total_price, currency):
+      return self.portal.portal_trash.newContent(
         portal_type='Subscription Request',
         temp_object=True,
         start_date=DateTime(),
+        source_section=source_section,
         destination_value=person,
         destination_section_value=person,
         ledger_value=self.portal.portal_categories.ledger.automated,
         price_currency=currency,
         total_price=total_price
       )
+
+
+    # Action to submit project subscription
+    def wrapWithShadow(person, source_section, total_price, currency):
+      # pre-include a large amount of w/o any subscription request using a temp
+      # object. It requires to be created under shadow user for security reasons.
+      tmp_subscription_request = createTempSubscription(person, source_section, total_price, currency)
       return person.Entity_createDepositPaymentTransaction([tmp_subscription_request])
   
     payment_transaction = owner_person.Person_restrictMethodAsShadowUser(
       shadow_document=owner_person,
       callable_object=wrapWithShadow,
-      argument_list=[owner_person, total_price, currency.getRelativeUrl()])
+      argument_list=[owner_person, seller_organisation.getRelativeUrl(),
+       total_price, currency.getRelativeUrl()])
     
     self.tic()
     self.logout()
@@ -512,10 +517,11 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     assert payment_transaction.receivable.getGroupingReference(None) is not None
 
     # Check if the Deposit lead to proper balance.
+    tmp_subscription_request = createTempSubscription(
+      owner_person, seller_organisation.getRelativeUrl(), total_price, currency.getRelativeUrl())
+
     self.assertEqual(
-      owner_person.Entity_getDepositBalanceAmount(
-        currency_uid=currency.getUid(),
-        mirror_section_uid=payment_transaction.getSourceSectionUid()),
+      owner_person.Entity_getDepositBalanceAmount([tmp_subscription_request]),
       total_price)
 
     self.checkERP5StateBeforeExit()

@@ -34,9 +34,7 @@ total_price = subscription_request.getTotalPrice()
 if 0 < total_price:
 
   customer = subscription_request.getDestinationSectionValue()
-  balance = customer.Entity_getDepositBalanceAmount(
-    subscription_request.getPriceCurrencyUid(),
-    subscription_request.getSourceSectionUid())
+  balance = customer.Entity_getDepositBalanceAmount([subscription_request])
 
   # XXX what is the guarantee deposit account_type?
   if balance < total_price:

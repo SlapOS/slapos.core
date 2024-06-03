@@ -1,14 +1,35 @@
 portal = context.getPortalObject()
 
-assert_price_kw = {
-  'resource_uid': currency_uid,
-  'portal_type': portal.getPortalAccountingMovementTypeList(),
-  'ledger_uid': portal.portal_categories.ledger.automated.getUid(),
+# Ensure all invoice use the same arrow and resource
+first_subscription = subscription_list[0]
+identical_dict = {
+  'getSourceSection': first_subscription.getSourceSection(),
+  'getDestinationSection': first_subscription.getDestinationSection(),
+  'getPriceCurrency': first_subscription.getPriceCurrency(),
+  'getLedger': first_subscription.getLedger(),
 }
+
+for subscription in subscription_list:
+  for method_id, method_value in identical_dict.items():
+    if getattr(subscription, method_id)() != method_value:
+      raise ValueError('Subscription Requests do not match on method: %s' % method_id)
+
+  if subscription.getPortalType() != "Subscription Request":
+    raise ValueError('Not an Subscription Request')
+
+assert_price_kw = {
+  'resource_uid': first_subscription.getPriceCurrencyUid(),
+  'portal_type': portal.getPortalAccountingMovementTypeList(),
+  'ledger_uid': first_subscription.getLedgerUid(),
+}
+
+if first_subscription.getDestinationSection() != context.getRelativeUrl():
+  raise ValueError("Subscription not related to the context")
 
 # entity is the depositor
 # mirror_section_uid is the payee/recipient
 entity_uid = context.getUid()
+mirror_section_uid = first_subscription.getSourceSectionUid()
 
 # Total received
 deposit_amount = portal.portal_simulation.getInventoryAssetPrice(

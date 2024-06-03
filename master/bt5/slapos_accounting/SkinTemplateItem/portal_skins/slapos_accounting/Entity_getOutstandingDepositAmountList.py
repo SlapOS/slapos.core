@@ -25,12 +25,15 @@ for subscription_request_brain in portal.portal_catalog(
   if 0 < subscription_request_total_price:
     currency_uid = subscription_request.getPriceCurrencyUid()
     # Future proof in case we implement B2B payment
-    object_index = "%s_%s" % (currency_uid, subscription_request.getSourceSection())
+    object_index = "%s_%s_%s" % (
+      currency_uid,
+      subscription_request.getSourceSection(),
+      subscription_request.getLedger())
     if object_index not in object_dict:
       object_dict[object_index] = [subscription_request, subscription_request_total_price]
     else:
       subscription_request_total_price += object_dict[object_index][1]
       object_dict[object_index] = [object_dict[object_index][0],
-         subscription_request_total_price]
+                                   subscription_request_total_price]
 
 return [s.asContext(total_price=price) for s, price in object_dict.values()]

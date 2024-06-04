@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string></string> </value>
+            <value> <string>subscription_list, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>PaymentTransaction_redirectToManualPayzenPayment</string> </value>
+            <value> <string>Entity_getDepositBalanceAmount</string> </value>
         </item>
       </dictionary>
     </pickle>

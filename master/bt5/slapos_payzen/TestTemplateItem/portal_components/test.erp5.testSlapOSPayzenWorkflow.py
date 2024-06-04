@@ -1,9 +1,28 @@
-# Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+# -*- coding:utf-8 -*-
+##############################################################################
+#
+# Copyright (c) 2022 Nexedi SA and Contributors. All Rights Reserved.
+#
+# This program is Free Software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+##############################################################################
+from erp5.component.test.SlapOSTestCaseMixin import simulate
+from erp5.component.test.testSlapOSPayzenSkins import TestSlapOSPayzenMixin
 
 import lxml.html
 from DateTime import DateTime
-from Products.ERP5Type.tests.utils import createZODBPythonScript
 import difflib
 
 HARDCODED_PRICE = -99.6
@@ -15,7 +34,14 @@ vads_url_refused = 'http://example.org/refused'
 vads_url_success = 'http://example.org/success'
 vads_url_return = 'http://example.org/return'
 
-class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPayzenInterfaceWorkflow(TestSlapOSPayzenMixin):
+
+  def createPayzenService(self):
+    self.payzen_secure_payment = self.portal.portal_secure_payments.newContent(
+      portal_type="Payzen Service",
+      reference="PSERV-Payzen-Test"
+    )
+    self.tic()
 
   slapos_payzen_html = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -26,6 +52,8 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
   <title>title</title>
 </head>
 <body onload="document.payment.submit();">
+<center><h2>Redirecting to payment processor...</h2></center>
+<p></p><center><img src="ERP5VCS_imgs/wait.gif"></img></center>
 <form action="%(action)s" id="payment" method="POST" name="payment">
 
   <input name="signature" type="hidden" value="%(signature)s"></input>
@@ -94,21 +122,6 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
 </body>
 </html>'''
 
-
-  def _simulatePaymentTransaction_getTotalPayablePrice(self):
-    script_name = 'PaymentTransaction_getTotalPayablePrice'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\nreturn %f' % HARDCODED_PRICE)
-
-  def _dropPaymentTransaction_getTotalPayablePrice(self):
-    script_name = 'PaymentTransaction_getTotalPayablePrice'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-
   def test_generateManualPaymentPage_mandatoryParameters(self):
     event = self.createPayzenEvent()
     # vads_url_cancel
@@ -175,7 +188,7 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     event = self.createPayzenEvent()
     payment = self.createPaymentTransaction()
     event.edit(destination_value=payment)
-    _ , _ = payment.PaymentTransaction_generatePayzenId()
+    payment.PaymentTransaction_generatePayzenId()
     self.assertRaises(ValueError, event.generateManualPaymentPage,
       vads_url_cancel=vads_url_cancel,
       vads_url_error=vads_url_error,
@@ -199,11 +212,12 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     )
 
   def test_generateManualPaymentPage_noCurrency(self):
+    self.createPayzenService()
     event = self.createPayzenEvent()
     payment = self.createPaymentTransaction()
     event.edit(
       destination_value=payment,
-      source="portal_secure_payments/slapos_payzen_test",
+      source=self.payzen_secure_payment.getRelativeUrl(),
     )
     self.assertRaises(AttributeError, event.generateManualPaymentPage,
       vads_url_cancel=vads_url_cancel,
@@ -214,7 +228,21 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       vads_url_return=vads_url_return,
     )
 
+  @simulate("PaymentTransaction_getTotalPayablePrice", '*args, **kwargs',
+    '# Script body\nreturn %f' % HARDCODED_PRICE)
   def test_generateManualPaymentPage_defaultUseCase(self):
+    self.createPayzenService()
+    self.payzen_secure_payment.edit(
+      payzen_vads_action_mode='INTERACTIVE',
+      payzen_vads_ctx_mode='TEST',
+      payzen_vads_page_action='PAYMENT',
+      payzen_vads_version='V2',
+      link_url_string="https://secure.payzen.eu/vads-payment/",
+      service_api_key="A",
+      service_password="B",
+      service_username="C"
+    )
+    self.tic()
     event = self.createPayzenEvent()
     payment = self.createPaymentTransaction()
     payment.edit(
@@ -222,13 +250,11 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     )
     event.edit(
       destination_value=payment,
-      source="portal_secure_payments/slapos_payzen_test",
+      source=self.payzen_secure_payment.getRelativeUrl(),
     )
 
     before_date = DateTime()
-    self._simulatePaymentTransaction_getTotalPayablePrice()
-    try:
-      event.generateManualPaymentPage(
+    event.generateManualPaymentPage(
         vads_url_cancel=vads_url_cancel,
         vads_url_error=vads_url_error,
         vads_url_referral=vads_url_referral,
@@ -236,8 +262,6 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
         vads_url_success=vads_url_success,
         vads_url_return=vads_url_return,
       )
-    finally:
-      self._dropPaymentTransaction_getTotalPayablePrice()
     after_date = DateTime()
 
     # Payment start date is modified
@@ -271,7 +295,8 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       'vads_site_id': 'foo',
     }
     # Calculate the signature...
-    self.portal.portal_secure_payments.slapos_payzen_test._getFieldList(data_dict)
+
+    self.payzen_secure_payment._getFieldList(data_dict)
     data_dict['action'] = 'https://secure.payzen.eu/vads-payment/'
 
     if getattr(self, "custom_slapos_payzen_html", None):
@@ -314,45 +339,30 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     event.edit(
       destination_value=payment,
     )
-    _ , _ = payment.PaymentTransaction_generatePayzenId()
+    payment.PaymentTransaction_generatePayzenId()
     self.assertRaises(AttributeError, event.updateStatus)
 
   def mockRestGetInfo(self, method_to_call, expected_args, result_tuple):
-    payment_service = self.portal.portal_secure_payments.slapos_payzen_test
     def mockrest_getInfo(arg1, arg2):
       self.assertEqual(arg1, expected_args[0])
       self.assertEqual(arg2, expected_args[1])
       return result_tuple
-    setattr(payment_service, 'rest_getInfo', mockrest_getInfo)
+    setattr(self.payzen_secure_payment, 'rest_getInfo', mockrest_getInfo)
     try:
       return method_to_call()
     finally:
-      del payment_service.rest_getInfo
+      del self.payzen_secure_payment.rest_getInfo
 
-  def _simulatePayzenEvent_processUpdate(self):
-    script_name = 'PayzenEvent_processUpdate'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by PayzenEvent_processUpdate') """ )
-    self.commit()
-
-  def _dropPayzenEvent_processUpdate(self):
-    script_name = 'PayzenEvent_processUpdate'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    self.commit()
-
+  @simulate("PayzenEvent_processUpdate", '*args, **kwargs',
+    """portal_workflow = context.portal_workflow
+portal_workflow.doActionFor(context, action='edit_action', comment='Visited by PayzenEvent_processUpdate') """)
   def test_updateStatus_defaultUseCase(self):
+    self.createPayzenService()
     event = self.createPayzenEvent()
     payment = self.createPaymentTransaction()
     event.edit(
       destination_value=payment,
-      source="portal_secure_payments/slapos_payzen_test",
+      source_value=self.payzen_secure_payment,
     )
     transaction_date, transaction_id = \
       payment.PaymentTransaction_generatePayzenId()
@@ -361,17 +371,13 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
     mocked_sent_text = 'mocked_sent_text'
     mocked_received_text = 'mocked_received_text'
 
-    self._simulatePayzenEvent_processUpdate()
-    try:
-      self.mockRestGetInfo(
-        event.updateStatus,
-        (transaction_date.toZone('UTC').asdatetime(),
-          "%s-%s" % (transaction_date.toZone('UTC')\
-                           .asdatetime().strftime('%Y%m%d'), transaction_id)),
-        (mocked_data_kw, mocked_sent_text, mocked_received_text),
-      )
-    finally:
-      self._dropPayzenEvent_processUpdate()
+    self.mockRestGetInfo(
+      event.updateStatus,
+      (transaction_date.toZone('UTC').asdatetime(),
+        "%s-%s" % (transaction_date.toZone('UTC')\
+                         .asdatetime().strftime('%Y%m%d'), transaction_id)),
+      (mocked_data_kw, mocked_sent_text, mocked_received_text),
+    )
 
     event_message_list = event.contentValues(portal_type="Payzen Event Message")
     self.assertEqual(len(event_message_list), 2)

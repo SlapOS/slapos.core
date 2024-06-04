@@ -34,6 +34,34 @@ from zExceptions import Unauthorized
 
 class TestSlapOSAccounting(SlapOSTestCaseMixin):
 
+  def createIntegrationSite(self):
+    # Include a simple Integration site, which is required for
+    # PaymentTransaction_generatePayzenId
+    integration_site = self.portal.portal_integrations.newContent(
+      title="Integration site for test_AccountingTransaction_getPaymentState_payzen_waiting_payment",
+      reference="payzen",
+      portal_type="Integration Site"
+    )
+    integration_site.newContent(
+      id="Causality",
+      portal_type="Integration Base Category Mapping",
+      default_source_reference="Causality",
+      default_destination_reference="causality"
+    )
+    resource_map = integration_site.newContent(
+      id="Resource",
+      portal_type="Integration Base Category Mapping",
+      default_source_reference="Resource",
+      default_destination_reference="resource"
+    )
+    resource_map.newContent(
+      id='978',
+      portal_type="Integration Category Mapping",
+      default_destination_reference='resource/currency_module/EUR',
+      default_source_reference='978'
+    )
+    return integration_site
+
   def createHostingSubscription(self):
     new_id = self.generateNewId()
     return self.portal.hosting_subscription_module.newContent(
@@ -153,16 +181,32 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       causality_value=invoice,
       destination=invoice.getDestination(),
       destination_section=invoice.getDestinationSection(),
-      created_by_builder=1 # to prevent init script to create lines
+      created_by_builder=1  # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(payment, 'started')
 
-    self.tic()
-    payment.PaymentTransaction_generatePayzenId()
-    self.assertRaises(
-      ValueError,
-      invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
-      batch_mode=1)
+    system_preference = self.portal.portal_preferences.slapos_default_system_preference
+    older_integration_site = system_preference.getPreferredPayzenIntegrationSite()
+    
+    integration_site = self.createIntegrationSite()
+    system_preference.setPreferredPayzenIntegrationSite(
+      integration_site.getRelativeUrl()
+    )
+
+    try:
+      self.tic()
+      payment.PaymentTransaction_generatePayzenId()
+      self.assertRaises(
+        ValueError,
+        invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
+        batch_mode=1)
+    finally:
+      self.portal.portal_integrations.manage_delObjects(
+        ids=[integration_site.getId()])
+      system_preference.setPreferredPayzenIntegrationSite(
+        older_integration_site
+      )
+    
 
   @withAbort
   def test_createReversalSaleInvoiceTransaction_ok(self, payment_mode='payzen'):
@@ -388,19 +432,35 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       causality_value=invoice,
       destination=invoice.getDestination(),
       destination_section=invoice.getDestinationSection(),
-      created_by_builder=1 # to prevent init script to create lines
+      created_by_builder=1  # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(payment, 'started')
-    payment.PaymentTransaction_generatePayzenId()
-    self.tic()
-    self.login(person.getUserId())
-    self.assertEqual("Waiting for payment confirmation",
+
+    system_preference = self.portal.portal_preferences.slapos_default_system_preference
+    older_integration_site = system_preference.getPreferredPayzenIntegrationSite()
+    
+    integration_site = self.createIntegrationSite()
+    system_preference.setPreferredPayzenIntegrationSite(
+      integration_site.getRelativeUrl()
+    )
+
+    try:
+      payment.PaymentTransaction_generatePayzenId()
+      self.tic()
+      self.login(person.getUserId())
+      self.assertEqual("Waiting for payment confirmation",
                       invoice.AccountingTransaction_getPaymentState())
+    finally:
+      self.portal.portal_integrations.manage_delObjects(
+        ids=[integration_site.getId()])
+      system_preference.setPreferredPayzenIntegrationSite(
+        older_integration_site
+      )
 
   def test_AccountingTransaction_getPaymentState_wechat_waiting_payment(self):
     project = self.addProject()
     person = self.makePerson(project)
-    invoice =  self.createStoppedSaleInvoiceTransaction(
+    invoice = self.createStoppedSaleInvoiceTransaction(
       destination_section_value=person,
       payment_mode='wechat')
 

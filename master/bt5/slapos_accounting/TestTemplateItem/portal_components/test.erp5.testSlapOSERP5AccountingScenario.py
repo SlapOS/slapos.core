@@ -17,7 +17,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     User does not pay the subscription, which is cancelled after some time
     """
     with PinnedDateTime(self, DateTime('2020/05/19')):
-      owner_person, currency, project = self.bootstrapAccountingTest()
+      owner_person, _, project = self.bootstrapAccountingTest()
     # Ensure no unexpected object has been created
     # 2 assignment
     # 2 sale trade condition
@@ -32,9 +32,14 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       aggregate__uid=project.getUid()
     )
     self.assertEqual(subscription_request.getSimulationState(), "submitted")
-
+    deposit_outstanding_amount_list = owner_person.Entity_getOutstandingDepositAmountList()
+    self.assertEqual(len(deposit_outstanding_amount_list), 1)
+    self.assertEqual(subscription_request.getUid(),
+     deposit_outstanding_amount_list[0].getUid())
+    
     with PinnedDateTime(self, DateTime('2021/04/04')):
-      payment_transaction = owner_person.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
+      payment_transaction = owner_person.Entity_createDepositPaymentTransaction(
+        deposit_outstanding_amount_list)
       # payzen interface will only stop the payment
       payment_transaction.stop()
       self.tic()
@@ -209,9 +214,24 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Add deposit
     with PinnedDateTime(self, creation_date + 2):
       for person in person_list:
-        payment_transaction = person.Person_addDepositPayment(99*100, currency.getRelativeUrl(), 1)
+        # Just add some large sum, so instances dont get blocked.
+        tmp_subscription_request = self.portal.portal_trash.newContent(
+          portal_type='Subscription Request',
+          temp_object=True,
+          start_date=DateTime(),
+          # source_section rely on default trade condition, like the rest.
+          destination_value=person,
+          destination_section_value=person,
+          ledger_value=self.portal.portal_categories.ledger.automated,
+          price_currency=currency.getRelativeUrl(),
+          total_price=99 * 10
+        )
+    
+        payment_transaction = person.Entity_createDepositPaymentTransaction(
+          [tmp_subscription_request])
         # payzen interface will only stop the payment
         payment_transaction.stop()
+        self.tic()
 
     ##################################################
     # Add first batch of service, and generate invoices
@@ -299,7 +319,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     """
     creation_date = DateTime('2020/02/19')
     with PinnedDateTime(self, creation_date):
-      owner_person, currency, project = self.bootstrapAccountingTest()
+      owner_person, _, project = self.bootstrapAccountingTest()
       owner_person.edit(default_address_region='america/south/brazil')
 
     # Ensure no unexpected object has been created
@@ -310,10 +330,16 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     ##################################################
     # Add deposit (0.1 to prevent discount generation)
+    deposit_outstanding_amount_list = owner_person.Entity_getOutstandingDepositAmountList()
+    self.assertEqual(len(deposit_outstanding_amount_list), 1)
+    self.assertEqual(sum([i.total_price for i in deposit_outstanding_amount_list]), 42)
+
     with PinnedDateTime(self, creation_date + 0.1):
-      payment_transaction = owner_person.Person_addDepositPayment(99*100, currency.getRelativeUrl(), 1)
+      payment_transaction = owner_person.Entity_createDepositPaymentTransaction(
+        deposit_outstanding_amount_list)
       # payzen interface will only stop the payment
       payment_transaction.stop()
+      self.tic()
 
       self.logout()
       self.login()

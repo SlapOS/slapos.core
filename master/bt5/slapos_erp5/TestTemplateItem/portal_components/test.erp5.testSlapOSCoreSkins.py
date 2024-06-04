@@ -164,41 +164,74 @@ class TestSoftwareInstance_getSecurityCategoryFromUser(TestSlapOSCoreMixin):
     self.assertEqual([{'couscous': [person.getRelativeUrl()]}, {'destination_section': [person.getRelativeUrl()]}],
       self.portal.SoftwareInstance_getSecurityCategoryFromUser(["couscous", "destination_section"], None, instance, None)) 
 
-
-class TestPaymentTransaction_getSecurityCategoryFromUser(TestSlapOSCoreMixin):
+class TestSlaveInstance_getSecurityCategoryFromSoftwareInstance(TestSlapOSCoreMixin):
   def test(self):
     person = self.createPerson()
-    payment = self.portal.accounting_module.newContent(
-      portal_type='Payment Transaction', destination_value=person)
+    computer_node = self.portal.compute_node_module.newContent(
+      portal_type='Compute Node',
+      source_administration=person.getRelativeUrl())
+
+    partition = computer_node.newContent(portal_type="Compute Partition")
+
+    instance = self.portal.software_instance_module.newContent(
+      portal_type='Software Instance',
+      aggregate=partition.getRelativeUrl())
+
+    instance.validate()
+    slave_instance = self.portal.software_instance_module.newContent(
+      portal_type='Slave Instance',
+      aggregate=partition.getRelativeUrl())
+
+    self.tic()  # Script calls catalog so it requires indexation
 
     self.assertEqual([],
-      self.portal.PaymentTransaction_getSecurityCategoryFromUser([], None, None, None))
+      self.portal.SlaveInstance_getSecurityCategoryFromSoftwareInstance([], None, None, None))
 
     self.assertEqual([],
-      self.portal.PaymentTransaction_getSecurityCategoryFromUser([], None, payment, None)) 
+      self.portal.SlaveInstance_getSecurityCategoryFromSoftwareInstance([], None, slave_instance, None)) 
 
-    shadow_user_id = 'SHADOW-%s' % person.getUserId()
-    self.assertEqual({'Assignee': [shadow_user_id]},
-      self.portal.PaymentTransaction_getSecurityCategoryFromUser(["destination"], None, payment, None)) 
+    self.assertEqual([{'aggregate': [instance.getRelativeUrl()]}],
+      self.portal.SlaveInstance_getSecurityCategoryFromSoftwareInstance(["aggregate"], None, slave_instance, None)) 
 
-    self.assertEqual({'Assignee': [shadow_user_id]},
-      self.portal.PaymentTransaction_getSecurityCategoryFromUser(["couscous", "destination"], None, payment, None)) 
+    self.assertEqual([{'couscous': [instance.getRelativeUrl()]}, {'aggregate': [instance.getRelativeUrl()]}],
+      self.portal.SlaveInstance_getSecurityCategoryFromSoftwareInstance(["couscous", "aggregate"], None, slave_instance, None)) 
 
-class TestPayzenEvent_getSecurityCategoryFromUserr(TestSlapOSCoreMixin):
-  def test(self):
+
+class TestBase_getSecurityCategoryAsShadowUser(TestSlapOSCoreMixin):
+  def test_destination_section(self):
     person = self.createPerson()
     event = self.portal.system_event_module.newContent(
       portal_type='Payzen Event', destination_section_value=person)
 
     self.assertEqual([],
-      self.portal.PayzenEvent_getSecurityCategoryFromUser([], None, None, None))
+      self.portal.Base_getSecurityCategoryAsShadowUser([], None, None, None))
 
     self.assertEqual([],
-      self.portal.PayzenEvent_getSecurityCategoryFromUser([], None, event, None)) 
+      self.portal.Base_getSecurityCategoryAsShadowUser([], None, event, None)) 
 
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
-    self.assertEqual({'Assignee': [shadow_user_id]},
-      self.portal.PayzenEvent_getSecurityCategoryFromUser(["destination_section"], None, event, None)) 
+    self.assertEqual({'Assignee': [shadow_user_id], 'Auditor': [shadow_user_id]},
+      self.portal.Base_getSecurityCategoryAsShadowUser(["destination_section"], None, event, None)) 
 
-    self.assertEqual({'Assignee': [shadow_user_id]},
-      self.portal.PayzenEvent_getSecurityCategoryFromUser(["couscous", "destination_section"], None, event, None))
+    self.assertEqual([],
+      self.portal.Base_getSecurityCategoryAsShadowUser(["couscous", "destination_section"], None, event, None))
+
+  def test_destination(self):
+    person = self.createPerson()
+    payment = self.portal.accounting_module.newContent(
+      portal_type='Payment Transaction', destination_value=person)
+
+    self.assertEqual([],
+      self.portal.Base_getSecurityCategoryAsShadowUser([], None, None, None))
+
+    self.assertEqual([],
+      self.portal.Base_getSecurityCategoryAsShadowUser(["destination_section"], None, payment, None)) 
+
+    shadow_user_id = 'SHADOW-%s' % person.getUserId()
+    self.assertEqual({'Assignee': [shadow_user_id], 'Auditor': [shadow_user_id]},
+      self.portal.Base_getSecurityCategoryAsShadowUser(["destination"], None, payment, None)) 
+
+    # It only consider the first one.
+    self.assertEqual([],
+      self.portal.Base_getSecurityCategoryAsShadowUser(["couscous", "destination"], None, payment, None)) 
+

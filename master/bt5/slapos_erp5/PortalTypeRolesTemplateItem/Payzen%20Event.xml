@@ -9,8 +9,8 @@
   <role id='Assignee'>
    <property id='title'>Shadow User</property>
    <property id='condition'>python: here.getDestinationSection('', portal_type='Person') != ''</property>
-   <property id='base_category_script'>PayzenEvent_getSecurityCategoryFromUser</property>
+   <property id='base_category_script'>Base_getSecurityCategoryAsShadowUser</property>
    <multi_property id='categories'>local_role_group/shadow</multi_property>
-   <multi_property id='base_category'>aggregate</multi_property>
+   <multi_property id='base_category'>destination_section</multi_property>
   </role>
 </type_roles>

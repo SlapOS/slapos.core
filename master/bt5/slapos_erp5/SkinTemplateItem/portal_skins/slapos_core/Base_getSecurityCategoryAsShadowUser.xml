@@ -62,7 +62,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>PayzenEvent_getSecurityCategoryFromUser</string> </value>
+            <value> <string>Base_getSecurityCategoryAsShadowUser</string> </value>
         </item>
       </dictionary>
     </pickle>

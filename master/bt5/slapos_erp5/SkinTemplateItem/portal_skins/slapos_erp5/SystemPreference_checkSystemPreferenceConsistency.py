@@ -36,10 +36,6 @@ if not [x for x in subscription_assignment_category_list if x.startswith('destin
 
 preference_method_list = [
   "getPreferredHateoasUrl",
-  "getPreferredPayzenPaymentServiceReference",
-  "getPreferredPayzenIntegrationSite",
-  "getPreferredWechatPaymentServiceReference",
-  "getPreferredWechatIntegrationSite"
   ]
 
 for method_id in preference_method_list:

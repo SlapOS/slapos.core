@@ -338,7 +338,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     owner_person = self.portal.portal_catalog.getResultValue(
       portal_type="ERP5 Login",
       reference=owner_reference).getParentValue()
-    #owner_person.setCareerSubordinationValue(seller_organisation)
+    # owner_person.setCareerSubordinationValue(seller_organisation)
 
     self.tic()
 
@@ -459,7 +459,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
 
   def test_deposit_with_accounting_scenario(self):
-    currency, _, _, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
+    currency, seller_organisation, _, _ = \
+      self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
 
     self.logout()
     # lets join as slapos administrator, which will own few compute_nodes
@@ -472,20 +473,40 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       reference=owner_reference).getParentValue()
     self.tic()
 
-    # hooray
     self.logout()
     self.login(owner_person.getUserId())
 
-    # XXX XXX do reservation payment for a huge amount, to check if other services are ok
+    # Pre-input a reservation payment for a huge amount, to have enough amount.
+    # to check if other services are ok
     total_price = 1234
 
+    def createTempSubscription(person, source_section, total_price, currency):
+      return self.portal.portal_trash.newContent(
+        portal_type='Subscription Request',
+        temp_object=True,
+        start_date=DateTime(),
+        source_section=source_section,
+        destination_value=person,
+        destination_section_value=person,
+        ledger_value=self.portal.portal_categories.ledger.automated,
+        price_currency=currency,
+        total_price=total_price
+      )
+
+
     # Action to submit project subscription
-    def wrapWithShadow(person, *arg):
-      return person.Person_addDepositPayment(*arg)
+    def wrapWithShadow(person, source_section, total_price, currency):
+      # pre-include a large amount of w/o any subscription request using a temp
+      # object. It requires to be created under shadow user for security reasons.
+      tmp_subscription_request = createTempSubscription(person, source_section, total_price, currency)
+      return person.Entity_createDepositPaymentTransaction([tmp_subscription_request])
+  
     payment_transaction = owner_person.Person_restrictMethodAsShadowUser(
       shadow_document=owner_person,
       callable_object=wrapWithShadow,
-      argument_list=[owner_person, total_price, currency.getRelativeUrl(), 1])
+      argument_list=[owner_person, seller_organisation.getRelativeUrl(),
+       total_price, currency.getRelativeUrl()])
+    
     self.tic()
     self.logout()
     self.login()
@@ -494,6 +515,14 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.tic()
 
     assert payment_transaction.receivable.getGroupingReference(None) is not None
+
+    # Check if the Deposit lead to proper balance.
+    tmp_subscription_request = createTempSubscription(
+      owner_person, seller_organisation.getRelativeUrl(), total_price, currency.getRelativeUrl())
+
+    self.assertEqual(
+      owner_person.Entity_getDepositBalanceAmount([tmp_subscription_request]),
+      total_price)
 
     self.checkERP5StateBeforeExit()
 
@@ -560,12 +589,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
-
-      payment_transaction = customer_section_organisation.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
-      # payzen interface will only stop the payment
-      payment_transaction.stop()
-      self.tic()
-      self.portal.log('SubscriptionRequest_validateIfSubmitted %s' % payment_transaction.getSimulationState())
 
       preference = self.portal.portal_preferences.slapos_default_system_preference
       preference.edit(
@@ -674,6 +697,30 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       dedicated_trade_condition.validate()
       self.tic()
 
+      # Pay deposit to validate virtual master + one computer, for the organisation
+      # For now we cannot rely on user payments
+      deposit_amount = 42.0 + 99.0 
+      ledger = self.portal.portal_categories.ledger.automated
+      
+      outstanding_amount_list = customer_section_organisation.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())
+      amount = sum([i.total_price for i in outstanding_amount_list])
+      self.assertEqual(amount, deposit_amount)
+
+      payment_transaction = customer_section_organisation.Entity_createDepositPaymentTransaction(
+        outstanding_amount_list)
+
+      self.tic()
+      self.assertEqual(payment_transaction.getSpecialiseValue().getTradeConditionType(), "deposit")
+      # payzen/wechat or accountant will only stop the payment
+      payment_transaction.stop()
+      self.tic()
+      assert payment_transaction.receivable.getGroupingReference(None) is not None
+
+      outstanding_amount_list = customer_section_organisation.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())
+      self.assertEqual(0, sum([i.total_price for i in outstanding_amount_list]))
+
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
       self.checkInstanceAllocation(public_person.getUserId(),
@@ -718,7 +765,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     assert len(inventory_list) == 1, len(inventory_list)
     assert inventory_list[0].quantity == 1, inventory_list[0].quantity
     resource_vcl = [
-      #'software_release/%s' % release_variation.getRelativeUrl(),
+      # 'software_release/%s' % release_variation.getRelativeUrl(),
       'software_type/%s' % type_variation.getRelativeUrl()
     ]
     resource_vcl.sort()
@@ -727,8 +774,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Check accounting
     transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(mirror_section_uid=customer_section_organisation.getUid())
     assert len(transaction_list) == 2, len(transaction_list)
-    assert transaction_list[0].total_price == 990.0, transaction_list[0].total_price
-    assert transaction_list[1].total_price == -990.0, transaction_list[1].total_price
+    assert transaction_list[0].total_price == 141.0, transaction_list[0].total_price
+    assert transaction_list[1].total_price == -141.0, transaction_list[1].total_price
 
     self.login()
 
@@ -737,6 +784,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 allocation supply / line / cell
     # 1 compute node
     # 2 credential request
+    # 1 event
     # 1 instance tree
     # 6 open sale order / line
     # 5 (can reduce to 2) assignment
@@ -748,7 +796,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software instance
     # 1 software product
     # 3 subscription requests
-    self.assertRelatedObjectCount(project, 52)
+    self.assertRelatedObjectCount(project, 53)
 
     self.checkERP5StateBeforeExit()
 
@@ -759,31 +807,26 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       self.logout()
       # lets join as slapos administrator, which will manager the project
-      owner_reference = 'project-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      project_owner_reference = 'project-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, project_owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
+      project_owner_person = self.portal.portal_catalog.getResultValue(
         portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-      #owner_person.setCareerSubordinationValue(seller_organisation)
+        reference=project_owner_reference).getParentValue()
+      # owner_person.setCareerSubordinationValue(seller_organisation)
 
       self.tic()
-
-      # hooray, now it is time to create compute_nodes
       self.logout()
       self.login(sale_person.getUserId())
 
-      project_relative_url = self.addProject(is_accountable=True, person=owner_person, currency=currency)
+      project_relative_url = self.addProject(
+        is_accountable=True, person=project_owner_person, currency=currency)
 
       self.logout()
 
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
-
-      payment_transaction = owner_person.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
-      # payzen interface will only stop the payment
-      payment_transaction.stop()
 
       preference = self.portal.portal_preferences.slapos_default_system_preference
       preference.edit(
@@ -822,6 +865,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       )
       sale_supply.validate()
 
+      self.tic()
       # some preparation
       self.logout()
 
@@ -859,6 +903,42 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # format the compute_nodes
       self.formatComputeNode(public_server)
+      self.logout()
+      self.login(project_owner_person.getUserId())
+
+      # Pay deposit to validate virtual master + one computer
+      deposit_amount = 42.0 + 99.0 
+      ledger = self.portal.portal_categories.ledger.automated
+      
+      outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())
+      amount = sum([i.total_price for i in outstanding_amount_list])
+      self.assertEqual(amount, deposit_amount)
+  
+      # Ensure to pay from the website
+      outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
+      outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
+
+      self.tic()
+      self.logout()
+      self.login()
+      payment_transaction = self.portal.portal_catalog.getResultValue(
+        portal_type="Payment Transaction",
+        destination_section_uid=project_owner_person.getUid(),
+        simulation_state="started"
+      )
+      self.assertEqual(payment_transaction.getSpecialiseValue().getTradeConditionType(), "deposit")
+      # payzen/wechat or accountant will only stop the payment
+      payment_transaction.stop()
+      self.tic()
+      assert payment_transaction.receivable.getGroupingReference(None) is not None
+      self.login(project_owner_person.getUserId())
+
+      amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())])
+      self.assertEqual(0, amount)
+
+      self.logout()
 
       # join as the another visitor and request software instance on public
       # compute_node
@@ -871,16 +951,13 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         portal_type="ERP5 Login",
         reference=public_reference).getParentValue()
 
-      payment_transaction = public_person.Person_addDepositPayment(99*10, currency.getRelativeUrl(), 1)
-      # payzen interface will only stop the payment
-      payment_transaction.stop()
-
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
-      self.checkInstanceAllocation(public_person.getUserId(),
+      self.checkInstanceAllocationWithDeposit(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type,
-          public_server, project.getReference())
+          public_server, project.getReference(),
+          9.0, currency)
 
       self.login()
       public_person = self.portal.portal_catalog.getResultValue(
@@ -919,7 +996,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     assert len(inventory_list) == 1, len(inventory_list)
     assert inventory_list[0].quantity == 1, inventory_list[0].quantity
     resource_vcl = [
-      #'software_release/%s' % release_variation.getRelativeUrl(),
+      # 'software_release/%s' % release_variation.getRelativeUrl(),
       'software_type/%s' % type_variation.getRelativeUrl()
     ]
     resource_vcl.sort()
@@ -930,7 +1007,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     assert len(transaction_list) == 2, len(transaction_list)
     self.assertSameSet(
       [x.total_price for x in transaction_list],
-      [990.0, -990.0],
+      [9.0, -9.0],
       [x.total_price for x in transaction_list]
     )
 
@@ -941,7 +1018,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 allocation supply / line / cell
     # 1 compute node
     # 2 credential request
-    # 1 event
+    # 2 event
     # 1 instance tree
     # 6 open sale order / line
     # 5 (can reduce to 2) assignment
@@ -953,7 +1030,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software instance
     # 1 software product
     # 3 subscription requests
-    self.assertRelatedObjectCount(project, 52)
+    self.assertRelatedObjectCount(project, 53)
 
     self.checkERP5StateBeforeExit()
 

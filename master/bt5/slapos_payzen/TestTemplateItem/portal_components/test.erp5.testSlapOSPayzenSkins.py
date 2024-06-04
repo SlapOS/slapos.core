@@ -19,14 +19,77 @@
 #
 ##############################################################################
 
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort, \
+  SlapOSTestCaseMixin, simulate
 
 from DateTime import DateTime
 from zExceptions import Unauthorized
-from Products.ERP5Type.tests.utils import createZODBPythonScript
+
+class TestSlapOSPayzenMixin(SlapOSTestCaseMixin):
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    self.payzen_secure_payment = self.portal.portal_secure_payments.newContent(
+      portal_type="Payzen Service",
+      reference="PSERV-Payzen-Test-%s" % self.generateNewId()
+    )
+
+    # Include a simple Integration site
+    self.integration_site = self.portal.portal_integrations.newContent(
+      title="Integration site for: %s" % (self.payzen_secure_payment),
+      reference="payzen",
+      portal_type="Integration Site"
+    )
+    self.integration_site.newContent(
+      id="Causality",
+      portal_type="Integration Base Category Mapping",
+      default_source_reference="Causality",
+      default_destination_reference="causality"
+    )
+
+    resource_map = self.integration_site.newContent(
+      id="Resource",
+      portal_type="Integration Base Category Mapping",
+      default_source_reference="Resource",
+      default_destination_reference="resource"
+    )
+    resource_map.newContent(
+      # This is required for integration
+      id='978',
+      portal_type="Integration Category Mapping",
+      default_destination_reference='resource/currency_module/EUR',
+      default_source_reference='978'
+    )
+
+    system_preference = self.portal.portal_preferences.slapos_default_system_preference
+    self.older_service_reference = system_preference.getPreferredPayzenPaymentServiceReference()
+    system_preference.setPreferredPayzenPaymentServiceReference(
+      self.payzen_secure_payment.getReference())
+
+    self.older_integration_site = system_preference.getPreferredPayzenIntegrationSite()
+    system_preference.setPreferredPayzenIntegrationSite(
+      self.integration_site.getRelativeUrl()
+    )
+
+    self.tic()
+
+  def beforeTearDown(self):
+    SlapOSTestCaseMixin.beforeTearDown(self)
+    self.portal.portal_secure_payments.manage_delObjects(
+      ids=[self.payzen_secure_payment.getId()])
+    self.portal.portal_integrations.manage_delObjects(
+      ids=[self.integration_site.getId()])
+
+    system_preference = self.portal.portal_preferences.slapos_default_system_preference
+    system_preference.setPreferredPayzenPaymentServiceReference(
+      self.older_service_reference)
+    system_preference.setPreferredPayzenIntegrationSite(
+      self.older_integration_site
+    )
+    
+    self.tic()
 
 
-class TestSlapOSCurrency_getIntegrationMapping(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCurrency_getIntegrationMapping(TestSlapOSPayzenMixin):
 
   def test_integratedCurrency(self):
     currency = self.portal.currency_module.EUR
@@ -61,7 +124,7 @@ class TestSlapOSAccountingTransaction_updateStartDate(SlapOSTestCaseMixinWithAbo
       date, REQUEST={})
 
 
-class TestSlapOSPaymentTransaction_getPayzenId(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPaymentTransaction_getPayzenId(TestSlapOSPayzenMixin):
 
   def test_getPayzenId_newPaymentTransaction(self):
     payment_transaction = self.createPaymentTransaction()
@@ -101,7 +164,7 @@ class TestSlapOSPaymentTransaction_getPayzenId(SlapOSTestCaseMixinWithAbort):
       REQUEST={})
 
 
-class TestSlapOSPaymentTransaction_generatePayzenId(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPaymentTransaction_generatePayzenId(TestSlapOSPayzenMixin):
 
   def test_generatePayzenId_newPaymentTransaction(self):
     payment_transaction = self.createPaymentTransaction()
@@ -161,7 +224,7 @@ class TestSlapOSPaymentTransaction_generatePayzenId(SlapOSTestCaseMixinWithAbort
       REQUEST={})
 
 
-class TestSlapOSPaymentTransaction_createPayzenEvent(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPaymentTransaction_createPayzenEvent(TestSlapOSPayzenMixin):
 
   def test_createPayzenEvent_REQUEST_disallowed(self):
     payment_transaction = self.createPaymentTransaction()
@@ -171,24 +234,21 @@ class TestSlapOSPaymentTransaction_createPayzenEvent(SlapOSTestCaseMixinWithAbor
       REQUEST={})
 
   def test_createPayzenEvent_newPayment(self):
-    self.portal.portal_secure_payments.slapos_payzen_test.setReference("PSERV-Payzen-Test")
-    self.tic()
     payment_transaction = self.createPaymentTransaction()
     payzen_event = payment_transaction.PaymentTransaction_createPayzenEvent()
     self.assertEqual(payzen_event.getPortalType(), "Payzen Event")
     self.assertEqual(payzen_event.getSource(),
-      "portal_secure_payments/slapos_payzen_test")
-    self.assertEqual(payzen_event.getDestination(), payment_transaction.getRelativeUrl())
+      self.payzen_secure_payment.getRelativeUrl())
+    self.assertEqual(payzen_event.getDestination(),
+      payment_transaction.getRelativeUrl())
 
   def test_createPayzenEvent_kwParameter(self):
-    self.portal.portal_secure_payments.slapos_payzen_test.setReference("PSERV-Payzen-Test")
-    self.tic()
     payment_transaction = self.createPaymentTransaction()
     payzen_event = payment_transaction.PaymentTransaction_createPayzenEvent(
       title='foo')
     self.assertEqual(payzen_event.getPortalType(), "Payzen Event")
     self.assertEqual(payzen_event.getSource(),
-      "portal_secure_payments/slapos_payzen_test")
+      self.payzen_secure_payment.getRelativeUrl())
     self.assertEqual(payzen_event.getDestination(), payment_transaction.getRelativeUrl())
     self.assertEqual(payzen_event.getTitle(), "foo")
 
@@ -226,7 +286,7 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
 
     data_kw = {
       'status': 'ERROR',
-      'answer':{
+      'answer': {
           'errorCode': "foo",
       },
     }
@@ -552,32 +612,8 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
         'Automatic acknowledge as result of correct communication',
         event.workflow_history['system_event_workflow'][-1]['comment'])
 
-  def _simulatePaymentTransaction_getRecentPayzenId(self):
-    script_name = 'PaymentTransaction_getPayzenId'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""return DateTime().toZone('UTC'), 'foo'""")
-
-  def _simulatePaymentTransaction_getOldPayzenId(self):
-    script_name = 'PaymentTransaction_getPayzenId'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""from erp5.component.module.DateUtils import addToDate
-return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'foo'""")
-
-  def _dropPaymentTransaction_getPayzenId(self):
-    script_name = 'PaymentTransaction_getPayzenId'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-
+  @simulate("PaymentTransaction_getPayzenId", '*args, **kwargs',
+    """return DateTime().toZone('UTC'), 'foo'""")
   def test_processUpdate_recentNotFoundOnPayzenSide(self):
     event = self.createPayzenEvent()
     payment = self.createPaymentTransaction()
@@ -589,12 +625,7 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
         "errorCode": "PSP_010",
       },
     }
-
-    self._simulatePaymentTransaction_getRecentPayzenId()
-    try:
-      event.PayzenEvent_processUpdate(data_kw)
-    finally:
-      self._dropPaymentTransaction_getPayzenId()
+    event.PayzenEvent_processUpdate(data_kw)
 
     self.assertEqual(event.getValidationState(), "acknowledged")
     self.assertEqual(
@@ -605,6 +636,9 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
         'Error code PSP_010 (Not found) did not changed the document state.',
         payment.workflow_history['edit_workflow'][-1]['comment'])
 
+  @simulate("PaymentTransaction_getPayzenId", '*args, **kwargs',
+    """from erp5.component.module.DateUtils import addToDate
+return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'foo'""")
   def test_processUpdate_oldNotFoundOnPayzenSide(self):
     """
     This Test is supposed to Fail as for now we do not want to cancel automatically
@@ -619,12 +653,7 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
         "errorCode": "PSP_010",
       },
     }
-
-    self._simulatePaymentTransaction_getOldPayzenId()
-    try:
-      event.PayzenEvent_processUpdate(data_kw)
-    finally:
-      self._dropPaymentTransaction_getPayzenId()
+    event.PayzenEvent_processUpdate(data_kw)
 
     self.assertEqual(event.getValidationState(), "acknowledged")
     self.assertEqual(
@@ -662,7 +691,7 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
         'Aborting refused payzen payment.',
         payment.workflow_history['accounting_workflow'][-1]['comment'])
 
-class TestSlapOSPayzenBase_getPayzenServiceRelativeUrl(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPayzenBase_getPayzenServiceRelativeUrl(TestSlapOSPayzenMixin):
 
   def test_getPayzenServiceRelativeUrl_REQUEST_disallowed(self):
     self.assertRaises(
@@ -671,35 +700,21 @@ class TestSlapOSPayzenBase_getPayzenServiceRelativeUrl(SlapOSTestCaseMixinWithAb
       REQUEST={})
 
   def test_getPayzenServiceRelativeUrl_default_result(self):
-    self.portal.portal_secure_payments.slapos_payzen_test.setReference("PSERV-Payzen-Test")
-    self.tic()
     result = self.portal.Base_getPayzenServiceRelativeUrl()
-    self.assertEqual(result, 'portal_secure_payments/slapos_payzen_test')
+    self.assertEqual(result, self.payzen_secure_payment.getRelativeUrl())
 
   def test_getPayzenServiceRelativeUrl_not_found(self):
-    self.portal.portal_secure_payments.slapos_payzen_test.setReference("disabled")
+    self.payzen_secure_payment.setReference("disabled")
     self.tic()
     result = self.portal.Base_getPayzenServiceRelativeUrl()
     self.assertEqual(result, None)
 
 
 class TestSlapOSPayzenPaymentTransaction_redirectToManualPayzenPayment(
-                                                    SlapOSTestCaseMixinWithAbort):
+                                                    TestSlapOSPayzenMixin):
 
-
-  def test_PaymentTransaction_redirectToManualPayzenPayment(self):
-    payment = self.createPaymentTransaction()
-    self.assertRaises(ValueError, payment.PaymentTransaction_redirectToManualPayzenPayment)
-
-  def _simulatePaymentTransaction_getVADSUrlDict(self):
-    script_name = 'PaymentTransaction_getVADSUrlDict'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""payment_transaction_url = context.getRelativeUrl()
+  @simulate("PaymentTransaction_getVADSUrlDict", '*args, **kwargs',
+  """payment_transaction_url = context.getRelativeUrl()
 return dict(vads_url_already_registered="%s/already_registered" % (payment_transaction_url),
   vads_url_cancel="%s/cancel" % (payment_transaction_url),
   vads_url_error="%s/error" % (payment_transaction_url),
@@ -708,29 +723,39 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
   vads_url_success="%s/success" % (payment_transaction_url),
   vads_url_return="%s/return" % (payment_transaction_url),
 )""")
-
-  def _dropPaymentTransaction_getVADSUrlDict(self):
-    script_name = 'PaymentTransaction_getVADSUrlDict'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-
-
   def test_PaymentTransaction_redirectToManualPayzenPayment_unauthorzied(self):
     payment = self.createPaymentTransaction()
-    self._simulatePaymentTransaction_getVADSUrlDict()
     self.logout()
-    try:
-      self.assertRaises(Unauthorized, payment.PaymentTransaction_redirectToManualPayzenPayment)
-    finally:
-      self.login()
-      self._dropPaymentTransaction_getVADSUrlDict()
+    self.assertRaises(Unauthorized, payment.PaymentTransaction_redirectToManualPayzenPayment)
 
+  @simulate("PaymentTransaction_getVADSUrlDict", '*args, **kwargs',
+  """payment_transaction_url = context.getRelativeUrl()
+return dict(vads_url_already_registered="%s/already_registered" % (payment_transaction_url),
+  vads_url_cancel="%s/cancel" % (payment_transaction_url),
+  vads_url_error="%s/error" % (payment_transaction_url),
+  vads_url_referral="%s/referral" % (payment_transaction_url),
+  vads_url_refused="%s/refused" % (payment_transaction_url),
+  vads_url_success="%s/success" % (payment_transaction_url),
+  vads_url_return="%s/return" % (payment_transaction_url),
+)""") 
   def test_PaymentTransaction_redirectToManualPayzenPayment_redirect(self):
-    self.portal.portal_secure_payments.slapos_payzen_test.setReference("PSERV-Payzen-Test")
+    # Ensure secure payment is consistent
+    self.payzen_secure_payment.edit(
+      payzen_vads_action_mode='INTERACTIVE',
+      payzen_vads_ctx_mode='TEST',
+      payzen_vads_page_action='PAYMENT',
+      payzen_vads_version='V2',
+      link_url_string="https://secure.payzen.eu/vads-payment/",
+      service_api_key="A",
+      service_password="B",
+      service_username="C"
+    )
+
     self.tic()
+
     project = self.addProject()
     person = self.makePerson(project)
-    invoice =  self.createStoppedSaleInvoiceTransaction(
+    invoice = self.createStoppedSaleInvoiceTransaction(
       destination_section_value=person,
       destination_project_value=project
     )
@@ -744,18 +769,14 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       destination_project_value=invoice.getDestinationProjectValue(),
       resource_value=self.portal.currency_module.EUR,
       ledger="automated",
-      created_by_builder=1 # to prevent init script to create lines
+      created_by_builder=1  # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(payment, 'started')
 
     self.tic()
     self.login(person.getUserId())
-    self._simulatePaymentTransaction_getVADSUrlDict()
-    try:
-      text_content = payment.PaymentTransaction_redirectToManualPayzenPayment()
-    finally:
-      self._dropPaymentTransaction_getVADSUrlDict()
-
+    text_content = payment.PaymentTransaction_redirectToManualPayzenPayment()
+    
     payment_transaction_url = payment.getRelativeUrl()
     for item in ["vads_site_id",
                  payment_transaction_url,
@@ -784,10 +805,20 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.assertEqual(
       len(system_event_list[0].contentValues(portal_type="Payzen Event Message")), 1)
 
+  @simulate("PaymentTransaction_getVADSUrlDict", '*args, **kwargs',
+  """payment_transaction_url = context.getRelativeUrl()
+return dict(vads_url_already_registered="%s/already_registered" % (payment_transaction_url),
+  vads_url_cancel="%s/cancel" % (payment_transaction_url),
+  vads_url_error="%s/error" % (payment_transaction_url),
+  vads_url_referral="%s/referral" % (payment_transaction_url),
+  vads_url_refused="%s/refused" % (payment_transaction_url),
+  vads_url_success="%s/success" % (payment_transaction_url),
+  vads_url_return="%s/return" % (payment_transaction_url),
+)""")
   def test_PaymentTransaction_redirectToManualPayzenPayment_already_registered(self):
     project = self.addProject()
     person = self.makePerson(project)
-    invoice =  self.createStoppedSaleInvoiceTransaction(
+    invoice = self.createStoppedSaleInvoiceTransaction(
       destination_section_value=person,
       destination_project_value=project
     )
@@ -808,11 +839,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     payment.PaymentTransaction_generatePayzenId()
     self.tic()
     self.login(person.getUserId())
-    self._simulatePaymentTransaction_getVADSUrlDict()
-    try:
-      redirect = payment.PaymentTransaction_redirectToManualPayzenPayment()
-    finally:
-      self._dropPaymentTransaction_getVADSUrlDict()
+    redirect = payment.PaymentTransaction_redirectToManualPayzenPayment()
 
     self.assertEqual("%s/already_registered" % payment.getRelativeUrl(),
                       redirect)

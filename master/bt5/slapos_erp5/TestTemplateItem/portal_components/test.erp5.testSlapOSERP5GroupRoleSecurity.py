@@ -212,7 +212,8 @@ class TestPaymentTransaction(TestSlapOSGroupRoleSecurityMixin):
 class TestSaleInvoiceTransaction(TestSlapOSGroupRoleSecurityMixin):
   def test_SaleInvoiceTransaction_AccountingFunction_LedgerNotAutomated(self):
     product = self.portal.accounting_module.newContent(
-        portal_type='Sale Invoice Transaction')
+        portal_type='Sale Invoice Transaction', created_by_builder=1)
+    self.assertEqual(product.getLedger(), None)
     self.assertSecurityGroup(product,
         ['F-ACCMAN', 'F-ACCAGT', self.user_id], False)
     self.assertRoles(product, 'F-ACCMAN', ['Assignor'])
@@ -220,13 +221,13 @@ class TestSaleInvoiceTransaction(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(product, self.user_id, ['Owner'])
 
   def test_SaleInvoiceTransaction_AccountingFunction_LedgerAutomated(self):
+    """No user, no shadow"""
     product = self.portal.accounting_module.newContent(
         portal_type='Sale Invoice Transaction')
     product.edit(ledger='automated')
     self.assertSecurityGroup(product,
-        ['F-ACCOUNTING*', self.user_id, 'R-SHADOW-PERSON'], False)
+        ['F-ACCOUNTING*', self.user_id ], False)
     self.assertRoles(product, 'F-ACCOUNTING*', ['Auditor'])
-    self.assertRoles(product, 'R-SHADOW-PERSON', ['Assignee'])
     self.assertRoles(product, self.user_id, ['Owner'])
 
   def test_SaleInvoiceTransaction_User(self):
@@ -241,10 +242,10 @@ class TestSaleInvoiceTransaction(TestSlapOSGroupRoleSecurityMixin):
         )
     self.assertSecurityGroup(product,
         ['F-ACCOUNTING*', self.user_id, person.getUserId(),
-         'R-SHADOW-PERSON'], False)
+         'SHADOW-%s' % person.getUserId()], False)
     self.assertRoles(product, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(product, person.getUserId(), ['Auditor'])
-    self.assertRoles(product, 'R-SHADOW-PERSON', ['Assignee'])
+    self.assertRoles(product, 'SHADOW-%s' % person.getUserId(), ['Assignee'])
     self.assertRoles(product, self.user_id, ['Owner'])
 
 
@@ -1620,6 +1621,16 @@ class TestSubscriptionRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, self.user_id, ['Owner'])
     self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
 
+  def test_SubscriptionRequest_automated_ledger(self):
+    delivery = self.portal.subscription_request_module.newContent(
+        portal_type='Subscription Request')
+    delivery.edit(ledger="automated")
+    self.assertSecurityGroup(delivery,
+        ['F-SALE*', self.user_id], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
+    self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
+
+
   def test_SubscriptionRequest_user(self):
     reference = 'TESTPERSON-%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
@@ -1628,12 +1639,12 @@ class TestSubscriptionRequest(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Subscription Request')
     delivery.edit(destination_decision_value=person, ledger="automated")
     self.assertSecurityGroup(delivery,
-        ['F-SALE*', self.user_id, "R-SHADOW-PERSON",
+        ['F-SALE*', self.user_id, "SHADOW-%s" % person.getUserId(),
            person.getUserId()], False)
     self.assertRoles(delivery, self.user_id, ['Owner'])
     self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
     self.assertRoles(delivery, person.getUserId(), ['Associate'])
-    self.assertRoles(delivery, 'R-SHADOW-PERSON', ['Auditor'])
+    self.assertRoles(delivery, "SHADOW-%s" % person.getUserId(), ['Auditor'])
 
 class TestOrganisationModule(TestSlapOSGroupRoleSecurityMixin):
   def test_OrganisationModule(self):

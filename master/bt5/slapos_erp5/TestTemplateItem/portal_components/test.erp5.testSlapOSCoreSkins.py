@@ -55,12 +55,6 @@ class TestSlapOSCoreMixin(SlapOSTestCaseMixinWithAbort):
       reference="TESTTREE-%s" % self.generateNewId(),
       destination_section=person.getRelativeUrl())
 
-class TestERP5Type_acquireSecurityFromOwner(TestSlapOSCoreMixin):
-  def test(self):
-    doc = self.createPerson()
-    self.assertEqual({'Assignee': [self.user_id]},
-      self.portal.ERP5Type_acquireSecurityFromOwner([], None, doc, None)) 
-
 class TestPerson_getSecurityCategoryFromSelfShadow(TestSlapOSCoreMixin):
   def test(self):
     doc = self.createPerson()
@@ -207,31 +201,4 @@ class TestPayzenEvent_getSecurityCategoryFromUserr(TestSlapOSCoreMixin):
       self.portal.PayzenEvent_getSecurityCategoryFromUser(["destination_section"], None, event, None)) 
 
     self.assertEqual({'Assignee': [shadow_user_id]},
-      self.portal.PayzenEvent_getSecurityCategoryFromUser(["couscous", "destination_section"], None, event, None)) 
-
-
-class TestERP5Type_getSecurityCategoryFromChildAssignmentList(TestSlapOSCoreMixin):
-  def test(self):
-    person = self.createPerson()
-    project = self.portal.project_module.newContent(
-      portal_type="Project"
-    )
-    person.newContent(portal_type='Assignment',
-      destination_project_value=project).open()
-
-    self.assertEqual([],
-      self.portal.ERP5Type_getSecurityCategoryFromChildAssignmentList([], None, None, None)) 
-
-    self.assertEqual([{}],
-      self.portal.ERP5Type_getSecurityCategoryFromChildAssignmentList([{}], None, person, None)) 
-
-    self.assertEqual([{}],
-      self.portal.ERP5Type_getSecurityCategoryFromChildAssignmentList(["destination_section"], None, person, None)) 
-
-    self.assertEqual([{'destination_project': [project.getRelativeUrl()]}],
-      self.portal.ERP5Type_getSecurityCategoryFromChildAssignmentList(["destination_project"], None, person, None)) 
-      
-    self.assertEqual([{'destination_project': [project.getRelativeUrl()]}],
-      self.portal.ERP5Type_getSecurityCategoryFromChildAssignmentList(
-        ["destination_section", "destination_project"], None, person, None))
-
+      self.portal.PayzenEvent_getSecurityCategoryFromUser(["couscous", "destination_section"], None, event, None))

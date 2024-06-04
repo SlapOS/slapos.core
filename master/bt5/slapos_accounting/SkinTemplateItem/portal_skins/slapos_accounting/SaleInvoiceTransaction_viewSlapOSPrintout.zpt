@@ -51,38 +51,34 @@
       <address>
         <tal:block tal:define="destination_section_organisation python: context.getDestinationSectionValue()">
           <tal:block tal:condition="python: destination_section_organisation is not None">
-            <tal:block tal:define="destination_section_subordination python: destination_section_organisation.getSubordinationValue()">
-
-              <tal:block tal:condition="python: destination_section_subordination is not None">
-                <p tal:content="python: destination_section_subordination.getCorporateName() or destination_section_subordination.getTitle() or ''"></p>
-                <p tal:content="python: destination_section_organisation.getTitle() or ''"></p>
-                <p tal:content="python: destination_section_subordination.getDefaultEmailText('') or destination_section_organisation.getDefaultEmailText('')"></p>
-                <p>
-                  <tal:block tal:repeat="line python: destination_section_subordination.getDefaultAddressText('').split('\n')">
-                    <span style="display:block" tal:content="line"></span>
-                  </tal:block>
-                  <tal:block tal:content="python: destination_section_subordination.getDefaultRegionTitle()"></tal:block>
-                </p>
-                <tal:block tal:condition="python: destination_section_subordination.getCorporateRegistrationCode() is not None">
-                  <p tal:content="python: 'Corporate Registration Code: %s' % destination_section_subordination.getCorporateRegistrationCode()"></p>
+            <tal:block tal:condition="python: destination_section_organisation.getPortalType() == 'Organisation'">
+              <p tal:content="python: destination_section_organisation.getCorporateName() or destination_section_organisation.getTitle() or ''"></p>
+              <p tal:content="python: destination_section_organisation.getTitle() or ''"></p>
+              <p tal:content="python: destination_section_organisation.getDefaultEmailText('') or destination_section_organisation.getDefaultEmailText('')"></p>
+              <p>
+                <tal:block tal:repeat="line python: destination_section_organisation.getDefaultAddressText('').split('\n')">
+                  <span style="display:block" tal:content="line"></span>
                 </tal:block>
-                <tal:block tal:condition="python: destination_section_subordination.getVatCode() is not None">
-                  <p tal:content="python: 'VAT Code: %s' % destination_section_subordination.getVatCode()"></p>
+                <tal:block tal:content="python: destination_section_organisation.getDefaultRegionTitle()"></tal:block>
+              </p>
+              <tal:block tal:condition="python: destination_section_organisation.getCorporateRegistrationCode() is not None">
+                <p tal:content="python: 'Corporate Registration Code: %s' % destination_section_organisation.getCorporateRegistrationCode()"></p>
+              </tal:block>
+              <tal:block tal:condition="python: destination_section_organisation.getVatCode() is not None">
+                <p tal:content="python: 'VAT Code: %s' % destination_section_organisation.getVatCode()"></p>
+              </tal:block>
+            </tal:block>
+
+            <tal:block tal:condition="python: destination_section_organisation.getPortalType() != 'Organisation'">
+              <p tal:content="python: destination_section_organisation.getTitle() or ''"></p>
+              <p tal:content="python: destination_section_organisation.getDefaultEmailText('')"></p>
+              <p>
+                <tal:block tal:repeat="line python: destination_section_organisation.getDefaultAddressText('').split('\n')">
+                  <span style="display:block" tal:content="line"></span>
                 </tal:block>
-              </tal:block>
-
-              <tal:block tal:condition="python: destination_section_subordination is None">
-                <p tal:content="python: destination_section_organisation.getTitle() or ''"></p>
-                <p tal:content="python: destination_section_organisation.getDefaultEmailText('')"></p>
-                <p>
-                  <tal:block tal:repeat="line python: destination_section_organisation.getDefaultAddressText('').split('\n')">
-                    <span style="display:block" tal:content="line"></span>
-                  </tal:block>
-                  <tal:block tal:content="python: destination_section_organisation.getDefaultRegionTitle()"></tal:block>
-                </p>
-              </tal:block>
-          </tal:block>
-
+                <tal:block tal:content="python: destination_section_organisation.getDefaultRegionTitle()"></tal:block>
+              </p>
+            </tal:block>
           </tal:block>
         </tal:block>
       </address>

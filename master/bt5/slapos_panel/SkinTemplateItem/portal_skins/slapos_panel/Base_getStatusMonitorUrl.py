@@ -1,22 +1,52 @@
-# TODO how to avoid hardcode here? from InstanceTree_getConnectionParameterList?
-base_url = 'https://monitor.app.officejs.com/#/?page=ojsm_landing'
+import json
+from ZTUtils import make_query
 
-try:
-  instance_tree = context
-  if context.getPortalType() in ["Software Instance", "Slave Instance"]:
-    instance_tree = context.getSpecialise()
-  connection_parameter_dict = instance_tree.InstanceTree_getMonitorParameterDict()
-  connection_url = '&url=%s'% connection_parameter_dict['url'] + '&username=%s'% connection_parameter_dict['username'] + '&password=%s'% connection_parameter_dict['password']
-except (AttributeError, TypeError) as _:
-  connection_url = ''
+# https://stackoverflow.com/a/33571117
+def _byteify(data, ignore_dicts = False):
+  if isinstance(data, str):
+    return data
+  # if this is a list of values, return list of byteified values
+  if isinstance(data, list):
+    return [ _byteify(item, ignore_dicts=True) for item in data ]
+  # if this is a dictionary, return dictionary of byteified keys and values
+  # but only if we haven't already byteified it
+  if isinstance(data, dict) and not ignore_dicts:
+    return {
+      _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
+      for key, value in data.items() # changed to .items() for python 2.7/3
+    }
+  # python 3 compatible duck-typing
+  # if this is a unicode string, return its string representation
+  if str(type(data)) == "<type 'unicode'>":
+    return data.encode('utf-8')
+  # if it's anything else, return it in its original form
+  return data
+
+# TODO how to avoid hardcode here?
+# from InstanceTree_getConnectionParameterList I can get "monitor-setup-url": "https://monitor.app.officejs.com/#page=settings_configurator&url=..."
+# and "monitor-base-url" but is not the monitor app, it's a frontend like "https://softinst266044.can.nxd.nowak.io"
+base_url = 'https://monitor.app.officejs.com/#/?'
+url_parameter_kw = { 'page': 'ojsm_landing' }
+
+instance_tree = context
+if context.getPortalType() in ["Software Instance", "Slave Instance"]:
+  instance_tree = context.getSpecialiseValue(portal_type="Instance Tree")
+connection_parameter_dict = json.loads(instance_tree.InstanceTree_getMonitorParameterDict(), object_hook=_byteify)
+if all(key in connection_parameter_dict for key in ('username', 'password', 'url')):
+  url_parameter_kw['username'] = connection_parameter_dict['username']
+  url_parameter_kw['password'] = connection_parameter_dict['password']
+  url_parameter_kw['url'] = connection_parameter_dict['url']
 
 if context.getPortalType() == "Instance Tree":
   for connection_parameter in context.InstanceTree_getConnectionParameterList(raw=True):
-    if connection_parameter['connection_key'] == "monitor-setup-url":
-      # connection_parameter['connection_value'] looks like #page=settings_configurator&url=xx/public/feeds&username=admin&password=yy
-      # workaround until settings_configurator is c on software releases / buildout cfg files are updated
-      return connection_parameter['connection_value'].replace("settings_configurator", "ojsm_landing")
-  return base_url + '&query=portal_type:"Instance Tree" AND title:"%s"' % context.getTitle() + connection_url
+    if 'connection_key' in connection_parameter and connection_parameter['connection_key'] == "monitor-setup-url":
+      return connection_parameter['connection_value']
+  url_parameter_kw['query'] = 'portal_type:"Instance Tree" AND title:"%s"' % context.getTitle()
+
+if not(connection_parameter_dict):
+  return ''
 
 if context.getPortalType() in ["Software Instance", "Slave Instance"]:
-  return base_url + '&query=portal_type:"Software Instance" AND title:"%s" AND ' % context.getTitle() + 'specialise_title:"%s"' % context.getSpecialiseTitle() + connection_url
+  url_parameter_kw['query'] = 'portal_type:"Software Instance" AND title:"%s" AND ' % context.getTitle() + 'specialise_title:"%s"' % context.getSpecialiseTitle()
+
+return base_url + make_query(url_parameter_kw)

@@ -280,6 +280,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/UpgradeDecision_acceptOnSlaposPanel',
         'slapos_panel/UpgradeDecision_rejectOnSlaposPanel',
         'slapos_panel/AccountingTransactionModule_getCreateExternalPaymentTransactionOnSlaposPanelHTML',
+        'slapos_panel/SaleInvoiceTransaction_getInvoicePrintoutUrl',
         'slapos_panel/InstanceTree_proposeUpgradeDecision',
         'slapos_panel/InstanceTree_searchUpgradableSoftwareReleaseList',
         'slapos_panel/PaymentTransaction_triggerPaymentCheckAlarmAndRedirectToPanel',

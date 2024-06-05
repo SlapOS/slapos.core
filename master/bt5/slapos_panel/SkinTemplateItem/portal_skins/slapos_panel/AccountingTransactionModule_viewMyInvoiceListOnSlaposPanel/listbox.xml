@@ -298,23 +298,23 @@
                       <list>
                         <tuple>
                           <string>reference</string>
-                          <string></string>
+                          <string>SaleInvoiceTransaction_getInvoicePrintoutUrl</string>
                         </tuple>
                         <tuple>
                           <string>operation_date</string>
-                          <string></string>
+                          <string>SaleInvoiceTransaction_getInvoicePrintoutUrl</string>
                         </tuple>
                         <tuple>
                           <string>total_price</string>
-                          <string></string>
+                          <string>SaleInvoiceTransaction_getInvoicePrintoutUrl</string>
                         </tuple>
                         <tuple>
                           <string>resource_title</string>
-                          <string></string>
+                          <string>SaleInvoiceTransaction_getInvoicePrintoutUrl</string>
                         </tuple>
                         <tuple>
                           <string>AccountingTransaction_getPaymentState</string>
-                          <string></string>
+                          <string>SaleInvoiceTransaction_getInvoicePrintoutUrl</string>
                         </tuple>
                       </list>
                     </value>

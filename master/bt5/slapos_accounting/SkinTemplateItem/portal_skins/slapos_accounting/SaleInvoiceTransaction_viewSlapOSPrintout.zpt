@@ -155,47 +155,48 @@
       </div>
     </aside-->
 
-    <tal:block tal:define="aggregated_reference python: context.getCausalityReferenceList(portal_type='Sale Packing List', checked_permission='View');
+    <tal:block tal:define="invoice_line_list python: context.contentValues(portal_type='Invoice Line', checked_permission='View');
+                           filter_portal_type python: {'portal_type': ['Instance Tree', 'Compute Node', 'Project']};
+                           invoice_line_aggregate_list python: [i for i in invoice_line_list if i.getAggregate(portal_type='Subscription Request') and i.getAggregate(**filter_portal_type)];
                            item_dict python: {}">
-      <p class='line' tal:condition="python: aggregated_reference">&nbsp;</p>
-      <aside tal:condition="python: aggregated_reference">
-        <h1><span>Subscription Details</span></h1>
-        <tal:block tal:repeat="line python: context.portal_catalog(
-                                              portal_type='Sale Packing List Line',
-                                              grouping_reference=aggregated_reference,
-                                              default_resource_uid=context.service_module.slapos_instance_subscription.getUid(),
-                                              sort_on=[('default_aggregate_uid', 'ASC'), ('movement.start_date', 'ASC')])">
-          <tal:block tal:define="item_uid python: line.getAggregateUid(portal_type='Instance Tree');
-                                 item_title python: line.getAggregateTitle(portal_type='Instance Tree');
-                                 start_date python: line.getStartDate();
-                                 stop_date python: line.getStopDate();
-                                 quantity python: line.getQuantity();
-                                 dummy_init python: item_dict.setdefault(item_uid, [item_title, start_date, stop_date, 0]);
-                                 dummy_update python: item_dict.update({item_uid: [item_title,
-                                   min(item_dict[item_uid][1], start_date),
-                                   max(item_dict[item_uid][2], stop_date),
-                                   sum([item_dict[item_uid][3], quantity])]});">
+      <tal:block tal:condition="python: invoice_line_aggregate_list">
+        <p class='line'>&nbsp;</p>
+        <aside>
+          <h1><span>Subscription Details</span></h1>
+          <tal:block tal:repeat="line python: invoice_line_aggregate_list">
+            <tal:block tal:define="aggregate python: line.getAggregateValue(**filter_portal_type);
+                                   item_uid python: aggregate.getUid();
+                                   item_title python: aggregate.getTitle();
+                                   start_date python: line.getStartDate();
+                                   stop_date python: line.getStopDate();
+                                   quantity python: line.getQuantity();
+                                   dummy_init python: item_dict.setdefault(item_uid, [item_title, start_date, stop_date, 0]);
+                                   dummy_update python: item_dict.update({item_uid: [item_title,
+                                     min(item_dict[item_uid][1], start_date),
+                                     max(item_dict[item_uid][2], stop_date),
+                                     sum([item_dict[item_uid][3], quantity])]});">
+            </tal:block>
           </tal:block>
-        </tal:block>
-        <table>
-          <thead>
-            <tr>
-              <th><span>Instance</span></th>
-              <th><span>From</span></th>
-              <th><span>To</span></th>
-              <th><span>Quantity</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr tal:repeat="item_tuple python: item_dict.values()">
-              <td tal:content="python: item_tuple[0]"></td>
-              <td tal:content="python: item_tuple[1].strftime('%B %e, %G')"></td>
-              <td tal:content="python: item_tuple[2].strftime('%B %e, %G')"></td>
-              <td tal:content="python: quantity_renderer(item_tuple[3])"></td>
-            </tr>
-          </tbody>
-        </table>
-      </aside>
+          <table>
+            <thead>
+              <tr>
+                <th><span>Instance</span></th>
+                <th><span>From</span></th>
+                <th><span>To</span></th>
+                <th><span>Quantity</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr tal:repeat="item_tuple python: item_dict.values()">
+                <td tal:content="python: item_tuple[0]"></td>
+                <td tal:content="python: item_tuple[1].strftime('%B %e, %G')"></td>
+                <td tal:content="python: item_tuple[2].strftime('%B %e, %G')"></td>
+                <td tal:content="python: quantity_renderer(item_tuple[3])"></td>
+              </tr>
+            </tbody>
+          </table>
+        </aside>
+      </tal:block>
       <p class='line page-break'>&nbsp;</p>
       <tal:block tal:condition="python: invoice_resource_document is not None" tal:content="structure python: invoice_resource_document.getData()">
       </tal:block>

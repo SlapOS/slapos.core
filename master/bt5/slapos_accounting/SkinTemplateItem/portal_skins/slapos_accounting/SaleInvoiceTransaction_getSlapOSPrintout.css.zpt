@@ -126,6 +126,7 @@ table.resource td { font-size: 90% }
 /* aside h1 { border: none; border-width: 0 0 1px; margin: 0 0 1em; }*/
 aside h1 { text-align: left; padding-bottom: 10px;}
 aside {margin-top: 20px;}
+aside p.note { font-size: 75%; padding-top: 10px; padding-bottom: 10px }
 
 /* bottom */
 

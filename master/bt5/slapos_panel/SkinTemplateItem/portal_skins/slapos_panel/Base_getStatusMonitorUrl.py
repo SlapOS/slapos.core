@@ -5,7 +5,9 @@ def ascii_encode_dict(data):
   ascii_encode = lambda x: x.encode('ascii')
   return dict(map(ascii_encode, pair) for pair in data.items())
 
-# TODO how to avoid hardcode here? from InstanceTree_getConnectionParameterList?
+# TODO how to avoid hardcode here?
+# from InstanceTree_getConnectionParameterList I can get "monitor-setup-url": "https://monitor.app.officejs.com/#page=settings_configurator&url=..."
+# and "monitor-base-url" but is not the monitor app, it's a frontend like "https://softinst266044.can.nxd.nowak.io"
 base_url = 'https://monitor.app.officejs.com/#/?'
 url_parameter_kw = { 'page': 'ojsm_landing' }
 

@@ -154,6 +154,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_accounting/PaymentTransaction_acceptDepositPayment',
         'slapos_accounting/PaymentTransaction_getExternalPaymentId',
         'slapos_accounting/PaymentTransaction_postOrderBuild',
+        'slapos_accounting/SaleInvoiceTransaction_getBaseCategoryDictForPrintout',
         'slapos_accounting/SaleInvoiceTransaction_init',
         'slapos_accounting/SaleInvoiceTransaction_isTotalPriceEqualAccounting',
         'slapos_accounting/SaleInvoiceTransaction_isTotalPriceMatchingSalePackingList',
@@ -419,7 +420,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
             if document.getId() in content:
               found = 1
               break
-          
+
           document_path = "%s/%s" % (skin.getId(), document.getId())
           if not found and document_path not in self.coverage_ignore_path_list:
             message_list.append(document_path)

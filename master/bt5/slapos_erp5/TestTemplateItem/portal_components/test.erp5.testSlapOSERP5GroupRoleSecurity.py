@@ -245,7 +245,7 @@ class TestSaleInvoiceTransaction(TestSlapOSGroupRoleSecurityMixin):
          'SHADOW-%s' % person.getUserId()], False)
     self.assertRoles(product, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(product, person.getUserId(), ['Auditor'])
-    self.assertRoles(product, 'SHADOW-%s' % person.getUserId(), ['Assignee'])
+    self.assertRoles(product, 'SHADOW-%s' % person.getUserId(), ['Auditor'])
     self.assertRoles(product, self.user_id, ['Owner'])
 
 

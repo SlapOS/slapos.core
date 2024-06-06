@@ -24,21 +24,27 @@
             <img alt="" tal:attributes="src python: context.getPortalObject().absolute_url() + '/web_site_module/hostingjs/gadget_slapos_invoice_logo.png?format='" style="max-height: 25%; max-width: 70%;"/>
           </tal:block>
         </tal:block>
-        <h1 class="company" tal:content="python: context.getSourceSectionTitle('SlapOS Company')"></h1>
-        <tal:block tal:define="source_section_organisation python: context.getSourceSectionValue()">
-          <p tal:condition="python: source_section_organisation is not None">
-            <tal:block tal:repeat="line python: source_section_organisation.getDefaultAddressText('').split('\n')">
+        <tal:block define="source_section_dict python: context.SaleInvoiceTransaction_getSourceSectionDictForPrintout()">
+          <h1 class="company" tal:content="python: source_section_dict['title']"></h1>
+          <p tal:condition="python: source_section_dict.get('default_address')">
+            <tal:block tal:repeat="line python:  source_section_dict.get('default_address', '').split('\n')">
               <span style="display:block;float:none;margin:0" tal:content="line"></span>
             </tal:block>
-            <tal:block tal:content="python: source_section_organisation.getDefaultRegionTitle()"></tal:block>
+            <tal:block tal:condition="python: source_section_dict.get('default_region')">
+              <tal:block tal:content="python: source_section_dict.get('default_region')"></tal:block>
+            </tal:block>
           </p>
-          <p tal:condition="python: source_section_organisation is not None">
-            <tal:block tal:repeat="line python: source_section_organisation.getDescription('').split('\n')">
+          <p tal:condition="python: source_section_dict.get('description')">
+            <tal:block tal:repeat="line python: source_section_dict.get('description', '').split('\n')">
               <span style="display:block;float:none;margin:0" tal:content="line"></span>
             </tal:block>
           </p>
-          <p tal:content="python: 'Corporate Registration Code: %s' % source_section_organisation.getCorporateRegistrationCode()"></p>
-          <p tal:content="python: 'VAT Code: %s' % source_section_organisation.getVatCode()"></p>
+          <tal:block tal:condition="python: source_section_dict.get('registration_code')">
+            <p tal:content="python: 'Corporate Registration Code: %s' % source_section_dict.get('registration_code')"></p>
+          </tal:block>
+          <tal:block tal:condition="python: source_section_dict.get('vat_code')">
+            <p tal:content="python: 'VAT Code: %s' % source_section_dict.get('vat_code')"></p>
+          </tal:block>
         </tal:block>
       </address>
       <address class="right">
@@ -155,9 +161,9 @@
       </div>
     </aside-->
 
-    <tal:block tal:define="invoice_line_list python: context.contentValues(portal_type='Invoice Line', checked_permission='View');
+    <tal:block tal:define="invoice_line_list python: context.contentValues(portal_type='Invoice Line');
                            filter_portal_type python: {'portal_type': ['Instance Tree', 'Compute Node', 'Project']};
-                           invoice_line_aggregate_list python: [i for i in invoice_line_list if i.getAggregate(portal_type='Subscription Request') and i.getAggregate(**filter_portal_type)];
+                           invoice_line_aggregate_list python: [i for i in invoice_line_list if i.getAggregate(portal_type='Hosting Subscription') and i.getAggregate(**filter_portal_type)];
                            item_dict python: {}">
       <tal:block tal:condition="python: invoice_line_aggregate_list">
         <p class='line'>&nbsp;</p>
@@ -180,7 +186,7 @@
           <table>
             <thead>
               <tr>
-                <th><span>Instance</span></th>
+                <th><span>Item</span></th>
                 <th><span>From</span></th>
                 <th><span>To</span></th>
                 <th><span>Quantity</span></th>

@@ -17,7 +17,7 @@ else:
   elif context.getTotalPrice() == 0:
     result = "Free!"
   else:
-    result = "Pay Now"
+    result = "Unpaid"
 
     # Search to know if there are some payment waiting for confirmation
     payment = portal.portal_catalog.getResultValue(
@@ -38,4 +38,4 @@ else:
       if external_payment_id is not None:
         result = "Waiting for payment confirmation"
 
-return result
+return context.Base_translateString(result)

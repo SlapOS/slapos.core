@@ -7,9 +7,9 @@ portal = context.getPortalObject()
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 assert context.getPortalType() == 'Sale Invoice Transaction'
 
-# The source_section is usually not accessible from the user,
-# So to not leak information, we rely on Shadow User to retrive
-# the information rather them flex security.
+# The source_section/destination_section is usually not accessible
+# from the user, So to not leak information, we rely on Shadow User
+# to retrive the information rather them flex security.
 def wrapShadowFunction(invoice, base_category):
   document_list = invoice.getValueList(base_category)
   if not document_list:

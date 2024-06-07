@@ -392,13 +392,13 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
 
   def test_AccountingTransaction_getPaymentState_payzen_unpaid_payment(self):
     invoice =  self.createStoppedSaleInvoiceTransaction()
-    # If payment is not indexed or not started the state should be Pay Now
-    self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
+    # If payment is not indexed or not started the state should be Unpaid
+    self.assertEqual("Unpaid", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_wechat_unpaid_payment(self):
     invoice =  self.createStoppedSaleInvoiceTransaction(payment_mode='wechat')
-    # If payment is not indexed or not started the state should be Pay Now
-    self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
+    # If payment is not indexed or not started the state should be Unpaid
+    self.assertEqual("Unpaid", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_payzen_paynow_payment(self):
     project = self.addProject()
@@ -407,7 +407,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       destination_section_value=person)
     self.tic()
     self.login(person.getUserId())
-    self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Unpaid", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_wechat_paynow_payment(self):
     project = self.addProject()
@@ -417,7 +417,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       payment_mode="wechat")
     self.tic()
     self.login(person.getUserId())
-    self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Unpaid", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_payzen_waiting_payment(self):
     project = self.addProject()

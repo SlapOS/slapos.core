@@ -5,6 +5,7 @@ if REQUEST is not None:
   raise Unauthorized
 
 subscription_change_request = context
+portal = context.getPortalObject()
 assert subscription_change_request.getPortalType() == 'Subscription Change Request'
 assert subscription_change_request.getSimulationState() == 'submitted'
 
@@ -62,6 +63,30 @@ if subscription_change_request.getAggregateUid() != subscribed_item.getUid():
 if subscription_change_request.getDestination() == open_sale_order.getDestination():
   return invalidate(subscription_change_request, 'Expected change on: destination')
 
+# Change Subscripted Item user if needed
+subscribed_item = open_order_movement.getAggregateValue(portal_type=['Instance Tree', 'Compute Node', 'Project'])
+if subscribed_item is None:
+  raise NotImplementedError('Unsupported subscribed item')
+elif subscribed_item.getPortalType() == 'Compute Node':
+  # No user is set on Compute Node
+  pass
+elif subscribed_item.getPortalType() == 'Instance Tree':
+  # Check if user does not already have a instance tree with the same title
+  # to prevent breaking slapos's request
+  existing_instance_tree = portal.portal_catalog.getResultValue(
+    portal_type='Instance Tree',
+    title={'query': subscribed_item.getTitle(), 'key': 'ExactMatch'},
+    destination_section__uid=subscription_change_request.getDestinationUid()
+  )
+  if existing_instance_tree is not None:
+    return invalidate(subscription_change_request, 'Instance Tree with the same title found: %s' % existing_instance_tree.getRelativeUrl())
+
+  subscribed_item.edit(destination_section=subscription_change_request.getDestination())
+elif subscribed_item.getPortalType() == 'Project':
+  subscribed_item.edit(destination=subscription_change_request.getDestination())
+else:
+  raise NotImplementedError('Not implemented subscribed item')
+
 # Create new Open Sale Order
 next_open_sale_order = subscription_change_request.SubscriptionRequest_createOpenSaleOrder()
 current_date = getClosestDate(target_date=next_open_sale_order.getCreationDate(), precision='day')
@@ -76,19 +101,5 @@ open_order_movement.OpenSaleOrderCell_createDiscountSalePackingList(
   'transfer discount from %s to %s' % (open_sale_order.getReference(), next_open_sale_order.getReference()),
   subscription_change_request
 )#, activate_kw=activate_kw)
-
-# Change Subscripted Item user if needed
-subscribed_item = open_order_movement.getAggregateValue(portal_type=['Instance Tree', 'Compute Node', 'Project'])
-if subscribed_item is None:
-  raise NotImplementedError('Unsupported subscribed item')
-elif subscribed_item.getPortalType() == 'Compute Node':
-  # No user is set on Compute Node
-  pass
-elif subscribed_item.getPortalType() == 'Instance Tree':
-  subscribed_item.edit(destination_section=subscription_change_request.getDestination())
-elif subscribed_item.getPortalType() == 'Project':
-  subscribed_item.edit(destination=subscription_change_request.getDestination())
-else:
-  raise NotImplementedError('Not implemented subscribed item')
 
 return invalidate(subscription_change_request, 'New open order: %s' % next_open_sale_order.getRelativeUrl())

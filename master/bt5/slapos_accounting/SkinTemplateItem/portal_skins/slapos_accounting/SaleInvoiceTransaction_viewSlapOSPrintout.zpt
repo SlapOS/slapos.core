@@ -3,12 +3,7 @@
                   price_renderer nocall:here/portal_skins/erp5_trade/Base_viewTradeFieldLibrary/my_view_mode_total_price/render_pdf;
                   total_not_tax_price_list python: [];
                   movement_list python: context.getMovementList(portal_type=context.getPortalInvoiceMovementTypeList(),
-                                                                    sort_on=[('int_index', 'ascending'), ('reference', 'ascending')]);
-                  invoice_resource_document python: context.portal_catalog.getResultValue(
-                                                      portal_type='User Consumption HTML File',
-                                                      validation_state='shared',
-                                                      follow_up_uid=context.getUid()
-                                                    )">
+                                                                    sort_on=[('int_index', 'ascending'), ('reference', 'ascending')]);">
   <head>
     <meta charset="utf-8">
     <title>Invoice</title>
@@ -185,11 +180,6 @@
             </tbody>
           </table>
         </aside>
-      </tal:block>
-      <tal:block tal:condition="python: invoice_resource_document is not None">
-        <p class='line page-break'>&nbsp;</p>
-        <tal:block tal:content="structure python: invoice_resource_document.getData()">
-        </tal:block>
       </tal:block>
     </tal:block>
     <p class='line'>&nbsp;</p>

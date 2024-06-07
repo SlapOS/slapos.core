@@ -12,9 +12,13 @@ if open_sale_order_cell.getPortalType() == 'Open Sale Order Cell':
 
 start_date = open_sale_order.getStartDate()
 next_period_date = hosting_subscription.getNextPeriodicalDate(current_date)
+# Calculate the start_date of the monthly packing list
+previous_period_date = start_date
+while hosting_subscription.getNextPeriodicalDate(previous_period_date) < next_period_date:
+  previous_period_date = hosting_subscription.getNextPeriodicalDate(previous_period_date)
 
 if open_sale_order.getValidationState() == 'validated':
-  unused_day_count = current_date - start_date
+  unused_day_count = current_date - previous_period_date
 elif open_sale_order.getValidationState() == 'archived':
   unused_day_count = next_period_date - current_date
 else:
@@ -22,7 +26,7 @@ else:
 
 sale_packing_list_edit_kw = dict(
   title=title,
-  start_date=start_date,
+  start_date=previous_period_date,
   # It should match the first open order invoice
   stop_date=next_period_date,
   specialise_value=open_sale_order.getSpecialiseValue(),
@@ -49,7 +53,7 @@ if (0 < unused_day_count):
 
   sale_packing_list = portal.sale_packing_list_module.newContent(
     portal_type="Sale Packing List",
-    comment="%s unused days of %s" % (unused_day_count, next_period_date-start_date),
+    comment="%s unused days of %s" % (unused_day_count, next_period_date-previous_period_date),
     **sale_packing_list_edit_kw
   )
 
@@ -82,7 +86,7 @@ if (0 < unused_day_count):
   else:
     sale_packing_list_cell = sale_packing_list_line
 
-  quantity = open_sale_order_cell.getQuantity() * (unused_day_count / (next_period_date - start_date))
+  quantity = open_sale_order_cell.getQuantity() * (unused_day_count / (next_period_date - previous_period_date))
   # precision = context.getQuantityPrecisionFromResource(open_sale_order_cell.getResourceValue())
   # XXX Stock does not seem to use quantity unit precision...
   precision = 2

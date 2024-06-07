@@ -72,7 +72,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       # compute_node
       self.logout()
 
-    with PinnedDateTime(self, DateTime('2024/01/29')):
+    with PinnedDateTime(self, DateTime('2023/12/29')):
       public_reference = 'public-%s' % self.generateNewId()
       self.joinSlapOS(self.web_site, public_reference)
     with PinnedDateTime(self, DateTime('2024/02/01')):
@@ -95,7 +95,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     public_instance_title = 'Public title %s' % self.generateNewId()
     self.login(person_user_id)
 
-    with PinnedDateTime(self, DateTime('2024/02/10')):
+    with PinnedDateTime(self, DateTime('2024/01/10')):
       self.personRequestInstanceNotReady(
         software_release=software_release,
         software_type=software_type,
@@ -150,8 +150,8 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     }
     inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**inventory_list_kw)
     self.assertEquals(1, len(inventory_list))
-    # 1 - 0.42 (13 days of 31) - 0.1 (3 days of 31) + 1 - 0.83 (24 days of 29)
-    self.assertAlmostEquals(-0.65, inventory_list[0].total_quantity)
+    # 2 - 0.42 (13 days of 31) - 0.1 (3 days of 31) + 1 - 0.83 (24 days of 29)
+    self.assertAlmostEquals(-1.65, inventory_list[0].total_quantity)
 
     inventory_list_kw = {
         'group_by_section': False,
@@ -172,14 +172,14 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 1 instance tree
     # 7 open sale order
     # 4 assignment
-    # 3 simulation movement
-    # 6 sale packing list / line
+    # 4 simulation movement
+    # 7 sale packing list / line
     # 2 sale trade condition ( a 3rd trade condition is not linked to the project)
     # 1 software instance
     # 1 software product
     # 1 subscription change request
     # 2 subscription request
-    self.assertRelatedObjectCount(project, 30)
+    self.assertRelatedObjectCount(project, 32)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()

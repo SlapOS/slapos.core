@@ -17,9 +17,6 @@
           <tal:block tal:condition="python: web_site is not None">
             <img alt="" tal:attributes="src python: web_site.absolute_url() + '/gadget_slapos_invoice_logo.png?format='" style="max-height: 25%; max-width: 70%;"/>
           </tal:block>
-          <tal:block tal:condition="python: web_site is None">
-            <img alt="" tal:attributes="src python: context.getPortalObject().absolute_url() + '/web_site_module/hostingjs/gadget_slapos_invoice_logo.png?format='" style="max-height: 25%; max-width: 70%;"/>
-          </tal:block>
         </tal:block>
         <tal:block define="source_section_dict python: context.SaleInvoiceTransaction_getBaseCategoryDictForPrintout('source_section')">
           <h1 class="company" tal:content="python: source_section_dict['title']"></h1>

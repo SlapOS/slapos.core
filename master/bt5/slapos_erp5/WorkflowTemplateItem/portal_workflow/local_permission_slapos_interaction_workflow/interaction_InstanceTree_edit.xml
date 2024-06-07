@@ -11,6 +11,7 @@
             <value>
               <tuple>
                 <string>after_script/portal_workflow/local_permission_slapos_interaction_workflow/script_Base_updateAllLocalRoles</string>
+                <string>after_script/portal_workflow/local_permission_slapos_interaction_workflow/script_InstanceTree_updateAllInstanceLocalRoles</string>
               </tuple>
             </value>
         </item>

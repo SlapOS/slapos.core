@@ -82,24 +82,6 @@
             <value> <string>System Preference</string> </value>
         </item>
         <item>
-            <key> <string>preferred_aggregated_consumption_sale_trade_condition</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
-            <key> <string>preferred_aggregated_sale_trade_condition</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
-            <key> <string>preferred_aggregated_subscription_sale_trade_condition</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>preferred_authentication_failure_block_duration</string> </key>
             <value> <int>1800</int> </value>
         </item>
@@ -110,12 +92,6 @@
         <item>
             <key> <string>preferred_authentication_policy_enabled</string> </key>
             <value> <int>0</int> </value>
-        </item>
-        <item>
-            <key> <string>preferred_campaign_use</string> </key>
-            <value>
-              <tuple/>
-            </value>
         </item>
         <item>
             <key> <string>preferred_cloud_contract_enabled</string> </key>
@@ -132,16 +108,6 @@
         <item>
             <key> <string>preferred_credential_request_automatic_approval</string> </key>
             <value> <int>1</int> </value>
-        </item>
-        <item>
-            <key> <string>preferred_default_pre_payment_subscription_invoice_template</string> </key>
-            <value> <string>accounting_module/template_pre_payment_subscription_sale_invoice_transaction</string> </value>
-        </item>
-        <item>
-            <key> <string>preferred_default_pre_payment_template</string> </key>
-            <value>
-              <none/>
-            </value>
         </item>
         <item>
             <key> <string>preferred_document_conversion_server_url</string> </key>

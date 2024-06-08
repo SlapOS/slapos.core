@@ -318,22 +318,6 @@
             <value> <string>portal_integrations/slapos_wechat_test_integration</string> </value>
         </item>
         <item>
-            <key> <string>preferred_wechat_payment_service_reference</string> </key>
-            <value> <string>PSERV-Wechat-Test</string> </value>
-        </item>
-        <item>
-            <key> <string>preferred_zh_pre_payment_subscription_invoice_template</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
-            <key> <string>preferred_zh_pre_payment_template</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>preffered_force_username_check_in_password</string> </key>
             <value> <int>1</int> </value>
         </item>

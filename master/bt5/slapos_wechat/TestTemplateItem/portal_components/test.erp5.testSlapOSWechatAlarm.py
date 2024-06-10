@@ -19,11 +19,11 @@
 #
 ##############################################################################
 
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.test.testSlapOSWechatSkins import TestSlapOSWechatMixin
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 from DateTime import DateTime
 
-class TestSlapOSWechatUpdateStartedPayment(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSWechatUpdateStartedPayment(TestSlapOSWechatMixin):
 
   def test_not_started_payment(self):
     new_id = self.generateNewId()

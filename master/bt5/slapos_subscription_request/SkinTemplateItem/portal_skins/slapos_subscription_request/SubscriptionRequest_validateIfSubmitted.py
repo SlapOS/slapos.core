@@ -4,6 +4,8 @@ if REQUEST is not None:
 
 subscription_request = context
 portal = context.getPortalObject()
+assert subscription_request.getPortalType() == 'Subscription Request'
+assert subscription_request.getSimulationState() == 'submitted'
 
 def markHistory(document, comment):
   portal_workflow = document.portal_workflow

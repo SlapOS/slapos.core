@@ -234,9 +234,10 @@
             options.hasOwnProperty('result'))) {
         return domsugar(this.element);
       }
+      // add current master url to monitor url
       if (options.result.hasOwnProperty('monitor_url')) {
         options.result.monitor_url +=
-          '&slapos_master_url=' + window.location.host;
+          '&slapos_master_url=' + window.location.origin;
       }
       // Save will force the gadget to be updated so
       // result is empty.

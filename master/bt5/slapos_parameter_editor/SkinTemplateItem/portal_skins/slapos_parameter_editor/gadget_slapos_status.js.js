@@ -234,6 +234,11 @@
           'status gadget did not receive jio_key  and result values'
         );
       }
+      // add current master url to monitor url
+      if (options.result.hasOwnProperty('monitor_url')) {
+        options.result.monitor_url +=
+          '&slapos_master_url=' + window.location.origin;
+      }
       // Save will force the gadget to be updated so
       // result is empty.
       var state_dict = options.result || {};

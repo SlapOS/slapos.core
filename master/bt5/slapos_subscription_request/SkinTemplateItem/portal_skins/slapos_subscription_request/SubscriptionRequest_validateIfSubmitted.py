@@ -7,6 +7,8 @@ portal = context.getPortalObject()
 assert subscription_request.getPortalType() == 'Subscription Request'
 assert subscription_request.getSimulationState() == 'submitted'
 
+subscription_request.reindexObject(activate_kw=activate_kw)
+
 def markHistory(document, comment):
   portal_workflow = document.portal_workflow
   last_workflow_item = portal_workflow.getInfoFor(ob=document,

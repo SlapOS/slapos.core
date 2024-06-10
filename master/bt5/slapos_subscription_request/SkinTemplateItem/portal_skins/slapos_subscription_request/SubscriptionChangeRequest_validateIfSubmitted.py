@@ -9,6 +9,8 @@ portal = context.getPortalObject()
 assert subscription_change_request.getPortalType() == 'Subscription Change Request'
 assert subscription_change_request.getSimulationState() == 'submitted'
 
+subscription_change_request.reindexObject(activate_kw=activate_kw)
+
 def invalidate(document, comment):
   context.validate()
   context.invalidate(comment=comment)

@@ -18,7 +18,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.test.SlapOSTestCaseMixin import \
+  SlapOSTestCaseMixinWithAbort, SlapOSTestCaseMixin
 from erp5.component.document.WechatService import WechatService
 
 
@@ -27,7 +28,72 @@ from zExceptions import Unauthorized
 import transaction
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 
-class TestSlapOSCurrency_getIntegrationMapping(SlapOSTestCaseMixinWithAbort):
+
+
+class TestSlapOSWechatMixin(SlapOSTestCaseMixin):
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    self.wechat_secure_payment = self.portal.portal_secure_payments.newContent(
+      portal_type="Wechat Service",
+      reference="PSERV-Wechat-Test-%s" % self.generateNewId()
+    )
+
+    # Include a simple Integration site
+    self.integration_site = self.portal.portal_integrations.newContent(
+      title="Integration site for: %s" % (self.wechat_secure_payment),
+      reference="wechat",
+      portal_type="Integration Site"
+    )
+    self.integration_site.newContent(
+      id="Causality",
+      portal_type="Integration Base Category Mapping",
+      default_source_reference="Causality",
+      default_destination_reference="causality"
+    )
+
+    resource_map = self.integration_site.newContent(
+      id="Resource",
+      portal_type="Integration Base Category Mapping",
+      default_source_reference="Resource",
+      default_destination_reference="resource"
+    )
+    resource_map.newContent(
+      # This is required for integration
+      id='979',
+      portal_type="Integration Category Mapping",
+      default_destination_reference='resource/currency_module/CNY',
+      default_source_reference='CNY'
+    )
+
+    system_preference = self.portal.portal_preferences.slapos_default_system_preference
+    self.older_service_reference = system_preference.getPreferredWechatPaymentServiceReference()
+    system_preference.setPreferredWechatPaymentServiceReference(
+      self.wechat_secure_payment.getReference())
+
+    self.older_integration_site = system_preference.getPreferredWechatIntegrationSite()
+    system_preference.setPreferredWechatIntegrationSite(
+      self.integration_site.getRelativeUrl()
+    )
+
+    self.tic()
+
+  def beforeTearDown(self):
+    SlapOSTestCaseMixin.beforeTearDown(self)
+    self.portal.portal_secure_payments.manage_delObjects(
+      ids=[self.wechat_secure_payment.getId()])
+    self.portal.portal_integrations.manage_delObjects(
+      ids=[self.integration_site.getId()])
+
+    system_preference = self.portal.portal_preferences.slapos_default_system_preference
+    system_preference.setPreferredWechatPaymentServiceReference(
+      self.older_service_reference)
+    system_preference.setPreferredWechatIntegrationSite(
+      self.older_integration_site
+    )
+    
+    self.tic()
+
+class TestSlapOSCurrency_getIntegrationMapping(TestSlapOSWechatMixin):
 
   def test_integratedCurrency(self):
     currency = self.portal.currency_module.CNY
@@ -62,7 +128,7 @@ class TestSlapOSAccountingTransaction_updateStartDate(SlapOSTestCaseMixinWithAbo
       date, REQUEST={})
 
 
-class TestSlapOSPaymentTransaction_getWechatId(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPaymentTransaction_getWechatId(TestSlapOSWechatMixin):
 
   def test_getWechatId_newPaymentTransaction(self):
     payment_transaction = self.createPaymentTransaction()
@@ -102,7 +168,7 @@ class TestSlapOSPaymentTransaction_getWechatId(SlapOSTestCaseMixinWithAbort):
       REQUEST={})
 
 
-class TestSlapOSPaymentTransaction_generateWechatId(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPaymentTransaction_generateWechatId(TestSlapOSWechatMixin):
 
   def test_generateWechatId_newPaymentTransaction(self):
     payment_transaction = self.createPaymentTransaction()
@@ -164,7 +230,7 @@ class TestSlapOSPaymentTransaction_generateWechatId(SlapOSTestCaseMixinWithAbort
       REQUEST={})
 
 
-class TestSlapOSPaymentTransaction_createWechatEvent(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPaymentTransaction_createWechatEvent(TestSlapOSWechatMixin):
 
   def test_createWechatEvent_REQUEST_disallowed(self):
     payment_transaction = self.createPaymentTransaction()
@@ -174,28 +240,26 @@ class TestSlapOSPaymentTransaction_createWechatEvent(SlapOSTestCaseMixinWithAbor
       REQUEST={})
 
   def test_createWechatEvent_newPayment(self):
-    self.portal.portal_secure_payments.slapos_wechat_test.setReference("PSERV-Wechat-Test")
     payment_transaction = self.createPaymentTransaction()
     wechat_event = payment_transaction.PaymentTransaction_createWechatEvent()
     self.assertEqual(wechat_event.getPortalType(), "Wechat Event")
     self.assertEqual(wechat_event.getSource(),
-      "portal_secure_payments/slapos_wechat_test")
+      self.wechat_secure_payment.getRelativeUrl())
     self.assertEqual(wechat_event.getDestination(), payment_transaction.getRelativeUrl())
 
   def test_createWechatEvent_kwParameter(self):
-    self.portal.portal_secure_payments.slapos_wechat_test.setReference("PSERV-Wechat-Test")
     self.tic()
     payment_transaction = self.createPaymentTransaction()
     wechat_event = payment_transaction.PaymentTransaction_createWechatEvent(
       title='foo')
     self.assertEqual(wechat_event.getPortalType(), "Wechat Event")
     self.assertEqual(wechat_event.getSource(),
-      "portal_secure_payments/slapos_wechat_test")
+      self.wechat_secure_payment.getRelativeUrl())
     self.assertEqual(wechat_event.getDestination(), payment_transaction.getRelativeUrl())
     self.assertEqual(wechat_event.getTitle(), "foo")
 
 
-class TestSlapOSWechatEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSWechatEvent_processUpdate(TestSlapOSWechatMixin):
 
   def test_processUpdate_REQUEST_disallowed(self):
     event = self.createWechatEvent()
@@ -530,7 +594,7 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
         'Aborting refused wechat payment.',
         payment.workflow_history['accounting_workflow'][-1]['comment'])
 
-class TestSlapOSWechatBase_getWechatServiceRelativeUrl(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSWechatBase_getWechatServiceRelativeUrl(TestSlapOSWechatMixin):
   def test_getWechatServiceRelativeUrl_REQUEST_disallowed(self):
     self.assertRaises(
       Unauthorized,
@@ -538,20 +602,18 @@ class TestSlapOSWechatBase_getWechatServiceRelativeUrl(SlapOSTestCaseMixinWithAb
       REQUEST={})
 
   def test_getWechatServiceRelativeUrl_default_result(self):
-    self.portal.portal_secure_payments.slapos_wechat_test.setReference("PSERV-Wechat-Test")
-    self.tic()
     result = self.portal.Base_getWechatServiceRelativeUrl()
-    self.assertEqual(result, 'portal_secure_payments/slapos_wechat_test')
+    self.assertEqual(result, self.wechat_secure_payment.getRelativeUrl())
 
   def test_getWechatServiceRelativeUrl_not_found(self):
-    self.portal.portal_secure_payments.slapos_wechat_test.setReference("disabled")
+    self.wechat_secure_payment.setReference("disabled")
     self.tic()
     result = self.portal.Base_getWechatServiceRelativeUrl()
     self.assertEqual(result, None)
 
 
 class TestSlapOSWechatPaymentTransaction_redirectToManualWechatPayment(
-                                                    SlapOSTestCaseMixinWithAbort):
+                                                    TestSlapOSWechatMixin):
 
   def _simulatePaymentTransaction_getVADSUrlDict(self):
     script_name = 'PaymentTransaction_getVADSUrlDict'
@@ -588,10 +650,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self._dropPaymentTransaction_getVADSUrlDict()
 
   def test_PaymentTransaction_redirectToManualWechatPayment_redirect(self):
-    self.portal.portal_secure_payments.slapos_wechat_test.setReference("PSERV-Wechat-Test")
     project = self.addProject()
     person = self.makePerson(project)
-    invoice =  self.createStoppedSaleInvoiceTransaction(
+    invoice = self.createStoppedSaleInvoiceTransaction(
       payment_mode="wechat",
       destination_section_value=person,
       destination_project_value=project
@@ -639,7 +700,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     transaction.abort()
 
   def test_PaymentTransaction_redirectToManualWechatPayment_redirect_with_website(self):
-    self.portal.portal_secure_payments.slapos_wechat_test.setReference("PSERV-Wechat-Test")
     project = self.addProject()
     person = self.makePerson(project)
     invoice =  self.createStoppedSaleInvoiceTransaction(
@@ -688,7 +748,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
   def test_PaymentTransaction_redirectToManualWechatPayment_already_registered(self):
     project = self.addProject()
     person = self.makePerson(project)
-    invoice =  self.createStoppedSaleInvoiceTransaction(
+    invoice = self.createStoppedSaleInvoiceTransaction(
       payment_mode="wechat",
       destination_section_value=person,
       destination_project_value=project

@@ -27,12 +27,13 @@ if len(sql_instance_list) != 1:
 
 # Search for the existing Open Sale Order
 item = sql_instance_list[0].getObject()
-open_sale_order_cell = portal.portal_catalog.getResultValue(
+open_sale_order_cell_list = portal.portal_catalog(
   portal_type=['Open Sale Order Line', 'Open Sale Order Cell'],
   aggregate__uid=item.getUid(),
-  validation_state='validated'
+  validation_state='validated',
+  limit=2
 )
-if open_sale_order_cell is None:
+if len(open_sale_order_cell_list) == 0:
   keep_items = {
     'your_reference': reference,
     'portal_status_level': 'warning',
@@ -41,7 +42,17 @@ if open_sale_order_cell is None:
   if batch:
     raise ValueError(keep_items['portal_status_message'])
   return context.Base_renderForm(dialog_id, keep_items=keep_items)
+elif len(open_sale_order_cell_list) == 2:
+  keep_items = {
+    'your_reference': reference,
+    'portal_status_level': 'warning',
+    'portal_status_message': Base_translateString('Too many Open Sale Orders found')
+  }
+  if batch:
+    raise ValueError(keep_items['portal_status_message'])
+  return context.Base_renderForm(dialog_id, keep_items=keep_items)
 
+open_sale_order_cell = open_sale_order_cell_list[0].getObject()
 open_sale_order = open_sale_order_cell.getParentValue()
 while open_sale_order.getPortalType() != 'Open Sale Order':
   open_sale_order = open_sale_order.getParentValue()

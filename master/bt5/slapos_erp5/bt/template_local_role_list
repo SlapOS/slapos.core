@@ -37,8 +37,6 @@ open_sale_order_module
 organisation_module
 person_module
 portal_integrations
-portal_integrations/slapos_payzen_test_integration
-portal_integrations/slapos_wechat_test_integration
 project_module
 regularisation_request_module
 sale_packing_list_module

@@ -227,12 +227,16 @@
     })
 
     .declareMethod("render", function (options) {
-      // crash as soon as possible to detect wrong configuration
+      // wrong configuration, which can occurs in many places
+      // for example, "new" portal type like "Remote Node" are
+      // not handled at all
       if (!(options.hasOwnProperty('jio_key') &&
             options.hasOwnProperty('result'))) {
-        throw new Error(
-          'status gadget did not receive jio_key  and result values'
-        );
+        return domsugar(this.element);
+      }
+      if (options.result.hasOwnProperty('monitor_url')) {
+        options.result.monitor_url +=
+          '&slapos_master_url=' + window.location.host;
       }
       // Save will force the gadget to be updated so
       // result is empty.

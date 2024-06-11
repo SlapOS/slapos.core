@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.test.testSlapOSWechatSkins import TestSlapOSWechatMixin
 from erp5.component.document.WechatService import WechatService
 
 
@@ -28,7 +28,7 @@ import transaction
 
 HARDCODED_PRICE = 99.6
 
-class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSWechatInterfaceWorkflow(TestSlapOSWechatMixin):
 
   def _simulatePaymentTransaction_getTotalPayablePrice(self):
     script_name = 'PaymentTransaction_getTotalPayablePrice'
@@ -69,7 +69,7 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     )
     event.edit(
       destination_value=payment,
-      source="portal_secure_payments/slapos_wechat_test",
+      source=self.wechat_secure_payment.getRelativeUrl(),
     )
     self.assertRaises(AttributeError, event.generateManualPaymentPage)
 
@@ -81,7 +81,7 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     )
     event.edit(
       destination_value=payment,
-      source="portal_secure_payments/slapos_wechat_test",
+      source=self.wechat_secure_payment.getRelativeUrl(),
     )
 
     payment_transaction_id = payment.getId().encode('utf-8')
@@ -156,7 +156,7 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     self.assertRaises(AttributeError, event.updateStatus)
 
   def mockQueryWechatOrderStatus(self, method_to_call, expected_args, result_dict):
-    payment_service = self.portal.portal_secure_payments.slapos_wechat_test
+    payment_service = self.wechat_secure_payment
     def mock_QueryWechatOrderStatus(arg1):
       self.assertEqual(arg1, expected_args)
       return result_dict
@@ -189,7 +189,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by W
     payment = self.createPaymentTransaction()
     event.edit(
       destination_value=payment,
-      source="portal_secure_payments/slapos_wechat_test",
+      source=self.wechat_secure_payment.getRelativeUrl(),
     )
     _, transaction_id = \
       payment.PaymentTransaction_generateWechatId()

@@ -34,7 +34,7 @@ from zExceptions import Unauthorized
 
 class TestSlapOSAccounting(SlapOSTestCaseMixin):
 
-  def createIntegrationSite(self):
+  def createIntegrationPayzenSite(self):
     # Include a simple Integration site, which is required for
     # PaymentTransaction_generatePayzenId
     integration_site = self.portal.portal_integrations.newContent(
@@ -61,6 +61,35 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       default_source_reference='978'
     )
     return integration_site
+
+  def createIntegrationWechatSite(self):
+    # Include a simple Integration site, which is required for
+    # PaymentTransaction_generateWechatId
+    integration_site = self.portal.portal_integrations.newContent(
+      title="Integration site for test_AccountingTransaction_getPaymentState_wechat_waiting_payment",
+      reference="wechat",
+      portal_type="Integration Site"
+    )
+    integration_site.newContent(
+      id="Causality",
+      portal_type="Integration Base Category Mapping",
+      default_source_reference="Causality",
+      default_destination_reference="causality"
+    )
+    resource_map = integration_site.newContent(
+      id="Resource",
+      portal_type="Integration Base Category Mapping",
+      default_source_reference="Resource",
+      default_destination_reference="resource"
+    )
+    resource_map.newContent(
+      id='979',
+      portal_type="Integration Category Mapping",
+      default_destination_reference='resource/currency_module/CNY',
+      default_source_reference='979'
+    )
+    return integration_site
+
 
   def createHostingSubscription(self):
     new_id = self.generateNewId()
@@ -188,7 +217,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     system_preference = self.portal.portal_preferences.slapos_default_system_preference
     older_integration_site = system_preference.getPreferredPayzenIntegrationSite()
     
-    integration_site = self.createIntegrationSite()
+    integration_site = self.createIntegrationPayzenSite()
     system_preference.setPreferredPayzenIntegrationSite(
       integration_site.getRelativeUrl()
     )
@@ -302,12 +331,27 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     )
     self.portal.portal_workflow._jumpToStateFor(payment, 'started')
 
+
+    system_preference = self.portal.portal_preferences.slapos_default_system_preference
+    older_integration_site = system_preference.getPreferredWechatIntegrationSite()
+    
+    integration_site = self.createIntegrationWechatSite()
+    system_preference.setPreferredWechatIntegrationSite(
+      integration_site.getRelativeUrl()
+    )
     self.tic()
-    payment.PaymentTransaction_generateWechatId()
-    self.assertRaises(
-      ValueError,
-      invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
-      batch_mode=1)
+    try:
+      payment.PaymentTransaction_generateWechatId()
+      self.assertRaises(
+        ValueError,
+        invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
+        batch_mode=1)
+    finally:
+      self.portal.portal_integrations.manage_delObjects(
+        ids=[integration_site.getId()])
+      system_preference.setPreferredWechatIntegrationSite(
+        older_integration_site
+      )
 
   @withAbort
   def test_createReversalSaleInvoiceTransaction_wechat_ok(self):
@@ -439,7 +483,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     system_preference = self.portal.portal_preferences.slapos_default_system_preference
     older_integration_site = system_preference.getPreferredPayzenIntegrationSite()
     
-    integration_site = self.createIntegrationSite()
+    integration_site = self.createIntegrationPayzenSite()
     system_preference.setPreferredPayzenIntegrationSite(
       integration_site.getRelativeUrl()
     )
@@ -474,11 +518,27 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       created_by_builder=1 # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(payment, 'started')
-    payment.PaymentTransaction_generateWechatId()
-    self.tic()
-    self.login(person.getUserId())
-    self.assertEqual("Waiting for payment confirmation",
+
+    system_preference = self.portal.portal_preferences.slapos_default_system_preference
+    older_integration_site = system_preference.getPreferredWechatIntegrationSite()
+    
+    integration_site = self.createIntegrationWechatSite()
+    system_preference.setPreferredWechatIntegrationSite(
+      integration_site.getRelativeUrl()
+    )
+
+    try:
+      payment.PaymentTransaction_generateWechatId()
+      self.tic()
+      self.login(person.getUserId())
+      self.assertEqual("Waiting for payment confirmation",
                       invoice.AccountingTransaction_getPaymentState())
+    finally:
+      self.portal.portal_integrations.manage_delObjects(
+        ids=[integration_site.getId()])
+      system_preference.setPreferredWechatIntegrationSite(
+        older_integration_site
+      )
 
   def test_AccountingTransaction_getPaymentState_payzen_papaid_payment(self):
     invoice = self.createStoppedSaleInvoiceTransaction()

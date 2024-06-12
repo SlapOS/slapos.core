@@ -235,7 +235,8 @@
         return domsugar(this.element);
       }
       // add current master url to monitor url
-      if (options.result.hasOwnProperty('monitor_url')) {
+      if (options.result.hasOwnProperty('monitor_url') &&
+          options.result.monitor_url) {
         options.result.monitor_url +=
           '&slapos_master_url=' + window.location.origin;
       }

@@ -57,11 +57,15 @@ if destination_decision_value is None:
   return
 
 try:
-  subscription_request = service.Resource_createSubscriptionRequest(destination_decision_value, resource_vcl, project_value, currency_value=currency_value, default_price=default_price,
-                                                                    item_value=item, causality_value=item)
+  subscription_request = service.Resource_createSubscriptionRequest(
+    destination_decision_value, resource_vcl, project_value, currency_value=currency_value,
+    default_price=default_price, item_value=item, causality_value=item, temp_object=temp_object)
 except AssertionError as error:
   storeWorkflowComment(item, str(error))
   return
+
+if temp_object:
+  return subscription_request
 
 subscription_request.reindexObject(activate_kw=activate_kw)
 item.reindexObject(activate_kw=activate_kw)

@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>currency_value=None, default_price=None, activate_kw=None, REQUEST=None</string> </value>
+            <value> <string>currency_value=None, default_price=None, activate_kw=None, temp_object=False, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

@@ -106,6 +106,8 @@
                       <list>
                         <string>your_url_string</string>
                         <string>your_title</string>
+                        <string>your_price_information</string>
+                        <string>your_balance_information</string>
                       </list>
                     </value>
                 </item>

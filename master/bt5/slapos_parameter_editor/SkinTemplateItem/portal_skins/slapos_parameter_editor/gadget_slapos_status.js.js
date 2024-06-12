@@ -234,10 +234,6 @@
             options.hasOwnProperty('result'))) {
         return domsugar(this.element);
       }
-      if (options.result.hasOwnProperty('monitor_url')) {
-        options.result.monitor_url +=
-          '&slapos_master_url=' + window.location.host;
-      }
       // add current master url to monitor url
       if (options.result.hasOwnProperty('monitor_url')) {
         options.result.monitor_url +=

@@ -64,42 +64,24 @@ if sla_xml:
 person.requestSoftwareInstance(**request_kw)
 request_instance_tree = context.REQUEST.get('request_instance_tree')
 
-def wrapWithShadow(person, instance):
-  # Evaluate if the user has to pay something,
-  # Since we need access to organisation_module on Entity_getDepositBalanceAmount
-  # evaluate as Shadow User.
-  subscription_request = instance.Item_createSubscriptionRequest(temp_object=True)
-
-  # Check if we could create the Subscription Request
-  if subscription_request is not None:
-    price = subscription_request.getPrice(None)
-    if price is not None and price != 0:
-      balance = person.Entity_getDepositBalanceAmount([subscription_request])
-      if balance - price < 0:
-        payment_mode=subscription_request.Base_getPaymentModeForCurrency(
-          subscription_request.getPriceCurrencyUid())
-        return person.Entity_createDepositPaymentTransaction(
-          subscription_list=[
-            subscription_request.asContext(total_price=price)],
-            payment_mode=payment_mode
-        )
-
-web_site = context.getWebSiteValue()
+web_site = context.getWebSectionValue()
 assert web_site is not None
 
-# Use proper acquisiton to generate the payment transaction
-person = web_site.restrictedTraverse(person.getRelativeUrl())
+# Evaluate if the user has to pay something,
+# Since we need access to organisation_module on Entity_getDepositBalanceAmount
+# evaluate as Shadow User.
+subscription_request = request_instance_tree.Item_createSubscriptionRequest(temp_object=True)
 
-payment_transaction = person.Person_restrictMethodAsShadowUser(
-  shadow_document=person,
-  callable_object=wrapWithShadow,
-  argument_list=[person, request_instance_tree])
+# Check if we could create the Subscription Request
+if subscription_request is not None:
+  price = subscription_request.getPrice(None)
+  if price is not None and price != 0:
+    balance = person.Entity_getDepositBalanceAmount([subscription_request])
+    if balance < price:
+      instance = web_site.restrictedTraverse(request_instance_tree.getRelativeUrl())
+      return instance.Base_renderForm(
+        "InstanceTree_viewCreateDirectDepositPaymentTransactionOnSlaposPanelDialog",
+	      message=context.Base_translateString("Your instance is created, please proceed to payment.")
+      )
 
-if payment_transaction is not None:
-  return context.getPortalObject().REQUEST.RESPONSE.redirect(
-  payment_transaction.absolute_url() + "/PaymentTransaction_redirectToManualPayment",
-  status=302,
-)
-
-raise ValueError("NO")
 return request_instance_tree.Base_redirect()

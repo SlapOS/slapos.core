@@ -31,11 +31,22 @@ if first_subscription.getDestinationSection() != context.getRelativeUrl():
 entity_uid = context.getUid()
 mirror_section_uid = first_subscription.getSourceSectionUid()
 
+def getDepositReceivedUid(portal):
+  return portal.restrictedTraverse('account_module/deposit_received').getUid()
+
+person = portal.portal_membership.getAuthenticatedMember().getUserValue()
+if person is not None:
+  deposit_received_uid = person.Person_restrictMethodAsShadowUser(
+    shadow_document=person,
+    callable_object=getDepositReceivedUid,
+    argument_list=[portal])
+else:
+  deposit_received_uid = getDepositReceivedUid(portal)
 # Total received
 deposit_amount = portal.portal_simulation.getInventoryAssetPrice(
   section_uid=entity_uid,
   mirror_section_uid=mirror_section_uid,
-  mirror_node_uid=portal.restrictedTraverse('account_module/deposit_received').getUid(),
+  mirror_node_uid=deposit_received_uid,
   #node_category_strict_membership=['account_type/income'],
   simulation_state= ('stopped', 'delivered'),
   # Do not gather deposit reimburse

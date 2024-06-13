@@ -267,7 +267,7 @@ function GetOSVersion {
             os_VENDOR=OracleLinux
         fi
         os_PACKAGE="rpm"
-    elif [[ -r /etc/os-release ]] && [[ -n "`grep \"suse\" /etc/os-release`" ]]; then
+    elif [[ -r /etc/os-release ]] && grep suse /etc/os-release; then
         for r in openSUSE "SUSE Linux"; do
             if [[ "$r" = "SUSE Linux" ]]; then
                 os_VENDOR="SUSE LINUX"

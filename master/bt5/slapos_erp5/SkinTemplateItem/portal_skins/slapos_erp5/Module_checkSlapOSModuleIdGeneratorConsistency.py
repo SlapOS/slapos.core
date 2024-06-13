@@ -7,9 +7,9 @@ for module_id in portal.objectIds(spec=('ERP5 Folder',)) + ["portal_simulation",
   if module.getIdGenerator() != id_generator:
 
     if fixit:
-      error_list.append("%s module has incorrect ID generator (fixed)." % context.getRelativeUrl())
+      error_list.append("%s module has incorrect ID generator (fixed)." % module.getRelativeUrl())
       module.setIdGenerator(id_generator)
     else:
-      error_list.append("%s module has incorrect ID generator." % context.getRelativeUrl())
+      error_list.append("%s module has incorrect ID generator." % module.getRelativeUrl())
 
 return error_list

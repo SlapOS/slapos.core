@@ -394,7 +394,8 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
     self.assertEqual('validated',
         software_instance.getValidationState())
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToGarbageCollect', "'subscribed'"):
+      self.tic()
     software_instance.SoftwareInstance_tryToGarbageCollect()
 
     self.assertEqual('destroy_requested',
@@ -408,7 +409,8 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
 
     instance_tree.archive()
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToGarbageCollect', "'subscribed'"):
+      self.tic()
     software_instance.SoftwareInstance_tryToGarbageCollect()
 
     self.assertEqual('start_requested',
@@ -422,7 +424,8 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(instance_tree,
         'destroy_requested')
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToGarbageCollect', "'subscribed'"):
+      self.tic()
     software_instance.SoftwareInstance_tryToGarbageCollect()
     self.assertEqual('start_requested',
         software_instance.getSlapState())
@@ -438,7 +441,8 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(instance_tree,
         'destroy_requested')
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToGarbageCollect', "'subscribed'"):
+      self.tic()
     software_instance.SoftwareInstance_tryToGarbageCollect()
 
     self.assertEqual('destroy_requested',

@@ -33,7 +33,7 @@
  </chain>
  <chain>
   <type>Instance Tree</type>
-  <workflow>edit_workflow, instance_slap_interface_workflow, instance_tree_workflow</workflow>
+  <workflow>edit_workflow, instance_slap_interface_workflow, instance_tree_workflow, slapos_cloud_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>One Time Virtual Master Access Token</type>

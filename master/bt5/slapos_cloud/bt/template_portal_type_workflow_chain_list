@@ -19,6 +19,7 @@ Instance Node | validation_workflow
 Instance Tree | edit_workflow
 Instance Tree | instance_slap_interface_workflow
 Instance Tree | instance_tree_workflow
+Instance Tree | slapos_cloud_interaction_workflow
 One Time Virtual Master Access Token | edit_workflow
 One Time Virtual Master Access Token | validation_workflow
 Person | person_slap_interface_workflow

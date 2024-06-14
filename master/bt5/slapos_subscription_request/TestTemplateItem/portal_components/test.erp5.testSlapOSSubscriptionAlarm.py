@@ -112,6 +112,28 @@ class TestSlapOSSubscriptionRequestValidateAlarm(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(subscription_request, 'submitted')
     self._test_alarm(alarm, subscription_request, script_name)
 
+class TestSlapOSSubscriptionRequestCancelAlarm(SlapOSTestCaseMixin):
+  #################################################################
+  # slapos_subscription_request_cancel_submitted
+  #################################################################
+  def _createSubscriptionRequest(self):
+    return self.portal.subscription_request_module.newContent(
+      portal_type='Subscription Request',
+      title="Test subscription %s" % (self.generateNewId())
+    )
+
+  def test_SubscriptionRequest_validateIfSubmitted_alarm_notSubmitted(self):
+    script_name = "SubscriptionRequest_cancelIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_subscription_request_cancel_submitted
+    self._test_alarm_not_visited(alarm, self._createSubscriptionRequest(), script_name)
+
+  def test_SubscriptionRequest_cancelIfSubmitted_alarm_submitted(self):
+    script_name = "SubscriptionRequest_cancelIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_subscription_request_cancel_submitted
+    subscription_request = self._createSubscriptionRequest()
+    self.portal.portal_workflow._jumpToStateFor(subscription_request, 'submitted')
+    self._test_alarm(alarm, subscription_request, script_name)
+
 
 class TestSlapOSSubscriptionChangeRequestValidateAlarm(SlapOSTestCaseMixin):
   #################################################################

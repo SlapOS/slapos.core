@@ -91,6 +91,10 @@
                           <string>Modification Date</string>
                         </tuple>
                         <tuple>
+                          <string>specialise_title</string>
+                          <string>Computer Model</string>
+                        </tuple>
+                        <tuple>
                           <string>python_version</string>
                           <string>Python</string>
                         </tuple>
@@ -114,10 +118,6 @@
                           <string>ComputeNode_getFreeComputePartitionCount</string>
                           <string>Free Compute Partition</string>
                         </tuple>
-                        <tuple>
-                          <string>subordination_title</string>
-                          <string>Computer Network</string>
-                        </tuple>
                       </list>
                     </value>
                 </item>
@@ -134,8 +134,8 @@
                           <string>Reference</string>
                         </tuple>
                         <tuple>
-                          <string>specialise_title</string>
-                          <string>Computer Model</string>
+                          <string>subordination_title</string>
+                          <string>Computer Network</string>
                         </tuple>
                         <tuple>
                           <string>default_network_address_host_name</string>
@@ -227,6 +227,10 @@
                           <string>Computer Model</string>
                         </tuple>
                         <tuple>
+                          <string>subordination_title</string>
+                          <string>Computer Network</string>
+                        </tuple>
+                        <tuple>
                           <string>creation_date</string>
                           <string>Creation Date</string>
                         </tuple>
@@ -264,6 +268,10 @@
                         <tuple>
                           <string>specialise_title</string>
                           <string>Computer Model</string>
+                        </tuple>
+                        <tuple>
+                          <string>subordination_title</string>
+                          <string>Computer Network</string>
                         </tuple>
                         <tuple>
                           <string>creation_date</string>

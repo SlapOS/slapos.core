@@ -29,7 +29,7 @@ subscription_request = portal.portal_catalog.getResultValue(
   aggregate__uid=context.getUid())
 
 if subscription_request is not None:
-  if subscription_request.getValidationState() != 'submit':
+  if subscription_request.getSimulationState() != 'submitted':
     # No need to continue if the subscription is already processed.
     return '<p>Nothing to pay</p>'
 else:
@@ -64,7 +64,7 @@ if subscription_request is not None:
 
     payment_url = subscription_request.absolute_url() + "/Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect" 
     if subscription_request.isTempObject():
-      payment_url = context.absolute_url() + "/XXX"
+      payment_url = context.absolute_url() + "/InstanceTree_redirectToManualDepositPayment"
 
     html_content += """
       <p><a href="%(payment_url)s">%(total_price)s %(currency)s</a></p>

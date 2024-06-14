@@ -77,11 +77,11 @@ if subscription_request is not None:
   price = subscription_request.getPrice(None)
   if price is not None and price != 0:
     balance = person.Entity_getDepositBalanceAmount([subscription_request])
-    if balance - price < 0:
+    if balance < price:
       instance = web_site.restrictedTraverse(request_instance_tree.getRelativeUrl())
       return instance.Base_renderForm(
-        "InstanceTree_viewCreateDirectDepositPaymentTransactionOnSlaposPanelDialog"
+        "InstanceTree_viewCreateDirectDepositPaymentTransactionOnSlaposPanelDialog",
+	      message=context.Base_translateString("Your instance is created, please proceed to payment.")
       )
 
-raise ValueError("NO")
 return request_instance_tree.Base_redirect()

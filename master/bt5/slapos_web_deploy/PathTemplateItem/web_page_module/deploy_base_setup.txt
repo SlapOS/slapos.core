@@ -55,7 +55,10 @@ is_package_installed unzip || install_package unzip
 is_package_installed openssl || install_package openssl
 is_package_installed ansible || install_package ansible
 
-if ! is_ubuntu || [[ $DISTRO = wheezy || $DISTRO == jessie || $DISTRO == stretch || $DISTRO == xenial || $DISTRO == bionic ]]; then
+if [[ $DISTRO = sle15.6 ]]; then
+  is_package_installed python311-pip || is_package_installed python3-pip || install_package python311-pip || install_package python3-pip 
+  pip3 install --upgrade pip
+elif ! is_ubuntu || [[ $DISTRO = wheezy || $DISTRO == jessie || $DISTRO == stretch || $DISTRO == xenial || $DISTRO == bionic ]]; then
   is_package_installed python-pip || install_package python-pip
   pip install --upgrade "pip < 21.0"
 else

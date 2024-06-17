@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>title, text_content, batch=None, resource=None, **kw</string> </value>
+            <value> <string>title, text_content, attachment=None, batch=None, resource=None, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

@@ -145,6 +145,15 @@ signature-certificate-list =
 # List of URL(s) which shouldn't be downloaded from binary cache.
 # Any URL beginning by a blacklisted URL will be blacklisted as well.
 download-from-binary-cache-url-blacklist =
+  https://lab.nexedi.cn/nexedi/slapos/-/raw/master
+  https://lab.nexedi.cn/nexedi/slapos/-/raw/1.0/
+  https://lab.nexedi.cn/nexedi/slapos/-/raw/erp5
+  https://lab.nexedi.com/nexedi/slapos/-/raw/master
+  https://lab.nexedi.com/nexedi/slapos/-/raw/1.0/
+  https://lab.nexedi.com/nexedi/slapos/-/raw/erp5
+  https://lab.nxdcdn.com/nexedi/slapos/-/raw/master
+  https://lab.nxdcdn.com/nexedi/slapos/-/raw/1.0/
+  https://lab.nxdcdn.com/nexedi/slapos/-/raw/erp5
   https://lab.nexedi.cn/nexedi/slapos/raw/master
   https://lab.nexedi.cn/nexedi/slapos/raw/1.0/
   https://lab.nexedi.cn/nexedi/slapos/raw/erp5
@@ -160,6 +169,15 @@ download-from-binary-cache-url-blacklist =
 # List of URL(s) which shouldn't be uploaded into binary cache.
 # Any URL beginning by a blacklisted URL will be blacklisted as well.
 upload-to-binary-cache-url-blacklist =
+  https://lab.nexedi.cn/nexedi/slapos/-/raw/master
+  https://lab.nexedi.cn/nexedi/slapos/-/raw/1.0/
+  https://lab.nexedi.cn/nexedi/slapos/-/raw/erp5
+  https://lab.nexedi.com/nexedi/slapos/-/raw/master
+  https://lab.nexedi.com/nexedi/slapos/-/raw/1.0/
+  https://lab.nexedi.com/nexedi/slapos/-/raw/erp5
+  https://lab.nxdcdn.com/nexedi/slapos/-/raw/master
+  https://lab.nxdcdn.com/nexedi/slapos/-/raw/1.0/
+  https://lab.nxdcdn.com/nexedi/slapos/-/raw/erp5
   https://lab.nexedi.cn/nexedi/slapos/raw/master
   https://lab.nexedi.cn/nexedi/slapos/raw/1.0/
   https://lab.nexedi.cn/nexedi/slapos/raw/erp5
@@ -175,9 +193,12 @@ upload-to-binary-cache-url-blacklist =
 
 # List of URL(s) which are forced to be downloaded from binary cache
 #download-from-binary-cache-force-url-list =
+#  https://lab.nexedi.com/nexedi/slapos/-/raw/1.0.
+#  https://lab.nxdcdn.com/nexedi/slapos/-/raw/1.0.
+#  https://lab.nexedi.cn/nexedi/slapos/-/raw/1.0.
 #  https://lab.nexedi.com/nexedi/slapos/raw/1.0.
 #  https://lab.nxdcdn.com/nexedi/slapos/raw/1.0.
-#  https://lab.node.vifib.com/nexedi/slapos/raw/1.0.
+#  https://lab.nexedi.cn/nexedi/slapos/raw/1.0.
 
 [collect]
 enable = True 

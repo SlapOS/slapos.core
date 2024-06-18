@@ -90,6 +90,7 @@
                     <value>
                       <list>
                         <string>your_text_content</string>
+                        <string>your_computer_guid</string>
                       </list>
                     </value>
                 </item>

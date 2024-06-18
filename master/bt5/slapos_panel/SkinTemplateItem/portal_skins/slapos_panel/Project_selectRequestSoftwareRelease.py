@@ -33,11 +33,11 @@ if aggregate_uid is None:
           ) 
         except AssertionError:
           price = 0.0
-          price_information = None
         else:
           price = subscription_request.getPrice(None)
 
         is_future_balance_negative = 0
+        price_information = None
         if price is not None and price != 0:
           price_information = '%s %s/%s' % (price,
             subscription_request.getPriceCurrencyTitle(),
@@ -45,8 +45,8 @@ if aggregate_uid is None:
 
           assert subscription_request.getDestinationDecision() == destination_value.getRelativeUrl()
           assert subscription_request.getLedger() == "automated"
-                        
           balance = destination_value.Entity_getDepositBalanceAmount(
+
             [subscription_request]
           )
           if balance - price < 0:

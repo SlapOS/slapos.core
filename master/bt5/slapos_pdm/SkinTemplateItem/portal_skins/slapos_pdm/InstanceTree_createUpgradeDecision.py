@@ -104,6 +104,7 @@ if len(allocation_cell_list) == 1:
     upgrade_decision = portal.upgrade_decision_module.newContent(
       portal_type='Upgrade Decision',
       title=decision_title,
+      destination=person_relative_url,
       destination_section=person_relative_url,
       destination_decision=person_relative_url,
       destination_project_value=instance_tree.getFollowUpValue(),

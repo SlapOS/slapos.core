@@ -30,7 +30,7 @@ event = ticket.Ticket_createProjectEvent(
 
 try:
   ticket.validate()
-except UnsupportedWorkflowMethod:
+except (AttributeError, UnsupportedWorkflowMethod):
   pass
 
 if batch:

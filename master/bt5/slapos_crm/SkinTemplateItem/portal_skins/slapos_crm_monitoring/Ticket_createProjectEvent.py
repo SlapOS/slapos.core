@@ -1,8 +1,35 @@
 """Generic script to add event
 It creates new Event for any context which become follow_up of created Event.
 """
+from erp5.component.tool.NotificationTool import buildEmailMessage
+
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
+
 portal = context.getPortalObject()
 ticket = context
+REQUEST = context.REQUEST
+
+# Max ~3Mb
+if int(REQUEST.getHeader('Content-Length', 0)) > 3145728:
+  raise ValueError('Huge attachment is not supported')
+
+# Compatibility with previous usage
+if (content_type is not None) and (content_type != 'text/plain'):
+  raise ValueError('Unsupported text content_type: %s' % content_type)
+
+# Create a mail message to allow attachment in the event
+attachment_list = []
+if attachment:
+  # Build dict wrapper for NotificationTool
+  mime_type = attachment.headers.get('Content-Type', '')
+  content = attachment.read()
+  name = getattr(attachment, 'filename', None)
+  attachment = dict(mime_type=mime_type,
+                    content=content,
+                    name=name)
+  attachment_list.append(attachment)
 
 if direction == 'outgoing':
   source_relative_url = source or ticket.getSource()
@@ -21,6 +48,9 @@ elif direction == 'incoming':
 else:
   raise NotImplementedError('The specified direction is not handled: %r' % (direction,))
 
+if (notification_message is not None) and (attachment is not None):
+  raise ValueError('Can not add attachment to a notification message')
+
 event_kw = {
   'portal_type': portal_type,
   'resource': resource,
@@ -33,8 +63,6 @@ event_kw = {
   'start_date': DateTime(),
   'follow_up_value': ticket,
   'language': language,
-  'text_content': text_content,
-  'content_type': content_type,
   }
 # Create event
 module = portal.getDefaultModule(portal_type=portal_type)
@@ -50,7 +78,14 @@ if notification_message:
 # Prefer using the notification message title
 # as it will be correctly translated
 if not event.hasTitle():
-  event.edit(title=title)
+  email = buildEmailMessage(from_url=None,
+                            to_url=None,
+                            msg=text_content,
+                            subject=title,
+                            attachment_list=attachment_list)
+  event.edit(
+    data=email.as_string()
+  )
 
 if not keep_draft:
   if direction == 'incoming':

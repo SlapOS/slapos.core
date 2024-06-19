@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>title, direction, portal_type, resource, text_content, content_type=None, attachment=None, notification_message=None, substitution_method_parameter_dict=None, keep_draft=False, source=None, destination=None, language=None, comment=None, REQUEST=None, **kw</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Ticket_createProjectEvent</string> </value>
+            <value> <string>Event_getAttachmentList</string> </value>
         </item>
       </dictionary>
     </pickle>

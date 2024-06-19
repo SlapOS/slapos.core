@@ -14,11 +14,11 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string></string> </value>
+            <value> <string>Base_redirect</string> </value>
         </item>
         <item>
             <key> <string>action_title</string> </key>
-            <value> <string></string> </value>
+            <value> <string>Pay Later</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -99,7 +99,7 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>AccountingTransactionModule_viewCreatePaymentTransactionDialog</string> </value>
+            <value> <string>InstanceTree_viewCreateDirectDepositPaymentTransactionOnSlaposPanelDialog</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>

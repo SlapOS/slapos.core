@@ -45,13 +45,25 @@ if subscription_request is not None:
     price = subscription_request.getPrice(None)
     if price is not None and price != 0:
       balance = entity.Entity_getDepositBalanceAmount([subscription_request])
-      if balance - price > 0:
+      if balance > price:
         return '<p>Nothing to Pay </p>'
 
 
+  def getUidWithShadow(portal, source_section):
+    # Source Section can be one organisation, so shadow is required
+    # Shadow has no access to freshly created or temp subscription requests
+    return (
+      portal.restrictedTraverse(source_section).getUid(),
+    )
+
+  section_section_uid = entity.Person_restrictMethodAsShadowUser(
+    shadow_document=entity,
+    callable_object=getUidWithShadow,
+    argument_list=[portal, subscription_request.getSourceSection()])
+
   outstanding_amount_list = entity.Entity_getOutstandingDepositAmountList(
     ledger_uid=subscription_request.getLedgerUid(), 
-    source_section_uid=subscription_request.getSourceSectionUid(),
+    source_section_uid=section_section_uid,
     resource_uid=currency_uid)
 
   assert len(outstanding_amount_list) in [0, 1]

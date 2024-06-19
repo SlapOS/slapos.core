@@ -64,7 +64,7 @@ if sla_xml:
 person.requestSoftwareInstance(**request_kw)
 request_instance_tree = context.REQUEST.get('request_instance_tree')
 
-web_site = context.getWebSiteValue()
+web_site = context.getWebSectionValue()
 assert web_site is not None
 
 # Evaluate if the user has to pay something,

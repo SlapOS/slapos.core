@@ -290,7 +290,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_parameter_editor/SoftwareProductModule_updateParameterEditorTestDialog',
         'slapos_parameter_editor/SoftwareProductModule_validateParameterEditorTestDialog',
         'slapos_parameter_editor/SoftwareProductModule_validateSoftwareReleaseForParameterEditorTestDialog',
-        'slapos_web_renderjs_ui/ERP5Site_callbackFacebookLogin',
         'slapos_web_renderjs_ui/PasswordTool_changeUserPassword',
         'slapos_web_renderjs_ui/WebSection_getDocumentValue',
         'slapos_web_renderjs_ui/WebSection_getLoginWarningMessage',

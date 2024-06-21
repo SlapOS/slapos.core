@@ -26,7 +26,7 @@
   <role id='Auditor'>
    <property id='title'>The Shadow User Himself</property>
    <property id='description'>Monovalued role</property>
-   <property id='condition'>python: here.objectValues(portal_type=["ERP5 Login", "Google Login", "Facebook Login", "Certificate Login"])</property>
+   <property id='condition'>python: here.objectValues(portal_type=here.getPortalLoginTypeList())</property>
    <property id='base_category_script'>Person_getSecurityCategoryFromSelfShadow</property>
    <multi_property id='categories'>local_role_group/shadow</multi_property>
    <multi_property id='base_category'>group</multi_property>
@@ -34,7 +34,7 @@
   <role id='Assignee'>
    <property id='title'>The User Himself</property>
    <property id='description'>Monovalued role</property>
-   <property id='condition'>python: here.objectValues(portal_type=["ERP5 Login", "Google Login", "Facebook Login", "Certificate Login"])</property>
+   <property id='condition'>python: here.objectValues(portal_type=here.getPortalLoginTypeList())</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromSelf</property>
    <multi_property id='categories'>local_role_group/user</multi_property>
    <multi_property id='base_category'>group</multi_property>

@@ -3,8 +3,6 @@ erp5_access_token
 erp5_commerce
 erp5_credential_oauth2
 erp5_access_token
-erp5_oauth_google_login
-erp5_oauth_facebook_login
 slapos_payzen
 slapos_wechat
 slapos_crm

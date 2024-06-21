@@ -8,10 +8,8 @@ test.erp5.testSlapOSERP5LocalPermissionSlapOSInteractionWorkflow
 test.erp5.testSlapOSERP5SiteDump
 test.erp5.testSlapOSERP5SkinSelection
 test.erp5.testSlapOSERP5SubscriptionChangeRequestScenario
+test.erp5.testSlapOSERP5SubscriptionScenario
 test.erp5.testSlapOSERP5VirtualMasterScenario
 test.erp5.testSlapOSPrecacheManifest
-test.erp5.testSlapOSPrecacheManifest
 test.erp5.testSlapOSWendelinCoreTwo
-test.erp5.testSlapOSWendelinCoreTwo
-test.erp5.testSlapOSXHTML
 test.erp5.testSlapOSXHTML

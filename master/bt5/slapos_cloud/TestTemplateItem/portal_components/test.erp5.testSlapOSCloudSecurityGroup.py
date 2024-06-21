@@ -61,8 +61,7 @@ class TestSlapOSSecurityMixin(SlapOSTestCaseMixin):
     for _, plugin in uf._getOb('plugins').listPlugins(
                                 IAuthenticationPlugin ):
       if plugin.authenticateCredentials(
-                  {'login_portal_type': ('ERP5 Login', 'Certificate Login',
-                                         'Facebook Login', 'Google Login'),
+                  {'login_portal_type': ('ERP5 Login', 'Certificate Login'),
                    'external_login': login}) is not None:
         break
     else:
@@ -315,19 +314,6 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
 
   def test_inactive_erp5_login(self):
     self.test_inactive(login_portal_type="ERP5 Login")
-
-  def test_active_facebook_login(self):
-    self.test_active(login_portal_type="Facebook Login")
-
-  def test_inactive_facebook_login(self):
-    self.test_inactive(login_portal_type="Facebook Login")
-  
-  def test_active_google_login(self):
-    self.test_active(login_portal_type="Google Login")
-
-  def test_inactive_google_login(self):
-    self.test_inactive(login_portal_type="Google Login")
-
 
 def test_suite():
   suite = unittest.TestSuite()

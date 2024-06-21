@@ -60,7 +60,6 @@ erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
-erp5_bearer_token
 erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
@@ -92,9 +91,6 @@ erp5_json_editor
 erp5_json_type
 erp5_monaco_editor
 erp5_notebook
-erp5_oauth
-erp5_oauth_facebook_login
-erp5_oauth_google_login
 erp5_ods_core
 erp5_odt_core
 erp5_ooo_import

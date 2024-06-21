@@ -115,28 +115,6 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
       document=self._makeDummySoftwareInstance(),
       login_portal_type="Certificate Login")
 
-  def test_block_GoogleLogin_on_person(self):
-    person = self.makePerson(self.addProject(), user=0)
-    person.edit(
-      first_name="SOMENAME",
-      last_name="LASTNAME"
-    )
-    self._test_login_donot_block(
-      document=person,
-      login_portal_type="Google Login"
-    )
-  
-  def test_block_FacebookLogin_on_person(self):
-    person = self.makePerson(self.addProject(), user=0)
-    person.edit(
-      first_name="SOMENAME",
-      last_name="LASTNAME"
-    )
-    self._test_login_donot_block(
-      document=person,
-      login_portal_type="Facebook Login"
-    )
-
   def _test_expire(self, document, login_portal_type):
     request = self.app.REQUEST
     login = self._makeLogin(
@@ -209,24 +187,3 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
       document=self._makeDummySoftwareInstance(),
       login_portal_type="Certificate Login")
 
-  def test_expire_GoogleLogin_on_person(self):
-    person = self.makePerson(self.addProject(), user=0)
-    person.edit(
-      first_name="SOMENAME",
-      last_name="LASTNAME"
-    )
-    self._test_dont_expire_when_password_isnt_set(
-      document=person,
-      login_portal_type="Google Login"
-    )
-  
-  def test_expire_FacebookLogin_on_person(self):
-    person = self.makePerson(self.addProject(), user=0)
-    person.edit(
-      first_name="SOMENAME",
-      last_name="LASTNAME"
-    )
-    self._test_dont_expire_when_password_isnt_set(
-      document=person,
-      login_portal_type="Facebook Login"
-    )

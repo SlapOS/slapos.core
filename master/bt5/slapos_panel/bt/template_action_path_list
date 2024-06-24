@@ -65,6 +65,7 @@ Regularisation Request | add_slapos_event
 Regularisation Request | slapos_panel_view
 Remote Node | add_slapos_allocation_supply
 Remote Node | jump_to_slapos_allocation_supply
+Remote Node | slapos_panel_remote_node_usage
 Remote Node | slapos_panel_view
 Sale Supply Line | slapos_panel_view
 Sale Supply Module | slapos_panel_view

@@ -21,6 +21,7 @@ Computer Network | slapos_panel_view
 Event Module | slapos_panel_view
 Instance Node | add_slapos_allocation_supply
 Instance Node | jump_to_slapos_allocation_supply
+Instance Node | slapos_panel_instance_node_usage
 Instance Node | slapos_panel_view
 Instance Tree Module | request_slapos_payable_instance_tree
 Instance Tree Module | slapos_panel_view

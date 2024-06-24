@@ -1,8 +1,12 @@
 from ZTUtils import make_query
+request = context.REQUEST
 
 # TODO how to avoid hardcode here?
 base_url = 'https://monitor.app.officejs.com/#/?'
 url_parameter_kw = { 'page': 'ojsm_landing' }
+
+if request is not None :
+  url_parameter_kw['slapos_master_url'] = request["BASE0"]
 
 instance_tree = context
 if context.getPortalType() in ["Software Instance", "Slave Instance"]:

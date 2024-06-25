@@ -1,5 +1,3 @@
-import json
-
 def getCredentialFromUrl(url_string):
   username = password = url = ''
   param_list = url_string.split('#')
@@ -13,17 +11,16 @@ def getCredentialFromUrl(url_string):
         username = value
       elif key == 'password':
         password = value
-
   return (url, username, password,)
 
 instance_tree = context
 
 if instance_tree.getSlapState() == 'destroy_requested':
-  return json.dumps({})
+  return {}
 
 instance = instance_tree.getSuccessorValue()
 if instance is None or instance.getSlapState() == 'destroy_requested':
-  return json.dumps({})
+  return {}
 
 parameter_dict = instance.getConnectionXmlAsDict()
 
@@ -38,10 +35,10 @@ if url_string:
   else:
     url, username, password = getCredentialFromUrl(url_string)
 else:
-  return json.dumps({})
+  return {}
 
-return json.dumps({
+return {
   'username': username,
   'password': password,
   'url': url
-  })
+  }

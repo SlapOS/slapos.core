@@ -234,10 +234,6 @@
             options.hasOwnProperty('result'))) {
         return domsugar(this.element);
       }
-      if (options.result.hasOwnProperty('monitor_url')) {
-        options.result.monitor_url +=
-          '&slapos_master_url=' + window.location.host;
-      }
       // Save will force the gadget to be updated so
       // result is empty.
       var state_dict = options.result || {};

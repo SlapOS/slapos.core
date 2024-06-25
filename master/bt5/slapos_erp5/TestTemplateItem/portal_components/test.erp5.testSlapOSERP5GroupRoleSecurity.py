@@ -1825,27 +1825,6 @@ class TestERP5Login(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, self.user_id, ['Owner'])
     self.assertRoles(delivery, delivery.getParentValue().getUserId(), ['Assignee'])
 
-
-class TestFacebookLogin(TestSlapOSGroupRoleSecurityMixin):
-  def test_FacebookLogin_selfUser(self):
-    delivery = self.portal.person_module.newContent(
-        portal_type='Person').newContent(portal_type='Facebook Login')
-    self.assertSecurityGroup(delivery,
-        [delivery.getParentValue().getUserId(), self.user_id], False)
-    self.assertRoles(delivery, self.user_id, ['Owner'])
-    self.assertRoles(delivery, delivery.getParentValue().getUserId(), ['Assignee'])
-
-
-class TestGoogleLogin(TestSlapOSGroupRoleSecurityMixin):
-  def test_GoogleLogin_selfUser(self):
-    delivery = self.portal.person_module.newContent(
-        portal_type='Person').newContent(portal_type='Google Login')
-    self.assertSecurityGroup(delivery,
-        [delivery.getParentValue().getUserId(), self.user_id], False)
-    self.assertRoles(delivery, self.user_id, ['Owner'])
-    self.assertRoles(delivery, delivery.getParentValue().getUserId(), ['Assignee'])
-
-
 class TestCertificateLogin(TestSlapOSGroupRoleSecurityMixin):
   def test_CertificateLogin_person(self):
     delivery = self.portal.person_module.newContent(

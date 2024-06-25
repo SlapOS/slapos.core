@@ -323,6 +323,22 @@
         <td>Test instance</td>
       </tr>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'Your instance is created, please proceed to payment.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[@data-gadget-scope='field_your_pay_action_html']//p[contains(text(), 'Please contact us to handle your payment')]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[@data-gadget-scope='field_your_pay_action_html']//p[contains(text(), 'Please contact us to handle your payment')]</td>
+        <td></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
       <tal:block tal:define="notification_configuration python: {'class': 'success',
                                                                  'text': 'Action succeeded.'}">
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />

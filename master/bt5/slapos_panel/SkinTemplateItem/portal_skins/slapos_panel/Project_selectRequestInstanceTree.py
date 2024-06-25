@@ -15,6 +15,7 @@ if "{uid}" in title:
 instance_tree = portal.portal_catalog.getResultValue(
   portal_type='Instance Tree',
   validation_state="validated",
+
   title={'query': title, 'key': 'ExactMatch'}
   )
 
@@ -61,5 +62,26 @@ if sla_xml:
 </instance>""" % sla_xml
 
 person.requestSoftwareInstance(**request_kw)
-# XXX New service created.
-return context.REQUEST.get('request_instance_tree').Base_redirect()
+request_instance_tree = context.REQUEST.get('request_instance_tree')
+
+web_site = context.getWebSectionValue()
+assert web_site is not None
+
+# Evaluate if the user has to pay something,
+# Since we need access to organisation_module on Entity_getDepositBalanceAmount
+# evaluate as Shadow User.
+subscription_request = request_instance_tree.Item_createSubscriptionRequest(temp_object=True)
+
+# Check if we could create the Subscription Request
+if subscription_request is not None:
+  price = subscription_request.getPrice(None)
+  if price is not None and price != 0:
+    balance = person.Entity_getDepositBalanceAmount([subscription_request])
+    if balance < price:
+      instance = web_site.restrictedTraverse(request_instance_tree.getRelativeUrl())
+      return instance.Base_renderForm(
+        "InstanceTree_viewCreateDirectDepositPaymentTransactionOnSlaposPanelDialog",
+	      message=context.Base_translateString("Your instance is created, please proceed to payment.")
+      )
+
+return request_instance_tree.Base_redirect()

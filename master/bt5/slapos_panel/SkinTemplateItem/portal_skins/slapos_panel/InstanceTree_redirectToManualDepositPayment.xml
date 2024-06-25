@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>currency_value=None, default_price=None, activate_kw=None, temp_object=False, REQUEST=None</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Item_createSubscriptionRequest</string> </value>
+            <value> <string>InstanceTree_redirectToManualDepositPayment</string> </value>
         </item>
       </dictionary>
     </pickle>

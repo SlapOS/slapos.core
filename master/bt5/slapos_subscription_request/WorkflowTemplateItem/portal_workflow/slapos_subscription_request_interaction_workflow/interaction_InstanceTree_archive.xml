@@ -10,7 +10,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>after_script/portal_workflow/slapos_subscription_request_interaction_workflow/script_Base_triggerCancelAlarm</string>
+                <string>after_script/portal_workflow/slapos_subscription_request_interaction_workflow/script_Base_triggerValidationAlarm</string>
               </tuple>
             </value>
         </item>

@@ -79,7 +79,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       public_server_software = self.generateNewSoftwareReleaseUrl()
       public_instance_type = 'public type'
 
-      software_product, release_variation, type_variation = self.addSoftwareProduct(
+      software_product, _, _ = self.addSoftwareProduct(
         "instance product", project, public_server_software, public_instance_type
       )
 
@@ -122,31 +122,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.addProjectProductionManagerAssignment(owner_person, project)
       self.tic()
 
-      # hooray, now it is time to create compute_nodes
-      self.login(owner_person.getUserId())
-
-      public_server_title = 'Public Server for %s' % owner_reference
-      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
-      public_server = self.portal.portal_catalog.getResultValue(
-          portal_type='Compute Node', reference=public_server_id)
-      self.setAccessToMemcached(public_server)
-      self.assertNotEqual(None, public_server)
-      self.setServerOpenPublic(public_server)
-      public_server.generateCertificate()
-
-      self.addAllocationSupply("for compute node", public_server, software_product,
-                               release_variation, type_variation)
-
-      # and install some software on them
-      self.supplySoftware(public_server, public_server_software)
-
-      # format the compute_nodes
-      self.formatComputeNode(public_server)
-      self.logout()
       self.login(project_owner_person.getUserId())
 
-      # Pay deposit to validate virtual master + one computer
-      deposit_amount = 42.0 + 99.0 
+      # Pay deposit to validate virtual master
+      deposit_amount = 42.0
       ledger = self.portal.portal_categories.ledger.automated
       
       outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
@@ -244,18 +223,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.tic()
       subscription_request = self.checkServiceSubscriptionRequest(instance_tree, 'cancelled')
 
-      # and uninstall some software on them
       self.logout()
-      self.login(owner_person.getUserId())
-      self.supplySoftware(public_server, public_server_software,
-                          state='destroyed')
-
-      self.logout()
-      # Uninstall from compute_node
       self.login()
-      self.simulateSlapgridSR(public_server)
-
-      self.tic()
 
     # Check stock
     # Instance was celled before generate simulation
@@ -278,22 +247,19 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     self.login()
 
     # Ensure no unexpected object has been created
-    # 2 accounting transaction / line
-    # 3 allocation supply / line / cell
-    # 1 compute node
+    # 1 accounting transaction / line
     # 2 credential request
-    # 2 event
+    # 1 event
     # 1 instance tree
-    # 3 open sale order / line
+    # 1 open sale order / line
     # 5 (can reduce to 2) assignment
-    # 16 simulation mvt
-    # 3 packing list / line
+    # 2 simulation mvt
+    # 1 packing list / line
     # 3 sale supply / line
     # 2 sale trade condition
     # 1 software installation
-    # 1 software instance
     # 1 software product
-    # 3 subscription requests
-    self.assertRelatedObjectCount(project, 48)
+    # 2 subscription requests
+    self.assertRelatedObjectCount(project, 22)
 
     self.checkERP5StateBeforeExit()

@@ -28,6 +28,12 @@ if item is None:
   resource = subscription_request.getResourceValue()
   raise ValueError('Unsupported resource: %s' % resource.getRelativeUrl())
 
+
+if (item.getPortalType() == "Instance Tree" and 
+    item.getValidationState() == "archived"):
+  subscription_request.cancel(comment="Instance Tree is archived.")
+
+
 # If the virtual master is not in the expected subscription status,
 # do not accept any new service (compute node, instance) for it
 if (((subscription_request.getSourceProjectValue() is not None) and

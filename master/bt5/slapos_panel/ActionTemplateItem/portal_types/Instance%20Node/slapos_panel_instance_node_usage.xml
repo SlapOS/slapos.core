@@ -42,7 +42,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_panel_compute_node_usage</string> </value>
+            <value> <string>slapos_panel_instance_node_usage</string> </value>
         </item>
         <item>
             <key> <string>permissions</string> </key>
@@ -79,7 +79,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>string:${object_url}/ComputeNode_viewCurrentUsageReport</string> </value>
+            <value> <string>string:${object_url}/InstanceNode_viewCurrentUsageReport</string> </value>
         </item>
       </dictionary>
     </pickle>

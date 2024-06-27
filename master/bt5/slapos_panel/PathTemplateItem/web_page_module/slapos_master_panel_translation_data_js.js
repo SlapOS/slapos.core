@@ -14,6 +14,7 @@
       "Action not handled": "Action not handled",
       "Action succeeded.": "Action succeeded.",
       "Actions": "Actions",
+      "Active Preference": "Active Preference",
       "Add": "Add",
       "Add Criteria": "Add Criteria",
       "All criterions (AND)": "All criterions (AND)",

@@ -749,12 +749,12 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <unicode>zope</unicode> </value>
+                      <value> <string>ERP5TypeTestCase</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
                       <value>
-                        <none/>
+                        <persistent> <string encoding="base64">AAAAAAAAAAs=</string> </persistent>
                       </value>
                   </item>
                   <item>
@@ -763,7 +763,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1014.53671.60829.41813</string> </value>
+                      <value> <string>1017.35622.19461.33877</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -783,7 +783,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1710840530.34</float>
+                              <float>1719493170.91</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -793,6 +793,33 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                 </dictionary>
               </list>
             </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="11" aka="AAAAAAAAAAs=">
+    <pickle>
+      <global name="Message" module="Products.ERP5Type.Message"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>default</string> </key>
+            <value> <string>Translation data updated.</string> </value>
+        </item>
+        <item>
+            <key> <string>domain</string> </key>
+            <value> <string>erp5_ui</string> </value>
+        </item>
+        <item>
+            <key> <string>mapping</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>message</string> </key>
+            <value> <string>Translation data updated.</string> </value>
         </item>
       </dictionary>
     </pickle>

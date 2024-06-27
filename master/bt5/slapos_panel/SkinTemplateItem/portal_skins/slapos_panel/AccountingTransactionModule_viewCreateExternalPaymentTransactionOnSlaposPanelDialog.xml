@@ -58,7 +58,8 @@
                     <key> <string>bottom</string> </key>
                     <value>
                       <list>
-                        <string>your_pay_action_html</string>
+                        <string>your_message</string>
+                        <string>listbox</string>
                       </list>
                     </value>
                 </item>

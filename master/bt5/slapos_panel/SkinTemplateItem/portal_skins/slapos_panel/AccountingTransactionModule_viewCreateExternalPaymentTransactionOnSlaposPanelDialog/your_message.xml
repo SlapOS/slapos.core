@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>your_pay_action_html</string> </value>
+            <value> <string>your_message</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>
@@ -148,7 +148,9 @@
                 </item>
                 <item>
                     <key> <string>enabled</string> </key>
-                    <value> <string></string> </value>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
+                    </value>
                 </item>
                 <item>
                     <key> <string>external_validator</string> </key>
@@ -299,7 +301,20 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: context.InstanceTree_viewCreateDirectDepositPaymentTransactionOnSlaposPanelHTML()</string> </value>
+            <value> <string>python: context.AccountingTransactionModule_testCreateExternalPaymentTransactionPending(return_message=True)</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="3" aka="AAAAAAAAAAM=">
+    <pickle>
+      <global name="TALESMethod" module="Products.Formulator.TALESField"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>_text</string> </key>
+            <value> <string>python: not context.AccountingTransactionModule_testCreateExternalPaymentTransactionPending()</string> </value>
         </item>
       </dictionary>
     </pickle>

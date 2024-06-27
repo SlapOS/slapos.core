@@ -1,4 +1,5 @@
 from zExceptions import Unauthorized
+from DateTime import DateTime
 if REQUEST is not None:
   raise Unauthorized
 
@@ -9,7 +10,8 @@ assert web_site is not None
 # This script will be used to generate the payment
 # compatible with external providers
 
-html_content = ''
+payment_dict_list = []
+
 entity = portal.portal_membership.getAuthenticatedMember().getUserValue()
 if entity is None:
   return '<p>Nothing to pay with your account</p>'
@@ -70,6 +72,7 @@ if subscription_request is not None:
   outstanting_total_price = sum([i.total_price for i in outstanding_amount_list])
   outstanting_total_price += price
 
+
   if outstanting_total_price > 0:
     if not isPaymentConfigured(currency_uid):
       return '<p>Please contact us to handle your payment</p>'
@@ -78,15 +81,18 @@ if subscription_request is not None:
     if subscription_request.isTempObject():
       payment_url = context.absolute_url() + "/InstanceTree_redirectToManualDepositPayment"
 
-    html_content += """
-      <p><a href="%(payment_url)s">%(total_price)s %(currency)s</a></p>
-      """ % {
-        'total_price': outstanting_total_price,
-        'currency': subscription_request.getPriceCurrencyReference(),
-        'payment_url': payment_url
-      }
+    payment_dict_list.append({
+      "reference": "Subscriptions pre-payment",
+      # Format by hand is not a good idea probably
+      "date": DateTime().strftime('%d/%m/%Y'),
+      "url": payment_url,
+      "total_price": outstanting_total_price,
+      "currency": subscription_request.getPriceCurrencyReference()
+    })
 
-if not html_content:
-  html_content = '<p>Nothing to pay</p>'
+if not payment_dict_list:
+  return '<p>Nothing to pay</p>'
 
-return html_content
+# Pass argument via request.
+context.REQUEST.set("payment_dict_list", payment_dict_list)
+return context.Base_renderOutstandingAmountTable()

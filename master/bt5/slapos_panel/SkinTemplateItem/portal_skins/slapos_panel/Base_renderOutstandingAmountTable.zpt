@@ -1,0 +1,37 @@
+<tal:block tal:define="payment_dict_list python: request.get('payment_dict_list', [])">
+    <tal:block tal:condition='payment_dict_list'>
+        <div class="document_table">
+            <div class="ui-table-header ui-header">
+                <h1>Pending Payments (<span tal:content="python: len(payment_dict_list)">0</span>)</h1>
+            </div>
+            <table>
+                <thead class="thead">
+                    <tr>
+                        <th>Reference</th>
+                        <th>Date</th>
+                        <th>Price</th>
+                        <th>Currency</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  <tal:block tal:repeat='payment_dict payment_dict_list'>
+                    <tr tal:define="payment_url python: payment_dict['url']">
+                        <td><a tal:attributes="href payment_url"
+                               tal:content="python:payment_dict['reference']">Reference</a></td>
+                        <td><a tal:attributes="href payment_url"
+                               tal:content="python:payment_dict['date']">Date</a></td>
+                        <td><a tal:attributes="href payment_url"
+                               tal:content="python:payment_dict['total_price']">Price</a></td>
+                        <td><a tal:attributes="href payment_url"
+                               tal:content="python:payment_dict['currency']">Currency</a></td>
+                    </tr>
+                  </tal:block>
+                </tbody>
+                <tfoot></tfoot>
+            </table>
+            <nav>
+                <span class="ui-disabled" tal:content="python: '%s records' % len(payment_dict_list)">No records</span>
+            </nav>
+        </div>
+    </tal:block>
+</tal:block>

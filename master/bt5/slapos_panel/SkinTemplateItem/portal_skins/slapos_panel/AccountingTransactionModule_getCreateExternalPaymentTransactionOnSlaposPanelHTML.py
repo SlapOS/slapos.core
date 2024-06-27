@@ -1,4 +1,5 @@
 from zExceptions import Unauthorized
+from DateTime import DateTime
 if REQUEST is not None:
   raise Unauthorized
 
@@ -10,11 +11,11 @@ ledger_uid = portal.portal_categories.ledger.automated.getUid()
 
 # This script will be used to generate the payment
 # compatible with external providers
-
-html_content = ''
 entity = portal.portal_membership.getAuthenticatedMember().getUserValue()
 if entity is None:
   return '<p>Nothing to pay with your account</p>'
+
+payment_dict_list = []
 
 for currency_uid, secure_service_relative_url in [
   (portal.currency_module.EUR.getUid(), portal.Base_getPayzenServiceRelativeUrl()),
@@ -32,15 +33,23 @@ for currency_uid, secure_service_relative_url in [
         if not is_payment_configured:
           return '<p>Please contact us to handle your payment</p>'
 
-        html_content += """
-          <p><a href="%(payment_url)s">%(total_price)s %(currency)s</a></p>
-          """ % {
-            'total_price': outstanding_amount.total_price,
-            'currency': outstanding_amount.getPriceCurrencyReference(),
-            'payment_url': '%s/Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect' % outstanding_amount.absolute_url()
-          }
+        reference = outstanding_amount.getReference()
+        stop_date = outstanding_amount.getStopDate()
+        if outstanding_amount.getPortalType() == "Subscription Request":
+          reference = "Subscriptions pre-payment"
+          stop_date = DateTime()
+        payment_dict_list.append({
+          "reference": reference,
+          # Format by hand is not a good idea probably
+          "date": stop_date.strftime('%d/%m/%Y'),
+          "url": '%s/Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect' % outstanding_amount.absolute_url(),
+          "total_price": outstanding_amount.total_price,
+          "currency": outstanding_amount.getPriceCurrencyReference()
+        })
 
-if not html_content:
-  html_content = '<p>Nothing to pay</p>'
+if not payment_dict_list:
+  return '<p>Nothing to pay</p>'
 
-return html_content
+# Pass argument via request.
+context.REQUEST.set("payment_dict_list", payment_dict_list)
+return context.Base_renderOutstandingAmountTable()

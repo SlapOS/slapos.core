@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>REQUEST=None</string> </value>
+            <value> <string>**kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>AccountingTransactionModule_getCreateExternalPaymentTransactionOnSlaposPanelHTML</string> </value>
+            <value> <string>AccountingTransactionModule_getCreateExternalPaymentTransactionList</string> </value>
         </item>
       </dictionary>
     </pickle>

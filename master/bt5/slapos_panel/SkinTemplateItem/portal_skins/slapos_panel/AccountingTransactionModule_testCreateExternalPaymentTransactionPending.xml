@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>REQUEST=None</string> </value>
+            <value> <string>return_message=False, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>InstanceTree_viewCreateDirectDepositPaymentTransactionOnSlaposPanelHTML</string> </value>
+            <value> <string>AccountingTransactionModule_testCreateExternalPaymentTransactionPending</string> </value>
         </item>
       </dictionary>
     </pickle>

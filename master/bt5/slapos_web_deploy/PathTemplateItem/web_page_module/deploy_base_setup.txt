@@ -35,6 +35,9 @@ GetDistro
 if [[ ${DISTRO} =~ (-.) ]] && [[ -f /etc/debian_version ]]; then
   apt_get install lsb-release
   GetDistro
+else
+  is_package_installed lsb-release || install_package lsb-release
+  GetDistro
 fi
 
 # Warn users who aren't on an explicitly supported distro, but allow them to

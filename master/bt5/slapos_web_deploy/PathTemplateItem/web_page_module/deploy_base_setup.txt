@@ -55,6 +55,12 @@ is_package_installed unzip || install_package unzip
 is_package_installed openssl || install_package openssl
 is_package_installed ansible || install_package ansible
 
+# lsb_release is required by the playbook, in order to use ansible_lsb.
+# In SLE it is not installed by default, but available in the lsb-release package.
+if [[ $DISTRO = sle15.6 ]]; then
+  is_package_installed lsb-release || install_package lsb-release
+fi
+
 if [[ $DISTRO = sle15.6 ]]; then
   # Python 3.11 is in a separate module, called Python 3, while the base system has Python 3.6.
   # If the Python 3 module is enabled, we assume that the user has preference for it.

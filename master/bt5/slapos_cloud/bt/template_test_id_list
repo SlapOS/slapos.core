@@ -14,5 +14,4 @@ test.erp5.testSlapOSCloudPersonSlapInterfaceWorkflow
 test.erp5.testSlapOSCloudProjectSlapInterfaceWorkflow
 test.erp5.testSlapOSCloudSecurityGroup
 test.erp5.testSlapOSCloudShadow
-test.erp5.testSlapOSCloudSkins
 test.erp5.testSlapOSCloudUpgrader

@@ -30,12 +30,8 @@ function download_playbook {
 # Determine what system we are running on.  This provides ``os_VENDOR``,
 # ``os_RELEASE``, ``os_UPDATE``, ``os_PACKAGE``, ``os_CODENAME``
 # and ``DISTRO``
+is_package_installed lsb-release || install_package lsb-release
 GetDistro
-
-if [[ ${DISTRO} =~ (-.) ]] && [[ -f /etc/debian_version ]]; then
-  apt_get install lsb-release
-  GetDistro
-fi
 
 # Warn users who aren't on an explicitly supported distro, but allow them to
 # override check and attempt installation with ``export FORCE=yes``

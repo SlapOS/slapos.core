@@ -4,6 +4,8 @@ slapos_plugin_dict = {
     'ERP5 Dumb HTTP Extraction Plugin',
     'ERP5 External Authentication Plugin',
     'ERP5 Access Token Extraction Plugin',
+    'ERP5 Google Extraction Plugin',
+    'ERP5 Facebook Extraction Plugin'
   ],
   'IGroupsPlugin': [
     'ZODB Group Manager',

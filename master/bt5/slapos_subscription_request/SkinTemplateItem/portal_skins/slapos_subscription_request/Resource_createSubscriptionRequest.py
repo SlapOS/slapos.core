@@ -1,8 +1,8 @@
 portal = context.getPortalObject()
 resource = context
 
-if subscriber_person_value is None:
-  raise AssertionError('Can not find a person profile')
+if (subscriber_person_value is None) or (subscriber_person_value.getPortalType() != 'Person'):
+  raise AssertionError('%s is not a person profile' % subscriber_person_value)
 
 source_project_value = None
 destination_project_value = None
@@ -30,7 +30,8 @@ elif resource.getPortalType() == "Service":
   elif resource.getRelativeUrl() == "service_module/slapos_virtual_master_subscription":
     if project_value is None:
       raise AssertionError('Project is required for %s %s' % (resource.getRelativeUrl(), project_value))
-    assert item_value is None
+    if item_value is not None:
+      assert project_value.getRelativeUrl() == item_value.getRelativeUrl()
     item_value = project_value
     trade_condition_type = "virtual_master"
   else:

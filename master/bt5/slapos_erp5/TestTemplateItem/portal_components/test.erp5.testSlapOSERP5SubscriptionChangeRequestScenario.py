@@ -184,3 +184,103 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
 
+  def test_subscription_change_request_change_project_destination_section_scenario(self):
+    currency, _, _, sale_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
+
+    self.tic()
+
+    self.logout()
+
+    with PinnedDateTime(self, DateTime('2024/01/25')):
+      # lets join as slapos administrator, which will own few compute_nodes
+      owner_reference = 'owner-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, owner_reference)
+
+      self.login()
+      owner_person = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=owner_reference).getParentValue()
+      #owner_person.setCareerSubordinationValue(seller_organisation)
+
+      self.tic()
+
+      # hooray, now it is time to create compute_nodes
+      self.logout()
+      self.login(sale_person.getUserId())
+
+      # create a default project
+      project_relative_url = self.addProject(person=owner_person, currency=currency)
+
+      self.logout()
+      self.login()
+      project = self.portal.restrictedTraverse(project_relative_url)
+      preference = self.portal.portal_preferences.slapos_default_system_preference
+      preference.edit(
+        preferred_subscription_assignment_category_list=[
+          'function/customer',
+          'role/client',
+          'destination_project/%s' % project.getRelativeUrl()
+        ]
+      )
+
+      self.tic()
+
+      self.logout()
+      self.login(owner_person.getUserId())
+
+    with PinnedDateTime(self, DateTime('2024/02/25')):
+      self.login(sale_person.getUserId())
+      subscription_request = self.portal.portal_catalog.getResultValue(
+        portal_type='Subscription Request',
+        aggregate__uid=project.getUid()
+      )
+      owner_organisation = self.portal.organisation_module.newContent(
+        title='Test Owner Organisation',
+        vat_code='1234567890'
+      )
+      owner_organisation.validate()
+      new_trade_condition = owner_organisation.Organisation_claimSlaposSubscriptionRequest(
+        subscription_request.getReference(),
+        None
+      )
+      self.tic()
+      self.logout()
+      self.login()
+      self.assertEquals(new_trade_condition.getDestination(),
+                        owner_person.getRelativeUrl())
+      self.assertEquals(new_trade_condition.getDestinationSection(),
+                        owner_organisation.getRelativeUrl())
+      self.assertEquals(new_trade_condition.getPortalType(),
+                        'Sale Trade Condition')
+      self.assertEquals(subscription_request.getSimulationState(),
+                        'cancelled')
+
+      new_subscription_request = self.portal.portal_catalog.getResultValue(
+        portal_type='Subscription Request',
+        aggregate__uid=project.getUid()
+      )
+      self.assertEquals(new_subscription_request.getDestination(),
+                        owner_person.getRelativeUrl())
+      self.assertEquals(new_subscription_request.getDestinationSection(),
+                        owner_organisation.getRelativeUrl())
+      self.assertEquals(new_subscription_request.getSimulationState(),
+                        'submitted')
+
+      # If the script is called a second time,
+      # it should return the existing submitted Subscription Request
+      self.login(sale_person.getUserId())
+      new_subscription_request_2 = owner_organisation.Organisation_claimSlaposSubscriptionRequest(
+        new_subscription_request.getReference(),
+        None
+      )
+      self.assertEquals(new_subscription_request.getRelativeUrl(),
+                        new_subscription_request_2.getRelativeUrl())
+
+    # Ensure no unexpected object has been created
+    # 2 assignment
+    # 2 sale trade condition
+    # 2 subscription request
+    self.assertRelatedObjectCount(project, 6)
+
+    with PinnedDateTime(self, DateTime('2024/02/15')):
+      self.checkERP5StateBeforeExit()

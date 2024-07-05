@@ -28,6 +28,11 @@ if item is None:
   resource = subscription_request.getResourceValue()
   raise ValueError('Unsupported resource: %s' % resource.getRelativeUrl())
 
+if item.getValidationState() in ['invalidated', 'archived']:
+  subscription_request.cancel(
+    comment="%s is %s." % (item.getPortalType(), item.getValidationState()))
+
+
 # If the virtual master is not in the expected subscription status,
 # do not accept any new service (compute node, instance) for it
 if (((subscription_request.getSourceProjectValue() is not None) and

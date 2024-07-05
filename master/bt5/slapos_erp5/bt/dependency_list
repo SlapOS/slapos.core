@@ -1,4 +1,6 @@
 erp5_authentication_policy
+erp5_oauth_google_login
+erp5_oauth_facebook_login
 erp5_administration
 erp5_ooo_import
 erp5_odt_style

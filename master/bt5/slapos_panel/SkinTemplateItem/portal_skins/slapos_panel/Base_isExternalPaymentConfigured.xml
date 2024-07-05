@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>REQUEST=None</string> </value>
+            <value> <string>currency_uid, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>AccountingTransactionModule_getCreateExternalPaymentTransactionOnSlaposPanelHTML</string> </value>
+            <value> <string>Base_isExternalPaymentConfigured</string> </value>
         </item>
       </dictionary>
     </pickle>

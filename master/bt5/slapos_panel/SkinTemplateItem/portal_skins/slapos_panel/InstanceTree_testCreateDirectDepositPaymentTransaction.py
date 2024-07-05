@@ -4,7 +4,7 @@ if REQUEST is not None:
 
 NOTHING_TO_PAY = context.Base_translateString('Nothing to pay')
 NOTHING_TO_PAY_NO_PERSON = context.Base_translateString('Nothing to pay with your account')
-PLEASE_CONTACT_US = context.Base_transalteString('Please contact us to handle your payment')
+PLEASE_CONTACT_US = context.Base_translateString('Please contact us to handle your payment')
 
 portal = context.getPortalObject()
 entity = portal.portal_membership.getAuthenticatedMember().getUserValue()
@@ -60,7 +60,7 @@ outstanting_total_price += price
 
 if outstanting_total_price > 0:
   if return_message:
-    assert context.Base_isExternalPaymentConfigured(currency_uid), \
+    assert not context.Base_isExternalPaymentConfigured(currency_uid), \
       "Payment is configured (and should not)"
     return PLEASE_CONTACT_US
   return True

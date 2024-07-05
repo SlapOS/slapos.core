@@ -12,7 +12,7 @@ portal = context.getPortalObject()
 
 NOTHING_TO_PAY = context.Base_translateString('Nothing to pay')
 NOTHING_TO_PAY_NO_PERSON = context.Base_translateString('Nothing to pay with your account')
-PLEASE_CONTACT_US = context.Base_transalteString('Please contact us to handle your payment')
+PLEASE_CONTACT_US = context.Base_translateString('Please contact us to handle your payment')
 
 # This script will be used to generate the payment
 # compatible with external providers
@@ -36,7 +36,7 @@ for currency_uid, secure_service_relative_url in context.Base_getSupportedExtern
     for outstanding_amount in method(**kw):
       if 0 < outstanding_amount.total_price:
         if return_message:
-          assert secure_service_relative_url is not None, \
+          assert secure_service_relative_url, \
             "Payment is configured (and should not)"
           return PLEASE_CONTACT_US
         return True

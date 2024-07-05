@@ -330,12 +330,12 @@
       </tal:block>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[@data-gadget-scope='field_your_pay_action_html']//p[contains(text(), 'Please contact us to handle your payment')]</td>
+        <td>//div[@data-gadget-scope='field_your_message']//p[contains(text(), 'Please contact us to handle your payment')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[@data-gadget-scope='field_your_pay_action_html']//p[contains(text(), 'Please contact us to handle your payment')]</td>
+        <td>//div[@data-gadget-scope='field_your_message']//p[contains(text(), 'Please contact us to handle your payment')]</td>
         <td></td>
       </tr>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />

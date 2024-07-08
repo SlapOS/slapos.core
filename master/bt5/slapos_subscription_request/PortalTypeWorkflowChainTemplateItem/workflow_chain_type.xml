@@ -16,6 +16,10 @@
   <workflow>slapos_subscription_request_interaction_workflow</workflow>
  </chain>
  <chain>
+  <type>Project</type>
+  <workflow>slapos_subscription_request_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Sale Invoice Transaction Line</type>
   <workflow>slapos_subscription_request_interaction_workflow</workflow>
  </chain>

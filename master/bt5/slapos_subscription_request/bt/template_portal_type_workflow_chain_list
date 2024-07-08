@@ -2,6 +2,7 @@ Compute Node | slapos_subscription_request_interaction_workflow
 Email | -coordinate_interaction_workflow
 Instance Tree | slapos_subscription_request_interaction_workflow
 Open Sale Order | slapos_subscription_request_interaction_workflow
+Project | slapos_subscription_request_interaction_workflow
 Sale Invoice Transaction Line | slapos_subscription_request_interaction_workflow
 Sale Trade Condition | slapos_subscription_request_interaction_workflow
 Software Product | slapos_subscription_request_interaction_workflow

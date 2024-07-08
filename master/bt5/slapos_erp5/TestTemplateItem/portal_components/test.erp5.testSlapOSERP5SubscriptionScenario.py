@@ -97,11 +97,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
         base_price=9,
         resource_value=software_product
       )
-      sale_supply.newContent(
-        portal_type="Sale Supply Line",
-        base_price=99,
-        resource="service_module/slapos_compute_node_subscription"
-      )
       sale_supply.validate()
 
       self.tic()
@@ -171,7 +166,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
-
 
       self.login(public_person.getUserId())
   
@@ -255,11 +249,307 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 5 (can reduce to 2) assignment
     # 2 simulation mvt
     # 1 packing list / line
+    # 2 sale supply / line
+    # 2 sale trade condition
+    # 1 software installation
+    # 1 software product
+    # 2 subscription requests
+    self.assertRelatedObjectCount(project, 21)
+
+    self.checkERP5StateBeforeExit()
+
+  def test_subscription_request_cancel_after_project_is_invalidated(self):
+    """ It is only tested with is_virtual_master_accountable enabled since the
+      subscription request is automatically validated/invalidated if price is 0.
+    """
+    with PinnedDateTime(self, DateTime('2024/01/31')):
+      currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
+
+      self.logout()
+      # lets join as slapos administrator, which will manager the project
+      project_owner_reference = 'project-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, project_owner_reference)
+
+      self.login()
+      project_owner_person = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=project_owner_reference).getParentValue()
+      # owner_person.setCareerSubordinationValue(seller_organisation)
+
+      self.tic()
+      self.logout()
+      self.login(sale_person.getUserId())
+
+      project_relative_url = self.addProject(
+        is_accountable=True, person=project_owner_person, currency=currency)
+
+      self.logout()
+      self.login()
+      project = self.portal.restrictedTraverse(project_relative_url)
+
+      preference = self.portal.portal_preferences.slapos_default_system_preference
+      preference.edit(
+        preferred_subscription_assignment_category_list=[
+          'function/customer',
+          'role/client',
+          'destination_project/%s' % project.getRelativeUrl()
+        ]
+      )
+
+      self.logout()
+
+      # lets join as slapos administrator, which will own few compute_nodes
+      owner_reference = 'owner-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, owner_reference)
+
+      self.login()
+      owner_person = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=owner_reference).getParentValue()
+
+      # first slapos administrator assignment can only be created by
+      # the erp5 manager
+      self.addProjectProductionManagerAssignment(owner_person, project)
+      self.tic()
+
+      self.login(project_owner_person.getUserId())
+
+      # Pay deposit to validate virtual master
+      deposit_amount = 42.0
+      ledger = self.portal.portal_categories.ledger.automated
+      
+      outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())
+      amount = sum([i.total_price for i in outstanding_amount_list])
+      self.assertEqual(amount, deposit_amount)
+
+      self.login()
+
+      # Invalidate Project to cancel subscription, there isnt a use case except
+      # by Manager, but we would like to ensure it works, once the action is 
+      # implemented.
+      project.invalidate()
+
+      self.tic()
+      self.login()
+
+      self.checkServiceSubscriptionRequest(project, 'cancelled')
+      self.login(project_owner_person.getUserId())
+
+      amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())])
+      self.assertEqual(0, amount)
+
+      self.logout()
+
+    self.login()
+
+    # Check accounting
+    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
+      mirror_section_uid=project_owner_person.getUid())
+    assert len(transaction_list) == 0, len(transaction_list)
+
+    # Ensure no unexpected object has been created
+    # 1 credential request
+    # 4 assignment
+    # 2 Sale Trade condition
+    # 1 subscription request
+    self.assertRelatedObjectCount(project, 8)
+    self.checkERP5StateBeforeExit()
+
+  def test_subscription_request_cancel_after_compute_node_is_invalidated(self):
+    """ It is only tested with is_virtual_master_accountable enabled since the
+      subscription request is automatically validated/invalidated if price is 0.
+    """
+    with PinnedDateTime(self, DateTime('2024/01/31')):
+      currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
+
+      self.logout()
+      # lets join as slapos administrator, which will manager the project
+      project_owner_reference = 'project-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, project_owner_reference)
+
+      self.login()
+      project_owner_person = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=project_owner_reference).getParentValue()
+      # owner_person.setCareerSubordinationValue(seller_organisation)
+
+      self.tic()
+      self.logout()
+      self.login(sale_person.getUserId())
+
+      project_relative_url = self.addProject(
+        is_accountable=True, person=project_owner_person, currency=currency)
+
+      self.logout()
+      self.login()
+      project = self.portal.restrictedTraverse(project_relative_url)
+
+      preference = self.portal.portal_preferences.slapos_default_system_preference
+      preference.edit(
+        preferred_subscription_assignment_category_list=[
+          'function/customer',
+          'role/client',
+          'destination_project/%s' % project.getRelativeUrl()
+        ]
+      )
+
+      public_server_software = self.generateNewSoftwareReleaseUrl()
+      public_instance_type = 'public type'
+
+      software_product, release_variation, type_variation = self.addSoftwareProduct(
+        "instance product", project, public_server_software, public_instance_type
+      )
+
+      self.logout()
+      self.login(sale_person.getUserId())
+
+      sale_supply = self.portal.sale_supply_module.newContent(
+        portal_type="Sale Supply",
+        title="price for %s" % project.getRelativeUrl(),
+        source_project_value=project,
+        price_currency_value=currency
+      )
+      sale_supply.newContent(
+        portal_type="Sale Supply Line",
+        base_price=9,
+        resource_value=software_product
+      )
+      sale_supply.newContent(
+        portal_type="Sale Supply Line",
+        base_price=99,
+        resource="service_module/slapos_compute_node_subscription"
+      )
+      sale_supply.validate()
+
+      self.tic()
+      # some preparation
+      self.logout()
+
+      # lets join as slapos administrator, which will own few compute_nodes
+      owner_reference = 'owner-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, owner_reference)
+
+      self.login()
+      owner_person = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=owner_reference).getParentValue()
+
+      # first slapos administrator assignment can only be created by
+      # the erp5 manager
+      self.addProjectProductionManagerAssignment(owner_person, project)
+      self.tic()
+
+      self.login(project_owner_person.getUserId())
+
+      # Pay deposit to validate virtual master
+      deposit_amount = 42.0
+      ledger = self.portal.portal_categories.ledger.automated
+      
+      outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())
+      amount = sum([i.total_price for i in outstanding_amount_list])
+      self.assertEqual(amount, deposit_amount)
+  
+      # Ensure to pay from the website
+      outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
+      outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
+
+      self.tic()
+      self.logout()
+      self.login()
+      payment_transaction = self.portal.portal_catalog.getResultValue(
+        portal_type="Payment Transaction",
+        destination_section_uid=project_owner_person.getUid(),
+        simulation_state="started"
+      )
+      self.assertEqual(payment_transaction.getSpecialiseValue().getTradeConditionType(), "deposit")
+      # payzen/wechat or accountant will only stop the payment
+      payment_transaction.stop()
+      self.tic()
+      assert payment_transaction.receivable.getGroupingReference(None) is not None
+      self.login(project_owner_person.getUserId())
+
+      amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())])
+      self.assertEqual(0, amount)
+
+      self.logout()
+
+      # hooray, now it is time to create compute_nodes
+      self.login(owner_person.getUserId())
+
+      public_server_title = 'Public Server for %s' % owner_reference
+      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
+      public_server = self.portal.portal_catalog.getResultValue(
+          portal_type='Compute Node', reference=public_server_id)
+      self.setAccessToMemcached(public_server)
+      self.assertNotEqual(None, public_server)
+      self.setServerOpenPublic(public_server)
+      public_server.generateCertificate()
+
+      self.addAllocationSupply("for compute node", public_server, software_product,
+                               release_variation, type_variation)
+
+      # and install some software on them
+      self.supplySoftware(public_server, public_server_software)
+
+      # format the compute_nodes
+      self.formatComputeNode(public_server)
+      self.logout()
+
+      self.tic()
+      self.login(project_owner_person.getUserId())
+
+      # Pay deposit to validate virtual master
+      deposit_amount = 99.0
+      ledger = self.portal.portal_categories.ledger.automated
+      
+      outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())
+      amount = sum([i.total_price for i in outstanding_amount_list])
+      self.assertEqual(amount, deposit_amount)
+
+      self.login()
+
+      # Invalidate Public Computer to cancel subscription we would like to ensure 
+      # it works, once the action is implemented.
+      public_server.invalidate()
+
+      self.tic()
+      self.login()
+
+      self.checkServiceSubscriptionRequest(public_server, 'cancelled')
+      self.login(project_owner_person.getUserId())
+
+      amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())])
+      self.assertEqual(0, amount)
+
+      self.logout()
+
+    self.login()
+
+    # Check accounting
+    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
+      mirror_section_uid=project_owner_person.getUid())
+    assert len(transaction_list) == 2, len(transaction_list)
+
+    # Ensure no unexpected object has been created
+    # 1 accounting transaction / line
+    # 3 allocation supply / Line / Cell
+    # 1 compute node
+    # 1 credential request
+    # 1 event
+    # 1 open sale order / line
+    # 4  assignment
+    # 2 simulation mvt
+    # 1 packing list / line
     # 3 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 22)
-
+    self.assertRelatedObjectCount(project, 24)
     self.checkERP5StateBeforeExit()

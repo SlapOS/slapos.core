@@ -72,6 +72,12 @@
             </value>
         </item>
         <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
             <key> <string>effective_date</string> </key>
             <value>
               <none/>
@@ -80,6 +86,10 @@
         <item>
             <key> <string>id</string> </key>
             <value> <string>south</string> </value>
+        </item>
+        <item>
+            <key> <string>int_index</string> </key>
+            <value> <int>1</int> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>

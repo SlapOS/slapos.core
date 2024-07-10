@@ -82,6 +82,10 @@
             <value> <string>north</string> </value>
         </item>
         <item>
+            <key> <string>int_index</string> </key>
+            <value> <int>1</int> </value>
+        </item>
+        <item>
             <key> <string>portal_type</string> </key>
             <value> <string>Category</string> </value>
         </item>

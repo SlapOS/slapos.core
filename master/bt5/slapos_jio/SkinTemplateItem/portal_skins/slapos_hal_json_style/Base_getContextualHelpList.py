@@ -104,7 +104,7 @@ elif context.getPortalType() == "Compute Node Module":
       {"title": "Install SlapOS Node On KVM",
        "href": "https://handbook.rapid.space/user/rapidspace-Install.SlapOS.Node.Comp.123.On.Rapid.Space.KVM"},
       {"title": "Associate Compute Nodes",
-       "href": "https://handbook.rapid.space/user/rapidspace-HowTo.Associate.A.ComputeNode"}
+       "href": "https://handbook.rapid.space/user/rapidspace-HowTo.Associate.A.Computer"}
     ])
 elif context.getPortalType() == "Computer Network Module":
   if web_site_id == "hostingjs":

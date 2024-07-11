@@ -5,6 +5,9 @@
  <portal_type id="Certificate Authority Tool">
   <item>CertificateAuthorityToolConsistencyConstraint</item>
  </portal_type>
+ <portal_type id="Category Tool">
+  <item>CategoryToolUpgraderRegionConstraint</item>
+ </portal_type>
  <portal_type id="Contract Invitation Token">
   <item>Reference</item>
   <item>SlapOSCloudContractAccounting</item>

@@ -52,21 +52,8 @@ for category in category_to_migrate_list:
 
     new_category = new_category_list[0]
 
-    # Can we make it cheaper 
-    related_document_list = category.Base_getRelatedObjectList(**{
-      'portal_type': NegatedQuery(SimpleQuery(portal_type='Category')),
-      'category.category_strict_membership': 1})
-
-    for document in related_document_list:
-      # does it actually has the category?
-      document.edit(region=new_category)
-      document.reindexObject()
-
-    # 1) Search for the all related objects
-    # 2) Migrate all related objects
-    # 3) reindex everything
-    # 4) Expire the category
-    category.expire()
+    # XXX It could be relavant to use activities here
+    category.Category_updateRelatedRegionAndExpire(new_category)
     message_list.append(
       "%s migrated and expired (int_index: %s, validation_state: %s)" % (
         category.getRelativeUrl(), category.getIntIndex(), category.getValidationState())

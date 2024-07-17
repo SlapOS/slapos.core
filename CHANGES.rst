@@ -1,5 +1,16 @@
 Changes
 =======
+
+1.12.0 (2024-07-17)
+-------------------
+ * format: Allow to log when tap has no name attribute
+ * testing: tolerates libquadmath in ldd check
+ * testing: tolerates libtermcap in ldd check
+ * testing: allow permission execution warnings in ldd check
+ * slapgrid: better error handling regarding SoftwareReleaseSchema
+ * slapgrid: default software-type is now 'default'
+ * slapgrid: stop pushing dummy values to shadir
+
 1.11.0 (2024-01-17)
 -------------------
 * cli/request: allow enforcing a given serialisation

@@ -1,7 +1,4 @@
 <property_sheet_list>
- <portal_type id="Catalog Tool">
-  <item>CatalogToolNoneCreationDateConstraint</item>
- </portal_type>
  <portal_type id="Certificate Authority Tool">
   <item>CertificateAuthorityToolConsistencyConstraint</item>
  </portal_type>

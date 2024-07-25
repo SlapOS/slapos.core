@@ -218,7 +218,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_base/Login_notifyPasswordExpire',
         'slapos_base/Person_applyContractInvitation',
         'slapos_erp5/CertificateAuthorityTool_checkCertificateAuthorityConsistency',
-        'slapos_erp5/CatalogTool_checkNoneCreationDateConsistency',
         'slapos_panel_compatibility/Base_getComputerToken',
         'slapos_panel_compatibility/Person_requestComputer',
         'slapos_panel/AllocationSupply_invalidateComputeNodeList',

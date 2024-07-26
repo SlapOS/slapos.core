@@ -1,0 +1,83 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Parameter editor for KVM resilient </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Parameter editor For KVM (resilient) Software Release (expected failure)</td>
+      </tr>
+    </thead>
+
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
+                       software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/raw/%s/software/kvm/software.cfg' % context.ERP5Site_getSoftwareReleaseTagVersion()">
+                             
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+
+      <tal:block define="software_type string:Resilient">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/select_software_type_custom" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[-sla-0-computer_guid]'; value python: 'COMP-0'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[ram-size]'; value python: 4097">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+      <tr>
+        <td>fireEvent</td>
+        <td>//input[@name="root[ram-size]" and @type="text"]</td>
+        <td>change</td>
+      </tr>
+      <tal:block tal:define="name python:'root.ram-size'; value python: 'Value must be a multiple of 512.'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_invalid_feedback" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[ram-size]'; value python: 4096">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tr>
+        <td>fireEvent</td>
+        <td>//input[@name="root[ram-size]" and @type="text"]</td>
+        <td>change</td>
+      </tr>
+      <tal:block tal:define="name python:'root.ram-size'; value python: 'Value must be a multiple of 512.'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_not_invalid_feedback" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[cpu-count]'; value python: -1">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root.cpu-count'; value python: 'Value must be at least 1.'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_invalid_feedback" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[cpu-count]'; value python: 3">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tr>
+        <td>fireEvent</td>
+        <td>//input[@name="root[cpu-count]" and @type="text"]</td>
+        <td>change</td>
+      </tr>
+      <tal:block tal:define="name python:'root.cpu-count'; value python: 'Value must be at least 1.'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_not_invalid_feedback" />
+      </tal:block>
+
+      <tal:block tal:define="parameter_hash string:6d0f439b10760e8d8ceb0a3c71ae31fe">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
+      </tal:block>
+    </tbody>
+  </table>
+</body>
+
+</html>

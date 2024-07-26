@@ -1,0 +1,47 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Parameter editor For KVM (resilient) Software Release </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Read Only Parameter editor For KVM (resilient) Software Release (expected failure)</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
+                       software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/raw/%s/software/kvm/software.cfg' % context.ERP5Site_getSoftwareReleaseTagVersion()">
+                             
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init_readonly" />
+      <tr>
+        <td>type</td>
+        <td>//textarea[@name='field_your_text_content']</td>
+        <td tal:content="python: '<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><instance><parameter id=&quot;ram-size&quot;>4096</parameter><parameter id=&quot;cpu-count&quot;>3</parameter><parameter id=&quot;-sla-0-computer_guid&quot;>COMP-0</parameter></instance>'"></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@name='field_your_softwaretype']</td>
+        <td tal:content="python: 'kvm-resilient'"></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block define="software_type string:Resilient">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_custom" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[ram-size]'; value python: 4096">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+      </tal:block>
+      <tal:block tal:define="name python:'root[cpu-count]'; value python: 3">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+      </tal:block>
+      <tal:block tal:define="name python:'root[-sla-0-computer_guid]'; value python: 'COMP-0'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />
+      </tal:block>
+    </tbody>
+  </table>
+</body>
+
+</html>

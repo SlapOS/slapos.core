@@ -128,6 +128,8 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_crm/RegularisationRequest_afterClone',
         'slapos_crm/RegularisationRequest_getResourceItemList',
         'slapos_crm/RegularisationRequest_init',
+        'slapos_erp5/CategoryTool_checkRegionMigrationConsistency',
+        'slapos_erp5/Category_updateRelatedRegionAndExpire',
         'slapos_pdm/UpgradeDecision_afterClone',
         'slapos_pdm/UpgradeDecision_getResourceItemList',
         'slapos_pdm/UpgradeDecision_init',

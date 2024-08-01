@@ -39,7 +39,11 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>Base_doSelect</string> </value>
+            <value> <string></string> </value>
+        </item>
+        <item>
+            <key> <string>action_title</string> </key>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -57,7 +61,7 @@
         </item>
         <item>
             <key> <string>enctype</string> </key>
-            <value> <string></string> </value>
+            <value> <string>application/x-www-form-urlencoded</string> </value>
         </item>
         <item>
             <key> <string>group_list</string> </key>
@@ -104,11 +108,11 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>ActivityTool_viewActivityList</string> </value>
+            <value> <string>ActivityTool_viewErrorActivityListAsRSS</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
-            <value> <string>form_list</string> </value>
+            <value> <string>rss_view</string> </value>
         </item>
         <item>
             <key> <string>row_length</string> </key>

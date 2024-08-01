@@ -365,6 +365,13 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       project_reference=project_reference
     )
 
+    # XXX search only for this user
+    instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type="Instance Tree",
+      title=instance_title,
+      follow_up__reference=project_reference
+    )
+    self.checkServiceSubscriptionRequest(instance_tree)
     self.tic()
 
     self.login(person_user_id)

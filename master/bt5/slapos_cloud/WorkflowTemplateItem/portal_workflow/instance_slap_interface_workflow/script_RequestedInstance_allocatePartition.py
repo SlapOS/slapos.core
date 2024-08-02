@@ -15,7 +15,14 @@ assert instance.getAggregateValue() is None
 compute_partition = portal.restrictedTraverse(compute_partition_url)
 assert compute_partition.getPortalType() == "Compute Partition"
 
-instance.edit(aggregate_value=compute_partition, activate_kw={'tag': 'allocate_%s' % compute_partition_url})
+instance.edit(
+  aggregate_value=compute_partition,
+  activate_kw={'tag': 'allocate_%s' % compute_partition_url})
+
+if instance.getPortalType() == "Slave Instance":
+  # Ensure bang timestamp get updated to ensure that
+  # timestamp is updated forcefully.
+  instance.bang(bang_tree=False, comment="Instance Allocated")
 
 compute_node = compute_partition.getParentValue()
 if compute_node.getPortalType() == 'Compute Node':

@@ -183,9 +183,9 @@ class SoftwareInstance(Item):
     compute_partition = self.getAggregateValue(portal_type="Compute Partition")
     if compute_partition is None:
       raise ValueError("Instance isn't allocated to call _asParamterDict")
-    timestamp = int(compute_partition.getModificationDate())
+    timestamp = int(float(compute_partition.getModificationDate()) * 1e6)
 
-    newtimestamp = int(self.getBangTimestamp(int(self.getModificationDate())))
+    newtimestamp = int(self.getBangTimestamp(int(float(self.getModificationDate()) * 1e6)))
     if (newtimestamp > timestamp):
       timestamp = newtimestamp
 

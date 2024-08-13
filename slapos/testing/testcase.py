@@ -54,11 +54,20 @@ from .check_software import checkSoftware
 
 from ..proxy.db_version import DB_VERSION
 
-try:
-  from typing import Callable, ClassVar, Dict, Iterable, List, Optional, Tuple, Type, TypeVar
-  ManagedResourceType = TypeVar("ManagedResourceType", bound=ManagedResource)
-except ImportError:
-  pass
+from typing import (
+  Callable,
+  ClassVar,
+  Dict,
+  Iterable,
+  List,
+  Mapping,
+  Optional,
+  Sequence,
+  Tuple,
+  Type,
+  TypeVar,
+)
+ManagedResourceType = TypeVar("ManagedResourceType", bound=ManagedResource)
 
 
 def makeModuleSetUpAndTestCaseClass(
@@ -253,7 +262,8 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
 
 
 class SlapOSInstanceTestCase(unittest.TestCase):
-  """Install one slapos instance.
+  """
+  Install one slapos instance.
 
   This test case install software(s) and request one instance
   during `setUpClass` and destroy that instance during `tearDownClass`.
@@ -263,62 +273,76 @@ class SlapOSInstanceTestCase(unittest.TestCase):
 
   All tests from the test class will run with the same instance.
 
-  The following class attributes are available:
-
-    * `computer_partition`:  the `slapos.slap.slap.ComputerPartition`
-      computer partition instance.
-
-    * `computer_partition_root_path`: the path of the instance root
-      directory.
-
-  This class is not supposed to be imported directly, but needs to be setup by
-  calling makeModuleSetUpAndTestCaseClass.
+  Note:
+    This class is not supposed to be imported directly, but needs to be setup
+    by calling makeModuleSetUpAndTestCaseClass.
 
   Attributes:
+    computer_partition: The computer partition instance.
+    computer_partition_root_path: The path of the instance root directory.
+    computer_partition_ipv6_address: The IPv6 of the instance.
+    instance_max_retry: Maximum retries for ``slapos node instance``.
+    report_max_retry: Maximum retries for ``slapos node report``.
+    partition_count: Number of partitions needed for this instance.
+    default_partition_reference: Reference of the default requested partition.
     request_instance: Whether an instance needs to be requested for this test
         case.
-
+    software_id: A short name of that software URL. E.g. helloworld instead of
+        https://lab.nexedi.com/nexedi/slapos/raw/software/helloworld/software.cfg .
+    logger: A logger for messages of the testing framework.
+    slap: Standalone SlapOS instance.
   """
-  # can set this to true to enable debugging utilities
-  _debug = False
-  # can set this to true to enable more verbose output
-  _verbose = False
-  # maximum retries for `slapos node instance`
-  instance_max_retry = 20
-  # maximum retries for `slapos node report`
-  report_max_retry = 20
-  # number of partitions needed for this instance
-  partition_count = 10
-  # reference of the default requested partition
-  default_partition_reference = 'testing partition 0'
-  # skips software checks
-  _skip_software_check = False
-  # skips software rebuild
-  _skip_software_rebuild = False
 
+  instance_max_retry: ClassVar[int] = 20
+  report_max_retry: ClassVar[int] = 20
+  partition_count: ClassVar[int] = 10
+  default_partition_reference: ClassVar[str] = 'testing partition 0'
   request_instance: ClassVar[bool] = True
+  software_id: ClassVar[str] = ""
 
-  # a logger for messages of the testing framework
-  logger = logging.getLogger(__name__)
+  logger: ClassVar[logging.Logger] = logging.getLogger(__name__)
 
   # Dynamic members
-  slap = None  # type: StandaloneSlapOS
-  _ipv4_address = ""
-  _ipv6_address = ""
+  slap: ClassVar[StandaloneSlapOS]
+  computer_partition: ClassVar[ComputerPartition]
+  computer_partition_root_path: ClassVar[str]
+  computer_partition_ipv6_address: ClassVar[str]
 
-  _resources = {} # type: Dict[str, ManagedResource]
-  _instance_parameter_dict = None # type: Dict
-  computer_partition = None # type: ComputerPartition
-  computer_partition_root_path = None # type: str
 
-  # a short name of that software URL.
-  # eg. helloworld instead of
-  # https://lab.nexedi.com/nexedi/slapos/raw/software/helloworld/software.cfg
-  software_id = ""
-  _base_directory = ""  # base directory for standalone
-  _test_file_snapshot_directory = ""  # directory to save snapshot files for inspections
-  # patterns of files to save for inspection, relative to instance directory
-  _save_instance_file_pattern_list = (
+  # Private settings
+
+  # True to enable debugging utilities.
+  _debug: ClassVar[bool] = False
+
+  # True to enable more verbose output.
+  _verbose: ClassVar[bool] = False # TODO: Remove?
+
+  # True to skip software checks.
+  _skip_software_check: ClassVar[bool] = False
+
+  # True to skip software rebuild.
+  _skip_software_rebuild: ClassVar[bool] = False
+
+  # The IPv4 address used by ``slapos node format``.
+  _ipv4_address: ClassVar[str] = ""
+
+  # The IPv6 address used by ``slapos node format``.
+  _ipv6_address: ClassVar[str] = ""
+
+  # Used resources.
+  _resources: ClassVar[Dict[str, ManagedResource]] = {}
+
+  # Instance parameters
+  _instance_parameter_dict: ClassVar[Mapping[str, object]]
+
+  # Base directory for standalone SlapOS.
+  _base_directory: ClassVar[str] = ""  
+
+  # Directory to save snapshot files for inspections.
+  _test_file_snapshot_directory: ClassVar[str] = ""
+
+  # Patterns of files to save for inspection, relative to instance directory.
+  _save_instance_file_pattern_list: ClassVar[Sequence[str]] = (
       '*/bin/*',
       '*/etc/*',
       '*/var/log/*',

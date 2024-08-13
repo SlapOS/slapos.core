@@ -26,6 +26,7 @@
 #
 ##############################################################################
 
+from __future__ import annotations
 import contextlib
 import fnmatch
 import glob
@@ -54,7 +55,7 @@ from .check_software import checkSoftware
 from ..proxy.db_version import DB_VERSION
 
 try:
-  from typing import Iterable, Tuple, Callable, Type, Dict, List, Optional, TypeVar
+  from typing import Callable, ClassVar, Dict, Iterable, List, Optional, Tuple, Type, TypeVar
   ManagedResourceType = TypeVar("ManagedResourceType", bound=ManagedResource)
 except ImportError:
   pass
@@ -272,6 +273,11 @@ class SlapOSInstanceTestCase(unittest.TestCase):
 
   This class is not supposed to be imported directly, but needs to be setup by
   calling makeModuleSetUpAndTestCaseClass.
+
+  Attributes:
+    request_instance: Whether an instance needs to be requested for this test
+        case.
+
   """
   # can set this to true to enable debugging utilities
   _debug = False
@@ -289,6 +295,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   _skip_software_check = False
   # skips software rebuild
   _skip_software_rebuild = False
+
+  request_instance: ClassVar[bool] = True
 
   # a logger for messages of the testing framework
   logger = logging.getLogger(__name__)
@@ -402,30 +410,34 @@ class SlapOSInstanceTestCase(unittest.TestCase):
         getattr(cls, '__partition_reference__', '{}-'.format(cls.__name__)))
 
   @classmethod
-  def _setUpClass(cls):
+  def _setUpClass(cls) -> None:
     cls.slap.start()
 
     # (re)format partitions
     cls.formatPartitions()
 
     # request
-    cls.requestDefaultInstance()
+    if cls.request_instance:
+      cls.requestDefaultInstance()
 
-    # slapos node instance
-    cls.logger.debug("Waiting for instance")
-    cls.waitForInstance()
+      # slapos node instance
+      cls.logger.debug("Waiting for instance")
+      cls.waitForInstance()
 
-    # expose some class attributes so that tests can use them:
-    # the main ComputerPartition instance, to use getInstanceParameterDict
-    cls.computer_partition = cls.requestDefaultInstance()
+      # expose some class attributes so that tests can use them:
+      # the main ComputerPartition instance, to use getInstanceParameterDict
+      cls.computer_partition = cls.requestDefaultInstance()
 
-    # the path of the instance on the filesystem, for low level inspection
-    cls.computer_partition_root_path = os.path.join(
-        cls.slap._instance_root, cls.computer_partition.getId())
+      # the path of the instance on the filesystem, for low level inspection
+      cls.computer_partition_root_path = os.path.join(
+        cls.slap._instance_root,
+        cls.computer_partition.getId(),
+      )
 
-    # the ipv6 of the instance
-    cls.computer_partition_ipv6_address = cls.getPartitionIPv6(
-        cls.computer_partition.getId())
+      # the ipv6 of the instance
+      cls.computer_partition_ipv6_address = cls.getPartitionIPv6(
+        cls.computer_partition.getId(),
+      )
 
   @classmethod
   @contextlib.contextmanager
@@ -569,7 +581,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       except:
         cls.logger.exception("Error closing resource %s", resource_name)
     try:
-      if hasattr(cls, '_instance_parameter_dict'):
+      if cls.request_instance and hasattr(cls, '_instance_parameter_dict'):
         cls.requestDefaultInstance(state='destroyed')
     except:
       cls.logger.exception("Error during request destruction")

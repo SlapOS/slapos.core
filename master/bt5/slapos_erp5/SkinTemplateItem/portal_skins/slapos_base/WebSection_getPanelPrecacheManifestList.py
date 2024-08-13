@@ -12,6 +12,8 @@ url_list = [
   'gadget_slapos_status.css',
   'gadget_slapos_status.html',
   'gadget_slapos_status.js',
+  'slapos_master_panel_translation.html',
+  'slapos_master_panel_translation_data.js',
   # Discussion thread
   'gadget_thread_reader.html',
   'gadget_thread_reader.js',

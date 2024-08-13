@@ -33,6 +33,7 @@ Instance Tree | slapos_panel_view
 Instance Tree | slapos_request_hs_start
 Instance Tree | slapos_request_hs_stop
 Instance Tree | slapos_view_request_destroy
+Instance Tree | slaposjs_view
 Instance Tree | update_slapos_parameter
 Mail Message | slapos_panel_view
 Organisation | claim_slapos_subscription_request

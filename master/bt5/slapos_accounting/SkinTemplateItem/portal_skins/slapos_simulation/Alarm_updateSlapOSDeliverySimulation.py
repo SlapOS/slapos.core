@@ -5,6 +5,10 @@ select_dict = {'causality__related__uid': None}
 kw.update(
   portal_type='Sale Packing List',
   ledger__uid=portal.portal_categories.ledger.automated.getUid(),
+  # Only payable deliveries are expanded
+  # (it prevents the alarm to always those non expandable deliveries)
+  source_section__uid='%',
+  destination_section__uid='%',
   # This is an optimisation to help mariadb selecting a better index
   simulation_state=['delivered'],
 

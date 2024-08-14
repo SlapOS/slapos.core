@@ -91,4 +91,5 @@ for slave_on_same_instance_tree_allocable, product_dict in [
             activate_kw=activate_kw
           )
 
-    allocation_supply.validate()
+    # do not activate, to prevent allocation mistake during migration
+    # allocation_supply.validate()

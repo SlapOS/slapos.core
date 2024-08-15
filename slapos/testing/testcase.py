@@ -69,89 +69,141 @@ from typing import (
 )
 ManagedResourceType = TypeVar("ManagedResourceType", bound=ManagedResource)
 
+IPV4_ADDRESS_DEFAULT: str = os.environ['SLAPOS_TEST_IPV4']
+IPV6_ADDRESS_DEFAULT: str = os.environ['SLAPOS_TEST_IPV6']
+DEBUG_DEFAULT: bool = bool(
+  int(os.environ.get('SLAPOS_TEST_DEBUG', 0)),
+)
+VERBOSE_DEFAULT: bool = bool(
+  int(os.environ.get('SLAPOS_TEST_VERBOSE', 0)),
+)
+SKIP_SOFTWARE_CHECK_DEFAULT: bool = bool(
+  int(os.environ.get('SLAPOS_TEST_SKIP_SOFTWARE_CHECK', 0))
+)
+SKIP_SOFTWARE_REBUILD_DEFAULT: bool = bool(
+  int(os.environ.get('SLAPOS_TEST_SKIP_SOFTWARE_REBUILD', 0))
+)
+SHARED_PART_LIST_DEFAULT: Sequence[str] = [
+  os.path.expanduser(p)
+  for p in os.environ.get(
+    'SLAPOS_TEST_SHARED_PART_LIST',
+    '',
+  ).split(os.pathsep) if p
+]
+SNAPSHOT_DIRECTORY_DEFAULT: str | None = os.environ.get(
+  'SLAPOS_TEST_LOG_DIRECTORY',
+)
 
 def makeModuleSetUpAndTestCaseClass(
-    software_url,
-    base_directory=None,
-    ipv4_address=os.environ['SLAPOS_TEST_IPV4'],
-    ipv6_address=os.environ['SLAPOS_TEST_IPV6'],
-    debug=bool(int(os.environ.get('SLAPOS_TEST_DEBUG', 0))),
-    verbose=bool(int(os.environ.get('SLAPOS_TEST_VERBOSE', 0))),
-    skip_software_check=bool(int(os.environ.get('SLAPOS_TEST_SKIP_SOFTWARE_CHECK', 0))),
-    skip_software_rebuild=bool(int(os.environ.get('SLAPOS_TEST_SKIP_SOFTWARE_REBUILD', 0))),
-    shared_part_list=[
-        os.path.expanduser(p) for p in os.environ.get(
-            'SLAPOS_TEST_SHARED_PART_LIST', '').split(os.pathsep) if p
-    ],
-    snapshot_directory=os.environ.get('SLAPOS_TEST_LOG_DIRECTORY'),
-    software_id=None
-):
-  # type: (str, str, str, str, bool, bool, bool, bool, Iterable[str], Optional[str], Optional[str]) -> Tuple[Callable[[], None], Type[SlapOSInstanceTestCase]]
-  """Create a setup module function and a testcase for testing `software_url`.
+  software_url: str,
+  *,
+  base_directory: str | None = None,
+  ipv4_address: str = IPV4_ADDRESS_DEFAULT,
+  ipv6_address: str = IPV6_ADDRESS_DEFAULT,
+  debug: bool = DEBUG_DEFAULT,
+  verbose: bool = VERBOSE_DEFAULT,
+  skip_software_check: bool = SKIP_SOFTWARE_CHECK_DEFAULT,
+  skip_software_rebuild: bool = SKIP_SOFTWARE_REBUILD_DEFAULT,
+  shared_part_list: Iterable[str] = SHARED_PART_LIST_DEFAULT,
+  snapshot_directory: str | None = SNAPSHOT_DIRECTORY_DEFAULT,
+  software_id: str | None = None
+) -> Tuple[Callable[[], None], Type[SlapOSInstanceTestCase]]:
+  """
+  Create a setup module function and a testcase for testing `software_url`.
 
-  This function returns a tuple of two arguments:
-   * a function to install the software, to be used as `unittest`'s
-     `setUpModule`
-   * a base class for test cases.
-
-  The SlapOS instance will be using ip addresses defined by
-  environment variables `SLAPOS_TEST_IPV4` and `SLAPOS_TEST_IPV6`, or by the
-  explicits `ipv4_address` and `ipv6_address` arguments.
-
-  To ease development and troubleshooting, those switches are available:
-   * `verbose` (also controlled by `SLAPOS_TEST_VERBOSE` environment variable)
-     to tell the test framework to log information describing the actions taken.
-   * `debug` (also controlled by `SLAPOS_TEST_DEBUG` environment variable) to
-     enable debugging mode which will drop in a debugger session when errors
-     occurs.
-   * `_skip_software_check` (also controlled by `SLAPOS_TEST_SKIP_SOFTWARE_CHECK`
-     environment variable) to skip costly software checks
-   * `_skip_software_rebuild` (also controlled by `SLAPOS_TEST_SKIP_SOFTWARE_REBUILD`
-     environment variable) to skip costly software builds
-
-  The base_directory directory is by default .slapos in current directory,
-  or a path from `SLAPOS_TEST_WORKING_DIR` environment variable.
-
-  This test class will use its own directory for shared parts and can also
-  paths from `shared_part_list` argument to lookup existing parts.
-  This is controlled by SLAPOS_TEST_SHARED_PART_LIST environment variable,
-  which should be a : separated list of path.
-
-  The framework will save snapshot and logs using `software_id` which is
-  by default computed automatically from the software URL, but can also
-  be passed explicitly, to use a different name for different kind of
-  tests, like for example upgrade tests.
-
-  A note about paths:
+  Note:
     SlapOS itself and some services running in SlapOS uses unix sockets and
-    (sometimes very) deep paths, which does not play very well together.
-    To workaround this, users can set `SLAPOS_TEST_WORKING_DIR` environment
+    (sometimes very) deep paths, which do not play very well together.
+    To workaround this, users can set ``SLAPOS_TEST_WORKING_DIR`` environment
     variable to the path of a short enough directory and local slapos will
     use this directory.
     The partitions references will be named after the unittest class name,
     which can also lead to long paths. For this, unit test classes can define
-    a `__partition_reference__` attribute which will be used as partition
+    a ``__partition_reference__`` attribute which will be used as partition
     reference. If the class names are long, the trick is then to use a shorter
-    `__partition_reference__`.
+    ``__partition_reference__``.
     See https://lab.nexedi.com/kirr/slapns for a solution to this problem.
+
+  Args:
+    software_url: The URL of the software to test.
+    base_directory: The base directory used for SlapOS.
+      By default, it will use the value in the environment variable
+      ``SLAPOS_TEST_WORKING_DIR``.
+      If that is not defined, it will default to ``.slapos`` in the current
+      directory.
+    ipv4_address: IPv4 address used for the instance. By default it will use
+      the one defined in the environment variable ``SLAPOS_TEST_IPV4``.
+    ipv6_address: IPv6 address used for the instance. By default it will use
+      the one defined in the environment variable ``SLAPOS_TEST_IPV6``.
+    debug: Enable debugging mode, which will drop in a debugger session when
+      errors occur.
+      By default it will be controlled by the value of the environment variable
+      ``SLAPOS_TEST_DEBUG`` if it is defined. Otherwise it will be disabled.
+    verbose: ``True`` to enable verbose logging, so that the test framework
+      logs information describing the actions taken (sets logging level to
+      ``DEBUG``).
+      By default it will be controlled by the value of the environment variable
+      ``SLAPOS_TEST_VERBOSE`` if it is defined. Otherwise it will be disabled.      
+    skip_software_check: Skips costly software checks.
+      By default it will be controlled by the value of the environment variable
+      ``SLAPOS_TEST_SKIP_SOFTWARE_CHECK`` if it is defined. Otherwise it will
+      be disabled.
+    skip_software_rebuild: Skips costly software builds.
+      By default it will be controlled by the value of the environment variable
+      ``SLAPOS_TEST_SKIP_SOFTWARE_REBUILD`` if it is defined. Otherwise it will
+      be disabled.
+    shared_part_list: Additional paths to search for existing shared parts.
+      This test class will use its own directory for shared parts and also
+      the paths defined in this argument.
+      By default it is controlled by the ``SLAPOS_TEST_SHARED_PART_LIST``
+      environment variable if defined, which should contain the paths in a
+      string separated by colons (':').
+    snapshot_directory: Directory to save snapshot files (for further
+      inspection) and logs.
+      If it is ``None`` or the empty string, logs will be stored in
+      ``base_directory``, and no snapshots will be stored.
+      By default it will use the value of the environment variable
+      ``SLAPOS_TEST_LOG_DIRECTORY`` if it is defined, and ``None`` otherwise.
+    software_id: A short name for the software, to be used in logs and to
+      name the snapshots.
+      By default it is computed automatically from the software URL, but can
+      also be passed explicitly, to use a different name for different kind of
+      tests, like for example upgrade tests.
+
+  Returns:
+    A tuple of two arguments:
+      - A function to install the software, to be used as `unittest`'s
+        `setUpModule`
+      - A base class for test cases.
+  
   """
   if base_directory is None:
     base_directory = os.path.realpath(
-        os.environ.get(
-            'SLAPOS_TEST_WORKING_DIR', os.path.join(os.getcwd(), '.slapos')))
+      os.environ.get(
+        'SLAPOS_TEST_WORKING_DIR',
+        os.path.join(
+          os.getcwd(),
+          '.slapos',
+        )
+      )
+    )
 
   if not software_id:
     software_id = urlparse(software_url).path.split('/')[-2]
 
   logging.basicConfig(
-      level=logging.DEBUG,
-      format='%(asctime)s - {} - %(name)s - %(levelname)s - %(message)s'.format(software_id),
-      filename=os.path.join(snapshot_directory or base_directory, 'testcase.log'),
+    level=logging.DEBUG,
+    format=f'%(asctime)s - {software_id} - %(name)s - %(levelname)s - %(message)s',
+    filename=os.path.join(
+      snapshot_directory or base_directory,
+      'testcase.log',
+    ),
   )
   logger = logging.getLogger()
   console_handler = logging.StreamHandler()
   console_handler.setLevel(
-      logging.DEBUG if verbose else logging.WARNING)
+    logging.DEBUG if verbose else logging.WARNING,
+  )
   logger.addHandler(console_handler)
 
   if debug:
@@ -160,40 +212,42 @@ def makeModuleSetUpAndTestCaseClass(
   # TODO: fail if already running ?
   try:
     slap = StandaloneSlapOS(
-        base_directory=base_directory,
-        server_ip=ipv4_address,
-        server_port=getPortFromPath(base_directory),
-        shared_part_list=shared_part_list)
+      base_directory=base_directory,
+      server_ip=ipv4_address,
+      server_port=getPortFromPath(base_directory),
+      shared_part_list=shared_part_list,
+    )
   except PathTooDeepError:
     raise RuntimeError(
-        'base directory ( {} ) is too deep, try setting '
-        'SLAPOS_TEST_WORKING_DIR to a shallow enough directory'.format(
-            base_directory))
+      f'base directory ( {base_directory} ) is too deep, try setting '
+      f'SLAPOS_TEST_WORKING_DIR to a shallow enough directory',
+    )
 
   cls = type(
-      'SlapOSInstanceTestCase for {}'.format(software_url),
-      (SlapOSInstanceTestCase,), {
-          'slap': slap,
-          'getSoftwareURL': classmethod(lambda _cls: software_url),
-          'software_id': software_id,
-          '_debug': debug,
-          '_verbose': verbose,
-          '_skip_software_check': skip_software_check,
-          '_skip_software_rebuild': skip_software_rebuild,
-          '_ipv4_address': ipv4_address,
-          '_ipv6_address': ipv6_address,
-          '_base_directory': base_directory,
-          '_test_file_snapshot_directory': snapshot_directory
-      })
+    f'SlapOSInstanceTestCase for {software_url}',
+    (SlapOSInstanceTestCase,),
+    {
+      'slap': slap,
+      'getSoftwareURL': classmethod(lambda _cls: software_url),
+      'software_id': software_id,
+      '_debug': debug,
+      '_skip_software_check': skip_software_check,
+      '_skip_software_rebuild': skip_software_rebuild,
+      '_ipv4_address': ipv4_address,
+      '_ipv6_address': ipv6_address,
+      '_base_directory': base_directory,
+      '_test_file_snapshot_directory': snapshot_directory
+    },
+  )
 
   class SlapOSInstanceTestCase_(
-      cls,  # type: ignore # https://github.com/python/mypy/issues/2813
-      SlapOSInstanceTestCase):
+    cls,  # type: ignore # https://github.com/python/mypy/issues/2813
+    SlapOSInstanceTestCase,
+  ):
     # useless intermediate class so that editors provide completion anyway.
     pass
 
-  def setUpModule():
-    # type: () -> None
+  def setUpModule() -> None:
     installSoftwareUrlList(cls, [software_url], debug=debug)
 
   return setUpModule, SlapOSInstanceTestCase_
@@ -314,9 +368,6 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   # True to enable debugging utilities.
   _debug: ClassVar[bool] = False
 
-  # True to enable more verbose output.
-  _verbose: ClassVar[bool] = False # TODO: Remove?
-
   # True to skip software checks.
   _skip_software_check: ClassVar[bool] = False
 
@@ -339,7 +390,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   _base_directory: ClassVar[str] = ""  
 
   # Directory to save snapshot files for inspections.
-  _test_file_snapshot_directory: ClassVar[str] = ""
+  _test_file_snapshot_directory: ClassVar[str | None] = ""
 
   # Patterns of files to save for inspection, relative to instance directory.
   _save_instance_file_pattern_list: ClassVar[Sequence[str]] = (

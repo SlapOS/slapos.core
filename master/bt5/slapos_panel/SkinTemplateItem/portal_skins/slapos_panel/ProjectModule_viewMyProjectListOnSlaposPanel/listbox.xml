@@ -208,7 +208,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: [[\'validation_state\', \'validated\'], [\'destination__uid\', context.Base_getAuthenticatedPersonUid()]]</string> </value>
+            <value> <string>python: [[\'validation_state\', \'validated\']]</string> </value>
         </item>
       </dictionary>
     </pickle>

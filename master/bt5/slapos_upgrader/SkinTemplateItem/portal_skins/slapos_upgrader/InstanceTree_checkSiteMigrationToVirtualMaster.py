@@ -38,7 +38,9 @@ for sql_instance in portal.portal_catalog(specialise__uid=instance_tree.getUid()
 # Node requested to be allocated on a specific project
 # Use this one first, as it is currently used for payable service
 # and so, it must be kept on the project with the payable trade condition
-if (software_instance is not None) and (sla_xml_dict.get('project_guid', None) is not None):
+# Update: in reality, those instances are not hosted on nodes from this project
+#         so drop this condition
+if 0:#(software_instance is not None) and (sla_xml_dict.get('project_guid', None) is not None):
   project_reference = sla_xml_dict.get('project_guid', None)
   project = portal.portal_catalog.getResultValue(portal_type='Project', reference=project_reference)
   if project is not None:

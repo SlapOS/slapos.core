@@ -12,7 +12,7 @@ if url_dict: # If RenderJS UI
   return {
     'command': 'push_history',
     'view_kw': {
-      'view': 'view',
+      'view': 'slapos_panel_view',
       'jio_key': jio_key,
     },
     'options': {

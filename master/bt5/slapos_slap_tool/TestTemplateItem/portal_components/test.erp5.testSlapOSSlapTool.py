@@ -363,7 +363,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
               <string>slave_instance_list</string>
               <list id="i14"/>
               <string>timestamp</string>
-              <string>%(partition_3_timestamp)s</string>
+              <int>%(partition_3_timestamp)s</int>
             </dictionary>
             <string>_partition_id</string>
             <string>partition3</string>
@@ -440,7 +440,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
               <string>slave_instance_list</string>
               <list id="i25"/>
               <string>timestamp</string>
-              <string>%(partition_2_timestamp)s</string>
+              <int>%(partition_2_timestamp)s</int>
             </dictionary>
             <string>_partition_id</string>
             <string>partition2</string>
@@ -530,7 +530,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
                 </dictionary>
               </list>
               <string>timestamp</string>
-              <string>%(partition_1_timestamp)s</string>
+              <int>%(partition_1_timestamp)s</int>
             </dictionary>
             <string>_partition_id</string>
             <string>partition1</string>
@@ -1247,7 +1247,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
                 </dictionary>
               </list>
               <string>timestamp</string>
-              <string>%(timestamp)s</string>
+              <int>%(timestamp)s</int>
             </dictionary>
             <string>_partition_id</string>
             <string>partition1</string>
@@ -1482,7 +1482,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
           </dictionary>
         </list>
         <string>timestamp</string>
-        <string>%(timestamp)s</string>
+        <int>%(timestamp)s</int>
       </dictionary>
       <string>_partition_id</string>
       <string>partition1</string>
@@ -1597,7 +1597,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         <string>slave_instance_list</string>
         <list id="i9"/>
         <string>timestamp</string>
-        <string>%(timestamp)s</string>
+        <int>%(timestamp)s</int>
       </dictionary>
       <string>_partition_id</string>
       <string>partition1</string>
@@ -2775,7 +2775,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
           </dictionary>
         </list>
         <string>timestamp</string>
-        <string>%(timestamp)s</string>
+        <int>%(timestamp)s</int>
       </dictionary>
       <string>_partition_id</string>
       <string>partition1</string>
@@ -2890,7 +2890,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         <string>slave_instance_list</string>
         <list id="i9"/>
         <string>timestamp</string>
-        <string>%(timestamp)s</string>
+        <int>%(timestamp)s</int>
       </dictionary>
       <string>_partition_id</string>
       <string>partition1</string>
@@ -3195,7 +3195,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       <string>slave_instance_list</string>
       <list id="i9"/>
       <string>timestamp</string>
-      <string>%(timestamp)s</string>
+      <int>%(timestamp)s</int>
     </dictionary>
   </object>
 </marshal>

@@ -68,7 +68,7 @@ if (current_trade_condition.getDestination() is None):
     title='%s for %s' % (current_trade_condition.getTitle(), customer.getTitle()),
     destination_value=customer,
     destination_section_value=organisation,
-    # source_project=current_trade_condition.getSourceProject(),
+    source_project=current_trade_condition.getSourceProject(),
     price_currency=current_trade_condition.getPriceCurrency(),
     trade_condition_type=current_trade_condition.getTradeConditionType(),
   )

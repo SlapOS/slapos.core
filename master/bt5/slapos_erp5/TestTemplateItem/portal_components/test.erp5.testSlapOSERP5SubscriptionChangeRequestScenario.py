@@ -257,7 +257,8 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
       new_subscription_request = self.portal.portal_catalog.getResultValue(
         portal_type='Subscription Request',
-        aggregate__uid=project.getUid()
+        aggregate__uid=project.getUid(),
+        simulation_state='submitted'
       )
       self.assertEquals(new_subscription_request.getDestination(),
                         owner_person.getRelativeUrl())
@@ -281,6 +282,130 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 2 sale trade condition
     # 2 subscription request
     self.assertRelatedObjectCount(project, 6)
+
+    with PinnedDateTime(self, DateTime('2024/02/15')):
+      self.checkERP5StateBeforeExit()
+
+
+  def test_subscription_change_request_change_instance_destination_section_scenario(self):
+    currency, _, _, sale_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+
+    self.tic()
+
+    self.logout()
+
+    with PinnedDateTime(self, DateTime('2024/01/25')):
+      # lets join as slapos administrator, which will own few compute_nodes
+      owner_reference = 'owner-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, owner_reference)
+
+      self.login()
+      owner_person = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=owner_reference).getParentValue()
+      #owner_person.setCareerSubordinationValue(seller_organisation)
+
+      self.tic()
+
+      # hooray, now it is time to create compute_nodes
+      self.logout()
+      self.login(sale_person.getUserId())
+
+      # create a default project
+      project_relative_url = self.addProject(person=owner_person, currency=currency, is_accountable=True)
+
+      sale_supply = self.portal.sale_supply_module.newContent(
+        portal_type="Sale Supply",
+        title="price for %s" % project_relative_url,
+        source_project=project_relative_url,
+        price_currency_value=currency
+      )
+      sale_supply.newContent(
+        portal_type="Sale Supply Line",
+        base_price=99,
+        resource="service_module/slapos_compute_node_subscription"
+      )
+      sale_supply.validate()
+
+      self.logout()
+      self.login()
+      project = self.portal.restrictedTraverse(project_relative_url)
+      preference = self.portal.portal_preferences.slapos_default_system_preference
+      preference.edit(
+        preferred_subscription_assignment_category_list=[
+          'function/customer',
+          'role/client',
+          'destination_project/%s' % project.getRelativeUrl()
+        ]
+      )
+
+      self.tic()
+
+      self.logout()
+      self.login(owner_person.getUserId())
+
+    with PinnedDateTime(self, DateTime('2024/02/25')):
+      public_server_title = 'Public Server for %s' % owner_reference
+      compute_node_id = self.requestComputeNode(public_server_title, project.getReference())
+      self.tic()
+
+      self.login(sale_person.getUserId())
+      subscription_request = self.portal.portal_catalog.getResultValue(
+        portal_type='Subscription Request',
+        aggregate__reference=compute_node_id
+      )
+      owner_organisation = self.portal.organisation_module.newContent(
+        title='Test Owner Organisation',
+        vat_code='1234567890'
+      )
+      owner_organisation.validate()
+      new_trade_condition = owner_organisation.Organisation_claimSlaposSubscriptionRequest(
+        subscription_request.getReference(),
+        None
+      )
+      self.tic()
+      self.logout()
+      self.login()
+      self.assertEquals(new_trade_condition.getDestination(),
+                        owner_person.getRelativeUrl())
+      self.assertEquals(new_trade_condition.getDestinationSection(),
+                        owner_organisation.getRelativeUrl())
+      self.assertEquals(new_trade_condition.getPortalType(),
+                        'Sale Trade Condition')
+      self.assertEquals(subscription_request.getSimulationState(),
+                        'cancelled')
+
+      new_subscription_request = self.portal.portal_catalog.getResultValue(
+        portal_type='Subscription Request',
+        aggregate__reference=compute_node_id,
+        simulation_state='submitted'
+      )
+      self.assertEquals(new_subscription_request.getDestination(),
+                        owner_person.getRelativeUrl())
+      self.assertEquals(new_subscription_request.getDestinationSection(),
+                        owner_organisation.getRelativeUrl())
+      self.assertEquals(new_subscription_request.getSimulationState(),
+                        'submitted')
+
+      # If the script is called a second time,
+      # it should return the existing submitted Subscription Request
+      self.login(sale_person.getUserId())
+      new_subscription_request_2 = owner_organisation.Organisation_claimSlaposSubscriptionRequest(
+        new_subscription_request.getReference(),
+        None
+      )
+      self.assertEquals(new_subscription_request.getRelativeUrl(),
+                        new_subscription_request_2.getRelativeUrl())
+
+    # Ensure no unexpected object has been created
+    # 1 compute node
+    # 1 open sale order
+    # 2 assignment
+    # 2 sale trade condition
+    # 2 sale supply*
+    # 3 sale trade conditions
+    # 3 subscription request
+    self.assertRelatedObjectCount(project, 12)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()

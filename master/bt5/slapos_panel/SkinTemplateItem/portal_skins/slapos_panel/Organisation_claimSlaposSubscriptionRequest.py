@@ -27,7 +27,6 @@ if len(sql_subscription_request_list) != 1:
   return context.Base_renderForm(dialog_id, keep_items=keep_items)
 
 subscription_request = sql_subscription_request_list[0].getObject()
-tag = "%s-%s" % (script.id, subscription_request.getRelativeUrl())
 
 if subscription_request.getDestinationSection() == organisation.getRelativeUrl():
   keep_items = {
@@ -74,8 +73,6 @@ if (current_trade_condition.getDestination() is None):
     trade_condition_type=current_trade_condition.getTradeConditionType(),
   )
   new_sale_trade_condition.validate()
-  new_sale_trade_condition.reindexObject(activate_kw={'tag': tag})
-  organisation.activate(after_tag=tag).Organisation_claimSlaposSubscriptionRequest(reference, None)
   keep_items = {
     'portal_status_message': Base_translateString('Creating a dedicated Trade Condition for the customer')
   }
@@ -83,32 +80,11 @@ if (current_trade_condition.getDestination() is None):
     return new_sale_trade_condition
   return new_sale_trade_condition.Base_redirect(keep_items=keep_items)
 
-elif ((current_trade_condition.getDestination() == subscription_request.getDestination()) and
-      (current_trade_condition.getDestinationSection() == organisation.getRelativeUrl())):
-  # We have a matching Trade Condition.
-  # We can recreate the Subscription Request
-  subscription_change_request = subscription_request.getResourceValue().Resource_createSubscriptionRequest(
-    subscription_request.getDestinationValue(),
-    # [software_type, software_release],
-    subscription_request.getVariationCategoryList(),
-    project,
-    currency_value=subscription_request.getPriceCurrencyValue(),
-    item_value=item,
-    causality_value=subscription_request.getCausalityValue()
-  )
-  assert subscription_change_request.getDestinationSection() == organisation.getRelativeUrl()
-  subscription_request.cancel(comment='Replaced by %s' % subscription_change_request.getReference())
-
-  if batch:
-    return subscription_change_request
-  return subscription_change_request.Base_redirect()
-
-
 else:
   keep_items = {
     'your_reference': reference,
     'portal_status_level': 'error',
-    'portal_status_message': Base_translateString('This customer already has a dedicated incompatible Trade Condition')
+    'portal_status_message': Base_translateString('This customer already has a dedicated Trade Condition')
   }
   if batch:
     raise ValueError(keep_items['portal_status_message'])

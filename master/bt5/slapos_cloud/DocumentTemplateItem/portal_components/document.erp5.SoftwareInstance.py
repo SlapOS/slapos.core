@@ -177,17 +177,19 @@ class SoftwareInstance(Item):
     software_instance_dict['_instance_guid'] = instance_guid
     return software_instance_dict
 
+  def _getModificationDateAsTimestamp(self, document):
+    return int(float(document.getModificationDate()) * 1e6)
+
   @UnrestrictedMethod
   def _asParameterDict(self, shared_instance_sql_list=None):
     portal = self.getPortalObject()
     compute_partition = self.getAggregateValue(portal_type="Compute Partition")
     if compute_partition is None:
       raise ValueError("Instance isn't allocated to call _asParamterDict")
-    timestamp = int(compute_partition.getModificationDate())
 
-    newtimestamp = int(self.getBangTimestamp(int(self.getModificationDate())))
-    if (newtimestamp > timestamp):
-      timestamp = newtimestamp
+    timestamp = max(
+      self._getModificationDateAsTimestamp(compute_partition),
+      int(self.getBangTimestamp(self._getModificationDateAsTimestamp(self))))
 
     instance_tree = self.getSpecialiseValue()
 
@@ -222,18 +224,19 @@ class SoftwareInstance(Item):
         shared_instance = _assertACI(shared_instance.getObject())
         # XXX Use catalog to filter more efficiently
         if shared_instance.getSlapState() == "start_requested":
-          newtimestamp = int(shared_instance.getBangTimestamp(int(shared_instance.getModificationDate())))
+          shared_timestamp = int(shared_instance.getBangTimestamp(
+              self._getModificationDateAsTimestamp(shared_instance)))
+
           append({
             'slave_title': shared_instance.getTitle().decode("UTF-8"),
             'slap_software_type': \
                 shared_instance.getSourceReference().decode("UTF-8"),
             'slave_reference': shared_instance.getReference().decode("UTF-8"),
-            'timestamp': newtimestamp,
+            'timestamp': shared_timestamp,
             'xml': shared_instance.getTextContent(),
             'connection_xml': shared_instance.getConnectionXml(),
           })
-          if (newtimestamp > timestamp):
-            timestamp = newtimestamp
+          timestamp = max(timestamp, shared_timestamp)
     return {
       'instance_guid': self.getReference().decode("UTF-8"),
       'instance_title': self.getTitle().decode("UTF-8"),
@@ -253,7 +256,7 @@ class SoftwareInstance(Item):
       'slave_instance_list': shared_instance_list,
       'ip_list': ip_list,
       'full_ip_list': full_ip_list,
-      'timestamp': "%i" % timestamp,
+      'timestamp': timestamp,
     }
 
   @UnrestrictedMethod

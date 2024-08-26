@@ -315,6 +315,8 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_upgrader/Base_triggerFullSiteMigrationToVirtualMasterStep5',
         'slapos_upgrader/Base_triggerFullSiteMigrationToVirtualMasterStep6',
         'slapos_upgrader/Base_triggerFullSiteMigrationToVirtualMasterStep7',
+        'slapos_upgrader/Base_triggerFullSiteMigrationToVirtualMasterStep8',
+        'slapos_upgrader/Base_triggerFullSiteMigrationToVirtualMasterStep9',
         'slapos_upgrader/ComputeNode_checkAllocationSupplyToVirtualMaster',
         'slapos_upgrader/ComputeNode_checkSiteMigrationToVirtualMaster',
         'slapos_upgrader/ComputeNode_fixupSiteMigrationToVirtualMaster',

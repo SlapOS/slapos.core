@@ -30,7 +30,7 @@ if aggregate_uid is None:
             allocation_predicate_list[0].getVariationCategoryList(),
             project,
             temp_object=True
-          ) 
+          )
         except AssertionError:
           price = 0.0
         else:
@@ -46,13 +46,12 @@ if aggregate_uid is None:
           assert subscription_request.getDestinationDecision() == destination_value.getRelativeUrl()
           assert subscription_request.getLedger() == "automated"
           balance = destination_value.Entity_getDepositBalanceAmount(
-
             [subscription_request]
           )
           if balance - price < 0:
             is_future_balance_negative = 1
 
-        return price_information, is_future_balance_negative 
+        return price_information, is_future_balance_negative
 
       price_information, is_future_balance_negative = destination_value.Person_restrictMethodAsShadowUser(
           shadow_document=destination_value,

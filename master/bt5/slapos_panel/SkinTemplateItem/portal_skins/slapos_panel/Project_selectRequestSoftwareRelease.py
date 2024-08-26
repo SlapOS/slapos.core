@@ -38,7 +38,8 @@ if aggregate_uid is None:
 
         is_future_balance_negative = 0
         price_information = None
-        if price is not None and price != 0:
+        # If the payment is done by an Organisation, skip user payment process
+        if (price is not None) and (price != 0) and (subscription_request.getDestinationSection() == destination_value.getRelativeUrl()):
           price_information = '%s %s/%s' % (price,
             subscription_request.getPriceCurrencyTitle(),
             subscription_request.getQuantityUnitTitle())

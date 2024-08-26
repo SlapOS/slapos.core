@@ -694,6 +694,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         destination_value=public_person,
         destination_section_value=customer_section_organisation,
         specialise_value=instance_trade_condition,
+        price_currency=instance_trade_condition.getPriceCurrency(),
         trade_condition_type=instance_trade_condition.getTradeConditionType()
       )
       dedicated_trade_condition.validate()

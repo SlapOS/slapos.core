@@ -98,6 +98,15 @@ while instance_to_check_list:
     # Check sub instances only if parent is ok
     instance_to_check_list.extend(instance.getSuccessorValueList())
 
+  elif (instance.getSourceReference() in ['resilient', 'kvm-resilient', 'import', 'kvm-import', 'runner-import']):
+    # Do not migrate resiliency subinstances
+    # recreate the root instance, which does not contain user date, instead
+    instance_tree.setSuccessorValueList(instance_tree.getSuccessorValueList() + instance.getSuccessorValueList())
+    instance_to_check_list.extend(instance.getSuccessorValueList())
+    instance.setSuccessorValueList([])
+    # Do not destroy yet, to prevent any data deletion mistake
+    instance.SoftwareInstance_renameAndRequestStop()
+
 # Trigger migration
 for instance_virtual_master_relative_url in remote_virtual_master_dict:
   instance_tree_virtual_master.Project_checkSiteMigrationCreateRemoteNode(

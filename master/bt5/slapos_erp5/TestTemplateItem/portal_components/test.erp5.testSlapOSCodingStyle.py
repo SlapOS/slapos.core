@@ -146,6 +146,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_simulation/SimulationMovement_testTradeModelSimulationRule',
         'slapos_accounting/OpenSaleOrder_archiveIfUnusedItem',
         'slapos_accounting/Base_getAccountForUse',
+        'slapos_accounting/Entity_createDepositAction',
         'slapos_accounting/Entity_createPaymentTransactionAction',
         'slapos_accounting/Movement_getPriceCalculationOperandDict',
         'slapos_accounting/PaymentTransaction_acceptDepositPayment',

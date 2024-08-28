@@ -5,18 +5,19 @@ software_instance = brain.getAggregateRelatedValue(portal_type=["Software Instan
 if software_instance is None:
   return None
 
+instance_tree = software_instance.getSpecialiseValue()
+
 if url_dict: # If RenderJS UI
-  jio_key = software_instance.getRelativeUrl()
+  jio_key = instance_tree.getRelativeUrl()
   return {
     'command': 'push_history',
     'view_kw': {
-      'view': 'view',
+      'view': 'slapos_panel_view',
       'jio_key': jio_key,
-      'editable': 'true',
     },
     'options': {
       'jio_key': jio_key
     },
   }
 else:
-  return software_instance.absolute_url()
+  return instance_tree.absolute_url()

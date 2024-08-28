@@ -75,7 +75,8 @@ subscription_request = request_instance_tree.Item_createSubscriptionRequest(temp
 # Check if we could create the Subscription Request
 if subscription_request is not None:
   price = subscription_request.getPrice(None)
-  if price is not None and price != 0:
+  # If the payment is done by an Organisation, skip user payment process
+  if (price is not None) and (price != 0) and (subscription_request.getDestinationSection() == person.getRelativeUrl()):
     balance = person.Entity_getDepositBalanceAmount([subscription_request])
     if balance < price:
       instance = web_site.restrictedTraverse(request_instance_tree.getRelativeUrl())

@@ -7,7 +7,10 @@ Computer Consumption TioXML File | view
 Consumption Document Module | view
 Hosting Subscription | periodicity
 Instance Tree | jump_to_related_open_order_line
+Organisation | create_slapos_deposit
+Organisation | create_slapos_payment_transaction
 Payment Transaction | related_payzen_event
+Person | create_slapos_deposit
 Person | create_slapos_payment_transaction
 Root Applied Rule Causality Causality Movement Group | view
 Sale Invoice Transaction | create_slapos_reversal

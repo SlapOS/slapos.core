@@ -19,7 +19,6 @@ identical_dict = {
   'getSource': first_invoice.getSource(),
   'getSourceSection': first_invoice.getSourceSection(),
   'getSourcePayment': first_invoice.getSourcePayment(),
-  'getDestination': first_invoice.getDestination(),
   'getDestinationSection': first_invoice.getDestinationSection(),
   'getPriceCurrency': first_invoice.getPriceCurrency(),
   'getLedger': first_invoice.getLedger(),

@@ -11,7 +11,8 @@ expected_price = context.Entity_getOutstandingAmountList(
   group_by_node=True
 )[0].total_price
 
-if total_price != expected_price:
+precision = outstanding_amount.getPriceCurrencyValue().getQuantityPrecision()
+if round(total_price, precision) != round(expected_price, precision):
   return context.Base_renderForm(dialog_id, Base_translateString('Total Amount does not match'), level='error')
 
 

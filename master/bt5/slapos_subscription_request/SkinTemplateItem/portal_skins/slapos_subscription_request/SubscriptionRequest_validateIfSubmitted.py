@@ -51,8 +51,46 @@ if 0 < total_price:
 
   # XXX what is the guarantee deposit account_type?
   if balance < total_price:
-    return markHistory(subscription_request,
-                      'Your user does not have enough deposit.')
+    markHistory(subscription_request,
+                'Your user does not have enough deposit.')
+
+    # Check if a new trade condition has been created to
+    # replace the existing one
+    # (customer's service paid by an organisation)
+    if item.getPortalType() == 'Project':
+      project = item
+    else:
+      project = subscription_request.getSourceProjectValue()
+
+    try:
+      subscription_change_request = subscription_request.getResourceValue().Resource_createSubscriptionRequest(
+        subscription_request.getDestinationValue(),
+        # [software_type, software_release],
+        subscription_request.getVariationCategoryList(),
+        project,
+        currency_value=subscription_request.getPriceCurrencyValue(),
+        temp_object=True,
+        item_value=item,
+        causality_value=subscription_request.getCausalityValue()
+      )
+    except AssertionError:
+      pass
+    else:
+      if subscription_change_request.getSpecialise() != subscription_request.getSpecialise():
+        # We have a matching Trade Condition.
+        # We can recreate the Subscription Request
+        subscription_change_request = subscription_request.getResourceValue().Resource_createSubscriptionRequest(
+          subscription_request.getDestinationValue(),
+          # [software_type, software_release],
+          subscription_request.getVariationCategoryList(),
+          project,
+          currency_value=subscription_request.getPriceCurrencyValue(),
+          item_value=item,
+          causality_value=subscription_request.getCausalityValue()
+        )
+        subscription_request.cancel(comment='Replaced by %s' % subscription_change_request.getReference())
+
+    return
 
 if subscription_request.checkConsistency():
   return markHistory(subscription_request,

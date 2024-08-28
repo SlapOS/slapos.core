@@ -42,4 +42,4 @@ if portal.portal_catalog.getResultValue(portal_type="Software Release") is not N
     **packet_kw
   )
 
-context.activate(after_tag=tag, priority=4).getId()
+context.activate(after_tag=tag, priority=4).Base_triggerFullSiteMigrationToVirtualMasterStep8()

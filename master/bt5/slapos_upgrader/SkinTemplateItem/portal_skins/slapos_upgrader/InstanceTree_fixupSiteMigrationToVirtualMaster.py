@@ -30,18 +30,34 @@ if root_software_instance is not None:
         (root_instance_virtual_master_relative_url != instance_tree_virtual_master_relative_url) and
         (not sla_xml_dict)):
 
-      edit_kw ={'follow_up_value': None}
-      activate_kw = {'tag': tag}
-      instance_tree.edit(**edit_kw)
-      instance_tree.reindexObject(activate_kw=activate_kw)
+      instance_tree_migration_needed = True
+
+      # ensure no software instance is not on the instance tree
+      # virtual master. If so, keep the instance tree virtual master
       for sql_result in portal.portal_catalog(
         specialise__uid=instance_tree.getUid(),
-        portal_type=['Software Instance', 'Slave Instance']
+        portal_type='Software Instance'
       ):
         instance = sql_result.getObject()
-        instance.edit(**edit_kw)
-        instance.reindexObject(activate_kw=activate_kw)
-      return
+        instance_partition = instance.getAggregateValue()
+        if instance_partition is not None:
+          instance_virtual_master_relative_url = instance_partition.getParentValue().getFollowUp(None)
+          if (instance_virtual_master_relative_url == instance_tree_virtual_master_relative_url):
+            instance_tree_migration_needed = False
+
+      if instance_tree_migration_needed:
+        edit_kw ={'follow_up_value': None}
+        activate_kw = {'tag': tag}
+        instance_tree.edit(**edit_kw)
+        instance_tree.reindexObject(activate_kw=activate_kw)
+        for sql_result in portal.portal_catalog(
+          specialise__uid=instance_tree.getUid(),
+          portal_type=['Software Instance', 'Slave Instance']
+        ):
+          instance = sql_result.getObject()
+          instance.edit(**edit_kw)
+          instance.reindexObject(activate_kw=activate_kw)
+        return
 
 #######################################################################
 # If instance is not allocated on the same virtual master than instance tree
@@ -81,6 +97,16 @@ while instance_to_check_list:
   if is_consistent:
     # Check sub instances only if parent is ok
     instance_to_check_list.extend(instance.getSuccessorValueList())
+
+  elif (instance.getSourceReference() in ['resilient', 'kvm-resilient', 'import', 'kvm-import']):
+    # Do not migrate resiliency subinstances
+    # recreate the root instance, which does not contain user data, instead
+    # Do not expect webrunner to be allocated on another server. Skip 'runner-import'
+    instance_tree.setSuccessorValueList(instance_tree.getSuccessorValueList() + instance.getSuccessorValueList())
+    instance_to_check_list.extend(instance.getSuccessorValueList())
+    instance.setSuccessorValueList([])
+    # Do not destroy yet, to prevent any data deletion mistake
+    instance.SoftwareInstance_renameAndRequestStop()
 
 # Trigger migration
 for instance_virtual_master_relative_url in remote_virtual_master_dict:

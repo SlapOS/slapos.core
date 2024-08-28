@@ -13,7 +13,6 @@ Payment Transaction | related_payzen_event
 Person | create_slapos_deposit
 Person | create_slapos_payment_transaction
 Root Applied Rule Causality Causality Movement Group | view
-Sale Invoice Transaction | create_slapos_reversal
 Sale Packing List | jump_related_aggregated_packing_list
 SlapOS Accounting Quantity Updating Order Builder | view
 SlapOS Accounting Quantity Updating Order Builder | view_predicate_group

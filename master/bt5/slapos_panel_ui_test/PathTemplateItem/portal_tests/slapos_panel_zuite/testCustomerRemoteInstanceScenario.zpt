@@ -41,7 +41,7 @@
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
-      <tal:block tal:define="click_configuration python: {'text': 'Test Project'}">
+      <tal:block tal:define="click_configuration python: {'text': user_configuration['project_title']}">
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_page_link" />
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
@@ -114,7 +114,7 @@
       <tr>
         <td>select</td>
         <td>//select[@name='field_your_destination_project']</td>
-        <td>Test Project</td>
+        <td tal:content="python: user_configuration['project_title']"></td>
       </tr>
       <tr>
         <td>type</td>
@@ -329,7 +329,7 @@
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
       <tr>
         <td>assertElementPresent</td>
-        <td>//a[text()='Test Project']</td>
+        <td tal:content="python: '//a[text()=\'%s\']' % user_configuration['project_title']"></td>
         <td></td>
       </tr>
 

@@ -22,7 +22,8 @@ def ERP5Site_activateAlarmSlapOSPanelTest(self):
 
 def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
                                       manager_login, remote_customer_login,
-                                      passwd, currency=None):
+                                      passwd, currency=None,
+                                      project_title='Test Project'):
 
   if step not in ['trade_condition', 'account']:
     raise ValueError('Unsupported bootstrap step: %s' % step)
@@ -191,7 +192,7 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
 
       # Create Project
       project = manager_person.Person_addVirtualMaster(
-        'Test Project',
+        project_title,
         scenario == 'accounting',
         scenario == 'accounting',
         currency.getRelativeUrl(),

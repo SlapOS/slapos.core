@@ -11,7 +11,7 @@
 
     <tr>
       <td>open</td>
-      <td tal:content="python: '${base_url}/ERP5Site_bootstrapSlapOSPanelTest?step=trade_condition&scenario=%s&manager_login=%s&customer_login=%s&remote_customer_login=%s&passwd=%s' % (init_configuration['scenario'], user_configuration['manager_login'], user_configuration['customer_login'], user_configuration['remote_customer_login'], user_configuration['passwd'])">.../ERP5Site_bootstrapSlapOSPanelTest</td>
+      <td tal:content="python: '${base_url}/ERP5Site_bootstrapSlapOSPanelTest?step=trade_condition&scenario=%s&manager_login=%s&customer_login=%s&remote_customer_login=%s&passwd=%s&project_title=%s' % (init_configuration['scenario'], user_configuration['manager_login'], user_configuration['customer_login'], user_configuration['remote_customer_login'], user_configuration['passwd'], user_configuration['project_title'])">.../ERP5Site_bootstrapSlapOSPanelTest</td>
       <td></td>
     </tr>
     <tr>
@@ -23,7 +23,7 @@
 
     <tr>
       <td>open</td>
-      <td tal:content="python: '${base_url}/ERP5Site_bootstrapSlapOSPanelTest?step=account&scenario=%s&manager_login=%s&customer_login=%s&remote_customer_login=%s&passwd=%s' % (init_configuration['scenario'], user_configuration['manager_login'], user_configuration['customer_login'], user_configuration['remote_customer_login'], user_configuration['passwd'])">.../ERP5Site_bootstrapSlapOSPanelTest</td>
+      <td tal:content="python: '${base_url}/ERP5Site_bootstrapSlapOSPanelTest?step=account&scenario=%s&manager_login=%s&customer_login=%s&remote_customer_login=%s&passwd=%s&project_title=%s' % (init_configuration['scenario'], user_configuration['manager_login'], user_configuration['customer_login'], user_configuration['remote_customer_login'], user_configuration['passwd'], user_configuration['project_title'])">.../ERP5Site_bootstrapSlapOSPanelTest</td>
       <td></td>
     </tr>
     <tr>

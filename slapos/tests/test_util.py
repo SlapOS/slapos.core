@@ -32,6 +32,7 @@ import shutil
 import tempfile
 import textwrap
 import unittest
+import warnings
 from pwd import getpwnam
 
 from six.moves import SimpleHTTPServer
@@ -458,11 +459,19 @@ class TestSoftwareReleaseSchemaEdgeCases(unittest.TestCase):
 
   def test_software_schema_file_not_exist(self):
     schema = SoftwareReleaseSchema('/file/not/exist', None)
-    self.assertIsNone(schema.getSoftwareSchema())
+    with warnings.catch_warnings(record=True) as w:
+      warnings.simplefilter("always")
+      self.assertIsNone(schema.getSoftwareSchema())
+    self.assertEqual(len(w), 1)
+    self.assertIn("Unable to load JSON", str(w[0].message))
 
   def test_software_schema_wrong_URL(self):
     schema = SoftwareReleaseSchema('http://slapos.invalid/software.cfg', None)
-    self.assertIsNone(schema.getSoftwareSchema())
+    with warnings.catch_warnings(record=True) as w:
+      warnings.simplefilter("always")
+      self.assertIsNone(schema.getSoftwareSchema())
+    self.assertEqual(len(w), 1)
+    self.assertIn("Unable to load JSON", str(w[0].message))
 
 
 if __name__ == '__main__':

@@ -43,6 +43,7 @@ import warnings
 
 import jsonschema
 import netaddr
+import referencing
 import requests
 import six
 from lxml import etree
@@ -51,7 +52,7 @@ from six.moves.urllib_parse import urljoin
 from xml_marshaller.xml_marshaller import Marshaller, Unmarshaller
 
 try:
-  from typing import Dict, Optional, IO
+  from typing import Dict, Iterator, List, Optional
 except ImportError:
   pass
 
@@ -429,9 +430,40 @@ def _readAsJson(url, set_schema_id=False):
                   % (url, type(e).__name__, e))
 
 
+def _retrieve_as_json(uri):
+  return referencing.Resource.from_contents(
+    _readAsJson(uri),
+    default_specification=referencing.jsonschema.DRAFT202012,
+  )
+
+
 class SoftwareReleaseSerialisation(str, enum.Enum):
   Xml = 'xml'
   JsonInXml = 'json-in-xml'
+
+
+class SoftwareReleaseSchemaValidationError(ValueError):
+  """Error raised when a request is made with invalid parameters.
+
+  This collects all the json schema validation errors.
+  """
+  def __init__(self, validation_errors):
+    # type: (List[jsonschema.ValidationError]) -> None
+    self.validation_errors = validation_errors
+    super(SoftwareReleaseSchemaValidationError, self).__init__()
+
+  def format_error(self, indent=0):
+    def _iter_validation_error(err):
+      # type: (jsonschema.ValidationError) -> Iterator[jsonschema.ValidationError]
+      if err.context:
+        for e in err.context:
+          yield e
+          yield from _iter_validation_error(e)
+    msg_list = []
+    for e in self.validation_errors:
+      msg_list.append("{e.json_path}: {e.message}".format(e=e))
+    indent_str = "\n" + (" " * indent)
+    return (" " * indent) + indent_str.join(msg_list)
 
 
 class SoftwareReleaseSchema(object):
@@ -537,7 +569,8 @@ class SoftwareReleaseSchema(object):
     # type: (Dict) -> None
     """Validate instance parameters against the software schema.
 
-    Raise jsonschema.ValidationError if parameters does not validate.
+    Raise SoftwareReleaseSchemaValidationError if parameters do not
+    validate.
     """
     schema = self.getInstanceRequestParameterSchema()
     if schema:
@@ -547,7 +580,14 @@ class SoftwareReleaseSchema(object):
         except KeyError:
           pass
       parameter_dict.pop('$schema', None)
-      jsonschema.validate(instance=parameter_dict, schema=schema)
+
+      validator = jsonschema.validators.validator_for(schema)(
+        schema,
+        registry=referencing.Registry(retrieve=_retrieve_as_json)
+      )
+      errors = list(validator.iter_errors(parameter_dict))
+      if errors:
+        raise SoftwareReleaseSchemaValidationError(errors)
 
 
 # BBB on python3 we can use pprint.pformat

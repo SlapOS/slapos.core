@@ -903,6 +903,7 @@ class TestComputerPartition(SlapMixin):
                         "$ref": "./schemas-definitions.json#/foo"
                     }
                 },
+                "additionalProperties": False,
                 "type": "object"
             })
       if url.path.endswith('/schemas-definitions.json'):
@@ -930,18 +931,37 @@ class TestComputerPartition(SlapMixin):
       if PY3:
         warn.assert_called_with(
           "Request parameters do not validate against schema definition:\n"
-          "'bar' was expected\n\n"
-          "Failed validating 'const' in schema['properties']['foo']:\n"
-          "    {'const': 'bar', 'type': 'string'}\n\n"
-          "On instance['foo']:\n    'baz'", UserWarning
+          "  $.foo: 'bar' was expected",
+          UserWarning
         )
       else: # BBB
         warn.assert_called_with(
           "Request parameters do not validate against schema definition:\n"
-          "u'bar' was expected\n\n"
-          "Failed validating u'const' in schema[u'properties'][u'foo']:\n"
-          "    {u'const': u'bar', u'type': u'string'}\n\n"
-          "On instance[u'foo']:\n    'baz'", UserWarning
+          "  $.foo: u'bar' was expected",
+          UserWarning
+        )
+
+    with httmock.HTTMock(handler):
+      with mock.patch.object(warnings, 'warn') as warn:
+        cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
+        cp._connection_helper = mock.Mock()
+        cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
+        cp.request(
+            'https://example.com/software.cfg', 'default', 'reference',
+            partition_parameter_kw={'fooo': 'xxx'})
+      if PY3:
+        warn.assert_called_with(
+          "Request parameters do not validate against schema definition:\n"
+          "  $: 'foo' is a required property\n"
+          "  $: Additional properties are not allowed ('fooo' was unexpected)",
+          UserWarning
+        )
+      else: # BBB
+        warn.assert_called_with(
+          "Request parameters do not validate against schema definition:\n"
+          "  $: u'foo' is a required property\n"
+          "  $: Additional properties are not allowed (u'fooo' was unexpected)",
+          UserWarning
         )
 
   def test_request_validate_request_parameter_broken_software_release_schema(self):

@@ -36,12 +36,15 @@ import warnings
 from pwd import getpwnam
 
 from six.moves import SimpleHTTPServer
-import jsonschema
 
 import slapos.util
 from slapos.testing.utils import ManagedHTTPServer
-from slapos.util import (SoftwareReleaseSchema, SoftwareReleaseSerialisation,
-                         string_to_boolean, unicode2str)
+from slapos.util import (
+    SoftwareReleaseSchema,
+    SoftwareReleaseSerialisation,
+    SoftwareReleaseSchemaValidationError,
+    string_to_boolean,
+)
 
 
 class TestUtil(unittest.TestCase):
@@ -300,12 +303,12 @@ class SoftwareReleaseSchemaTestMixin(object):
       # already serialized values are also tolerated
       schema.validateInstanceParameterDict({'_': json.dumps(instance_ok)})
 
-    with self.assertRaises(jsonschema.ValidationError):
+    with self.assertRaises(SoftwareReleaseSchemaValidationError):
       schema.validateInstanceParameterDict({"wrong": True})
     instance_ok['key'] = False # wrong type
-    with self.assertRaises(jsonschema.ValidationError):
+    with self.assertRaises(SoftwareReleaseSchemaValidationError):
       schema.validateInstanceParameterDict(instance_ok)
-    with self.assertRaises(jsonschema.ValidationError):
+    with self.assertRaises(SoftwareReleaseSchemaValidationError):
       schema.validateInstanceParameterDict({'_': json.dumps(instance_ok)})
 
   def test_instance_request_parameter_validate_alternate_software_type(self):
@@ -318,12 +321,12 @@ class SoftwareReleaseSchemaTestMixin(object):
       # already serialized values are also tolerated
       schema.validateInstanceParameterDict({'_': json.dumps(instance_ok)})
 
-    with self.assertRaises(jsonschema.ValidationError):
+    with self.assertRaises(SoftwareReleaseSchemaValidationError):
       schema.validateInstanceParameterDict({"wrong": True})
     instance_ok['type'] = 'wrong'
-    with self.assertRaises(jsonschema.ValidationError):
+    with self.assertRaises(SoftwareReleaseSchemaValidationError):
       schema.validateInstanceParameterDict(instance_ok)
-    with self.assertRaises(jsonschema.ValidationError):
+    with self.assertRaises(SoftwareReleaseSchemaValidationError):
       schema.validateInstanceParameterDict({'_': json.dumps(instance_ok)})
 
   def test_instance_request_parameter_schema_alternate_software_type(self):

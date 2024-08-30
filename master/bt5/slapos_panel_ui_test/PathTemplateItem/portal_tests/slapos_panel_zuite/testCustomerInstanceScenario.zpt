@@ -368,7 +368,45 @@
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
 
+      <tr>
+        <td colspan="3"><b>Edit instance tree as manager</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Home'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block tal:define="click_configuration python: {'text': 'Projects'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
+      <tal:block tal:define="click_configuration python: {'text': 'Test Project'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_page_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
 
+      <tal:block tal:define="click_configuration python: {'text': 'Test instance'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_page_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+      <tal:block tal:define="click_configuration python: {'text': 'Update Parameter'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name='root[resilient-clone-number]']</td>
+        <td></td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'Action succeeded.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
 
       <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/check_consistency" />
 

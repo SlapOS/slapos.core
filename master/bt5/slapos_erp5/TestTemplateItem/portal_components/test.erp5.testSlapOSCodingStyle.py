@@ -83,6 +83,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_cloud/ComputeNode_getUsageReportUrl',
         'slapos_cloud/ComputeNode_init',
         'slapos_cloud/InstanceNode_init',
+        'slapos_cloud/InstanceTree_updateParameterAndRequest',
         'slapos_cloud/RemoteNode_init',
         'slapos_cloud/ComputePartition_getAvailableSoftwareReleaseUrlStringList',
         'slapos_cloud/ComputePartition_getLastestContactedDate',

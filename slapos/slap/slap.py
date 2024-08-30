@@ -43,13 +43,12 @@ from functools import wraps
 import warnings
 
 import json
-import jsonschema
 import six
 
 from .exception import ResourceNotReady, ServerError, NotFoundError, \
           ConnectionError
 from .hateoas import SlapHateoasNavigator, ConnectionHelper
-from slapos.util import (SoftwareReleaseSchema,
+from slapos.util import (SoftwareReleaseSchema, SoftwareReleaseSchemaValidationError,
                          bytes2str, calculate_dict_hash, dict2xml, dumps, loads,
                          unicode2str, xml2dict)
 
@@ -105,9 +104,9 @@ class SlapRequester(SlapDocument):
         software_release,
         software_type,
       ).validateInstanceParameterDict(parameter_dict)
-    except jsonschema.ValidationError as e:
+    except SoftwareReleaseSchemaValidationError as e:
       warnings.warn(
-        "Request parameters do not validate against schema definition:\n{e}".format(e=e),
+        "Request parameters do not validate against schema definition:\n{e}".format(e=e.format_error(indent=2)),
         UserWarning,
       )
     except Exception as e:

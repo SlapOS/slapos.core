@@ -15,7 +15,7 @@ remote_node = portal.compute_node_module.newContent(
 for i in range(partition_amount):
   computer_partition = remote_node.newContent(
     portal_type="Compute Partition",
-    title="slapremote%i" % i
+    reference="slapremote%i" % i
   )
   computer_partition.markFree()
   computer_partition.validate()

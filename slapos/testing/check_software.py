@@ -122,6 +122,8 @@ def checkSoftware(slap, software_url):
       '*/test/ELF/Inputs/version-use.so',
       # this library is just a text file containing "GROUP( libtinfo.so )" so it is not a dynamic executable
       '*/lib/libtermcap.so',
+      # this binary is not compiled but downloaded directly from internet (and we use a wrapper with LD_LIBRARY_PATH to use it)
+      '*/bin/phantomjs',
   ))
 
   software_hash = md5digest(software_url)

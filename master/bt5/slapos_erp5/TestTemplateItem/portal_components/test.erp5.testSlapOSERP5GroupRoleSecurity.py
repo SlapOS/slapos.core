@@ -385,17 +385,17 @@ class TestAllocationSupply(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(supply, '%s_F-PRODMAN' % project.getReference(), ['Assignor'])
     self.assertRoles(supply, '%s_F-PRODAGNT' % project.getReference(), ['Assignee'])
 
-
 class TestAssignment(TestSlapOSGroupRoleSecurityMixin):
-  def test_Assignment_Sale(self):
+  def test_Assignment_Sale_Accountant(self):
     assignment = self.portal.person_module.newContent(
         portal_type='Person').newContent(portal_type='Assignment')
     self.assertSecurityGroup(assignment,
-        [self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
+        [self.user_id, 'F-SALEAGT', 'F-SALEMAN', 'F-ACCMAN', 'F-ACCAGT'], False)
+    self.assertRoles(assignment, 'F-ACCMAN', ['Auditor'])
+    self.assertRoles(assignment, 'F-ACCAGT', ['Auditor'])
     self.assertRoles(assignment, self.user_id, ['Owner'])
     self.assertRoles(assignment, 'F-SALEMAN', ['Assignor'])
     self.assertRoles(assignment, 'F-SALEAGT', ['Assignee'])
-
 
 class TestComputeNodeModule(TestSlapOSGroupRoleSecurityMixin):
   def test_ComputeNodeModule(self):

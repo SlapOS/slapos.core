@@ -234,6 +234,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/Document_getNewsDict',
         'slapos_panel/Event_getAttachmentList',
         'slapos_panel/Event_getSafeSourceTitle',
+        'slapos_panel/Event_getUnsafeSourceTitle',
         'slapos_panel/InstanceNode_addSlapOSAllocationSupply',
         'slapos_panel/InstanceTreeModule_selectRequestProject',
         'slapos_panel/InstanceTree_redirectToManualDepositPayment',

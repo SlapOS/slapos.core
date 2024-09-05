@@ -347,6 +347,11 @@
         <td>//div[contains(@data-gadget-url, 'gadget_thread_reader.html')]//div[contains(@data-gadget-url, 'gadget_html_viewer.html')]//p[text()='Why I can not use my instance yet?']</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_thread_reader.html')]//div[contains(@class, "post_content")]//strong[text()='Manual test Project Customer']</td>
+        <td></td>
+      </tr>
 
 
       <tr>

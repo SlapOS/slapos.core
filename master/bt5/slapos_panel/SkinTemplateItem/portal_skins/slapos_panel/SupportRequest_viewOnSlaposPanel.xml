@@ -113,6 +113,7 @@
                     <key> <string>right</string> </key>
                     <value>
                       <list>
+                        <string>my_source_project_title</string>
                         <string>my_resource_title</string>
                         <string>my_translated_simulation_state_title</string>
                         <string>your_recheck</string>

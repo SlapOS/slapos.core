@@ -293,7 +293,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/ComputePartition_getInstanceUrlString',
         'slapos_panel/ComputePartition_getOwnerUrl',
         'slapos_panel/SoftwareInstance_getComputeNodeUrl',
-        'slapos_panel/SoftwareInstance_getPartitionUrl',
         'slapos_panel_compatibility/Base_getComputerToken',
         'slapos_parameter_editor/SoftwareProductModule_updateParameterEditorTestDialog',
         'slapos_parameter_editor/SoftwareProductModule_validateParameterEditorTestDialog',

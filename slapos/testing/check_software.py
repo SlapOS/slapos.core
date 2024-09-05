@@ -26,141 +26,177 @@
 #
 ##############################################################################
 
+from __future__ import annotations
+
 import fnmatch
 import glob
 import os
 import re
+import sys
 import warnings
 
 import pkg_resources
 import requests
-from six.moves.configparser import ConfigParser
-import six
+from configparser import ConfigParser
 
-try:
-  import subprocess32 as subprocess
-except ImportError:
-  import subprocess  # type: ignore
-  subprocess  # pyflakes
+import subprocess
 
-try:
-  from typing import  Dict, Iterable, List
-except ImportError:
-  pass
+from typing import Collection, Dict, Iterable, List, Mapping, Sequence, TYPE_CHECKING
 
 from ..slap.standalone import StandaloneSlapOS
 from ..grid.utils import md5digest
 
+if TYPE_CHECKING:
+  if sys.version_info >= (3, 8):
+    from typing import TypedDict
+  else:
+    from typing_extensions import TypedDict
 
-def checkSoftware(slap, software_url):
-  # type: (StandaloneSlapOS, str) -> None
-  """Check software installation.
+  class SafetyDBEntry(TypedDict):
+    advisory: str
+    cve: str
+    id: str
+    more_info_path: str
+    specs: Sequence[str]
+    v: str
+
+
+def checkSoftware(
+  slap: StandaloneSlapOS,
+  software_url: str | os.PathLike,
+) -> None:
+  """
+  Check software installation.
 
   This perform a few basic static checks for common problems
   with software installations.
+
+  Args:
+    slap: The SlapOS system.
+    software_url: URL or path to the software to install.
+
   """
-  # Check that all components set rpath correctly and we don't have miss linking any libraries.
-  # Also check that they are not linked against system libraries, except a list of core
-  # system libraries.
-  system_lib_allowed_list = set((
-      'libanl',
-      'libc',
-      'libcrypt',
-      'libdl',
-      'libgcc_s',
-      'libgomp',
-      'libm',
-      'libmvec',
-      'libnsl',
-      'libpthread',
-      'libthread_db',
-      'libresolv',
-      'librt',
-      'libstdc++',
-      'libquadmath',
-      'libutil',
-  ))
+  # Check that all components set rpath correctly and we don't have miss
+  # linking any libraries.
+  # Also check that they are not linked against system libraries, except a
+  # list of core system libraries.
+  system_lib_allowed_list = {
+    "libanl",
+    "libc",
+    "libcrypt",
+    "libdl",
+    "libgcc_s",
+    "libgomp",
+    "libm",
+    "libmvec",
+    "libnsl",
+    "libpthread",
+    "libthread_db",
+    "libresolv",
+    "librt",
+    "libstdc++",
+    "libquadmath",
+    "libutil",
+  }
 
   # Some libraries might also not be found statically but provided at run time.
-  missing_lib_allowed_list = set((
-      # references to liblibgolang.so from projects outside of pygolang are resolved at runtime for now.
-      # https://github.com/mdavidsaver/setuptools_dso/issues/11#issuecomment-808258994
-      'liblibgolang',
-  ))
+  missing_lib_allowed_list = {
+    # references to liblibgolang.so from projects outside of pygolang are
+    # resolved at runtime for now.
+    # https://github.com/mdavidsaver/setuptools_dso/issues/11#issuecomment-808258994
+    "liblibgolang",
+  }
 
-  # we also ignore a few patterns for part that are known to be binary distributions,
-  # for which we generate LD_LIBRARY_PATH wrappers or we don't use directly.
-  ignored_file_patterns = set((
-      '*/parts/java-re*/*',
-      '*/parts/firefox*/*',
-      '*/parts/chromium-*/*',
-      '*/parts/chromedriver*/*',
-      '*/parts/libreoffice-bin/*',
-      '*/parts/wkhtmltopdf/*',
-      # R uses wrappers to relocate symbols
-      '*/r-language/lib*/R/*',
-      # pulp is a git checkout with some executables
-      '*/pulp-repository.git/src/pulp/solverdir/cbc*',
-      # nss is not a binary distribution, but for some reason it has invalid rpath, but it does
-      # not seem to be a problem in our use cases.
-      '*/parts/nss/*',
-      # npm packages containing binaries
-      '*/node_modules/phantomjs*/*',
-      '*/grafana/tools/phantomjs/*',
-      '*/node_modules/puppeteer/*',
-      # left over of compilation failures
-      '*/*__compile__/*',
-      # build dir for packages built in-place
-      '*/parts/wendelin.core/build/*',
-      # the depot_tools package used to build Chromium installs some
-      # Python libraries lacking an rpath; these are not actually used
-      # by Chromium itself
-      '*/.vpython-root/*',
-      # this library is not readable by group/other
-      '*/libexec/ssh-keysign',
-      # this library is just a test loading foo.so which doesn't exist
-      '*/test/ELF/Inputs/version-use.so',
-      # this library is just a text file containing "GROUP( libtinfo.so )" so it is not a dynamic executable
-      '*/lib/libtermcap.so',
-      # this binary is not compiled but downloaded directly from internet (and we use a wrapper with LD_LIBRARY_PATH to use it)
-      '*/bin/phantomjs',
-  ))
+  # we also ignore a few patterns for part that are known to be binary
+  # distributions, for which we generate LD_LIBRARY_PATH wrappers or we don't
+  # use directly.
+  ignored_file_patterns = {
+    "*/parts/java-re*/*",
+    "*/parts/firefox*/*",
+    "*/parts/chromium-*/*",
+    "*/parts/chromedriver*/*",
+    "*/parts/libreoffice-bin/*",
+    "*/parts/wkhtmltopdf/*",
+    # R uses wrappers to relocate symbols
+    "*/r-language/lib*/R/*",
+    # pulp is a git checkout with some executables
+    "*/pulp-repository.git/src/pulp/solverdir/cbc*",
+    # nss is not a binary distribution, but for some reason it has invalid
+    # rpath, but it does not seem to be a problem in our use cases.
+    "*/parts/nss/*",
+    # npm packages containing binaries
+    "*/node_modules/phantomjs*/*",
+    "*/grafana/tools/phantomjs/*",
+    "*/node_modules/puppeteer/*",
+    # left over of compilation failures
+    "*/*__compile__/*",
+    # build dir for packages built in-place
+    "*/parts/wendelin.core/build/*",
+    # the depot_tools package used to build Chromium installs some
+    # Python libraries lacking an rpath; these are not actually used
+    # by Chromium itself
+    "*/.vpython-root/*",
+    # this library is not readable by group/other
+    "*/libexec/ssh-keysign",
+    # this library is just a test loading foo.so which doesn't exist
+    "*/test/ELF/Inputs/version-use.so",
+    # this library is just a text file containing "GROUP( libtinfo.so )" so
+    # it is not a dynamic executable
+    "*/lib/libtermcap.so",
+    # this binary is not compiled but downloaded directly from internet (and
+    # we use a wrapper with LD_LIBRARY_PATH to use it)
+    "*/bin/phantomjs",
+  }
 
-  software_hash = md5digest(software_url)
-  error_list = []
-  warning_list = []
+  software_hash = md5digest(os.fspath(software_url))
+  error_list: List[str] = []
+  warning_list: List[str] = []
 
   ldd_so_resolved_re = re.compile(
-      r'\t(?P<library_name>.*) => (?P<library_path>.*) \(0x')
-  ldd_already_loaded_re = re.compile(r'\t(?P<library_name>.*) \(0x')
-  warning_execution_permission_re = re.compile(r'ldd: warning: you do not have execution permission for (?P<library_path>.*)')
-  ldd_not_found_re = re.compile(r'\t(?P<library_name>.*) => not found.*')
+    r"\t(?P<library_name>.*) => (?P<library_path>.*) \(0x",
+  )
+  ldd_already_loaded_re = re.compile(r"\t(?P<library_name>.*) \(0x")
+  warning_execution_permission_re = re.compile(
+    r"ldd: warning: you do not have execution permission for (?P<library_path>.*)",
+  )
+  ldd_not_found_re = re.compile(r"\t(?P<library_name>.*) => not found.*")
 
   class DynamicLibraryNotFound(Exception):
-    """Exception raised when ldd cannot resolve a library.
+    """Exception raised when ldd cannot resolve a library."""
+
+  def getLddOutput(path: str) -> Mapping[str, str]:
     """
-  def getLddOutput(path):
-    # type: (str) -> Dict[str, str]
-    """Parse ldd output on shared object/executable as `path` and returns a mapping
-    of library paths or None when library is not found, keyed by library so name.
+    Get the output of ldd.
+
+    Parse ldd output on shared object/executable as ``path`` and returns a
+    mapping of library paths or None when library is not found, keyed by
+    library so name.
 
     Raises a `DynamicLibraryNotFound` if any dynamic library is not found.
 
     Special entries, like VDSO ( linux-vdso.so.1 ) or ELF interpreter
     ( /lib64/ld-linux-x86-64.so.2 ) are ignored.
+
+    Args:
+      path: Path to shared object passed to ldd.
+
+    Returns:
+      A mapping of library so name to its path (or to `Ǹone`` if it is not
+      found).
+
     """
-    libraries = {}  # type: Dict[str, str]
+    libraries: Dict[str, str] = {}
     try:
       ldd_output = subprocess.check_output(
-          ('ldd', path),
-          stderr=subprocess.STDOUT,
-          universal_newlines=True,
+        ("ldd", path),
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
       )
     except subprocess.CalledProcessError as e:
-      if e.output not in ('\tnot a dynamic executable\n',):
+      if e.output not in ("\tnot a dynamic executable\n",):
         raise
       return libraries
-    if ldd_output == '\tstatically linked\n':
+    if ldd_output == "\tstatically linked\n":
       return libraries
 
     not_found = []
@@ -170,32 +206,45 @@ def checkSoftware(slap, software_url):
       warning_execution_permission_match = warning_execution_permission_re.match(line)
       not_found_match = ldd_not_found_re.match(line)
       if resolved_so_match:
-        libraries[resolved_so_match.group(
-            'library_name')] = resolved_so_match.group('library_path')
+        libraries[resolved_so_match.group("library_name")] = resolved_so_match.group(
+          "library_path"
+        )
       elif ldd_already_loaded_match:
-        # VDSO or ELF, ignore . See https://stackoverflow.com/a/35805410/7294664 for more about this
+        # VDSO or ELF, ignore .
+        # See https://stackoverflow.com/a/35805410/7294664 for more about this
         pass
       elif warning_execution_permission_match:
         # for now, ignore permission warnings
         pass
       elif not_found_match:
-        library_name = not_found_match.group('library_name')
-        if library_name.split('.')[0] not in missing_lib_allowed_list:
+        library_name = not_found_match.group("library_name")
+        if library_name.split(".")[0] not in missing_lib_allowed_list:
           not_found.append(line)
       else:
-        raise RuntimeError('Unknown ldd line %s for %s.' % (line, path))
+        raise RuntimeError(f"Unknown ldd line {line} for {path}.")
     if not_found:
-      not_found_text = '\n'.join(not_found)
+      not_found_text = "\n".join(not_found)
       raise DynamicLibraryNotFound(
-          '{path} has some not found libraries:\n{not_found_text}'.format(
-              **locals()))
+        f"{path} has some not found libraries:\n{not_found_text}",
+      )
     return libraries
 
-  def checkExecutableLink(paths_to_check, valid_paths_for_libs):
-    # type: (Iterable[str], Iterable[str]) -> List[str]
-    """Check shared libraries linked with executables in `paths_to_check`.
+  def checkExecutableLink(
+    paths_to_check: Collection[str],
+    valid_paths_for_libs: Collection[str],
+  ) -> Sequence[str]:
+    """
+    Check shared libraries linked with executables in `paths_to_check`.
+
     Only libraries from `valid_paths_for_libs` are accepted.
-    Returns a list of error messages.
+
+    Args:
+      paths_to_check: Paths to executables to check.
+      valid_paths_for_libs: Paths to libraries that can be linked.
+
+    Returns:
+      A list of error messages.
+
     """
     valid_paths_for_libs = [os.path.realpath(x) for x in valid_paths_for_libs]
     executable_link_error_list = []
@@ -203,82 +252,97 @@ def checkSoftware(slap, software_url):
       for root, dirs, files in os.walk(path):
         for f in files:
           f = os.path.join(root, f)
-          if any(fnmatch.fnmatch(f, ignored_pattern)
-                 for ignored_pattern in ignored_file_patterns):
+          if any(
+            fnmatch.fnmatch(f, ignored_pattern)
+            for ignored_pattern in ignored_file_patterns
+          ):
             continue
-          if os.access(f, os.X_OK) or fnmatch.fnmatch(f, '*.so'):
+          if os.access(f, os.X_OK) or fnmatch.fnmatch(f, "*.so"):
             try:
               libs = getLddOutput(f)
             except DynamicLibraryNotFound as e:
               executable_link_error_list.append(str(e))
             else:
               for lib, lib_path in libs.items():
-                if lib.split('.')[0] in system_lib_allowed_list:
+                if lib.split(".")[0] in system_lib_allowed_list:
                   continue
                 lib_path = os.path.realpath(lib_path)
                 # dynamically linked programs can only be linked with libraries
                 # present in software or in shared parts repository.
-                if any(lib_path.startswith(valid_path)
-                       for valid_path in valid_paths_for_libs):
+                if any(
+                  lib_path.startswith(valid_path) for valid_path in valid_paths_for_libs
+                ):
                   continue
                 executable_link_error_list.append(
-                    '{f} uses system library {lib_path} for {lib}'.format(
-                        **locals()))
+                  f"{f} uses system library {lib_path} for {lib}",
+                )
     return executable_link_error_list
 
   software_directory = os.path.join(slap.software_directory, software_hash)
-  paths_to_check = set((software_directory, ))
+  paths_to_check = {software_directory}
 
   # Compute the paths to check by inspecting buildout installed database
   # for this software. We are looking for shared parts installed by recipes.
   config_parser = ConfigParser()
-  config_parser.read(os.path.join(software_directory, '.installed.cfg'))
+  config_parser.read(os.path.join(software_directory, ".installed.cfg"))
   for section_name in config_parser.sections():
-    for option_name in 'location', '__buildout_installed__':
+    for option_name in "location", "__buildout_installed__":
       if config_parser.has_option(section_name, option_name):
         for section_path in config_parser.get(section_name, option_name).splitlines():
           if section_path and not section_path.startswith(software_directory):
             paths_to_check.add(section_path)
 
   error_list.extend(
-      checkExecutableLink(
-          paths_to_check,
-          tuple(paths_to_check) + tuple(slap._shared_part_list),
-      ))
+    checkExecutableLink(
+      paths_to_check,
+      tuple(paths_to_check) + tuple(slap._shared_part_list),
+    )
+  )
 
   # check this software is not referenced in any shared parts.
   for signature_file in glob.glob(
-      os.path.join(
-          slap.shared_directory,
-          '*',
-          '*',
-          '.buildout-shared.json',
-      )):
+    os.path.join(
+      slap.shared_directory,
+      "*",
+      "*",
+      ".buildout-shared.json",
+    )
+  ):
     with open(signature_file) as f:
       signature_content = f.read()
     if software_hash in signature_content:
       error_list.append(
-          "Shared part is referencing non shared part or software {}\n{}\n".format(
-              signature_file, signature_content))
+        f"Shared part is referencing non shared part or "
+        f"software {signature_file}\n{signature_content}\n",
+      )
 
   def checkEggsVersionsKnownVulnerabilities(
-      egg_directories,
-      safety_db=requests.get(
-          'https://raw.githubusercontent.com/pyupio/safety-db/master/data/insecure_full.json'
-      ).json()):
-    # type: (List[str], Dict) -> Iterable[str]
-    """Check eggs against known vulnerabilities database from https://github.com/pyupio/safety-db
+    egg_directories: Sequence[str],
+    safety_db: Mapping[str, Sequence[SafetyDBEntry]] = requests.get(
+      "https://raw.githubusercontent.com/pyupio/safety-db/master/data/insecure_full.json"
+    ).json(),
+  ) -> Iterable[str]:
     """
-    def get_python_versions():
-      # () -> Iterable[str]
-      """Returns all python versions used in egg_directories 
-      """
+    Check eggs against known vulnerabilities.
+
+    Args:
+      egg_directories: Paths to the directories containing Python eggs.
+      safety_db: The database of known vulnerabilities. By default it uses the
+        database from https://github.com/pyupio/safety-db.
+
+    Yields:
+      A description of each vulnerability that applies to the current eggs.
+
+    """
+
+    def get_python_versions() -> Iterable[str]:
+      """Returns all python versions used in egg_directories."""
       python_versions = set()
       for egg_dir in egg_directories:
         basename, _ = os.path.splitext(os.path.basename(egg_dir))
         match = pkg_resources.EGG_NAME(basename)
         if match:
-          pyver = match.group('pyver')
+          pyver = match.group("pyver")
           if pyver:
             python_versions.add(pyver)
       return python_versions
@@ -290,38 +354,42 @@ def checkSoftware(slap, software_url):
         if known_vulnerabilities:
           for distribution in env[egg]:
             for known_vulnerability in known_vulnerabilities:
-              for vulnerable_spec in known_vulnerability['specs']:
-                for req in pkg_resources.parse_requirements(egg +
-                                                            vulnerable_spec):
+              for vulnerable_spec in known_vulnerability["specs"]:
+                for req in pkg_resources.parse_requirements(
+                  egg + vulnerable_spec,
+                ):
                   vulnerability_description = "\n".join(
-                      u"{}: {}".format(*item)
-                      for item in known_vulnerability.items())
+                    f"{key}: {value}" for key, value in known_vulnerability.items()
+                  )
                   if distribution in req:
                     yield (
-                        u"{egg} use vulnerable version {distribution.version} because {vulnerable_spec}.\n"
-                        "{vulnerability_description}\n".format(**locals()))
+                      f"{egg} use vulnerable version {distribution.version} "
+                      f"because {vulnerable_spec}.\n"
+                      f"{vulnerability_description}\n"
+                    )
 
   warning_list.extend(
-      checkEggsVersionsKnownVulnerabilities(
-          glob.glob(
-              os.path.join(
-                  slap.software_directory,
-                  software_hash,
-                  'eggs',
-                  '*',
-              )) + glob.glob(
-                  os.path.join(
-                      slap.software_directory,
-                      software_hash,
-                      'develop-eggs',
-                      '*',
-                  ))))
+    checkEggsVersionsKnownVulnerabilities(
+      glob.glob(
+        os.path.join(
+          slap.software_directory,
+          software_hash,
+          "eggs",
+          "*",
+        )
+      )
+      + glob.glob(
+        os.path.join(
+          slap.software_directory,
+          software_hash,
+          "develop-eggs",
+          "*",
+        )
+      )
+    )
+  )
 
   if warning_list:
-    if six.PY2:
-      # https://bugs.python.org/issue34752
-      warnings.warn('\n'.join(warning_list).encode('utf-8'))
-    else:
-      warnings.warn('\n'.join(warning_list))
+    warnings.warn("\n".join(warning_list))
   if error_list:
-    raise RuntimeError('\n'.join(error_list))
+    raise RuntimeError("\n".join(error_list))

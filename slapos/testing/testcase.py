@@ -37,8 +37,6 @@ import sqlite3
 import unittest
 import warnings
 
-from six.moves.urllib.parse import urlparse
-
 from netaddr import valid_ipv6
 
 from .utils import getPortFromPath
@@ -54,6 +52,7 @@ from .check_software import checkSoftware
 
 from ..proxy.db_version import DB_VERSION
 
+from os import fspath, PathLike
 from typing import (
   Callable,
   ClassVar,
@@ -67,6 +66,8 @@ from typing import (
   Type,
   TypeVar,
 )
+from urllib.parse import urlparse
+
 ManagedResourceType = TypeVar("ManagedResourceType", bound=ManagedResource)
 
 IPV4_ADDRESS_DEFAULT: str = os.environ['SLAPOS_TEST_IPV4']
@@ -95,7 +96,7 @@ SNAPSHOT_DIRECTORY_DEFAULT: str | None = os.environ.get(
 )
 
 def makeModuleSetUpAndTestCaseClass(
-  software_url: str,
+  software_url: str | PathLike[str],
   *,
   base_directory: str | None = None,
   ipv4_address: str = IPV4_ADDRESS_DEFAULT,
@@ -125,7 +126,7 @@ def makeModuleSetUpAndTestCaseClass(
     See https://lab.nexedi.com/kirr/slapns for a solution to this problem.
 
   Args:
-    software_url: The URL of the software to test.
+    software_url: The URL or path of the software to test.
     base_directory: The base directory used for SlapOS.
       By default, it will use the value in the environment variable
       ``SLAPOS_TEST_WORKING_DIR``.
@@ -189,7 +190,7 @@ def makeModuleSetUpAndTestCaseClass(
     )
 
   if not software_id:
-    software_id = urlparse(software_url).path.split('/')[-2]
+    software_id = urlparse(fspath(software_url)).path.split('/')[-2]
 
   logging.basicConfig(
     level=logging.DEBUG,
@@ -253,31 +254,40 @@ def makeModuleSetUpAndTestCaseClass(
   return setUpModule, SlapOSInstanceTestCase_
 
 
-def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
-  # type: (Type[SlapOSInstanceTestCase], Iterable[str], int, bool) -> None
-  """Install softwares on the current testing slapos, for use in `setUpModule`.
-
-  This also check softwares with `checkSoftware`
+def installSoftwareUrlList(
+  cls: Type[SlapOSInstanceTestCase], 
+  software_url_list: Sequence[str | PathLike[str]],
+  max_retry: int = 10,
+  debug: bool = False,
+) -> None:
   """
-  def _storeSoftwareSnapshot(name):
+  Install softwares on the current testing slapos, for use in `setUpModule`.
+
+  This also check softwares with `checkSoftware`.
+
+  Args:
+    cls: The test case class used for the installation.
+    software_url_list: List of URLs or paths to install.
+    max_retry: Number of times that the installation will be retried if there
+      is an error.
+    debug: If set to ``True`` the software will not be automatically removed
+      if there is an error during the installation process, in order to
+      facilitate inspection during debug.
+
+  """
+  def _storeSoftwareSnapshot(name: str) -> None:
     for path in glob.glob(os.path.join(
         cls._base_directory,
-        'var',
-        'log',
-        '*',
+        "var/log/*",
     )) + glob.glob(os.path.join(
         cls.slap.software_directory,
-        '*',
-        '*.cfg',
+        "*/*.cfg",
     )) + glob.glob(os.path.join(
         cls.slap.software_directory,
-        '*',
-        '.installed.cfg',
+        "*/.installed.cfg",
     )) + glob.glob(os.path.join(
         cls.slap.shared_directory,
-        '*',
-        '*',
-        '.slapos.recipe.cmmi.signature',
+        "*/*/.slapos.recipe.cmmi.signature",
     )):
       cls._copySnapshot(path, name)
 
@@ -286,7 +296,7 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
     cls.slap.start()
     for software_url in software_url_list:
       cls.logger.debug("Supplying %s", software_url)
-      cls.slap.supply(software_url)
+      cls.slap.supply(fspath(software_url))
     cls.logger.debug("Waiting for slapos node software to build")
     cls.slap.waitForSoftware(max_retry=max_retry, debug=debug, install_all=not cls._skip_software_rebuild)
     _storeSoftwareSnapshot('setupModule')
@@ -305,7 +315,7 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
       try:
         for software_url in software_url_list:
           cls.logger.debug("Removing %s", software_url)
-          cls.slap.supply(software_url, state="destroyed")
+          cls.slap.supply(fspath(software_url), state="destroyed")
         cls.logger.debug("Waiting for slapos node software to remove")
         cls.slap.waitForSoftware(max_retry=max_retry, debug=debug)
       except BaseException:

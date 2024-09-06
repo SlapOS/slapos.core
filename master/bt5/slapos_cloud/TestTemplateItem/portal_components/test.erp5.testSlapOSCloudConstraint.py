@@ -511,6 +511,35 @@ class TestSlapOSAssignmentConstraint(TestSlapOSConstraintMixin):
 
     self.assertNotIn(consistency_message, self.getMessageList(assignment))
 
+  def test_group_for_accountant_manager(self):
+    person = self.portal.person_module.newContent(portal_type='Person')
+    person.validate()
+    assignment = person.newContent(
+      portal_type='Assignment', function="accounting/manager")
+
+    consistency_message = 'One group must be set when function is accountant '\
+      'manager or agent'
+    self.assertIn(consistency_message, self.getMessageList(assignment))
+
+    assignment.edit(group='company')
+
+    self.assertNotIn(consistency_message, self.getMessageList(assignment))
+
+  def test_group_for_accountant_agent(self):
+    person = self.portal.person_module.newContent(portal_type='Person')
+    person.validate()
+    assignment = person.newContent(
+      portal_type='Assignment', function="accounting/agent")
+
+    consistency_message = 'One group must be set when function is accountant '\
+      'manager or agent'
+    self.assertIn(consistency_message, self.getMessageList(assignment))
+
+    assignment.edit(group='company')
+
+    self.assertNotIn(consistency_message, self.getMessageList(assignment))
+
+
 class TestSlapOSEmailConstraint(TestSlapOSConstraintMixin):
   def test_url_string_not_empty(self):
     email = self.portal.person_module.newContent(portal_type='Person'

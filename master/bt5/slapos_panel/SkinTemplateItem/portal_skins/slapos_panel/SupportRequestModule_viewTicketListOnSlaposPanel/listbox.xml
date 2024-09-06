@@ -142,6 +142,18 @@
                           <string>Type</string>
                         </tuple>
                         <tuple>
+                          <string>source_decision_title</string>
+                          <string>Supervisor</string>
+                        </tuple>
+                        <tuple>
+                          <string>destination_decision_title</string>
+                          <string>Requester</string>
+                        </tuple>
+                        <tuple>
+                          <string>follow_up_title</string>
+                          <string>Incident Response</string>
+                        </tuple>
+                        <tuple>
                           <string>causality_translated_portal_type</string>
                           <string>Channel</string>
                         </tuple>
@@ -230,10 +242,6 @@
                           <string>Requested Project</string>
                         </tuple>
                         <tuple>
-                          <string>source_project_title</string>
-                          <string>Handled Project</string>
-                        </tuple>
-                        <tuple>
                           <string>owner_title</string>
                           <string>Owner</string>
                         </tuple>
@@ -269,20 +277,12 @@
                           <string>Type</string>
                         </tuple>
                         <tuple>
-                          <string>source_decision_title</string>
-                          <string>Supervisor</string>
-                        </tuple>
-                        <tuple>
                           <string>creation_date</string>
                           <string>Creation Date</string>
                         </tuple>
                         <tuple>
-                          <string>destination_decision_title</string>
-                          <string>Requester</string>
-                        </tuple>
-                        <tuple>
-                          <string>follow_up_title</string>
-                          <string>Incident Response</string>
+                          <string>source_project_title</string>
+                          <string>Handled Project</string>
                         </tuple>
                         <tuple>
                           <string>modification_date</string>
@@ -454,14 +454,6 @@
                     <key> <string>sort</string> </key>
                     <value>
                       <list>
-                        <tuple>
-                          <string>follow_up_title</string>
-                          <string>Incident ASC</string>
-                        </tuple>
-                        <tuple>
-                          <string>source_decision_title</string>
-                          <string>ASC</string>
-                        </tuple>
                         <tuple>
                           <string>modification_date</string>
                           <string>DESC</string>

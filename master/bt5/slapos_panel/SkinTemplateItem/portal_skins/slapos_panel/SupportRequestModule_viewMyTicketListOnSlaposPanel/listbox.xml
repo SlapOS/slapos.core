@@ -149,6 +149,10 @@
                           <string>Type</string>
                         </tuple>
                         <tuple>
+                          <string>destination_decision_title</string>
+                          <string>Requester</string>
+                        </tuple>
+                        <tuple>
                           <string>causality_translated_portal_type</string>
                           <string>Channel</string>
                         </tuple>
@@ -262,10 +266,6 @@
                         <tuple>
                           <string>creation_date</string>
                           <string>Creation Date</string>
-                        </tuple>
-                        <tuple>
-                          <string>destination_decision_title</string>
-                          <string>Requester</string>
                         </tuple>
                         <tuple>
                           <string>modification_date</string>

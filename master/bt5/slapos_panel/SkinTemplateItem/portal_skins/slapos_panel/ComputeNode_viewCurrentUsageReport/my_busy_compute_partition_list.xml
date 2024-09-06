@@ -606,7 +606,12 @@
                 <item>
                     <key> <string>sort</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <tuple>
+                          <string>title</string>
+                          <string>ASC</string>
+                        </tuple>
+                      </list>
                     </value>
                 </item>
                 <item>

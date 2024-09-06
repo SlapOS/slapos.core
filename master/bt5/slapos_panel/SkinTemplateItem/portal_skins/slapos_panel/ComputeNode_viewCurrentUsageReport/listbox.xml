@@ -18,6 +18,7 @@
                 <string>portal_types</string>
                 <string>select</string>
                 <string>selection_name</string>
+                <string>sort</string>
                 <string>title</string>
                 <string>url_columns</string>
               </list>
@@ -203,6 +204,17 @@
                 <item>
                     <key> <string>selection_name</string> </key>
                     <value> <string>compute_node_software_release_selection</string> </value>
+                </item>
+                <item>
+                    <key> <string>sort</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>url_string</string>
+                          <string>ASC</string>
+                        </tuple>
+                      </list>
+                    </value>
                 </item>
                 <item>
                     <key> <string>target</string> </key>

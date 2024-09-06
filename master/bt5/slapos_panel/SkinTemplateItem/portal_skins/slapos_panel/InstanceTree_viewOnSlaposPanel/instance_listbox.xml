@@ -221,7 +221,20 @@
                 <item>
                     <key> <string>sort</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <tuple>
+                          <string>portal_type</string>
+                          <string>DESC</string>
+                        </tuple>
+                        <tuple>
+                          <string>source_reference</string>
+                          <string>ASC</string>
+                        </tuple>
+                        <tuple>
+                          <string>title</string>
+                          <string>ASC</string>
+                        </tuple>
+                      </list>
                     </value>
                 </item>
                 <item>

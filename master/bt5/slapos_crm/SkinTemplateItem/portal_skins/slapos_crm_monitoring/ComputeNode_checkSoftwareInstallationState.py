@@ -30,7 +30,9 @@ for software_installation in software_installation_list:
   reference = software_installation.getReference()
   d = software_installation.getAccessStatus()
   if d.get("no_data", None) == 1:
-    should_notify = True
+    #should_notify = True
+    # We do not create if there is no information for the compilation
+    # it should be reported by more global alarm related to the compute node itself
     last_contact = "No Contact Information"
     ticket_title = "[MONITORING] No information for %s on %s" % (reference, compute_node_reference)
     description = "The software release %s did not started to build on %s since %s" % \

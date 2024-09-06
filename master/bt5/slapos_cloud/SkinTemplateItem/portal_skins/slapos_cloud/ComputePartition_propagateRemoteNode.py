@@ -36,26 +36,6 @@ for local_instance in local_instance_list:
   if local_instance.getValidationState() != 'validated':
     continue
 
-  # if local instance is destroyed, propagate blindly
-  if local_instance.getSlapState() == 'destroy_requested':
-    remote_person.requestSoftwareInstance(
-      project_reference=remote_project.getReference(),
-      software_release=local_instance.getUrlString(),
-      software_title='_remote_%s_%s' % (remote_node.getFollowUpReference(), local_instance.getReference()),
-      software_type=local_instance.getSourceReference(),
-      instance_xml=local_instance.getTextContent(),
-      sla_xml=None,
-      shared=(local_instance.getPortalType() == 'Slave Instance'),
-      state='destroyed'
-    )
-    local_instance.invalidate(comment='Remote destruction has been propagated')
-    # Try to no trigger the script again on this object
-    local_instance.reindexObject(activate_kw=activate_kw)
-    requested_instance_tree = context.REQUEST.get('request_instance_tree')
-    if requested_instance_tree is not None:
-      requested_instance_tree.reindexObject(activate_kw=activate_kw)
-    return
-
   # do not increase the workflow history
   # Use the 'cached' API instead
   # manually search the instance and compare all parameters
@@ -71,6 +51,27 @@ for local_instance in local_instance_list:
 
   if remote_instance_tree is not None:
     requested_software_instance = remote_instance_tree.getSuccessorValue(title=remote_instance_tree.getTitle())
+
+  if (local_instance.getSlapState() == 'destroy_requested'):
+    if (remote_instance_tree is not None) and \
+      (remote_instance_tree.getSlapState() != 'destroy_requested'):
+      # if local instance is destroyed, propagate blindly (do not check url, text content, ...)
+      remote_person.requestSoftwareInstance(
+        project_reference=remote_project.getReference(),
+        software_release=remote_instance_tree.getUrlString(),
+        software_title='_remote_%s_%s' % (remote_node.getFollowUpReference(), local_instance.getReference()),
+        software_type=remote_instance_tree.getSourceReference(),
+        instance_xml=remote_instance_tree.getTextContent(),
+        sla_xml=None,
+        shared=(local_instance.getPortalType() == 'Slave Instance'),
+        state='destroyed'
+      )
+      remote_instance_tree.reindexObject(activate_kw=activate_kw)
+    local_instance.invalidate(comment='Remote destruction has been propagated')
+    # Try to no trigger the script again on this object
+    local_instance.reindexObject(activate_kw=activate_kw)
+    continue
+
 
   if (remote_instance_tree is not None) and \
     ((local_instance.getUrlString() != remote_instance_tree.getUrlString()) or \

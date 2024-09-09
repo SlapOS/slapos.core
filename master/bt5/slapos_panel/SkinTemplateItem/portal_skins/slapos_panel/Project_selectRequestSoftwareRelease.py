@@ -22,12 +22,12 @@ if aggregate_uid is None:
       destination_value=destination_value)
 
     if allocation_predicate_list:
-      def wrapWithShadow(destination_value, allocation_predicate_list, project):
+      def wrapWithShadow(destination_value, variation_category_list, project):
         try:
           subscription_request = software_product.Resource_createSubscriptionRequest(
             destination_value,
             # [software_type, software_release],
-            allocation_predicate_list[0].getVariationCategoryList(),
+            variation_category_list,
             project,
             temp_object=True
           )
@@ -54,10 +54,11 @@ if aggregate_uid is None:
 
         return price_information, is_future_balance_negative
 
+      variation_category_list = allocation_predicate_list[0].getVariationCategoryList()
       price_information, is_future_balance_negative = destination_value.Person_restrictMethodAsShadowUser(
           shadow_document=destination_value,
           callable_object=wrapWithShadow,
-          argument_list=[destination_value, allocation_predicate_list, context])
+          argument_list=[destination_value, variation_category_list, context])
 
       if price_information is not None:
         keep_items['is_future_balance_negative'] = is_future_balance_negative

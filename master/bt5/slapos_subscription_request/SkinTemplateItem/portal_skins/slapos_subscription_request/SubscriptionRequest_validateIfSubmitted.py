@@ -29,7 +29,7 @@ if item is None:
   raise ValueError('Unsupported resource: %s' % resource.getRelativeUrl())
 
 if item.getValidationState() in ['invalidated', 'archived']:
-  subscription_request.cancel(
+  return subscription_request.cancel(
     comment="%s is %s." % (item.getPortalType(), item.getValidationState()))
 
 

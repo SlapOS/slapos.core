@@ -83,7 +83,8 @@ for local_instance in local_instance_list:
       source_reference=local_instance.getSourceReference()
     ).InstanceTree_getSoftwareProduct()
     if new_release_variation is None:
-      return
+      # Nothing can be done. Sadly, leave it as is for now.
+      continue
     else:
       return remote_instance_tree.InstanceTree_createUpgradeDecision(
         target_software_release=new_release_variation,

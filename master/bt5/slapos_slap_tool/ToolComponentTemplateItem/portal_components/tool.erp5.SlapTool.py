@@ -1019,16 +1019,18 @@ class SlapTool(BaseTool):
           elif 'computer_guid' in filter_kw:
             computer_list = portal.portal_catalog(
               portal_type=['Compute Node', 'Remote Node', 'Instance Node'],
+              reference=filter_kw['computer_guid'],
               limit=2
             )
-            if len(computer_list == 1):
+            if len(computer_list) == 1:
               kw['project_reference'] = computer_list[0].getFollowUpReference()
           elif 'network_guid' in filter_kw:
             network_list = portal.portal_catalog(
               portal_type='Computer Network',
+              reference=filter_kw['network_guid'],
               limit=2
             )
-            if len(network_list == 1):
+            if len(network_list) == 1:
               kw['project_reference'] = network_list[0].getFollowUpReference()
 
       key = '_'.join([requester.getRelativeUrl(), partition_reference])

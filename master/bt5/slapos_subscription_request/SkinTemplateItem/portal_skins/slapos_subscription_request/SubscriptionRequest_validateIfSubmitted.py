@@ -31,7 +31,8 @@ if item is None:
 if item.getValidationState() in ['invalidated', 'archived']:
   subscription_request.cancel(
     comment="%s is %s." % (item.getPortalType(), item.getValidationState()))
-
+  return markHistory(subscription_request,
+        'We cancelled your subscription request, the related instance was destroyed, invalidated or archived.')
 
 # If the virtual master is not in the expected subscription status,
 # do not accept any new service (compute node, instance) for it

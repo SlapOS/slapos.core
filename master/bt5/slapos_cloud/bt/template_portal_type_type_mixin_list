@@ -3,7 +3,9 @@ Compute Node | SlapOSCacheMixin
 Compute Node | SlapOSComputeNodeMixin
 Compute Partition | SlapOSCacheMixin
 Compute Partition | SlapOSComputePartitionMixin
+Instance Node | SlapOSCacheMixin
 Person | SlapOSCacheMixin
+Remote Node | SlapOSCacheMixin
 Slave Instance | SlapOSCacheMixin
 Software Installation | SlapOSCacheMixin
 Software Instance | SlapOSCacheMixin

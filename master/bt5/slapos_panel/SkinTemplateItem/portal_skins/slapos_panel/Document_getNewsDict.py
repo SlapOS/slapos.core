@@ -1,6 +1,6 @@
 portal_type = context.getPortalType()
 
-if portal_type == "Compute Node":
+if portal_type in ["Compute Node", "Remote Node", "Instance Node"]:
   return context.getAccessStatus(**kw)
 
 if portal_type == "Instance Tree":

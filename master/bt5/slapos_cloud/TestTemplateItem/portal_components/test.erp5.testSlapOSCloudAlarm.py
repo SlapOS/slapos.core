@@ -1277,6 +1277,7 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
       sla_xml=self.generateSafeXml()
     )
     partition.ComputePartition_propagateRemoteNode()
+    self.tic()
 
     self.assertNotEqual(remote_instance_tree.getModificationDate(),
                         remote_modification_date)
@@ -1310,7 +1311,7 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
 
     with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
       partition.ComputePartition_propagateRemoteNode()
-    self.tic()
+      self.tic()
 
     remote_user = remote_node.getDestinationSectionValue()
     remote_project = remote_node.getDestinationProjectValue()
@@ -1433,7 +1434,7 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
 
     with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
       partition.ComputePartition_propagateRemoteNode()
-    self.tic()
+      self.tic()
 
     remote_user = remote_node.getDestinationSectionValue()
     remote_project = remote_node.getDestinationProjectValue()
@@ -1452,6 +1453,7 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
     )
     with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
       partition.ComputePartition_propagateRemoteNode()
+      self.tic()
 
     self.assertNotEqual(software_instance.getModificationDate(), modification_date)
     self.assertEqual(remote_instance_tree.getValidationState(), "validated")
@@ -1501,6 +1503,7 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
     self.tic()
     self.assertEqual(software_instance.getValidationState(), 'validated')
     partition.ComputePartition_propagateRemoteNode()
+    self.tic()
 
     self.assertNotEqual(remote_instance_tree.getModificationDate(),
                         remote_modification_date)

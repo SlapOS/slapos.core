@@ -1,6 +1,8 @@
 Catalog Tool | SlapOSCatalogToolCacheMixin
 Compute Node | SlapOSCacheMixin
 Compute Node | SlapOSComputeNodeMixin
+Remote Node | SlapOSCacheMixin
+Instance Node | SlapOSCacheMixin
 Compute Partition | SlapOSCacheMixin
 Compute Partition | SlapOSComputePartitionMixin
 Person | SlapOSCacheMixin

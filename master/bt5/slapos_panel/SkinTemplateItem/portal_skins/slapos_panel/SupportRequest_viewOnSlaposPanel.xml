@@ -115,6 +115,7 @@
                       <list>
                         <string>my_resource_title</string>
                         <string>my_translated_simulation_state_title</string>
+                        <string>your_recheck</string>
                       </list>
                     </value>
                 </item>

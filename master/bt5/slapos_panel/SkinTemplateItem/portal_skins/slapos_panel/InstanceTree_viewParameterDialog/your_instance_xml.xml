@@ -115,7 +115,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: [(\'parameter_xml\', context.getTextContent()), (\'restricted_softwaretype\', True), (\'softwaretype\', context.getSourceReference()), (\'json_url\', context.getUrlString().split(\'?\')[0] + \'.json\'), (\'restricted_softwaretype\', False)]</string> </value>
+            <value> <string>python: [(\'parameter_xml\', context.getTextContent()), (\'restricted_softwaretype\', True), (\'softwaretype\', context.getSourceReference()), (\'json_url\', context.getUrlString().split(\'?\')[0] + \'.json\'), (\'restricted_softwaretype\', False), (\'shared\', context.isRootSlave())]</string> </value>
         </item>
       </dictionary>
     </pickle>

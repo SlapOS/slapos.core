@@ -54,7 +54,7 @@ elif not_migrated_instance_tree_dict[instance_tree_relative_url]['project_relati
   not_migrated_instance_tree_dict.pop(instance_tree_relative_url)
 
 # Node requested to be allocated on a specific node
-elif (software_instance is not None) and (sla_xml_dict.get('computer_guid', None) is not None):
+elif (software_instance is not None) and (instance_tree.getValidationState() != 'archived') and (sla_xml_dict.get('computer_guid', None) is not None):
   project_instance_reference = sla_xml_dict.get('computer_guid', None)
   project_instance = portal.portal_catalog.getResultValue(portal_type='Compute Node', reference=project_instance_reference)
 
@@ -65,7 +65,7 @@ elif (software_instance is not None) and (sla_xml_dict.get('computer_guid', None
       not_migrated_instance_tree_dict.pop(instance_tree_relative_url)
 
 # Slave Node requested to be allocated on a specific project instance
-elif (software_instance is not None) and (sla_xml_dict.get('instance_guid', None) is not None):
+elif (software_instance is not None) and (instance_tree.getValidationState() != 'archived') and (sla_xml_dict.get('instance_guid', None) is not None):
   project_instance_reference = sla_xml_dict.get('instance_guid', None)
   project_instance = portal.portal_catalog.getResultValue(portal_type='Software Instance', reference=project_instance_reference)
 

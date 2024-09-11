@@ -47,7 +47,7 @@ Let\'s try first like this to detect all issues in tests</string> </value>
         </item>
         <item>
             <key> <string>min_arity</string> </key>
-            <value> <int>1</int> </value>
+            <value> <int>0</int> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>

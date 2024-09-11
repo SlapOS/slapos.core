@@ -60,7 +60,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>script_Base_triggerUpdateOpenOrderSimulation</string> </value>
+            <value> <string>script_OpenSaleOrder_triggerUpdateOpenOrderSimulation</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

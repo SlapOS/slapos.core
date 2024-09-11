@@ -626,6 +626,20 @@ class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
     self.assertEqual("Compute Node reported an error",
         compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
+  def test_ComputeNode_checkAndUpdateCapacityScope_script_softwareProductCapacity(self):
+    _, _, type_variation, compute_node, _, _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+
+    compute_node.setAccessStatus("#access ok")
+    type_variation.setCapacityQuantity(9999999999999)
+
+    compute_node.log(type_variation)
+    self.tic()
+
+    compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('close', compute_node.getCapacityScope())
+    self.assertEqual('Compute Node capacity limit exceeded',
+        compute_node.workflow_history['edit_workflow'][-1]['comment'])
+
 
 class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
   #################################################################

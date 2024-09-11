@@ -6,5 +6,6 @@ test.erp5.testSlapOSAccountingRule
 test.erp5.testSlapOSAccountingSkins
 test.erp5.testSlapOSConsumptionSkins
 test.erp5.testSlapOSERP5AccountingScenario
+test.erp5.testSlapOSERP5ManualAccountingScenario
 test.erp5.testSlapOSEntityCreatePayment
 test.erp5.testSlapOSSaleSupply

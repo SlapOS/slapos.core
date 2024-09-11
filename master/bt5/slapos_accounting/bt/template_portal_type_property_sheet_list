@@ -1,27 +1,27 @@
-Accounting Transaction | SlapOSLedgerConstraint
-Accounting Transaction | SlapOSVirtualMasterSourceProjectConstraint
-Amortisation Transaction | SlapOSLedgerConstraint
-Amortisation Transaction | SlapOSVirtualMasterSourceProjectConstraint
-Balance Transaction | SlapOSLedgerConstraint
-Balance Transaction | SlapOSVirtualMasterSourceProjectConstraint
+Accounting Transaction | SlapOSLedgerAccountingConstraint
+Accounting Transaction | SlapOSVirtualMasterSourceProjectAccountingConstraint
+Amortisation Transaction | SlapOSLedgerAccountingConstraint
+Amortisation Transaction | SlapOSVirtualMasterSourceProjectAccountingConstraint
+Balance Transaction | SlapOSLedgerAccountingConstraint
+Balance Transaction | SlapOSVirtualMasterSourceProjectAccountingConstraint
 Cloud Contract Line | SlapOSCloudContractLineAccounting
 Cloud Contract | SlapOSCloudContractAccounting
 Computer Consumption TioXML File | SortIndex
 Hosting Subscription | SlapOSAccountingHostingSubscriptionConstraint
 Hosting Subscription | SlapOSLedgerConstraint
-Internal Invoice Transaction | SlapOSLedgerConstraint
-Internal Invoice Transaction | SlapOSVirtualMasterSourceProjectConstraint
+Internal Invoice Transaction | SlapOSLedgerAccountingConstraint
+Internal Invoice Transaction | SlapOSVirtualMasterSourceProjectAccountingConstraint
 Invoice Line | SlapOSMovementConstraint
 Open Sale Order Line | SlapOSAccountingOpenSaleOrderLineConstraint
 Open Sale Order Line | SlapOSMovementConstraint
 Open Sale Order | SlapOSAccountingOpenSaleOrderConstraint
 Open Sale Order | SlapOSLedgerConstraint
 Open Sale Order | SlapOSSaleProfileConstraint
-Payment Transaction | SlapOSLedgerConstraint
-Purchase Invoice Transaction | SlapOSLedgerConstraint
-Purchase Invoice Transaction | SlapOSVirtualMasterSourceProjectConstraint
+Payment Transaction | SlapOSLedgerAccountingConstraint
+Purchase Invoice Transaction | SlapOSLedgerAccountingConstraint
+Purchase Invoice Transaction | SlapOSVirtualMasterSourceProjectAccountingConstraint
 Sale Invoice Transaction | SlapOSAccountingSaleInvoiceTransactionConstraint
-Sale Invoice Transaction | SlapOSLedgerConstraint
+Sale Invoice Transaction | SlapOSLedgerAccountingConstraint
 Sale Invoice Transaction | SlapOSSaleProfileConstraint
 Sale Order | SlapOSSaleProfileConstraint
 Sale Packing List Line | SlapOSAccountingSalePackingListLineConstraint

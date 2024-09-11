@@ -632,8 +632,48 @@ class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
     compute_node.setAccessStatus("#access ok")
     type_variation.setCapacityQuantity(9999999999999)
 
-    compute_node.log(type_variation)
     self.tic()
+
+    compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('close', compute_node.getCapacityScope())
+    self.assertEqual('Compute Node capacity limit exceeded',
+        compute_node.workflow_history['edit_workflow'][-1]['comment'])
+
+  def test_ComputeNode_checkAndUpdateCapacityScope_script_softwareProductCapacityMultipleInstance(self):
+    _, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+
+    compute_node.setAccessStatus("#access ok")
+    compute_node.edit(capacity_quantity=6)
+    type_variation.setCapacityQuantity(3)
+
+    self.tic()
+
+    compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('open', compute_node.getCapacityScope())
+
+    partition = compute_node.newContent(
+      portal_type='Compute Partition',
+      reference='reference%s' % self.generateNewId()
+    )
+    partition.validate()
+    partition.markFree()
+
+    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      instance_tree.getDestinationSectionValue().requestSoftwareInstance(
+        software_release=instance_tree.getUrlString(),
+        software_type=instance_tree.getSourceReference(),
+        instance_xml=self.generateSafeXml(),
+        sla_xml=self.generateEmptyXml(),
+        shared=False,
+        software_title=instance_tree.getTitle() + '2',
+        state='started',
+        project_reference=instance_tree.getFollowUpReference()
+      )
+      new_instance = self.portal.REQUEST.get('request_instance')
+      new_instance.edit(aggregate_value=partition)
+      partition.markBusy()
+      self.tic()
 
     compute_node.ComputeNode_checkAndUpdateCapacityScope()
     self.assertEqual('close', compute_node.getCapacityScope())

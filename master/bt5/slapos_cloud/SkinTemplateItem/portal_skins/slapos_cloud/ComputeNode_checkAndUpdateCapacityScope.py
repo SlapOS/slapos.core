@@ -59,20 +59,24 @@ if can_allocate:
     return type_variation.getCapacityQuantity(1)
 
   if allocated_instance is not None:
-    software_release_capacity = getSoftwareReleaseCapacity(allocated_instance)
-    consumed_capacity += software_release_capacity
+    consumed_capacity += getSoftwareReleaseCapacity(allocated_instance)
     if consumed_capacity >= compute_node_capacity_quantity:
       can_allocate = False
       comment = 'Compute Node capacity limit exceeded (%s >= %s)' % (consumed_capacity, compute_node_capacity_quantity)
 
   if can_allocate:
-    for instance in portal.portal_catalog.portal_catalog(
+    for sql_instance in portal.portal_catalog.portal_catalog(
         default_aggregate_relative_url='%s/%%' % compute_node.getRelativeUrl(),
         portal_type=['Software Instance', 'Slave Instance'],
-        validation_state='validated'):
+        validation_state='validated',
+        group_by=['url_string', 'source_reference'],
+        select_list=['COUNT(*)', 'url_string', 'source_reference']
+    ):
 
-      software_release_capacity = getSoftwareReleaseCapacity(instance.getObject())
-      consumed_capacity += software_release_capacity
+      assert sql_instance.url_string == sql_instance.getUrlString()
+      assert sql_instance.source_reference == sql_instance.getSourceReference()
+      assert 1 <= sql_instance['COUNT(*)']
+      consumed_capacity += getSoftwareReleaseCapacity(sql_instance) * sql_instance['COUNT(*)']
       if consumed_capacity >= compute_node_capacity_quantity:
         can_allocate = False
         comment = 'Compute Node capacity limit exceeded'

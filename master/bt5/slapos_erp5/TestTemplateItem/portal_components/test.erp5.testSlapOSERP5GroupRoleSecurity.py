@@ -129,7 +129,6 @@ class TestAccount(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(product, 'R-SHADOW-PERSON', ['Auditor'])
     self.assertRoles(product, self.user_id, ['Owner'])
 
-
 class TestAccountingPeriod(TestSlapOSGroupRoleSecurityMixin):
   def test_AccountingFunction(self):
     product = self.portal.organisation_module.newContent(
@@ -137,7 +136,7 @@ class TestAccountingPeriod(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Accounting Period')
     self.assertSecurityGroup(product,
         ['F-ACCMAN', 'F-ACCAGT', self.user_id], False)
-    self.assertRoles(product, 'F-ACCMAN', ['Assignor'])
+    self.assertRoles(product, 'F-ACCMAN', ['Assignee'])
     self.assertRoles(product, 'F-ACCAGT', ['Assignee'])
     self.assertRoles(product, self.user_id, ['Owner'])
 

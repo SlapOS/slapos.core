@@ -62,7 +62,7 @@
         </item>
         <item>
             <key> <string>test_tales_expression</string> </key>
-            <value> <string>python: context.hasSourceSection() and context.hasDestinationSection()</string> </value>
+            <value> <string>python: context.getLedger() == \'automated\'  and context.hasSourceSection() and context.hasDestinationSection()</string> </value>
         </item>
       </dictionary>
     </pickle>

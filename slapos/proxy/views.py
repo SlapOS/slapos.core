@@ -478,7 +478,7 @@ def requestComputerPartition():
           'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
       )
       if parsed_request_dict['software_release'] in apache_frontend_sr_url_list \
-        and parsed_request_dict.get('software_type', '') in ('', 'RootSoftwareInstance', 'default'):
+        and parsed_request_dict.get('software_type', '') in ('', slapos.slap.OLD_DEFAULT_SOFTWARE_TYPE, slapos.slap.DEFAULT_SOFTWARE_TYPE):
         url = parsed_request_dict['partition_parameter_kw'].get('url')
         if url:
           app.logger.warning("Bypassing frontend for %s => %s", parsed_request_dict, url)
@@ -795,7 +795,7 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
       q += ' ,requested_by=?'
       a(partition_id)
     if not software_type:
-      software_type = 'RootSoftwareInstance'
+      software_type = slapos.slap.DEFAULT_SOFTWARE_TYPE
   else:
     if partition['requested_by']:
       root_partition = getRootPartition(partition['requested_by'])

@@ -12,5 +12,9 @@ if instance.getSlapState() != 'stop_requested':
     if partition is not None:
       software_instance = partition.getAggregateRelatedValue(portal_type="Software Instance")
       if software_instance is not None:
-        software_instance.bang(bang_tree=False,
-          comment="State changed from %s (shared) to stop_requested" % instance.getSlapState())
+        software_instance.SoftwareInstance_bangAsSelf(
+          relative_url=software_instance.getRelativeUrl(),
+          reference=software_instance.getReference(),
+          bang_tree=False,
+          comment="State changed from %s (shared) to stop_requested" % instance.getSlapState()
+        )

@@ -54,7 +54,7 @@ def cloneDocumentWithANewPortalType(obj, portal_type):
 
 
 def SoftwareInstance_bangAsSelf(self, relative_url=None, reference=None,
-  comment=None):
+  bang_tree=True, comment=None):
   """Call bang on self."""
   # Caller check
   if relative_url is None:
@@ -72,7 +72,7 @@ def SoftwareInstance_bangAsSelf(self, relative_url=None, reference=None,
   sm = getSecurityManager()
   try:
     newSecurityManager(None, user)
-    software_instance.bang(bang_tree=True, comment=comment)
+    software_instance.bang(bang_tree=bang_tree, comment=comment)
   finally:
     setSecurityManager(sm)
 

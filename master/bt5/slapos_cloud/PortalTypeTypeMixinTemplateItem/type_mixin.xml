@@ -10,7 +10,13 @@
   <item>SlapOSCacheMixin</item>
   <item>SlapOSComputePartitionMixin</item>
  </portal_type>
+ <portal_type id="Instance Node">
+  <item>SlapOSCacheMixin</item>
+ </portal_type>
  <portal_type id="Person">
+  <item>SlapOSCacheMixin</item>
+ </portal_type>
+ <portal_type id="Remote Node">
   <item>SlapOSCacheMixin</item>
  </portal_type>
  <portal_type id="Slave Instance">

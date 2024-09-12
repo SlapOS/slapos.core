@@ -48,8 +48,6 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       # required to generate accounting report
       price_currency_value=currency,
       # required to calculate the vat
-      group='company',
-      vat_code='MYVATCODE',
       default_address_region='europe/west/france'
     )
     bank_account = accountant_organisation.newContent(
@@ -351,11 +349,7 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       # Accountaint can create a hosting provider
       customer = self.portal.organisation_module.newContent(
         portal_type='Organisation',
-        title='Customer Org. for %s' % accountant_person.getTitle(),
-
-        # Required for issue an Sale Invoice Transaction
-        vat_code='MYVATCODE',
-        default_address_region='europe/west/france'
+        title='Customer Org. for %s' % accountant_person.getTitle()
       )
     else:
       customer = self.portal.person_module.newContent(

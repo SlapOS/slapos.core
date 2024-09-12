@@ -35,7 +35,8 @@ import re
 import os
 from datetime import datetime
 from slapos.slap.slap import Computer, ComputerPartition, \
-    SoftwareRelease, SoftwareInstance, NotFoundError
+    SoftwareRelease, SoftwareInstance, NotFoundError, \
+    DEFAULT_SOFTWARE_TYPE, OLD_DEFAULT_SOFTWARE_TYPE
 from slapos.proxy.db_version import DB_VERSION
 import slapos.slap
 from slapos.util import bytes2str, unicode2str, sqlite_connect, \
@@ -478,7 +479,7 @@ def requestComputerPartition():
           'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
       )
       if parsed_request_dict['software_release'] in apache_frontend_sr_url_list \
-        and parsed_request_dict.get('software_type', '') in ('', 'RootSoftwareInstance', 'default'):
+        and parsed_request_dict.get('software_type', '') in ('', OLD_DEFAULT_SOFTWARE_TYPE, DEFAULT_SOFTWARE_TYPE):
         url = parsed_request_dict['partition_parameter_kw'].get('url')
         if url:
           app.logger.warning("Bypassing frontend for %s => %s", parsed_request_dict, url)
@@ -795,7 +796,7 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
       q += ' ,requested_by=?'
       a(partition_id)
     if not software_type:
-      software_type = 'RootSoftwareInstance'
+      software_type = DEFAULT_SOFTWARE_TYPE
   else:
     if partition['requested_by']:
       root_partition = getRootPartition(partition['requested_by'])

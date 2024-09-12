@@ -1110,10 +1110,16 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       public_reference = 'public-%s' % self.generateNewId()
       self.joinSlapOS(self.web_site, public_reference)
 
+      shared_public_reference = 'shared_public-%s' % self.generateNewId()
+      self.joinSlapOS(self.web_site, shared_public_reference)
+
       self.login()
       public_person = self.portal.portal_catalog.getResultValue(
         portal_type="ERP5 Login",
         reference=public_reference).getParentValue()
+      shared_public_person = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=shared_public_reference).getParentValue()
 
     with PinnedDateTime(self, DateTime('2024/02/17 00:05')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -1140,24 +1146,18 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
                                software_release, software_type)
 
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
 
       slave_instance_title = 'Slave title %s' % self.generateNewId()
-      self.checkSlaveInstanceAllocation(public_person.getUserId(),
-          public_reference, slave_instance_title,
+      self.checkSlaveInstanceAllocation(shared_public_person.getUserId(),
+          shared_public_reference, slave_instance_title,
           slave_server_software, slave_instance_type,
           public_server, project.getReference())
 
-      self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type='ERP5 Login', reference=public_reference).getParentValue()
       self.login(owner_person.getUserId())
 
       # and the instances
-      self.checkSlaveInstanceUnallocation(public_person.getUserId(),
-          public_reference, slave_instance_title,
+      self.checkSlaveInstanceUnallocation(shared_public_person.getUserId(),
+          shared_public_reference, slave_instance_title,
           slave_server_software, slave_instance_type, public_server,
           project.getReference())
 
@@ -1178,10 +1178,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Ensure no unexpected object has been created
     # 6 allocation supply/line/cell
     # 2 compute/instance node
-    # 1 credential request
+    # 2 credential request
     # 2 instance tree
     # 9 open sale order / line
-    # 3 assignment
+    # 4 assignment
     # 4 simulation movement
     # 4 sale packing list
     # 2 sale trade condition
@@ -1189,7 +1189,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 2 software instance
     # 2 software product
     # 4 subscription request
-    self.assertRelatedObjectCount(project, 42)
+    self.assertRelatedObjectCount(project, 44)
 
     self.checkERP5StateBeforeExit()
 

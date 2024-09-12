@@ -22,7 +22,7 @@
             <key> <string>action</string> </key>
             <value> <string encoding="cdata"><![CDATA[
 
-subscrition_request_module/view?simulation_state=submitted&local_roles=%(local_roles)s&reset=1
+subscription_request_module/view?simulation_state=submitted&local_roles=%(local_roles)s&reset=1
 
 ]]></string> </value>
         </item>

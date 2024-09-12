@@ -62,7 +62,7 @@
         </item>
         <item>
             <key> <string>test_tales_expression</string> </key>
-            <value> <string>python: context.hasDestinationSection(portal_type=\'Organisation\')</string> </value>
+            <value> <string>python: context.getLedger() == \'automated\'  and context.hasDestinationSection(portal_type=\'Organisation\')</string> </value>
         </item>
       </dictionary>
     </pickle>

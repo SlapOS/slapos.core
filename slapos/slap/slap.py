@@ -70,7 +70,8 @@ fallback_logger.setLevel(logging.INFO)
 fallback_logger.addHandler(fallback_handler)
 
 
-DEFAULT_SOFTWARE_TYPE = 'RootSoftwareInstance'
+OLD_DEFAULT_SOFTWARE_TYPE = 'RootSoftwareInstance'
+DEFAULT_SOFTWARE_TYPE = 'default'
 COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME = '.slapos-request-transaction-%s'
 
 class SlapDocument:

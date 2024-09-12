@@ -487,12 +487,12 @@ class SoftwareReleaseSchema(object):
   def __init__(self, software_url, software_type):
     # type: (str, Optional[str]) ->  None
     self.software_url = software_url
-    # XXX: Transition from DEFAULT_SOFTWARE_TYPE ("RootSoftwareInstance")
-    #      to "default" is already complete for SR schemas.
-    from slapos.slap.slap import DEFAULT_SOFTWARE_TYPE
-    if software_type == DEFAULT_SOFTWARE_TYPE:
+    # XXX: Transition from OLD_DEFAULT_SOFTWARE_TYPE ("RootSoftwareInstance")
+    #      to DEFAULT_SOFTWARE_TYPE ("default") is already complete for SR schemas.
+    from slapos.slap.slap import OLD_DEFAULT_SOFTWARE_TYPE, DEFAULT_SOFTWARE_TYPE
+    if software_type == OLD_DEFAULT_SOFTWARE_TYPE:
       software_type = None
-    self.software_type = software_type or 'default'
+    self.software_type = software_type or DEFAULT_SOFTWARE_TYPE
 
   def _warn(self, message, e):
     warnings.warn(

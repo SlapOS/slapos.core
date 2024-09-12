@@ -15,6 +15,7 @@
                 <string>list_method</string>
                 <string>portal_types</string>
                 <string>selection_name</string>
+                <string>sort</string>
                 <string>title</string>
               </list>
             </value>
@@ -162,6 +163,17 @@
                     <value> <string>instance_node_instance_list</string> </value>
                 </item>
                 <item>
+                    <key> <string>sort</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>title</string>
+                          <string>ASC</string>
+                        </tuple>
+                      </list>
+                    </value>
+                </item>
+                <item>
                     <key> <string>title</string> </key>
                     <value> <string>Instances</string> </value>
                 </item>
@@ -179,7 +191,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: [(\'aggregate__uid\', [x.getUid() for x in here.getSpecialiseValue().getAggregateUid(default=-1)])]</string> </value>
+            <value> <string>python: [(\'aggregate__uid\', here.getSpecialiseValue().getAggregateUid(default=-1))]</string> </value>
         </item>
       </dictionary>
     </pickle>

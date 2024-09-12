@@ -9,16 +9,12 @@
         <item>
             <key> <string>delegated_list</string> </key>
             <value>
-              <list>
-                <string>gadget_url</string>
-                <string>renderjs_extra</string>
-                <string>title</string>
-              </list>
+              <list/>
             </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>your_instance_xml</string> </value>
+            <value> <string>my_description</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>
@@ -43,6 +39,10 @@
                     <key> <string>form_id</string> </key>
                     <value> <string></string> </value>
                 </item>
+                <item>
+                    <key> <string>target</string> </key>
+                    <value> <string></string> </value>
+                </item>
               </dictionary>
             </value>
         </item>
@@ -59,17 +59,7 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
-                    <key> <string>gadget_url</string> </key>
-                    <value> <string></string> </value>
-                </item>
-                <item>
-                    <key> <string>renderjs_extra</string> </key>
-                    <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
-                    </value>
-                </item>
-                <item>
-                    <key> <string>title</string> </key>
+                    <key> <string>target</string> </key>
                     <value> <string></string> </value>
                 </item>
               </dictionary>
@@ -81,41 +71,18 @@
               <dictionary>
                 <item>
                     <key> <string>field_id</string> </key>
-                    <value> <string>my_dialog_mode_text_content</string> </value>
+                    <value> <string>my_description</string> </value>
                 </item>
                 <item>
                     <key> <string>form_id</string> </key>
                     <value> <string>Base_viewFieldLibrary</string> </value>
                 </item>
                 <item>
-                    <key> <string>gadget_url</string> </key>
-                    <value> <string>gadget_erp5_page_slap_parameter_form.html</string> </value>
-                </item>
-                <item>
-                    <key> <string>renderjs_extra</string> </key>
-                    <value>
-                      <list/>
-                    </value>
-                </item>
-                <item>
-                    <key> <string>title</string> </key>
-                    <value> <string>Instance Parameter</string> </value>
+                    <key> <string>target</string> </key>
+                    <value> <string>Click to edit the target</string> </value>
                 </item>
               </dictionary>
             </value>
-        </item>
-      </dictionary>
-    </pickle>
-  </record>
-  <record id="2" aka="AAAAAAAAAAI=">
-    <pickle>
-      <global name="TALESMethod" module="Products.Formulator.TALESField"/>
-    </pickle>
-    <pickle>
-      <dictionary>
-        <item>
-            <key> <string>_text</string> </key>
-            <value> <string>python: [(\'parameter_xml\', context.getTextContent()), (\'restricted_softwaretype\', True), (\'softwaretype\', context.getSourceReference()), (\'json_url\', context.getUrlString().split(\'?\')[0] + \'.json\'), (\'restricted_softwaretype\', False), (\'shared\', context.isRootSlave())]</string> </value>
         </item>
       </dictionary>
     </pickle>

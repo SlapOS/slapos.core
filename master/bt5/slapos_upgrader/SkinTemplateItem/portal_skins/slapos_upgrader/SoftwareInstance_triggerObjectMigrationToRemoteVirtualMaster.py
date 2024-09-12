@@ -35,7 +35,7 @@ if instance.getPortalType() == 'Slave Instance':
 elif instance.getPortalType() == 'Software Instance':
   new_partition = remote_node.newContent(
     portal_type="Compute Partition",
-    title="slapmigration",
+    reference="slapmigration",
   )
   new_partition.markFree()
   new_partition.validate()

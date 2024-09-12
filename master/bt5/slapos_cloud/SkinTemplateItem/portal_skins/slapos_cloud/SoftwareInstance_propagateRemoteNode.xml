@@ -50,19 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>REQUEST=None</string> </value>
-        </item>
-        <item>
-            <key> <string>_proxy_roles</string> </key>
-            <value>
-              <tuple>
-                <string>Manager</string>
-              </tuple>
-            </value>
+            <value> <string>activate_kw=None, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Item_getSubscriptionStatus</string> </value>
+            <value> <string>SoftwareInstance_propagateRemoteNode</string> </value>
         </item>
       </dictionary>
     </pickle>

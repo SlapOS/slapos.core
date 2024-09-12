@@ -505,11 +505,13 @@ class TestRemoteNode(TestSlapOSGroupRoleSecurityMixin):
       '%s_F-PRODAGNT' % project.getReference(),
       '%s_F-PRODMAN' % project.getReference(),
       '%s_F-CUSTOMER' % project.getReference(),
+      '%s_R-INSTANCE' % project.getReference(),
     ], False)
     self.assertRoles(compute_node, self.user_id, ['Owner'])
     self.assertRoles(compute_node, '%s_F-PRODAGNT' % project.getReference(), ['Assignee'])
     self.assertRoles(compute_node, '%s_F-PRODMAN' % project.getReference(), ['Assignor'])
     self.assertRoles(compute_node, '%s_F-CUSTOMER' % project.getReference(), ['Auditor'])
+    self.assertRoles(compute_node, '%s_R-INSTANCE' % project.getReference(), ['Auditor'])
 
 
 class TestComputerModelModule(TestSlapOSGroupRoleSecurityMixin):

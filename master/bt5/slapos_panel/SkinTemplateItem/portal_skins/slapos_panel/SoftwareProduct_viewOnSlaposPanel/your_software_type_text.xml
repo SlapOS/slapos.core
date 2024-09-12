@@ -287,7 +287,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: \'\\n\'.join(sorted([x.getTitle() for x in here.contentValues(portal_type=\'Software Product Type Variation\')]))</string> </value>
+            <value> <string>python: \'\\n\'.join(sorted(["%s (%i)" % (x.getTitle(), x.getCapacityQuantity(1)) for x in here.contentValues(portal_type=\'Software Product Type Variation\')]))</string> </value>
         </item>
       </dictionary>
     </pickle>

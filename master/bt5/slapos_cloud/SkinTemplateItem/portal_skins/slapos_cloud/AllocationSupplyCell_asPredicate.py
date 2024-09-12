@@ -8,6 +8,10 @@ if not context.isAllocable():
 
 base_category_tuple = ('resource', 'software_type', 'software_release', 'destination_project')
 
+for base_category in base_category_tuple:
+  if context.getProperty(base_category) is None:
+    return None
+
 if supply.getDestination():
   base_category_tuple += ('destination',)
 

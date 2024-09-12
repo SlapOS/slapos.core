@@ -177,6 +177,10 @@
                     <value>
                       <list>
                         <tuple>
+                          <string>portal_type</string>
+                          <string>ascending</string>
+                        </tuple>
+                        <tuple>
                           <string>title</string>
                           <string>ascending</string>
                         </tuple>

@@ -62,7 +62,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Item_getSubscriptionStatus</string> </value>
+            <value> <string>Event_getUnsafeSourceTitle</string> </value>
         </item>
       </dictionary>
     </pickle>

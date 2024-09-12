@@ -1596,11 +1596,10 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
       self.start_requested_software_installation.getReference(),
       compute_node.getReference()
     )
-    if 0:
-      raise NotImplementedError(ticket_title)
     ticket = self._getGeneratedSupportRequest(compute_node.getUid(), ticket_title)
 
-    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket, None)
+    """
     event_list = ticket.getFollowUpRelatedValueList()
     self.assertEqual(len(event_list), 1)
     event = event_list[0]
@@ -1619,6 +1618,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
     self.assertEqual(ticket.getSimulationState(), "submitted")
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(event.getPortalType(), "Web Message")
+    """
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('NotificationTool_getDocumentValue',

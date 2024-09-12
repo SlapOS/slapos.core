@@ -50,58 +50,33 @@ if can_allocate:
     if compute_node_capacity_quantity != default_maximum_value:
       compute_node.edit(capacity_quantity=compute_node_capacity_quantity)
 
-  software_release_capacity_dict = {}
   consumed_capacity = 0
 
   def getSoftwareReleaseCapacity(instance):
-    software_release_url = instance.getUrlString()
-    software_type = instance.getSourceReference()
-    if "%s-%s" % (software_release_url, software_type) in software_release_capacity_dict:
-      return software_release_capacity_dict["%s-%s" % (software_release_url, software_type)]
-
-    software_release = portal.portal_catalog.getResultValue(
-      portal_type='Software Release',
-      url_string={'query': software_release_url, 'key': 'ExactMatch'})
-
-    software_release_capacity = None
-    if software_release is not None:
-      # Search for Software Product Individual Variation with same reference
-      software_product = software_release.getAggregateValue()
-      if software_product is not None:
-        for variation in software_product.searchFolder(
-            portal_type="Software Product Individual Variation",
-            reference=software_type):
-          software_release_capacity = variation.getCapacityQuantity(None)
-          if software_release_capacity is not None:
-            break
-
-        if software_release_capacity is None:
-          software_release_capacity = software_product.getCapacityQuantity(None)
-
-      if software_release_capacity is None:
-        software_release_capacity = software_release.getCapacityQuantity(1)
-
-    if software_release_capacity is None:
-      software_release_capacity = 1
-
-    software_release_capacity_dict["%s-%s" % (software_release_url, software_type)] = software_release_capacity
-    return software_release_capacity
+    _, _, type_variation = instance.InstanceTree_getSoftwareProduct()
+    if type_variation is None:
+      return 1
+    return type_variation.getCapacityQuantity(1)
 
   if allocated_instance is not None:
-    software_release_capacity = getSoftwareReleaseCapacity(allocated_instance)
-    consumed_capacity += software_release_capacity
+    consumed_capacity += getSoftwareReleaseCapacity(allocated_instance)
     if consumed_capacity >= compute_node_capacity_quantity:
       can_allocate = False
       comment = 'Compute Node capacity limit exceeded (%s >= %s)' % (consumed_capacity, compute_node_capacity_quantity)
 
   if can_allocate:
-    for instance in portal.portal_catalog.portal_catalog(
+    for sql_instance in portal.portal_catalog.portal_catalog(
         default_aggregate_relative_url='%s/%%' % compute_node.getRelativeUrl(),
         portal_type=['Software Instance', 'Slave Instance'],
-        validation_state='validated'):
+        validation_state='validated',
+        group_by=['url_string', 'source_reference'],
+        select_list=['COUNT(*)', 'url_string', 'source_reference']
+    ):
 
-      software_release_capacity = getSoftwareReleaseCapacity(instance.getObject())
-      consumed_capacity += software_release_capacity
+      assert sql_instance.url_string == sql_instance.getUrlString()
+      assert sql_instance.source_reference == sql_instance.getSourceReference()
+      assert 1 <= sql_instance['COUNT(*)']
+      consumed_capacity += getSoftwareReleaseCapacity(sql_instance) * sql_instance['COUNT(*)']
       if consumed_capacity >= compute_node_capacity_quantity:
         can_allocate = False
         comment = 'Compute Node capacity limit exceeded'

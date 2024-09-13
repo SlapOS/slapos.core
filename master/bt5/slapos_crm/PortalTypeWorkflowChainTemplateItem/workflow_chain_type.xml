@@ -23,4 +23,8 @@
   <type>Sale Invoice Transaction Line</type>
   <workflow>slapos_crm_interaction_workflow</workflow>
  </chain>
+ <chain>
+  <type>Web Message</type>
+  <workflow>slapos_crm_interaction_workflow</workflow>
+ </chain>
 </workflow_chain>

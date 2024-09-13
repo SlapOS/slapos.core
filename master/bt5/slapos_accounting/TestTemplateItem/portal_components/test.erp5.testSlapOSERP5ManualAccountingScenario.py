@@ -58,13 +58,6 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     bank_account.validate()
     accountant_organisation.validate()
 
-    self.portal.bank_reconciliation_module.newContent(
-      title="Bank Reconciliation for %s" % accountant_organisation.getTitle(),
-      portal_type="Bank Reconciliation",
-      source_section_value=accountant_organisation,
-      source_payment_value=bank_account,
-    ).open()
-
     return accountant_person, accountant_organisation, \
       bank_account, currency
 
@@ -214,9 +207,6 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     payment.manage_delObjects(ids=['receivable', 'payable'])
     payment.bank.edit(
       source="account_module/bank",
-      aggregate=bank_account.getSourcePaymentRelated(
-        portal_type='Bank Reconciliation'
-      ),
       quantity=total_amount
     )
 
@@ -319,9 +309,6 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     payment.manage_delObjects(ids=['receivable', 'payable'])
     payment.bank.edit(
       source="account_module/bank",
-      aggregate=bank_account.getSourcePaymentRelated(
-        portal_type='Bank Reconciliation'
-      ),
       quantity=total_amount
     )
     payable_line = payment.newContent(
@@ -444,9 +431,6 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     payment.manage_delObjects(ids=['receivable', 'payable'])
     payment.bank.edit(
       source="account_module/bank",
-      aggregate=bank_account.getSourcePaymentRelated(
-        portal_type='Bank Reconciliation'
-      ),
       quantity=-total_amount
     )
     receivable_line = payment.newContent(

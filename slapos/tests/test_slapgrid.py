@@ -1960,7 +1960,8 @@ echo %s; echo %s; exit 42""" % (line1, line2))
     )
 
     with httmock.HTTMock(computer.request_handler), \
-        patch.object(self.grid.logger, 'info',) as dummyLogger:
+        patch.object(self.grid.logger, 'info',) as dummyLogger, \
+        patch.object(self.grid.logger, 'debug',) as unusedLogger:
       self.launchSlapgrid()
 
     # reconstruct the string like logger does

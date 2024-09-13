@@ -10,8 +10,7 @@ from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
 from DateTime import DateTime
 
 
-class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
-
+class TestSlapOSManualAccountingScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
   def bootstrapManualAccountingTest(self):
     currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
     self.tic()
@@ -59,15 +58,67 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     bank_account.validate()
     accountant_organisation.validate()
 
-    self.portal.bank_reconciliation_module.newContent(
-      title="Bank Reconciliation for %s" % accountant_organisation.getTitle(),
-      portal_type="Bank Reconciliation",
-      source_section_value=accountant_organisation,
-      source_payment_value=bank_account,
-    ).open()
-
     return accountant_person, accountant_organisation, \
       bank_account, currency
+
+  def createBalanceForOrganisation(self, accountant, organisation, transaction_list):
+
+    # Group is required and should be unique, else the Balance will
+    # generate/cover way too much.
+    self.login()
+    group = self.portal.portal_categories.group.newContent(
+      id='test_group_%s' % self.generateNewId(),
+      title="Group for %s" % organisation.getTitle()
+    )
+
+    self.logout()
+    self.login(accountant.getUserId())
+    organisation.setGroup(group.getId())
+
+    # Create Accounting Period and start
+    year = DateTime().strftime("%Y")
+    accounting_period = organisation.newContent(
+      portal_type="Accounting Period",
+      title=year,
+      start_date=DateTime("%s/01/01" % year),
+      stop_date=DateTime("%s/12/31" % year)
+    )
+
+    self.portal.portal_workflow.doActionFor(accounting_period, "start_action")
+    self.tic()
+    # Close all transactions before close the period.
+    for transaction in transaction_list:
+      self.portal.portal_workflow.doActionFor(transaction, "deliver_action")
+    self.tic()
+
+    self.portal.portal_workflow.doActionFor(accounting_period, "stop_action",
+      profit_and_loss_account="account_module/profit_loss")
+    self.tic()
+
+    balance_transaction_list = self.portal.portal_catalog(
+      portal_type='Balance Transaction',
+      destination_section_uid=organisation.getUid(),
+      simulation_state='delivered'
+    )
+    self.assertEqual(len(balance_transaction_list), 1)
+    balance_transaction = balance_transaction_list[0].getObject()
+
+    self.assertEqual(balance_transaction.getCausality(),
+                     accounting_period.getRelativeUrl())
+
+    self.assertEqual(balance_transaction.getResource(),
+                     organisation.getPriceCurrency())
+
+    self.assertEqual(
+      balance_transaction.getStopDate(),
+      DateTime("%s/01/01" % (int(DateTime().strftime("%Y")) + 1))
+    )
+    self.assertEqual(
+      balance_transaction.getDestinationReference(),
+      "%s-1" % (int(DateTime().strftime("%Y")) + 1)
+    )
+
+    return balance_transaction
 
   def groupAndAssertLineList(self, entity, line_list):
     # Emulate the Grouping fast input
@@ -94,6 +145,8 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.tic()
     self.assertEqual(transaction.getSimulationState(), 'stopped')
 
+
+class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin):
 
   def test_purchase_invoice_transaction(self, provider_as_organisation=False):
     """
@@ -182,9 +235,6 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     payment.manage_delObjects(ids=['receivable', 'payable'])
     payment.bank.edit(
       source="account_module/bank",
-      aggregate=bank_account.getSourcePaymentRelated(
-        portal_type='Bank Reconciliation'
-      ),
       quantity=total_amount
     )
 
@@ -202,11 +252,30 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.groupAndAssertLineList(
       provider, [payable_line, purchase_payable_line])
 
+    balance_transaction = self.createBalanceForOrganisation(
+      accountant_person, accountant_organisation, [payment, transaction])
+    
+    line_list = balance_transaction.contentValues(portal_types="Balance Transaction Line")
+    self.assertEqual(len(line_list), 3)
+
+    profit_loss_list = [line for line in line_list if line.getDestination() == 'account_module/profit_loss']
+    self.assertEqual(len(profit_loss_list), 1)
+    profit_loss = profit_loss_list[0]
+    self.assertEqual(profit_loss.getQuantity(), 8691.14)
+
+    bank_list = [line for line in line_list if line.getDestination() == 'account_module/bank']
+    self.assertEqual(len(bank_list), 1)
+    bank_line = bank_list[0]
+    self.assertEqual(bank_line.getQuantity(), -9876.3)
+    self.assertEqual(bank_line.getDestinationPayment(), bank_account.getRelativeUrl())
+
+    tax_list = [line for line in line_list if line.getDestination() == 'account_module/refundable_vat']
+    self.assertEqual(len(tax_list), 1)
+    tax_line = tax_list[0]
+    self.assertEqual(tax_line.getQuantity(), 1185.16)
+
   def test_purchase_invoice_transaction_organisation(self):
     self.test_purchase_invoice_transaction(provider_as_organisation=False)
-
-  # def test_balance_transaction(self):
-  #  Do fake balance for 2023 ?
 
   def test_accounting_transaction(self, customer_as_organisation=False):
     """ Basic scenario for accountant create an Accounting transaction
@@ -287,9 +356,6 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     payment.manage_delObjects(ids=['receivable', 'payable'])
     payment.bank.edit(
       source="account_module/bank",
-      aggregate=bank_account.getSourcePaymentRelated(
-        portal_type='Bank Reconciliation'
-      ),
       quantity=total_amount
     )
     payable_line = payment.newContent(
@@ -305,6 +371,25 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     self.groupAndAssertLineList(
       customer, [payable_line, accounting_payable_line])
+
+    balance_transaction = self.createBalanceForOrganisation(
+      accountant_person, accountant_organisation, [payment, transaction])
+
+    line_list = balance_transaction.contentValues(portal_types="Balance Transaction Line")
+    self.assertEqual(len(line_list), 2)
+
+    profit_loss_list = [line for line in line_list if line.getDestination() == 'account_module/profit_loss']
+    self.assertEqual(len(profit_loss_list), 1)
+    profit_loss = profit_loss_list[0]
+    self.assertEqual(profit_loss.getQuantity(), 100.30)
+
+    bank_list = [line for line in line_list if line.getDestination() == 'account_module/bank']
+    self.assertEqual(len(bank_list), 1)
+    bank_line = bank_list[0]
+    self.assertEqual(bank_line.getQuantity(), -100.30)
+    self.assertEqual(bank_line.getDestinationPayment(), bank_account.getRelativeUrl())
+
+
 
   def test_accounting_transaction_organisation(self):
     """ Basic scenario for accountant create an Accounting transaction
@@ -326,11 +411,12 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     trade_condition = self.portal.sale_trade_condition_module.newContent(
       portal_type='Sale Trade Condition',
       trade_condition_type='default',
-      reference='manual_accounting_for_%s' % accountant_organisation.getReference(),
+      reference='manual_accounting_for_%s' % accountant_person.getReference(),
       specialise_value=business_process_module.slapos_manual_accounting_business_process
     )
-
+    self.portal.portal_workflow.doActionFor(trade_condition, 'validate_action')
     self.assertEqual(trade_condition.checkConsistency(), [])
+    self.tic()
 
     self.login(accountant_person.getUserId())
 
@@ -408,9 +494,6 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     payment.manage_delObjects(ids=['receivable', 'payable'])
     payment.bank.edit(
       source="account_module/bank",
-      aggregate=bank_account.getSourcePaymentRelated(
-        portal_type='Bank Reconciliation'
-      ),
       quantity=-total_amount
     )
     receivable_line = payment.newContent(
@@ -426,7 +509,30 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     self.groupAndAssertLineList(
       customer, [receivable_line, transaction.receivable])
-  
+
+    balance_transaction = self.createBalanceForOrganisation(
+      accountant_person, accountant_organisation, [payment, transaction])
+
+    line_list = balance_transaction.contentValues(portal_types="Balance Transaction Line")
+    self.assertEqual(len(line_list), 3)
+
+    profit_loss_list = [line for line in line_list if line.getDestination() == 'account_module/profit_loss']
+    self.assertEqual(len(profit_loss_list), 1)
+    profit_loss = profit_loss_list[0]
+    self.assertEqual(profit_loss.getQuantity(), -8691.14)
+
+    bank_list = [line for line in line_list if line.getDestination() == 'account_module/bank']
+    self.assertEqual(len(bank_list), 1)
+    bank_line = bank_list[0]
+    self.assertEqual(bank_line.getQuantity(), 9876.30)
+    self.assertEqual(bank_line.getDestinationPayment(), bank_account.getRelativeUrl())
+
+    tax_list = [line for line in line_list if line.getDestination() == 'account_module/coll_vat']
+    self.assertEqual(len(tax_list), 1)
+    tax_line = tax_list[0]
+    self.assertEqual(tax_line.getQuantity(), -1185.16)
+
+
   def test_sale_invoice_transaction_organisation(self):
     """ Basic scenario for accountant create an Sale invoice transaction
         to sell services for a customer (Organisation)

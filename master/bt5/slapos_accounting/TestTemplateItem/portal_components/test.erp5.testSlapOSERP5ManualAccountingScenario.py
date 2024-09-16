@@ -342,20 +342,6 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       accountant_person, accountant_organisation, bank_account, currency = \
         self.bootstrapManualAccountingTest()
 
-    # Create required trade condition for manual accounting.
-    self.login()
-    business_process_module = self.portal.business_process_module
-    trade_condition = self.portal.sale_trade_condition_module.newContent(
-      portal_type='Sale Trade Condition',
-      trade_condition_type='default',
-      reference='manual_accounting_for_%s' % accountant_person.getReference(),
-      specialise_value=business_process_module.slapos_manual_accounting_business_process
-    )
-    self.portal.portal_workflow.doActionFor(trade_condition, 'validate_action')
-    self.assertEqual(trade_condition.checkConsistency(), [])
-    self.tic()
-
-    self.login(accountant_person.getUserId())
 
     # Accountant can create one account for Remboursement of a customer
     account = self.portal.account_module.newContent(
@@ -390,8 +376,7 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       resource_value=currency,
       price_currency_value=currency,
       destination_section_value=customer,
-      source_section_value=accountant_organisation,
-      specialise_value=trade_condition
+      source_section_value=accountant_organisation
     )
 
     total_amount = 9876.30

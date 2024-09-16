@@ -1,6 +1,14 @@
 Changes
 =======
 
+1.13.0 (2024-09-16)
+-------------------
+ * slap: default software_type is now 'default'
+ * testing: allow not to request instance in a test.
+ * slap: improve invalid instance parameters reporting
+ * proxy/db_version: prevent a ResourceWarning
+ * testing: don't check bin/phantomjs in checkSoftware
+
 1.12.0 (2024-07-17)
 -------------------
  * format: Allow to log when tap has no name attribute

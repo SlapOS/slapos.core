@@ -42,7 +42,7 @@ root_instance = None
 root_instance_list = [
   q for q in instance_tree.getSuccessorValueList(portal_type=["Software Instance", "Slave Instance"])
   if q.getSlapState() != 'destroy_requested']
-if len(root_instance_list) != 0:
+if len(root_instance_list) == 1:
   root_instance = root_instance_list[0]
   partition = root_instance.getAggregateValue()
   if partition is not None:

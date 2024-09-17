@@ -10,7 +10,7 @@ from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
 from DateTime import DateTime
 
 
-class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
+class TestSlapOSManualAccountingScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
   def bootstrapManualAccountingTest(self):
     currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
     self.tic()
@@ -144,6 +144,9 @@ class TestSlapOSManualAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.portal.portal_workflow.doActionFor(transaction, 'stop_action')
     self.tic()
     self.assertEqual(transaction.getSimulationState(), 'stopped')
+
+
+class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin):
 
   def test_purchase_invoice_transaction(self, provider_as_organisation=False):
     """

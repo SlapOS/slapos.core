@@ -134,6 +134,12 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
     setter = invoice.setSpecialise
     message = "Arity Error for Relation ['specialise'] and Type "\
         "('Sale Trade Condition',), arity is equal to 0 but should be at least 1"
+    self.assertNotIn(message, self.getMessageList(invoice))
+
+    invoice = self.portal.accounting_module.newContent(
+        portal_type='Sale Invoice Transaction',
+        ledger='automated')
+    setter = invoice.setSpecialise
     self.assertIn(message, self.getMessageList(invoice))
 
     sale_condition = self.portal.sale_trade_condition_module.newContent(
@@ -153,6 +159,11 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
         portal_type='Sale Invoice Transaction')
     message = "Arity Error for Relation ['specialise'] and Type " + \
       "('Sale Trade Condition',), arity is equal to 0 but should be at least 1"
+    self.assertNotIn(message, self.getMessageList(invoice))
+
+    invoice = self.portal.accounting_module.newContent(
+        portal_type='Sale Invoice Transaction',
+        ledger='automated')
     self.assertIn(message, self.getMessageList(invoice))
 
     sale_condition = self.portal.sale_trade_condition_module.newContent(

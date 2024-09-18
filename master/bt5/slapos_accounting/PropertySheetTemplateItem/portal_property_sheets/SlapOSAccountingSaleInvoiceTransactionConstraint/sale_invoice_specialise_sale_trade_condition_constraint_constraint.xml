@@ -41,9 +41,21 @@
             <value> <string>sale_invoice_specialise_sale_trade_condition_constraint_constraint</string> </value>
         </item>
         <item>
+            <key> <string>int_index</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
             <key> <string>max_arity</string> </key>
             <value>
               <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>membership_criterion_category</string> </key>
+            <value>
+              <tuple/>
             </value>
         </item>
         <item>
@@ -53,6 +65,22 @@
         <item>
             <key> <string>portal_type</string> </key>
             <value> <string>Category Membership Arity Constraint</string> </value>
+        </item>
+        <item>
+            <key> <string>string_index</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>test_method_id</string> </key>
+            <value>
+              <tuple/>
+            </value>
+        </item>
+        <item>
+            <key> <string>test_tales_expression</string> </key>
+            <value> <string>python: context.getLedger() == \'automated\'</string> </value>
         </item>
         <item>
             <key> <string>use_acquisition</string> </key>

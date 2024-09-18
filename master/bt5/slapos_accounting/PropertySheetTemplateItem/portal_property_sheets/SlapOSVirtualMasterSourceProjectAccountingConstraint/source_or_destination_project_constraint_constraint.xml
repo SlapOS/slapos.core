@@ -20,17 +20,15 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>Only applicable if ledger is automated</string> </value>
         </item>
         <item>
             <key> <string>expression</string> </key>
-            <value> <string>python: context.getDestinationSectionValue().getDefaultAddressRegion(\'\') != \'\'</string> </value>
+            <value> <string>python: len([x for x in [here.getSourceProjectValue(portal_type=\'Project\'), here.getDestinationProjectValue(portal_type=\'Project\')] if ((x is not None) and (x.getValidationState() in (\'validated\', \'invalidated\', \'suspended\')))]) != 0</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>destination_section_country_constraint</string> </value>
+            <value> <string>source_or_destination_project_constraint_constraint</string> </value>
         </item>
         <item>
             <key> <string>int_index</string> </key>
@@ -46,7 +44,11 @@
         </item>
         <item>
             <key> <string>message_expression_false</string> </key>
-            <value> <string>Region must defined on the Destination Section</string> </value>
+            <value> <string>A project is required</string> </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>TALES Constraint</string> </value>
         </item>
         <item>
             <key> <string>string_index</string> </key>
@@ -62,7 +64,7 @@
         </item>
         <item>
             <key> <string>test_tales_expression</string> </key>
-            <value> <string>python: context.getLedger() == \'automated\'  and context.hasSourceSection() and context.hasDestinationSection()</string> </value>
+            <value> <string>python: here.getLedger() == \'automated\'</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -44,7 +44,7 @@ class SlapOSCatalogToolCacheMixin(object):
     # No need to get all results if an error is raised when at least 2 objects
     # are found
     compute_node_list = self.unrestrictedSearchResults(limit=2,
-        portal_type='Compute Node',
+        portal_type=['Compute Node', 'Remote Node'],
         validation_state="validated",
         reference=reference)
     if len(compute_node_list) != 1:
@@ -73,7 +73,7 @@ class SlapOSCatalogToolCacheMixin(object):
   @UnrestrictedMethod
   def _getNonCachedComputeNodeUid(self, reference):
     return self.unrestrictedSearchResults(
-      portal_type='Compute Node', reference=reference,
+      portal_type=['Compute Node', 'Remote Node'], reference=reference,
       validation_state="validated")[0].UID
 
   def getComputePartitionObject(self, compute_node_reference,

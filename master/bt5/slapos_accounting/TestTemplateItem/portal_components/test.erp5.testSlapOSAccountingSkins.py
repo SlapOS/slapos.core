@@ -284,11 +284,10 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
 
     self.assertTrue(invoice.SaleInvoiceTransaction_isLettered())
     self.assertTrue(reversale_invoice.SaleInvoiceTransaction_isLettered())
-    
-    # Another trade condition
-    self.assertEqual(
-      reversale_invoice.getSpecialise(),
-      "sale_trade_condition_module/slapos_manual_accounting_trade_condition")
+
+    self.assertEqual(reversale_invoice.getSpecialise(), None)
+    self.assertEqual(reversale_invoice.getLedger(), None)
+
     self.tic()
 
   @withAbort

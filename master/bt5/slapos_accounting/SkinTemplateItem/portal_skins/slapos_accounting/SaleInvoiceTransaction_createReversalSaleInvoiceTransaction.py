@@ -28,7 +28,8 @@ reversal_transaction.edit(
   title="Reversal Transaction for %s" % context.getTitle(),
   causality_value=context,
   description="Reversal Transaction for %s" % context.getTitle(),
-  specialise_value=portal.sale_trade_condition_module.slapos_manual_accounting_trade_condition,
+  specialise_value=None,
+  ledger=None,
 )
 
 for line in reversal_transaction.getMovementList():

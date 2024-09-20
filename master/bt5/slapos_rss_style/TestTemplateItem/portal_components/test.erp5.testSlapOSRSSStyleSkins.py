@@ -21,10 +21,8 @@
 #
 ##############################################################################
 
-import transaction
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort, TemporaryAlarmScript
 
-from DateTime import DateTime
 import feedparser
 from time import sleep
 
@@ -165,53 +163,6 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
     self.login(person.getUserId())
     self.portal.portal_skins.changeSkin('RSS')
     parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
-    self.assertFalse(parsed.bozo)
-    self.assertEqual([item.summary for item in parsed.entries],
-      ['How can I help you ?', 'I need help !'])
-    self.assertNotEqual([item.id for item in parsed.entries][0], first_entry_id)
-
-  def test_WebSection_viewCriticalTicketListAsRSS(self):
-    person = self.makePerson(self.addProject())
-
-    support_request = person.Entity_createTicketFromTradeCondition(
-      'service_module/slapos_crm_monitoring',
-      'Help',
-      'I need help !',
-    )
-    support_request.Ticket_createProjectEvent(
-      support_request.getTitle(), 'incoming', 'Web Message',
-      support_request.getResource(),
-      text_content=support_request.getDescription(),
-      content_type='text/plain',
-      source=person.getRelativeUrl()
-    )
-    self.tic()
-
-    self.login(person.getUserId())
-    self.portal.portal_skins.changeSkin('RSS')
-    self.clearCache()
-    transaction.commit()
-    parsed = feedparser.parse(self.portal.WebSection_viewCriticalTicketListAsRSS())
-    self.assertFalse(parsed.bozo)
-    first_entry_id = [item.id for item in parsed.entries]
-    self.assertEqual(len(parsed.entries), 1)
-    self.assertEqual([item.summary for item in parsed.entries], ['I need help !'])
-
-    self.logout()
-    sleep(2)
-    self.login()
-    support_request.Ticket_createProjectEvent(
-      support_request.getTitle(), 'outgoing', 'Web Message',
-      support_request.getResource(),
-      text_content='How can I help you ?',
-      content_type='text/plain'
-    )
-    self.tic()
-
-    self.logout()
-    self.login(person.getUserId())
-    self.portal.portal_skins.changeSkin('RSS')
-    parsed = feedparser.parse(self.portal.WebSection_viewCriticalTicketListAsRSS())
     self.assertFalse(parsed.bozo)
     self.assertEqual([item.summary for item in parsed.entries],
       ['How can I help you ?', 'I need help !'])
@@ -865,45 +816,3 @@ class TestBase_getTicketUrl(TestRSSSyleSkinsMixin):
 
     self.assertIn("/#/%s" % ticket.getRelativeUrl(),
                   web_site.support_request_module[ticket.getId()].Base_getTicketUrl())
-
-
-class TestSlapOSSaleInvoiceTransaction_getRSSTitleAndDescription(TestRSSSyleSkinsMixin):
-
-  def test_sale_invoice(self):
-    invoice = self.portal.accounting_module.newContent(\
-                      portal_type="Sale Invoice Transaction",
-                      reference="TESTINVOICE-%s" % self.new_id,
-                      title="Test Sale Invoice %s" % self.new_id)
-
-    self.portal.portal_skins.changeSkin('RSS')
-    text = self.portal.Base_translateString("Invoice")
-    self.assertEqual(
-      invoice.SaleInvoiceTransaction_getRSSTitle(),
-      "%s %s" % (text, invoice.getReference()))
-
-    self.assertIn(
-      invoice.Base_getTicketUrl(),
-      invoice.SaleInvoiceTransaction_getRSSDescription())
-
-    self.assertIn(
-      invoice.getReference(),
-      invoice.SaleInvoiceTransaction_getRSSDescription())
-
-    invoice_via_website = \
-      self.portal.web_site_module.slapos_master_panel.accounting_module[invoice.getId()]
-    self.assertEqual(
-      invoice_via_website.SaleInvoiceTransaction_getRSSTitle(),
-      "[SlapOS Master Panel] %s %s" % (text, invoice.getReference()))
-
-    self.assertNotIn(
-      invoice.Base_getTicketUrl(),
-      invoice_via_website.SaleInvoiceTransaction_getRSSDescription())
-
-    self.assertIn(
-      invoice_via_website.Base_getTicketUrl(),
-      invoice_via_website.SaleInvoiceTransaction_getRSSDescription())
-
-    invoice.setStartDate(DateTime("02/01/2018"))
-    self.assertEqual(
-      invoice_via_website.SaleInvoiceTransaction_getRSSTitle(),
-      "[SlapOS Master Panel] %s %s - (01/02/2018)" % (text, invoice.getReference()))

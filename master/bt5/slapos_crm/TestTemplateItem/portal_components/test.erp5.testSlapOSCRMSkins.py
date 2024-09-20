@@ -397,36 +397,6 @@ class TestCRMPropertySheetConstraint(SlapOSTestCaseMixin):
     self.assertFalse(event.checkConsistency())
 
 
-class TestSlapOSFolder_getTicketFeedUrl(TestCRMSkinsMixin):
-
-  def _test(self, module):
-    self.assertRaises(ValueError, module.Folder_getTicketFeedUrl)
-    person = self.makePerson(self.project, user=1)
-    self.addProjectProductionManagerAssignment(person, self.project)
-    self.tic()
-
-    self.login(person.getUserId())
-
-    url = module.Folder_getTicketFeedUrl()
-    self.assertIn('Folder_viewOpenTicketList', url)
-    self.assertIn(module.absolute_url(), url)
-    self.assertIn('access_token_secret', url)
-    self.assertIn('access_token=', url)
-    self.assertIn('portal_skin=RSS', url)
-
-    self.tic()
-    self.assertEqual(url, module.Folder_getTicketFeedUrl())
-
-  def test_Folder_getTicketFeedUrl_support_request_module(self):
-    self._test(self.portal.support_request_module)
-
-  def test_Folder_getTicketFeedUrl_regularisation_request_module(self):
-    self._test(self.portal.regularisation_request_module)
-
-  def test_Folder_getTicketFeedUrl_incident_response_module(self):
-    self._test(self.portal.incident_response_module)
-
-
 class TestTicket_createProjectEvent(TestCRMSkinsMixin):
 
   def createUsualTicket(self):

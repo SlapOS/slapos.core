@@ -90,31 +90,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     )
     return integration_site
 
-
-  def createHostingSubscription(self):
-    new_id = self.generateNewId()
-    return self.portal.hosting_subscription_module.newContent(
-      portal_type='Hosting Subscription',
-      title="Subscription %s" % new_id,
-      reference="TESTHS-%s" % new_id,
-      )
-
-  def createInstanceTree(self):
-    new_id = self.generateNewId()
-    return self.portal.instance_tree_module.newContent(
-      portal_type='Instance Tree',
-      title="Subscription %s" % new_id,
-      reference="TESTIT-%s" % new_id,
-      )
-
-  def createOpenSaleOrder(self):
-    new_id = self.generateNewId()
-    return self.portal.open_sale_order_module.newContent(
-      portal_type='Open Sale Order',
-      title="OpenSaleOrder %s" % new_id,
-      reference="TESTOSO-%s" % new_id,
-      )
-
   def createSaleInvoiceTransactionForReversal(self, destination_section=None, price=2, payment_mode="payzen"):
     new_title = self.generateNewId()
     new_reference = self.generateNewId()
@@ -235,7 +210,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       system_preference.setPreferredPayzenIntegrationSite(
         older_integration_site
       )
-    
 
   @withAbort
   def test_createReversalSaleInvoiceTransaction_ok(self, payment_mode='payzen'):

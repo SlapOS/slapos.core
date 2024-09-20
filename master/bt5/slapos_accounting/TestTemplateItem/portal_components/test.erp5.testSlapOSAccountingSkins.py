@@ -260,7 +260,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.assertTrue(reversale_invoice.SaleInvoiceTransaction_isLettered())
 
     self.assertEqual(reversale_invoice.getSpecialise(), None)
-    self.assertEqual(reversale_invoice.getLedger(), None)
+    self.assertEqual(reversale_invoice.getLedger(), 'automated')
 
     self.tic()
 

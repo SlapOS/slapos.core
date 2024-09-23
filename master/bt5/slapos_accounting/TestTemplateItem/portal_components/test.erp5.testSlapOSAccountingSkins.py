@@ -90,11 +90,26 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     )
     return integration_site
 
+  def createSaleTradeCondition(self):
+    trade_condition = self.portal.sale_trade_condition_module.newContent(
+        portal_type="Sale Trade Condition",
+        reference="Dummy Trade Condition %s" % self.generateNewId(),
+        trade_condition_type="default",
+        # XXX hardcoded
+        specialise="business_process_module/slapos_manual_accounting_business_process"
+      )
+    trade_condition.validate()
+    return trade_condition
+
+
+
   def createSaleInvoiceTransactionForReversal(self, destination_section=None, price=2, payment_mode="payzen"):
     new_title = self.generateNewId()
     new_reference = self.generateNewId()
     new_source_reference = self.generateNewId()
     new_destination_reference = self.generateNewId()
+    new_trade_condition = self.createSaleTradeCondition()
+
     invoice = self.portal.accounting_module.newContent(
       portal_type="Sale Invoice Transaction",
       title=new_title,
@@ -105,7 +120,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       destination_section=destination_section,
       payment_mode=payment_mode,
       ledger='automated',
-      specialise="sale_trade_condition_module/slapos_aggregated_trade_condition",
+      specialise_value=new_trade_condition,
       created_by_builder=1 # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(invoice, 'stopped')

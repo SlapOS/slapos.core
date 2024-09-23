@@ -90,36 +90,26 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     )
     return integration_site
 
-
-  def createHostingSubscription(self):
-    new_id = self.generateNewId()
-    return self.portal.hosting_subscription_module.newContent(
-      portal_type='Hosting Subscription',
-      title="Subscription %s" % new_id,
-      reference="TESTHS-%s" % new_id,
+  def createSaleTradeCondition(self):
+    trade_condition = self.portal.sale_trade_condition_module.newContent(
+        portal_type="Sale Trade Condition",
+        reference="Dummy Trade Condition %s" % self.generateNewId(),
+        trade_condition_type="default",
+        # XXX hardcoded
+        specialise="business_process_module/slapos_manual_accounting_business_process"
       )
+    trade_condition.validate()
+    return trade_condition
 
-  def createInstanceTree(self):
-    new_id = self.generateNewId()
-    return self.portal.instance_tree_module.newContent(
-      portal_type='Instance Tree',
-      title="Subscription %s" % new_id,
-      reference="TESTIT-%s" % new_id,
-      )
 
-  def createOpenSaleOrder(self):
-    new_id = self.generateNewId()
-    return self.portal.open_sale_order_module.newContent(
-      portal_type='Open Sale Order',
-      title="OpenSaleOrder %s" % new_id,
-      reference="TESTOSO-%s" % new_id,
-      )
 
   def createSaleInvoiceTransactionForReversal(self, destination_section=None, price=2, payment_mode="payzen"):
     new_title = self.generateNewId()
     new_reference = self.generateNewId()
     new_source_reference = self.generateNewId()
     new_destination_reference = self.generateNewId()
+    new_trade_condition = self.createSaleTradeCondition()
+
     invoice = self.portal.accounting_module.newContent(
       portal_type="Sale Invoice Transaction",
       title=new_title,
@@ -130,7 +120,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       destination_section=destination_section,
       payment_mode=payment_mode,
       ledger='automated',
-      specialise="sale_trade_condition_module/slapos_aggregated_trade_condition",
+      specialise_value=new_trade_condition,
       created_by_builder=1 # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(invoice, 'stopped')
@@ -235,7 +225,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       system_preference.setPreferredPayzenIntegrationSite(
         older_integration_site
       )
-    
 
   @withAbort
   def test_createReversalSaleInvoiceTransaction_ok(self, payment_mode='payzen'):
@@ -286,7 +275,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.assertTrue(reversale_invoice.SaleInvoiceTransaction_isLettered())
 
     self.assertEqual(reversale_invoice.getSpecialise(), None)
-    self.assertEqual(reversale_invoice.getLedger(), None)
+    self.assertEqual(reversale_invoice.getLedger(), 'automated')
 
     self.tic()
 

@@ -142,7 +142,7 @@
                           <string>Hostname</string>
                         </tuple>
                         <tuple>
-                          <string>default_network_address_ip_address</string>
+                          <string>internet_protocol_address_text</string>
                           <string>IP Address</string>
                         </tuple>
                         <tuple>

@@ -7,8 +7,12 @@ portal = context.getPortalObject()
 # for safety, we limit at 100 lines
 list_lines = min(list_lines, 100)
 
+web_site =  context.getWebSiteValue()
+if not web_site:
+  web_site = context.getPortalObject()
+
 getTicket_memo = {}
-def getTicketInfo(event):
+def getTicketInfo(event, web_site):
   follow_up = event.getFollowUp()
   try:
     return getTicket_memo[follow_up]
@@ -21,30 +25,18 @@ def getTicketInfo(event):
     getTicket_memo[follow_up] = (
       ticket.getTitle(),
       ticket.getResourceTranslatedTitle() or '',
-      ticket.Base_getTicketUrl(),
+      web_site.absolute_url() + "/#/" + ticket.getRelativeUrl(),
     )
     return getTicket_memo[follow_up]
 
-if follow_up_portal_type is None:
-  follow_up_portal_type = ['Support Request', 'Regularisation Request',
-                           'Upgrade Decision', 'Subscription Request']
+follow_up_portal_type = ['Support Request', 'Regularisation Request',
+                         'Upgrade Decision', 'Subscription Request']
 
-ticket_simulation_state = [
+follow_up_simulation_state = [
   'validated','submitted', 'suspended', 'invalidated',
   # Unfortunally Upgrade decision uses diferent states.
   'confirmed', 'started', 'stopped', 'delivered'
 ]
-
-context_kw = {}
-if context_related:
-  context_kw['follow_up__uid'] = [x.getUid() for x in portal.portal_catalog(
-    causality__uid=context.getUid(),
-    portal_type=follow_up_portal_type,
-    simulation_state=ticket_simulation_state
-  )] or [-1]
-else:
-  context_kw['follow_up__simulation_state'] = ticket_simulation_state
-  context_kw['follow_up__portal_type'] = follow_up_portal_type
 
 data_list = []
 for brain in portal.portal_simulation.getMovementHistoryList(
@@ -56,12 +48,13 @@ for brain in portal.portal_simulation.getMovementHistoryList(
     limit=list_lines,
     sort_on=(('stock.date', 'desc'),
              ('uid', 'desc')),
-    **context_kw):
+    follow_up__simulation_state=follow_up_simulation_state,
+    follow_up__portal_type=follow_up_portal_type):
   event = brain.getObject()
 
   (ticket_title,
    ticket_category,
-   ticket_link) = getTicketInfo(event)
+   ticket_link) = getTicketInfo(event, web_site)
 
   data_list.append(
       Object(**{

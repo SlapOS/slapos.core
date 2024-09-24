@@ -73,7 +73,7 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
     self.tic()
 
   def bootstrapVirtualMasterTestWithProject(self):
-    currency, _, _, sale_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
     self.tic()
     self.logout()
     self.login()

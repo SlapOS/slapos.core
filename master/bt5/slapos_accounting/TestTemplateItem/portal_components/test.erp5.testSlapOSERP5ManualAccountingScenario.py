@@ -12,7 +12,7 @@ from DateTime import DateTime
 
 class TestSlapOSManualAccountingScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
   def bootstrapManualAccountingTest(self):
-    currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
+    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
     self.tic()
 
     self.logout()

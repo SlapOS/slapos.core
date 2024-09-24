@@ -17,7 +17,7 @@ class TestSlapOSSubscriptionChangeRequestScenarioMixin(TestSlapOSVirtualMasterSc
 class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRequestScenarioMixin):
 
   def test_subscription_change_request_change_instance_destination_without_accounting_scenario(self):
-    currency, _, _, sale_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
 
     self.tic()
 
@@ -185,7 +185,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.checkERP5StateBeforeExit()
 
   def test_subscription_change_request_change_project_destination_section_scenario(self):
-    currency, _, _, sale_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
+    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
 
     self.tic()
 
@@ -288,7 +288,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
 
   def test_subscription_change_request_change_instance_destination_section_scenario(self):
-    currency, _, _, sale_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
 
     self.tic()
 

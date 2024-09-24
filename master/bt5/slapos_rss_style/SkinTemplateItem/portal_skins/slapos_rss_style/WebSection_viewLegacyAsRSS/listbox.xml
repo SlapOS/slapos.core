@@ -10,6 +10,7 @@
             <key> <string>delegated_list</string> </key>
             <value>
               <list>
+                <string>all_columns</string>
                 <string>columns</string>
                 <string>count_method</string>
                 <string>default_params</string>
@@ -115,6 +116,12 @@
             <value>
               <dictionary>
                 <item>
+                    <key> <string>all_columns</string> </key>
+                    <value>
+                      <list/>
+                    </value>
+                </item>
+                <item>
                     <key> <string>columns</string> </key>
                     <value>
                       <list>
@@ -123,16 +130,28 @@
                           <string>Title</string>
                         </tuple>
                         <tuple>
-                          <string>modification_date</string>
+                          <string>guid</string>
+                          <string>guid</string>
+                        </tuple>
+                        <tuple>
+                          <string>pubDate</string>
                           <string>pubDate</string>
                         </tuple>
                         <tuple>
                           <string>description</string>
-                          <string>Description</string>
+                          <string>description</string>
                         </tuple>
                         <tuple>
-                          <string>url_string</string>
                           <string>link</string>
+                          <string>link</string>
+                        </tuple>
+                        <tuple>
+                          <string>author</string>
+                          <string>author</string>
+                        </tuple>
+                        <tuple>
+                          <string>thumbnail</string>
+                          <string>thumbnail</string>
                         </tuple>
                       </list>
                     </value>

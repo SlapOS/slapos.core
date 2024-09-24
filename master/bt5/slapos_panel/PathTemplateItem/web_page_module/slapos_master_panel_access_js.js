@@ -22,7 +22,8 @@
           'Servers',
           'Tickets',
           'Invoices',
-          'Pay'
+          'Pay',
+          'RSS'
         ])
       }))
         .push(function (result_dict) {
@@ -54,6 +55,10 @@
             title: result_dict.translation_dict.Pay,
             jio_key: 'accounting_module',
             erp5_action: 'pay_my_slapos_sale_invoice_transaction'
+          }, {
+            title: result_dict.translation_dict.RSS,
+            jio_key: 'support_request_module',
+            erp5_action: 'slapos_panel_view_my_rss_feed_link'
           }]);
         });
     });

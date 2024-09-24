@@ -97,6 +97,7 @@ Subscription Request Module | slapos_panel_view
 Subscription Request | jump_pay_my_slapos_sale_invoice_transaction
 Subscription Request | slapos_panel_view
 Support Request Module | slapos_panel_view
+Support Request Module | slapos_panel_view_my_rss_feed_link
 Support Request Module | slapos_panel_view_my_ticket_list
 Support Request | add_slapos_event
 Support Request | close_slapos_support_request

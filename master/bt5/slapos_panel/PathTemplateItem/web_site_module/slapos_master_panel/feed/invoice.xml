@@ -126,11 +126,11 @@
         </item>
         <item>
             <key> <string>custom_render_method_id</string> </key>
-            <value> <string>WebSection_viewSaleInvoiceTransactionListAsWeb</string> </value>
+            <value> <string>WebSection_viewLegacyAsRSS</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Contain the list of Invoices generated</string> </value>
+            <value> <string>Legacy</string> </value>
         </item>
         <item>
             <key> <string>empty_criterion_valid</string> </key>
@@ -315,12 +315,12 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <unicode>zope</unicode> </value>
+                      <value> <string>zope</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
                       <value>
-                        <persistent> <string encoding="base64">AAAAAAAAAAg=</string> </persistent>
+                        <none/>
                       </value>
                   </item>
                   <item>
@@ -329,7 +329,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>0.0.0.0</string> </value>
+                      <value> <string>1018.61242.39137.36676</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -349,7 +349,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1709200278.65</float>
+                              <float>1726862548.39</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -359,38 +359,6 @@
                 </dictionary>
               </list>
             </value>
-        </item>
-      </dictionary>
-    </pickle>
-  </record>
-  <record id="8" aka="AAAAAAAAAAg=">
-    <pickle>
-      <global name="Message" module="Products.ERP5Type.Message"/>
-    </pickle>
-    <pickle>
-      <dictionary>
-        <item>
-            <key> <string>default</string> </key>
-            <value> <string>Object copied from ${source_item}</string> </value>
-        </item>
-        <item>
-            <key> <string>domain</string> </key>
-            <value> <string>erp5_ui</string> </value>
-        </item>
-        <item>
-            <key> <string>mapping</string> </key>
-            <value>
-              <dictionary>
-                <item>
-                    <key> <string>source_item</string> </key>
-                    <value> <unicode>/erp5/web_site_module/hostingjs/feed</unicode> </value>
-                </item>
-              </dictionary>
-            </value>
-        </item>
-        <item>
-            <key> <string>message</string> </key>
-            <value> <string>Object copied from ${source_item}</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -121,6 +121,7 @@
                       <list>
                         <string>my_specialise_title</string>
                         <string>my_status</string>
+                        <string>my_translated_slap_state_title</string>
                       </list>
                     </value>
                 </item>

@@ -14,6 +14,7 @@ Compute Node | revoke_slapos_certificate
 Compute Node | slapos_panel_compute_node_usage
 Compute Node | slapos_panel_view
 Compute Node | supply_slapos
+Compute Partition | slapos_panel_view
 Computer Network Module | slapos_panel_view
 Computer Network | jump_to_slapos_compute_node
 Computer Network | slapos_fast_invalidate
@@ -40,6 +41,7 @@ Organisation | claim_slapos_subscription_request
 Person | claim_slapos_item_subscription
 Person | create_slapos_project
 Person | slapos_panel_view
+Preference Tool | slapos_panel_view
 Preference | slapos_panel_view
 Project Module | slapos_panel_view
 Project Module | slapos_panel_view_my_project_list

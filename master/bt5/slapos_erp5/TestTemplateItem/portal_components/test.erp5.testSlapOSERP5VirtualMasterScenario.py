@@ -249,7 +249,7 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     )
     sale_supply.validate()
 
-    return currency, seller_organisation, seller_bank_account, sale_person
+    return currency, seller_organisation, seller_bank_account, sale_person, accountant_person
 
   def checkERP5StateBeforeExit(self):
     self.logout()
@@ -284,7 +284,7 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     return production_manager_person
 
   def bootstrapAccountingTest(self):
-    currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
+    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
     self.tic()
 
     self.logout()
@@ -326,7 +326,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
   def test_virtual_master_without_accounting_scenario(self):
     with PinnedDateTime(self, DateTime('2024/02/17')):
-      currency, _, _, sale_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
 
       self.tic()
 
@@ -461,7 +461,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
 
   def test_deposit_with_accounting_scenario(self):
-    currency, seller_organisation, _, _ = \
+    currency, seller_organisation, _, _, _ = \
       self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
 
     self.logout()
@@ -531,7 +531,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
   def test_virtual_master_professional_account_with_accounting_scenario(self):
     with PinnedDateTime(self, DateTime('2024/02/17')):
-      currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
+      currency, _, _, sale_person, accountant_person = self.bootstrapVirtualMasterTest()
 
       self.logout()
       # lets join as slapos administrator, which will manager the project
@@ -702,6 +702,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # Pay deposit to validate virtual master + one computer, for the organisation
       # For now we cannot rely on user payments
+      self.logout()
+      self.login(accountant_person.getUserId())
       deposit_amount = 42.0 + 99.0
       ledger = self.portal.portal_categories.ledger.automated
 
@@ -710,19 +712,18 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       amount = sum([i.total_price for i in outstanding_amount_list])
       self.assertEqual(amount, deposit_amount)
 
-      payment_transaction = customer_section_organisation.Entity_createDepositPaymentTransaction(
-        outstanding_amount_list)
+      # XXX use accountant account couscous
+      payment_transaction = customer_section_organisation.Entity_createDepositAction(
+        'wire_transfer', outstanding_amount_list[0].getRelativeUrl(), deposit_amount, None)
 
       self.tic()
       self.assertEqual(payment_transaction.getSpecialiseValue().getTradeConditionType(), "deposit")
-      # payzen/wechat or accountant will only stop the payment
-      payment_transaction.stop()
-      self.tic()
       assert payment_transaction.receivable.getGroupingReference(None) is not None
 
       outstanding_amount_list = customer_section_organisation.Entity_getOutstandingDepositAmountList(
           currency.getUid(), ledger_uid=ledger.getUid())
       self.assertEqual(0, sum([i.total_price for i in outstanding_amount_list]))
+      self.logout()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -806,7 +807,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
   def test_virtual_master_with_accounting_scenario(self):
     with PinnedDateTime(self, DateTime('2024/02/17')):
-      currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
+      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
       self.logout()
       # lets join as slapos administrator, which will manager the project
@@ -1040,7 +1041,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
   def test_virtual_master_slave_without_accounting_scenario(self):
     with PinnedDateTime(self, DateTime('2024/02/17')):
-      currency, _, _, sale_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
 
       self.web_site = self.portal.web_site_module.slapos_master_panel
 
@@ -1196,7 +1197,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
   def test_virtual_master_slave_on_same_tree_without_accounting_scenario(self):
     with PinnedDateTime(self, DateTime('2024/02/17')):
-      currency, _, _, sale_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
 
       self.web_site = self.portal.web_site_module.slapos_master_panel
 
@@ -1314,7 +1315,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
   def test_virtual_master_on_remote_tree_without_accounting_scenario(self):
     with PinnedDateTime(self, DateTime('2024/02/17')):
-      currency, _, _, sale_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
 
       self.web_site = self.portal.web_site_module.slapos_master_panel
 
@@ -1547,7 +1548,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
   def test_virtual_master_slave_instance_on_remote_tree_without_accounting_scenario(self):
     with PinnedDateTime(self, DateTime('2024/02/17')):
-      currency, _, _, sale_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
 
       self.web_site = self.portal.web_site_module.slapos_master_panel
 

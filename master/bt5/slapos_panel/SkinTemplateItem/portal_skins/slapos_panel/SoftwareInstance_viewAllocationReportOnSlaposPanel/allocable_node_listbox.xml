@@ -129,6 +129,10 @@
                           <string>reference</string>
                           <string>Reference</string>
                         </tuple>
+                        <tuple>
+                          <string>capacity_scope_title</string>
+                          <string>Capacity Scope</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

@@ -42,7 +42,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       subscription request is automatically validated/invalidated if price is 0.
     """
     with PinnedDateTime(self, DateTime('2024/01/31')):
-      currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
+      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
       self.logout()
       # lets join as slapos administrator, which will manager the project
@@ -263,7 +263,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       subscription request is automatically validated/invalidated if price is 0.
     """
     with PinnedDateTime(self, DateTime('2024/01/31')):
-      currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
+      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
       self.logout()
       # lets join as slapos administrator, which will manager the project
@@ -362,7 +362,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       subscription request is automatically validated/invalidated if price is 0.
     """
     with PinnedDateTime(self, DateTime('2024/01/31')):
-      currency, _, _, sale_person = self.bootstrapVirtualMasterTest()
+      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
       self.logout()
       # lets join as slapos administrator, which will manager the project

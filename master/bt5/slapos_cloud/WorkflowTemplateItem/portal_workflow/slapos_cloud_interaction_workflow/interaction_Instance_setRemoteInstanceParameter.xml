@@ -56,6 +56,9 @@
             <value>
               <tuple>
                 <string>_setTextContent.*</string>
+                <string>requestStart</string>
+                <string>requestStop</string>
+                <string>requestDestroy</string>
               </tuple>
             </value>
         </item>

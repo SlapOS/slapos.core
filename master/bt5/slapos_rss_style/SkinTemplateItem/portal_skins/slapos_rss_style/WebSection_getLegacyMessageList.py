@@ -1,22 +1,38 @@
-web_site = context.getWebSiteValue()
-portal = context.getPortalObject()
+from Products.PythonScripts.standard import Object
 from DateTime import DateTime
+from hashlib import md5
 
+portal = context.getPortalObject()
+web_site = None
 url = None
 
-if web_site is not None:
-  url = web_site.getLayoutProperty("configuration_slapos_master_web_url", default=None)
+if context.getPortalType() in ["Web Site", "Web Section"]:
+  web_site = context.getWebSiteValue()
+  if web_site is not None:
+    url = web_site.getLayoutProperty("configuration_slapos_master_web_url", default=None)
 
 if url is not None and url != portal.absolute_url():
   description = "Please replace the url %s by %s on this feed url" % (portal.absolute_url(), url)
 else:
-  url = portal.absolute_url()
-  description = "This RSS is disabled."
+  url = context.REQUEST.get('URL', context.absolute_url())
+  description = """
+This RSS feed is disabled:
 
-from Products.ERP5Type.Document import newTempBase
+  %s?...
 
-return [
-       newTempBase(context, 'please_migrate', **{"title": "This RSS is disabled.",
-                          "url_string": "%s?%s" % (url, DateTime().strftime("%Y%m%d")),
-                          "modification_date": DateTime().earliestTime(),
-                          "description": description})]
+Please remove it from your RSS reader, and use the global feed instead in order to get updates.
+""" % url
+
+# Use date to ensure it changes every day.
+date_id = DateTime().strftime("%Y%m%d")
+
+return [Object(**{
+          'title': "This RSS is disabled (%s)" % date_id,
+          'category': 'Disabled',
+          'author': 'Administrator',
+          'link': "%s?date=%s" % (url, date_id),
+          'pubDate': DateTime().earliestTime(),
+          'guid': md5("%s-%s" % (url, date_id)).hexdigest(),
+          'description': description,
+          'thumbnail': ( None)})
+        ]

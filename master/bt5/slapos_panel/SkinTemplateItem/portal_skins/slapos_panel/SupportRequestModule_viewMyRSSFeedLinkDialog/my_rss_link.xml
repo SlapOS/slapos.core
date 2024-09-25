@@ -2,13 +2,13 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="StringField" module="Products.Formulator.StandardFields"/>
+      <global name="LinkField" module="Products.Formulator.StandardFields"/>
     </pickle>
     <pickle>
       <dictionary>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>listbox_title</string> </value>
+            <value> <string>my_rss_link</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>
@@ -17,6 +17,10 @@
                 <item>
                     <key> <string>external_validator_failed</string> </key>
                     <value> <string>The input failed the external validator.</string> </value>
+                </item>
+                <item>
+                    <key> <string>not_link</string> </key>
+                    <value> <string>The specified link is broken.</string> </value>
                 </item>
                 <item>
                     <key> <string>required_not_found</string> </key>
@@ -35,6 +39,18 @@
               <dictionary>
                 <item>
                     <key> <string>alternate_name</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>autocomplete</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>check_link</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>check_timeout</string> </key>
                     <value> <string></string> </value>
                 </item>
                 <item>
@@ -78,6 +94,14 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>input_type</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>link_type</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>max_length</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -110,6 +134,18 @@
               <dictionary>
                 <item>
                     <key> <string>alternate_name</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>autocomplete</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>check_link</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>check_timeout</string> </key>
                     <value> <string></string> </value>
                 </item>
                 <item>
@@ -159,6 +195,10 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>link_type</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>max_length</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -194,6 +234,18 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>autocomplete</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>check_link</string> </key>
+                    <value> <int>0</int> </value>
+                </item>
+                <item>
+                    <key> <string>check_timeout</string> </key>
+                    <value> <float>7.0</float> </value>
+                </item>
+                <item>
                     <key> <string>css_class</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -215,7 +267,7 @@
                 </item>
                 <item>
                     <key> <string>editable</string> </key>
-                    <value> <int>1</int> </value>
+                    <value> <int>0</int> </value>
                 </item>
                 <item>
                     <key> <string>enabled</string> </key>
@@ -234,6 +286,14 @@
                     <value> <int>0</int> </value>
                 </item>
                 <item>
+                    <key> <string>input_type</string> </key>
+                    <value> <string>text</string> </value>
+                </item>
+                <item>
+                    <key> <string>link_type</string> </key>
+                    <value> <string>external</string> </value>
+                </item>
+                <item>
                     <key> <string>max_length</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -243,7 +303,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Title</string> </value>
+                    <value> <string>RSS Feed</string> </value>
                 </item>
                 <item>
                     <key> <string>truncate</string> </key>
@@ -271,7 +331,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>cell/SaleInvoiceTransaction_getRSSTitle</string> </value>
+            <value> <string>context/SupportRequestModule_getRssFeedUrl</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -40,6 +40,7 @@ Organisation | claim_slapos_subscription_request
 Person | claim_slapos_item_subscription
 Person | create_slapos_project
 Person | slapos_panel_view
+Preference Tool | slapos_panel_view
 Preference | slapos_panel_view
 Project Module | slapos_panel_view
 Project Module | slapos_panel_view_my_project_list

@@ -333,6 +333,24 @@ class TestSlapOSFreeComputePartitionAlarm(SlapOSTestCaseMixin):
     self.assertEqual(partition.getRelativeUrl(), software_instance.getAggregate())
     self.assertEqual('busy', partition.getSlapState())
 
+  def test_SoftwareInstance_tryToUnallocatePartition_script_sharedAndAllocatedOnRemoteNode(self):
+    instance_tree = self.addInstanceTree(shared=True)
+    software_instance = instance_tree.getSuccessorValue()
+    remote_node, _ = self.addComputeNodeAndPartition(portal_type='Remote Node',
+                                                   project=instance_tree.getFollowUpValue())
+    partition = remote_node.restrictedTraverse('SHARED_REMOTE')
+
+    software_instance.setAggregateValue(partition)
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
+        'destroy_requested')
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
+        'invalidated')
+    self.tic()
+
+    software_instance.SoftwareInstance_tryToUnallocatePartition()
+    self.assertEqual(None, software_instance.getAggregate())
+    self.assertEqual('busy', partition.getSlapState())
+
 
 class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
   #################################################################

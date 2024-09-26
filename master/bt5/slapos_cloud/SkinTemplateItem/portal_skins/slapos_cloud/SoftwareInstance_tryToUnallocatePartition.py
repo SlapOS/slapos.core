@@ -14,6 +14,13 @@ if partition is not None:
   if (portal.portal_activities.countMessageWithTag(tag) == 0):
     # No concurrency issue
     instance.unallocatePartition()
+
+    if (partition.getId() == 'SHARED_REMOTE') and (partition.getParentValue().getPortalType() == 'Remote Node'):
+      # Do not free the SHARED_REMOTE partition on Remote Node
+      # used to allocate Slave Instance
+      # This partition is always busy, as no Software Instance is allocated on it
+      return
+
     instance_sql_list = portal.portal_catalog(
                           portal_type=["Software Instance", "Slave Instance"],
                           aggregate__uid=partition.getUid(),

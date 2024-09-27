@@ -67,7 +67,7 @@ elif ! is_ubuntu || [[ $DISTRO = wheezy || $DISTRO == jessie || $DISTRO == stret
 else
   # Ansible is using python3 now
   is_package_installed python3-pip || install_package python3-pip
-  pip3 install --upgrade pip
+  pip3 install --upgrade --ignore-installed pip
 fi
 
 if is_ubuntu && [[ $DISTRO == focal || $DISTRO == buster ]]; then

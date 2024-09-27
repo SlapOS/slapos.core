@@ -1,4 +1,11 @@
 <type_roles>
+  <role id='Author'>
+   <property id='title'>Accountant</property>
+   <property id='description'>FIXME: Included because Accountant needs to create Maileva Exchange.</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/accounting*</multi_property>
+   <multi_property id='base_category'>function</multi_property>
+  </role>
   <role id='Auditor'>
    <property id='title'>Information System</property>
    <property id='description'>XXX local role group</property>

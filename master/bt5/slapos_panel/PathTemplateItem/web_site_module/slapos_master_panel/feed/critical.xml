@@ -146,9 +146,7 @@
         </item>
         <item>
             <key> <string>short_title</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>SlapOS Panel</string> </value>
         </item>
         <item>
             <key> <string>skin_selection_name</string> </key>
@@ -156,7 +154,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Critical</string> </value>
+            <value> <string>SlapOS Master Panel</string> </value>
         </item>
         <item>
             <key> <string>visible</string> </key>
@@ -329,7 +327,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1018.61242.39137.36676</string> </value>
+                      <value> <string>1019.38764.14051.12049</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -349,7 +347,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1726862844.48</float>
+                              <float>1727459335.02</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

@@ -168,9 +168,7 @@
         </item>
         <item>
             <key> <string>short_title</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>SlapOS Panel</string> </value>
         </item>
         <item>
             <key> <string>skin_selection_name</string> </key>
@@ -178,7 +176,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>RSS Feed</string> </value>
+            <value> <string>SlapOS Master Panel</string> </value>
         </item>
         <item>
             <key> <string>visible</string> </key>
@@ -359,12 +357,12 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <unicode>zope</unicode> </value>
+                      <value> <string>zope</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
                       <value>
-                        <persistent> <string encoding="base64">AAAAAAAAAAs=</string> </persistent>
+                        <none/>
                       </value>
                   </item>
                   <item>
@@ -373,7 +371,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>0.0.0.0</string> </value>
+                      <value> <string>1019.38764.3456.56661</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -393,7 +391,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1709200278.63</float>
+                              <float>1727459321.74</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -403,38 +401,6 @@
                 </dictionary>
               </list>
             </value>
-        </item>
-      </dictionary>
-    </pickle>
-  </record>
-  <record id="11" aka="AAAAAAAAAAs=">
-    <pickle>
-      <global name="Message" module="Products.ERP5Type.Message"/>
-    </pickle>
-    <pickle>
-      <dictionary>
-        <item>
-            <key> <string>default</string> </key>
-            <value> <string>Object copied from ${source_item}</string> </value>
-        </item>
-        <item>
-            <key> <string>domain</string> </key>
-            <value> <string>erp5_ui</string> </value>
-        </item>
-        <item>
-            <key> <string>mapping</string> </key>
-            <value>
-              <dictionary>
-                <item>
-                    <key> <string>source_item</string> </key>
-                    <value> <unicode>/erp5/web_site_module/hostingjs/feed</unicode> </value>
-                </item>
-              </dictionary>
-            </value>
-        </item>
-        <item>
-            <key> <string>message</string> </key>
-            <value> <string>Object copied from ${source_item}</string> </value>
         </item>
       </dictionary>
     </pickle>

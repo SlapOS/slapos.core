@@ -1154,8 +1154,9 @@ class TestSystemEventModule(TestSlapOSGroupRoleSecurityMixin):
   def test_SystemEventModule(self):
     module = self.portal.system_event_module
     self.assertSecurityGroup(module,
-        ['R-SHADOW-PERSON', module.Base_getOwnerId(), 'F-IS*'], False)
+        ['R-SHADOW-PERSON', 'F-ACCOUNTING*', module.Base_getOwnerId(), 'F-IS*'], False)
     self.assertRoles(module, 'R-SHADOW-PERSON', ['Author'])
+    self.assertRoles(module, 'F-ACCOUNTING*', ['Author'])
     self.assertRoles(module, 'F-IS*', ['Auditor'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
 

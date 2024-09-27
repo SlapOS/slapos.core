@@ -195,6 +195,38 @@
 
     return g.renderSubForm("", {}, {}, true)
       .push(function () {
+        var input = g.element.querySelector('select.slapos-software-type'),
+          parameter_shared = g.element.querySelector('input.parameter_shared'),
+          shared = g.state.shared,
+          softwaretype = g.state.softwaretype,
+          editable = g.state.editable,
+          option;
+
+        // re-enforce readonly if it was not set before.
+        if (!editable || g.state.restricted_softwaretype === true) {
+          input.classList.add("readonly");
+          input["aria-disabled"] = "true";
+          input["tab-index"] = "-1";
+        }
+
+        // Field failed too early, so nothing was included, in this case
+        // we forcefully include the default option it exists.
+        if ((input.children.length === 0) && (softwaretype !== undefined)) {
+          option = domsugar("option", {
+            text: softwaretype,
+            value: softwaretype,
+            selected: true
+          });
+          option['data-id'] = softwaretype;
+          option['data-index'] = 999;
+          option['data-shared'] = shared;
+          if (shared !== undefined) {
+            parameter_shared.value = shared;
+          }
+          input.appendChild(option);
+        }
+      })
+      .push(function () {
         // Do not hide the Software type, let the user edit it.
         failover_div = domsugar(failover_div, {}, [
           domsugar('div', {

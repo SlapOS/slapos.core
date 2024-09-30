@@ -1,8 +1,11 @@
 from DateTime import DateTime
 portal = context.getPortalObject()
 
-if (context.getMonitorScope() == "disabled") or \
-   portal.ERP5Site_isSupportRequestCreationClosed():
+if (context.getMonitorScope() == "disabled"):
+  return
+  
+project = context.getFollowUpValue()
+if project.Project_isSupportRequestCreationClosed():
   return
 
 software_installation_list = portal.portal_catalog(

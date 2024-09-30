@@ -205,93 +205,69 @@ class TestSlapOSisSupportRequestCreationClosed(TestCRMSkinsMixin):
   def afterSetUp(self):
     TestCRMSkinsMixin.afterSetUp(self)
     self.project = self.addProject()
-    self._cancelTestSupportRequestList()
-    self.clearCache()
-
-  def test_ERP5Site_isSupportRequestCreationClosed(self):
-
-    person = self.makePerson(self.project, user=0)
-    other_person = self.makePerson(self.project, user=0)
-    url = person.getRelativeUrl()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
+    self.other_project = self.addProject()
+    # ensure it is set to 5
     self.portal.portal_preferences.slapos_default_system_preference\
       .setPreferredSupportRequestCreationLimit(5)
+    self.clearCache()
 
-    def newSupportRequest():
-      sr = self.portal.support_request_module.newContent(\
-                        title="Test Support Request POIUY",
-                        resource="service_module/slapos_crm_monitoring",
-                        destination_decision=url)
+  def newDummySupportRequest(self,
+                             resource="service_module/slapos_crm_monitoring",
+                             state='validated'):
+    sr = self.portal.support_request_module.newContent(\
+      title="Test isSupportRequestCreationClosed %s" % self.generateNewId(),
+      resource=resource,
+      source_project_value=self.project)
+    if state == 'validated':
       sr.validate()
-      sr.immediateReindexObject()
-
-    newSupportRequest()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    newSupportRequest()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    newSupportRequest()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    newSupportRequest()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    newSupportRequest()
-    # It hit cache
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    self.clearCache() 
-    self.assertTrue(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-
-    self.assertTrue(self.portal.ERP5Site_isSupportRequestCreationClosed())
-
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(
-                     other_person.getRelativeUrl()))
-
-  def test_ERP5Site_isSupportRequestCreationClosed_suspended_state(self):
-    person = self.makePerson(self.project, user=0)
-    url = person.getRelativeUrl()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
-
-    def newSupportRequest():
-      sr = self.portal.support_request_module.newContent(\
-                        title="Test Support Request POIUY",
-                        resource="service_module/slapos_crm_monitoring",
-                        destination_decision=url)
+    elif state == 'suspended':
       sr.validate()
       sr.suspend()
-      sr.immediateReindexObject()
-    # Create five tickets, the limit of ticket creation
-    newSupportRequest()
-    newSupportRequest()
-    newSupportRequest()
-    newSupportRequest()
-    newSupportRequest()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
+    elif state == 'submited':
+      sr.submit()
+    sr.immediateReindexObject()
 
+  def test_Project_isSupportRequestCreationClosed(self, state='validated'):
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(state=state)
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(state=state)
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(state=state)
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(state=state)
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(state=state)
+    self.assertTrue(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(state=state)
+    self.assertTrue(self.project.Project_isSupportRequestCreationClosed())
+    # it dont close another project
+    self.assertFalse(self.other_project.Project_isSupportRequestCreationClosed())
 
-  def test_ERP5Site_isSupportRequestCreationClosed_nonmonitoring(self):
-    person = self.makePerson(self.project, user=0)
-    url = person.getRelativeUrl()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
+  def test_Project_isSupportRequestCreationClosed_submited_state(self):
+    self.test_Project_isSupportRequestCreationClosed(state='submited')
 
-    def newSupportRequest():
-      sr = self.portal.support_request_module.newContent(\
-                        title="Test Support Request POIUY",
-                        destination_decision=url)
-      sr.validate()
-      sr.immediateReindexObject()
+  def test_Project_isSupportRequestCreationClosed_suspended_state(self):
+    self.test_Project_isSupportRequestCreationClosed(state='suspended')
 
-    # Create five tickets, the limit of ticket creation
-    newSupportRequest()
-    newSupportRequest()
-    newSupportRequest()
-    newSupportRequest()
-    newSupportRequest()
-
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
-
+  def test_Project_isSupportRequestCreationClosed_nonmonitoring(self):
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    # it dont close another project
+    self.assertFalse(self.other_project.Project_isSupportRequestCreationClosed())
 
 class TestSlapOSHasError(SlapOSTestCaseMixin):
 

@@ -44,7 +44,7 @@ else:
   return {}
 
 return {
-  'username': username,
-  'password': password,
-  'url': url
+  'username': username.encode(),
+  'password': password.encode(),
+  'url': url.encode()
   }

@@ -1,9 +1,5 @@
 portal = context.getPortalObject()
 
-if portal.ERP5Site_isSupportRequestCreationClosed():
-  # Stop process alarm if there are too many tickets
-  return
-
 monitor_enabled_category = portal.restrictedTraverse(
   "portal_categories/monitor_scope/enabled", None)
 

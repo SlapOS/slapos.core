@@ -1,8 +1,11 @@
 from DateTime import DateTime
 portal = context.getPortalObject()
 
-if (context.getMonitorScope() == "disabled") or \
-   portal.ERP5Site_isSupportRequestCreationClosed():
+if (context.getMonitorScope() == "disabled"):
+  return
+  
+project = context.getFollowUpValue()
+if project.Project_isSupportRequestCreationClosed():
   return
 
 reference = context.getReference()
@@ -76,8 +79,6 @@ if not should_notify:
         context.getTitle(), context.getReference(), last_contact)
 
 if should_notify:
-
-  project = context.getFollowUpValue()
   support_request = project.Project_createSupportRequestWithCausality(
     ticket_title,
     description,

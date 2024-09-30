@@ -4,8 +4,8 @@ from erp5.component.module.DateUtils import addToDate
 instance_tree = context
 portal = context.getPortalObject()
 
-if portal.ERP5Site_isSupportRequestCreationClosed():
-  # Stop ticket creation
+project = context.getFollowUpValue()
+if project.Project_isSupportRequestCreationClosed():
   return
 
 date_check_limit = addToDate(DateTime(), to_add={'hour': -1})
@@ -49,7 +49,6 @@ for instance in software_instance_list:
     else:
       error_message = "No message!"
 
-    project = context.getFollowUpValue()
     support_request = project.Project_createSupportRequestWithCausality(
       ticket_title,
       description,

@@ -162,44 +162,6 @@ class TestSlapOSSupportRequestModule_getMonitoringUrlList(TestCRMSkinsMixin):
     self.tic()
     self.assertNotEqual(instance_tree.getSuccessorList(), [])
 
-
-class TestComputeNode_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
-
-  def test_ComputeNode_hasContactedRecently_newly_created(self):
-    compute_node, _ = self._makeComputeNode(self.addProject())
-    self.tic()
-    has_contacted = compute_node.ComputeNode_hasContactedRecently()
-    self.assertTrue(has_contacted)
-
-  def test_ComputeNode_hasContactedRecently_no_data(self):
-    with PinnedDateTime(self, DateTime()-32):
-      compute_node, _ = self._makeComputeNode(self.addProject())
-    self.tic()
-
-    has_contacted = compute_node.ComputeNode_hasContactedRecently()
-    self.assertFalse(has_contacted)
-
-  def test_ComputeNode_hasContactedRecently_memcached(self):
-    with PinnedDateTime(self, DateTime()-32):
-      compute_node, _ = self._makeComputeNode(self.addProject())
-    compute_node.setAccessStatus("")
-
-    self.tic()
-
-    has_contacted = compute_node.ComputeNode_hasContactedRecently()
-    self.assertTrue(has_contacted)
-
-  def test_ComputeNode_hasContactedRecently_memcached_oudated_no_spl(self):
-    with PinnedDateTime(self, DateTime()-32):
-      compute_node, _ = self._makeComputeNode(self.addProject())
-      compute_node.setAccessStatus("")
-
-    self.tic()
-
-    has_contacted = compute_node.ComputeNode_hasContactedRecently()
-    self.assertFalse(has_contacted)
-
-
 class TestSlapOSisSupportRequestCreationClosed(TestCRMSkinsMixin):
 
   def afterSetUp(self):

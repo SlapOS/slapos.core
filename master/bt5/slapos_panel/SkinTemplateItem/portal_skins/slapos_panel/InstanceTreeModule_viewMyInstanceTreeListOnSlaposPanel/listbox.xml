@@ -126,6 +126,10 @@
                           <string>Short Title</string>
                         </tuple>
                         <tuple>
+                          <string>follow_up_title</string>
+                          <string>Project</string>
+                        </tuple>
+                        <tuple>
                           <string>status</string>
                           <string>Status</string>
                         </tuple>

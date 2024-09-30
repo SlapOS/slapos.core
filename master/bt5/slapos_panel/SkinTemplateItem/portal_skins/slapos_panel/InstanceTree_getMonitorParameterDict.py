@@ -1,3 +1,5 @@
+from Products.ERP5Type.Utils import unicode2str
+
 def getCredentialFromUrl(url_string):
   username = password = url = ''
   param_list = url_string.split('#')
@@ -44,7 +46,7 @@ else:
   return {}
 
 return {
-  'username': username,
-  'password': password,
-  'url': url
+  'username': unicode2str(username),
+  'password': unicode2str(password),
+  'url': unicode2str(url)
   }

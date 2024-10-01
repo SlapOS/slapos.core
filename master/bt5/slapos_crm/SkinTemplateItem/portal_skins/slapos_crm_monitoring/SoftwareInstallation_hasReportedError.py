@@ -4,7 +4,7 @@ if tolerance is None:
   tolerance = DateTime() - 0.5
 
 software_installation = context
-reference = software_installation.getReferece()
+reference = software_installation.getReference()
 d = software_installation.getAccessStatus()
 def return_ok(batch_mode):
   if batch_mode:

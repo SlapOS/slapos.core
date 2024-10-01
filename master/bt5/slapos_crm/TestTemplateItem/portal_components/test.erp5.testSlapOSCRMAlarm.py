@@ -1311,7 +1311,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     self._test_alarm_check_compute_node_state_selected(
       allocation_scope='close/noallocation')
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   def test_ComputeNode_checkState_script_oldAccessStatus(self):
     compute_node, _ = self._makeComputeNode(self.addProject())
     d = DateTime() - 1.1
@@ -1327,7 +1327,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     self.assertIn(d.strftime("%Y/%m/%d %H:%M:%S"),
       compute_node_support_request.getDescription())
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   def test_ComputeNode_checkState_script_noAccessStatus(self):
     compute_node, _ = self._makeComputeNode(self.addProject())
     compute_node_support_request = compute_node.ComputeNode_checkState()
@@ -1356,7 +1356,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     )
     return support_request
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, **kw',
   'assert reference == "slapos-crm-compute_node_check_state.notification", reference\n' \
@@ -1397,7 +1397,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(event.getPortalType(), "Web Message")
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, **kw',
   'assert reference == "slapos-crm-compute_node_check_state.notification"\n' \
@@ -1434,7 +1434,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(event.getPortalType(), "Web Message")
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, **kw',
   'assert reference == "slapos-crm-compute_node_check_stalled_instance_state.notification", reference\n' \
@@ -1479,7 +1479,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(event.getPortalType(), "Web Message")
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, **kw',
   'assert reference == "slapos-crm-compute_node_check_stalled_instance_state.notification", reference\n' \
@@ -1573,7 +1573,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
       causality__uid=compute_node_uid
     )
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, **kw',
   'assert reference == "slapos-crm-compute_node_software_installation_state.notification", reference\n' \
@@ -1620,7 +1620,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
     self.assertEqual(event.getPortalType(), "Web Message")
     """
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, **kw',
   'assert reference == "slapos-crm-compute_node_software_installation_state.notification", reference\n' \
@@ -1666,7 +1666,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(event.getPortalType(), "Web Message")
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, **kw',
   'assert reference == "slapos-crm-compute_node_software_installation_state.notification", reference\n' \
@@ -1694,7 +1694,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
 
     self.assertEqual(ticket, None)
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, **kw',
   'assert reference == "slapos-crm-compute_node_software_installation_state.notification", reference\n' \
@@ -1740,7 +1740,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(event.getPortalType(), "Web Message")
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, **kw',
   'assert reference == "slapos-crm-compute_node_software_installation_state.notification", reference\n' \
@@ -1788,7 +1788,6 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
 
     return instance_tree
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
   def test_InstanceTree_checkSoftwareInstanceState_alarm_validated(self):
     host_sub = self._makeInstanceTree()
     self.tic()
@@ -1796,7 +1795,6 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
           slapos_crm_check_instance_in_error
     self._test_alarm(alarm, host_sub, "InstanceTree_checkSoftwareInstanceState")
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
   def test_InstanceTree_checkSoftwareInstanceState_alarm_archived(self):
     host_sub = self._makeInstanceTree()
     host_sub.archive()
@@ -1822,7 +1820,7 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
       causality__uid=compute_node_uid
     )
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, **kw',
   'assert reference == "slapos-crm-instance-tree-instance-state.notification", reference\n' \
@@ -1869,7 +1867,7 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(event.getPortalType(), "Web Message")
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   def test_InstanceTree_checkSoftwareInstanceState_script_notifyErrorTolerance(self):
     with PinnedDateTime(self, DateTime()-1.1):
       self._makeComputeNode(self.addProject())
@@ -1894,7 +1892,7 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
 
     self.assertEqual(ticket, None)
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, **kw',
   'assert reference == "slapos-crm-instance-tree-instance-allocation.notification", reference\n' \
@@ -1941,7 +1939,7 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(event.getPortalType(), "Web Message")
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   def test_InstanceTree_checkSoftwareInstanceState_script_tooEarly(self):
     with PinnedDateTime(self, DateTime()):
       self._makeComputeNode(self.addProject())
@@ -1965,7 +1963,7 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
 
     self.assertEqual(ticket, None)
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 1')
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 1')
   def test_InstanceTree_checkSoftwareInstanceState_script_closed(self):
     with PinnedDateTime(self, DateTime()-1):
       self._makeComputeNode(self.addProject())
@@ -2077,7 +2075,7 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
       )
     return notification_message.getRelativeUrl()
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, **kw',
   'assert reference == "slapos-crm-support-request-close-destroyed-notification", reference\n' \
@@ -2119,7 +2117,7 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(event.getPortalType(), "Web Message")
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   def test_SupportRequest_updateMonitoringState_script_notDestroyed(self):
     support_request = self._makeSupportRequest()
     support_request.setResource("service_module/slapos_crm_monitoring")
@@ -2141,7 +2139,7 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
     self.assertEqual(len(event_list), 0)
     self.assertEqual(ticket.getSimulationState(), "submitted")
 
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   def test_SupportRequest_updateMonitoringState_script_invalidated(self):
     support_request = self._makeSupportRequest()
     support_request.setResource("service_module/slapos_crm_monitoring")

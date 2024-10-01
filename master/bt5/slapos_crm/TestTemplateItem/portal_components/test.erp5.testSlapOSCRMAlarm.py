@@ -1321,7 +1321,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
 
     compute_node_support_request = compute_node.ComputeNode_checkState()
     self.assertNotEqual(compute_node_support_request, None)
-    self.assertIn("[MONITORING] Lost contact with compute_node",
+    self.assertIn("Lost contact with compute_node",
       compute_node_support_request.getTitle())
     self.assertIn("has not contacted the server for more than 30 minutes",
       compute_node_support_request.getDescription())
@@ -1334,7 +1334,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     compute_node_support_request = compute_node.ComputeNode_checkState()
 
     self.assertNotEqual(compute_node_support_request, None)
-    self.assertIn("[MONITORING] Lost contact with compute_node",
+    self.assertIn("Lost contact with compute_node",
       compute_node_support_request.getTitle())
     self.assertIn("has not contacted the server (No Contact Information)",
       compute_node_support_request.getDescription())
@@ -1375,7 +1375,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     compute_node.ComputeNode_checkState()
     self.tic()
 
-    ticket_title = "[MONITORING] Lost contact with compute_node %s" % compute_node.getReference()
+    ticket_title = "Lost contact with compute_node %s" % compute_node.getReference()
     ticket = self._getGeneratedSupportRequest(compute_node.getUid(), ticket_title)
 
     self.assertNotEqual(ticket, None)
@@ -1413,7 +1413,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     compute_node.ComputeNode_checkState()
     self.tic()
 
-    ticket_title = "[MONITORING] Lost contact with compute_node %s" % compute_node.getReference()
+    ticket_title = "Lost contact with compute_node %s" % compute_node.getReference()
     ticket = self._getGeneratedSupportRequest(compute_node.getUid(), ticket_title)
     self.assertNotEqual(ticket, None)
     event_list = ticket.getFollowUpRelatedValueList()
@@ -1458,7 +1458,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     compute_node.ComputeNode_checkState()
     self.tic()
 
-    ticket_title = "[MONITORING] Compute Node %s has a stalled instance process" % compute_node.getReference()
+    ticket_title = "Compute Node %s has a stalled instance process" % compute_node.getReference()
     ticket = self._getGeneratedSupportRequest(compute_node.getUid(), ticket_title)
     self.assertNotEqual(ticket, None)
     event_list = ticket.getFollowUpRelatedValueList()
@@ -1504,7 +1504,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
     compute_node.ComputeNode_checkState()
     self.tic()
 
-    ticket_title = "[MONITORING] Compute Node %s has a stalled instance process" % compute_node.getReference()
+    ticket_title = "Compute Node %s has a stalled instance process" % compute_node.getReference()
     ticket = self._getGeneratedSupportRequest(compute_node.getUid(), ticket_title)
     self.assertNotEqual(ticket, None)
     event_list = ticket.getFollowUpRelatedValueList()
@@ -1593,7 +1593,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
     compute_node.ComputeNode_checkSoftwareInstallationState()
     self.tic()
 
-    ticket_title = "[MONITORING] No information for %s on %s" % (
+    ticket_title = "No information for %s on %s" % (
       self.start_requested_software_installation.getReference(),
       compute_node.getReference()
     )
@@ -1641,7 +1641,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
     compute_node.ComputeNode_checkSoftwareInstallationState()
     self.tic()
 
-    ticket_title = "[MONITORING] %s is building for too long on %s" % (
+    ticket_title = "%s is building for too long on %s" % (
       self.start_requested_software_installation.getReference(),
       compute_node.getReference()
     )
@@ -1687,7 +1687,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
     compute_node.ComputeNode_checkSoftwareInstallationState()
     self.tic()
 
-    ticket_title = "[MONITORING] %s is building for too long on %s" % (
+    ticket_title = "%s is building for too long on %s" % (
       self.start_requested_software_installation.getReference(),
       compute_node.getReference()
     )
@@ -1715,7 +1715,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
     compute_node.ComputeNode_checkSoftwareInstallationState()
     self.tic()
 
-    ticket_title = "[MONITORING] %s is failing to build on %s" % (
+    ticket_title = "%s is failing to build on %s" % (
       self.start_requested_software_installation.getReference(),
       compute_node.getReference()
     )
@@ -1761,7 +1761,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
     compute_node.ComputeNode_checkSoftwareInstallationState()
     self.tic()
 
-    ticket_title = "[MONITORING] %s is failing to build on %s" % (
+    ticket_title = "%s is failing to build on %s" % (
       self.start_requested_software_installation.getReference(),
       compute_node.getReference()
     )

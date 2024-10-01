@@ -20,4 +20,4 @@ def isSupportRequestCreationClosed(project_uid):
 
 return CachingMethod(isSupportRequestCreationClosed,
          "isSupportRequestCreationClosed",
-         cache_factory="erp5_content_short")(project_uid=project_uid)
+         cache_factory="erp5_content_short")(project_uid=context.getUid())

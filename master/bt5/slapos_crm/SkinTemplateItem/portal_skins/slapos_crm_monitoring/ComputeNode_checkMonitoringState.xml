@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>tolerance=None, batch_mode=False</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SoftwareInstallation_hasReportedError</string> </value>
+            <value> <string>ComputeNode_checkMonitoringState</string> </value>
         </item>
       </dictionary>
     </pickle>

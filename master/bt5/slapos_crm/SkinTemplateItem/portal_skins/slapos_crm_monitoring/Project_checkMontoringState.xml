@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string></string> </value>
+            <value> <string>tag</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputeNode_checkSoftwareInstallationState</string> </value>
+            <value> <string>Project_checkMontoringState</string> </value>
         </item>
       </dictionary>
     </pickle>

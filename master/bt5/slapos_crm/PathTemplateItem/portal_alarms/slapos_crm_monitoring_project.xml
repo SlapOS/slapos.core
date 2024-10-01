@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>active_sense_method_id</string> </key>
-            <value> <string>Alarm_checkSoftwareInstallationState</string> </value>
+            <value> <string>Alarm_checkProjectMonitoringState</string> </value>
         </item>
         <item>
             <key> <string>automatic_solve</string> </key>
@@ -16,9 +16,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>Check per project and trigger activities to verify all compute nodes (monitored) per project and as well related instances.</string> </value>
         </item>
         <item>
             <key> <string>enabled</string> </key>
@@ -26,7 +24,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_crm_check_software_installation_state</string> </value>
+            <value> <string>slapos_crm_monitoring_project</string> </value>
         </item>
         <item>
             <key> <string>periodicity_hour</string> </key>
@@ -101,7 +99,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Check software installation\'s state</string> </value>
+            <value> <string>Create tickets for Compute nodes and Instance Trees</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>fixit, tag, **kw</string> </value>
+            <value> <string>tag</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Alarm_searchInstanceOnClosedComputeNode</string> </value>
+            <value> <string>Project_checkMontoringState</string> </value>
         </item>
       </dictionary>
     </pickle>

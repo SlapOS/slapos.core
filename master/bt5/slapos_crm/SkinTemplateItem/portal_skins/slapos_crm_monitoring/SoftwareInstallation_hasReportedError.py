@@ -30,7 +30,7 @@ if d.get("text").startswith("#building"):
     return last_contact
 
   should_notify = True
-  ticket_title = "[MONITORING] %s is building for too long on %s" % (reference, software_installation.getAggregateReference())
+  ticket_title = "%s is building for too long on %s" % (reference, software_installation.getAggregateReference())
   description = "The software release %s is building for mode them 12 hours on %s, started on %s" % \
           (software_installation.getUrlString(), software_installation.getAggregateTitle(), software_installation.getCreationDate())
   return should_notify, ticket_title, description, last_contact
@@ -40,7 +40,7 @@ if d.get("text").startswith("#error"):
     return DateTime(d.get('created_at'))
 
   should_notify = True
-  ticket_title = "[MONITORING] %s is failing to build on %s" % (reference, software_installation.getAggregateReference())
+  ticket_title = "%s is failing to build on %s" % (reference, software_installation.getAggregateReference())
   description = "The software release %s is failing to build for too long on %s, started on %s" % \
     (software_installation.getUrlString(), software_installation.getAggregateTitle(), software_installation.getCreationDate())
   return should_notify, ticket_title, description, last_contact

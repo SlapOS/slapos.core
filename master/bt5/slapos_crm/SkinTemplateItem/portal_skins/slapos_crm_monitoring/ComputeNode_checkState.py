@@ -11,8 +11,8 @@ if project.Project_isSupportRequestCreationClosed():
 reference = context.getReference()
 compute_node_title = context.getTitle()
 
-node_ticket_title = "[MONITORING] Lost contact with compute_node %s" % reference
-instance_ticket_title = "[MONITORING] Compute Node %s has a stalled instance process" % reference
+node_ticket_title = "Lost contact with compute_node %s" % reference
+instance_ticket_title = "Compute Node %s has a stalled instance process" % reference
 ticket_title = node_ticket_title
 
 description = ""
@@ -39,7 +39,7 @@ else:
     if data_array:
       should_notify = True
       notification_message_reference = "slapos-crm-compute_node_check_modified_file.notification"
-      ticket_title = "[MONITORING] Compute Node %s has modified file" % reference
+      ticket_title = "Compute Node %s has modified file" % reference
       issue_document_reference = data_array.getReference()
       description = "The Compute Node %s (%s) has modified file: %s" % (compute_node_title, reference, issue_document_reference)
 

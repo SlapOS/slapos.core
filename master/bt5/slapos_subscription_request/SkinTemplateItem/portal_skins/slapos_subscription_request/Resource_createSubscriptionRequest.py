@@ -6,7 +6,7 @@ if (subscriber_person_value is None) or (subscriber_person_value.getPortalType()
 
 source_project_value = None
 destination_project_value = None
-trade_condition_type = None
+forced_trade_condition_type = trade_condition_type
 
 if resource.getPortalType() == "Software Product":
   source_project_value = project_value
@@ -38,6 +38,10 @@ elif resource.getPortalType() == "Service":
     raise NotImplementedError('Unsupported resource: %s' % resource.getRelativeUrl())
 else:
   raise NotImplementedError('Unsupported resource: %s' % resource.getRelativeUrl())
+
+if forced_trade_condition_type is not None:
+  # explicit trade_condition_type was provided
+  trade_condition_type = forced_trade_condition_type
 
 ######################################################
 # Find Sale Trade Condition and price

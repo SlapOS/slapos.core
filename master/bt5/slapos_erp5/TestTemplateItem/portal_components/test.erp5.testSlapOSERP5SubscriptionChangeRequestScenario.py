@@ -178,8 +178,8 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 1 software instance
     # 1 software product
     # 1 subscription change request
-    # 2 subscription request
-    self.assertRelatedObjectCount(project, 32)
+    # 3 subscription request
+    self.assertRelatedObjectCount(project, 33)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
@@ -280,8 +280,9 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # Ensure no unexpected object has been created
     # 2 assignment
     # 2 sale trade condition
+    # 1 subscription change request
     # 2 subscription request
-    self.assertRelatedObjectCount(project, 6)
+    self.assertRelatedObjectCount(project, 7)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
@@ -404,8 +405,9 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 2 sale trade condition
     # 2 sale supply*
     # 3 sale trade conditions
+    # 1 subscription change request
     # 3 subscription request
-    self.assertRelatedObjectCount(project, 12)
+    self.assertRelatedObjectCount(project, 13)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()

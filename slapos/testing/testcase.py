@@ -95,7 +95,7 @@ SNAPSHOT_DIRECTORY_DEFAULT: str | None = os.environ.get(
 )
 
 def makeModuleSetUpAndTestCaseClass(
-  software_url: str,
+  software_url: str | os.PathLike[str],
   *,
   base_directory: str | None = None,
   ipv4_address: str = IPV4_ADDRESS_DEFAULT,
@@ -125,7 +125,7 @@ def makeModuleSetUpAndTestCaseClass(
     See https://lab.nexedi.com/kirr/slapns for a solution to this problem.
 
   Args:
-    software_url: The URL of the software to test.
+    software_url: The URL or path of the software to test.
     base_directory: The base directory used for SlapOS.
       By default, it will use the value in the environment variable
       ``SLAPOS_TEST_WORKING_DIR``.
@@ -177,6 +177,8 @@ def makeModuleSetUpAndTestCaseClass(
       - A base class for test cases.
   
   """
+  software_url = os.fspath(software_url)
+
   if base_directory is None:
     base_directory = os.path.realpath(
       os.environ.get(

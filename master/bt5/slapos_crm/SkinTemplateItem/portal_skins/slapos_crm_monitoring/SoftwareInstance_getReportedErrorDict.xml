@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>tag, fixit, params</string> </value>
+            <value> <string>tolerance=0, batch_mode=False</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Alarm_checkInstanceTreeState</string> </value>
+            <value> <string>SoftwareInstance_getReportedErrorDict</string> </value>
         </item>
       </dictionary>
     </pickle>

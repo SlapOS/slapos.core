@@ -272,6 +272,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/SoftwareInstance_getNewsDict',
         'slapos_panel/SoftwareProduct_addSlapOSSoftwareRelease',
         'slapos_panel/SoftwareProduct_addSlapOSSoftwareType',
+        'slapos_panel/SubscriptionRequest_changeSlaposSubmittedPrice',
         'slapos_panel/SubscriptionRequest_jumpToPaymentPage',
         'slapos_panel/Ticket_addSlapOSEvent',
         'slapos_panel/Ticket_closeSlapOS',

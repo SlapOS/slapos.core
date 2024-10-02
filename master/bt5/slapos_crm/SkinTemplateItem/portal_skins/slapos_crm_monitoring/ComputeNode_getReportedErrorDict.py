@@ -17,7 +17,6 @@ error_dict = {
         'issue_document_reference': None
       }
 
-
 if compute_node.getMonitorScope() == "disabled":
   for i in ['ticket_title', 'ticket_description', 'last_contact']:
     error_dict[i] = "Monitor is disabled on this Compute Node."

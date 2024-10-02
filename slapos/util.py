@@ -43,7 +43,7 @@ import warnings
 
 import jsonschema
 import netaddr
-import requests
+import zc.buildout.download
 import six
 from lxml import etree
 from six.moves.urllib import parse
@@ -405,37 +405,15 @@ def rmtree(path):
 
 
 
-def _readAsJson(url, set_schema_id=False):
-  # type: (str) -> Optional[Dict]
-  """Reads and parse the json file located at `url`.
-
-  `url` can also be the path of a local file.
-  """
-  try:
-    if url.startswith('http://') or url.startswith('https://'):
-      r = requests.get(url, timeout=60) # we need a timeout !
-      r.raise_for_status()
-      r = r.json()
-    else:
-      # XXX: https://discuss.python.org/t/file-uris-in-python/15600
-      if url.startswith('file://'):
-        path = url[7:]
-      else:
-        path = url
-        url = 'file:' + url
-      with open(path) as f:
-        r = json.load(f)
-    if set_schema_id and r:
-      r.setdefault('$id', url)
-    return r
-  except Exception as e:
-    warnings.warn("Unable to load JSON %s (%s: %s)"
-                  % (url, type(e).__name__, e))
-
-
 class _RefResolver(jsonschema.validators.RefResolver):
+  @classmethod
+  def from_schema(cls, schema, read_as_json):
+    instance = super(_RefResolver, cls).from_schema(schema)
+    instance._read_as_json = read_as_json
+    return instance
+
   def resolve_remote(self, uri):
-    result = _readAsJson(uri)
+    result = self._read_as_json(uri)
     if self.cache_remote:
       self.store[uri] = result
     return result
@@ -488,8 +466,8 @@ class SoftwareReleaseSchemaValidationError(ValueError):
 
 class SoftwareReleaseSchema(object):
 
-  def __init__(self, software_url, software_type):
-    # type: (str, Optional[str]) ->  None
+  def __init__(self, software_url, software_type, download=None):
+    # type: (str, Optional[str], Optional[zc.buildout.download.Download]) ->  None
     self.software_url = software_url
     # XXX: Transition from OLD_DEFAULT_SOFTWARE_TYPE ("RootSoftwareInstance")
     #      to DEFAULT_SOFTWARE_TYPE ("default") is already complete for SR schemas.
@@ -497,12 +475,46 @@ class SoftwareReleaseSchema(object):
     if software_type == OLD_DEFAULT_SOFTWARE_TYPE:
       software_type = None
     self.software_type = software_type or DEFAULT_SOFTWARE_TYPE
+    if download is None:
+      download = zc.buildout.download.Download()
+    self._download = download.download
 
   def _warn(self, message, e):
     warnings.warn(
       "%s for software type %r of software release %s (%s: %s)"
       % (message, self.software_type, self.software_url, type(e).__name__, e),
       stacklevel=2)
+
+  def _readAsJson(self, url, set_schema_id=False):
+    # type: (str, bool) -> Optional[Dict]
+    """Reads and parse the json file located at `url`.
+
+    `url` can also be the path of a local file.
+    """
+    try:
+      if url.startswith('http://') or url.startswith('https://'):
+        path, is_temp = self._download(url)
+        try:
+          with open(path) as f:
+            r = json.load(f)
+        finally:
+          if is_temp:
+            os.remove(path)
+      else:
+        # XXX: https://discuss.python.org/t/file-uris-in-python/15600
+        if url.startswith('file://'):
+          path = url[7:]
+        else:
+          path = url
+          url = 'file:' + url
+        with open(path) as f:
+          r = json.load(f)
+      if set_schema_id and r:
+        r.setdefault('$id', url)
+      return r
+    except Exception as e:
+      warnings.warn("Unable to load JSON %s (%s: %s)"
+                    % (url, type(e).__name__, e))
 
   def getSoftwareSchema(self):
     # type: () -> Optional[Dict]
@@ -511,7 +523,7 @@ class SoftwareReleaseSchema(object):
     try:
       return self._software_schema
     except AttributeError:
-      schema = self._software_schema = _readAsJson(self.software_url + '.json')
+      schema = self._software_schema = self._readAsJson(self.software_url + '.json')
     return schema
 
   def getSoftwareTypeSchema(self):
@@ -560,7 +572,7 @@ class SoftwareReleaseSchema(object):
       return self._request_schema
     except AttributeError:
       url = self.getInstanceRequestParameterSchemaURL()
-      schema = None if url is None else _readAsJson(url, True)
+      schema = None if url is None else self._readAsJson(url, True)
       self._request_schema = schema
     return schema
 
@@ -581,7 +593,7 @@ class SoftwareReleaseSchema(object):
       return self._response_schema
     except AttributeError:
       url = self.getInstanceConnectionParameterSchemaURL()
-      schema = None if url is None else _readAsJson(url, True)
+      schema = None if url is None else self._readAsJson(url, True)
       self._response_schema = schema
     return schema
 
@@ -603,7 +615,7 @@ class SoftwareReleaseSchema(object):
 
       validator = jsonschema.validators.validator_for(schema)(
         schema,
-        resolver=_RefResolver.from_schema(schema),
+        resolver=_RefResolver.from_schema(schema, self._readAsJson),
       )
       errors = list(validator.iter_errors(parameter_dict))
       if errors:

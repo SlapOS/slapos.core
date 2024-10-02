@@ -7,6 +7,10 @@ if REQUEST is not None:
   raise Unauthorized
 
 batch = (dialog_id is None)
+if activate_kw is None:
+  activate_kw = {}
+tag = activate_kw.get('tag', script.id)
+activate_kw['tag'] = tag
 
 # Search for the matching item
 sql_subscription_request_list = portal.portal_catalog(
@@ -51,11 +55,11 @@ subscription_change_request = subscription_request.getResourceValue().Resource_c
   subscription_request.getVariationCategoryList(),
   project,
   currency_value=subscription_request.getPriceCurrencyValue(),
-  temp_object=True,
   item_value=item,
-  causality_value=subscription_request.getCausalityValue()
+  causality_value=subscription_request.getCausalityValue(),
+  temp_object=True,
+  portal_type='Subscription Change Request'
 )
-
 current_trade_condition = subscription_change_request.getSpecialiseValue()
 
 if (current_trade_condition.getDestination() is None):
@@ -71,8 +75,10 @@ if (current_trade_condition.getDestination() is None):
     source_project=current_trade_condition.getSourceProject(),
     price_currency=current_trade_condition.getPriceCurrency(),
     trade_condition_type=current_trade_condition.getTradeConditionType(),
+    activate_kw=activate_kw
   )
   new_sale_trade_condition.validate()
+  context.activate(activity='SQLQueue', after_tag=tag).Organisation_claimSlaposSubscriptionRequest(reference, None, activate_kw)
   keep_items = {
     'portal_status_message': Base_translateString('Creating a dedicated Trade Condition for the customer')
   }
@@ -81,11 +87,21 @@ if (current_trade_condition.getDestination() is None):
   return new_sale_trade_condition.Base_redirect(keep_items=keep_items)
 
 else:
+  subscription_change_request = subscription_request.getResourceValue().Resource_createSubscriptionRequest(
+    subscription_request.getDestinationValue(),
+    # [software_type, software_release],
+    subscription_request.getVariationCategoryList(),
+    project,
+    currency_value=subscription_request.getPriceCurrencyValue(),
+    item_value=item,
+    causality_value=subscription_request,
+    portal_type='Subscription Change Request'
+  )
   keep_items = {
     'your_reference': reference,
     'portal_status_level': 'error',
     'portal_status_message': Base_translateString('This customer already has a dedicated Trade Condition')
   }
   if batch:
-    raise ValueError(keep_items['portal_status_message'])
-  return current_trade_condition.Base_redirect(keep_items=keep_items)
+    return subscription_change_request
+  return subscription_change_request.Base_redirect(keep_items=keep_items)

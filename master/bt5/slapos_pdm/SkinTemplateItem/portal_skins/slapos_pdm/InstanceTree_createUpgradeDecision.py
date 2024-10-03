@@ -82,6 +82,18 @@ if (compute_node is None) and (root_instance is not None):
   elif (root_instance.getPortalType() == 'Software Instance'):
     allocation_cell_list = [x for x, y in allocation_cell_node_list if ("Remote Node" in y) or ("Compute Node" in y)]
 
+# Remove duplicated allocation cells
+# ie, multiple allocation cells matching the same release/type/node
+software_release_uid_dict = {}
+not_duplicated_allocation_cell_list = []
+for allocation_cell in allocation_cell_list:
+  # Do not return duplicated release values
+  software_release_uid = allocation_cell.getSoftwareReleaseValue().getUid()
+  if software_release_uid not in software_release_uid_dict:
+    software_release_uid_dict[software_release_uid] = None
+    not_duplicated_allocation_cell_list.append(allocation_cell)
+allocation_cell_list = not_duplicated_allocation_cell_list
+
 # Only upgrade if there is no doubt (ie, only 1 url is allowed)
 if len(allocation_cell_list) == 1:
   if (allocation_cell_list[0].getSoftwareReleaseValue().getUrlString() != instance_tree.getUrlString()):

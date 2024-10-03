@@ -105,6 +105,22 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(SlapOSTestCaseMixin):
 
     self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
 
+  def test_createUpgradeDecision_notAllocated_newReleaseOnComputeNodeWith2AllocationSupplies(self):
+    software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree()
+    self.tic()
+
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("for compute node", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.addAllocationSupply("for compute node", compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation, type_variation
+    )
+
   def test_createUpgradeDecision_notAllocated_sameRelease(self):
     software_product, release_variation, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree()
     self.tic()

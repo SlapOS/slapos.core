@@ -8,7 +8,10 @@ portal.portal_catalog.searchAndActivate(
     portal_type='Instance Tree',
     validation_state='validated',
     method_id='InstanceTree_checkSoftwareInstanceState',
-    activate_kw = {'tag':tag}
+    # This alarm bruteforce checking all documents,
+    # without changing them directly.
+    # Increase priority to not block other activities
+    activate_kw = {'tag':tag, 'priority': 2}
   )
 
 context.activate(after_tag=tag).getId()

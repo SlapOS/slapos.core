@@ -6,8 +6,11 @@ portal.portal_catalog.searchAndActivate(
   parent_portal_type='Remote Node',
   parent__validation_state='validated',
   method_id='ComputePartition_propagateRemoteNode',
-  method_kw={"activate_kw": {'tag': tag}},
-  activate_kw={'tag': tag}
+  # This alarm bruteforce checking all documents,
+  # without changing them directly.
+  # Increase priority to not block other activities
+  method_kw={"activate_kw": {'tag': tag, 'priority': 2}},
+  activate_kw={'tag': tag, 'priority': 2}
 )
 
 context.activate(after_tag=tag).getId()

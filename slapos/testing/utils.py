@@ -46,7 +46,7 @@ from ..grid.utils import getPythonExecutableFromSoftwarePath
 try:
   import typing
   if typing.TYPE_CHECKING:
-    from PIL import Image # pylint:disable=unused-import
+    from PIL.Image import Image # pylint:disable=unused-import
     from .testcase import SlapOSInstanceTestCase
 except ImportError:
   pass

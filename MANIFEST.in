@@ -3,4 +3,4 @@ include slapos/proxy/schema.sql
 include slapos/slapos-client.cfg.example
 include slapos/slapos-proxy.cfg.example
 include slapos/slapos.cfg.example
-recursive-include slapos *.in *.txt *.xsd *.rst
+recursive-include slapos *.in *.txt *.xsd *.rst py.typed

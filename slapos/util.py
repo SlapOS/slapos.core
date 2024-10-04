@@ -94,8 +94,12 @@ class SafeXMLUnmrshaller(Unmarshaller, object):
 loads = SafeXMLUnmrshaller().loads
 
 
-def mkdir_p(path, mode=0o700):
-    """\
+def mkdir_p(
+  path, # type: str
+  mode=0o700, # type: int
+):
+    # type: (...) -> None
+    """
     Creates a directory and its parents, if needed.
 
     NB: If the directory already exists, it does not change its permission.

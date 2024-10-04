@@ -211,6 +211,7 @@ class SlapPopen(subprocess.Popen):
 
 
 def md5digest(url):
+  # type: (str) -> str
   return hashlib.md5(url.encode('utf-8')).hexdigest()
 
 

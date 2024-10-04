@@ -45,6 +45,11 @@ import warnings
 import json
 import six
 
+try:
+  from typing import Mapping, Sequence
+except ImportError: # XXX to be removed once we depend on typing
+  pass
+
 from .exception import ResourceNotReady, ServerError, NotFoundError, \
           ConnectionError
 from .hateoas import SlapHateoasNavigator, ConnectionHelper
@@ -178,6 +183,7 @@ class SoftwareRelease(SlapDocument):
       return self._computer_guid
 
   def getURI(self):
+    # type: () -> str
     if not self._software_release:
       raise NameError('software_release has not been defined.')
     else:
@@ -384,6 +390,7 @@ class Computer(SlapDocument):
 
   @_syncComputerInformation
   def getComputerPartitionList(self):
+    # type: (...) -> Sequence[ComputerPartition]
     for computer_partition in self._computer_partition_list:
       computer_partition._connection_helper = self._connection_helper
       computer_partition._hateoas_navigator = self._hateoas_navigator
@@ -596,6 +603,7 @@ class ComputerPartition(SlapRequester):
     return software_instance
 
   def getId(self):
+    # type: (...) -> str
     if not getattr(self, '_partition_id', None):
       raise ResourceNotReady()
     return self._partition_id
@@ -629,9 +637,11 @@ class ComputerPartition(SlapRequester):
     return software_type
 
   def getInstanceParameterDict(self):
+    # type: (...) -> Mapping[str, object]
     return getattr(self, '_parameter_dict', None) or {}
 
   def getConnectionParameterDict(self):
+    # type: (...) -> Mapping[str, str]
     connection_dict = getattr(self, '_connection_dict', None)
     if connection_dict is None:
       # XXX Backward compatibility for older slapproxy (<= 1.0.0)
@@ -640,6 +650,7 @@ class ComputerPartition(SlapRequester):
     return connection_dict or {}
 
   def getSoftwareRelease(self):
+    # type: (...) -> SoftwareRelease
     """
     Returns the software release associate to the computer partition.
     """

@@ -1,9 +1,14 @@
+from Products.ZSQLCatalog.SQLCatalog import Query, NegatedQuery
+
 portal = context.getPortalObject()
 portal.portal_catalog.searchAndActivate(
   portal_type='Instance Tree',
   validation_state = 'validated',
+  # Do not try to upgrade instance tree created by Remote Node
+  # as it will only lead to software release url inconsistency
+  title=NegatedQuery(Query(title='_remote_%')),
+
   method_id = 'InstanceTree_createUpgradeDecision',
-  packet_size=1,
   activate_kw = {'tag':tag},
   **{"slapos_item.slap_state": ['start_requested', 'stop_requested']}
 )

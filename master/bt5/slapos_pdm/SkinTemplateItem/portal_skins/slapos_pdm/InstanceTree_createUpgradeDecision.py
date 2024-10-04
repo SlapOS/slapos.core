@@ -100,7 +100,8 @@ if len(allocation_cell_list) == 1:
     # XXX Upgrade
 
     if compute_node is not None:
-      assert compute_node.getRelativeUrl() in allocation_cell_list[0].getParentValue().getParentValue().getAggregateList()
+      if compute_node.getRelativeUrl() not in allocation_cell_list[0].getParentValue().getParentValue().getAggregateList():
+        return
 
     if portal.portal_catalog.getResultValue(
       portal_type='Upgrade Decision',

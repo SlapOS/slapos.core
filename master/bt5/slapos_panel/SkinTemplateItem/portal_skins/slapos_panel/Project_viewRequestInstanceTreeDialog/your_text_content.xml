@@ -115,7 +115,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: [(\'json_url\', request.get(\'field_your_url_string\').split(\'?\')[0] + \'.json\'), (\'restricted_softwaretype\', False), (\'software_type_list\', list(set([x.getSoftwareTypeTitle() for x in context.Project_getSoftwareProductPredicateList(software_product=context.getPortalObject().portal_catalog.getResultValue(portal_type=\'Software Product\', uid=request.get(\'field_your_aggregate_uid\')), software_product_release=context.getPortalObject().portal_catalog.getResultValue(portal_type=\'Software Product Release Variation\', parent_uid=request.get(\'field_your_aggregate_uid\'), url_string=request.get(\'field_your_url_string\')))])))]</string> </value>
+            <value> <string>python: [(\'json_url\', context.Project_getSoftwareReleaseSchemaUrl(request.get(\'field_your_url_string\'))), (\'restricted_softwaretype\', False), (\'software_type_list\', list(set([x.getSoftwareTypeTitle() for x in context.Project_getSoftwareProductPredicateList(software_product=context.getPortalObject().portal_catalog.getResultValue(portal_type=\'Software Product\', uid=request.get(\'field_your_aggregate_uid\')), software_product_release=context.getPortalObject().portal_catalog.getResultValue(portal_type=\'Software Product Release Variation\', parent_uid=request.get(\'field_your_aggregate_uid\'), url_string=request.get(\'field_your_url_string\')))])))]</string> </value>
         </item>
       </dictionary>
     </pickle>

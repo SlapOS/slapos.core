@@ -1,4 +1,5 @@
 test.erp5.testSlapOSCRMAlarm
+test.erp5.testSlapOSCRMMonitoringAlarm
 test.erp5.testSlapOSCRMRegularisationRequestSkins
 test.erp5.testSlapOSCRMSkins
 test.erp5.testSlapOSERP5CRMScenario

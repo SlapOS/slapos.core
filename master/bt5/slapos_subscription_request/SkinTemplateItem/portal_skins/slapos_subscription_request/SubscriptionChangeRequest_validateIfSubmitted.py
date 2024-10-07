@@ -143,6 +143,7 @@ if is_owner_change_needed:
     existing_instance_tree = portal.portal_catalog.getResultValue(
       portal_type='Instance Tree',
       title={'query': subscribed_item.getTitle(), 'key': 'ExactMatch'},
+      validation_state='validated',
       destination_section__uid=subscription_change_request.getDestinationUid()
     )
     if existing_instance_tree is not None:

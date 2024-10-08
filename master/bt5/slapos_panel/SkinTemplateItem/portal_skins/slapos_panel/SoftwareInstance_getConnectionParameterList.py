@@ -1,5 +1,4 @@
 from Products.ERP5Type.Document import newTempBase
-from Products.ERP5Type.Utils import unicode2str
 
 import json
 
@@ -23,9 +22,9 @@ if relative_url == None:
 
 for k in sorted(connection_dict):
   if raw:
-    d = {"connection_key": k, "connection_value": unicode2str(connection_dict[k])}
+    d = {"connection_key": k, "connection_value": connection_dict[k]}
   else:
     d = newTempBase(portal, relative_url)
-    d.edit(connection_key=k, connection_value=unicode2str(connection_dict[k]))
+    d.edit(connection_key=k, connection_value=connection_dict[k])
   return_list.append(d)
 return return_list

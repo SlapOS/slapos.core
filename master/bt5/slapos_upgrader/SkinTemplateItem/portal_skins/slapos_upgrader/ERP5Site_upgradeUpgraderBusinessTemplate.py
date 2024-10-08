@@ -3,7 +3,7 @@ template_tool = context.getPortalObject().portal_templates
 template_tool.updateRepositoryBusinessTemplateList(
   template_tool.getRepositoryList())
 
-method_kw = {'bt5_list': ['erp5_forge', 'erp5_upgrader',
+method_kw = {'bt5_list': ['erp5_upgrader',
                           'slapos_upgrader', 'slapos_configurator'],
              'deprecated_after_script_dict': None,
              'deprecated_reinstall_set': None,

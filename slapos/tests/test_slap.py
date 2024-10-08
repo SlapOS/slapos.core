@@ -875,94 +875,100 @@ class TestComputerPartition(SlapMixin):
 
   def test_request_validate_request_parameter(self):
 
-    def handler(url, req):
-      if url.path.endswith('/software.cfg.json'):
-        return json.dumps(
-          {
-              "name": "Test Software",
-              "description": "Dummy software for Test",
-              "serialisation": "json-in-xml",
-              "software-type": {
-                  'default': {
-                      "title": "Default",
-                      "description": "Default type",
-                      "request": "instance-default-input-schema.json",
-                      "response": "instance-default-output-schema.json",
-                      "index": 0
-                  },
-              }
-          })
-      if url.path.endswith('/instance-default-input-schema.json'):
-        return json.dumps(
-            {
-                "$schema": "http://json-schema.org/draft-07/schema",
-                "description": "Simple instance parameters schema for tests",
-                "required": ["foo"],
-                "properties": {
-                    "foo": {
-                        "$ref": "./schemas-definitions.json#/foo"
-                    }
-                },
-                "additionalProperties": False,
-                "type": "object"
-            })
-      if url.path.endswith('/schemas-definitions.json'):
-        return json.dumps({"foo": {"type": "string", "const": "bar"}})
-      raise ValueError(404)
+    def _readAsJson(url, set_schema_id=False):
+      if url == 'https://example.com/software.cfg.json':
+        assert not set_schema_id
+        return {
+          "name": "Test Software",
+          "description": "Dummy software for Test",
+          "serialisation": "json-in-xml",
+          "software-type": {
+            "default": {
+              "title": "Default",
+              "description": "Default type",
+              "request": "instance-default-input-schema.json",
+              "response": "instance-default-output-schema.json",
+              "index": 0
+            },
+          }
+        }
+      if url == 'https://example.com/instance-default-input-schema.json':
+        assert set_schema_id
+        return {
+          "$id": url,
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "description": "Simple instance parameters schema for tests",
+          "required": ["foo"],
+          "properties": {
+            "foo": {
+              "$ref": "./schemas-definitions.json#/foo",
+            }
+          },
+          "additionalProperties": False,
+          "type": "object",
+        }
+      if url == 'https://example.com/schemas-definitions.json':
+        assert not set_schema_id
+        return {
+          "foo": {
+            "type": "string",
+            "const": "bar",
+          },
+        }
+      assert False, "Unexpected url %s" % url
 
-    with httmock.HTTMock(handler):
-      with mock.patch.object(warnings, 'warn') as warn:
-        cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
-        cp._connection_helper = mock.Mock()
-        cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
-        cp.request(
-            'https://example.com/software.cfg', 'default', 'reference',
-            partition_parameter_kw={'foo': 'bar'})
-      warn.assert_not_called()
+    with mock.patch(
+        'slapos.util.SoftwareReleaseSchema._readAsJson',
+        side_effect=_readAsJson) as _readAsJson_mock, \
+        mock.patch.object(warnings, 'warn') as warn:
+      cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
+      cp._connection_helper = mock.Mock()
+      cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
+      cp.request(
+          'https://example.com/software.cfg', 'default', 'reference',
+          partition_parameter_kw={'foo': 'bar'})
+    self.assertEqual(
+      _readAsJson_mock.call_args_list,
+      [
+        mock.call('https://example.com/software.cfg.json'),
+        mock.call('https://example.com/instance-default-input-schema.json', True),
+        mock.call('https://example.com/schemas-definitions.json'),
+      ])
+    warn.assert_not_called()
 
-    with httmock.HTTMock(handler):
-      with mock.patch.object(warnings, 'warn') as warn:
-        cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
-        cp._connection_helper = mock.Mock()
-        cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
-        cp.request(
-            'https://example.com/software.cfg', 'default', 'reference',
-            partition_parameter_kw={'foo': 'baz'})
-      if PY3:
-        warn.assert_called_with(
-          "Request parameters do not validate against schema definition:\n"
-          "  $.foo: 'bar' was expected",
-          UserWarning
-        )
-      else: # BBB
-        warn.assert_called_with(
-          "Request parameters do not validate against schema definition:\n"
-          "  $.foo: u'bar' was expected",
-          UserWarning
-        )
+    with mock.patch(
+        'slapos.util.SoftwareReleaseSchema._readAsJson',
+        side_effect=_readAsJson), \
+        mock.patch.object(warnings, 'warn') as warn:
+      cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
+      cp._connection_helper = mock.Mock()
+      cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
+      cp.request(
+          'https://example.com/software.cfg', 'default', 'reference',
+          partition_parameter_kw={'foo': 'baz'})
+    warn.assert_called_with(
+      "Request parameters do not validate against schema definition:\n"
+      "  $.foo: 'bar' was expected",
+      UserWarning
+    )
 
-    with httmock.HTTMock(handler):
-      with mock.patch.object(warnings, 'warn') as warn:
-        cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
-        cp._connection_helper = mock.Mock()
-        cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
-        cp.request(
-            'https://example.com/software.cfg', 'default', 'reference',
-            partition_parameter_kw={'fooo': 'xxx'})
-      if PY3:
-        warn.assert_called_with(
-          "Request parameters do not validate against schema definition:\n"
-          "  $: 'foo' is a required property\n"
-          "  $: Additional properties are not allowed ('fooo' was unexpected)",
-          UserWarning
-        )
-      else: # BBB
-        warn.assert_called_with(
-          "Request parameters do not validate against schema definition:\n"
-          "  $: u'foo' is a required property\n"
-          "  $: Additional properties are not allowed ('fooo' was unexpected)",
-          UserWarning
-        )
+    with mock.patch(
+        'slapos.util.SoftwareReleaseSchema._readAsJson',
+        side_effect=_readAsJson), \
+        mock.patch.object(warnings, 'warn') as warn:
+      cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
+      cp._connection_helper = mock.Mock()
+      cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
+      cp.request(
+          'https://example.com/software.cfg', 'default', 'reference',
+          partition_parameter_kw={'fooo': 'xxx'})
+    warn.assert_called_with(
+      "Request parameters do not validate against schema definition:\n"
+      "  $: 'foo' is a required property\n"
+      "  $: Additional properties are not allowed ('fooo' was unexpected)",
+      UserWarning
+    )
+
 
   def test_request_validate_request_parameter_broken_software_release_schema(self):
     """Corner case tests for incorrect software release schema, these should

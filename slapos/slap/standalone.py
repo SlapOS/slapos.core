@@ -44,7 +44,7 @@ except ImportError:
   import subprocess
 
 try:
-  from typing import TYPE_CHECKING, Optional, Iterable, Dict, Union
+  from typing import TYPE_CHECKING, Iterable, Mapping, Optional, Union
   if TYPE_CHECKING:
     import subprocess
 except ImportError: # XXX to be removed once we depend on typing
@@ -501,7 +501,13 @@ class StandaloneSlapOS(object):
 
     self._initBaseDirectory(software_root, instance_root, shared_part_root)
 
-  def _initBaseDirectory(self, software_root, instance_root, shared_part_root):
+  def _initBaseDirectory(
+    self,
+    software_root, # type: str
+    instance_root, # type: str
+    shared_part_root, # type: str
+  ):
+    # type: (...) -> None
     """Create the directory after checking it's not too deep.
     """
     base_directory = self._base_directory
@@ -619,10 +625,12 @@ class StandaloneSlapOS(object):
 
   def format(
       self,
-      partition_count,
-      ipv4_address,
-      ipv6_address,
-      partition_base_name="slappart"):
+      partition_count, # type: int
+      ipv4_address, # type: str
+      ipv6_address, # type: str
+      partition_base_name="slappart", # type: str
+  ):
+    # type: (...) -> None
     """Creates `partition_count` partitions.
 
     All partitions have the same `ipv4_address` and use the current system
@@ -728,7 +736,13 @@ class StandaloneSlapOS(object):
       self._logger.error(e.output)
       raise
 
-  def supply(self, software_url, computer_guid=None, state="available"):
+  def supply(
+    self,
+    software_url, # type: str
+    computer_guid=None, # type: str | None
+    state="available", # type: str
+  ):
+    # type: (...) -> None
     """Supply a software, see ISupply.supply
 
     Software can only be supplied on this embedded computer.
@@ -742,14 +756,15 @@ class StandaloneSlapOS(object):
     )
 
   def request(
-      self,
-      software_release,
-      partition_reference,
-      software_type=None,
-      shared=False,
-      partition_parameter_kw=None,
-      filter_kw=None,
-      state=None):
+    self,
+    software_release, # type: str
+    partition_reference, # type: str
+    software_type=None, # type: str | None
+    shared=False, # type: bool
+    partition_parameter_kw=None, # type: Mapping[str, object] | None
+    filter_kw=None, # type: Mapping[str, object] | None
+    state=None, # type: str | None
+  ):
     """Request an instance, see IRequester.request
 
     Instance can only be requested on this embedded computer.

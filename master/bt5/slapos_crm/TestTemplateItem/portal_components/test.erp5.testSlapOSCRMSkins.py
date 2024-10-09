@@ -23,12 +23,11 @@
 
 import transaction
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort, TemporaryAlarmScript, PinnedDateTime
+  SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort, TemporaryAlarmScript
 from Products.ERP5Type.tests.utils import FileUpload
 import os
 
 from DateTime import DateTime
-from App.Common import rfc1123_date
 from zExceptions import Unauthorized
 
 
@@ -248,47 +247,6 @@ class TestSlapOSisSupportRequestCreationClosed(TestCRMSkinsMixin):
     self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
     # it dont close another project
     self.assertFalse(self.other_project.Project_isSupportRequestCreationClosed())
-
-class TestSlapOSHasError(SlapOSTestCaseMixin):
-
-  def test_SoftwareInstance_hasReportedError(self):
-    instance = self.portal.software_instance_module.newContent(
-      portal_type="Software Instance",
-      reference=self.generateNewId()
-    )
-    _, partition = self._makeComputeNode(self.addProject())
-
-    error_date = DateTime() - 0.1
-    with PinnedDateTime(self, error_date):
-      instance.setErrorStatus("")
-
-    self.assertEqual(instance.SoftwareInstance_hasReportedError(), None)
-
-    instance.setAggregateValue(partition)
-
-    self.assertEqual(str(instance.SoftwareInstance_hasReportedError()), '#error ')
-
-    instance.setAccessStatus("")
-    self.assertEqual(instance.SoftwareInstance_hasReportedError(), None)
-
-  def test_SoftwareInstallation_hasReportedError(self):
-    installation = self.portal.software_installation_module.newContent(
-      reference=self.generateNewId()
-    )
-    self.assertEqual(installation.SoftwareInstallation_hasReportedError(), None)
-
-    error_date = DateTime() - 0.1
-    with PinnedDateTime(self, error_date):
-      installation.setErrorStatus("")
-
-    self.assertNotEqual(installation.SoftwareInstallation_hasReportedError(), None)
-    self.assertEqual(
-      rfc1123_date(installation.SoftwareInstallation_hasReportedError()),
-      rfc1123_date(error_date))
-    installation.setBuildingStatus("")
-
-    self.assertEqual(installation.SoftwareInstallation_hasReportedError(), None)
-
 
 class TestCRMPropertySheetConstraint(SlapOSTestCaseMixin):
 

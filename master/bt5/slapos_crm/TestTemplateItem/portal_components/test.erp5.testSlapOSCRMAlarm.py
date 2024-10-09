@@ -26,6 +26,7 @@ from DateTime import DateTime
 import difflib
 import transaction
 from zExceptions import Unauthorized
+import time
 
 
 class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
@@ -2163,4 +2164,75 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
     event_list = ticket.getFollowUpRelatedValueList()
     self.assertEqual(len(event_list), 0)
     self.assertEqual(ticket.getSimulationState(), "invalidated")
+
+
+class TestSlaposCrmCheckSuspendedSupportRequestToReopen(SlapOSTestCaseMixinWithAbort):
+
+  def _makeSupportRequest(self):
+    support_request = self.portal.support_request_module.newContent(
+      portal_type="Support Request"
+    )
+    support_request.submit()
+    new_id = self.generateNewId()
+    support_request.edit(
+        title= "Support Request éçà %s" % new_id, #pylint: disable=invalid-encoded-data
+        reference="TESTSRQ-%s" % new_id
+    )
+
+    return support_request
+
+  def test_SupportRequest_checkSuspendedSupportRequestToReopen_alarm_suspended(self):
+    support_request = self._makeSupportRequest()
+    support_request.validate()
+    support_request.suspend()
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_suspended_support_request_to_reopen
+    self._test_alarm(alarm, support_request, "SupportRequest_checkSuspendedToReopen")
+
+  def test_SupportRequest_checkSuspendedSupportRequestToReopen_alarm_notSuspended(self):
+    support_request = self._makeSupportRequest()
+    support_request.validate()
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_suspended_support_request_to_reopen
+    self._test_alarm_not_visited(alarm, support_request, "SupportRequest_checkSuspendedToReopen")
+
+  def _makeEvent(self, ticket):
+    new_id = self.generateNewId()
+    return self.portal.event_module.newContent(
+      portal_type="Web Message",
+      title='Test Event %s' % new_id,
+      follow_up_value=ticket
+    )
+
+  def test_SupportRequest_checkSuspendedSupportRequestToReopen_script_noEvent(self):
+    support_request = self._makeSupportRequest()
+    support_request.validate()
+    support_request.suspend()
+    self.tic()
+    support_request.SupportRequest_checkSuspendedToReopen()
+    self.assertEqual(support_request.getSimulationState(), "suspended")
+
+  def test_SupportRequest_checkSuspendedSupportRequestToReopen_script_recentEvent(self):
+    support_request = self._makeSupportRequest()
+    support_request.validate()
+    support_request.suspend()
+    self.tic()
+    time.sleep(1)
+    self._makeEvent(support_request)
+    self.tic()
+    support_request.SupportRequest_checkSuspendedToReopen()
+    self.assertEqual(support_request.getSimulationState(), "validated")
+
+  def test_SupportRequest_checkSuspendedSupportRequestToReopen_script_oldEvent(self):
+    support_request = self._makeSupportRequest()
+    self._makeEvent(support_request)
+    self.tic()
+    time.sleep(1)
+    support_request.validate()
+    support_request.suspend()
+    self.tic()
+    support_request.SupportRequest_checkSuspendedToReopen()
+    self.assertEqual(support_request.getSimulationState(), "suspended")
 

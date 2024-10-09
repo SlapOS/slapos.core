@@ -117,7 +117,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_crm_monitoring/SupportRequestModule_exportMonitoringOPMLDescriptionList',
         'slapos_crm_monitoring/SupportRequestModule_getInstanceMessageList',
         'slapos_crm_monitoring/SupportRequestModule_getMonitoringOPMLDescriptionList',
-        'slapos_crm_monitoring/SupportRequest_checkSuspendedToReopen',
         'slapos_crm_monitoring/SupportRequest_getInstanceMessageList',
         'slapos_crm_monitoring/SupportRequest_getInstanceMonitorUrl',
         'slapos_crm_monitoring/SupportRequest_getMonitorUrl',

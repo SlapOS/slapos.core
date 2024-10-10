@@ -39,6 +39,7 @@ import logging
 import psutil
 import shlex
 import time
+import shutil
 
 if sys.version_info >= (3,):
   import selectors
@@ -251,6 +252,17 @@ def getCleanEnvironment(logger, home_path='/tmp'):
     logger.debug('Removed from environment: %s',  ', '.join(sorted(removed_env)))
   return env
 
+def copyNetrcFile(home_path, logger):
+  user_home = os.environ['HOME']
+  netrc_file = os.path.join(user_home, '.netrc')
+  buildout_netrc = os.path.join(home_path, '.netrc')
+  if netrc_file == buildout_netrc:
+    return
+  if os.path.exists(buildout_netrc):
+    os.unlink(buildout_netrc)
+  if os.path.exists(netrc_file):
+    shutil.copyfile(netrc_file, buildout_netrc)
+    os.chmod(buildout_netrc, 0o600)
 
 def setRunning(logger, pidfile):
   """Creates a pidfile. If a pidfile already exists, we exit"""
@@ -385,14 +397,16 @@ def bootstrapBuildout(path, logger, buildout=None,
     invocation_list.append('bootstrap')
   try:
     umask = os.umask(SAFE_UMASK)
+    home_path = pwd.getpwuid(os.stat(path).st_uid).pw_dir
     logger.debug('Set umask from %03o to %03o' % (umask, SAFE_UMASK))
     logger.debug('Invoking: %r in directory %r' % (' '.join(invocation_list),
       path))
+    copyNetrcFile(home_path, logger)
     process_handler = SlapPopen(invocation_list,
                                 preexec_fn=lambda: dropPrivileges(uid, gid, logger=logger),
                                 cwd=path,
                                 env=getCleanEnvironment(logger,
-                                     home_path=pwd.getpwuid(os.stat(path).st_uid).pw_dir),
+                                     home_path=home_path),
                                 logger=logger)
     if process_handler.returncode is None or process_handler.returncode != 0:
       message = 'Failed to run buildout profile in directory %r' % path
@@ -439,6 +453,7 @@ def launchBuildout(path, buildout_binary, logger,
       path))
     if timeout is not None:
       logger.debug('Launching buildout with %ss timeout', timeout)
+    copyNetrcFile(path, logger)
     process_handler = SlapPopen(invocation_list,
                                 preexec_fn=lambda: dropPrivileges(uid, gid, logger=logger),
                                 cwd=path,

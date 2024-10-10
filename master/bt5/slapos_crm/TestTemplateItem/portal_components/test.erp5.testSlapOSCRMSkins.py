@@ -27,7 +27,6 @@ from erp5.component.test.SlapOSTestCaseMixin import \
 from Products.ERP5Type.tests.utils import FileUpload
 import os
 
-from DateTime import DateTime
 from zExceptions import Unauthorized
 
 
@@ -41,23 +40,6 @@ class TestCRMSkinsMixin(SlapOSTestCaseMixinWithAbort):
     self.project = self.addProject()
     self.person = self.makePerson(self.project, new_id=self.new_id,
                                   index=0, user=0)
-
-  def _cancelTestSupportRequestList(self, title="%"):
-    for support_request in self.portal.portal_catalog(
-                        portal_type="Support Request",
-                        title=title,
-                        simulation_state=["validated", "suspended"]):
-      support_request.invalidate()
-    self.tic()
-
-  def _updatePersonAssignment(self, person, role='role/member'):
-    for assignment in person.contentValues(portal_type="Assignment"):
-      assignment.cancel()
-    assignment = person.newContent(portal_type='Assignment')
-    assignment.setRole(role)
-    assignment.setStartDate(DateTime())
-    assignment.open()
-    return assignment
 
   def _makeInstanceTree(self, project):
     person = self.portal.person_module\
@@ -126,7 +108,7 @@ class TestSlapOSSupportRequestModule_getMonitoringUrlList(TestCRMSkinsMixin):
 
     self.tic()
     self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
-    
+
     instance = instance_tree.getSuccessorValue()
     instance.setConnectionXml("""<?xml version='1.0' encoding='utf-8'?>
 <instance>
@@ -250,7 +232,6 @@ class TestCRMPropertySheetConstraint(SlapOSTestCaseMixin):
       portal_type="Support Request",
       destination_value=person_user,
       destination_decision_value=person_user,
-      #specialise=
     )
 
     # Value set by the init
@@ -289,8 +270,73 @@ class TestCRMPropertySheetConstraint(SlapOSTestCaseMixin):
       'Customer should be source or destination of the event'
     ])
 
+    # Check script in case
+    non_consistency_list = event.Event_checkCustomerAsSourceOrDestinationConsistency()
+    self.assertEqual(non_consistency_list, [
+      'Customer should be source or destination of the event'
+    ])
+
     event.setDestination(person.getRelativeUrl())
     self.assertFalse(event.checkConsistency())
+    # Check script in case
+    self.assertEqual([],
+      event.Event_checkCustomerAsSourceOrDestinationConsistency())
+
+class TestProject_createSupportRequestWithCausality(TestCRMSkinsMixin):
+
+  def testProject_createSupportRequestWithCausality(self):
+    self._makeComputeNode(self.project)
+    self._makeComplexComputeNode(self.project)
+
+    new_id = self.generateNewId()
+    title = "TestProject_createSupportRequestWithCausality title %s" % (new_id)
+    text_content = "Test Description %s" % (new_id)
+
+    ticket = self.project.Project_createSupportRequestWithCausality(
+      title=title,
+      text_content=text_content,
+      causality=self.compute_node.getRelativeUrl(),
+      destination_decision=self.person.getRelativeUrl())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    self.assertEqual(ticket.getTitle(), title)
+
+    self.tic()
+
+    self.assertEqual(None,
+      self.project.Project_createSupportRequestWithCausality(
+        title=title,
+        text_content=text_content,
+        causality=self.compute_node.getRelativeUrl(),
+        destination_decision=self.person.getRelativeUrl()))
+
+    self.assertEqual(None,
+      self.project.Project_createSupportRequestWithCausality(
+        title="Some other title",
+        text_content="Some other content",
+        causality=self.compute_node.getRelativeUrl(),
+        destination_decision=self.person.getRelativeUrl()))
+
+    # Same tittle different causality
+    ticket = self.project.Project_createSupportRequestWithCausality(
+      title=title,
+      text_content=text_content,
+      causality=self.start_requested_software_instance.getSpecialise(),
+      destination_decision=self.person.getRelativeUrl())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    self.assertEqual(ticket.getTitle(), title)
+
+    self.tic()
+
+    self.assertEqual(None,
+      self.project.Project_createSupportRequestWithCausality(
+        title="Some other title",
+        text_content="Some other content",
+        causality=self.start_requested_software_instance.getSpecialise(),
+        destination_decision=self.person.getRelativeUrl()))
 
 
 class TestTicket_createProjectEvent(TestCRMSkinsMixin):

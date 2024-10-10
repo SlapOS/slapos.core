@@ -14,16 +14,18 @@ error_dict = {
         'compute_node_title': compute_node_title,
         'compute_node_id': reference,
         'last_contact': None,
-        'issue_document_reference': None
+        'issue_document_reference': None,
+         'message': None
       }
 
 if compute_node.getMonitorScope() == "disabled":
-  for i in ['ticket_title', 'ticket_description', 'last_contact']:
+  for i in ['ticket_title', 'ticket_description', 'last_contact', 'message']:
     error_dict[i] = "Monitor is disabled on this Compute Node."
   return error_dict
 
 if d.get("no_data") == 1:
   error_dict['last_contact'] = "No Contact Information"
+  error_dict['message'] = error_dict['last_contact']
   error_dict['ticket_title'] = "Lost contact with compute_node %s" % reference
   error_dict['ticket_description'] = \
     "The Compute Node %s (%s)  has not contacted the server (No Contact Information)" % (
@@ -38,6 +40,7 @@ if (now - last_contact) > 0.01:
   error_dict['should_notify'] = True
   error_dict['ticket_title'] = "Lost contact with compute_node %s" % reference
   error_dict['last_contact'] = last_contact
+  error_dict['message'] = "Lost contact with %s since %s" % (reference, last_contact)
   error_dict['notification_message_reference'] = 'slapos-crm-compute_node_check_state.notification'
   error_dict['ticket_description'] = "The Compute Node %s (%s) has not contacted the server for more than 30 minutes" \
     "(last contact date: %s)" % (compute_node_title, reference, last_contact)
@@ -50,6 +53,7 @@ if data_array:
   error_dict['notification_message_reference'] = "slapos-crm-compute_node_check_modified_file.notification"
   error_dict['ticket_title'] = "Compute Node %s has modified file" % reference
   error_dict['issue_document_reference'] = data_array.getReference()
+  error_dict['message'] = "%s has modified file" % reference
   error_dict['ticket_description'] = "The Compute Node %s (%s) has modified file: %s" % (
     compute_node_title, reference, error_dict['issue_document_reference'])
   return error_dict
@@ -91,6 +95,7 @@ if compute_partition_uid_list:
     error_dict['ticket_title'] = "Compute Node %s has a stalled instance process" % reference
     error_dict['ticket_description'] = "The Compute Node %s (%s) didnt process its instances for more than 24 hours, last contact from the node: %s" % (
       compute_node_title, reference, last_contact)
+    error_dict['message'] = "%s has a stalled instance process" % reference
     return error_dict
 
 for software_installation in portal.portal_catalog(
@@ -121,15 +126,15 @@ for software_installation in portal.portal_catalog(
     message_list = (software_installation.getUrlString(),
                     compute_node_title,
                     software_installation.getCreationDate())
-  
+
     if access_status_text.startswith("#building"):
       error_dict['ticket_description'] = \
-        "The software release %s is building for mode them 12 hours on %s, started on %s" % message_list  
+        "The software release %s is building for mode them 12 hours on %s, started on %s" % message_list
     else:
       error_dict['ticket_description'] = \
         "The software release %s is failing to build for too long on %s, started on %s" % message_list
 
-    error_dict['message'] = error_dict['ticket_description'] 
+    error_dict['message'] = error_dict['ticket_description']
     return error_dict
 
 return error_dict

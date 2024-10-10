@@ -111,8 +111,8 @@ class TestSlapOSCrmMonitoringCheckComputeNodeProjectState(TestSlapOSCrmMonitorin
       content_b = compute_node_b.workflow_history['edit_workflow'][-1]['comment']
 
       # The alarm should group by project, so only one out of many should reached.
-      self.assertSameSet(['Visited by %s' % script_name, None], [content_a, content_b])
-
+      self.assertNotEqual(content_a, content_b)
+      self.assertIn('Visited by %s' % script_name, [content_a, content_b])
 
 class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin):
 
@@ -201,13 +201,19 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
     self.portal.REQUEST['test_ComputeNode_checkMonitoringState_empty_cache_notify'] = \
         self._makeNotificationMessage(compute_node.getReference())
 
+    error_dict = compute_node.ComputeNode_getReportedErrorDict()
     compute_node.ComputeNode_checkMonitoringState()
     self.tic()
 
     ticket_title = "Lost contact with compute_node %s" % compute_node.getReference()
     ticket = self._getGeneratedSupportRequest(compute_node.getUid())
     self.assertNotEqual(ticket, None)
-    self.assertEqual(ticket.getTitle(), ticket_title)
+    self.assertEqual(ticket_title, error_dict['ticket_title'])
+    self.assertEqual(ticket_title, ticket.getTitle())
+
+    message = ticket.SupportRequest_recheckMonitoring()
+    self.assertEqual(error_dict['message'], message)
+    self.assertEqual("No Contact Information", message)
 
     event_list = ticket.getFollowUpRelatedValueList()
     self.assertEqual(len(event_list), 1)
@@ -227,6 +233,10 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
     self.assertEqual(ticket.getSimulationState(), "submitted")
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(event.getPortalType(), "Web Message")
+
+    compute_node.setAccessStatus("")
+    message = ticket.SupportRequest_recheckMonitoring()
+    self.assertEqual(None, message)
 
   @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
@@ -248,13 +258,21 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
     with PinnedDateTime(self, DateTime() - 1.1):
       self.start_requested_software_instance.setAccessStatus("")
 
+    error_dict = compute_node.ComputeNode_getReportedErrorDict()
     compute_node.ComputeNode_checkMonitoringState()
     self.tic()
 
     ticket_title = "Compute Node %s has a stalled instance process" % compute_node.getReference()
     ticket = self._getGeneratedSupportRequest(compute_node.getUid())
     self.assertNotEqual(ticket, None)
-    self.assertEqual(ticket.getTitle(), ticket_title)
+    self.assertEqual(ticket_title, error_dict['ticket_title'])
+    self.assertEqual(ticket_title, ticket.getTitle())
+
+    message = ticket.SupportRequest_recheckMonitoring()
+    self.assertEqual(error_dict['message'], message)
+    self.assertEqual(message,
+        "%s has a stalled instance process" % compute_node.getReference())
+
 
     event_list = ticket.getFollowUpRelatedValueList()
     self.assertEqual(len(event_list), 1)
@@ -274,6 +292,11 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
     self.assertEqual(ticket.getSimulationState(), "submitted")
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(event.getPortalType(), "Web Message")
+
+    self.start_requested_software_instance.setAccessStatus("")
+
+    message = ticket.SupportRequest_recheckMonitoring()
+    self.assertEqual(message, None)
 
   @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
@@ -296,13 +319,20 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
       self.start_requested_software_instance.setAccessStatus("")
       self.start_requested_software_installation.setAccessStatus("")
 
+    error_dict = compute_node.ComputeNode_getReportedErrorDict()
     compute_node.ComputeNode_checkMonitoringState()
     self.tic()
 
     ticket_title = "Compute Node %s has a stalled instance process" % compute_node.getReference()
     ticket = self._getGeneratedSupportRequest(compute_node.getUid())
     self.assertNotEqual(ticket, None)
-    self.assertEqual(ticket.getTitle(), ticket_title)
+    self.assertEqual(ticket_title, error_dict['ticket_title'])
+    self.assertEqual(ticket_title, ticket.getTitle())
+
+    message = ticket.SupportRequest_recheckMonitoring()
+    self.assertEqual(error_dict['message'], message)
+    self.assertEqual(message,
+       "%s has a stalled instance process" % compute_node.getReference())
 
     event_list = ticket.getFollowUpRelatedValueList()
     self.assertEqual(len(event_list), 1)
@@ -322,6 +352,12 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
     self.assertEqual(ticket.getSimulationState(), "submitted")
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(event.getPortalType(), "Web Message")
+
+    self.start_requested_software_instance.setAccessStatus("")
+    self.start_requested_software_installation.setAccessStatus("")
+
+    message = ticket.SupportRequest_recheckMonitoring()
+    self.assertEqual(message, None)
 
   @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
@@ -350,13 +386,21 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
 
     # Computer is getting access
     compute_node.setAccessStatus("")
+
+    error_dict = compute_node.ComputeNode_getReportedErrorDict()
     compute_node.ComputeNode_checkMonitoringState()
     self.tic()
 
     ticket_title = "Compute Node %s has modified file" % compute_node.getReference()
     ticket = self._getGeneratedSupportRequest(compute_node.getUid())
     self.assertNotEqual(ticket, None)
-    self.assertEqual(ticket.getTitle(), ticket_title)
+    self.assertEqual(ticket_title, error_dict['ticket_title'])
+    self.assertEqual(ticket_title, ticket.getTitle())
+
+    message = ticket.SupportRequest_recheckMonitoring()
+    self.assertEqual(error_dict['message'], message)
+    self.assertEqual("%s has modified file" % compute_node.getReference(),
+                     message)
 
     event_list = ticket.getFollowUpRelatedValueList()
     self.assertEqual(len(event_list), 1)
@@ -471,10 +515,14 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
     )
 
     ticket = self._getGeneratedSupportRequest(compute_node.getUid())
-
+    self.assertNotEqual(ticket, None)
     self.assertEqual(ticket_title, error_dict['ticket_title'])
     self.assertEqual(ticket_title, ticket.getTitle())
-    self.assertNotEqual(ticket, None)
+
+    message = ticket.SupportRequest_recheckMonitoring()
+    self.assertEqual(error_dict['message'], message)
+    self.assertIn(" is building for mode them 12 hours on", message)
+
     event_list = ticket.getFollowUpRelatedValueList()
     self.assertEqual(len(event_list), 1)
     event = event_list[0]
@@ -525,9 +573,14 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
     )
     ticket = self._getGeneratedSupportRequest(compute_node.getUid())
 
-    self.assertNotEqual(ticket, None, error_dict)
+    self.assertNotEqual(ticket, None)
     self.assertEqual(error_dict['ticket_title'], ticket_title)
     self.assertEqual(ticket.getTitle(), ticket_title)
+
+    message = ticket.SupportRequest_recheckMonitoring()
+    self.assertEqual(error_dict['message'], message)
+    self.assertIn(" is failing to build for too long on", message)
+
     event_list = ticket.getFollowUpRelatedValueList()
     self.assertEqual(len(event_list), 1)
     event = event_list[0]

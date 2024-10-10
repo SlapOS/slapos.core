@@ -34,6 +34,7 @@ import fnmatch
 import glob
 import logging
 import os
+import pathlib
 import shutil
 import sqlite3
 import unittest
@@ -392,7 +393,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   # Dynamic members
   slap: ClassVar[StandaloneSlapOS]
   computer_partition: ClassVar[ComputerPartition]
-  computer_partition_root_path: ClassVar[str]
+  computer_partition_root_path: ClassVar[os.PathLike[str]]
   computer_partition_ipv6_address: ClassVar[str]
 
   # Private settings
@@ -583,10 +584,9 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       cls.computer_partition = cls.requestDefaultInstance()
 
       # the path of the instance on the filesystem, for low level inspection
-      cls.computer_partition_root_path = os.path.join(
+      cls.computer_partition_root_path = pathlib.Path(
         cls.slap._instance_root,  # pyright: ignore[reportPrivateUsage]
-        cls.computer_partition.getId(),
-      )
+      ) / cls.computer_partition.getId()
 
       # the ipv6 of the instance
       cls.computer_partition_ipv6_address = cls.getPartitionIPv6(

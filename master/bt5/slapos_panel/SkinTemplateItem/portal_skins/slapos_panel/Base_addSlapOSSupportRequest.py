@@ -11,7 +11,8 @@ if context.getPortalType() == 'Project':
   project = context
 else:
   project = context.getFollowUpValue()
-support_request = project.Project_createSupportRequestWithCausality(
+support_request = project.Project_createTicketWithCausality(
+  'Support Request',
   title,
   description,
   causality=context.getRelativeUrl(),

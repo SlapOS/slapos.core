@@ -95,9 +95,12 @@ if not keep_draft:
     if portal.portal_workflow.isTransitionPossible(event, 'stop'):
       event.stop(comment=comment)
   else:
-    event.plan(comment=comment)
-    event.start(comment=comment, send_mail=(portal_type == 'Mail Message'))
-    event.stop(comment=comment)
+    if portal.portal_workflow.isTransitionPossible(event, 'plan'):
+      event.plan(comment=comment)
+    if portal.portal_workflow.isTransitionPossible(event, 'start'):
+      event.start(comment=comment, send_mail=(portal_type == 'Mail Message'))
+    if portal.portal_workflow.isTransitionPossible(event, 'stop'):
+      event.stop(comment=comment)
     event.deliver(comment=comment)
 
 return event

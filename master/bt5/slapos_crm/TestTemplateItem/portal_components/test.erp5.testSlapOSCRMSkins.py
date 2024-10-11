@@ -227,17 +227,18 @@ class TestCRMPropertySheetConstraint(SlapOSTestCaseMixin):
     self.assertEqual([],
       event.Event_checkCustomerAsSourceOrDestinationConsistency())
 
-class TestProject_createSupportRequestWithCausality(TestCRMSkinsMixin):
+class TestProject_createTicketWithCausality(TestCRMSkinsMixin):
 
-  def testProject_createSupportRequestWithCausality(self):
+  def testProject_createTicketWithCausality(self):
     self._makeComputeNode(self.project)
     self._makeComplexComputeNode(self.project)
 
     new_id = self.generateNewId()
-    title = "TestProject_createSupportRequestWithCausality title %s" % (new_id)
+    title = "TestProject_createTicketWithCausality title %s" % (new_id)
     text_content = "Test Description %s" % (new_id)
 
-    ticket = self.project.Project_createSupportRequestWithCausality(
+    ticket = self.project.Project_createTicketWithCausality(
+      'Support Request',
       title=title,
       text_content=text_content,
       causality=self.compute_node.getRelativeUrl(),
@@ -250,21 +251,24 @@ class TestProject_createSupportRequestWithCausality(TestCRMSkinsMixin):
     self.tic()
 
     self.assertEqual(None,
-      self.project.Project_createSupportRequestWithCausality(
+      self.project.Project_createTicketWithCausality(
+        'Support Request',
         title=title,
         text_content=text_content,
         causality=self.compute_node.getRelativeUrl(),
         destination_decision=self.person.getRelativeUrl()))
 
     self.assertEqual(None,
-      self.project.Project_createSupportRequestWithCausality(
+      self.project.Project_createTicketWithCausality(
+        'Support Request',
         title="Some other title",
         text_content="Some other content",
         causality=self.compute_node.getRelativeUrl(),
         destination_decision=self.person.getRelativeUrl()))
 
     # Same tittle different causality
-    ticket = self.project.Project_createSupportRequestWithCausality(
+    ticket = self.project.Project_createTicketWithCausality(
+      'Support Request',
       title=title,
       text_content=text_content,
       causality=self.start_requested_software_instance.getSpecialise(),
@@ -277,7 +281,8 @@ class TestProject_createSupportRequestWithCausality(TestCRMSkinsMixin):
     self.tic()
 
     self.assertEqual(None,
-      self.project.Project_createSupportRequestWithCausality(
+      self.project.Project_createTicketWithCausality(
+        'Support Request',
         title="Some other title",
         text_content="Some other content",
         causality=self.start_requested_software_instance.getSpecialise(),

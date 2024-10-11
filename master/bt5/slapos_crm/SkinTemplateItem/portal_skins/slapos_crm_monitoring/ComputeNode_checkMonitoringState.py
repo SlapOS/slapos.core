@@ -12,7 +12,8 @@ error_dict = context.ComputeNode_getReportedErrorDict()
 if not error_dict['should_notify']:
   return
 
-support_request = project.Project_createSupportRequestWithCausality(
+support_request = project.Project_createTicketWithCausality(
+  'Support Request',
   error_dict['ticket_title'],
   error_dict['ticket_description'],
   causality=context.getRelativeUrl(),

@@ -113,7 +113,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_cloud/SoftwareInstance_checkDuplicationOnInstanceTreeConsistency',
         'slapos_cloud/ComputerNetwork_getRelatedSoftwareReleaseList',
         'slapos_crm_monitoring/SupportRequest_afterNewEvent',
-        'slapos_crm_monitoring/SupportRequest_getMonitorUrl',
         'slapos_crm/RegularisationRequest_afterClone',
         'slapos_crm/RegularisationRequest_getResourceItemList',
         'slapos_crm/RegularisationRequest_init',

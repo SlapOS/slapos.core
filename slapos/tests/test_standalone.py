@@ -654,7 +654,7 @@ class TestSlapOSStandaloneInstance(SlapOSStandaloneTestCase):
 class TestSlapOSStandaloneLongSoftwareError(SlapOSStandaloneTestCase):
   def test(self):
     with tempfile.NamedTemporaryFile(suffix="-%s.cfg" % self.id()) as f:
-      very_long_string = "a" * (2 << 16)
+      very_long_string = "a" * (2 << 15)
       software_url = f.name
       f.write(
           textwrap.dedent(

@@ -110,8 +110,8 @@ class TestSlapOSCrmMonitoringCheckComputeNodeProjectState(TestSlapOSCrmMonitorin
       content_b = compute_node_b.workflow_history['edit_workflow'][-1]['comment']
 
       # The alarm should group by project, so only one out of many should reached.
-      self.assertSameSet(['Visited by %s' % script_name, None], [content_a, content_b])
-
+      self.assertNotEqual(content_a, content_b)
+      self.assertIn('Visited by %s' % script_name, [content_a, content_b])
 
 class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin):
 

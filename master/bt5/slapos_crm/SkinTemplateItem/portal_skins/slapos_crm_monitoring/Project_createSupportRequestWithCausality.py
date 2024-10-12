@@ -1,11 +1,12 @@
 portal = context.getPortalObject()
 project = context
+monitor_service_uid = portal.service_module.slapos_crm_monitoring.getUid(),
 
 causality_value = portal.restrictedTraverse(causality)
 
 if portal.portal_catalog.getResultValue(
   portal_type='Support Request',
-  title={'query': title, 'key': 'ExactMatch'},
+  resource__uid=monitor_service_uid,
   simulation_state=["validated", "submitted", "suspended"],
   causality__uid=causality_value.getUid(),
 ) is not None:

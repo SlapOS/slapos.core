@@ -2224,6 +2224,14 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
 
 class TestSlapgridSoftwareRelease(MasterMixin, unittest.TestCase):
 
+  def setUp(self):
+    MasterMixin.setUp(self)
+    self.orginal_home = os.environ['HOME']
+    os.environ['HOME'] = self._tempdir
+
+  def tearDown(self):
+    os.environ['HOME'] = self.orginal_home
+
   fake_waiting_time = 0.05
   def test_one_software_buildout_fail_is_correctly_logged(self):
     """
@@ -2291,6 +2299,51 @@ chmod a-rxw directory
       self.launchSlapgridSoftware()
       self.assertEqual(os.listdir(self.software_root), [])
 
+  def test_build_software_with_netrc(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
+    home = os.environ['HOME']
+    netrc_file = os.path.join(home, '.netrc')
+
+    with open(netrc_file, 'w') as f:
+      f.write('machine localhost login foo password bar')
+    with open(os.path.join(home, 'testing'), 'w') as f:
+      f.write('this is not buildout home')
+    os.chmod(netrc_file, 0o600)
+    with httmock.HTTMock(computer.request_handler):
+      software = computer.software_list[0]
+      software_path = os.path.join(self.software_root, software.software_hash)
+      buildout_netrc = os.path.join(software_path, '.netrc')
+      test_file = os.path.join(software_path, 'd/file')
+
+      command = """#!/bin/sh
+mkdir -p d
+if [ -s "$HOME/testing" ]; then
+  echo "testing file exists"
+  exit 1
+fi
+if [ -s "$HOME/.netrc" ]; then
+  cp $HOME/.netrc d/file
+else
+  echo ".netrc file not found"
+  rm -f d/file
+fi
+"""
+      software.setBuildout(command)
+      self.launchSlapgridSoftware()
+      self.assertTrue(os.path.exists(netrc_file))
+      self.assertFalse(os.path.exists(buildout_netrc))
+      self.assertTrue(os.path.exists(test_file))
+      with open(test_file) as f:
+        content = f.read()
+        self.assertEqual(content, 'machine localhost login foo password bar')
+
+      completed = os.path.join(software_path, '.completed')
+      os.remove(netrc_file)
+      # force rerun of software
+      os.remove(completed)
+      self.launchSlapgridSoftware()
+      self.assertFalse(os.path.exists(buildout_netrc))
+      self.assertFalse(os.path.exists(test_file))
 
 class SlapgridInitialization(unittest.TestCase):
   """

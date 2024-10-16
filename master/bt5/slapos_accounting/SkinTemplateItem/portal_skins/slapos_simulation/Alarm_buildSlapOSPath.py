@@ -23,7 +23,8 @@ for sql_result in sql_result_list:
   movement = sql_result.getObject()
   if not movement.checkConsistency():
     # Only build simulation movement without a consistency error
-    movement.activate(activity='SQLQueue', tag=tag).SimulationMovement_buildSlapOS(tag=tag)
+    # wait for existing packing list to be solve before aggregating more movements
+    movement.activate(activity='SQLQueue', tag=tag, after_method_id='updateCausalityState').SimulationMovement_buildSlapOS(tag=tag)
 
 # register activity on alarm object waiting for own tag in order to have only one alarm
 # running in same time

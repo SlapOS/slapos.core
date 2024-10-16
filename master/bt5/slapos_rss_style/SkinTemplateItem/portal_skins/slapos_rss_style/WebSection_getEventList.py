@@ -56,7 +56,7 @@ for brain in portal.portal_catalog(
 
   data_list.append(
       Object(**{
-        'title': ticket_title,
+        'title': "[%s] %s" % (ticket_category.upper(), ticket_title),
         'category': ticket_category,
         'author': event.getSourceTitle(checked_permission="View"),
         'link': ticket_link,

@@ -134,6 +134,10 @@
                           <string>guid</string>
                         </tuple>
                         <tuple>
+                          <string>category</string>
+                          <string>category</string>
+                        </tuple>
+                        <tuple>
                           <string>pubDate</string>
                           <string>pubDate</string>
                         </tuple>

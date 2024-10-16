@@ -61,10 +61,19 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
       destination_decision_value = self.makePerson(self.addProject())
     else:
       destination_decision_value = person
+
+    software_product = self.portal.software_product_module.newContent(
+      portal_type='Software Product',
+      title='Theia IDE',
+      follow_up_value=project)
+    software_product.validate()
+    software_product.publish()
+
     ticket = self.portal.upgrade_decision_module.newContent(
       portal_type='Upgrade Decision',
       title="Upgrade Decision Test %s" % self.new_id,
       reference="TESTUD-%s" % self.new_id,
+      resource_value=software_product,
       destination_value=destination_decision_value,
       destination_decision_value=destination_decision_value,
       destination_project_value=project,
@@ -89,12 +98,13 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
       title="Test Reg. Req.%s" % self.new_id,
       reference="TESTREGREQ-%s" % self.new_id,
       destination_value=person,
-      destination_decision_value=person
+      destination_decision_value=person,
+      resource='service_module/slapos_crm_acknowledgement'
      )
 
     ticket.Ticket_createProjectEvent(
       ticket.getTitle(), 'outgoing', 'Web Message',
-      'service_module/slapos_crm_monitoring',
+      'service_module/slapos_crm_acknowledgement',
       text_content=ticket.getTitle(),
       content_type='text/plain'
     )
@@ -246,7 +256,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
       '{}-{}'.format(event.getFollowUp(),
                      event.getRelativeUrl()))
     self.assertEqual(open_ticket_list[0].title,
-      ticket.getTitle())
+      '[MONITORING] %s' % ticket.getTitle())
     self.assertIn("%s/#/" % web_site.absolute_url(),
       open_ticket_list[0].link)
 
@@ -312,14 +322,14 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
       '{}-{}'.format(event_rr.getFollowUp(),
                      event_rr.getRelativeUrl()))
     self.assertEqual(open_ticket_list[0].title,
-      regularisation_request.getTitle())
+      '[ACKNOWLEDGEMENT] %s' % regularisation_request.getTitle())
     self.assertIn("%s/#/" % web_site.absolute_url(),
       open_ticket_list[0].link)
 
     # Now add one Upgrade Decision
     self.login()
     sleep(2)
-    upgrade_decision = self.newUpgradeDecision(person, None, None)
+    upgrade_decision = self.newUpgradeDecision(person, project, None)
     self.login(person.getUserId())
 
     event_ud = upgrade_decision.getFollowUpRelatedValue()
@@ -399,19 +409,19 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
 
     # check if ordering is correct.
     self.assertEqual(open_ticket_list[0].title,
-      upgrade_decision.getTitle())
+      '[THEIA IDE] %s' % upgrade_decision.getTitle())
 
     self.assertIn("%s/#/" % web_site.absolute_url(),
       open_ticket_list[1].link)
 
     self.assertEqual(open_ticket_list[1].title,
-      regularisation_request.getTitle())
+      '[ACKNOWLEDGEMENT] %s' % regularisation_request.getTitle())
 
     self.assertIn("%s/#/" % web_site.absolute_url(),
       open_ticket_list[1].link)
 
     self.assertEqual(open_ticket_list[2].title,
-      ticket.getTitle())
+      '[MONITORING] %s' % ticket.getTitle())
 
     self.assertIn("%s/#/" % web_site.absolute_url(),
       open_ticket_list[2].link)

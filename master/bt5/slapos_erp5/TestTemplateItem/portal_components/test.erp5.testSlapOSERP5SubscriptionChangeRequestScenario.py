@@ -23,7 +23,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     self.logout()
 
-    with PinnedDateTime(self, DateTime('2024/01/25')):
+    with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       self.joinSlapOS(self.web_site, owner_reference)
@@ -75,7 +75,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     with PinnedDateTime(self, DateTime('2023/12/29')):
       public_reference = 'public-%s' % self.generateNewId()
       self.joinSlapOS(self.web_site, public_reference)
-    with PinnedDateTime(self, DateTime('2024/02/01')):
+    with PinnedDateTime(self, DateTime('2024/01/01')):
       public_reference2 = 'public2-%s' % self.generateNewId()
       self.joinSlapOS(self.web_site, public_reference2)
 

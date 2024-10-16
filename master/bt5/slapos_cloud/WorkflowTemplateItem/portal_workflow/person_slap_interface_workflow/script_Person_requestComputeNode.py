@@ -32,6 +32,7 @@ compute_node_portal_type = "Compute Node"
 compute_node_list = portal.portal_catalog.portal_catalog(
   portal_type=compute_node_portal_type,
   title={'query': compute_node_title, 'key': 'ExactMatch'},
+  validation_state='validated',
   follow_up__uid=project_list[0].getUid(),
   limit=2
 )

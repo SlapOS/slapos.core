@@ -98,8 +98,8 @@
                           <string>Reference</string>
                         </tuple>
                         <tuple>
-                          <string>destination_section_title</string>
-                          <string>User</string>
+                          <string>destination_project_title</string>
+                          <string>Project</string>
                         </tuple>
                         <tuple>
                           <string>aggregate_title</string>

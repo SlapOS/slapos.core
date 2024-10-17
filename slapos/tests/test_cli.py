@@ -141,8 +141,8 @@ class TestCliCacheBinarySr(CliMixin):
         software_url="this_is_uncached_url",
         signature_certificate_list=self.sign_cert_list))
 
-    self.logger.critical.assert_any_call(
-        'Error while looking object %s', 'this_is_uncached_url', exc_info=True)
+    self.logger.info.assert_any_call(
+        'Software release not found in binary cache: this_is_uncached_url')
 
   def test_bad_cache_dir(self):
     self.assertEqual(1, cache_binarysr_do_lookup(

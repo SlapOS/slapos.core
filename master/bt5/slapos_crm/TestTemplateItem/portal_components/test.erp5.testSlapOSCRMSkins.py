@@ -23,12 +23,10 @@
 
 import transaction
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort, TemporaryAlarmScript, PinnedDateTime
+  SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort
 from Products.ERP5Type.tests.utils import FileUpload
 import os
 
-from DateTime import DateTime
-from App.Common import rfc1123_date
 from zExceptions import Unauthorized
 
 
@@ -42,23 +40,6 @@ class TestCRMSkinsMixin(SlapOSTestCaseMixinWithAbort):
     self.project = self.addProject()
     self.person = self.makePerson(self.project, new_id=self.new_id,
                                   index=0, user=0)
-
-  def _cancelTestSupportRequestList(self, title="%"):
-    for support_request in self.portal.portal_catalog(
-                        portal_type="Support Request",
-                        title=title,
-                        simulation_state=["validated", "suspended"]):
-      support_request.invalidate()
-    self.tic()
-
-  def _updatePersonAssignment(self, person, role='role/member'):
-    for assignment in person.contentValues(portal_type="Assignment"):
-      assignment.cancel()
-    assignment = person.newContent(portal_type='Assignment')
-    assignment.setRole(role)
-    assignment.setStartDate(DateTime())
-    assignment.open()
-    return assignment
 
   def _makeInstanceTree(self, project):
     person = self.portal.person_module\
@@ -107,232 +88,74 @@ class TestCRMSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
     return software_installation
 
-class TestSlapOSSupportRequestModule_getMonitoringUrlList(TestCRMSkinsMixin):
-
-  def test_SupportRequestModule_getMonitoringUrlList(self):
-    module = self.portal.support_request_module
-    # We assume here that several objects created by others tests don't influentiate
-    # this test.
-    self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
-    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
-      instance_tree = self._makeInstanceTree(self.project)
-      self._makeSoftwareInstance(instance_tree, "https://xxx/")
-    support_request = module.newContent(portal_type="Support Request")
-    self.tic()
-
-    self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
-    support_request.setAggregateValue(instance_tree)
-    support_request.validate()
-    self.assertNotEqual(instance_tree.getSuccessorList(), [])
-
-    self.tic()
-    self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
-    
-    instance = instance_tree.getSuccessorValue()
-    instance.setConnectionXml("""<?xml version='1.0' encoding='utf-8'?>
-<instance>
-  <parameter id="aa">xx</parameter>
-  <parameter id="bb">yy</parameter>
-</instance>
-    """)
-    self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
-    instance.setConnectionXml("""<?xml version='1.0' encoding='utf-8'?>
-<instance>
-  <parameter id="monitor-setup-url">http</parameter>
-  <parameter id="bb">yy</parameter>
-</instance>
-    """)
-    self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
-
-    self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
-    instance.setConnectionXml("""<?xml version='1.0' encoding='utf-8'?>
-<instance>
-  <parameter id="monitor-setup-url">http://monitor.url/#/ABC</parameter>
-  <parameter id="bb">yy</parameter>
-</instance>
-    """)
-
-    monitor_url_temp_document_list = module.SupportRequestModule_getMonitoringUrlList()
-    self.assertEqual(len(monitor_url_temp_document_list), 1)
-    self.assertEqual(monitor_url_temp_document_list[0].title,
-                     instance_tree.getTitle())
-    self.assertEqual(monitor_url_temp_document_list[0].monitor_url,
-                     "http://monitor.url/#/ABC")
-    support_request.invalidate()
-    self.tic()
-    self.assertNotEqual(instance_tree.getSuccessorList(), [])
-
-
-class TestComputeNode_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
-
-  def test_ComputeNode_hasContactedRecently_newly_created(self):
-    compute_node, _ = self._makeComputeNode(self.addProject())
-    self.tic()
-    has_contacted = compute_node.ComputeNode_hasContactedRecently()
-    self.assertTrue(has_contacted)
-
-  def test_ComputeNode_hasContactedRecently_no_data(self):
-    with PinnedDateTime(self, DateTime()-32):
-      compute_node, _ = self._makeComputeNode(self.addProject())
-    self.tic()
-
-    has_contacted = compute_node.ComputeNode_hasContactedRecently()
-    self.assertFalse(has_contacted)
-
-  def test_ComputeNode_hasContactedRecently_memcached(self):
-    with PinnedDateTime(self, DateTime()-32):
-      compute_node, _ = self._makeComputeNode(self.addProject())
-    compute_node.setAccessStatus("")
-
-    self.tic()
-
-    has_contacted = compute_node.ComputeNode_hasContactedRecently()
-    self.assertTrue(has_contacted)
-
-  def test_ComputeNode_hasContactedRecently_memcached_oudated_no_spl(self):
-    with PinnedDateTime(self, DateTime()-32):
-      compute_node, _ = self._makeComputeNode(self.addProject())
-      compute_node.setAccessStatus("")
-
-    self.tic()
-
-    has_contacted = compute_node.ComputeNode_hasContactedRecently()
-    self.assertFalse(has_contacted)
-
-
 class TestSlapOSisSupportRequestCreationClosed(TestCRMSkinsMixin):
 
   def afterSetUp(self):
     TestCRMSkinsMixin.afterSetUp(self)
     self.project = self.addProject()
-    self._cancelTestSupportRequestList()
-    self.clearCache()
-
-  def test_ERP5Site_isSupportRequestCreationClosed(self):
-
-    person = self.makePerson(self.project, user=0)
-    other_person = self.makePerson(self.project, user=0)
-    url = person.getRelativeUrl()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
+    self.other_project = self.addProject()
+    # ensure it is set to 5
     self.portal.portal_preferences.slapos_default_system_preference\
       .setPreferredSupportRequestCreationLimit(5)
+    self.clearCache()
 
-    def newSupportRequest():
-      sr = self.portal.support_request_module.newContent(\
-                        title="Test Support Request POIUY",
-                        resource="service_module/slapos_crm_monitoring",
-                        destination_decision=url)
+  def newDummySupportRequest(self,
+                             resource="service_module/slapos_crm_monitoring",
+                             state='validated'):
+    sr = self.portal.support_request_module.newContent(\
+      title="Test isSupportRequestCreationClosed %s" % self.generateNewId(),
+      resource=resource,
+      source_project_value=self.project)
+    if state == 'validated':
       sr.validate()
-      sr.immediateReindexObject()
-
-    newSupportRequest()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    newSupportRequest()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    newSupportRequest()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    newSupportRequest()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    newSupportRequest()
-    # It hit cache
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    self.clearCache() 
-    self.assertTrue(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-
-    self.assertTrue(self.portal.ERP5Site_isSupportRequestCreationClosed())
-
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(
-                     other_person.getRelativeUrl()))
-
-  def test_ERP5Site_isSupportRequestCreationClosed_suspended_state(self):
-    person = self.makePerson(self.project, user=0)
-    url = person.getRelativeUrl()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
-
-    def newSupportRequest():
-      sr = self.portal.support_request_module.newContent(\
-                        title="Test Support Request POIUY",
-                        resource="service_module/slapos_crm_monitoring",
-                        destination_decision=url)
+    elif state == 'suspended':
       sr.validate()
       sr.suspend()
-      sr.immediateReindexObject()
-    # Create five tickets, the limit of ticket creation
-    newSupportRequest()
-    newSupportRequest()
-    newSupportRequest()
-    newSupportRequest()
-    newSupportRequest()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
+    elif state == 'submited':
+      sr.submit()
+    sr.immediateReindexObject()
 
+  def test_Project_isSupportRequestCreationClosed(self, state='validated'):
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(state=state)
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(state=state)
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(state=state)
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(state=state)
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(state=state)
+    self.assertTrue(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(state=state)
+    self.assertTrue(self.project.Project_isSupportRequestCreationClosed())
+    # it dont close another project
+    self.assertFalse(self.other_project.Project_isSupportRequestCreationClosed())
 
-  def test_ERP5Site_isSupportRequestCreationClosed_nonmonitoring(self):
-    person = self.makePerson(self.project, user=0)
-    url = person.getRelativeUrl()
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
+  def test_Project_isSupportRequestCreationClosed_submited_state(self):
+    self.test_Project_isSupportRequestCreationClosed(state='submited')
 
-    def newSupportRequest():
-      sr = self.portal.support_request_module.newContent(\
-                        title="Test Support Request POIUY",
-                        destination_decision=url)
-      sr.validate()
-      sr.immediateReindexObject()
+  def test_Project_isSupportRequestCreationClosed_suspended_state(self):
+    self.test_Project_isSupportRequestCreationClosed(state='suspended')
 
-    # Create five tickets, the limit of ticket creation
-    newSupportRequest()
-    newSupportRequest()
-    newSupportRequest()
-    newSupportRequest()
-    newSupportRequest()
-
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
-    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
-
-
-class TestSlapOSHasError(SlapOSTestCaseMixin):
-
-  def test_SoftwareInstance_hasReportedError(self):
-    instance = self.portal.software_instance_module.newContent(
-      portal_type="Software Instance",
-      reference=self.generateNewId()
-    )
-    _, partition = self._makeComputeNode(self.addProject())
-
-    error_date = DateTime() - 0.1
-    with PinnedDateTime(self, error_date):
-      instance.setErrorStatus("")
-
-    self.assertEqual(instance.SoftwareInstance_hasReportedError(), None)
-
-    instance.setAggregateValue(partition)
-
-    self.assertEqual(str(instance.SoftwareInstance_hasReportedError()), '#error ')
-
-    instance.setAccessStatus("")
-    self.assertEqual(instance.SoftwareInstance_hasReportedError(), None)
-
-  def test_SoftwareInstallation_hasReportedError(self):
-    installation = self.portal.software_installation_module.newContent(
-      reference=self.generateNewId()
-    )
-    self.assertEqual(installation.SoftwareInstallation_hasReportedError(), None)
-
-    error_date = DateTime() - 0.1
-    with PinnedDateTime(self, error_date):
-      installation.setErrorStatus("")
-
-    self.assertNotEqual(installation.SoftwareInstallation_hasReportedError(), None)
-    self.assertEqual(
-      rfc1123_date(installation.SoftwareInstallation_hasReportedError()),
-      rfc1123_date(error_date))
-    installation.setBuildingStatus("")
-
-    self.assertEqual(installation.SoftwareInstallation_hasReportedError(), None)
-
+  def test_Project_isSupportRequestCreationClosed_nonmonitoring(self):
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    self.newDummySupportRequest(resource='')
+    self.assertFalse(self.project.Project_isSupportRequestCreationClosed())
+    # it dont close another project
+    self.assertFalse(self.other_project.Project_isSupportRequestCreationClosed())
 
 class TestCRMPropertySheetConstraint(SlapOSTestCaseMixin):
 
@@ -354,7 +177,6 @@ class TestCRMPropertySheetConstraint(SlapOSTestCaseMixin):
       portal_type="Support Request",
       destination_value=person_user,
       destination_decision_value=person_user,
-      #specialise=
     )
 
     # Value set by the init
@@ -393,8 +215,73 @@ class TestCRMPropertySheetConstraint(SlapOSTestCaseMixin):
       'Customer should be source or destination of the event'
     ])
 
+    # Check script in case
+    non_consistency_list = event.Event_checkCustomerAsSourceOrDestinationConsistency()
+    self.assertEqual(non_consistency_list, [
+      'Customer should be source or destination of the event'
+    ])
+
     event.setDestination(person.getRelativeUrl())
     self.assertFalse(event.checkConsistency())
+    # Check script in case
+    self.assertEqual([],
+      event.Event_checkCustomerAsSourceOrDestinationConsistency())
+
+class TestProject_createSupportRequestWithCausality(TestCRMSkinsMixin):
+
+  def testProject_createSupportRequestWithCausality(self):
+    self._makeComputeNode(self.project)
+    self._makeComplexComputeNode(self.project)
+
+    new_id = self.generateNewId()
+    title = "TestProject_createSupportRequestWithCausality title %s" % (new_id)
+    text_content = "Test Description %s" % (new_id)
+
+    ticket = self.project.Project_createSupportRequestWithCausality(
+      title=title,
+      text_content=text_content,
+      causality=self.compute_node.getRelativeUrl(),
+      destination_decision=self.person.getRelativeUrl())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    self.assertEqual(ticket.getTitle(), title)
+
+    self.tic()
+
+    self.assertEqual(None,
+      self.project.Project_createSupportRequestWithCausality(
+        title=title,
+        text_content=text_content,
+        causality=self.compute_node.getRelativeUrl(),
+        destination_decision=self.person.getRelativeUrl()))
+
+    self.assertEqual(None,
+      self.project.Project_createSupportRequestWithCausality(
+        title="Some other title",
+        text_content="Some other content",
+        causality=self.compute_node.getRelativeUrl(),
+        destination_decision=self.person.getRelativeUrl()))
+
+    # Same tittle different causality
+    ticket = self.project.Project_createSupportRequestWithCausality(
+      title=title,
+      text_content=text_content,
+      causality=self.start_requested_software_instance.getSpecialise(),
+      destination_decision=self.person.getRelativeUrl())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    self.assertEqual(ticket.getTitle(), title)
+
+    self.tic()
+
+    self.assertEqual(None,
+      self.project.Project_createSupportRequestWithCausality(
+        title="Some other title",
+        text_content="Some other content",
+        causality=self.start_requested_software_instance.getSpecialise(),
+        destination_decision=self.person.getRelativeUrl()))
 
 
 class TestTicket_createProjectEvent(TestCRMSkinsMixin):

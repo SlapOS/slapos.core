@@ -37,7 +37,7 @@ if person.Entity_hasOutstandingAmount(ledger_uid=portal.portal_categories.ledger
   # Time to create the ticket
   comment = 'New automatic ticket for %s' % context.getTitle()
   ticket = context.Entity_createTicketFromTradeCondition(
-    portal.service_module.slapos_crm_monitoring.getRelativeUrl(),
+    portal.service_module.slapos_crm_acknowledgement.getRelativeUrl(),
     'Account regularisation expected for "%s"' % context.getTitle(),
     '',
     portal_type='Regularisation Request',

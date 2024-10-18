@@ -1,7 +1,7 @@
 <type_roles>
   <role id='Auditor'>
    <property id='title'>Customer</property>
-   <property id='description'>Monovalued role</property>
+   <property id='condition'>python: context.getDestinationDecision('', portal_type='Person') != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/user</multi_property>
    <multi_property id='base_category'>destination_decision</multi_property>

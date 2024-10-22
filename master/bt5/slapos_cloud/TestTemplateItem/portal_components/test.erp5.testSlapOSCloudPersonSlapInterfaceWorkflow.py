@@ -51,7 +51,9 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     <instance>
     </instance>
     """
-    sla_xml = "test"
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
     shared = True
     state = "started"
 
@@ -165,7 +167,9 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     <instance>
     </instance>
     """
-    sla_xml = "test"
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
     shared = True
 
     # Only started, stopped, destroyed
@@ -229,7 +233,9 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     <instance>
     </instance>
     """
-    sla_xml = "test"
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
     shared = True
     state = "started"
 
@@ -257,7 +263,9 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     <instance>
     </instance>
     """
-    sla_xml = "test"
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
     shared = True
     state = "started"
 
@@ -298,7 +306,9 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     <instance>
     </instance>
     """
-    sla_xml = "test"
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
     shared = True
     state = "started"
 
@@ -335,7 +345,9 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     <instance>
     </instance>
     """
-    sla_xml = "test"
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
     shared = True
     state = "started"
 
@@ -404,7 +416,9 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     <instance>
     </instance>
     """
-    sla_xml = "test"
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
     shared = True
     state = "started"
 
@@ -518,7 +532,9 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     <instance>
     </instance>
     """
-    sla_xml = "test"
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
     shared = True
 
     person.requestSoftwareInstance(
@@ -559,7 +575,9 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     <instance>
     </instance>
     """
-    sla_xml = "test"
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
     shared = True
 
     person.requestSoftwareInstance(

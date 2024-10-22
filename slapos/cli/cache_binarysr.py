@@ -34,6 +34,8 @@ import sys
 
 import prettytable
 
+from six.moves.urllib.error import HTTPError
+
 from slapos.grid import networkcache
 from slapos.cli.config import ConfigCommand
 from slapos.util import str2bytes
@@ -88,6 +90,13 @@ def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
     try:
         entries = networkcache.download_entry_list(cache_url, cache_dir,
             md5, logger, signature_certificate_list)
+    except HTTPError as e:
+        if e.code == 404:
+            logger.info('Software release not found in binary cache: %s', software_url)
+        else:
+            logger.critical('Problem occurred while connecting to shacache.',
+                exc_info=True)
+        return 1
     except Exception:
         logger.critical('Error while looking object %s', software_url,
             exc_info=True)

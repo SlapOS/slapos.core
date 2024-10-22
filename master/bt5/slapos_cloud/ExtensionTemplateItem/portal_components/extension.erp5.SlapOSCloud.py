@@ -34,7 +34,8 @@ from zExceptions import Unauthorized
 from DateTime import DateTime
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 from Acquisition import aq_base, aq_inner
-
+from slapos.util import dumps
+from lxml import etree
 
 def cloneDocumentWithANewPortalType(obj, portal_type):
   import erp5.portal_type
@@ -324,7 +325,7 @@ def Base_updateRelatedContentWithoutReindextion(self, previous_category_url, new
                                                 previous_category_url,
                                                 new_category_url)
       membership_list.append(new_category)
-    
+
     # I'm preserving reindexation here in case, since I'm not entire sure the 
     # Impact
     predicate.edit(membership_criterion_category_list=membership_list,
@@ -345,3 +346,17 @@ def Base_updateRelatedContentWithoutReindextion(self, previous_category_url, new
       o.Base_updateRelatedContentWithoutReindextion(previous_o_category_url,
                                     new_o_category_url)
 
+
+def isValidXml(self, value, REQUEST=None):
+  if REQUEST is not None:
+    raise Unauthorized
+  # No better way them this for now
+  etree.fromstring(value)
+  return True
+
+def isValidXmlMarshaller(self, value, REQUEST=None):
+  if REQUEST is not None:
+    raise Unauthorized
+  # No better way them this for now
+  dumps(value)
+  return True

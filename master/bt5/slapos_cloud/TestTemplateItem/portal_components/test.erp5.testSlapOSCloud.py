@@ -26,20 +26,28 @@
 #
 ##############################################################################
 
-
-def _decode_with_json(value):
-  # Ensure value is serisalisable as json
-  return json.loads(json.dumps(value))
-
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
+from Products.ERP5Type.Core.Workflow import ValidationFailed
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
+                                                    TemporaryAlarmScript, \
+                                                    SlapOSTestCaseMixinWithAbort
 from DateTime import DateTime
 from App.Common import rfc1123_date
 import json
 import hashlib
 from binascii import hexlify
+from lxml import etree
+import transaction
+
+BACKSPACE_CHAR = "\x08"
+BELL_CHAR = "\x07"
+HORIZONTAL_TAB_CHAR = "\x09"
 
 def hashData(data):
   return hexlify(hashlib.sha1(json.dumps(data, sort_keys=True)).digest())
+
+def _decode_with_json(value):
+  # Ensure value is serisalisable as json
+  return json.loads(json.dumps(value))
 
 class TestSlapOSCloudSlapOSCacheMixin(
     SlapOSTestCaseMixin):
@@ -81,7 +89,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
           "text": "#error no data found for %s" % doc.getReference(),
           "no_data": 1
         }
-    
+
     # Check Compute Node
     self.assertEqual(self.compute_node._getCachedAccessInfo(), None)
     self.assertEqual(self.compute_node.getAccessStatus(),
@@ -131,7 +139,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
           'no_data_since_15_minutes': 0,
           'no_data_since_5_minutes': 0
         })
-    
+
     # Check Compute Node
     self.assertEqual(True,
       self.compute_node.setAccessStatus("TEST123 %s" % self.compute_node.getUid()))
@@ -205,7 +213,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
           'no_data_since_15_minutes': 0,
           'no_data_since_5_minutes': 0
         })
-    
+
     self.tic()
 
 
@@ -215,7 +223,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
       uid=instance.getUid(),
       select_dict={"indexation_timestamp": None}
     )[0].indexation_timestamp
-    
+
     # This is already called from elsewhere, so it actually changed
     self.assertEqual(True,
       instance.setAccessStatus("TEST123 %s" % instance.getUid()))
@@ -248,7 +256,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
       select_dict={"indexation_timestamp": None}
     )[0].indexation_timestamp
     self.assertEqual(new_indexation_timestamp, indexation_timestamp)
-    
+
     self.assertEqual(True,
       instance.setErrorStatus("TEST123 %s" % instance.getUid(), reindex=1))
     self.tic()
@@ -287,7 +295,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
           'no_data_since_15_minutes': 0,
           'no_data_since_5_minutes': 0
         })
-    
+
     # Check Compute Node
     self.assertEqual(True,
       self.compute_node.setErrorStatus("TEST123 %s" % self.compute_node.getUid()))
@@ -368,9 +376,56 @@ class TestSlapOSCloudSlapOSCacheMixin(
     self.assertEqual(installation._getCachedAccessInfo(),
                          getExpectedCacheDict(installation))
     self.assertEqual(_decode_with_json(installation.getAccessStatus()),
-                     getBaseExpectedDict(installation))   
+                     getBaseExpectedDict(installation))
     self.assertEqual(False,
       installation.setBuildingStatus("TEST123 %s" % installation.getUid()))
+
+class TestBase_isValidXmlMarshaller(SlapOSTestCaseMixinWithAbort):
+  def test_Base_isValidXmlMarshaller(self):
+    self.assertTrue(self.portal.Base_isValidXmlMarshaller("""<instance/>"""))
+    self.assertTrue(self.portal.Base_isValidXmlMarshaller("""<instance></instance>"""))
+    self.assertTrue(self.portal.Base_isValidXmlMarshaller("""<instance>"""))
+    self.assertTrue(self.portal.Base_isValidXmlMarshaller(""))
+    self.assertTrue(self.portal.Base_isValidXmlMarshaller("""<insta"""))
+    self.assertTrue(self.portal.Base_isValidXmlMarshaller({HORIZONTAL_TAB_CHAR: 1}))
+    self.assertTrue(self.portal.Base_isValidXmlMarshaller([HORIZONTAL_TAB_CHAR, 1]))
+    self.assertTrue(self.portal.Base_isValidXmlMarshaller(HORIZONTAL_TAB_CHAR))
+    self.assertTrue(self.portal.Base_isValidXmlMarshaller({'zz': {'aa'}}))
+    self.assertTrue(self.portal.Base_isValidXmlMarshaller({}))
+    self.assertTrue(self.portal.Base_isValidXmlMarshaller(1))
+
+    self.assertRaises(ValueError,
+      self.portal.Base_isValidXmlMarshaller,
+      "<instance>%s</instance>" % BACKSPACE_CHAR)
+    self.assertRaises(ValueError,
+       self.portal.Base_isValidXmlMarshaller, BACKSPACE_CHAR)
+    self.assertRaises(ValueError,
+      self.portal.Base_isValidXmlMarshaller, {BACKSPACE_CHAR: 1})
+    self.assertRaises(ValueError,
+      self.portal.Base_isValidXmlMarshaller, [BACKSPACE_CHAR, 1])
+    self.assertRaises(ValueError,
+      self.portal.Base_isValidXmlMarshaller, BELL_CHAR)
+    self.assertRaises(ValueError,
+      self.portal.Base_isValidXmlMarshaller, {BELL_CHAR: 1})
+    self.assertRaises(ValueError,
+      self.portal.Base_isValidXmlMarshaller, [BELL_CHAR, 1])
+
+class TestBase_isValidXml(SlapOSTestCaseMixinWithAbort):
+
+  def test_Base_isValidXml(self):
+    self.assertTrue(self.portal.Base_isValidXml("<instance/>"))
+    self.assertTrue(self.portal.Base_isValidXml("<instance></instance>"))
+    self.assertTrue(
+      self.portal.Base_isValidXml("<instance>%s</instance>" % HORIZONTAL_TAB_CHAR))
+
+    self.assertRaises(etree.XMLSyntaxError, self.portal.Base_isValidXml, "<instance>")
+    self.assertRaises(etree.XMLSyntaxError, self.portal.Base_isValidXml, "")
+    self.assertRaises(ValueError, self.portal.Base_isValidXml, None)
+    self.assertRaises(etree.XMLSyntaxError, self.portal.Base_isValidXml, "<insta")
+
+    self.assertRaises(etree.XMLSyntaxError, self.portal.Base_isValidXml,
+                      "<instance>%s</instance>" % BACKSPACE_CHAR)
+
 
 class TestSlapOSCloudSoftwareInstance(
     SlapOSTestCaseMixin):
@@ -378,7 +433,10 @@ class TestSlapOSCloudSoftwareInstance(
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self.project = self.addProject()
-    self._makeTree(self.project)
+    self.tic()
+    self.instance_tree = self.addInstanceTree(self.project)
+    self.software_instance = self.instance_tree.getSuccessorValue()
+    self.tic()
 
   def test_getXmlAsDict(self):
     simple_parameter_sample_xml = """<?xml version='1.0' encoding='utf-8'?>
@@ -391,6 +449,16 @@ class TestSlapOSCloudSoftwareInstance(
       self.software_instance._getXmlAsDict(simple_parameter_sample_xml),
       {'p1é': 'v1é', 'p2é': 'v2é'})
 
+  def test_getXmlAsDict_invalid_backspace_char(self):
+    simple_parameter_sample_xml = """<?xml version='1.0' encoding='utf-8'?>
+<instance>
+  <parameter id="p1é%(bs)s">v1é%(bs)s</parameter>
+  <parameter id="p2é%(bs)s">v2é%(bs)s</parameter>
+</instance>
+""" % {'bs' : BACKSPACE_CHAR}
+    self.assertRaises(etree.XMLSyntaxError,
+        self.software_instance._getXmlAsDict, simple_parameter_sample_xml)
+
   def test_getInstanceXmlAsDict(self):
     self.software_instance.setTextContent("""<?xml version='1.0' encoding='utf-8'?>
 <instance>
@@ -401,6 +469,26 @@ class TestSlapOSCloudSoftwareInstance(
     self.assertEqual(
       self.software_instance.getInstanceXmlAsDict(),
       {'p1é': 'v1é', 'p2é': 'v2é'})
+
+    # Ensure SoftwareInstanceConstraint catches eventual the problems.
+    self.assertEqual(self.software_instance.checkConsistency(), [])
+
+  def test_getInstanceXmlAsDict_invalid_backspace_char(self):
+    self.software_instance.setTextContent("""<?xml version='1.0' encoding='utf-8'?>
+<instance>
+  <parameter id="p1é%(bs)s">v1é</parameter>
+  <parameter id="p2é">v2é%(bs)s</parameter>
+</instance>
+""" % {'bs' : BACKSPACE_CHAR})
+    self.assertRaises(etree.XMLSyntaxError,
+      self.software_instance.getInstanceXmlAsDict)
+
+    # Ensure SoftwareInstanceConstraint catches eventual the problems.
+    consistency_list = self.software_instance.checkConsistency()
+    self.assertEqual(len(consistency_list), 1, consistency_list)
+    self.assertTrue(
+      str(consistency_list[0].getTranslatedMessage()).startswith(
+        'Instance XML is invalid: invalid character'), consistency_list)
 
   def test_getSlaXmlAsDict(self):
     self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
@@ -413,6 +501,26 @@ class TestSlapOSCloudSoftwareInstance(
       self.software_instance.getSlaXmlAsDict(),
       {'p1é': 'v1é', 'p2é': 'v2é'})
 
+    # Ensure SoftwareInstanceConstraint catches eventual the problems.
+    self.assertEqual(self.software_instance.checkConsistency(), [])
+
+  def test_getSlaXmlAsDict_invalid_backspace_char(self):
+    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+<instance>
+  <parameter id="p1é">v1é</parameter>
+  <parameter id="p2é">v2é%(bs)s</parameter>
+</instance>
+""" % {'bs' : BACKSPACE_CHAR})
+    self.assertRaises(etree.XMLSyntaxError,
+      self.software_instance.getSlaXmlAsDict)
+
+    # Ensure SoftwareInstanceConstraint catches eventual the problems.
+    consistency_list = self.software_instance.checkConsistency()
+    self.assertEqual(len(consistency_list), 1, consistency_list)
+    self.assertTrue(
+      str(consistency_list[0].getTranslatedMessage()).startswith(
+        'Sla XML is invalid: PCDATA invalid Char value'), consistency_list)
+
   def test_getConnectionXmlAsDict(self):
     self.software_instance.setConnectionXml("""<?xml version='1.0' encoding='utf-8'?>
 <instance>
@@ -423,6 +531,38 @@ class TestSlapOSCloudSoftwareInstance(
     self.assertEqual(
       self.software_instance.getConnectionXmlAsDict(),
       {'p1é': 'v1é', 'p2é': 'v2é'})
+
+    # Ensure SoftwareInstanceConstraint catches eventual the problems.
+    self.assertEqual(self.software_instance.checkConsistency(), [])
+
+  def test_getConnectionXmlAsDict_invalid_backspace_char(self):
+    self.software_instance.setConnectionXml("""<?xml version='1.0' encoding='utf-8'?>
+<instance>
+  <parameter id="p1é">v1é</parameter>
+  <parameter id="p2é">v2é%(bs)s</parameter>
+</instance>
+""" % {'bs' : BACKSPACE_CHAR})
+    self.assertRaises(etree.XMLSyntaxError,
+      self.software_instance.getConnectionXmlAsDict)
+
+    # Ensure SoftwareInstanceConstraint catches eventual the problems.
+    consistency_list = self.software_instance.checkConsistency()
+    self.assertEqual(len(consistency_list), 1, consistency_list)
+    self.assertTrue(
+      str(consistency_list[0].getTranslatedMessage()).startswith(
+        'Connection XML is invalid: PCDATA invalid Char value'),
+      consistency_list)
+
+  def test_getTitle_invalid_backspace_char(self):
+    self.software_instance.setTitle("v2é%(bs)s" % ({'bs' : BACKSPACE_CHAR}))
+
+    # Ensure SoftwareInstanceConstraint catches eventual the problems.
+    consistency_list = self.software_instance.checkConsistency()
+    self.assertEqual(len(consistency_list), 1, consistency_list)
+    self.assertTrue(
+      str(consistency_list[0].getTranslatedMessage()).startswith(
+        'Title is invalid: All strings must be XML compatible'),
+      consistency_list)
 
   def test_instanceXmlToDict(self):
     simple_parameter_sample_xml = """<?xml version='1.0' encoding='utf-8'?>
@@ -435,6 +575,28 @@ class TestSlapOSCloudSoftwareInstance(
       self.software_instance._instanceXmlToDict(simple_parameter_sample_xml),
       # different from getXmlAsDict it don't encode things as utf-8
       {u'p1é': u'v1é', u'p2é': u'v2é'})
+
+  def test_instanceXmlToDict_invalid_xml(self):
+    simple_parameter_sample_xml = """<?xml version='1.0' encoding='utf-8'?>
+<instance>
+  <parameter id="p1é">v1é</parameter>
+  <parameter id="p2é">v2é%(bs)s</parameter>
+</instance>
+""" % {'bs' : BACKSPACE_CHAR}
+    self.assertEqual(
+      self.software_instance._instanceXmlToDict(simple_parameter_sample_xml),
+      # if the XML is invalid, it return {} by default
+      {})
+
+    simple_parameter_sample_xml = """<?xml version='1.0' encoding='utf-8'?>
+<instance>
+  <parameter id="p1é">v1é</parameter>
+  <parameter id="p2é">v2é%(bs)s</parameter>
+""" % {'bs' : BACKSPACE_CHAR}
+    self.assertEqual(
+      self.software_instance._instanceXmlToDict(simple_parameter_sample_xml),
+      # This dont raise because it isn't converted verified converted as XML.
+      {})
 
   def test_asParameterDict_not_allocated(self):
     self.assertRaises(ValueError,
@@ -463,11 +625,11 @@ class TestSlapOSCloudSoftwareInstance(
       self.start_requested_software_instance.getConnectionXml() )
     self.assertEqual(as_parameter_dict["filter_xml"],
       self.start_requested_software_instance.getSlaXml() )
-    self.assertEqual(as_parameter_dict["root_instance_title"], 
+    self.assertEqual(as_parameter_dict["root_instance_title"],
       self.start_requested_software_instance.getSpecialiseTitle().decode("UTF-8"))
     self.assertEqual(as_parameter_dict["root_instance_short_title"],
       self.start_requested_software_instance.getSpecialiseShortTitle().decode("UTF-8"))
-    self.assertEqual(as_parameter_dict["slap_computer_id"], 
+    self.assertEqual(as_parameter_dict["slap_computer_id"],
       self.compute_node.getReference().decode("UTF-8"))
     self.assertEqual(as_parameter_dict["slap_computer_partition_id"],
       "partition1")
@@ -490,9 +652,28 @@ class TestSlapOSCloudSoftwareInstance(
     self._makeComputeNode(self.project)
     self._makeComplexComputeNode(self.project, with_slave=True)
     self.tic()
-    
+
     self.assertEqual([(u'', u'ip_address_1')],
       self.start_requested_software_instance._getInstanceTreeIpList())
+
+class TestSlapOSCloudSlaveInstance(
+    TestSlapOSCloudSoftwareInstance):
+
+  def _skipTest(self):
+    pass
+
+  test_asParameterDict_not_allocated = _skipTest
+  test_getInstanceTreeIpList = _skipTest
+  test_asParameterDict = _skipTest
+
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    self.project = self.addProject()
+    self.tic()
+    self.instance_tree = self.addInstanceTree(project=self.project, shared=True)
+    self.software_instance = self.instance_tree.getSuccessorValue()
+    self.tic()
+
 
 class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
       SlapOSTestCaseMixin):
@@ -525,7 +706,7 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
   def test_activate_getCacheComputeNodeInformation_first_access(self):
 
     #
-    # This is a port of 
+    # This is a port of
     #    TestSlapOSSlapToolgetFullComputerInformation.test_activate_getFullComputerInformation_first_access
     #
 
@@ -533,13 +714,13 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
     self.portal.REQUEST['disable_isTestRun'] = True
 
     self.login(self.compute_node_user_id)
-    user = self.getPortalObject().portal_membership.getAuthenticatedMember().getUserName()
+    user = self.portal.portal_membership.getAuthenticatedMember().getUserName()
 
     self.compute_node.setAccessStatus(self.compute_node_id)
     refresh_etag = self.compute_node._calculateRefreshEtag()
     body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
-    # This tic and second call is to fix indexation ordering while some sub object 
-    # is created after the etag is computed and stored. 
+    # This tic and second call is to fix indexation ordering while some sub object
+    # is created after the etag is computed and stored.
     self.tic()
     refresh_etag = self.compute_node._calculateRefreshEtag()
     body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
@@ -568,7 +749,8 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
 
     self.assertEqual(first_etag, etag)
     self.assertEqual(first_body_fingerprint, hashData(body))
-    self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
+    self.assertEqual(current_activity_count,
+                     len(self.portal.portal_activities.getMessageList()))
 
     self.tic()
 
@@ -579,7 +761,7 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
     refresh_etag = self.compute_node._calculateRefreshEtag()
     body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
     self.commit()
-    
+
     second_etag = self.compute_node._calculateRefreshEtag()
     second_body_fingerprint = hashData(
       self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
@@ -627,7 +809,8 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
 
     self.assertEqual(second_etag, etag)
     self.assertEqual(first_body_fingerprint, hashData(body))
-    self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
+    self.assertEqual(current_activity_count,
+                     len(self.portal.portal_activities.getMessageList()))
 
     self.tic()
 
@@ -636,7 +819,7 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
     self.compute_node.setAccessStatus(self.compute_node_id)
     refresh_etag = self.compute_node._calculateRefreshEtag()
     body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
-    
+
     # On the previous tic, the values can be indexed out of order, so recall after indextion
     # so the values are propely set.
     self.tic()
@@ -676,7 +859,8 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
 
     self.assertEqual(third_etag, etag)
     self.assertEqual(third_body_fingerprint, hashData(body))
-    self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
+    self.assertEqual(current_activity_count,
+                     len(self.portal.portal_activities.getMessageList()))
 
     self.tic()
 
@@ -692,7 +876,7 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
     # so the values are propely set.
     self.tic()
     body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
-    
+
     self.commit()
     fourth_etag = self.compute_node._calculateRefreshEtag()
     fourth_body_fingerprint = hashData(
@@ -705,4 +889,181 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
     self.assertEqual(fourth_body_fingerprint, hashData(body))
     self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
 
+class TestSlapOSCloudInstanceInvalidRequest(SlapOSTestCaseMixin):
 
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    self.project = self.addProject()
+
+  def generateUnsafeXml_bad_string(self):
+    return '<?xml version="1.0" encoding="utf-8"?><instance><parameter '\
+      'id="%s">%s\x08</parameter></instance>' % \
+      ("paramé".decode("UTF-8").encode("UTF-8"),
+      self.generateNewId().decode("UTF-8").encode("UTF-8"))
+
+  def _test_invalid(self, title=None, instance_xml=None, sla_xml=None, shared=False):
+    self._makeComputeNode(self.project)
+    self._makeComplexComputeNode(self.project, with_slave=not shared)
+    self.tic()
+
+    if title is None:
+      title = self.generateNewSoftwareTitle()
+    # Create second Slave with invalid char (backspace)
+    instance_tree = self.portal.instance_tree_module\
+          .newContent(portal_type="Instance Tree")
+    instance_tree.validate()
+    instance_tree.edit(
+        title=self.generateNewSoftwareTitle(),
+        reference="TESTSI-%s" % self.generateNewId(),
+        # No need
+        destination_section_value=None,
+        follow_up_value=self.project
+    )
+    if not instance_xml:
+      instance_xml = self.generateSafeXml()
+    if not sla_xml:
+      sla_xml = self.generateSafeXml()
+
+    software_instance_kw = dict(
+      software_release=self.start_requested_software_instance.getUrlString(),
+      software_type=self.start_requested_software_instance.getSourceReference(),
+      instance_xml=instance_xml,
+      sla_xml=sla_xml,
+      shared=shared,
+      software_title=title,
+      state='started',
+      project_reference=self.project.getReference()
+    )
+
+    # Ensure this produces a consistent instance first, to start.
+    instance_tree_kw = software_instance_kw.copy()
+    instance_tree_kw.update({
+      "instance_xml" : self.generateSafeXml(),
+      "sla_xml" : self.generateSafeXml(),
+      "software_title" : instance_tree.getTitle()
+    })
+    instance_tree.requestStart(**instance_tree_kw)
+
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      with self.assertRaises(ValidationFailed):
+        instance_tree.requestInstance(**software_instance_kw)
+      # Abort transaction to prevent interaction workflow to trigger,
+      # and to the temporary script be removed
+      transaction.abort()
+
+  def test_invalid_backspace_char_on_software_title(self):
+    title = "abc\08x" + self.generateNewSoftwareTitle()
+    self._test_invalid(title=title)
+
+  def test_invalid_backspace_char_on_slave_title(self):
+    title = "abc\08x" + self.generateNewSoftwareTitle()
+    self._test_invalid(title=title, shared=True)
+
+  def test_invalid_backspace_char_on_software_paramameter_xml(self):
+    invalid_xml = self.generateUnsafeXml_bad_string()
+    self._test_invalid(instance_xml=invalid_xml)
+
+  def test_invalid_backspace_char_on_slave_paramameter_xml(self):
+    invalid_xml = self.generateUnsafeXml_bad_string()
+    self._test_invalid(instance_xml=invalid_xml, shared=True)
+
+  def test_invalid_backspace_char_on_software_sla_xml(self):
+    invalid_xml = self.generateUnsafeXml_bad_string()
+    self._test_invalid(sla_xml=invalid_xml)
+
+  def test_invalid_backspace_char_on_slave_sla_xml(self):
+    invalid_xml = self.generateUnsafeXml_bad_string()
+    self._test_invalid(sla_xml=invalid_xml, shared=True)
+
+  def _test_invalid_connection_parameter(self, connection_xml, shared=False):
+    self._makeComputeNode(self.project)
+    self._makeComplexComputeNode(self.project, with_slave=not shared)
+    self.tic()
+
+    # Create second Slave with invalid char (backspace)
+    instance_tree = self.portal.instance_tree_module\
+          .newContent(portal_type="Instance Tree")
+    instance_tree.validate()
+    instance_tree.edit(
+        title=self.generateNewSoftwareTitle(),
+        reference="TESTSI-%s" % self.generateNewId(),
+        # No need
+        destination_section_value=None,
+        follow_up_value=self.project
+    )
+
+    software_instance_kw = dict(
+      software_release=self.start_requested_software_instance.getUrlString(),
+      software_type=self.start_requested_software_instance.getSourceReference(),
+      instance_xml=self.generateSafeXml(),
+      sla_xml=self.generateSafeXml(),
+      shared=shared,
+      software_title=instance_tree.getTitle(),
+      state='started',
+      project_reference=self.project.getReference()
+    )
+    instance_tree.requestStart(**software_instance_kw)
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      instance_tree.requestInstance(**software_instance_kw)
+
+    software_instance = instance_tree.getSuccessorValue()
+    with self.assertRaises(ValidationFailed):
+      software_instance.updateConnection(connection_xml=connection_xml)
+
+  def test_invalid_backspace_char_on_software_connection_xml(self):
+    invalid_xml = self.generateUnsafeXml_bad_string()
+    self._test_invalid_connection_parameter(invalid_xml)
+
+  def test_invalid_backspace_char_on_slave_connection_xml(self):
+    invalid_xml = self.generateUnsafeXml_bad_string()
+    self._test_invalid_connection_parameter(invalid_xml, shared=True)
+
+  def _test_invalid_instance_tree(self, title=None,
+                                instance_xml=None, sla_xml=None):
+    self._makeComputeNode(self.project)
+    self._makeComplexComputeNode(self.project)
+    self.tic()
+
+    if title is None:
+      title = self.generateNewSoftwareTitle()
+    # Create second Slave with invalid char (backspace)
+    instance_tree = self.portal.instance_tree_module\
+          .newContent(portal_type="Instance Tree")
+    instance_tree.validate()
+    instance_tree.edit(
+        title=title,
+        reference="TESTSI-%s" % self.generateNewId(),
+        # No need
+        destination_section_value=None,
+        follow_up_value=self.project
+    )
+    if not instance_xml:
+      instance_xml = self.generateSafeXml()
+    if not sla_xml:
+      sla_xml = self.generateSafeXml()
+
+    instance_tree_kw = dict(
+      software_release=self.start_requested_software_instance.getUrlString(),
+      software_type=self.start_requested_software_instance.getSourceReference(),
+      instance_xml=instance_xml,
+      sla_xml=sla_xml,
+      shared=False,
+      software_title=title,
+      state='started',
+      project_reference=self.project.getReference()
+    )
+
+    with self.assertRaises(ValidationFailed):
+      instance_tree.requestStart(**instance_tree_kw)
+
+  def test_invalid_backspace_char_on_instance_title(self):
+    title = "abc\08x" + self.generateNewSoftwareTitle()
+    self._test_invalid_instance_tree(title=title)
+
+  def test_invalid_backspace_char_on_instance_paramameter_xml(self):
+    invalid_xml = self.generateUnsafeXml_bad_string()
+    self._test_invalid_instance_tree(instance_xml=invalid_xml)
+
+  def test_invalid_backspace_char_on_instance_sla_xml(self):
+    invalid_xml = self.generateUnsafeXml_bad_string()
+    self._test_invalid_instance_tree(sla_xml=invalid_xml)

@@ -28,7 +28,8 @@ for instance in software_instance_list:
 
   error_dict = instance.SoftwareInstance_getReportedErrorDict(tolerance=30)
   if error_dict['should_notify']:
-    support_request = project.Project_createSupportRequestWithCausality(
+    support_request = project.Project_createTicketWithCausality(
+      'Support Request',
       error_dict['ticket_title'],
       error_dict['ticket_description'],
       causality=instance_tree.getRelativeUrl(),

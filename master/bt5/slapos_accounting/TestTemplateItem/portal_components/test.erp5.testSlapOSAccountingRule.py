@@ -493,7 +493,8 @@ class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
 
     open_order.plan()
     open_order.validate()
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
 
     applied_rule_list = self.portal.portal_catalog(portal_type='Applied Rule',
         causality_uid=self.subscription.getUid())

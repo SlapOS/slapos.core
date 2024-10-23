@@ -10,7 +10,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>after_script/portal_workflow/slapos_simulation_interaction_workflow/script_Base_triggerUpdateOpenOrderSimulation</string>
+                <string>after_script/portal_workflow/slapos_simulation_interaction_workflow/script_OpenSaleOrder_triggerUpdateOpenOrderSimulation</string>
               </tuple>
             </value>
         </item>

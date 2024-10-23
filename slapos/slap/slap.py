@@ -717,14 +717,8 @@ class ComputerPartition(SlapRequester):
     return loads(xml)
 
   def getStatus(self):
-    xml = self._connection_helper.GET('getComputerPartitionStatus',
-            params={
-                'computer_id': self._computer_id,
-                'computer_partition_id': self._partition_id,
-                }
-            )
-    return loads(xml)
-  
+    return self.getAccessStatus()
+
   def getFullHostingIpAddressList(self):
     xml = self._connection_helper.GET('getHostingSubscriptionIpList',
             params={

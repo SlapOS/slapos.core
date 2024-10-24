@@ -133,8 +133,52 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
     self.tic()
     return support_request
 
-
 class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
+
+  def test_WebSection_viewTicketListAsRSS_invalid_char(self):
+    person = self.makePerson(self.addProject())
+
+    support_request = person.Entity_createTicketFromTradeCondition(
+      'service_module/slapos_crm_monitoring',
+      'Broken \08x',
+      'I need help !\08x',
+    )
+    support_request.Ticket_createProjectEvent(
+      support_request.getTitle(), 'incoming', 'Web Message',
+      support_request.getResource(),
+      text_content=support_request.getDescription(),
+      content_type='text/plain',
+      source=person.getRelativeUrl()
+    )
+    self.tic()
+
+    self.login(person.getUserId())
+    self.portal.portal_skins.changeSkin('RSS')
+    parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
+    self.assertFalse(parsed.bozo)
+    first_entry_id = [item.id for item in parsed.entries]
+    self.assertEqual([item.summary for item in parsed.entries],
+                     [u'I need help !\ufffd8x'])
+
+    self.logout()
+    sleep(2)
+    self.login()
+    support_request.Ticket_createProjectEvent(
+      support_request.getTitle(), 'outgoing', 'Web Message',
+      support_request.getResource(),
+      text_content='How can I \08xhelp you ?',
+      content_type='text/plain'
+    )
+    self.tic()
+
+    self.logout()
+    self.login(person.getUserId())
+    self.portal.portal_skins.changeSkin('RSS')
+    parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
+    self.assertFalse(parsed.bozo)
+    self.assertEqual([item.summary for item in parsed.entries],
+      [u'How can I \ufffd8xhelp you ?', u'I need help !\ufffd8x'])
+    self.assertNotEqual([item.id for item in parsed.entries][0], first_entry_id)
 
   def test_WebSection_viewTicketListAsRSS(self):
     person = self.makePerson(self.addProject())
@@ -481,7 +525,7 @@ class TestWebSection_getLegacyMessageList(TestRSSSyleSkinsMixin):
     self.assertEqual('This RSS is disabled (20241001)', message.title)
     self.assertIn('This RSS feed is disabled:', message.description)
     self.assertIn('?date=20241001', message.link)
-    
+
   def testWebSection_getLegacyMessageList_instance_tree(self):
     # Test instance tree legacy since we patch InstanceTree_view
     web_site = self.portal.web_site_module.slapos_master_panel.Base_createCloneDocument(batch_mode=1)
@@ -503,10 +547,4 @@ class TestWebSection_getLegacyMessageList(TestRSSSyleSkinsMixin):
     self.assertEqual(message.author, 'Administrator')
     self.assertEqual('This RSS is disabled (20241001)', message.title)
     self.assertIn('This RSS feed is disabled:', message.description)
-    self.assertIn('?date=20241001', message.link)    
-  
-     
-    
-
-
-    
+    self.assertIn('?date=20241001', message.link)

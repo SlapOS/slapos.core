@@ -24,6 +24,7 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort,\
   TemporaryAlarmScript, PinnedDateTime
 
+from Products.ERP5Type.Utils import unicode2str
 from DateTime import DateTime
 import feedparser
 from time import sleep
@@ -133,8 +134,52 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
     self.tic()
     return support_request
 
-
 class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
+
+  def test_WebSection_viewTicketListAsRSS_invalid_char(self):
+    person = self.makePerson(self.addProject())
+
+    support_request = person.Entity_createTicketFromTradeCondition(
+      'service_module/slapos_crm_monitoring',
+      'Broken \08x',
+      'I need help !\08x',
+    )
+    support_request.Ticket_createProjectEvent(
+      support_request.getTitle(), 'incoming', 'Web Message',
+      support_request.getResource(),
+      text_content=support_request.getDescription(),
+      content_type='text/plain',
+      source=person.getRelativeUrl()
+    )
+    self.tic()
+
+    self.login(person.getUserId())
+    self.portal.portal_skins.changeSkin('RSS')
+    parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
+    self.assertFalse(parsed.bozo)
+    first_entry_id = [item.id for item in parsed.entries]
+    self.assertEqual([item.summary for item in parsed.entries],
+                     [u'I need help !\ufffd8x'])
+
+    self.logout()
+    sleep(2)
+    self.login()
+    support_request.Ticket_createProjectEvent(
+      support_request.getTitle(), 'outgoing', 'Web Message',
+      support_request.getResource(),
+      text_content='How can I \08xhelp you ?',
+      content_type='text/plain'
+    )
+    self.tic()
+
+    self.logout()
+    self.login(person.getUserId())
+    self.portal.portal_skins.changeSkin('RSS')
+    parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
+    self.assertFalse(parsed.bozo)
+    self.assertEqual([item.summary for item in parsed.entries],
+      [u'How can I \ufffd8xhelp you ?', u'I need help !\ufffd8x'])
+    self.assertNotEqual([item.id for item in parsed.entries][0], first_entry_id)
 
   def test_WebSection_viewTicketListAsRSS(self):
     person = self.makePerson(self.addProject())
@@ -195,7 +240,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
 
   def test_WebSection_getEventList(self, web_site=None):
     # WebSection_getEventList is already widely tested on Base_getTicketRelatedEventList
-    # and Folder_getOpenTicketList, so we only tested the specific use case of 
+    # and Folder_getOpenTicketList, so we only tested the specific use case of
     # all events togheter
     if web_site is None:
       web_site = self.portal
@@ -251,11 +296,12 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     # Extra checks
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
     self.assertNotEqual(open_ticket_list[0].link, None)
-    self.assertIn(event.getTextContent(), open_ticket_list[0].description)
+    self.assertIn(event.getTextContent(),
+                  unicode2str(open_ticket_list[0].description))
     self.assertEqual(open_ticket_list[0].guid,
       '{}-{}'.format(event.getFollowUp(),
                      event.getRelativeUrl()))
-    self.assertEqual(open_ticket_list[0].title,
+    self.assertEqual(unicode2str(open_ticket_list[0].title),
       '[MONITORING] %s' % ticket.getTitle())
     self.assertIn("%s/#/" % web_site.absolute_url(),
       open_ticket_list[0].link)
@@ -317,11 +363,12 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     # Extra checks
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
     self.assertNotEqual(open_ticket_list[0].link, None)
-    self.assertIn(event_rr.getTextContent(), open_ticket_list[0].description)
+    self.assertIn(event_rr.getTextContent(),
+                  unicode2str(open_ticket_list[0].description))
     self.assertEqual(open_ticket_list[0].guid,
       '{}-{}'.format(event_rr.getFollowUp(),
                      event_rr.getRelativeUrl()))
-    self.assertEqual(open_ticket_list[0].title,
+    self.assertEqual(unicode2str(open_ticket_list[0].title),
       '[ACKNOWLEDGEMENT] %s' % regularisation_request.getTitle())
     self.assertIn("%s/#/" % web_site.absolute_url(),
       open_ticket_list[0].link)
@@ -408,19 +455,19 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
                      event_ud.getRelativeUrl()))
 
     # check if ordering is correct.
-    self.assertEqual(open_ticket_list[0].title,
+    self.assertEqual(unicode2str(open_ticket_list[0].title),
       '[THEIA IDE] %s' % upgrade_decision.getTitle())
 
     self.assertIn("%s/#/" % web_site.absolute_url(),
       open_ticket_list[1].link)
 
-    self.assertEqual(open_ticket_list[1].title,
+    self.assertEqual(unicode2str(open_ticket_list[1].title),
       '[ACKNOWLEDGEMENT] %s' % regularisation_request.getTitle())
 
     self.assertIn("%s/#/" % web_site.absolute_url(),
       open_ticket_list[1].link)
 
-    self.assertEqual(open_ticket_list[2].title,
+    self.assertEqual(unicode2str(open_ticket_list[2].title),
       '[MONITORING] %s' % ticket.getTitle())
 
     self.assertIn("%s/#/" % web_site.absolute_url(),
@@ -481,7 +528,7 @@ class TestWebSection_getLegacyMessageList(TestRSSSyleSkinsMixin):
     self.assertEqual('This RSS is disabled (20241001)', message.title)
     self.assertIn('This RSS feed is disabled:', message.description)
     self.assertIn('?date=20241001', message.link)
-    
+
   def testWebSection_getLegacyMessageList_instance_tree(self):
     # Test instance tree legacy since we patch InstanceTree_view
     web_site = self.portal.web_site_module.slapos_master_panel.Base_createCloneDocument(batch_mode=1)
@@ -503,10 +550,4 @@ class TestWebSection_getLegacyMessageList(TestRSSSyleSkinsMixin):
     self.assertEqual(message.author, 'Administrator')
     self.assertEqual('This RSS is disabled (20241001)', message.title)
     self.assertIn('This RSS feed is disabled:', message.description)
-    self.assertIn('?date=20241001', message.link)    
-  
-     
-    
-
-
-    
+    self.assertIn('?date=20241001', message.link)

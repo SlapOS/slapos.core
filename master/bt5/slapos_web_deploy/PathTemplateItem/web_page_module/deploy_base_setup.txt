@@ -46,8 +46,8 @@ if [[ ! ${DISTRO} =~ (stretch|buster|bullseye|bookworm|xenial|bionic|focal|jammy
     fi
 fi
 
-# Starting from Debian 12, we need this variable to install eggs with pip at system level
-if [[ "$os_VENDOR" =~ (Debian) && "$os_RELEASE" > 11 ]]; then
+# Starting from Debian 12 and Ubuntu 24, we need this variable to install eggs with pip at system level
+if [[ "$os_VENDOR" =~ (Debian) && "$os_RELEASE" > 11 ]] || [[ "$os_VENDOR" =~ (Ubuntu) && "$os_RELEASE" > 23 ]]; then
   export PIP_BREAK_SYSTEM_PACKAGES=1
 fi
 

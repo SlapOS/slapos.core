@@ -56,11 +56,13 @@ for brain in portal.portal_catalog(
 
   data_list.append(
       Object(**{
-        'title': "[%s] %s" % (ticket_category.upper(), ticket_title),
+        'title': context.Base_convertToSafeXML(
+          "[%s] %s" % (ticket_category.upper(), ticket_title)),
         'category': ticket_category,
-        'author': event.getSourceTitle(checked_permission="View"),
+        'author':  context.Base_convertToSafeXML(
+          event.getSourceTitle(checked_permission="View")),
         'link': ticket_link,
-        'description': event.getTextContent(),
+        'description':  context.Base_convertToSafeXML(event.getTextContent()),
         'pubDate': event.getStartDate(),
         'guid': '{}-{}'.format(
                   event.getFollowUp(),

@@ -1116,39 +1116,62 @@ class TestRegularisationRequestModule(TestSlapOSGroupRoleSecurityMixin):
   def test_RegularisationRequestModule(self):
     module = self.portal.regularisation_request_module
     self.assertSecurityGroup(module,
-        ['F-SALE*', 'F-CUSTOMER', module.Base_getOwnerId()], True)
+        ['F-SALE*', 'F-CUSTOMER', 'F-ACCOUNTING*', module.Base_getOwnerId()], True)
     self.assertRoles(module, 'F-SALE*', ['Auditor'])
     self.assertRoles(module, 'F-CUSTOMER', ['Auditor'])
+    self.assertRoles(module, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
 
 class TestRegularisationRequest(TestSlapOSGroupRoleSecurityMixin):
   ticket_portal_type = 'Regularisation Request'
 
   def test_RegularisationRequest_default(self):
-    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
+    ticket = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
         portal_type=self.ticket_portal_type)
-    self.assertSecurityGroup(support_request,
-        [self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
-    self.assertRoles(support_request, self.user_id, ['Owner'])
-    self.assertRoles(support_request, 'F-SALEMAN', ['Assignor'])
-    self.assertRoles(support_request, 'F-SALEAGT', ['Assignee'])
+    self.assertSecurityGroup(ticket,
+        [self.user_id, 'F-SALEAGT', 'F-SALEMAN', 'F-ACCMAN', 'F-ACCAGT'], False)
+    self.assertRoles(ticket, self.user_id, ['Owner'])
+    self.assertRoles(ticket, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(ticket, 'F-SALEAGT', ['Assignee'])
+    self.assertRoles(ticket, 'F-ACCMAN', ['Assignor'])
+    self.assertRoles(ticket, 'F-ACCAGT', ['Assignee'])
 
   def test_RegularisationRequest_Customer(self):
     reference = 'TESTPERSON-%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
         reference=reference)
-    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
+    ticket = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
         portal_type=self.ticket_portal_type)
-    support_request.edit(
+    ticket.edit(
         destination_decision_value=person,
         )
-    self.assertSecurityGroup(support_request,
-        [person.getUserId(), self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
-    self.assertRoles(support_request, person.getUserId(), ['Auditor'])
-    self.assertRoles(support_request, self.user_id, ['Owner'])
-    self.assertRoles(support_request, 'F-SALEMAN', ['Assignor'])
-    self.assertRoles(support_request, 'F-SALEAGT', ['Assignee'])
+    self.assertSecurityGroup(ticket,
+        [person.getUserId(), self.user_id, 'F-SALEAGT',
+         'F-SALEMAN', 'F-ACCMAN', 'F-ACCAGT'], False)
+    self.assertRoles(ticket, person.getUserId(), ['Auditor'])
+    self.assertRoles(ticket, self.user_id, ['Owner'])
+    self.assertRoles(ticket, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(ticket, 'F-SALEAGT', ['Assignee'])
+    self.assertRoles(ticket, 'F-ACCMAN', ['Assignor'])
+    self.assertRoles(ticket, 'F-ACCAGT', ['Assignee'])
 
+  def test_RegularisationRequest_organisation(self):
+    reference = 'TESTORG-%s' % self.generateNewId()
+    org = self.portal.organisation_module.newContent(
+      portal_type='Organisation',
+      reference=reference)
+    ticket = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
+        portal_type=self.ticket_portal_type)
+    ticket.edit(
+        destination_decision_value=org,
+        )
+    self.assertSecurityGroup(ticket,
+        [self.user_id, 'F-SALEAGT', 'F-SALEMAN', 'F-ACCMAN', 'F-ACCAGT'], False)
+    self.assertRoles(ticket, self.user_id, ['Owner'])
+    self.assertRoles(ticket, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(ticket, 'F-SALEAGT', ['Assignee'])
+    self.assertRoles(ticket, 'F-ACCMAN', ['Assignor'])
+    self.assertRoles(ticket, 'F-ACCAGT', ['Assignee'])
 
 class TestSystemEventModule(TestSlapOSGroupRoleSecurityMixin):
   def test_SystemEventModule(self):
@@ -1687,6 +1710,20 @@ class TestSubscriptionRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(delivery, person.getUserId(), ['Associate'])
     self.assertRoles(delivery, "SHADOW-%s" % person.getUserId(), ['Auditor'])
+
+  def test_SubscriptionRequest_organisation(self):
+    # Ensure compatibility if destination_decision is an org
+    reference = 'TESTORG-%s' % self.generateNewId()
+    org = self.portal.organisation_module.newContent(
+      portal_type='Organisation', reference=reference)
+    delivery = self.portal.subscription_request_module.newContent(
+        portal_type='Subscription Request')
+    delivery.edit(destination_decision_value=org, ledger="automated")
+    self.assertSecurityGroup(delivery,
+        ['F-SALE*', 'F-ACCOUNTING*', self.user_id], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
+    self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
+    self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
 
 class TestSubscriptionChangeRequestModule(TestSlapOSGroupRoleSecurityMixin):
   def test_SubscriptionChangeRequestModule(self):

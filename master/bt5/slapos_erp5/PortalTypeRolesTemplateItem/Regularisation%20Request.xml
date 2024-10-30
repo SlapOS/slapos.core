@@ -1,4 +1,16 @@
 <type_roles>
+  <role id='Assignee'>
+   <property id='title'>Accounting Agent</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/accounting/agent</multi_property>
+   <multi_property id='base_category'>function</multi_property>
+  </role>
+  <role id='Assignor'>
+   <property id='title'>Accounting Manager</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/accounting/manager</multi_property>
+   <multi_property id='base_category'>function</multi_property>
+  </role>
   <role id='Auditor'>
    <property id='title'>Customer</property>
    <property id='condition'>python: context.getDestinationDecision('', portal_type='Person') != ""</property>

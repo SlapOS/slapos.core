@@ -12,7 +12,7 @@ elif project_relation == 'source_project':
 else:
   raise ValueError('Unexpected project relation: %s' % project_relation)
 
-if project is None:
+if project is None or project.getPortalType() != 'Project':
   return False
 
 project_codification = project.getCodification()

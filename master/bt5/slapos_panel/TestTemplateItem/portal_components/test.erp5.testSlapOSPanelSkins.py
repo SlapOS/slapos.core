@@ -59,6 +59,143 @@ class TestSupportRequestModule_getRssFeedUrl(TestPanelSkinsMixin):
     self.tic()
     self.assertEqual(url, module.SupportRequestModule_getRssFeedUrl())
 
+class TestBase_hasSlapOSProjectUserGroup(TestPanelSkinsMixin):
+
+  def test_Base_hasSlapOSProjectUserGroup_invalid_context(self):
+    self.assertRaises(ValueError,
+      self.project.Base_hasSlapOSProjectUserGroup, project_relation='couscous')
+
+  def test_Base_hasSlapOSProjectUserGroup_customer(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup())
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup(agent=True))
+    self.assertTrue(self.project.Base_hasSlapOSProjectUserGroup(customer=True))
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup(manager=True))
+
+  def test_Base_hasSlapOSProjectUserGroup_project_manager(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addProjectProductionManagerAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup())
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup(agent=True))
+    self.assertTrue(self.project.Base_hasSlapOSProjectUserGroup(customer=True))
+    self.assertTrue(self.project.Base_hasSlapOSProjectUserGroup(manager=True))
+
+  def test_Base_hasSlapOSProjectUserGroup_agent(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addProjectProductionAgentAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup())
+    self.assertTrue(self.project.Base_hasSlapOSProjectUserGroup(agent=True))
+    self.assertTrue(self.project.Base_hasSlapOSProjectUserGroup(customer=True))
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup(manager=True))
+
+  def test_Base_hasSlapOSProjectUserGroup_destination_project(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addProjectProductionManagerAssignment(person, self.project)
+    support_request = self.portal.support_request_module.newContent(
+      portal_type='Support Request',
+      title='TESTSUPPORTREQUEST-%s' % self.generateNewId(),
+      destination_project_value=self.project
+    )
+    self.tic()
+    self.login(person.getUserId())
+
+    # Uses project_relation='context'
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+     project_relation='source_project'))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project', agent=True))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project', customer=True))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project', manager=True))
+
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project'))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project', agent=True))
+    self.assertTrue(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project', customer=True))
+    self.assertTrue(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project', manager=True))
+
+  def test_Base_hasSlapOSProjectUserGroup_source_project(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addProjectProductionManagerAssignment(person, self.project)
+    support_request = self.portal.support_request_module.newContent(
+      portal_type='Support Request',
+      title='TESTSUPPORTREQUEST-%s' % self.generateNewId(),
+      source_project_value=self.project
+    )
+    self.tic()
+    self.login(person.getUserId())
+
+    # Uses project_relation='context'
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+     project_relation='destination_project'))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project', agent=True))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project', customer=True))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project', manager=True))
+
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project'))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project', agent=True))
+    self.assertTrue(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project', customer=True))
+    self.assertTrue(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project', manager=True))
+
+  def test_Base_hasSlapOSProjectUserGroup_follow_up(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addProjectProductionManagerAssignment(person, self.project)
+    compute_node = self.portal.compute_node_module.newContent(
+      portal_type='Compute Node',
+      title='TESTCOMPUTERNODE-%s' % self.generateNewId(),
+      follow_up_value=self.project
+    )
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(compute_node.Base_hasSlapOSProjectUserGroup(
+      project_relation='follow_up'))
+    self.assertFalse(compute_node.Base_hasSlapOSProjectUserGroup(
+      project_relation='follow_up', agent=True))
+    self.assertTrue(compute_node.Base_hasSlapOSProjectUserGroup(
+      project_relation='follow_up', customer=True))
+    self.assertTrue(compute_node.Base_hasSlapOSProjectUserGroup(
+      project_relation='follow_up', manager=True))
+
+  def test_Base_hasSlapOSProjectUserGroup_not_a_project(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addProjectProductionAgentAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+
+    # Uses project_relation='context'
+    self.assertFalse(person.Base_hasSlapOSProjectUserGroup())
+    self.assertFalse(person.Base_hasSlapOSProjectUserGroup(agent=True))
+    self.assertFalse(person.Base_hasSlapOSProjectUserGroup(customer=True))
+    self.assertFalse(person.Base_hasSlapOSProjectUserGroup(manager=True))
+
 
 class TestPerson_getCertificate(TestPanelSkinsMixin):
 

@@ -213,7 +213,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/Base_getNewsDictFromComputeNodeList',
         'slapos_panel/Base_getPaymentModeForCurrency',
         'slapos_panel/Base_getStatusMonitorUrl',
-        'slapos_panel/Base_hasSlapOSProjectUserGroup',
         'slapos_panel/CertificateLogin_invalidateOnSlaposPanel',
         'slapos_panel/ComputeNode_getBusyComputePartitionList',
         'slapos_panel/ComputeNode_requestCertificate',

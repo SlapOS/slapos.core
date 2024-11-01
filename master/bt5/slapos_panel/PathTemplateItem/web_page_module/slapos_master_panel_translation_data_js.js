@@ -67,6 +67,7 @@
       "List": "List",
       "Loading": "Loading",
       "Logout": "Logout",
+      "Maximize": "Maximize",
       "Modules": "Modules",
       "My Account": "My Account",
       "New": "New",

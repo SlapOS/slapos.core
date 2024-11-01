@@ -40,4 +40,4 @@ else:
 
 instance.edit(**edit_kw)
 # Prevent storing broken XML in text content (which prevent to update parameters after)
-context.Instance_checkConsistency(state_change)
+context.script_Instance_checkConsistency(state_change)

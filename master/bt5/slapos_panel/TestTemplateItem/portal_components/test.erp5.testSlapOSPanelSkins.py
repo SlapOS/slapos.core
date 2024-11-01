@@ -59,6 +59,63 @@ class TestSupportRequestModule_getRssFeedUrl(TestPanelSkinsMixin):
     self.tic()
     self.assertEqual(url, module.SupportRequestModule_getRssFeedUrl())
 
+class TestBase_hasSlapOSAccountingUserGroup(TestPanelSkinsMixin):
+
+  def test_Base_hasSlapOSAccountingUserGroup_invalid_context(self):
+    self.assertRaises(ValueError,
+      self.project.Base_hasSlapOSAccountingUserGroup,
+      customer_relation='context')
+
+  def test_Base_hasSlapOSAccountingUserGroup(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addProjectProductionManagerAssignment(person, self.project)
+    self.tic()
+
+    subscription_request = self.portal.subscription_request_module.newContent(
+      portal_type='Subscription Request',
+      title='TESTSUBREQ-%s' % self.generateNewId(),
+      destination_decision_value=person,
+      destination_project_value=self.project
+    )
+    subscription_request.submit()
+    self.tic()
+    self.login(person.getUserId())
+
+    # Uses customer_relation='destination_decision'
+    self.assertFalse(subscription_request.Base_hasSlapOSAccountingUserGroup())
+    self.assertFalse(subscription_request.Base_hasSlapOSAccountingUserGroup(
+      seller=True))
+    self.assertTrue(subscription_request.Base_hasSlapOSAccountingUserGroup(
+      customer=True))
+    self.assertFalse(subscription_request.Base_hasSlapOSAccountingUserGroup(
+      accountant=True))
+
+  def test_Base_hasSlapOSAccountingUserGroup_sale_manager(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addSaleManagerAssignment(person)
+    self.tic()
+
+    subscription_request = self.portal.subscription_request_module.newContent(
+      portal_type='Subscription Request',
+      title='TESTSUBREQ-%s' % self.generateNewId(),
+      destination_decision_value=person,
+      destination_project_value=self.project
+    )
+    subscription_request.submit()
+    self.tic()
+    self.login(person.getUserId())
+
+    # Uses customer_relation='destination_decision'
+    self.assertFalse(subscription_request.Base_hasSlapOSAccountingUserGroup())
+    self.assertTrue(subscription_request.Base_hasSlapOSAccountingUserGroup(
+      seller=True))
+    self.assertTrue(subscription_request.Base_hasSlapOSAccountingUserGroup(
+      customer=True))
+    self.assertFalse(subscription_request.Base_hasSlapOSAccountingUserGroup(
+      accountant=True))
+
 class TestBase_hasSlapOSProjectUserGroup(TestPanelSkinsMixin):
 
   def test_Base_hasSlapOSProjectUserGroup_invalid_context(self):

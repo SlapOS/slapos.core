@@ -19,7 +19,7 @@ user_group_list = getGroups()
 return (
   ((customer) and
    (destination_decision.getPortalType() == 'Person') and
-   (destination_decision.getUserId() in user_group_list)
+   (destination_decision.getUid() == member.getUserValue().getUid())
   ) or
   ((accountant) and ('F-ACCOUNTING*' in user_group_list)) or
   ((seller) and ('F-SALEMAN' in user_group_list)) or

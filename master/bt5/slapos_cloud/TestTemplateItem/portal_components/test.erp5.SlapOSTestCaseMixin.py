@@ -163,31 +163,35 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         # Reset values set on script_ComputeNode_requestSoftwareReleaseChange
         self.portal.REQUEST.set(key, None)
 
-  def addAccountingManagerAssignment(self, person):
-    person.newContent(
+  def _addAssignment(self, person, function, project=None):
+    assignment = person.newContent(
       portal_type='Assignment',
-      function='accounting/manager'
-    ).open()
+      destination_project_value=project,
+      function=function
+    )
+    assignment.open()
+    return assignment
+
+  def addAccountingManagerAssignment(self, person):
+    return self._addAssignment(person, 'accounting/manager')
+
+  def addAccountingAgentAssignment(self, person):
+    return self._addAssignment(person, 'accounting/agent')
 
   def addSaleManagerAssignment(self, person):
-    person.newContent(
-      portal_type='Assignment',
-      function='sale/manager'
-    ).open()
+    return self._addAssignment(person, 'sale/manager')
+
+  def addSaleAgentAssignment(self, person):
+    return self._addAssignment(person, 'sale/agent')
+
+  def addProjectProductionAgentAssignment(self, person, project):
+    return self._addAssignment(person, 'production/agent', project)
 
   def addProjectProductionManagerAssignment(self, person, project):
-    person.newContent(
-      portal_type='Assignment',
-      destination_project_value=project,
-      function='production/manager'
-    ).open()
+    return self._addAssignment(person, 'production/manager', project)
 
   def addProjectCustomerAssignment(self, person, project):
-    person.newContent(
-      portal_type='Assignment',
-      destination_project_value=project,
-      function='customer'
-    ).open()
+    return self._addAssignment(person, 'customer', project)
 
   def addProject(self, organisation=None, currency=None, person=None, is_accountable=False):
     assert organisation is None
@@ -223,7 +227,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
   def _addERP5Login(self, document, **kw):
     if document.getPortalType() != "Person":
       raise ValueError("Only Person supports add ERP5 Login")
-    
+
     login = document.newContent(
         portal_type="ERP5 Login",
         reference=document.getReference(),

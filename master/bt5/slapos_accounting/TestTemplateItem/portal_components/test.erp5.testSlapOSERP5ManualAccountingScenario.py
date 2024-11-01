@@ -28,13 +28,8 @@ class TestSlapOSManualAccountingScenarioMixin(TestSlapOSVirtualMasterScenarioMix
 
     self.login(sale_person.getUserId())
 
-    assignment = accountant_person.newContent(
-      portal_type='Assignment',
-      group='company',
-      function='accounting/manager'
-    )
+    assignment = self.addAccountingManagerAssignment(accountant_person)
     self.assertEqual(assignment.checkConsistency(), [])
-    assignment.open()
 
     self.tic()
     self.logout()

@@ -36,11 +36,15 @@ extras_require = {
     ),
     'ipython_console': ('ipython',),
     'bpython_console': ('bpython',),
-    'test': (
+    'test': (  # to run slapos.core's own test suite
         'pyflakes',
         'mock',
         'httmock',
     ),
+    'testing': (  # to use slapos.core testing helpers (typically, in software release tests)
+        'caucase',
+        'cryptography',
+    )
 }
 
 setup(name=name,

@@ -190,7 +190,7 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
 
 class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
 
-  def test_active(self, login_portal_type="Certificate Login"):    
+  def test_active(self, login_portal_type="Certificate Login"):
     reference = self._generateRandomUniqueReference('Person')
     user_id = self._generateRandomUniqueUserId('Person')
 
@@ -244,7 +244,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
 
     # add to function category
     self.login()
-    person.newContent(portal_type='Assignment', function='accounting/manager').open()
+    self.addAccountingManagerAssignment(person)
     self.tic()
 
     self.portal.portal_caches.clearAllCache()
@@ -271,8 +271,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     # add project and function
     self.login()
     project2 = self.addProject()
-    person.newContent(portal_type='Assignment',
-      destination_project_value=project2, function='production/manager').open()
+    self.addProjectProductionManagerAssignment(person, project2)
     self.tic()
 
     self.portal.portal_caches.clearAllCache()

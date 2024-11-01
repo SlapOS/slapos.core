@@ -2449,11 +2449,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       title=reference,
       reference=reference
     )
-    person.newContent(
-      portal_type='Assignment',
-      function='customer',
-      destination_project_value=self.project
-    ).open()
+    self.addProjectCustomerAssignment(person, self.project)
     person.newContent(portal_type='ERP5 Login',
       reference=reference, password=password).validate()
 

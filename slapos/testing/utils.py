@@ -32,6 +32,7 @@ import unittest
 import os
 import logging
 import multiprocessing
+import random
 import shutil
 import subprocess
 import tempfile
@@ -62,6 +63,25 @@ def findFreeTCPPort(ip=''):
   with closing(s):
     s.bind((ip, 0))
     return s.getsockname()[1]
+
+
+def findFreeTCPPortRange(ip='', count=1):
+  # type: (str, int) -> int
+  """Find a range of consecutive `count` free TCP ports to listen to.
+  """
+  for _ in range(10):  # retry 10 times
+    port = random.randrange(20000, 30000)
+    for offset in range(count):
+      with closing(socket.socket(
+          socket.AF_INET6 if ':' in ip else socket.AF_INET, socket.SOCK_STREAM)) as s:
+        try:
+          s.bind((ip, port + offset))
+        except OSError:
+          port = None
+          break
+  if port is None:
+    raise RuntimeError("Can't find port")
+  return port
 
 
 def getPortFromPath(path):

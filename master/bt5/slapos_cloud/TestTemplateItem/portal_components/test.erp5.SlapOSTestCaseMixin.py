@@ -163,20 +163,23 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         # Reset values set on script_ComputeNode_requestSoftwareReleaseChange
         self.portal.REQUEST.set(key, None)
 
-  def _addAssignment(self, person, function, project=None):
+  def _addAssignment(self, person, function, project=None, **kw):
     assignment = person.newContent(
       portal_type='Assignment',
       destination_project_value=project,
-      function=function
+      function=function,
+      **kw
     )
     assignment.open()
     return assignment
 
   def addAccountingManagerAssignment(self, person):
-    return self._addAssignment(person, 'accounting/manager')
+    # group is mandatory for accountant
+    return self._addAssignment(person, 'accounting/manager', group='company')
 
   def addAccountingAgentAssignment(self, person):
-    return self._addAssignment(person, 'accounting/agent')
+    # group is mandatory for accountant
+    return self._addAssignment(person, 'accounting/agent', group='company')
 
   def addSaleManagerAssignment(self, person):
     return self._addAssignment(person, 'sale/manager')

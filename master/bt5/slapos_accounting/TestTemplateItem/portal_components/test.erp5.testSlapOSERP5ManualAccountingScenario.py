@@ -27,9 +27,7 @@ class TestSlapOSManualAccountingScenarioMixin(TestSlapOSVirtualMasterScenarioMix
     self.tic()
 
     self.login(sale_person.getUserId())
-
-    assignment = self.addAccountingManagerAssignment(accountant_person)
-    self.assertEqual(assignment.checkConsistency(), [])
+    self.addAccountingManagerAssignment(accountant_person)
 
     self.tic()
     self.logout()

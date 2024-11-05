@@ -78,6 +78,15 @@ def withAbort(func):
       self.abort()
   return wrapped
 
+def ensureConsistency(func):
+  @functools.wraps(func)
+  def wrapped(self, *args, **kwargs):
+    document = func(self, *args, **kwargs)
+    consistency_list = document.checkConsistency()
+    assert not len(consistency_list), consistency_list
+    return document
+
+  return wrapped
 
 class TemporaryAlarmScript(object):
   """
@@ -163,6 +172,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         # Reset values set on script_ComputeNode_requestSoftwareReleaseChange
         self.portal.REQUEST.set(key, None)
 
+  @ensureConsistency
   def _addAssignment(self, person, function, project=None, **kw):
     assignment = person.newContent(
       portal_type='Assignment',
@@ -227,6 +237,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
     return subscription_request.getAggregate()"""
 
+  @ensureConsistency
   def _addERP5Login(self, document, **kw):
     if document.getPortalType() != "Person":
       raise ValueError("Only Person supports add ERP5 Login")

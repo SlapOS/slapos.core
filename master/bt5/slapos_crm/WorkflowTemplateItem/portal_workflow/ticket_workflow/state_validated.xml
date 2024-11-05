@@ -17,7 +17,6 @@
             <value>
               <tuple>
                 <string>destination/portal_workflow/ticket_workflow/transition_create_response_and_invalidate_action</string>
-                <string>destination/portal_workflow/ticket_workflow/transition_create_response_and_suspend_action</string>
                 <string>destination/portal_workflow/ticket_workflow/transition_invalidate</string>
                 <string>destination/portal_workflow/ticket_workflow/transition_invalidate_action</string>
                 <string>destination/portal_workflow/ticket_workflow/transition_suspend</string>

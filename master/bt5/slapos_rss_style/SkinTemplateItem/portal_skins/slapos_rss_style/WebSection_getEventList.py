@@ -39,9 +39,11 @@ follow_up_simulation_state = [
 ]
 
 data_list = []
-for brain in portal.portal_catalog(
+for brain in portal.portal_simulation.getMovementHistoryList(
+    security_query=portal.portal_catalog.getSecurityQuery(),
     # Limit only to listable portal types
     portal_type=['Web Message', 'Mail Message'],
+    only_accountable=False,
     simulation_state=('started', 'stopped', 'delivered'),
     limit=list_lines,
     sort_on=(('stock.date', 'desc'),

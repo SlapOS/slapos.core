@@ -28,10 +28,11 @@ event = ticket.Ticket_createProjectEvent(
   source=person_relative_url
 )
 
-try:
-  ticket.validate()
-except (AttributeError, UnsupportedWorkflowMethod):
-  pass
+if ticket.getPortalType() == 'Support Request':
+  try:
+    ticket.validate()
+  except (AttributeError, UnsupportedWorkflowMethod):
+    pass
 
 if batch:
   return event

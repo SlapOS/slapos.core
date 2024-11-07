@@ -4,7 +4,7 @@ activate_kw = {'tag': tag}
 portal.portal_catalog.searchAndActivate(
   portal_type=portal.getPortalEventTypeList(),
   simulation_state='stopped',
-  follow_up__portal_type='Support Request',
+  follow_up__portal_type=['Support Request', 'Regularisation Request'],
   method_id='Event_checkStoppedToDeliver',
   method_kw={'activate_kw': activate_kw},
   activate_kw=activate_kw

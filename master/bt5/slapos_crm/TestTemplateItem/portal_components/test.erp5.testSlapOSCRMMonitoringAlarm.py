@@ -1075,32 +1075,33 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
     self.assertEqual(len(event_list), 0)
     self.assertEqual(ticket.getSimulationState(), "invalidated")
 
-
 class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
 
-  def _makeSupportRequest(self):
-    support_request = self.portal.support_request_module.newContent(
-      portal_type="Support Request"
-    )
-    support_request.submit()
+  ticket_portal_type = 'Support Request'
+  event_portal_type = 'Web Message'
+
+  def _makeTicket(self):
+    module = self.portal.getDefaultModuleValue(self.ticket_portal_type)
+    ticket = module.newContent(portal_type=self.ticket_portal_type)
+    ticket.submit()
     new_id = self.generateNewId()
-    support_request.edit(
-        title= "Support Request éçà %s" % new_id, #pylint: disable=invalid-encoded-data
+    ticket.edit(
+        title="%s éçà %s" % (self.ticket_portal_type, new_id), #pylint: disable=invalid-encoded-data
         reference="TESTSRQ-%s" % new_id
     )
-    return support_request
+    return ticket
 
   def _makeEvent(self, ticket):
     new_id = self.generateNewId()
     return self.portal.event_module.newContent(
-      portal_type="Web Message",
+      portal_type=self.event_portal_type,
       title='Test Event %s' % new_id,
       follow_up_value=ticket
     )
 
   def test_Event_checkStoppedEventToDeliver_alarm_stopped(self):
-    support_request = self._makeSupportRequest()
-    event = self._makeEvent(support_request)
+    ticket = self._makeTicket()
+    event = self._makeEvent(ticket)
     event.stop()
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
       self.tic()
@@ -1109,8 +1110,8 @@ class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
     self._test_alarm(alarm, event, "Event_checkStoppedToDeliver")
 
   def test_Event_checkStoppedEventToDeliver_alarm_delivered(self):
-    support_request = self._makeSupportRequest()
-    event = self._makeEvent(support_request)
+    ticket = self._makeTicket()
+    event = self._makeEvent(ticket)
     event.stop()
     event.deliver()
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
@@ -1120,8 +1121,8 @@ class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
     self._test_alarm_not_visited(alarm, event, "Event_checkStoppedToDeliver")
 
   def test_Event_checkStoppedEventToDeliver_alarm_stoppedWithoutTicket(self):
-    support_request = self._makeSupportRequest()
-    event = self._makeEvent(support_request)
+    ticket = self._makeTicket()
+    event = self._makeEvent(ticket)
     event.setFollowUp(None)
     event.stop()
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
@@ -1131,167 +1132,183 @@ class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
     self._test_alarm_not_visited(alarm, event, "Event_checkStoppedToDeliver")
 
   def test_Event_checkStoppedEventToDeliver_script_recentEventInvalidatedTicket(self):
-    support_request = self._makeSupportRequest()
-    support_request.validate()
-    support_request.invalidate()
+    ticket = self._makeTicket()
+    ticket.validate()
+    ticket.invalidate()
     self.tic()
     time.sleep(1)
-    event = self._makeEvent(support_request)
+    event = self._makeEvent(ticket)
     event.stop()
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
       self.tic()
     self.assertEqual(event.getSimulationState(), "stopped")
-    self.assertEqual(support_request.getSimulationState(), "invalidated")
+    self.assertEqual(ticket.getSimulationState(), "invalidated")
     event.Event_checkStoppedToDeliver()
     self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(support_request.getSimulationState(), "validated")
+    self.assertEqual(ticket.getSimulationState(), "validated")
 
   def test_Event_checkStoppedEventToDeliver_script_recentEventValidatedTicket(self):
-    support_request = self._makeSupportRequest()
-    support_request.validate()
+    ticket = self._makeTicket()
+    ticket.validate()
     self.tic()
     time.sleep(1)
-    event = self._makeEvent(support_request)
+    event = self._makeEvent(ticket)
     event.stop()
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
       self.tic()
     self.assertEqual(event.getSimulationState(), "stopped")
-    self.assertEqual(support_request.getSimulationState(), "validated")
+    self.assertEqual(ticket.getSimulationState(), "validated")
     event.Event_checkStoppedToDeliver()
     self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertTrue(event.getCreationDate() < support_request.getModificationDate())
+    self.assertTrue(event.getCreationDate() < ticket.getModificationDate())
 
   def test_Event_checkStoppedEventToDeliver_script_recentEventSuspendedTicket(self):
-    support_request = self._makeSupportRequest()
-    support_request.validate()
-    support_request.suspend()
+    ticket = self._makeTicket()
+    ticket.validate()
+    ticket.suspend()
     self.tic()
     time.sleep(1)
-    event = self._makeEvent(support_request)
+    event = self._makeEvent(ticket)
     event.stop()
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
       self.tic()
     self.assertEqual(event.getSimulationState(), "stopped")
-    self.assertEqual(support_request.getSimulationState(), "suspended")
+    self.assertEqual(ticket.getSimulationState(), "suspended")
     event.Event_checkStoppedToDeliver()
     self.assertEqual(event.getSimulationState(), "stopped")
-    self.assertEqual(support_request.getSimulationState(), "suspended")
+    self.assertEqual(ticket.getSimulationState(), "suspended")
 
   def test_Event_checkStoppedEventToDeliver_script_oldEventInvalidatedTicket(self):
-    support_request = self._makeSupportRequest()
-    event = self._makeEvent(support_request)
+    ticket = self._makeTicket()
+    event = self._makeEvent(ticket)
     event.stop()
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
       self.tic()
     time.sleep(1)
-    support_request.validate()
-    support_request.invalidate()
+    ticket.validate()
+    ticket.invalidate()
     self.tic()
     self.assertEqual(event.getSimulationState(), "stopped")
-    self.assertEqual(support_request.getSimulationState(), "invalidated")
+    self.assertEqual(ticket.getSimulationState(), "invalidated")
     event.Event_checkStoppedToDeliver()
     self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(support_request.getSimulationState(), "invalidated")
+    self.assertEqual(ticket.getSimulationState(), "invalidated")
 
   def test_Event_checkStoppedEventToDeliver_script_oldEventValidatedTicket(self):
-    support_request = self._makeSupportRequest()
-    event = self._makeEvent(support_request)
+    ticket = self._makeTicket()
+    event = self._makeEvent(ticket)
     event.stop()
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
       self.tic()
     time.sleep(1)
-    support_request.validate()
+    ticket.validate()
     self.tic()
     self.assertEqual(event.getSimulationState(), "stopped")
-    self.assertEqual(support_request.getSimulationState(), "validated")
+    self.assertEqual(ticket.getSimulationState(), "validated")
     event.Event_checkStoppedToDeliver()
     self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(support_request.getSimulationState(), "validated")
+    self.assertEqual(ticket.getSimulationState(), "validated")
 
   def test_Event_checkStoppedEventToDeliver_script_oldEventSuspendedTicket(self):
-    support_request = self._makeSupportRequest()
-    event = self._makeEvent(support_request)
+    ticket = self._makeTicket()
+    event = self._makeEvent(ticket)
     event.stop()
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
       self.tic()
     time.sleep(1)
-    support_request.validate()
-    support_request.suspend()
+    ticket.validate()
+    ticket.suspend()
     self.tic()
     self.assertEqual(event.getSimulationState(), "stopped")
-    self.assertEqual(support_request.getSimulationState(), "suspended")
+    self.assertEqual(ticket.getSimulationState(), "suspended")
     event.Event_checkStoppedToDeliver()
     self.assertEqual(event.getSimulationState(), "stopped")
-    self.assertEqual(support_request.getSimulationState(), "suspended")
+    self.assertEqual(ticket.getSimulationState(), "suspended")
+
+class TestSlaposCrmCheckStoppedEventToDeliverRegWeb(TestSlaposCrmCheckStoppedEventToDeliver):
+  ticket_portal_type = 'Regularisation Request'
+  event_portal_type = 'Web Message'
+
+class TestSlaposCrmCheckStoppedEventToDeliverRegMail(TestSlaposCrmCheckStoppedEventToDeliver):
+  ticket_portal_type = 'Regularisation Request'
+  event_portal_type = 'Mail Message'
 
 
 class TestSlaposCrmCheckSuspendedSupportRequestToReopen(SlapOSTestCaseMixinWithAbort):
 
-  def _makeSupportRequest(self):
-    support_request = self.portal.support_request_module.newContent(
-      portal_type="Support Request"
-    )
-    support_request.submit()
+  ticket_portal_type = 'Support Request'
+  event_portal_type = 'Web Message'
+
+  def _makeTicket(self):
+    module = self.portal.getDefaultModuleValue(self.ticket_portal_type)
+    ticket = module.newContent(portal_type=self.ticket_portal_type)
+    ticket.submit()
     new_id = self.generateNewId()
-    support_request.edit(
-        title= "Support Request éçà %s" % new_id, #pylint: disable=invalid-encoded-data
+    ticket.edit(
+        title="%s éçà %s" % (self.ticket_portal_type, new_id), #pylint: disable=invalid-encoded-data
         reference="TESTSRQ-%s" % new_id
     )
-
-    return support_request
-
-  def test_SupportRequest_checkSuspendedSupportRequestToReopen_alarm_suspended(self):
-    support_request = self._makeSupportRequest()
-    support_request.validate()
-    support_request.suspend()
-    self.tic()
-    alarm = self.portal.portal_alarms.\
-          slapos_crm_check_suspended_support_request_to_reopen
-    self._test_alarm(alarm, support_request, "SupportRequest_checkSuspendedToReopen")
-
-  def test_SupportRequest_checkSuspendedSupportRequestToReopen_alarm_notSuspended(self):
-    support_request = self._makeSupportRequest()
-    support_request.validate()
-    self.tic()
-    alarm = self.portal.portal_alarms.\
-          slapos_crm_check_suspended_support_request_to_reopen
-    self._test_alarm_not_visited(alarm, support_request, "SupportRequest_checkSuspendedToReopen")
+    return ticket
 
   def _makeEvent(self, ticket):
     new_id = self.generateNewId()
     return self.portal.event_module.newContent(
-      portal_type="Web Message",
+      portal_type=self.event_portal_type,
       title='Test Event %s' % new_id,
       follow_up_value=ticket
     )
 
-  def test_SupportRequest_checkSuspendedSupportRequestToReopen_script_noEvent(self):
-    support_request = self._makeSupportRequest()
-    support_request.validate()
-    support_request.suspend()
+  def test_SupportRequest_checkSuspendedSupportRequestToReopen_alarm_suspended(self):
+    ticket = self._makeTicket()
+    ticket.validate()
+    ticket.suspend()
     self.tic()
-    support_request.SupportRequest_checkSuspendedToReopen()
-    self.assertEqual(support_request.getSimulationState(), "suspended")
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_suspended_support_request_to_reopen
+    self._test_alarm(alarm, ticket, "SupportRequest_checkSuspendedToReopen")
+
+  def test_SupportRequest_checkSuspendedSupportRequestToReopen_alarm_notSuspended(self):
+    ticket = self._makeTicket()
+    ticket.validate()
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_suspended_support_request_to_reopen
+    self._test_alarm_not_visited(alarm, ticket, "SupportRequest_checkSuspendedToReopen")
+
+
+  def test_SupportRequest_checkSuspendedSupportRequestToReopen_script_noEvent(self):
+    ticket = self._makeTicket()
+    ticket.validate()
+    ticket.suspend()
+    self.tic()
+    ticket.SupportRequest_checkSuspendedToReopen()
+    self.assertEqual(ticket.getSimulationState(), "suspended")
 
   def test_SupportRequest_checkSuspendedSupportRequestToReopen_script_recentEvent(self):
-    support_request = self._makeSupportRequest()
-    support_request.validate()
-    support_request.suspend()
+    ticket = self._makeTicket()
+    ticket.validate()
+    ticket.suspend()
     self.tic()
     time.sleep(1)
-    self._makeEvent(support_request)
+    self._makeEvent(ticket)
     self.tic()
-    support_request.SupportRequest_checkSuspendedToReopen()
-    self.assertEqual(support_request.getSimulationState(), "validated")
+    ticket.SupportRequest_checkSuspendedToReopen()
+    self.assertEqual(ticket.getSimulationState(), "validated")
 
   def test_SupportRequest_checkSuspendedSupportRequestToReopen_script_oldEvent(self):
-    support_request = self._makeSupportRequest()
-    self._makeEvent(support_request)
+    ticket = self._makeTicket()
+    self._makeEvent(ticket)
     self.tic()
     time.sleep(1)
-    support_request.validate()
-    support_request.suspend()
+    ticket.validate()
+    ticket.suspend()
     self.tic()
-    support_request.SupportRequest_checkSuspendedToReopen()
-    self.assertEqual(support_request.getSimulationState(), "suspended")
+    ticket.SupportRequest_checkSuspendedToReopen()
+    self.assertEqual(ticket.getSimulationState(), "suspended")
+
+class TestSlaposCrmCheckSuspendedRegularisationRequestToReopen(
+                            TestSlaposCrmCheckSuspendedSupportRequestToReopen):
+  ticket_portal_type = 'Regularisation Request'
+  event_portal_type = 'Web Message'
+
 

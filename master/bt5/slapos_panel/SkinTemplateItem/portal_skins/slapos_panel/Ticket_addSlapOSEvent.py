@@ -1,5 +1,3 @@
-from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
-
 REQUEST = context.REQUEST
 portal = context.getPortalObject()
 ticket = context
@@ -27,11 +25,6 @@ event = ticket.Ticket_createProjectEvent(
   attachment=attachment,
   source=person_relative_url
 )
-
-try:
-  ticket.validate()
-except (AttributeError, UnsupportedWorkflowMethod):
-  pass
 
 if batch:
   return event

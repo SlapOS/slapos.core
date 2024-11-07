@@ -12,12 +12,23 @@ from DateTime import DateTime
 
 class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
 
-  def test_notPaidInvoiceScenario(self):
-    """
-    Ensure services are destroyed, open order are archived, and
-    deposit is used to pay the invoice
-    """
-    creation_date = DateTime('2020/05/19')
+  def afterSetUp(self):
+    TestSlapOSVirtualMasterScenarioMixin.afterSetUp(self)
+
+    # Ensure that the required alarms are enabled, else things dont work.
+    for required_alarm_id in ['slapos_crm_create_regularisation_request',
+                              'slapos_crm_invalidate_suspended_regularisation_request',
+                              'slapos_crm_trigger_stop_reminder_escalation',
+                              'slapos_crm_trigger_stop_acknowledgment_escalation',
+                              'slapos_crm_trigger_delete_reminder_escalation',
+                              'slapos_crm_trigger_acknowledgment_escalation',
+                              'slapos_crm_stop_instance_tree',
+                              'slapos_crm_delete_instance_tree']:
+      self.assertTrue(
+        self.portal.portal_alarms[required_alarm_id].isEnabled(),
+        "%s alarm is not enabled" % required_alarm_id)
+
+  def bootstrapCRMScenario(self, creation_date):
     with PinnedDateTime(self, creation_date):
       owner_person, currency, project = self.bootstrapAccountingTest()
       # Create software product
@@ -60,12 +71,12 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.login(owner_person.getUserId())
       deposit_amount = 42.0
       ledger = self.portal.portal_categories.ledger.automated
-      
+
       outstanding_amount_list = owner_person.Entity_getOutstandingDepositAmountList(
           currency.getUid(), ledger_uid=ledger.getUid())
       amount = sum([i.total_price for i in outstanding_amount_list])
       self.assertEqual(amount, deposit_amount)
-  
+
       # Ensure to pay from the website
       outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
       outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
@@ -119,6 +130,17 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
         follow_up__uid=project.getUid()
       )
 
+    return project, owner_person, instance_tree, compute_node
+
+  def test_notPaidInvoiceScenario(self):
+    """
+    Ensure services are destroyed, open order are archived, and
+    deposit is used to pay the invoice
+    """
+    creation_date = DateTime('2020/05/19')
+    project, owner_person, instance_tree, compute_node = self.bootstrapCRMScenario(
+      creation_date)
+
     ##################################################
     # Ensure new monthly invoices are created
     # Regularisation Request must also be created
@@ -131,6 +153,7 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
         portal_type='Regularisation Request',
         destination__uid=owner_person.getUid()
       )
+      self.assertNotEqual(regularisation_request, None)
       self.assertEqual(regularisation_request.getSimulationState(), 'suspended')
 
     ##################################################
@@ -203,6 +226,86 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.assertEqual(outstanding_amount_list[0].total_price,
                       planned_outstanding_amount_list[0].total_price)
 
+
+    with PinnedDateTime(self, creation_date + 5):
+      self.checkERP5StateBeforeExit()
+
+
+  def test_notPaidInvoiceScenario_open_regularisation_request(self):
+    """
+    Ensure services are destroyed, open order are archived, and
+    deposit is used to pay the invoice
+    """
+    creation_date = DateTime('2020/05/19')
+    project, owner_person, instance_tree, compute_node = self.bootstrapCRMScenario(
+      creation_date)
+
+    ##################################################
+    # Ensure new monthly invoices are created
+    # Regularisation Request must also be created
+    with PinnedDateTime(self, creation_date + 32):
+      self.logout()
+      self.login()
+      self.portal.portal_alarms.update_open_order_simulation.activeSense()
+      self.tic()
+      regularisation_request = self.portal.portal_catalog.getResultValue(
+        portal_type='Regularisation Request',
+        destination__uid=owner_person.getUid()
+      )
+      self.assertNotEqual(regularisation_request, None)
+      self.assertEqual(regularisation_request.getSimulationState(), 'suspended')
+
+
+    with PinnedDateTime(self, creation_date + 32.1):
+      self.login(owner_person.getUserId())
+      # Ensure that posting a ticket dont re-open the ticket.
+      event = regularisation_request.Ticket_createProjectEvent(
+        'foo', 'incoming', 'Web Message',
+        regularisation_request.getResource(),
+        'bar', "text/plain"
+      )
+      self.tic()
+      self.assertEqual(regularisation_request.getSimulationState(), 'suspended')
+      self.assertEqual(event.getSimulationState(), 'stopped')
+
+    self.logout()
+    self.login()
+    regularisation_request.validate()
+
+    ##################################################
+    # Trigger regularisation request escalation
+    self.logout()
+    self.login()
+    for date_offset in range(33, 70, 1):
+      # Trigger the alarm everyday, to not depend too much
+      # of the alarm crm delay current implementation
+      with PinnedDateTime(self, creation_date + date_offset):
+        for alarm_id in [
+          'slapos_crm_trigger_acknowledgment_escalation',
+          'slapos_crm_trigger_delete_reminder_escalation',
+          'update_open_order_simulation',
+          'slapos_stop_confirmed_aggregated_sale_invoice_transaction'
+        ]:
+          self.portal.portal_alarms[alarm_id].activeSense()
+        self.tic()
+
+    ##################################################
+    # All items are preserved nothing happened
+    self.assertEqual(project.getValidationState(), 'validated')
+    self.assertEqual(instance_tree.getValidationState(), 'validated')
+    self.assertEqual(instance_tree.getSlapState(), 'start_requested')
+    self.assertEqual(compute_node.getValidationState(), 'validated')
+    open_order_list = self.portal.portal_catalog(
+      portal_type='Open Sale Order',
+      destination_section__uid=owner_person.getUid()
+    )
+    self.assertEqual(len(open_order_list), 3)
+    for open_order in open_order_list:
+      self.assertEqual(open_order.getValidationState(), 'validated')
+
+    self.assertEqual(regularisation_request.getSimulationState(), 'validated')
+    self.assertEqual(regularisation_request.getResourceId(),
+                      'slapos_crm_acknowledgement')
 
     with PinnedDateTime(self, creation_date + 5):
       self.checkERP5StateBeforeExit()

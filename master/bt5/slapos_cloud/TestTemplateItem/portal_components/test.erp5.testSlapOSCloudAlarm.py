@@ -1436,6 +1436,7 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
     )
     with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
       partition.ComputePartition_propagateRemoteNode()
+      self.tic()
 
     # Instance tree is not modified
     self.assertEqual(remote_instance_tree.getValidationState(), "validated")
@@ -1451,8 +1452,8 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
                      software_instance.getPortalType() == 'Slave Instance')
 
     self.assertEqual(software_instance.getConnectionXml(), None)
+    self.assertEqual(software_instance.getAccessStatus()['text'], '#access Propagated')
 
-    self.tic()
     # An upgrade decision is proposed
     upgrade_decision = self.portal.portal_catalog.getResultValue(
       portal_type='Upgrade Decision',
@@ -1465,6 +1466,162 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
       simulation_state='confirmed'
     )
     self.assertNotEqual(upgrade_decision, None)
+
+  def test_propagateRemoteNode_script_noPropageReleaseChangesIfNoMatchingProduct(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    remote_node, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      partition.ComputePartition_propagateRemoteNode()
+      self.tic()
+
+    remote_user = remote_node.getDestinationSectionValue()
+    remote_project = remote_node.getDestinationProjectValue()
+    remote_instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      destination_section__uid=remote_user.getUid(),
+      follow_up__uid=remote_project.getUid(),
+      title='_remote_%s_%s' % (software_instance.getFollowUpReference(),
+                               software_instance.getReference())
+    )
+
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'stop_requested')
+    old_release_url = software_instance.getUrlString()
+    old_text_content = software_instance.getTextContent()
+    software_instance.edit(
+      url_string=old_release_url + '2',
+      text_content=self.generateSafeXml()
+    )
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      partition.ComputePartition_propagateRemoteNode()
+      self.tic()
+
+    # Instance tree is not modified
+    self.assertEqual(remote_instance_tree.getValidationState(), "validated")
+    self.assertEqual(remote_instance_tree.getSlapState(), "start_requested")
+    self.assertEqual(remote_instance_tree.getUrlString(),
+                     old_release_url)
+    self.assertEqual(remote_instance_tree.getSourceReference(),
+                     software_instance.getSourceReference())
+    self.assertEqual(remote_instance_tree.getTextContent(),
+                     old_text_content)
+    self.assertEqual(remote_instance_tree.getSlaXml(), None)
+    self.assertEqual(remote_instance_tree.isRootSlave(False),
+                     software_instance.getPortalType() == 'Slave Instance')
+
+    self.assertEqual(software_instance.getConnectionXml(), None)
+    self.assertEqual(software_instance.getAccessStatus()['text'], '#error No software release / type matching on the remote project')
+
+  def test_propagateRemoteNode_script_noPropageReleaseChangesIfImpossibleUpgradeDecision(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    remote_node, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      partition.ComputePartition_propagateRemoteNode()
+      self.tic()
+
+    remote_user = remote_node.getDestinationSectionValue()
+    remote_project = remote_node.getDestinationProjectValue()
+    remote_instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      destination_section__uid=remote_user.getUid(),
+      follow_up__uid=remote_project.getUid(),
+      title='_remote_%s_%s' % (software_instance.getFollowUpReference(),
+                               software_instance.getReference())
+    )
+    remote_software_instance = remote_instance_tree.getSuccessorValue()
+
+    # Create allocated partition to allow Upgrade Decision
+    remote_compute_node, remote_partition = self.addComputeNodeAndPartition(
+      project=remote_instance_tree.getFollowUpValue(),
+    )
+    remote_software_instance.setAggregateValue(remote_partition)
+    remote_partition.markBusy()
+
+    # Create remote Software Product, to allow generating the Upgrade Decision
+    new_id = self.generateNewId()
+    software_product = self.portal.software_product_module.newContent(
+      reference='TESTSOFTPROD-%s' % new_id,
+      title='Test software product %s' % new_id,
+      follow_up_value=remote_project
+    )
+    old_release_variation = software_product.newContent(
+      portal_type='Software Product Release Variation',
+      url_string=remote_instance_tree.getUrlString()
+    )
+    type_variation = software_product.newContent(
+      portal_type='Software Product Type Variation',
+      reference=remote_instance_tree.getSourceReference()
+    )
+    software_product.publish()
+    new_type_variation = software_product.newContent(
+      portal_type='Software Product Type Variation',
+      reference=remote_instance_tree.getSourceReference() + '2'
+    )
+    self.addAllocationSupply("old type compute node", remote_compute_node, software_product,
+                             old_release_variation, type_variation, disable_alarm=True)
+    self.addAllocationSupply("new type compute node", remote_compute_node, software_product,
+                             old_release_variation, new_type_variation, disable_alarm=True)
+    self.tic()
+
+
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'stop_requested')
+    old_release_url = software_instance.getUrlString()
+    old_text_content = software_instance.getTextContent()
+    software_instance.edit(
+      source_reference=new_type_variation.getReference(),
+      text_content=self.generateSafeXml()
+    )
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      partition.ComputePartition_propagateRemoteNode()
+      self.tic()
+
+    # Instance tree is not modified
+    self.assertEqual(remote_instance_tree.getValidationState(), "validated")
+    self.assertEqual(remote_instance_tree.getSlapState(), "start_requested")
+    self.assertEqual(remote_instance_tree.getUrlString(),
+                     old_release_url)
+    self.assertEqual(remote_instance_tree.getSourceReference(),
+                     type_variation.getReference())
+    self.assertEqual(remote_instance_tree.getTextContent(),
+                     old_text_content)
+    self.assertEqual(remote_instance_tree.getSlaXml(), None)
+    self.assertEqual(remote_instance_tree.isRootSlave(False),
+                     software_instance.getPortalType() == 'Slave Instance')
+
+    self.assertEqual(software_instance.getConnectionXml(), None)
+    self.assertEqual(software_instance.getAccessStatus()['text'], '#error Can not upgrade the software release / type on the remote project')
+
+    # An upgrade decision is proposed
+    upgrade_decision = self.portal.portal_catalog.getResultValue(
+      portal_type='Upgrade Decision',
+      destination_section__uid=remote_user.getUid(),
+      destination_project__uid=remote_project.getUid(),
+      aggregate__uid=remote_instance_tree.getUid(),
+      resource__uid=software_product.getUid(),
+      simulation_state='confirmed'
+    )
+    self.assertEqual(upgrade_decision, None)
 
   def test_propagateRemoteNode_script_doNotPropageConnectionXmlIfNotChanged(self):
     instance_tree = self.addInstanceTree()

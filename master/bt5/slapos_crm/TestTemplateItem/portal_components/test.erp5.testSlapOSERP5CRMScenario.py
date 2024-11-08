@@ -255,16 +255,22 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertNotEqual(regularisation_request, None)
       self.assertEqual(regularisation_request.getSimulationState(), 'suspended')
 
+
     with PinnedDateTime(self, creation_date + 32.1):
       self.login(owner_person.getUserId())
+      # Ensure that posting a ticket dont re-open the ticket.
       event = regularisation_request.Ticket_createProjectEvent(
         'foo', 'incoming', 'Web Message',
         regularisation_request.getResource(),
         'bar', "text/plain"
       )
       self.tic()
-      self.assertEqual(regularisation_request.getSimulationState(), 'validated')
-      self.assertEqual(event.getSimulationState(), 'delivered')
+      self.assertEqual(regularisation_request.getSimulationState(), 'suspended')
+      self.assertEqual(event.getSimulationState(), 'stopped')
+
+    self.logout()
+    self.login()
+    regularisation_request.validate()
 
     ##################################################
     # Trigger regularisation request escalation

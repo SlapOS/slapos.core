@@ -38,19 +38,9 @@ if compute_node.getPortalType() == "Compute Node" and \
   error_dict['ticket_description'] = error_dict['message']
   return error_dict
 
-if context.getPortalType() == 'Slave Instance':
-  # We skip if the the slave is already allocated.
-  return error_dict
-
 # Skip to check if monitor disabled on the compute node.
 # Remote node has no state.
-if compute_node.getPortalType() != "Compute Node":
-  portal_type = compute_partition.getParentValue().getPortalType()
-  error_dict['ticket_title'] = "Instance is allocated on a %s" % portal_type
-  error_dict['ticket_description'] = error_dict['ticket_title']
-  return error_dict
-
-if compute_partition.getParentValue().getMonitorScope() != "enabled":
+if (compute_node.getPortalType() == "Compute Node") and (compute_node.getMonitorScope() != "enabled"):
   error_dict['ticket_title'] = "Monitor is disabled on the Compute Node"
   error_dict['ticket_description'] = error_dict['ticket_title']
   return error_dict

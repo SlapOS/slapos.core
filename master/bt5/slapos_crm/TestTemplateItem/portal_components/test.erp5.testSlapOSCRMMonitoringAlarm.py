@@ -54,6 +54,13 @@ class TestSlapOSCrmMonitoringCheckComputeNodeProjectState(TestSlapOSCrmMonitorin
   ##########################################################################
   # slapos_crm_monitoring_project > ComputeNode_checkMonitoringState
   ##########################################################################
+  def test_ComputeNode_checkProjectMontoringState_alarm_remoteNode(self):
+    compute_node, _ = self.addComputeNodeAndPartition(self.addProject(), portal_type='Remote Node')
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_monitoring_project
+    self._test_alarm(alarm, compute_node, "ComputeNode_checkProjectMontoringState")
+
   def test_ComputeNode_checkProjectMontoringState_alarm_monitoredComputeNodeState(self):
     self._makeComputeNode(self.addProject())
     self.tic()
@@ -901,6 +908,76 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
     ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
     self.assertEqual(ticket, None)
     self.assertEqual(error_dict['should_notify'], True)
+
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
+  def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_slaveInstance(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', shared=True)
+      software_instance = instance_tree.getSuccessorValue()
+      software_instance.setErrorStatus("foo")
+
+    self.tic()
+
+    error_dict = software_instance.SoftwareInstance_getReportedErrorDict()
+    software_instance.SoftwareInstance_checkInstanceTreeMonitoringState()
+    self.tic()
+
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+    self.assertEqual(error_dict['should_notify'], True)
+
+    ticket_title =  "Instance Tree %s is failing." % (instance_tree.getTitle())
+    self.assertEqual(error_dict['ticket_title'], ticket_title)
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), error_dict['ticket_title'])
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('#error foo', event.getTextContent())
+    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
+    self.assertEqual(event.getSourceProject(), instance_tree.getFollowUp())
+    self.assertEqual(ticket.getSourceProject(), instance_tree.getFollowUp())
+    self.assertEqual(ticket.getCausality(), instance_tree.getRelativeUrl())
+    self.assertEqual(ticket.getSimulationState(), "submitted")
+    self.assertEqual(event.getSimulationState(), "delivered")
+    self.assertEqual(event.getPortalType(), "Web Message")
+
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
+  def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_instanceOnRemoteNode(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', node='remote')
+      software_instance = instance_tree.getSuccessorValue()
+      software_instance.setErrorStatus("foo2")
+
+    self.tic()
+
+    error_dict = software_instance.SoftwareInstance_getReportedErrorDict()
+    software_instance.SoftwareInstance_checkInstanceTreeMonitoringState()
+    self.tic()
+
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+    self.assertEqual(error_dict['should_notify'], True)
+
+    ticket_title =  "Instance Tree %s is failing." % (instance_tree.getTitle())
+    self.assertEqual(error_dict['ticket_title'], ticket_title)
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), error_dict['ticket_title'])
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('#error foo2', event.getTextContent())
+    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
+    self.assertEqual(event.getSourceProject(), instance_tree.getFollowUp())
+    self.assertEqual(ticket.getSourceProject(), instance_tree.getFollowUp())
+    self.assertEqual(ticket.getCausality(), instance_tree.getRelativeUrl())
+    self.assertEqual(ticket.getSimulationState(), "submitted")
+    self.assertEqual(event.getSimulationState(), "delivered")
+    self.assertEqual(event.getPortalType(), "Web Message")
 
 
 class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):

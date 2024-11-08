@@ -66,12 +66,22 @@ if (remote_instance_tree is not None) and \
   ).InstanceTree_getSoftwareProduct()
   if new_release_variation is None:
     # Nothing can be done. Sadly, leave it as is for now.
+    local_instance.setErrorStatus('No software release / type matching on the remote project')
     return
   else:
-    return remote_instance_tree.InstanceTree_createUpgradeDecision(
+    upgrade_decision = remote_instance_tree.InstanceTree_createUpgradeDecision(
       target_software_release=new_release_variation,
       target_software_type=new_type_variation
     )
+    if (upgrade_decision is None) and (portal.portal_catalog.getResultValue(
+      portal_type='Upgrade Decision',
+      aggregate__uid=remote_instance_tree.getUid(),
+      simulation_state=['started', 'stopped', 'planned', 'confirmed']
+    ) is None):
+      local_instance.setErrorStatus('Can not upgrade the software release / type on the remote project')
+    else:
+      local_instance.setAccessStatus('Propagated')
+    return upgrade_decision
 
 if (remote_instance_tree is None) or \
   (local_instance.getTextContent() != remote_instance_tree.getTextContent()) or \
@@ -93,6 +103,7 @@ if (remote_instance_tree is None) or \
   requested_instance_tree.reindexObject(activate_kw=activate_kw)
   if requested_software_instance is not None:
     requested_software_instance.reindexObject(activate_kw=activate_kw)
+  local_instance.setAccessStatus('ok')
 
 if (requested_software_instance is not None) and \
   (requested_software_instance.getConnectionXml() != local_instance.getConnectionXml()):
@@ -101,3 +112,4 @@ if (requested_software_instance is not None) and \
     connection_xml=requested_software_instance.getConnectionXml(),
     activate_kw=activate_kw
   )
+  local_instance.setAccessStatus('ok')

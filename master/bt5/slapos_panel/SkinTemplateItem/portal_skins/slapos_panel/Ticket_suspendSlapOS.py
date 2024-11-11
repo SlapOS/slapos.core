@@ -1,6 +1,6 @@
 ticket = context
 
-if context.getPortalType() == "Support Request" and \
+if context.getPortalType() in ["Support Request", "Regularisation Request"] and \
     context.getSimulationState() == "validated":
   context.suspend()
 

@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Event_checkStoppedToDeliver</string> </value>
+            <value> <string>Event_checkStoppedFromSupportRequestToDeliver</string> </value>
         </item>
       </dictionary>
     </pickle>

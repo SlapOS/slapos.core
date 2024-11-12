@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>active_sense_method_id</string> </key>
-            <value> <string>Alarm_checkStoppedEventToDeliver</string> </value>
+            <value> <string>Alarm_checkStoppedEventFromRegularisationRequestToDeliver</string> </value>
         </item>
         <item>
             <key> <string>automatic_solve</string> </key>
@@ -16,7 +16,9 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Check if a public or a friend compute_node contacted master recently and create a ticket if the compute_node stops to contact master after some time.</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>enabled</string> </key>
@@ -24,7 +26,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_crm_check_stopped_event_to_deliver</string> </value>
+            <value> <string>slapos_crm_check_stopped_event_from_regularisation_request_to_deliver</string> </value>
         </item>
         <item>
             <key> <string>periodicity_hour</string> </key>
@@ -105,7 +107,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Check stopped event to deliver</string> </value>
+            <value> <string>Check stopped event from regularisation request to deliver</string> </value>
         </item>
       </dictionary>
     </pickle>

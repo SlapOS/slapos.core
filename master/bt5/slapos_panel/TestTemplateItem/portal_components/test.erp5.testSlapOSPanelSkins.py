@@ -244,3 +244,89 @@ class TestPerson_getCertificate(TestPanelSkinsMixin):
     self.assertNotEqual(new_response_dict["certificate"], response_dict["certificate"])
 
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
+
+class TestBase_hasSlapOSAccountingUserGroup(TestPanelSkinsMixin):
+
+  def _makePersonAndRegularisationRequest(self):
+    person = self.makePerson(self.project, user=1)
+    regularisation_request = self.portal.regularisation_request_module.newContent(
+      portal_type='Regularisation Request',
+      title='TESTREGREQ-%s' % self.generateNewId(),
+      destination_decision_value=person
+    )
+    regularisation_request.submit()
+    return person, regularisation_request
+
+  def test_Base_hasSlapOSAccountingUserGroup_no_user(self):
+    self.logout()
+    self.assertFalse(self.project.Base_hasSlapOSAccountingUserGroup())
+    self.login()
+    self.assertFalse(self.project.Base_hasSlapOSAccountingUserGroup())
+
+  def test_Base_hasSlapOSAccountingUserGroup_no_access(self):
+    person, regularisation_request = self._makePersonAndRegularisationRequest()
+    self.addProjectProductionManagerAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup())
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      agent=True))
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True))
+
+  def test_Base_hasSlapOSAccountingUserGroup_sale_manager(self):
+    person, regularisation_request = self._makePersonAndRegularisationRequest()
+    self.addSaleManagerAssignment(person)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup())
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True))
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      agent=True))
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True, agent=True))
+
+  def test_Base_hasSlapOSAccountingUserGroup_sale_agent(self):
+    person, regularisation_request = self._makePersonAndRegularisationRequest()
+    self.addSaleAgentAssignment(person)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup())
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True))
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      agent=True))
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True, agent=True))
+
+  def test_Base_hasSlapOSAccountingUserGroup_accounting_manager(self):
+    person, regularisation_request = self._makePersonAndRegularisationRequest()
+    self.addAccountingManagerAssignment(person)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup())
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True))
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      agent=True))
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True, agent=True))
+
+  def test_Base_hasSlapOSAccountingUserGroup_accounting_agent(self):
+    person, regularisation_request = self._makePersonAndRegularisationRequest()
+    self.addAccountingAgentAssignment(person)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup())
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True))
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      agent=True))
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True, agent=True))

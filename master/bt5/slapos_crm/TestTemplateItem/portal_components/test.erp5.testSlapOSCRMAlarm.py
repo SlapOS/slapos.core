@@ -23,6 +23,7 @@
 from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixin, SlapOSTestCaseMixinWithAbort, simulate, TemporaryAlarmScript
 from DateTime import DateTime
+import time
 import difflib
 import transaction
 from zExceptions import Unauthorized
@@ -1250,3 +1251,155 @@ class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
 
     self.tic()
 
+
+class TestSlaposCrmCheckStoppedEventFromRegularisationRequestToDeliver(SlapOSTestCaseMixinWithAbort):
+
+  ticket_portal_type = 'Regularisation Request'
+  event_portal_type = 'Web Message'
+
+  def _makeTicket(self):
+    ticket = self.portal.getDefaultModule(self.ticket_portal_type).newContent(
+      portal_type=self.ticket_portal_type
+    )
+    ticket.submit()
+    new_id = self.generateNewId()
+    ticket.edit(
+        title= "%s éçà %s" % (self.ticket_portal_type, new_id), #pylint: disable=invalid-encoded-data
+        reference="TESTTCK-%s" % new_id
+    )
+    return ticket
+
+  def _makeEvent(self, ticket):
+    new_id = self.generateNewId()
+    return self.portal.event_module.newContent(
+      portal_type=self.event_portal_type,
+      title='Test %s %s' % (self.event_portal_type, new_id),
+      follow_up_value=ticket
+    )
+
+  def test_Event_checkStoppedEventFromRegularisationRequestToDeliver_alarm_stopped(self):
+    ticket = self._makeTicket()
+    event = self._makeEvent(ticket)
+    event.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_stopped_event_from_regularisation_request_to_deliver
+    self._test_alarm(alarm, event, "Event_checkStoppedFromRegularisationRequestToDeliver")
+
+  def test_Event_checkStoppedEventFromRegularisationRequestToDeliver_alarm_delivered(self):
+    ticket = self._makeTicket()
+    event = self._makeEvent(ticket)
+    event.stop()
+    event.deliver()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_stopped_event_from_regularisation_request_to_deliver
+    self._test_alarm_not_visited(alarm, event, "Event_checkStoppedFromRegularisationRequestToDeliver")
+
+  def test_Event_checkStoppedEventFromRegularisationRequestToDeliver_alarm_stoppedWithoutTicket(self):
+    ticket = self._makeTicket()
+    event = self._makeEvent(ticket)
+    event.setFollowUp(None)
+    event.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_stopped_event_from_regularisation_request_to_deliver
+    self._test_alarm_not_visited(alarm, event, "Event_checkStoppedFromRegularisationRequestToDeliver")
+
+  def test_Event_checkStoppedEventFromRegularisationRequestToDeliver_script_recentEventInvalidatedTicket(self):
+    ticket = self._makeTicket()
+    ticket.validate()
+    ticket.invalidate()
+    self.tic()
+    time.sleep(1)
+    event = self._makeEvent(ticket)
+    event.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+    self.assertEqual(event.getSimulationState(), "stopped")
+    self.assertEqual(ticket.getSimulationState(), "invalidated")
+    event.Event_checkStoppedFromRegularisationRequestToDeliver()
+    self.assertEqual(event.getSimulationState(), "delivered")
+    self.assertEqual(ticket.getSimulationState(), "invalidated")
+
+  def test_Event_checkStoppedEventFromRegularisationRequestToDeliver_script_recentEventValidatedTicket(self):
+    ticket = self._makeTicket()
+    ticket.validate()
+    self.tic()
+    time.sleep(1)
+    event = self._makeEvent(ticket)
+    event.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+    self.assertEqual(event.getSimulationState(), "stopped")
+    self.assertEqual(ticket.getSimulationState(), "validated")
+    event.Event_checkStoppedFromRegularisationRequestToDeliver()
+    self.assertEqual(event.getSimulationState(), "delivered")
+    self.assertTrue(event.getCreationDate() < ticket.getModificationDate())
+    self.assertEqual(ticket.getSimulationState(), "validated")
+
+  def test_Event_checkStoppedEventFromRegularisationRequestToDeliver_script_recentEventSuspendedTicket(self):
+    ticket = self._makeTicket()
+    ticket.validate()
+    ticket.suspend()
+    self.tic()
+    time.sleep(1)
+    event = self._makeEvent(ticket)
+    event.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+    self.assertEqual(event.getSimulationState(), "stopped")
+    self.assertEqual(ticket.getSimulationState(), "suspended")
+    event.Event_checkStoppedFromRegularisationRequestToDeliver()
+    self.assertEqual(event.getSimulationState(), "stopped")
+    self.assertEqual(ticket.getSimulationState(), "suspended")
+
+  def test_Event_checkStoppedEventFromRegularisationRequestToDeliver_script_oldEventInvalidatedTicket(self):
+    ticket = self._makeTicket()
+    event = self._makeEvent(ticket)
+    event.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+    time.sleep(1)
+    ticket.validate()
+    ticket.invalidate()
+    self.tic()
+    self.assertEqual(event.getSimulationState(), "stopped")
+    self.assertEqual(ticket.getSimulationState(), "invalidated")
+    event.Event_checkStoppedFromRegularisationRequestToDeliver()
+    self.assertEqual(event.getSimulationState(), "delivered")
+    self.assertEqual(ticket.getSimulationState(), "invalidated")
+
+  def test_Event_checkStoppedEventFromRegularisationRequestToDeliver_script_oldEventValidatedTicket(self):
+    ticket = self._makeTicket()
+    event = self._makeEvent(ticket)
+    event.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+    time.sleep(1)
+    ticket.validate()
+    self.tic()
+    self.assertEqual(event.getSimulationState(), "stopped")
+    self.assertEqual(ticket.getSimulationState(), "validated")
+    event.Event_checkStoppedFromRegularisationRequestToDeliver()
+    self.assertEqual(event.getSimulationState(), "delivered")
+    self.assertEqual(ticket.getSimulationState(), "validated")
+
+  def test_Event_checkStoppedEventFromRegularisationRequestToDeliver_script_oldEventSuspendedTicket(self):
+    ticket = self._makeTicket()
+    event = self._makeEvent(ticket)
+    event.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+    time.sleep(1)
+    ticket.validate()
+    ticket.suspend()
+    self.tic()
+    self.assertEqual(event.getSimulationState(), "stopped")
+    self.assertEqual(ticket.getSimulationState(), "suspended")
+    event.Event_checkStoppedFromRegularisationRequestToDeliver()
+    self.assertEqual(event.getSimulationState(), "stopped")
+    self.assertEqual(ticket.getSimulationState(), "suspended")

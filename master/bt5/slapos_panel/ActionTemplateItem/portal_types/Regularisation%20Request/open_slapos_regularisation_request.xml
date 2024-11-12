@@ -92,7 +92,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>python: context.getSimulationState() == \'suspended\'</string> </value>
+            <value> <string>python: context.Base_hasSlapOSAccountingUserGroup(manager=True) and context.getSimulationState() == \'suspended\'</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -92,7 +92,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>python: context.getSimulationState() == \'validated\'</string> </value>
+            <value> <string>python: context.Base_hasSlapOSAccountingUserGroup(manager=True, agent=True) and context.getSimulationState() == \'validated\'</string> </value>
         </item>
       </dictionary>
     </pickle>

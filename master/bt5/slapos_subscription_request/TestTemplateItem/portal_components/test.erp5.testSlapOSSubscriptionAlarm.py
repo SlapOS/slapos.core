@@ -19,7 +19,8 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixin
+  SlapOSTestCaseMixin, TemporaryAlarmScript, SlapOSTestCaseMixinWithAbort
+import time
 
 class TestSlapOSSubscriptionRequestProcessAlarm(SlapOSTestCaseMixin):
 
@@ -134,3 +135,109 @@ class TestSlapOSSubscriptionChangeRequestValidateAlarm(SlapOSTestCaseMixin):
     subscription_request = self._createSubscriptionChangeRequest()
     self.portal.portal_workflow._jumpToStateFor(subscription_request, 'submitted')
     self._test_alarm(alarm, subscription_request, script_name)
+
+
+class TestSlaposCrmCheckStoppedEventFromSubscriptionRequestToDeliver(SlapOSTestCaseMixinWithAbort):
+
+  event_portal_type = 'Web Message'
+
+  def _createSubscriptionRequest(self):
+    return self.portal.subscription_request_module.newContent(
+      portal_type='Subscription Request',
+      title="Test subscription %s" % (self.generateNewId())
+    )
+
+  def _makeEvent(self, follow_up_value):
+    new_id = self.generateNewId()
+    return self.portal.event_module.newContent(
+      portal_type=self.event_portal_type,
+      title='Test %s %s' % (self.event_portal_type, new_id),
+      follow_up_value=follow_up_value
+    )
+
+  def test_Event_checkStoppedFromSubscriptionRequestToDeliver_alarm_stopped(self):
+    subscription_request = self._createSubscriptionRequest()
+    event = self._makeEvent(subscription_request)
+    event.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                                             "'disabled'", attribute='comment'):
+      self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_subscription_check_stopped_event_from_subscription_request_to_deliver
+    self._test_alarm(alarm, event, "Event_checkStoppedFromSubscriptionRequestToDeliver")
+
+  def test_Event_checkStoppedFromSubscriptionRequestToDeliver_alarm_delivered(self):
+    subscription_request = self._createSubscriptionRequest()
+    event = self._makeEvent(subscription_request)
+    event.stop()
+    event.deliver()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                                             "'disabled'", attribute='comment'):
+      self.tic()
+    alarm = self.portal.portal_alarms.\
+       slapos_subscription_check_stopped_event_from_subscription_request_to_deliver
+    self._test_alarm_not_visited(alarm, event,
+      "Event_checkStoppedFromSubscriptionRequestToDeliver")
+
+  def test_Event_checkStoppedFromSubscriptionRequestToDeliver_alarm_stoppedWithoutTicket(self):
+    subscription_request = self._createSubscriptionRequest()
+    event = self._makeEvent(subscription_request)
+    event.setFollowUp(None)
+    event.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                                             "'disabled'", attribute='comment'):
+      self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_subscription_check_stopped_event_from_subscription_request_to_deliver
+    self._test_alarm_not_visited(alarm, event,
+      "Event_checkStoppedFromSubscriptionRequestToDeliver")
+
+  def test_Event_checkStoppedFromSubscriptionRequestToDeliver_script_invalidatedTicket(self):
+    subscription_request = self._createSubscriptionRequest()
+    subscription_request.validate()
+    subscription_request.invalidate()
+    self.tic()
+    time.sleep(1)
+    event = self._makeEvent(subscription_request)
+    event.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                                             "'disabled'", attribute='comment'):
+      self.tic()
+    self.assertEqual(event.getSimulationState(), "stopped")
+    self.assertEqual(subscription_request.getSimulationState(), "invalidated")
+    event.Event_checkStoppedFromSubscriptionRequestToDeliver()
+    self.assertEqual(event.getSimulationState(), "delivered")
+    self.assertEqual(subscription_request.getSimulationState(), "invalidated")
+
+  def test_Event_checkStoppedFromSubscriptionRequestToDeliver_script_validatedTicket(self):
+    subscription_request = self._createSubscriptionRequest()
+    subscription_request.validate()
+    self.tic()
+    time.sleep(1)
+    event = self._makeEvent(subscription_request)
+    event.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                                             "'disabled'", attribute='comment'):
+      self.tic()
+    self.assertEqual(event.getSimulationState(), "stopped")
+    self.assertEqual(subscription_request.getSimulationState(), "validated")
+    event.Event_checkStoppedFromSubscriptionRequestToDeliver()
+    self.assertEqual(event.getSimulationState(), "stopped")
+    self.assertEqual(subscription_request.getSimulationState(), "validated")
+
+  def test_Event_checkStoppedFromSubscriptionRequestToDeliver_script_suspendedTicket(self):
+    subscription_request = self._createSubscriptionRequest()
+    subscription_request.validate()
+    subscription_request.suspend()
+    self.tic()
+    time.sleep(1)
+    event = self._makeEvent(subscription_request)
+    event.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                                             "'disabled'", attribute='comment'):
+      self.tic()
+    self.assertEqual(event.getSimulationState(), "stopped")
+    self.assertEqual(subscription_request.getSimulationState(), "suspended")
+    event.Event_checkStoppedFromSubscriptionRequestToDeliver()
+    self.assertEqual(event.getSimulationState(), "stopped")
+    self.assertEqual(subscription_request.getSimulationState(), "suspended")

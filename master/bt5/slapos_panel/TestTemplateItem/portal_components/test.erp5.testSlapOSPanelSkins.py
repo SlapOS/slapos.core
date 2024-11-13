@@ -330,3 +330,138 @@ class TestBase_hasSlapOSAccountingUserGroup(TestPanelSkinsMixin):
       agent=True))
     self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
       manager=True, agent=True))
+
+class TestTicket_validateSlapOS(TestPanelSkinsMixin):
+
+  def _makePersonAndTicket(self, portal_type):
+    person = self.makePerson(self.project, user=1)
+    ticket = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title='TESTICKET-%s' % self.generateNewId(),
+      destination_decision_value=person
+    )
+    return person, ticket
+
+  def test_Ticket_validateSlapOS_regularisation_request(self):
+    person, ticket = self._makePersonAndTicket('Regularisation Request')
+    ticket.submit()
+    self.addAccountingManagerAssignment(person)
+    self.tic()
+    self.login(person.getUserId())
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    ticket.validate()
+    ticket.suspend()
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'validated')
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'validated')
+    ticket.invalidate()
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
+
+  def test_Ticket_validateSlapOS_support_request(self):
+    person, ticket = self._makePersonAndTicket('Support Request')
+    ticket.edit(
+      source_project_value=self.project,
+      destination_project_value=self.project)
+    ticket.submit()
+    self.addProjectProductionManagerAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+
+    # Cheat to call the script wont change the value.
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    ticket.validate()
+    ticket.suspend()
+    self.login(person.getUserId())
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    ticket.validate()
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'validated')
+    ticket.invalidate()
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
+
+class TestTicket_suspendSlapOS(TestPanelSkinsMixin):
+
+  def _makePersonAndTicket(self, portal_type):
+    person = self.makePerson(self.project, user=1)
+    ticket = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title='TESTICKET-%s' % self.generateNewId(),
+      destination_decision_value=person
+    )
+    return person, ticket
+
+  def test_Ticket_suspendSlapOS_regularisation_request(self):
+    person, ticket = self._makePersonAndTicket('Regularisation Request')
+    ticket.submit()
+    self.addAccountingManagerAssignment(person)
+    self.tic()
+    self.login(person.getUserId())
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    ticket.validate()
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    ticket.validate()
+    ticket.invalidate()
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
+
+  def test_Ticket_suspendSlapOS_support_request(self):
+    person, ticket = self._makePersonAndTicket('Support Request')
+    ticket.edit(
+      source_project_value=self.project,
+      destination_project_value=self.project)
+    ticket.submit()
+    self.addProjectProductionManagerAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    ticket.validate()
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    ticket.validate()
+    ticket.invalidate()
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
+
+class TestTicket_closeSlapOS(TestPanelSkinsMixin):
+
+  def _makePersonAndTicket(self, portal_type):
+    person = self.makePerson(self.project, user=1)
+    ticket = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title='TESTICKET-%s' % self.generateNewId(),
+      destination_decision_value=person
+    )
+    return person, ticket
+
+  def test_Ticket_closeSlapOS_support_request(self):
+    person, ticket = self._makePersonAndTicket('Support Request')
+    ticket.edit(
+      source_project_value=self.project,
+      destination_project_value=self.project)
+    ticket.submit()
+    self.addProjectProductionManagerAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    ticket.validate()
+    ticket.Ticket_closeSlapOS("x")
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
+    ticket.validate()
+    ticket.suspend()
+    ticket.Ticket_closeSlapOS("x")
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
+    ticket.Ticket_closeSlapOS("x")
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')

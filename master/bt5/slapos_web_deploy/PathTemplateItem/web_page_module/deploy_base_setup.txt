@@ -192,7 +192,7 @@ ansible localhost -m pip -a name=slapcache --connection=local
 ansible localhost -m pip -a name=requests --connection=local
 
 if [ ! -f /usr/share/ansible_plugins/mitogen.zip ]; then
-    wget -O /usr/share/ansible_plugins/mitogen.zip https://shacache.nxdcdn.com/3a935ff257ddc0ad4e0f23d71681e026f14f309f4bed0a8e2a217da9b294be2c676196703f0dde856ece49d711d0221deae70812f035b24aa5cdd0ca02790e85
+    curl -o /usr/share/ansible_plugins/mitogen.zip https://shacache.nxdcdn.com/3a935ff257ddc0ad4e0f23d71681e026f14f309f4bed0a8e2a217da9b294be2c676196703f0dde856ece49d711d0221deae70812f035b24aa5cdd0ca02790e85
     unzip /usr/share/ansible_plugins/mitogen.zip -d /usr/share/ansible_plugins/mitogen/
     mv /usr/share/ansible_plugins/mitogen/mitogen-*/* /usr/share/ansible_plugins/mitogen/
 fi

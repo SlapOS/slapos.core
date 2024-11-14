@@ -43,9 +43,8 @@ for allocation_cell in portal.portal_catalog(
   resource__uid=software_product.getUid(),
   software_release__uid=software_release.getUid()
 ):
-  if allocation_cell.isAllocable():
+  if allocation_cell.isAllocable() and (allocation_cell.getValidationState() == 'validated'):
     return
-  # XXX check validation state
 
 partition = portal.portal_catalog.getResultValue(
   portal_type='Compute Partition',

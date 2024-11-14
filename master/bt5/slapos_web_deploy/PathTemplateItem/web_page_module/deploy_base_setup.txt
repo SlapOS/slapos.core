@@ -42,7 +42,7 @@ fi
 
 # Warn users who aren't on an explicitly supported distro, but allow them to
 # override check and attempt installation with ``export FORCE=yes``
-if [[ ! ${DISTRO} =~ (buster|bullseye|bookworm|bionic|focal|jammy|noble|Kylin-v10.|rhel7|Linuxmint-21.1) ]]; then
+if [[ ! ${DISTRO} =~ (buster|bullseye|bookworm|bionic|focal|jammy|noble|Kylin-v10.|rhel7|Linuxmint-21.1|sle) ]]; then
     echo "WARNING: this script has not been tested on $DISTRO"
     if [[ "$FORCE" != "yes" ]]; then
         die $LINENO "If you wish to run this script anyway run with FORCE=yes"

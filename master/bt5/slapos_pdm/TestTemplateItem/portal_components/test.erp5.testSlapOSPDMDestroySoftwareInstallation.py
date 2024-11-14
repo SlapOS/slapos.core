@@ -109,5 +109,5 @@ class TestSlapOSDestroySoftwareInstallation(SlapOSTestCaseMixin):
     self.tic()
 
     software_installation.SoftwareInstallation_destroyIfUnused()
-    self.assertEqual('start_requested', software_installation.getSlapState())
+    self.assertEqual('destroy_requested', software_installation.getSlapState())
     self.assertEqual('validated', software_installation.getValidationState())

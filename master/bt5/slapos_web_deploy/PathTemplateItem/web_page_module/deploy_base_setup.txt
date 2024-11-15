@@ -56,6 +56,7 @@ fi
 
 is_package_installed unzip || install_package unzip
 is_package_installed openssl || install_package openssl
+is_package_installed iproute2 || install_package iproute2
 
 if ! is_suse && ! is_ubuntu || [[ $DISTRO = wheezy || $DISTRO == jessie || $DISTRO == stretch || $DISTRO == xenial || $DISTRO == bionic ]]; then
   is_package_installed python-pip || install_package python-pip

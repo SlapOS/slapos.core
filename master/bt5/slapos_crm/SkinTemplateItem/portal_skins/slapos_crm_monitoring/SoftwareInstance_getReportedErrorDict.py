@@ -38,6 +38,16 @@ if compute_node.getPortalType() == "Compute Node" and \
   error_dict['ticket_description'] = error_dict['message']
   return error_dict
 
+if context.getPortalType() == 'Slave Instance' and compute_node.getPortalType() == "Compute Node":
+  software_instance = compute_partition.getAggregateRelated(portal_type='Software Instance')
+  if software_instance is None:
+    # Slave instance is allocated but the software instance was already destroyed
+    error_dict['notification_message_reference'] = 'slapos-crm-instance-tree-slave-on-destroyed-instance.notification'
+    error_dict = updateErrorDictWithError(error_dict)
+    error_dict['message'] = "%s is allocated on a destroyed software instance (already removed)." % context.getTitle()
+    error_dict['ticket_description'] = error_dict['message']
+    return error_dict
+
 # Skip to check if monitor disabled on the compute node.
 # Remote node has no state.
 if (compute_node.getPortalType() == "Compute Node") and (compute_node.getMonitorScope() != "enabled"):

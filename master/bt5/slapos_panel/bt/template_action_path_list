@@ -71,7 +71,9 @@ Project | request_slapos_payable_instance_tree
 Project | slapos_panel_view
 Regularisation Request Module | slapos_panel_view
 Regularisation Request | add_slapos_event
+Regularisation Request | open_slapos_regularisation_request
 Regularisation Request | slapos_panel_view
+Regularisation Request | suspend_slapos_regularisation_request
 Remote Node | add_slapos_allocation_supply
 Remote Node | jump_to_slapos_allocation_supply
 Remote Node | slapos_panel_remote_node_usage
@@ -100,6 +102,7 @@ Software Product | slapos_panel_view
 Software Release Module | slapos_panel_view
 Software Release | slapos_panel_view
 Subscription Request Module | slapos_panel_view
+Subscription Request | add_slapos_event
 Subscription Request | change_slapos_submitted_price
 Subscription Request | jump_pay_my_slapos_sale_invoice_transaction
 Subscription Request | slapos_panel_view

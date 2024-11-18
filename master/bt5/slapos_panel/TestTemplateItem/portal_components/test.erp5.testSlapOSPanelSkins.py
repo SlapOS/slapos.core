@@ -59,6 +59,143 @@ class TestSupportRequestModule_getRssFeedUrl(TestPanelSkinsMixin):
     self.tic()
     self.assertEqual(url, module.SupportRequestModule_getRssFeedUrl())
 
+class TestBase_hasSlapOSProjectUserGroup(TestPanelSkinsMixin):
+
+  def test_Base_hasSlapOSProjectUserGroup_invalid_context(self):
+    self.assertRaises(ValueError,
+      self.project.Base_hasSlapOSProjectUserGroup, project_relation='couscous')
+
+  def test_Base_hasSlapOSProjectUserGroup_customer(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup())
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup(agent=True))
+    self.assertTrue(self.project.Base_hasSlapOSProjectUserGroup(customer=True))
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup(manager=True))
+
+  def test_Base_hasSlapOSProjectUserGroup_project_manager(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addProjectProductionManagerAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup())
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup(agent=True))
+    self.assertTrue(self.project.Base_hasSlapOSProjectUserGroup(customer=True))
+    self.assertTrue(self.project.Base_hasSlapOSProjectUserGroup(manager=True))
+
+  def test_Base_hasSlapOSProjectUserGroup_agent(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addProjectProductionAgentAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup())
+    self.assertTrue(self.project.Base_hasSlapOSProjectUserGroup(agent=True))
+    self.assertTrue(self.project.Base_hasSlapOSProjectUserGroup(customer=True))
+    self.assertFalse(self.project.Base_hasSlapOSProjectUserGroup(manager=True))
+
+  def test_Base_hasSlapOSProjectUserGroup_destination_project(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addProjectProductionManagerAssignment(person, self.project)
+    support_request = self.portal.support_request_module.newContent(
+      portal_type='Support Request',
+      title='TESTSUPPORTREQUEST-%s' % self.generateNewId(),
+      destination_project_value=self.project
+    )
+    self.tic()
+    self.login(person.getUserId())
+
+    # Uses project_relation='context'
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+     project_relation='source_project'))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project', agent=True))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project', customer=True))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project', manager=True))
+
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project'))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project', agent=True))
+    self.assertTrue(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project', customer=True))
+    self.assertTrue(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project', manager=True))
+
+  def test_Base_hasSlapOSProjectUserGroup_source_project(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addProjectProductionManagerAssignment(person, self.project)
+    support_request = self.portal.support_request_module.newContent(
+      portal_type='Support Request',
+      title='TESTSUPPORTREQUEST-%s' % self.generateNewId(),
+      source_project_value=self.project
+    )
+    self.tic()
+    self.login(person.getUserId())
+
+    # Uses project_relation='context'
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+     project_relation='destination_project'))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project', agent=True))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project', customer=True))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='destination_project', manager=True))
+
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project'))
+    self.assertFalse(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project', agent=True))
+    self.assertTrue(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project', customer=True))
+    self.assertTrue(support_request.Base_hasSlapOSProjectUserGroup(
+      project_relation='source_project', manager=True))
+
+  def test_Base_hasSlapOSProjectUserGroup_follow_up(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addProjectProductionManagerAssignment(person, self.project)
+    compute_node = self.portal.compute_node_module.newContent(
+      portal_type='Compute Node',
+      title='TESTCOMPUTERNODE-%s' % self.generateNewId(),
+      follow_up_value=self.project
+    )
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(compute_node.Base_hasSlapOSProjectUserGroup(
+      project_relation='follow_up'))
+    self.assertFalse(compute_node.Base_hasSlapOSProjectUserGroup(
+      project_relation='follow_up', agent=True))
+    self.assertTrue(compute_node.Base_hasSlapOSProjectUserGroup(
+      project_relation='follow_up', customer=True))
+    self.assertTrue(compute_node.Base_hasSlapOSProjectUserGroup(
+      project_relation='follow_up', manager=True))
+
+  def test_Base_hasSlapOSProjectUserGroup_not_a_project(self):
+    # Assignment for customer is added automatically
+    person = self.makePerson(self.project, user=1)
+    self.addProjectProductionAgentAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+
+    # Uses project_relation='context'
+    self.assertFalse(person.Base_hasSlapOSProjectUserGroup())
+    self.assertFalse(person.Base_hasSlapOSProjectUserGroup(agent=True))
+    self.assertFalse(person.Base_hasSlapOSProjectUserGroup(customer=True))
+    self.assertFalse(person.Base_hasSlapOSProjectUserGroup(manager=True))
+
 
 class TestPerson_getCertificate(TestPanelSkinsMixin):
 
@@ -107,3 +244,224 @@ class TestPerson_getCertificate(TestPanelSkinsMixin):
     self.assertNotEqual(new_response_dict["certificate"], response_dict["certificate"])
 
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
+
+class TestBase_hasSlapOSAccountingUserGroup(TestPanelSkinsMixin):
+
+  def _makePersonAndRegularisationRequest(self):
+    person = self.makePerson(self.project, user=1)
+    regularisation_request = self.portal.regularisation_request_module.newContent(
+      portal_type='Regularisation Request',
+      title='TESTREGREQ-%s' % self.generateNewId(),
+      destination_decision_value=person
+    )
+    regularisation_request.submit()
+    return person, regularisation_request
+
+  def test_Base_hasSlapOSAccountingUserGroup_no_user(self):
+    self.logout()
+    self.assertFalse(self.project.Base_hasSlapOSAccountingUserGroup())
+    self.login()
+    self.assertFalse(self.project.Base_hasSlapOSAccountingUserGroup())
+
+  def test_Base_hasSlapOSAccountingUserGroup_no_access(self):
+    person, regularisation_request = self._makePersonAndRegularisationRequest()
+    self.addProjectProductionManagerAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup())
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      agent=True))
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True))
+
+  def test_Base_hasSlapOSAccountingUserGroup_sale_manager(self):
+    person, regularisation_request = self._makePersonAndRegularisationRequest()
+    self.addSaleManagerAssignment(person)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup())
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True))
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      agent=True))
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True, agent=True))
+
+  def test_Base_hasSlapOSAccountingUserGroup_sale_agent(self):
+    person, regularisation_request = self._makePersonAndRegularisationRequest()
+    self.addSaleAgentAssignment(person)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup())
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True))
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      agent=True))
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True, agent=True))
+
+  def test_Base_hasSlapOSAccountingUserGroup_accounting_manager(self):
+    person, regularisation_request = self._makePersonAndRegularisationRequest()
+    self.addAccountingManagerAssignment(person)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup())
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True))
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      agent=True))
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True, agent=True))
+
+  def test_Base_hasSlapOSAccountingUserGroup_accounting_agent(self):
+    person, regularisation_request = self._makePersonAndRegularisationRequest()
+    self.addAccountingAgentAssignment(person)
+    self.tic()
+    self.login(person.getUserId())
+
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup())
+    self.assertFalse(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True))
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      agent=True))
+    self.assertTrue(regularisation_request.Base_hasSlapOSAccountingUserGroup(
+      manager=True, agent=True))
+
+class TestTicket_validateSlapOS(TestPanelSkinsMixin):
+
+  def _makePersonAndTicket(self, portal_type):
+    person = self.makePerson(self.project, user=1)
+    ticket = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title='TESTICKET-%s' % self.generateNewId(),
+      destination_decision_value=person
+    )
+    return person, ticket
+
+  def test_Ticket_validateSlapOS_regularisation_request(self):
+    person, ticket = self._makePersonAndTicket('Regularisation Request')
+    ticket.submit()
+    self.addAccountingManagerAssignment(person)
+    self.tic()
+    self.login(person.getUserId())
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    ticket.validate()
+    ticket.suspend()
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'validated')
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'validated')
+    ticket.invalidate()
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
+
+  def test_Ticket_validateSlapOS_support_request(self):
+    person, ticket = self._makePersonAndTicket('Support Request')
+    ticket.edit(
+      source_project_value=self.project,
+      destination_project_value=self.project)
+    ticket.submit()
+    self.addProjectProductionManagerAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+
+    # Cheat to call the script wont change the value.
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    ticket.validate()
+    ticket.suspend()
+    self.login(person.getUserId())
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    ticket.validate()
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'validated')
+    ticket.invalidate()
+    ticket.Ticket_validateSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
+
+class TestTicket_suspendSlapOS(TestPanelSkinsMixin):
+
+  def _makePersonAndTicket(self, portal_type):
+    person = self.makePerson(self.project, user=1)
+    ticket = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title='TESTICKET-%s' % self.generateNewId(),
+      destination_decision_value=person
+    )
+    return person, ticket
+
+  def test_Ticket_suspendSlapOS_regularisation_request(self):
+    person, ticket = self._makePersonAndTicket('Regularisation Request')
+    ticket.submit()
+    self.addAccountingManagerAssignment(person)
+    self.tic()
+    self.login(person.getUserId())
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    ticket.validate()
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    ticket.validate()
+    ticket.invalidate()
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
+
+  def test_Ticket_suspendSlapOS_support_request(self):
+    person, ticket = self._makePersonAndTicket('Support Request')
+    ticket.edit(
+      source_project_value=self.project,
+      destination_project_value=self.project)
+    ticket.submit()
+    self.addProjectProductionManagerAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    ticket.validate()
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    ticket.validate()
+    ticket.invalidate()
+    ticket.Ticket_suspendSlapOS()
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
+
+class TestTicket_closeSlapOS(TestPanelSkinsMixin):
+
+  def _makePersonAndTicket(self, portal_type):
+    person = self.makePerson(self.project, user=1)
+    ticket = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title='TESTICKET-%s' % self.generateNewId(),
+      destination_decision_value=person
+    )
+    return person, ticket
+
+  def test_Ticket_closeSlapOS_support_request(self):
+    person, ticket = self._makePersonAndTicket('Support Request')
+    ticket.edit(
+      source_project_value=self.project,
+      destination_project_value=self.project)
+    ticket.submit()
+    self.addProjectProductionManagerAssignment(person, self.project)
+    self.tic()
+    self.login(person.getUserId())
+    self.assertEqual(ticket.getSimulationState(), 'submitted')
+    ticket.validate()
+    ticket.Ticket_closeSlapOS("x")
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
+    ticket.validate()
+    ticket.suspend()
+    ticket.Ticket_closeSlapOS("x")
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
+    ticket.Ticket_closeSlapOS("x")
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')

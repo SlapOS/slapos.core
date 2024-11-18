@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>tag, fixit, params</string> </value>
+            <value> <string>activate_kw=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Alarm_checkStoppedEventToDeliver</string> </value>
+            <value> <string>Event_checkStoppedFromSupportRequestToDeliver</string> </value>
         </item>
       </dictionary>
     </pickle>

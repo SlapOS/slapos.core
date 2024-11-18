@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>activate_kw=None</string> </value>
+            <value> <string>manager=False, agent=False</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Event_checkStoppedToDeliver</string> </value>
+            <value> <string>Base_hasSlapOSAccountingUserGroup</string> </value>
         </item>
       </dictionary>
     </pickle>

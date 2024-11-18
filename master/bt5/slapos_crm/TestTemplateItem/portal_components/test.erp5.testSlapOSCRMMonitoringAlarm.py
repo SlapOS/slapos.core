@@ -1175,17 +1175,17 @@ class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
       follow_up_value=ticket
     )
 
-  def test_Event_checkStoppedEventToDeliver_alarm_stopped(self):
+  def test_Event_checkStoppedEventFromSupportRequestToDeliver_alarm_stopped(self):
     support_request = self._makeSupportRequest()
     event = self._makeEvent(support_request)
     event.stop()
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
       self.tic()
     alarm = self.portal.portal_alarms.\
-          slapos_crm_check_stopped_event_to_deliver
-    self._test_alarm(alarm, event, "Event_checkStoppedToDeliver")
+          slapos_crm_check_stopped_event_from_support_request_to_deliver
+    self._test_alarm(alarm, event, "Event_checkStoppedFromSupportRequestToDeliver")
 
-  def test_Event_checkStoppedEventToDeliver_alarm_delivered(self):
+  def test_Event_checkStoppedEventFromSupportRequestToDeliver_alarm_delivered(self):
     support_request = self._makeSupportRequest()
     event = self._makeEvent(support_request)
     event.stop()
@@ -1193,10 +1193,10 @@ class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
       self.tic()
     alarm = self.portal.portal_alarms.\
-          slapos_crm_check_stopped_event_to_deliver
-    self._test_alarm_not_visited(alarm, event, "Event_checkStoppedToDeliver")
+          slapos_crm_check_stopped_event_from_support_request_to_deliver
+    self._test_alarm_not_visited(alarm, event, "Event_checkStoppedFromSupportRequestToDeliver")
 
-  def test_Event_checkStoppedEventToDeliver_alarm_stoppedWithoutTicket(self):
+  def test_Event_checkStoppedEventFromSupportRequestToDeliver_alarm_stoppedWithoutTicket(self):
     support_request = self._makeSupportRequest()
     event = self._makeEvent(support_request)
     event.setFollowUp(None)
@@ -1204,10 +1204,10 @@ class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
       self.tic()
     alarm = self.portal.portal_alarms.\
-          slapos_crm_check_stopped_event_to_deliver
-    self._test_alarm_not_visited(alarm, event, "Event_checkStoppedToDeliver")
+          slapos_crm_check_stopped_event_from_support_request_to_deliver
+    self._test_alarm_not_visited(alarm, event, "Event_checkStoppedFromSupportRequestToDeliver")
 
-  def test_Event_checkStoppedEventToDeliver_script_recentEventInvalidatedTicket(self):
+  def test_Event_checkStoppedEventFromSupportRequestToDeliver_script_recentEventInvalidatedTicket(self):
     support_request = self._makeSupportRequest()
     support_request.validate()
     support_request.invalidate()
@@ -1219,11 +1219,11 @@ class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
       self.tic()
     self.assertEqual(event.getSimulationState(), "stopped")
     self.assertEqual(support_request.getSimulationState(), "invalidated")
-    event.Event_checkStoppedToDeliver()
+    event.Event_checkStoppedFromSupportRequestToDeliver()
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(support_request.getSimulationState(), "validated")
 
-  def test_Event_checkStoppedEventToDeliver_script_recentEventValidatedTicket(self):
+  def test_Event_checkStoppedEventFromSupportRequestToDeliver_script_recentEventValidatedTicket(self):
     support_request = self._makeSupportRequest()
     support_request.validate()
     self.tic()
@@ -1234,11 +1234,11 @@ class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
       self.tic()
     self.assertEqual(event.getSimulationState(), "stopped")
     self.assertEqual(support_request.getSimulationState(), "validated")
-    event.Event_checkStoppedToDeliver()
+    event.Event_checkStoppedFromSupportRequestToDeliver()
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertTrue(event.getCreationDate() < support_request.getModificationDate())
 
-  def test_Event_checkStoppedEventToDeliver_script_recentEventSuspendedTicket(self):
+  def test_Event_checkStoppedEventFromSupportRequestToDeliver_script_recentEventSuspendedTicket(self):
     support_request = self._makeSupportRequest()
     support_request.validate()
     support_request.suspend()
@@ -1250,11 +1250,11 @@ class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
       self.tic()
     self.assertEqual(event.getSimulationState(), "stopped")
     self.assertEqual(support_request.getSimulationState(), "suspended")
-    event.Event_checkStoppedToDeliver()
+    event.Event_checkStoppedFromSupportRequestToDeliver()
     self.assertEqual(event.getSimulationState(), "stopped")
     self.assertEqual(support_request.getSimulationState(), "suspended")
 
-  def test_Event_checkStoppedEventToDeliver_script_oldEventInvalidatedTicket(self):
+  def test_Event_checkStoppedEventFromSupportRequestToDeliver_script_oldEventInvalidatedTicket(self):
     support_request = self._makeSupportRequest()
     event = self._makeEvent(support_request)
     event.stop()
@@ -1266,11 +1266,11 @@ class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
     self.tic()
     self.assertEqual(event.getSimulationState(), "stopped")
     self.assertEqual(support_request.getSimulationState(), "invalidated")
-    event.Event_checkStoppedToDeliver()
+    event.Event_checkStoppedFromSupportRequestToDeliver()
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(support_request.getSimulationState(), "invalidated")
 
-  def test_Event_checkStoppedEventToDeliver_script_oldEventValidatedTicket(self):
+  def test_Event_checkStoppedEventFromSupportRequestToDeliver_script_oldEventValidatedTicket(self):
     support_request = self._makeSupportRequest()
     event = self._makeEvent(support_request)
     event.stop()
@@ -1281,11 +1281,11 @@ class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
     self.tic()
     self.assertEqual(event.getSimulationState(), "stopped")
     self.assertEqual(support_request.getSimulationState(), "validated")
-    event.Event_checkStoppedToDeliver()
+    event.Event_checkStoppedFromSupportRequestToDeliver()
     self.assertEqual(event.getSimulationState(), "delivered")
     self.assertEqual(support_request.getSimulationState(), "validated")
 
-  def test_Event_checkStoppedEventToDeliver_script_oldEventSuspendedTicket(self):
+  def test_Event_checkStoppedEventFromSupportRequestToDeliver_script_oldEventSuspendedTicket(self):
     support_request = self._makeSupportRequest()
     event = self._makeEvent(support_request)
     event.stop()
@@ -1297,7 +1297,7 @@ class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
     self.tic()
     self.assertEqual(event.getSimulationState(), "stopped")
     self.assertEqual(support_request.getSimulationState(), "suspended")
-    event.Event_checkStoppedToDeliver()
+    event.Event_checkStoppedFromSupportRequestToDeliver()
     self.assertEqual(event.getSimulationState(), "stopped")
     self.assertEqual(support_request.getSimulationState(), "suspended")
 

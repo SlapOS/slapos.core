@@ -912,7 +912,8 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
   @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_slaveInstance(self):
     with PinnedDateTime(self, DateTime() - 1.1):
-      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', shared=True)
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(
+        node='instance', allocation_state='allocated', shared=True)
       software_instance = instance_tree.getSuccessorValue()
       software_instance.setErrorStatus("foo")
 
@@ -936,6 +937,45 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
     event = event_list[0]
 
     self.assertIn('#error foo', event.getTextContent())
+    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
+    self.assertEqual(event.getSourceProject(), instance_tree.getFollowUp())
+    self.assertEqual(ticket.getSourceProject(), instance_tree.getFollowUp())
+    self.assertEqual(ticket.getCausality(), instance_tree.getRelativeUrl())
+    self.assertEqual(ticket.getSimulationState(), "submitted")
+    self.assertEqual(event.getSimulationState(), "delivered")
+    self.assertEqual(event.getPortalType(), "Web Message")
+
+
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
+  def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_slaveWithoutSoftwareInstance(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      # without instance='node', the slave is allocated w/o software instance
+      # which emulates post unallocation state after the destruction of 
+      # the software instance.
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(
+        allocation_state='allocated', shared=True)
+      software_instance = instance_tree.getSuccessorValue()
+    self.tic()
+
+    error_dict = software_instance.SoftwareInstance_getReportedErrorDict()
+    software_instance.SoftwareInstance_checkInstanceTreeMonitoringState()
+    self.tic()
+
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+    self.assertEqual(error_dict['should_notify'], True)
+
+    ticket_title =  "Instance Tree %s is failing." % (instance_tree.getTitle())
+    self.assertEqual(error_dict['ticket_title'], ticket_title)
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), error_dict['ticket_title'])
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('is allocated on a destroyed software instance',
+                  event.getTextContent())
     self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
     self.assertEqual(event.getSourceProject(), instance_tree.getFollowUp())
     self.assertEqual(ticket.getSourceProject(), instance_tree.getFollowUp())

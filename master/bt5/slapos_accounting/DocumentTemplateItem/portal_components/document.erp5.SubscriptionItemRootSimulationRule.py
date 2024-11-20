@@ -42,6 +42,7 @@ from erp5.component.interface.IRule import IRule
 from erp5.component.interface.IDivergenceController import IDivergenceController
 from erp5.component.interface.IMovementCollectionUpdater import IMovementCollectionUpdater
 
+@zope.interface.implementer(IRule, IDivergenceController, IMovementCollectionUpdater,)
 class SubscriptionItemRootSimulationRule(RuleMixin, MovementCollectionUpdaterMixin, Predicate):
   """
   Subscription Item Rule object generates future movements in relation
@@ -56,11 +57,6 @@ class SubscriptionItemRootSimulationRule(RuleMixin, MovementCollectionUpdaterMix
   # Declarative security
   security = ClassSecurityInfo()
   security.declareObjectProtected(Permissions.AccessContentsInformation)
-
-  # Declarative interfaces
-  zope.interface.implements(IRule,
-                            IDivergenceController,
-                            IMovementCollectionUpdater,)
 
   # Default Properties
   property_sheets = (

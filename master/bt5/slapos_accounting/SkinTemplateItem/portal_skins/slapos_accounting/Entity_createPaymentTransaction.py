@@ -55,7 +55,6 @@ payment_transaction = portal.accounting_module.newContent(
   source_section=first_invoice.getSourceSection(),
   source_payment=first_invoice.getSourcePayment(),
   destination_section=first_invoice.getDestinationSection(),
-  destination_section_value=context,
   start_date=start_date,
   payment_mode=payment_mode,
   #specialise

@@ -196,7 +196,7 @@ class TestPaymentTransaction(TestSlapOSGroupRoleSecurityMixin):
     product = self.portal.accounting_module.newContent(
         portal_type='Payment Transaction')
     product.edit(
-        destination_value=person,
+        destination_section_value=person,
         ledger='automated'
         )
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
@@ -209,9 +209,6 @@ class TestPaymentTransaction(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(product, self.user_id, ['Owner'])
 
   def test_PaymentTransaction_OrganisationLedger(self):
-    reference = 'TESTPERSON-%s' % self.generateNewId()
-    person = self.portal.person_module.newContent(portal_type='Person',
-        reference=reference)
     organisation = self.portal.organisation_module.newContent(
       portal_type='Organisation',
       title='TESTORGA-%s' % self.generateNewId()
@@ -219,18 +216,13 @@ class TestPaymentTransaction(TestSlapOSGroupRoleSecurityMixin):
     product = self.portal.accounting_module.newContent(
         portal_type='Payment Transaction')
     product.edit(
-        destination_value=person,
         destination_section_value=organisation,
         ledger='automated'
         )
-    shadow_user_id = 'SHADOW-%s' % person.getUserId()
     self.assertSecurityGroup(product,
-        ['F-ACCOUNTING*', 'R-SHADOW-PERSON', self.user_id, person.getUserId(),
-         shadow_user_id], False)
+        ['F-ACCOUNTING*', 'R-SHADOW-PERSON', self.user_id ], False)
     self.assertRoles(product, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(product, 'R-SHADOW-PERSON', ['Assignee'])
-    self.assertRoles(product, shadow_user_id, ['Assignee'])
-    self.assertRoles(product, person.getUserId(), ['Auditor'])
     self.assertRoles(product, self.user_id, ['Owner'])
 
 

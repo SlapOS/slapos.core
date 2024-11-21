@@ -14,17 +14,17 @@
   </role>
   <role id='Assignee'>
    <property id='title'>Shadow User</property>
-   <property id='condition'>python: (here.getDestination('', portal_type='Person') != "") and (here.getLedger("") == "automated")</property>
+   <property id='condition'>python: (here.getDestinationSection('', portal_type='Person') != "") and (here.getLedger("") == "automated")</property>
    <property id='base_category_script'>Base_getSecurityCategoryAsShadowUser</property>
    <multi_property id='categories'>local_role_group/shadow</multi_property>
-   <multi_property id='base_category'>destination</multi_property>
+   <multi_property id='base_category'>destination_section</multi_property>
   </role>
   <role id='Auditor'>
    <property id='title'>User</property>
-   <property id='condition'>python: (here.getDestination('', portal_type='Person') != '') and (context.getLedger("") == "automated")</property>
+   <property id='condition'>python: (here.getDestinationSection('', portal_type='Person') != '') and (context.getLedger("") == "automated")</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/user</multi_property>
-   <multi_property id='base_category'>destination</multi_property>
+   <multi_property id='base_category'>destination_section</multi_property>
   </role>
   <role id='Assignee'>
    <property id='title'>Writable for Accountant Agent</property>

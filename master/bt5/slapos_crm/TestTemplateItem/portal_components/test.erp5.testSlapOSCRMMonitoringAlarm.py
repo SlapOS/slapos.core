@@ -47,6 +47,80 @@ class TestSlapOSCrmMonitoringMixin(SlapOSTestCaseMixinWithAbort):
       return support_request_list[0]
     return None
 
+class TestSlapOSCrmCheckProjectAllocationConsistencyState(TestSlapOSCrmMonitoringMixin):
+  launch_caucase = 1
+
+  ##########################################################################
+  # slapos_crm_project_allocation_consistency > ComputeNode_checkMonitoringState
+  ##########################################################################
+  def test_ComputeNode_checkProjectAllocationConsistencyState_alarm_remoteNode(self):
+    compute_node, _ = self.addComputeNodeAndPartition(self.addProject(),
+                                                      portal_type='Remote Node')
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_project_allocation_consistency
+    self._test_alarm(alarm, compute_node,
+             "ComputeNode_checkProjectAllocationConsistencyState")
+
+  def test_ComputeNode_checkProjectAllocationConsistencyState_alarm_monitoredComputeNodeState(self):
+    self._makeComputeNode(self.addProject())
+    self.tic()
+    self.assertEqual(self.compute_node.getMonitorScope(), "enabled")
+    alarm = self.portal.portal_alarms.slapos_crm_project_allocation_consistency
+    self._test_alarm(alarm, self.compute_node,
+             "ComputeNode_checkProjectAllocationConsistencyState")
+
+  def test_ComputeNode_checkProjectAllocationConsistencyState_alarm_close_forever(self):
+    self._makeComputeNode(self.addProject())
+    # Set close forever disabled monitor
+    self.compute_node.edit(allocation_scope='close/forever')
+    self.tic()
+    self.assertEqual(self.compute_node.getMonitorScope(), "disabled")
+    alarm = self.portal.portal_alarms.slapos_crm_project_allocation_consistency
+    self._test_alarm_not_visited(alarm, self.compute_node,
+                           "ComputeNode_checkProjectAllocationConsistencyState")
+
+  def test_ComputeNode_checkProjectAllocationConsistencyState_alarm_disabledMonitor(self):
+    self._makeComputeNode(self.addProject())
+    self.compute_node.edit(allocation_scope='open',
+                           monitor_scope='disabled')
+    self.tic()
+    self.login()
+    alarm = self.portal.portal_alarms.slapos_crm_project_allocation_consistency
+    self._test_alarm_not_visited(alarm, self.compute_node,
+                           "ComputeNode_checkProjectAllocationConsistencyState")
+
+  def test_ComputeNode_checkProjectAllocationConsistencyState_alarm_invalidated(self):
+    self._makeComputeNode(self.addProject())
+    self.compute_node.invalidate()
+    self.tic()
+    self.login()
+    alarm = self.portal.portal_alarms.slapos_crm_project_allocation_consistency
+    self._test_alarm_not_visited(alarm, self.compute_node,
+                           "ComputeNode_checkProjectAllocationConsistencyState")
+
+  def test_ComputeNode_checkProjectAllocationConsistencyState_alarm_2_node_1_call(self):
+    project = self.addProject()
+    self._makeComputeNode(project)
+    compute_node_a = self.compute_node
+    compute_node_a.edit(monitor_scope='enabled')
+    self._makeComputeNode(project)
+    compute_node_b = self.compute_node
+    compute_node_b.edit(monitor_scope='enabled')
+
+    self.assertNotEqual(compute_node_a.getUid(), compute_node_b.getUid())
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_project_allocation_consistency
+    script_name = "ComputeNode_checkProjectAllocationConsistencyState"
+    with TemporaryAlarmScript(self.portal, script_name, attribute=None):
+      alarm.activeSense()
+      self.tic()
+      content_a = compute_node_a.workflow_history['edit_workflow'][-1]['comment']
+      content_b = compute_node_b.workflow_history['edit_workflow'][-1]['comment']
+
+      # The alarm should group by project, so only one out of many should reached.
+      self.assertNotEqual(content_a, content_b)
+      self.assertIn('Visited by %s' % script_name, [content_a, content_b])
+
 
 class TestSlapOSCrmMonitoringCheckComputeNodeProjectState(TestSlapOSCrmMonitoringMixin):
   launch_caucase = 1

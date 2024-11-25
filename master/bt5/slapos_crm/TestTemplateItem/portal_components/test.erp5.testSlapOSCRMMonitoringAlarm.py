@@ -26,6 +26,16 @@ from DateTime import DateTime
 import time
 
 class TestSlapOSCrmMonitoringMixin(SlapOSTestCaseMixinWithAbort):
+
+  def assertEventTicket(self, event, ticket, tree_or_node):
+    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
+    self.assertEqual(event.getSourceProject(), tree_or_node.getFollowUp())
+    self.assertEqual(ticket.getSourceProject(), tree_or_node.getFollowUp())
+    self.assertEqual(ticket.getCausality(), tree_or_node.getRelativeUrl())
+    self.assertEqual(ticket.getSimulationState(), "submitted")
+    self.assertEqual(event.getSimulationState(), "delivered")
+    self.assertEqual(event.getPortalType(), "Web Message")
+
   def _makeNotificationMessage(self, reference):
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
@@ -47,6 +57,279 @@ class TestSlapOSCrmMonitoringMixin(SlapOSTestCaseMixinWithAbort):
       return support_request_list[0]
     return None
 
+  def _makeSupportRequest(self):
+    person = self.portal.person_module\
+         .newContent(portal_type="Person")
+    support_request = self.portal.support_request_module.newContent(
+      portal_type="Support Request"
+    )
+    support_request.submit()
+    new_id = self.generateNewId()
+    support_request.edit(
+        title="Support Request éçà %s" % new_id, #pylint: disable=invalid-encoded-data
+        reference="TESTSRQ-%s" % new_id,
+        destination_decision_value=person
+    )
+
+    return support_request
+
+class TestSlapOSCrmCheckProjectAllocationConsistencyState(TestSlapOSCrmMonitoringMixin):
+  launch_caucase = 1
+
+  ##########################################################################
+  # slapos_crm_project_allocation_consistency > ComputeNode_checkProjectAllocationConsistencyState
+  ##########################################################################
+  def test_ComputeNode_checkProjectAllocationConsistencyState_alarm_remoteNode(self):
+    compute_node, _ = self.addComputeNodeAndPartition(self.addProject(),
+                                                      portal_type='Remote Node')
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_project_allocation_consistency
+    self._test_alarm(alarm, compute_node,
+             "ComputeNode_checkProjectAllocationConsistencyState")
+
+  def test_ComputeNode_checkProjectAllocationConsistencyState_alarm_monitoredComputeNodeState(self):
+    self._makeComputeNode(self.addProject())
+    self.tic()
+    self.assertEqual(self.compute_node.getMonitorScope(), "enabled")
+    alarm = self.portal.portal_alarms.slapos_crm_project_allocation_consistency
+    self._test_alarm(alarm, self.compute_node,
+             "ComputeNode_checkProjectAllocationConsistencyState")
+
+  def test_ComputeNode_checkProjectAllocationConsistencyState_alarm_close_forever(self):
+    self._makeComputeNode(self.addProject())
+    # Set close forever disabled monitor
+    self.compute_node.edit(allocation_scope='close/forever')
+    self.tic()
+    self.assertEqual(self.compute_node.getMonitorScope(), "disabled")
+    alarm = self.portal.portal_alarms.slapos_crm_project_allocation_consistency
+    self._test_alarm_not_visited(alarm, self.compute_node,
+                           "ComputeNode_checkProjectAllocationConsistencyState")
+
+  def test_ComputeNode_checkProjectAllocationConsistencyState_alarm_disabledMonitor(self):
+    self._makeComputeNode(self.addProject())
+    self.compute_node.edit(allocation_scope='open',
+                           monitor_scope='disabled')
+    self.tic()
+    self.login()
+    alarm = self.portal.portal_alarms.slapos_crm_project_allocation_consistency
+    self._test_alarm_not_visited(alarm, self.compute_node,
+                           "ComputeNode_checkProjectAllocationConsistencyState")
+
+  def test_ComputeNode_checkProjectAllocationConsistencyState_alarm_invalidated(self):
+    self._makeComputeNode(self.addProject())
+    self.compute_node.invalidate()
+    self.tic()
+    self.login()
+    alarm = self.portal.portal_alarms.slapos_crm_project_allocation_consistency
+    self._test_alarm_not_visited(alarm, self.compute_node,
+                           "ComputeNode_checkProjectAllocationConsistencyState")
+
+  def test_ComputeNode_checkProjectAllocationConsistencyState_alarm_2_node_1_call(self):
+    project = self.addProject()
+    self._makeComputeNode(project)
+    compute_node_a = self.compute_node
+    compute_node_a.edit(monitor_scope='enabled')
+    self._makeComputeNode(project)
+    compute_node_b = self.compute_node
+    compute_node_b.edit(monitor_scope='enabled')
+
+    self.assertNotEqual(compute_node_a.getUid(), compute_node_b.getUid())
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_project_allocation_consistency
+    script_name = "ComputeNode_checkProjectAllocationConsistencyState"
+    with TemporaryAlarmScript(self.portal, script_name, attribute=None):
+      alarm.activeSense()
+      self.tic()
+      content_a = compute_node_a.workflow_history['edit_workflow'][-1]['comment']
+      content_b = compute_node_b.workflow_history['edit_workflow'][-1]['comment']
+
+      # The alarm should group by project, so only one out of many should reached.
+      self.assertNotEqual(content_a, content_b)
+      self.assertIn('Visited by %s' % script_name, [content_a, content_b])
+
+
+class TestSlapOSCrmMonitoringCheckAllocationConsistencyState(TestSlapOSCrmMonitoringMixin):
+  launch_caucase = 1
+
+  #############################################################################
+  # ComputeNode_checkProjectAllocationConsistencyState > ComputeNode_checkAllocationConsistencyState
+  #############################################################################
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_noAllocationCell(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, \
+        release_variation, \
+        type_variation, \
+        compute_node, \
+        partition, \
+        _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+
+      self.tic()
+
+    ticket = compute_node.ComputeNode_checkAllocationConsistencyState()
+
+    # Double check error dict
+    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
+    self.assertNotEqual({}, error_dict)
+    self.assertEqual(1, len(error_dict))
+    self.assertEqual([release_variation.getUrlString()], error_dict.keys())
+    self.assertEqual([type_variation.getReference()],
+      error_dict[release_variation.getUrlString()].keys())
+    self.assertEqual(partition.getAggregateRelatedValue().getUid(),
+      error_dict[release_variation.getUrlString()][type_variation.getReference()][0].getUid())
+    self.assertEqual(partition.getUid(),
+      error_dict[release_variation.getUrlString()][type_variation.getReference()][1].getUid())
+
+    # Try to see if duplicates entries.
+    error_dict[release_variation.getUrlString()][type_variation.getReference()] = ('a', 'b')
+    # Pass a known case dont add more entries
+    self.assertEqual({}, partition.ComputePartition_checkAllocationConsistencyState(
+       known_error_dict=error_dict))
+
+    ticket_title = "%s has missing allocation supplies." % compute_node.getTitle()
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), ticket_title)
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+
+    self.assertIn("The following contains instances that has Software Releases/Types",
+                  event.getTextContent())
+
+    self.assertIn(release_variation.getUrlString(), event.getTextContent())
+    self.assertIn(type_variation.getReference(), event.getTextContent())
+    self.assertEventTicket(event, ticket, compute_node)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_hasTicketAlready(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, \
+        release_variation, \
+        type_variation, \
+        compute_node, \
+        partition, \
+        _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+
+      project = compute_node.getFollowUpValue()
+      title = "checkAllocationConsistencyState %s" % self.generateNewId()
+      support_request = project.Project_createTicketWithCausality(
+        "Support Request", title, title,
+        causality=compute_node.getRelativeUrl(),
+        destination_decision=project.getDestination()
+      )
+      self.assertNotEqual(support_request, None)
+      self.tic()
+
+    ticket = compute_node.ComputeNode_checkAllocationConsistencyState()
+    self.assertEqual(ticket, None)
+
+    # Double check error dict exists despite ticket isnt created.
+    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
+    self.assertNotEqual({}, error_dict)
+    self.assertEqual(1, len(error_dict))
+    self.assertEqual([release_variation.getUrlString()], error_dict.keys())
+    self.assertEqual([type_variation.getReference()],
+      error_dict[release_variation.getUrlString()].keys())
+    self.assertEqual(partition.getAggregateRelatedValue().getUid(),
+      error_dict[release_variation.getUrlString()][type_variation.getReference()][0].getUid())
+    self.assertEqual(partition.getUid(),
+      error_dict[release_variation.getUrlString()][type_variation.getReference()][1].getUid())
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_ongoingUpgrade(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, _, _, \
+        compute_node, \
+        partition, \
+        instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+
+      ud = self.portal.upgrade_decision_module.newContent(
+        portal_type="Upgrade Decision",
+        aggregate_value=instance_tree)
+      ud.plan()
+
+      self.tic()
+
+    ticket = compute_node.ComputeNode_checkAllocationConsistencyState()
+
+    # Double check error dict
+    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
+    self.assertEqual({}, error_dict)
+    self.assertEqual(None, ticket)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 1')
+  def test_ComputeNode_checkAllocationConsistencyState_script_creationClosed(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, _, _, compute_node, \
+        _, _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+
+      self.tic()
+
+    ticket = compute_node.ComputeNode_checkAllocationConsistencyState()
+    self.assertEqual(None, ticket)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_monitorDisabled(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, _, _, compute_node, \
+        _, _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+
+      compute_node.setMonitorScope('disabled')
+      self.tic()
+
+    ticket = compute_node.ComputeNode_checkAllocationConsistencyState()
+    self.assertEqual(None, ticket)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_RemotenoAllocationCell(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, release_variation, \
+        type_variation, \
+        compute_node, \
+        partition, \
+        _ = self.bootstrapAllocableInstanceTree(
+          allocation_state='allocated', node='remote', shared=True)
+
+      self.tic()
+
+    ticket = compute_node.ComputeNode_checkAllocationConsistencyState()
+
+    # Double check error dict
+    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
+    self.assertNotEqual({}, error_dict)
+    self.assertEqual(1, len(error_dict))
+    self.assertEqual([release_variation.getUrlString()], error_dict.keys())
+    self.assertEqual([type_variation.getReference()],
+      error_dict[release_variation.getUrlString()].keys())
+    self.assertEqual(partition.getAggregateRelatedValue().getUid(),
+      error_dict[release_variation.getUrlString()][type_variation.getReference()][0].getUid())
+    self.assertEqual(partition.getUid(),
+      error_dict[release_variation.getUrlString()][type_variation.getReference()][1].getUid())
+
+    # Try to see if duplicates entries.
+    error_dict[release_variation.getUrlString()][type_variation.getReference()] = ('a', 'b')
+    # Pass a known case dont add more entries
+    self.assertEqual({}, partition.ComputePartition_checkAllocationConsistencyState(
+       known_error_dict=error_dict))
+
+    ticket_title = "%s has missing allocation supplies." % compute_node.getTitle()
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), ticket_title)
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn("The following contains instances that has Software Releases/Types",
+                  event.getTextContent())
+
+    self.assertIn(release_variation.getUrlString(), event.getTextContent())
+    self.assertIn(type_variation.getReference(), event.getTextContent())
+    self.assertEventTicket(event, ticket, compute_node)
 
 class TestSlapOSCrmMonitoringCheckComputeNodeProjectState(TestSlapOSCrmMonitoringMixin):
   launch_caucase = 1
@@ -188,13 +471,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
       ).getTitle()
     )
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getCausality(), compute_node.getRelativeUrl())
-    self.assertEqual(ticket.getSimulationState(), "submitted")
-    self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(event.getPortalType(), "Web Message")
+    self.assertEventTicket(event, ticket, compute_node)
 
   @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
@@ -233,13 +510,8 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
       ).getTitle()
     )
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getCausality(), compute_node.getRelativeUrl())
-    self.assertEqual(ticket.getSimulationState(), "submitted")
-    self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(event.getPortalType(), "Web Message")
+    self.assertEventTicket(event, ticket, compute_node)
+
 
     compute_node.setAccessStatus("")
     message = ticket.SupportRequest_recheckMonitoring()
@@ -252,8 +524,9 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_ComputeNode_checkMonitoringState_stalled_instance"])')
   def test_ComputeNode_checkMonitoringState_script_stalledInstance(self):
-    compute_node, _ = self._makeComputeNode(self.addProject())
-    self._makeComplexComputeNode(self.addProject())
+    project = self.addProject()
+    compute_node, _ = self._makeComputeNode(project)
+    self._makeComplexComputeNode(project)
     compute_node = self.compute_node
 
     self.portal.REQUEST['test_ComputeNode_checkMonitoringState_stalled_instance'] = \
@@ -292,13 +565,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
       ).getTitle()
     )
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getCausality(), compute_node.getRelativeUrl())
-    self.assertEqual(ticket.getSimulationState(), "submitted")
-    self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(event.getPortalType(), "Web Message")
+    self.assertEventTicket(event, ticket, compute_node)
 
     self.start_requested_software_instance.setAccessStatus("")
 
@@ -312,8 +579,9 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_ComputeNode_checkMonitoringState_stalled_instance"])')
   def test_ComputeNode_checkMonitoringState_script_stalledInstanceSingle(self):
-    compute_node, _ = self._makeComputeNode(self.addProject())
-    self._makeComplexComputeNode(self.addProject())
+    project = self.addProject()
+    compute_node, _ = self._makeComputeNode(project)
+    self._makeComplexComputeNode(project)
     compute_node = self.compute_node
 
     self.portal.REQUEST['test_ComputeNode_checkMonitoringState_stalled_instance'] = \
@@ -352,13 +620,8 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
       ).getTitle()
     )
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getCausality(), compute_node.getRelativeUrl())
-    self.assertEqual(ticket.getSimulationState(), "submitted")
-    self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(event.getPortalType(), "Web Message")
+    self.assertEventTicket(event, ticket, compute_node)
+
 
     self.start_requested_software_instance.setAccessStatus("")
     self.start_requested_software_installation.setAccessStatus("")
@@ -376,8 +639,9 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_ComputeNode_checkMonitoringState_data_array"])')
   def test_ComputeNode_checkMonitoringState_script_modificationArray(self):
-    compute_node, _ = self._makeComputeNode(self.addProject())
-    self._makeComplexComputeNode(self.addProject())
+    project = self.addProject()
+    compute_node, _ = self._makeComputeNode(project)
+    self._makeComplexComputeNode(project)
     compute_node = self.compute_node
 
     self.portal.REQUEST['test_ComputeNode_checkMonitoringState_script_modificationArray'] = \
@@ -420,19 +684,14 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
       ).getTitle()
     )
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getCausality(), compute_node.getRelativeUrl())
-    self.assertEqual(ticket.getSimulationState(), "submitted")
-    self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(event.getPortalType(), "Web Message")
+    self.assertEventTicket(event, ticket, compute_node)
 
   @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   def test_ComputeNode_checkMonitoringState_installation_no_information(self):
     with PinnedDateTime(self, DateTime() - 1.1):
-      compute_node, _ = self._makeComputeNode(self.addProject())
-      self._makeComplexComputeNode(self.addProject())
+      project = self.addProject()
+      compute_node, _ = self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
       compute_node = self.compute_node
 
     # Computer and instances are accessed
@@ -453,9 +712,10 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
   @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   def test_ComputeNode_checkMonitoringState_installation_oldBuild(self):
     with PinnedDateTime(self, DateTime() - 1.1):
-      compute_node, _ = self._makeComputeNode(self.addProject())
-      self._makeComplexComputeNode(self.addProject())
-      compute_node = self.compute_node  
+      project = self.addProject()
+      compute_node, _ = self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
+      compute_node = self.compute_node
       self.start_requested_software_installation.setAccessStatus("")
 
     # Computer and instances are accessed
@@ -474,8 +734,9 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
 
   @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   def test_ComputeNode_checkMonitoringState_installation_recentBuild(self):
-    compute_node, _ = self._makeComputeNode(self.addProject())
-    self._makeComplexComputeNode(self.addProject())
+    project = self.addProject()
+    self._makeComputeNode(project)
+    self._makeComplexComputeNode(project)
     compute_node = self.compute_node
 
     # Computer and instances are accessed fine.
@@ -500,8 +761,9 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
   'context.REQUEST["test_ComputeNode_checkMonitoringState_notify"])')
   def test_ComputeNode_checkMonitoringState_installation_notifySlow(self):
     with PinnedDateTime(self, DateTime() - 1.1):
-      compute_node, _ = self._makeComputeNode(self.addProject())
-      self._makeComplexComputeNode(self.addProject())
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
       compute_node = self.compute_node
 
     # Computer and instances are accessed fine.
@@ -541,13 +803,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
       ).getTitle()
     )
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getCausality(), compute_node.getRelativeUrl())
-    self.assertEqual(ticket.getSimulationState(), "submitted")
-    self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(event.getPortalType(), "Web Message")
+    self.assertEventTicket(event, ticket, compute_node)
 
   @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
@@ -557,8 +813,9 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
   'context.REQUEST["test_ComputeNode_checkMonitoringState_notify"])')
   def test_ComputeNode_checkMonitoringState_installation_notifyError(self):
     with PinnedDateTime(self, DateTime() - 1.1):
-      compute_node, _ = self._makeComputeNode(self.addProject())
-      self._makeComplexComputeNode(self.addProject())
+      project = self.addProject()
+      compute_node, _ = self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
       compute_node = self.compute_node
 
     self.start_requested_software_installation.setErrorStatus("")
@@ -599,14 +856,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
       ).getTitle()
     )
     self.assertIn(compute_node.getReference(), event.getTextContent())
-    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getSourceProject(), compute_node.getFollowUp())
-    self.assertEqual(ticket.getCausality(), compute_node.getRelativeUrl())
-    self.assertEqual(ticket.getSimulationState(), "submitted")
-    self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(event.getPortalType(), "Web Message")
-
+    self.assertEventTicket(event, ticket, compute_node)
 
 class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSCrmMonitoringMixin):
   launch_caucase = 1
@@ -701,8 +951,9 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
   'context.REQUEST["test_SoftwareInstance_checkInstanceTreeMonitoringState_notify"])')
   def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_notifyError(self):
     with PinnedDateTime(self, DateTime() - 1.1):
-      self._makeComputeNode(self.addProject())
-      self._makeComplexComputeNode(self.addProject())
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
 
       software_instance = self.start_requested_software_instance
       instance_tree = software_instance.getSpecialiseValue()
@@ -734,19 +985,14 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
       ).getTitle()
     )
     self.assertIn(instance_tree.getReference(), event.getTextContent())
-    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSourceProject(), instance_tree.getFollowUp())
-    self.assertEqual(ticket.getSourceProject(), instance_tree.getFollowUp())
-    self.assertEqual(ticket.getCausality(), instance_tree.getRelativeUrl())
-    self.assertEqual(ticket.getSimulationState(), "submitted")
-    self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(event.getPortalType(), "Web Message")
+    self.assertEventTicket(event, ticket, instance_tree)
 
   @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_notifyErrorTolerance(self):
     with PinnedDateTime(self, DateTime() - 1.1):
-      self._makeComputeNode(self.addProject())
-      self._makeComplexComputeNode(self.addProject())
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
 
       software_instance = self.start_requested_software_instance
       instance_tree = software_instance.getSpecialiseValue()
@@ -775,8 +1021,9 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
   'context.REQUEST["test_SoftwareInstance_checkInstanceTreeMonitoringState_notify"])')
   def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_notifyNotAllocated(self):
     with PinnedDateTime(self, DateTime() - 1.1):
-      self._makeComputeNode(self.addProject())
-      self._makeComplexComputeNode(self.addProject())
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
 
       software_instance = self.start_requested_software_instance
       instance_tree = software_instance.getSpecialiseValue()
@@ -807,14 +1054,7 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
       ).getTitle()
     )
     self.assertIn(instance_tree.getReference(), event.getTextContent())
-    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSourceProject(), instance_tree.getFollowUp())
-    self.assertEqual(ticket.getSourceProject(), instance_tree.getFollowUp())
-    self.assertEqual(ticket.getCausality(), instance_tree.getRelativeUrl())
-    self.assertEqual(ticket.getSimulationState(), "submitted")
-    self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(event.getPortalType(), "Web Message")
-
+    self.assertEventTicket(event, ticket, instance_tree)
 
   @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
@@ -824,8 +1064,9 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
   'context.REQUEST["test_SoftwareInstance_checkInstanceTreeMonitoringState_notify"])')
   def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_close_forever(self):
     with PinnedDateTime(self, DateTime() - 1.1):
-      self._makeComputeNode(self.addProject())
-      self._makeComplexComputeNode(self.addProject())
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
 
       software_instance = self.start_requested_software_instance
       instance_tree = software_instance.getSpecialiseValue()
@@ -858,20 +1099,14 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
       ).getTitle()
     )
     self.assertIn(instance_tree.getReference(), event.getTextContent())
-    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSourceProject(), instance_tree.getFollowUp())
-    self.assertEqual(ticket.getSourceProject(), instance_tree.getFollowUp())
-    self.assertEqual(ticket.getCausality(), instance_tree.getRelativeUrl())
-    self.assertEqual(ticket.getSimulationState(), "submitted")
-    self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(event.getPortalType(), "Web Message")
-
+    self.assertEventTicket(event, ticket, instance_tree)
 
   @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_tooEarly(self):
     with PinnedDateTime(self, DateTime()):
-      self._makeComputeNode(self.addProject())
-      self._makeComplexComputeNode(self.addProject())
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
 
       software_instance = self.start_requested_software_instance
       instance_tree = software_instance.getSpecialiseValue()
@@ -892,8 +1127,9 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
   @simulate('Project_isSupportRequestCreationClosed', '', 'return 1')
   def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_closed(self):
     with PinnedDateTime(self, DateTime() - 1):
-      self._makeComputeNode(self.addProject())
-      self._makeComplexComputeNode(self.addProject())
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
 
       software_instance = self.start_requested_software_instance
       instance_tree = software_instance.getSpecialiseValue()
@@ -937,20 +1173,13 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
     event = event_list[0]
 
     self.assertIn('#error foo', event.getTextContent())
-    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSourceProject(), instance_tree.getFollowUp())
-    self.assertEqual(ticket.getSourceProject(), instance_tree.getFollowUp())
-    self.assertEqual(ticket.getCausality(), instance_tree.getRelativeUrl())
-    self.assertEqual(ticket.getSimulationState(), "submitted")
-    self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(event.getPortalType(), "Web Message")
-
+    self.assertEventTicket(event, ticket, instance_tree)
 
   @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_slaveWithoutSoftwareInstance(self):
     with PinnedDateTime(self, DateTime() - 1.1):
       # without instance='node', the slave is allocated w/o software instance
-      # which emulates post unallocation state after the destruction of 
+      # which emulates post unallocation state after the destruction of
       # the software instance.
       _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(
         allocation_state='allocated', shared=True)
@@ -977,12 +1206,285 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
     self.assertIn('is allocated on a destroyed software instance',
                   event.getTextContent())
     self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSourceProject(), instance_tree.getFollowUp())
-    self.assertEqual(ticket.getSourceProject(), instance_tree.getFollowUp())
-    self.assertEqual(ticket.getCausality(), instance_tree.getRelativeUrl())
-    self.assertEqual(ticket.getSimulationState(), "submitted")
-    self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(event.getPortalType(), "Web Message")
+    self.assertEventTicket(event, ticket, instance_tree)
+
+
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
+  def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_instanceBadComputeGuid(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
+
+    software_instance = self.start_requested_software_instance
+    instance_tree = software_instance.getSpecialiseValue()
+
+    # Something changed before allocation for whatever reason
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+        <instance>
+        <parameter id='computer_guid'>%s_foo</parameter>
+        </instance>""" % self.compute_node.getReference())
+
+    instance_tree.setSlaXml(software_instance.getSlaXml())
+
+    self.tic()
+
+    software_instance.SoftwareInstance_checkInstanceTreeMonitoringState()
+    error_dict = software_instance.SoftwareInstance_getReportedErrorDict(tolerance=30)
+    self.tic()
+
+    ticket_title = "Instance Tree %s is failing." % (instance_tree.getTitle())
+    self.assertEqual(error_dict['ticket_title'], ticket_title)
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), error_dict['ticket_title'])
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('has invalid Service Level Aggrement.',
+                  event.getTextContent())
+    self.assertIn(' computer_guid do not match on:',
+                  event.getTextContent())
+    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
+    self.assertEventTicket(event, ticket, instance_tree)
+
+
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
+  def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_instanceBadNetworkGuid(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
+
+    software_instance = self.start_requested_software_instance
+    instance_tree = software_instance.getSpecialiseValue()
+
+    # Something changed before allocation for whatever reason
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+        <instance>
+        <parameter id='network_guid'>NETFAKE-1</parameter>
+        </instance>""")
+
+    instance_tree.setSlaXml(software_instance.getSlaXml())
+
+    self.tic()
+
+    software_instance.SoftwareInstance_checkInstanceTreeMonitoringState()
+    error_dict = software_instance.SoftwareInstance_getReportedErrorDict(tolerance=30)
+    self.tic()
+
+    ticket_title = "Instance Tree %s is failing." % (instance_tree.getTitle())
+    self.assertEqual(error_dict['ticket_title'], ticket_title)
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), error_dict['ticket_title'])
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('has invalid Service Level Aggrement.',
+                  event.getTextContent())
+    self.assertIn(' network_guid do not match on:',
+                  event.getTextContent())
+    self.assertEventTicket(event, ticket, instance_tree)
+
+
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
+  def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_instanceBadProjectGuid(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
+
+    software_instance = self.start_requested_software_instance
+    instance_tree = software_instance.getSpecialiseValue()
+
+    # Something changed before allocation for whatever reason
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+        <instance>
+        <parameter id='project_guid'>PROJFAKE-1</parameter>
+        </instance>""")
+
+    instance_tree.setSlaXml(software_instance.getSlaXml())
+
+    self.tic()
+
+    software_instance.SoftwareInstance_checkInstanceTreeMonitoringState()
+    error_dict = software_instance.SoftwareInstance_getReportedErrorDict(tolerance=30)
+    self.tic()
+
+    ticket_title = "Instance Tree %s is failing." % (instance_tree.getTitle())
+    self.assertEqual(error_dict['ticket_title'], ticket_title)
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), error_dict['ticket_title'])
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('has invalid Service Level Aggrement.',
+                  event.getTextContent())
+    self.assertIn(' project_guid do not match on:',
+                  event.getTextContent())
+    self.assertEventTicket(event, ticket, instance_tree)
+
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
+  def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_instanceWrongProject(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
+
+    software_instance = self.start_requested_software_instance
+    instance_tree = software_instance.getSpecialiseValue()
+
+    other_project = self.addProject()
+    # Forcefully move node to some other project
+    self.compute_node.setFollowUpValue(other_project)
+
+    # Double check if the instance is properly allocated on where
+    # we expect to be.
+    self.assertEqual(self.compute_node.getRelativeUrl(),
+      software_instance.getAggregateValue().getParentValue().getRelativeUrl())
+
+    self.tic()
+
+    software_instance.SoftwareInstance_checkInstanceTreeMonitoringState()
+    error_dict = software_instance.SoftwareInstance_getReportedErrorDict(tolerance=30)
+    self.tic()
+
+    ticket_title = "Instance Tree %s is failing." % (instance_tree.getTitle())
+    self.assertEqual(error_dict['ticket_title'], ticket_title)
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), error_dict['ticket_title'])
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('has invalid Service Level Aggrement.',
+                  event.getTextContent())
+    self.assertIn(' Instance and Compute node project do not match on:',
+                  event.getTextContent())
+    self.assertEventTicket(event, ticket, instance_tree)
+
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
+  def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_instanceBadInstanceGuid(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
+
+    software_instance = self.start_requested_software_instance
+    instance_tree = software_instance.getSpecialiseValue()
+
+    # Something changed before allocation for whatever reason
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+        <instance>
+        <parameter id='instance_guid'>SIFAKE-1</parameter>
+        </instance>""")
+
+    instance_tree.setSlaXml(software_instance.getSlaXml())
+
+    self.tic()
+
+    software_instance.SoftwareInstance_checkInstanceTreeMonitoringState()
+    error_dict = software_instance.SoftwareInstance_getReportedErrorDict(tolerance=30)
+    self.tic()
+
+    ticket_title = "Instance Tree %s is failing." % (instance_tree.getTitle())
+    self.assertEqual(error_dict['ticket_title'], ticket_title)
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), error_dict['ticket_title'])
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('has invalid Service Level Aggrement.',
+                  event.getTextContent())
+    self.assertIn(' instance_guid is provided to a Software Instance:',
+                  event.getTextContent())
+    self.assertEventTicket(event, ticket, instance_tree)
+
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
+  def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_slaveInstanceGuidOnRemote(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(
+          allocation_state='allocated', node='remote', shared=True)
+      software_instance = instance_tree.getSuccessorValue()
+
+    # Something changed before allocation for whatever reason
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+        <instance>
+        <parameter id='instance_guid'>SIFAKE-1</parameter>
+        </instance>""")
+
+    instance_tree.setSlaXml(software_instance.getSlaXml())
+
+    self.tic()
+
+    software_instance.SoftwareInstance_checkInstanceTreeMonitoringState()
+    error_dict = software_instance.SoftwareInstance_getReportedErrorDict(tolerance=30)
+    self.tic()
+
+    ticket_title = "Instance Tree %s is failing." % (instance_tree.getTitle())
+    self.assertEqual(error_dict['ticket_title'], ticket_title)
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), error_dict['ticket_title'])
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('has invalid Service Level Aggrement.',
+                  event.getTextContent())
+    self.assertIn(
+      ' instance_guid provided on test tree and it is allocated on a REMOTE NODE',
+      event.getTextContent())
+    self.assertEventTicket(event, ticket, instance_tree)
+
+  @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
+  def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_slaveBadInstanceGuid(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(
+        node='instance', allocation_state='allocated', shared=True)
+      software_instance = instance_tree.getSuccessorValue()
+
+    # Something changed before allocation for whatever reason
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+        <instance>
+        <parameter id='instance_guid'>SIFAKE-1</parameter>
+        </instance>""")
+
+    self.tic()
+
+    error_dict = software_instance.SoftwareInstance_getReportedErrorDict()
+    software_instance.SoftwareInstance_checkInstanceTreeMonitoringState()
+    self.tic()
+
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+    self.assertEqual(error_dict['should_notify'], True)
+
+    ticket_title =  "Instance Tree %s is failing." % (instance_tree.getTitle())
+    self.assertEqual(error_dict['ticket_title'], ticket_title)
+    ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), error_dict['ticket_title'])
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn(' instance_guid do not match on:', event.getTextContent())
+    self.assertEventTicket(event, ticket, instance_tree)
 
   @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_instanceOnRemoteNode(self):
@@ -1011,32 +1513,9 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
     event = event_list[0]
 
     self.assertIn('#error foo2', event.getTextContent())
-    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSourceProject(), instance_tree.getFollowUp())
-    self.assertEqual(ticket.getSourceProject(), instance_tree.getFollowUp())
-    self.assertEqual(ticket.getCausality(), instance_tree.getRelativeUrl())
-    self.assertEqual(ticket.getSimulationState(), "submitted")
-    self.assertEqual(event.getSimulationState(), "delivered")
-    self.assertEqual(event.getPortalType(), "Web Message")
+    self.assertEventTicket(event, ticket, instance_tree)
 
-
-class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
-
-  def _makeSupportRequest(self):
-    person = self.portal.person_module\
-         .newContent(portal_type="Person")
-    support_request = self.portal.support_request_module.newContent(
-      portal_type="Support Request"
-    )
-    support_request.submit()
-    new_id = self.generateNewId()
-    support_request.edit(
-        title="Support Request éçà %s" % new_id, #pylint: disable=invalid-encoded-data
-        reference="TESTSRQ-%s" % new_id,
-        destination_decision_value=person
-    )
-
-    return support_request
+class TestSlaposCrmUpdateSupportRequestState(TestSlapOSCrmMonitoringMixin):
 
   def _makeInstanceTree(self):
     person = self.portal.person_module\
@@ -1193,19 +1672,7 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
     self.assertEqual(ticket.getSimulationState(), "invalidated")
 
 
-class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
-
-  def _makeSupportRequest(self):
-    support_request = self.portal.support_request_module.newContent(
-      portal_type="Support Request"
-    )
-    support_request.submit()
-    new_id = self.generateNewId()
-    support_request.edit(
-        title= "Support Request éçà %s" % new_id, #pylint: disable=invalid-encoded-data
-        reference="TESTSRQ-%s" % new_id
-    )
-    return support_request
+class TestSlaposCrmCheckStoppedEventToDeliver(TestSlapOSCrmMonitoringMixin):
 
   def _makeEvent(self, ticket):
     new_id = self.generateNewId()
@@ -1342,20 +1809,7 @@ class TestSlaposCrmCheckStoppedEventToDeliver(SlapOSTestCaseMixinWithAbort):
     self.assertEqual(support_request.getSimulationState(), "suspended")
 
 
-class TestSlaposCrmCheckSuspendedSupportRequestToReopen(SlapOSTestCaseMixinWithAbort):
-
-  def _makeSupportRequest(self):
-    support_request = self.portal.support_request_module.newContent(
-      portal_type="Support Request"
-    )
-    support_request.submit()
-    new_id = self.generateNewId()
-    support_request.edit(
-        title= "Support Request éçà %s" % new_id, #pylint: disable=invalid-encoded-data
-        reference="TESTSRQ-%s" % new_id
-    )
-
-    return support_request
+class TestSlaposCrmCheckSuspendedSupportRequestToReopen(TestSlapOSCrmMonitoringMixin):
 
   def test_SupportRequest_checkSuspendedSupportRequestToReopen_alarm_suspended(self):
     support_request = self._makeSupportRequest()

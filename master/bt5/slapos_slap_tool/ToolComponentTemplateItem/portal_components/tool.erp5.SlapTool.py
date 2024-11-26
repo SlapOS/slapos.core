@@ -410,7 +410,7 @@ class SlapTool(BaseTool):
       reference=software_product_reference,
       follow_up__uid=project.getUid(),
       validation_state='published')
-    if len(software_product_list) is 0:
+    if not len(software_product_list):
       return dumps([])
     if len(software_product_list) > 1:
       raise NotImplementedError('Several Software Product with the same title.')

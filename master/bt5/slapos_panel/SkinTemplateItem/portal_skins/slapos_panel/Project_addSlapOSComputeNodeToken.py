@@ -1,4 +1,4 @@
-from urlparse import urljoin, urlparse
+from six.moves.urllib.parse import urljoin, urlparse
 
 portal = context.getPortalObject()
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()

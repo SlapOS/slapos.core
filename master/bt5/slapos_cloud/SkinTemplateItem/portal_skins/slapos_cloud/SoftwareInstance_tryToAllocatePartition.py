@@ -1,4 +1,4 @@
-from Products.DCWorkflow.DCWorkflow import ValidationFailed
+from Products.ERP5Type.Core.Workflow import ValidationFailed
 from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery
 
 if context.getPortalType() not in ('Software Instance', 'Slave Instance'):

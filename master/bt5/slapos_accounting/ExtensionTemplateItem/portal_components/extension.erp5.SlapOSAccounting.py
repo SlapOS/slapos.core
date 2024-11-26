@@ -28,7 +28,7 @@
 from lxml import etree
 from zExceptions import Unauthorized
 import pkg_resources
-import StringIO
+from six import StringIO
 
 def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
   """Call bang on self."""
@@ -41,11 +41,11 @@ def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
       'slapos.slap', 'doc/computer_consumption.xsd')
 
   # Validate against the xsd
-  xsd_model = StringIO.StringIO(compute_node_consumption_model)
+  xsd_model = StringIO(compute_node_consumption_model)
   xmlschema_doc = etree.parse(xsd_model)
   xmlschema = etree.XMLSchema(xmlschema_doc)
 
-  string_to_validate = StringIO.StringIO(xml)
+  string_to_validate = StringIO(xml)
 
   try:
     tree = etree.parse(string_to_validate)

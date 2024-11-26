@@ -123,7 +123,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.tic()
       self.logout()
       self.login()
-      self.assertEquals(instance_tree.getDestinationSection(),
+      self.assertEqual(instance_tree.getDestinationSection(),
                         public_person2.getRelativeUrl())
 
 
@@ -136,8 +136,8 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
         'resource_uid': subscription_change_request.getResourceUid(),
     }
     inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**inventory_list_kw)
-    self.assertEquals(1, len(inventory_list))
-    self.assertEquals(0, inventory_list[0].total_quantity)
+    self.assertEqual(1, len(inventory_list))
+    self.assertEqual(0, inventory_list[0].total_quantity)
 
     # Seller only sold 1 month
     inventory_list_kw = {
@@ -149,9 +149,9 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
         'resource_uid': subscription_change_request.getResourceUid(),
     }
     inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**inventory_list_kw)
-    self.assertEquals(1, len(inventory_list))
+    self.assertEqual(1, len(inventory_list))
     # 2 - 0.42 (13 days of 31) - 0.1 (3 days of 31) + 1 - 0.83 (24 days of 29)
-    self.assertAlmostEquals(-1.65, inventory_list[0].total_quantity)
+    self.assertAlmostEqual(-1.65, inventory_list[0].total_quantity)
 
     inventory_list_kw = {
         'group_by_section': False,
@@ -160,12 +160,12 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
         'resource_uid': subscription_change_request.getResourceUid(),
     }
     inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**inventory_list_kw)
-    self.assertEquals(3, len(inventory_list))
+    self.assertEqual(3, len(inventory_list))
 
     # tracking_list = instance_tree.Item_getTrackingList()
-    # self.assertEquals(2, len(tracking_list))
+    # self.assertEqual(2, len(tracking_list))
 
-    # XXX TODO self.assertEquals(None, self.portal.portal_simulation.getInventoryList())
+    # XXX TODO self.assertEqual(None, self.portal.portal_simulation.getInventoryList())
 
     # Ensure no unexpected object has been created
     # 2 credential request
@@ -246,13 +246,13 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.tic()
       self.logout()
       self.login()
-      self.assertEquals(new_trade_condition.getDestination(),
+      self.assertEqual(new_trade_condition.getDestination(),
                         owner_person.getRelativeUrl())
-      self.assertEquals(new_trade_condition.getDestinationSection(),
+      self.assertEqual(new_trade_condition.getDestinationSection(),
                         owner_organisation.getRelativeUrl())
-      self.assertEquals(new_trade_condition.getPortalType(),
+      self.assertEqual(new_trade_condition.getPortalType(),
                         'Sale Trade Condition')
-      self.assertEquals(subscription_request.getSimulationState(),
+      self.assertEqual(subscription_request.getSimulationState(),
                         'cancelled')
 
       new_subscription_request = self.portal.portal_catalog.getResultValue(
@@ -260,11 +260,11 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
         aggregate__uid=project.getUid(),
         simulation_state='submitted'
       )
-      self.assertEquals(new_subscription_request.getDestination(),
+      self.assertEqual(new_subscription_request.getDestination(),
                         owner_person.getRelativeUrl())
-      self.assertEquals(new_subscription_request.getDestinationSection(),
+      self.assertEqual(new_subscription_request.getDestinationSection(),
                         owner_organisation.getRelativeUrl())
-      self.assertEquals(new_subscription_request.getSimulationState(),
+      self.assertEqual(new_subscription_request.getSimulationState(),
                         'submitted')
 
       # If the script is called a second time,
@@ -274,7 +274,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
         new_subscription_request.getReference(),
         None
       )
-      self.assertEquals(new_subscription_request.getRelativeUrl(),
+      self.assertEqual(new_subscription_request.getRelativeUrl(),
                         new_subscription_request_2.getRelativeUrl())
 
     # Ensure no unexpected object has been created
@@ -367,13 +367,13 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.tic()
       self.logout()
       self.login()
-      self.assertEquals(new_trade_condition.getDestination(),
+      self.assertEqual(new_trade_condition.getDestination(),
                         owner_person.getRelativeUrl())
-      self.assertEquals(new_trade_condition.getDestinationSection(),
+      self.assertEqual(new_trade_condition.getDestinationSection(),
                         owner_organisation.getRelativeUrl())
-      self.assertEquals(new_trade_condition.getPortalType(),
+      self.assertEqual(new_trade_condition.getPortalType(),
                         'Sale Trade Condition')
-      self.assertEquals(subscription_request.getSimulationState(),
+      self.assertEqual(subscription_request.getSimulationState(),
                         'cancelled')
 
       new_subscription_request = self.portal.portal_catalog.getResultValue(
@@ -381,11 +381,11 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
         aggregate__reference=compute_node_id,
         simulation_state='submitted'
       )
-      self.assertEquals(new_subscription_request.getDestination(),
+      self.assertEqual(new_subscription_request.getDestination(),
                         owner_person.getRelativeUrl())
-      self.assertEquals(new_subscription_request.getDestinationSection(),
+      self.assertEqual(new_subscription_request.getDestinationSection(),
                         owner_organisation.getRelativeUrl())
-      self.assertEquals(new_subscription_request.getSimulationState(),
+      self.assertEqual(new_subscription_request.getSimulationState(),
                         'submitted')
 
       # If the script is called a second time,
@@ -395,7 +395,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
         new_subscription_request.getReference(),
         None
       )
-      self.assertEquals(new_subscription_request.getRelativeUrl(),
+      self.assertEqual(new_subscription_request.getRelativeUrl(),
                         new_subscription_request_2.getRelativeUrl())
 
     # Ensure no unexpected object has been created

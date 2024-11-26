@@ -27,6 +27,7 @@
 ##############################################################################
 
 import unittest
+import six
 from Products.ERP5Type.tests.CodingStyleTestCase import CodingStyleTestCase
 from Products.ERP5Type import CodingStyle
 
@@ -374,7 +375,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         if skin_id in skin_id_list:
           try:
             document = self.portal.portal_skins[skin_id][document_id]
-            for _, content in content_dict.iteritems():
+            for _, content in six.iteritems(content_dict):
               if document.getId() in content:
                 message_list.append(skin_path)
                 break
@@ -414,7 +415,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
             continue
 
           found = 0
-          for _, content in content_dict.iteritems():
+          for _, content in six.iteritems(content_dict):
             if document.getId() in content:
               found = 1
               break

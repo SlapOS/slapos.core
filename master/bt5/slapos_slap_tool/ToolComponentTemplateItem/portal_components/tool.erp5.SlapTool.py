@@ -75,7 +75,7 @@ except ImportError:
 
 
 from zLOG import LOG, INFO
-import StringIO
+from six import StringIO
 import pkg_resources
 from DateTime import DateTime
 from App.Common import rfc1123_date
@@ -771,11 +771,11 @@ class SlapTool(BaseTool):
   def _validateXML(self, to_be_validated, xsd_model):
     """Will validate the xml file"""
     #We parse the XSD model
-    xsd_model = StringIO.StringIO(xsd_model)
+    xsd_model = StringIO(xsd_model)
     xmlschema_doc = etree.parse(xsd_model)
     xmlschema = etree.XMLSchema(xmlschema_doc)
 
-    string_to_validate = StringIO.StringIO(to_be_validated)
+    string_to_validate = StringIO(to_be_validated)
 
     try:
       document = etree.parse(string_to_validate)

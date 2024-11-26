@@ -1,3 +1,4 @@
+import six
 portal = context.getPortalObject()
 slapos_plugin_dict = {
   'IExtractionPlugin': [
@@ -23,7 +24,7 @@ def mergePASDictDifference(portal, d, fixit):
   plugins = portal.acl_users.plugins
   plugin_type_info = plugins.listPluginTypeInfo()
   error_list = []
-  for plugin, active_list in d.iteritems():
+  for plugin, active_list in six.iteritems(d):
     plugin_info = [q for q in plugin_type_info if q['id'] == plugin][0]
     found_list = plugins.listPlugins(plugin_info['interface'])
     meta_type_list = [q[1].meta_type for q in found_list]

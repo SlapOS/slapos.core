@@ -11,14 +11,20 @@ if context.getPortalType() == 'Project':
   project = context
 else:
   project = context.getFollowUpValue()
-support_request = project.Project_createTicketWithCausality(
-  'Support Request',
+
+support_request = person.Entity_createTicketFromTradeCondition(
+  resource,
   title,
   description,
-  causality=context.getRelativeUrl(),
-  destination_decision=person.getRelativeUrl()
+  portal_type='Support Request',
+  source_project=project.getRelativeUrl(),
+  causality=context.getRelativeUrl()
 )
 
-support_request.Ticket_addSlapOSEvent(title, description, attachment=attachment, resource=resource, batch=True)
+support_request.Ticket_addSlapOSEvent(
+  title, description,
+  attachment=attachment,
+  resource=resource,
+  batch=True)
 
 return support_request.Base_redirect()

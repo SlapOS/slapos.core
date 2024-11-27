@@ -503,9 +503,9 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.login(project_owner_person.getUserId())
 
       # Pay deposit to validate virtual master
-      deposit_amount = 99.0
+      deposit_amount = 102.36
       ledger = self.portal.portal_categories.ledger.automated
-      
+
       outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
           currency.getUid(), ledger_uid=ledger.getUid())
       amount = sum([i.total_price for i in outstanding_amount_list])

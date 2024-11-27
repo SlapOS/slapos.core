@@ -96,7 +96,7 @@ def convertToREST(function):
       LOG('SlapTool', INFO, 'Converting ValueError to NotFound, real error:',
           error=True)
       raise NotFound(log)
-    except SoftwareInstanceNotReady as log:
+    except SoftwareInstanceNotReady:
       self.REQUEST.response.setStatus(408)
       self.REQUEST.response.setHeader('Cache-Control', 'private')
       return self.REQUEST.response

@@ -93,8 +93,8 @@ class testSlapOSMixin(ERP5TypeTestCase):
     os.mkdir(os.path.join(ca_path, 'requests'))
     os.mkdir(os.path.join(ca_path, 'newcerts'))
 
-    original_openssl_cnf = open(
-      os.path.join(os.environ['TEST_CA_PATH'], 'openssl.cnf'), "r").read()
+    with open(os.path.join(os.environ['TEST_CA_PATH'], 'openssl.cnf'), "r") as f:
+      original_openssl_cnf = f.read()
 
     openssl_cnf_with_updated_path = original_openssl_cnf.replace(
             os.environ['TEST_CA_PATH'], ca_path)
@@ -113,9 +113,13 @@ class testSlapOSMixin(ERP5TypeTestCase):
             os.path.join(ca_path, 'private', 'cakey.pem'))
 
     # reset test CA to have it always count from 0
-    open(os.path.join(ca_path, 'serial'), 'w').write('01')
-    open(os.path.join(ca_path, 'crlnumber'), 'w').write('01')
-    open(os.path.join(ca_path, 'index.txt'), 'w').write('')
+    with open(os.path.join(ca_path, 'serial'), "w") as f:
+      f.write('01')
+    with open(os.path.join(ca_path, 'index.txt'), "w") as f:
+      f.write('01')
+    with open(os.path.join(ca_path, 'crlnumber'), "w") as f:
+      f.write('')
+
     private_list = glob.glob('%s/*.key' % os.path.join(ca_path, 'private'))
     for private in private_list:
       os.remove(private)

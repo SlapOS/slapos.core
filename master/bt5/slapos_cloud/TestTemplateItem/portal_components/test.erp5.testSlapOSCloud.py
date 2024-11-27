@@ -897,9 +897,7 @@ class TestSlapOSCloudInstanceInvalidRequest(SlapOSTestCaseMixin):
 
   def generateUnsafeXml_bad_string(self):
     return '<?xml version="1.0" encoding="utf-8"?><instance><parameter '\
-      'id="%s">%s\x08</parameter></instance>' % \
-      ("paramé".decode("UTF-8").encode("UTF-8"),
-      self.generateNewId().decode("UTF-8").encode("UTF-8"))
+      'id="paramé">%s\x08</parameter></instance>' % self.generateNewId()
 
   def _test_invalid(self, title=None, instance_xml=None, sla_xml=None, shared=False):
     self._makeComputeNode(self.project)

@@ -969,9 +969,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
   def generateSafeXml(self):
     return '<?xml version="1.0" encoding="utf-8"?><instance><parameter '\
-      'id="%s">%s</parameter></instance>' % \
-      ("paramé".decode("UTF-8").encode("UTF-8"),
-      self.generateNewId().decode("UTF-8").encode("UTF-8"))
+      'id="paramé">%s</parameter></instance>' % self.generateNewId()
 
   def generateEmptyXml(self):
     return '<?xml version="1.0" encoding="utf-8"?><instance></instance>'

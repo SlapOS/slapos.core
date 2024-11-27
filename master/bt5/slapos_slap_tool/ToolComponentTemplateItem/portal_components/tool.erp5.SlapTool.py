@@ -39,7 +39,7 @@ from Products.ERP5Type import Permissions
 from Products.ERP5Type.Cache import CachingMethod
 from erp5.component.module.SlapOSCloud import _assertACI
 from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
-from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlparse, parse_qs
 
 from lxml import etree
 try:
@@ -474,7 +474,7 @@ class SlapTool(BaseTool):
     """
     portal = self.getPortalObject()
     # in http post, parameter is ignored in url but is inside request body
-    query = urlparse.parse_qs(self.REQUEST.get('QUERY_STRING'))
+    query = parse_qs(self.REQUEST.get('QUERY_STRING'))
 
     ingestion_policy = getattr(portal.portal_ingestion_policies, query['ingestion_policy'][0], None)
     if ingestion_policy is None:

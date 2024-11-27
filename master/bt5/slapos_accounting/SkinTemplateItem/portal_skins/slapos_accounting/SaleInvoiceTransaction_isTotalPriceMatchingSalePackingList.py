@@ -10,4 +10,10 @@ if amount < 1:
 use_list = ['use/trade/sale', 'use/trade/discount_service']
 amount = sum([delivery.getTotalPrice(use=use_list) for delivery in delivery_list])
 
-return amount == context.getTotalPrice(use=use_list)
+currency = invoice.getPriceCurrencyValue()
+if currency is None:
+  # completely random...
+  precision = 100
+else:
+  precision = currency.getQuantityPrecision()
+return round(amount, precision) == round(context.getTotalPrice(use=use_list), precision)

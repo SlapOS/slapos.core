@@ -676,7 +676,10 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertEqual(person.getUserId(), person_user_id)
 
     subscription_request = self.checkServiceSubscriptionRequest(instance_tree, 'submitted')
-    self.assertEqual(subscription_request.getTotalPrice(), deposit_amount)
+    self.assertEqual(
+      subscription_request.getTotalPrice() - person.Entity_getDepositBalanceAmount([subscription_request]),
+      deposit_amount
+    )
 
     self.tic()
 
@@ -689,7 +692,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     # Ensure to pay from the website
     outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
     outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
-
+    person.REQUEST.set('Entity_addDepositPayment_%s' % person.getUid(), None)
     self.tic()
     self.logout()
     self.login()

@@ -956,12 +956,23 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         reference=public_reference).getParentValue()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
+      # Simulate access from compute_node, to open the capacity scope
+      self.login()
+      self.simulateSlapgridSR(public_server)
       public_instance_title = 'Public title %s' % self.generateNewId()
       self.checkInstanceAllocationWithDeposit(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type,
           public_server, project.getReference(),
           9.0, currency)
+
+    with PinnedDateTime(self, DateTime('2024/02/17 01:02')):
+      public_instance_title2 = 'Public title %s' % self.generateNewId()
+      self.checkInstanceAllocationWithDeposit(public_person.getUserId(),
+          public_reference, public_instance_title2,
+          public_server_software, public_instance_type,
+          public_server, project.getReference(),
+          10.8, currency)
 
       self.login()
       public_person = self.portal.portal_catalog.getResultValue(
@@ -971,6 +982,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # and the instances
       self.checkInstanceUnallocation(public_person.getUserId(),
           public_reference, public_instance_title,
+          public_server_software, public_instance_type, public_server,
+          project.getReference())
+      self.checkInstanceUnallocation(public_person.getUserId(),
+          public_reference, public_instance_title2,
           public_server_software, public_instance_type, public_server,
           project.getReference())
 
@@ -1008,10 +1023,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     # Check accounting
     transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(mirror_section_uid=public_person.getUid())
-    assert len(transaction_list) == 2, len(transaction_list)
+    assert len(transaction_list) == 4, len(transaction_list)
     self.assertSameSet(
       [x.total_price for x in transaction_list],
-      [9.0, -9.0],
+      [9.0, -9.0, 10.8, -10.8],
       [x.total_price for x in transaction_list]
     )
 
@@ -1022,19 +1037,19 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 allocation supply / line / cell
     # 1 compute node
     # 2 credential request
-    # 2 event
-    # 1 instance tree
-    # 6 open sale order / line
+    # 3 event
+    # 2 instance tree
+    # 9 open sale order / line
     # 5 (can reduce to 2) assignment
-    # 16 simulation mvt
-    # 3 packing list / line
+    # 23 simulation mvt
+    # 4 packing list / line
     # 3 sale supply / line
     # 2 sale trade condition
     # 1 software installation
-    # 1 software instance
+    # 2 software instance
     # 1 software product
-    # 3 subscription requests
-    self.assertRelatedObjectCount(project, 53)
+    # 4 subscription requests
+    self.assertRelatedObjectCount(project, 68)
 
     self.checkERP5StateBeforeExit()
 

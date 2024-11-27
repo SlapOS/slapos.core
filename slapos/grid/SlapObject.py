@@ -183,7 +183,7 @@ class Software(object):
     """ Fetches binary cache if possible.
     Installs from buildout otherwise.
     """
-    self.logger.info("Installing software release %s..." % self.url)
+    self.logger.info("Installing software release %s ...", self.url)
     cache_dir = tempfile.mkdtemp()
 
     self.check_free_space()

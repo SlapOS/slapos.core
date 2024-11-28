@@ -863,11 +863,11 @@ class TestConsumptionReportBase(unittest.TestCase):
       self.report.getPartitionUsedMemoryAverage('slapuser19', '2019-10-04'))
     self.assertEqual(None,
       self.report.getPartitionUsedMemoryAverage('slapuser15', '2019-10-05'))
-    self.assertEqual(3868924121.87234,
+    self.assertAlmostEqual(3868924121.87234,
       self.report.getPartitionUsedMemoryAverage('slapuser19', '2019-10-05'))
 
   def test_getPartitionCPULoadAverage(self):
-    self.assertEqual(7.08297872340419,
+    self.assertAlmostEqual(7.08297872340419,
       self.report.getPartitionCPULoadAverage('slapuser19', '2019-10-05'))
     self.assertEqual(None,
       self.report.getPartitionCPULoadAverage('slapuser15', '2019-10-05'))
@@ -876,7 +876,7 @@ class TestConsumptionReportBase(unittest.TestCase):
 
 
   def test_getPartitionDiskUsedAverage(self):
-    self.assertEqual(7693240.0,
+    self.assertAlmostEqual(7693240.0,
       self.report.getPartitionDiskUsedAverage('slapuser19', '2019-10-05'))
     self.assertEqual(None,
       self.report.getPartitionDiskUsedAverage('slapuser99', '2019-10-05'))
@@ -885,17 +885,17 @@ class TestConsumptionReportBase(unittest.TestCase):
     data = self.report.getPartitionProcessConsumptionList(
             'slapuser19', date_scope='2019-10-05', 
             min_time='00:01:00', max_time='00:13:00')
-    self.assertEqual(0.02, data[-1]['cpu_time'])
-    self.assertEqual(1363.0, data[-1]['pid'])
-    self.assertEqual(193206.0, data[-1]['io_cycles_counter'])
-    self.assertEqual(5.16, data[-1]['memory_rss'])
-    self.assertEqual(2916352.0, data[-1]['io_rw_counter'])
+    self.assertAlmostEqual(0.02, data[-1]['cpu_time'])
+    self.assertAlmostEqual(1363.0, data[-1]['pid'])
+    self.assertAlmostEqual(193206.0, data[-1]['io_cycles_counter'])
+    self.assertAlmostEqual(5.16, data[-1]['memory_rss'])
+    self.assertAlmostEqual(2916352.0, data[-1]['io_rw_counter'])
 
   def test_getPartitionConsumptionStatusList(self):
     data = self.report.getPartitionConsumptionStatusList('slapuser19', date_scope='2019-10-05',
                                          min_time='00:01:00', max_time='00:13:00')
-    self.assertEqual(14.6, data[0]['cpu_percent'])
-    self.assertEqual(2773721862147.0, data[2]['io_rw_counter'])
+    self.assertAlmostEqual(14.6, data[0]['cpu_percent'])
+    self.assertAlmostEqual(2773721862147.0, data[2]['io_rw_counter'])
 
 class TestConsumptionReport(TestConsumptionReportBase):
 
@@ -906,16 +906,16 @@ class TestConsumptionReport(TestConsumptionReportBase):
                                       user_list=self.get_fake_user_list(15))
 
   def test_getCpuLoadAverageConsumption(self):
-    self.assertEqual(self.report._getCpuLoadAverageConsumption('2019-10-05'), 74.44468085106385)
-    self.assertEqual(self.report._getCpuLoadAverageConsumption('2019-10-06'), 74.99183673469388)
-    self.assertEqual(self.report._getCpuLoadAverageConsumption('2019-10-07'), 76.43714285714287)
+    self.assertAlmostEqual(self.report._getCpuLoadAverageConsumption('2019-10-05'), 74.44468085106385)
+    self.assertAlmostEqual(self.report._getCpuLoadAverageConsumption('2019-10-06'), 74.99183673469388)
+    self.assertAlmostEqual(self.report._getCpuLoadAverageConsumption('2019-10-07'), 76.43714285714287)
     self.assertEqual(self.report._getCpuLoadAverageConsumption('2019-10-08'), None)
     self.assertEqual(self.report._getCpuLoadAverageConsumption('2019-NO(d'), None)
 
   def test_getMemoryAverageConsumption(self):
-    self.assertEqual(self.report._getMemoryAverageConsumption('2019-10-05'), 14185032159.319149)
-    self.assertEqual(self.report._getMemoryAverageConsumption('2019-10-06'), 14149247895.510204)
-    self.assertEqual(self.report._getMemoryAverageConsumption('2019-10-07'), 14211174517.028572)
+    self.assertAlmostEqual(self.report._getMemoryAverageConsumption('2019-10-05'), 14185032159.319149)
+    self.assertAlmostEqual(self.report._getMemoryAverageConsumption('2019-10-06'), 14149247895.510204)
+    self.assertAlmostEqual(self.report._getMemoryAverageConsumption('2019-10-07'), 14211174517.028572)
     self.assertEqual(self.report._getMemoryAverageConsumption('2019-10-08'), None)
     self.assertEqual(self.report._getMemoryAverageConsumption('2019-NO(d'), None)
 

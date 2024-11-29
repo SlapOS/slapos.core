@@ -20,7 +20,7 @@ instance_tree = context
 if instance_tree.getSlapState() == 'destroy_requested':
   return {}
 
-instance = instance_tree.getSuccessorValue()
+instance = ([x for x in instance_tree.getSuccessorValueList() if (x.getTitle() == instance_tree.getTitle()) and (x.getSlapState() != 'destroy_requested')] + [None])[0]
 if instance is None or instance.getSlapState() == 'destroy_requested':
   return {}
 

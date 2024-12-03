@@ -1,4 +1,5 @@
 from DateTime import DateTime
+import six
 portal = context.getPortalObject()
 
 # Remote Node has no monitor scope.
@@ -29,7 +30,7 @@ compute_node_title = context.getTitle()
 # Notification messages
 error_dict = {
         'should_notify': None,
-        'ticket_title': "%s has inconsistent allocated instances" % compute_node_title,
+        'ticket_title': "%s has missing allocation supplies." % compute_node_title,
         'ticket_description': None,
         'notification_message_reference': 'slapos-crm-compute_node_check_allocation_supply_state.notification',
         'compute_node_title': compute_node_title,
@@ -43,35 +44,28 @@ error_dict = {
 # Since we would like a single ticket per compute node do all at once:
 for compute_partition in context.contentValues(portal_type='Compute Partition'):
   if compute_partition.getSlapState() == 'busy':
-    compute_partition_error_dict = compute_partition.ComputePartition_checkAllocationConsistencyState()
+    compute_partition_error_dict = compute_partition.ComputePartition_checkAllocationConsistencyState(
+      known_error_dict=error_dict['compute_node_error_dict'])
     if compute_partition_error_dict:
-      error_dict['compute_node_error_dict'][compute_partition.getId()] = compute_partition_error_dict
       error_dict['should_notify'] = True
+      error_dict['compute_node_error_dict'].update(compute_partition_error_dict)
 
 if not error_dict['should_notify']:
   return
 
+message = """The following contains instances that has Software Releases/Types that are missing on this %s's Allocation Supply configuration:
 
-error_msg = ""
-for _compute_node_error_dict in error_dict['compute_node_error_dict'].values():
-  for instance_error_dict in _compute_node_error_dict.values():
-    # Add Allocation Supply Error
-    allocation_supply_error = instance_error_dict.get('allocation_supply_error', None)
-    if allocation_supply_error:
-      error_msg += """  * %s
-""" % allocation_supply_error
+""" % context.getPortalType()
 
-    # Append sla errors
-    sla_error_list = instance_error_dict.get('sla_error_list', None)
-    if sla_error_list:
-      for entry in sla_error_list:
-        error_msg += """  * %s
-""" % entry
+# Sample compute_node_error_dict[software_release_url][software_type] = (instance, compute_partition)
+for sofware_release_url in error_dict['compute_node_error_dict']:
+  message += """  * Software Release: %s
+""" % sofware_release_url
+  for sofware_type, value_list in six.iteritems(error_dict['compute_node_error_dict'][sofware_release_url]):
+    message += """    * Software Type: %s (ie: %s on %s)
+""" % (sofware_type, value_list[0].getTitle(), value_list[1].getReference())
 
-error_dict['message'] = """%s:
-
-%s
-""" % (error_dict['ticket_title'], error_msg)
+error_dict['message'] = message
 
 support_request = project.Project_createTicketWithCausality(
   ticket_portal_type,

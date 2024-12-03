@@ -1,6 +1,8 @@
 portal = context.getPortalObject()
 compute_partition = context
 error_dict = {}
+if known_error_dict is None:
+  known_error_dict = {}
 
 compute_node = compute_partition.getParentValue()
 assert compute_node.getPortalType() in ['Compute Node', 'Remote Node']
@@ -15,6 +17,15 @@ for instance in instance_list:
     # we skip for now.
     continue
 
+  instance_software_release_url = instance.getUrlString()
+  instance_software_type = instance.getSourceReference()
+
+  for _e_dict in [error_dict, known_error_dict]:
+    if instance_software_release_url in _e_dict:
+      if instance_software_type in _e_dict[instance_software_release_url]:
+        # Skip calculate same thing again?
+        continue
+
   # Now check allocation supply consistency
   instance_tree = instance.getSpecialiseValue(portal_type="Instance Tree")
 
@@ -27,33 +38,32 @@ for instance in instance_list:
     continue
 
   instance_tree_context = instance_tree.asContext(
-    default_source_reference=instance.getSourceReference(),
-    url_string=instance.getUrlString())
-
-  software_product, software_release, software_type = instance_tree_context.InstanceTree_getSoftwareProduct()
-  if software_product is None:
-    if instance.getRelativeUrl() not in error_dict:
-      error_dict[instance.getRelativeUrl()] = {'instance': instance}
-    message = 'No Software Product matching for: %s' % instance.getTitle()
-    error_dict[instance.getRelativeUrl()]['allocation_supply_error'] = message
-    continue
+    default_source_reference=instance_software_type,
+    url_string=instance_software_release_url)
 
   project = instance.getFollowUpValue()
   assert project is not None, 'Project is None'
 
-  person = instance_tree.getDestinationSectionValue()
-  allocation_cell_list = project.Project_getSoftwareProductPredicateList(
-    software_product=software_product,
-    software_product_type=software_type,
-    software_product_release=software_release,
-    destination_value=person,
-    node_value=compute_node,
-    predicate_portal_type='Allocation Supply Cell'
-  )
+  allocation_cell_list = []
+  software_product, software_release, software_type = instance_tree_context.InstanceTree_getSoftwareProduct()
+
+  if software_product is not None:
+    allocation_cell_list = project.Project_getSoftwareProductPredicateList(
+      software_product=software_product,
+      software_product_type=software_type,
+      software_product_release=software_release,
+      destination_value=instance_tree.getDestinationSectionValue(),
+      node_value=compute_node,
+      predicate_portal_type='Allocation Supply Cell'
+    )
+
   if not allocation_cell_list:
-    if instance.getRelativeUrl() not in error_dict:
-      error_dict[instance.getRelativeUrl()] = {'instance': instance}
-    message = 'No Allocation Supply for: %s' % instance.getTitle()
-    error_dict[instance.getRelativeUrl()]['allocation_supply_error'] = message
+    # Sampling of the structure.
+    # error_dict[software_release_url][software_type] = (instance, compute_partition)
+    value = (instance, compute_partition)
+    if instance_software_release_url not in error_dict:
+      error_dict[instance_software_release_url] = {}
+    if instance_software_type not in error_dict[instance_software_release_url]:
+      error_dict[instance.getUrlString()][instance_software_type] = value
 
 return error_dict

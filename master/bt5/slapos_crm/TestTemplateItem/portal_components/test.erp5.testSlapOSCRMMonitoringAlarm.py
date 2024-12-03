@@ -690,7 +690,7 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
       content_b = instance_b.workflow_history['edit_workflow'][-1]['comment']
 
       # The alarm should group by project, so only one out of many should reached.
-      self.assertNotEquals(content_a, content_b)
+      self.assertNotEqual(content_a, content_b)
       self.assertIn('Visited by %s' % script_name, [content_a, content_b])
 
   @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')

@@ -1,6 +1,16 @@
 Changes
 =======
 
+1.14.0 (2024-12-03)
+-------------------
+ * cli: drop legacy `SafeConfigParser`
+ * slapgrid: copy .netrc file to buildout home path
+ * slap: Use _access_status rather them re-fetch status
+ * testing/utils: add findFreeTCPPortRange
+ * cli: Nicer error messages for cachelookup binary-sr
+ * testcase: make computer_partition_root_path a pathlib.Path
+ * testing: accept `pathlib.Path` objects as software URL in tests
+
 1.13.0 (2024-09-16)
 -------------------
  * slap: default software_type is now 'default'

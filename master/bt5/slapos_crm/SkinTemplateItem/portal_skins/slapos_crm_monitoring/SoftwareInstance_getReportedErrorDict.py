@@ -48,6 +48,67 @@ if context.getPortalType() == 'Slave Instance' and compute_node.getPortalType() 
     error_dict['ticket_description'] = error_dict['message']
     return error_dict
 
+
+sla_dict = context.getSlaXmlAsDict()
+if sla_dict:
+  instance_sla_error_list = []
+  instance_title = context.getTitle()
+  # Simple check of instance SLAs
+  if "computer_guid" in sla_dict:
+    computer_guid = sla_dict.pop("computer_guid")
+    if compute_node.getReference() != computer_guid:
+      instance_sla_error_list.append('computer_guid do not match on: %s (%s != %s)' % (
+        instance_title, computer_guid, compute_node.getReference()))
+
+    if "instance_guid" in sla_dict:
+      instance_guid = sla_dict.pop("instance_guid")
+      if context.getPortalType() != 'Slave Instance':
+        instance_sla_error_list.append('instance_guid is provided to a Software Instance: %s' % instance_title)
+      else:
+        if compute_node.getPortalType() == "Remote Node":
+          instance_sla_error_list.append('instance_guid provided on %s and it is allocated on a REMOTE NODE' % instance_title)
+        else:
+          software_instance = compute_partition.getAggregateRelatedValue(portal_type='Software Instance')
+          if software_instance is None:
+            instance_sla_error_list.append('instance_guid provided on %s but no Software Instance was found' % instance_title)
+          else:
+            if software_instance.getReference() != instance_guid:
+              instance_sla_error_list.append('instance_guid do not match on: %s (%s != %s)' % (
+                instance_title, instance_guid, software_instance.getReference()))
+
+  if 'network_guid' in sla_dict:
+    network_guid = sla_dict.pop('network_guid')
+    network_reference = compute_node.getSubordinationReference()
+    if network_reference != network_guid:
+      instance_sla_error_list.append('network_guid do not match on: %s (%s != %s)' % (
+        instance_title, network_guid, network_reference))
+
+  project_reference = compute_node.getFollowUpReference()
+  if 'project_guid' in sla_dict:
+    project_guid = sla_dict.pop("project_guid")
+    if project_reference != project_guid:
+      instance_sla_error_list.append('project_guid do not match on: %s (%s != %s)' % (
+        instance_title, project_guid, project_reference))
+
+  instance_project_reference = context.getFollowUpReference()
+  if project_reference != instance_project_reference:
+    instance_sla_error_list.append("Instance and Compute node project don't match on: %s (%s != %s)" % (
+      instance_title, project_reference, instance_project_reference))
+
+  if instance_sla_error_list:
+    # Slave instance is allocated but the software instance was already destroyed
+    error_dict['notification_message_reference'] = 'slapos-crm-instance-tree-has-invalid-sla.notification'
+    error_dict = updateErrorDictWithError(error_dict)
+    error_text = ""
+    for _e in instance_sla_error_list:
+      error_text += "  * %s\n" % _e
+
+    error_dict['error_text'] = error_text
+    error_dict['ticket_description'] = "%s has invalid Service Level Aggrement." % instance_title
+    error_dict['message'] = "%s Detected inconsistencies:\n%s" % (
+      error_text, error_dict['ticket_description'])
+    return error_dict
+
 # Skip to check if monitor disabled on the compute node.
 # Remote node has no state.
 if (compute_node.getPortalType() == "Compute Node") and (compute_node.getMonitorScope() != "enabled"):

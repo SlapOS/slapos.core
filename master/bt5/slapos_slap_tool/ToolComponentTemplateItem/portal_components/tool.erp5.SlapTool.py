@@ -39,7 +39,7 @@ from Products.ERP5Type import Permissions
 from Products.ERP5Type.Cache import CachingMethod
 from erp5.component.module.SlapOSCloud import _assertACI
 from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
-from six.moves.urllib.parse import urlparse, parse_qs
+from six.moves.urllib.parse import parse_qs
 
 from lxml import etree
 try:

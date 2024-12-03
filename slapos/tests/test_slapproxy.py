@@ -119,7 +119,7 @@ database_uri = %(rootdir)s/lib/proxy.db
     Set config for slapproxy and start it
     """
     conf = slapos.proxy.ProxyConfig(logger=logging.getLogger())
-    configp = configparser.SafeConfigParser()
+    configp = configparser.ConfigParser()
     configp.read(self.slapos_cfg)
     conf.mergeConfig(ProxyOption(self.proxy_db), configp)
     conf.setConfig()

@@ -2034,8 +2034,9 @@ class TestAccessTokenModule(TestSlapOSGroupRoleSecurityMixin):
   def test_AccessTokenModule(self):
     module = self.portal.access_token_module
     self.assertSecurityGroup(module,
-        ['F-PRODUCTION*', module.Base_getOwnerId()], False)
+        ['F-PRODUCTION*', 'F-CUSTOMER', module.Base_getOwnerId()], False)
     self.assertRoles(module, 'F-PRODUCTION*', ['Author'])
+    self.assertRoles(module, 'F-CUSTOMER', ['Author'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
 
 

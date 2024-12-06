@@ -891,7 +891,8 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
     # create fake open order, to bypass Service_getSubscriptionStatus
     subscrible_item_list = [instance_tree]
-    if partition is not None:
+    if (partition is not None) and \
+            (partition.getParentValue().getPortalType() =='Compute Node'):
       subscrible_item_list.append(partition.getParentValue())
     for item in subscrible_item_list:
       open_order = self.portal.open_sale_order_module.newContent(

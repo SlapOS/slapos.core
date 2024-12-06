@@ -190,6 +190,33 @@
       },
       "type": "object"
     },
+    "simple-object-with-default": {
+      "title": "Example of multi objects as a Dict with default",
+      "description": "Example of multi objects as a Dict with default",
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "properties": {
+            "simple-object-with-default-first-field": {
+              "title": "simple-object-with-default-first-field",
+              "description": "simple-object-with-default-first-field description",
+              "type": "string"
+            },
+            "simple-object-with-default-second-field": {
+              "title": "simple-object-with-default-seccong-field",
+              "description": "simple-object-with-default-second-field description",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "default": {
+        "1": {
+          "simple-object-with-default-first-field": "sample value for the first field"
+        }
+      }
+    },
     "simple-object-dict": {
       "title": "Example of multi objects as a Dict",
       "description": "Example of multi objects as a Dict",

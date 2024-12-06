@@ -44,8 +44,7 @@ error_dict = {
 # Since we would like a single ticket per compute node do all at once:
 for compute_partition in context.contentValues(portal_type='Compute Partition'):
   if compute_partition.getSlapState() == 'busy':
-    compute_partition_error_dict = compute_partition.ComputePartition_checkAllocationConsistencyState(
-      known_error_dict=error_dict['compute_node_error_dict'])
+    compute_partition_error_dict = compute_partition.ComputePartition_checkAllocationConsistencyState()
     if compute_partition_error_dict:
       error_dict['should_notify'] = True
       error_dict['compute_node_error_dict'].update(compute_partition_error_dict)
@@ -57,16 +56,29 @@ message = """The following contains instances that has Software Releases/Types t
 
 """ % context.getPortalType()
 
-# Sample compute_node_error_dict[software_release_url][software_type] = (instance, compute_partition)
-for sofware_release_url in error_dict['compute_node_error_dict']:
-  message += """  * Software Release: %s
+# It includes instance nodes lacking supplies
+error_dict_len = len(error_dict['compute_node_error_dict'])
+
+for compute_node in error_dict['compute_node_error_dict']:
+  compute_node_error_dict = error_dict['compute_node_error_dict'][compute_node]
+  compute_node_value = portal.restrictedTraverse(compute_node)
+  if error_dict_len > 1 or compute_node_value.getPortalType() == 'Instance Node':
+    # Highlight better where it comes from, it may include instance nodes
+    # lacking supplies.
+    message += """
+ %s %s (%s)
+""" %  (compute_node_value.getTitle(),
+        compute_node_value.getReference(),
+        compute_node_value.getPortalType())
+
+  for sofware_release_url in compute_node_error_dict:
+    message += """   * Software Release: %s
 """ % sofware_release_url
-  for sofware_type, value_list in six.iteritems(error_dict['compute_node_error_dict'][sofware_release_url]):
-    message += """    * Software Type: %s (ie: %s on %s)
-""" % (sofware_type, value_list[0].getTitle(), value_list[1].getReference())
+    for sofware_type, value_list in six.iteritems(compute_node_error_dict[sofware_release_url]):
+      message += """     * Software Type: %s (ie: %s)
+""" % (sofware_type, value_list[0].getTitle())
 
 error_dict['message'] = message
-
 support_request = project.Project_createTicketWithCausality(
   ticket_portal_type,
   error_dict['ticket_title'],

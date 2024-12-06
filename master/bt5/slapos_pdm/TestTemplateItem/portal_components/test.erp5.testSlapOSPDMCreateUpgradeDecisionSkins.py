@@ -80,6 +80,20 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(SlapOSTestCaseMixin):
       instance_tree, software_product, new_release_variation, type_variation
     )
 
+    # Ensure we are not upgrading for the same thing.
+    _, allocation_cell_list = instance_tree.InstanceTree_getNodeAndAllocationSupplyCellList(
+      software_product, new_release_variation, type_variation)
+
+    self.assertEqual(len(allocation_cell_list), 1)
+    self.assertNotEqual(
+      allocation_cell_list[0].getSoftwareReleaseValue().getUrlString(),
+      instance_tree.getUrlString())
+
+    self.assertEqual(
+      allocation_cell_list[0].getSoftwareReleaseValue().getUrlString(),
+      new_release_variation.getUrlString())
+
+
   def test_createUpgradeDecision_notAllocated_newReleaseOnRemoteNode(self):
     software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(node="remote")
     self.tic()
@@ -93,6 +107,19 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(SlapOSTestCaseMixin):
       instance_tree.InstanceTree_createUpgradeDecision(),
       instance_tree, software_product, new_release_variation, type_variation
     )
+
+    # Ensure we are not upgrading for the same thing.
+    _, allocation_cell_list = instance_tree.InstanceTree_getNodeAndAllocationSupplyCellList(
+      software_product, new_release_variation, type_variation)
+
+    self.assertEqual(len(allocation_cell_list), 1)
+    self.assertNotEqual(
+      allocation_cell_list[0].getSoftwareReleaseValue().getUrlString(),
+      instance_tree.getUrlString())
+
+    self.assertEqual(
+      allocation_cell_list[0].getSoftwareReleaseValue().getUrlString(),
+      new_release_variation.getUrlString())
 
   def test_createUpgradeDecision_notAllocated_newReleaseOnInstanceNode(self):
     software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state="impossible", node="instance")
@@ -120,6 +147,19 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(SlapOSTestCaseMixin):
       instance_tree.InstanceTree_createUpgradeDecision(),
       instance_tree, software_product, new_release_variation, type_variation
     )
+
+    # Ensure we are not upgrading for the same thing.
+    _, allocation_cell_list = instance_tree.InstanceTree_getNodeAndAllocationSupplyCellList(
+      software_product, new_release_variation, type_variation)
+
+    self.assertEqual(len(allocation_cell_list), 1)
+    self.assertNotEqual(
+      allocation_cell_list[0].getSoftwareReleaseValue().getUrlString(),
+      instance_tree.getUrlString())
+
+    self.assertEqual(
+      allocation_cell_list[0].getSoftwareReleaseValue().getUrlString(),
+      new_release_variation.getUrlString())
 
   def test_createUpgradeDecision_notAllocated_sameRelease(self):
     software_product, release_variation, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree()

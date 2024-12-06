@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string></string> </value>
+            <value> <string>software_product, software_release=None, software_type=None, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputePartition_checkAllocationConsistencyState</string> </value>
+            <value> <string>InstanceTree_getNodeAndAllocationSupplyCellList</string> </value>
         </item>
       </dictionary>
     </pickle>

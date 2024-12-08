@@ -31,6 +31,7 @@ import enum
 import errno
 import hashlib
 import json
+import logging
 import os
 import pprint
 import shutil
@@ -476,7 +477,11 @@ class SoftwareReleaseSchema(object):
       software_type = None
     self.software_type = software_type or DEFAULT_SOFTWARE_TYPE
     if download is None:
-      download = zc.buildout.download.Download()
+      logger = logging.getLogger(
+        '{__name__}.{self.__class__.__name__}.download'.format(
+          __name__=__name__, self=self))
+      logger.setLevel(logging.ERROR)
+      download = zc.buildout.download.Download(logger=logger)
     self._download = download.download
 
   def _warn(self, message, e):

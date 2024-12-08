@@ -25,6 +25,7 @@
 #
 ##############################################################################
 import functools
+import io
 import json
 import logging
 import os
@@ -475,6 +476,26 @@ class TestSoftwareReleaseSchemaEdgeCases(unittest.TestCase):
       self.assertIsNone(schema.getSoftwareSchema())
     self.assertEqual(len(w), 1)
     self.assertIn("Unable to load JSON", str(w[0].message))
+
+  def test_software_schema_download_does_no_log(self):
+    schema = SoftwareReleaseSchema('http://slapos.invalid/software.cfg', None)
+    debug_level_log_stream = io.StringIO()
+    debug_level_handler = logging.StreamHandler(debug_level_log_stream)
+    debug_level_handler.setLevel(logging.DEBUG)
+    default_level_log_stream = io.StringIO()
+    default_level_handler = logging.StreamHandler(default_level_log_stream)
+    default_level_handler.setLevel(logging.INFO)
+    logger = logging.getLogger()
+    self.addCleanup(functools.partial(logger.setLevel, logger.getEffectiveLevel()))
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(debug_level_handler)
+    self.addCleanup(functools.partial(logger.removeHandler, debug_level_handler))
+    logger.addHandler(default_level_handler)
+    self.addCleanup(functools.partial(logger.removeHandler, default_level_handler))
+
+    self.assertIsNone(schema.getSoftwareSchema())
+    self.assertEqual(default_level_log_stream.getvalue(), "")
+    self.assertEqual(debug_level_log_stream.getvalue(), "Downloading http://slapos.invalid/software.cfg.json\n")
 
 
 if __name__ == '__main__':

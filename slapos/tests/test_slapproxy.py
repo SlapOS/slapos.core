@@ -1684,8 +1684,8 @@ class TestMultiMasterSupport(MasterMixin):
   """
   Test multimaster support in slapproxy.
   """
-  external_software_release = 'http://mywebsite.me/exteral_software_release.cfg'
-  software_release_not_in_list = 'http://mywebsite.me/exteral_software_release_not_listed.cfg'
+  external_software_release = 'http://slapos.example/external_software_release.cfg'
+  software_release_not_in_list = 'http://slapos.example/external_software_release_not_listed.cfg'
 
   def setUp(self):
     self.addCleanup(self.stopExternalProxy)

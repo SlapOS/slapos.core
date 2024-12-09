@@ -47,7 +47,7 @@ software_product_list =
 #     "master_url" that will be used by the slapproxy to forward the request.
 
 
-# Uncomment the sections bellow to enable multi-master sections, adter set
+# Uncomment the sections bellow to enable multi-master sections, and set
 # your cert/key.
 #[multimaster/https://slap.vifib.com]
 #key = key file path coming from your slapos master account
@@ -55,8 +55,8 @@ software_product_list =
 #software_release_list =
 #  http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg
 
-#[multimaster/http://imaginary-slapos-master.com]
+#[multimaster/http://imaginary-slapos-master.example]
 # No certificate here: it is http.
 #software_release_list =
-#  http://mywebsite.me/my_software_release.cfg
+#  http://slapos.example/my_software_release.cfg
 #  /some/arbitrary/local/unix/path

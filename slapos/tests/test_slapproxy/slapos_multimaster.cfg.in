@@ -25,7 +25,7 @@ software_release_list =
 [multimaster/http://%(external_proxy_host)s:%(external_proxy_port)s]
 # No certificate here: it is http.
 software_release_list =
-  http://mywebsite.me/exteral_software_release.cfg
+  http://slapos.example/external_software_release.cfg
 
 # Request as a computer partition, so that requested partitions are linked
 # to the partition requesting them.

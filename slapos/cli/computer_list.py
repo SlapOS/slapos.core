@@ -51,11 +51,11 @@ class ListCommand(ClientConfigCommand):
 
 
 def do_list(logger, conf, local):
-    resetLogger(logger)
-    computer_dict = local['slap'].getComputerDict()
-    if computer_dict == {}:
-      logger.info('No existing computer.')
-      return
-    logger.info('List of Computers:')
-    for title, computer in six.iteritems(computer_dict):
-      logger.info('%s %s', computer._reference, title)
+    with resetLogger(logger):
+      computer_dict = local['slap'].getComputerDict()
+      if computer_dict == {}:
+        logger.info('No existing computer.')
+        return
+      logger.info('List of Computers:')
+      for title, computer in six.iteritems(computer_dict):
+        logger.info('%s %s', computer._reference, title)

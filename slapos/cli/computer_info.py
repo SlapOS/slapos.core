@@ -58,16 +58,15 @@ class InfoCommand(ClientConfigCommand):
 
 
 def do_info(logger, conf, local):
-    resetLogger(logger)
-    try:
-        computer = local['slap'].registerComputer(conf.reference).getInformation()
-    except ResourceNotReady:
-        logger.warning('Computer does not exist or is not ready yet.')
-        return(2)
-    except NotFoundError:
-        logger.warning('Computer %s does not exist.', conf.reference)
-        return(2)
+    with resetLogger(logger):
+      try:
+          computer = local['slap'].registerComputer(conf.reference).getInformation()
+      except ResourceNotReady:
+          logger.warning('Computer does not exist or is not ready yet.')
+          return(2)
+      except NotFoundError:
+          logger.warning('Computer %s does not exist.', conf.reference)
+          return(2)
 
-    logger.info('Computer Reference: %s', computer._reference)
-    logger.info('Computer Title    : %s', computer._title)
-
+      logger.info('Computer Reference: %s', computer._reference)
+      logger.info('Computer Title    : %s', computer._title)

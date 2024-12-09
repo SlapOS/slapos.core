@@ -54,15 +54,14 @@ class TokenCommand(ClientConfigCommand):
 
 
 def do_token(logger, conf, local):
-    resetLogger(logger)
-    try:
-        token = local['slap'].registerToken().request()
-    except ResourceNotReady:
-        logger.warning('Computer does not exist or is not ready yet.')
-        return(2)
-    except NotFoundError:
-        logger.warning('Computer %s does not exist.', conf.reference)
-        return(2)
+    with resetLogger(logger):
+      try:
+          token = local['slap'].registerToken().request()
+      except ResourceNotReady:
+          logger.warning('Computer does not exist or is not ready yet.')
+          return(2)
+      except NotFoundError:
+          logger.warning('Computer %s does not exist.', conf.reference)
+          return(2)
 
-    logger.info('Computer token: %s', token)
-
+      logger.info('Computer token: %s', token)

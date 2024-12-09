@@ -70,7 +70,6 @@ class InfoCommand(ClientConfigCommand):
 
 
 def do_info(logger, conf, local):
-    resetLogger(logger)
     try:
         instance = local['slap'].registerOpenOrder().getInformation(
             partition_reference=conf.reference,
@@ -126,5 +125,6 @@ def do_info(logger, conf, local):
       if conf.news:
           info['news'] = news
 
-    logger.info(json.dumps(info, indent=2))
+    with resetLogger(logger):
+      logger.info(json.dumps(info, indent=2))
 

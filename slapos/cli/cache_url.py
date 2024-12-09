@@ -84,9 +84,9 @@ def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
         logger.info('Software source URL: %s', url)
         logger.info('SHADIR URL: %s/%s\n', cache_dir, key)
 
-        resetLogger(logger)
-        for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.NONE).split('\n'):
-            logger.info(line)
+        with resetLogger(logger):
+            for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.NONE).split('\n'):
+                logger.info(line)
     except HTTPError as e:
         if e.code == 404:
             logger.info('Object not found in cache.')

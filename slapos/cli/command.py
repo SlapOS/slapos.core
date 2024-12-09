@@ -39,14 +39,17 @@ from cliff import command
 
 @contextlib.contextmanager
 def resetLogger(logger):
-    propagate = logger.propagate
-    logger.propagate = False
+    has_propagate = hasattr(logger, 'propagate')  # XXX mocked Loggers do not have this
+    if has_propagate:
+        propagate = logger.propagate
+        logger.propagate = False
     stdout_handler = logging.StreamHandler(sys.stdout)
     logger.addHandler(stdout_handler)
     try:
-      yield
+        yield
     finally:
-      logger.propagate = propagate
+      if has_propagate:
+          logger.propagate = propagate
       logger.removeHandler(stdout_handler)
 
 

@@ -28,7 +28,7 @@
 #
 ##############################################################################
 
-
+from Products.ERP5Type.Utils import unicode2str
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
 from OFS.Traversable import NotFound
@@ -124,7 +124,7 @@ def castToStr(dict_kw):
     if not isinstance(_value, str):
       text = str(_value)
     etree.SubElement(instance, "parameter",
-                    attrib={'id': _id}).text = text.decode("utf-8")
+                    attrib={'id': _id}).text = unicode2str(text)
   return etree.tostring(instance, pretty_print=True,
                                   xml_declaration=True, encoding='utf-8')
 
@@ -522,7 +522,7 @@ class SlapTool(BaseTool):
     portal = self.getPortalObject()
     person = portal.portal_membership.getAuthenticatedMember().getUserValue()
     person.requestComputeNode(compute_node_title=compute_node_title, project_reference=project_reference)
-    compute_node = ComputeNode(self.REQUEST.get('compute_node_reference').decode("UTF-8"))
+    compute_node = ComputeNode(unicode2str(self.REQUEST.get('compute_node_reference')))
     return dumps(compute_node)
 
   security.declareProtected(Permissions.AccessContentsInformation,
@@ -699,8 +699,8 @@ class SlapTool(BaseTool):
   def _generateComputerCertificate(self, compute_node_id):
     self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id).generateCertificate()
     result = {
-     'certificate': self.REQUEST.get('compute_node_certificate').decode("UTF-8"),
-     'key': self.REQUEST.get('compute_node_key').decode("UTF-8")
+     'certificate': unicode2str(self.REQUEST.get('compute_node_certificate')),
+     'key': unicode2str(self.REQUEST.get('compute_node_key'))
      }
     return dumps(result)
 

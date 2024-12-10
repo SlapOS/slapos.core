@@ -33,7 +33,7 @@ import collections
 
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 from erp5.component.module.SlapOSCloud import _assertACI
-
+from Products.ERP5Type.Utils import unicode2str
 
 from zLOG import LOG, INFO
 try:
@@ -198,14 +198,14 @@ class SoftwareInstance(Item):
     for internet_protocol_address in compute_partition.contentValues(portal_type='Internet Protocol Address'):
       # XXX - There is new values, and we must keep compatibility
       address_tuple = (
-          internet_protocol_address.getNetworkInterface('').decode("UTF-8"),
-          internet_protocol_address.getIpAddress().decode("UTF-8"))
+          unicode2str(internet_protocol_address.getNetworkInterface('')),
+          unicode2str(internet_protocol_address.getIpAddress()))
       if internet_protocol_address.getGatewayIpAddress('') and \
         internet_protocol_address.getNetmask(''):
         address_tuple = address_tuple + (
-              internet_protocol_address.getGatewayIpAddress().decode("UTF-8"),
-              internet_protocol_address.getNetmask().decode("UTF-8"),
-              internet_protocol_address.getNetworkAddress('').decode("UTF-8"))
+              unicode2str(internet_protocol_address.getGatewayIpAddress()),
+              unicode2str(internet_protocol_address.getNetmask()),
+              unicode2str(internet_protocol_address.getNetworkAddress('')))
         full_ip_list.append(address_tuple)
       else:
         ip_list.append(address_tuple)
@@ -228,31 +228,31 @@ class SoftwareInstance(Item):
               self._getModificationDateAsTimestamp(shared_instance)))
 
           append({
-            'slave_title': shared_instance.getTitle().decode("UTF-8"),
+            'slave_title': unicode2str(shared_instance.getTitle()),
             'slap_software_type': \
-                shared_instance.getSourceReference().decode("UTF-8"),
-            'slave_reference': shared_instance.getReference().decode("UTF-8"),
+                unicode2str(shared_instance.getSourceReference()),
+            'slave_reference': unicode2str(shared_instance.getReference()),
             'timestamp': shared_timestamp,
             'xml': shared_instance.getTextContent(),
             'connection_xml': shared_instance.getConnectionXml(),
           })
           timestamp = max(timestamp, shared_timestamp)
     return {
-      'instance_guid': self.getReference().decode("UTF-8"),
-      'instance_title': self.getTitle().decode("UTF-8"),
-      'root_instance_title': instance_tree.getTitle().decode("UTF-8"),
-      'root_instance_short_title': instance_tree.getShortTitle().decode("UTF-8"),
+      'instance_guid': unicode2str(self.getReference()),
+      'instance_title': unicode2str(self.getTitle()),
+      'root_instance_title': unicode2str(instance_tree.getTitle()),
+      'root_instance_short_title': unicode2str(instance_tree.getShortTitle()),
       'xml': self.getTextContent(),
       'connection_xml': self.getConnectionXml(),
       'filter_xml': self.getSlaXml(),
       'slap_computer_id': \
-        compute_partition.getParentValue().getReference().decode("UTF-8"),
+        unicode2str(compute_partition.getParentValue().getReference()),
       'slap_computer_partition_id': \
-        compute_partition.getReference().decode("UTF-8"),
+        unicode2str(compute_partition.getReference()),
       'slap_software_type': \
-        self.getSourceReference().decode("UTF-8"),
+        unicode2str(self.getSourceReference()),
       'slap_software_release_url': \
-        self.getUrlString().decode("UTF-8"),
+        unicode2str(self.getUrlString()),
       'slave_instance_list': shared_instance_list,
       'ip_list': ip_list,
       'full_ip_list': full_ip_list,
@@ -276,8 +276,8 @@ class SoftwareInstance(Item):
       for internet_protocol_address in compute_partition.contentValues(
                                       portal_type='Internet Protocol Address'):
         ip_address_list.append(
-              (internet_protocol_address.getNetworkInterface('').decode("UTF-8"),
-              internet_protocol_address.getIpAddress().decode("UTF-8"))
+              (unicode2str(internet_protocol_address.getNetworkInterface('')),
+              unicode2str(internet_protocol_address.getIpAddress()))
         )
     
     return ip_address_list

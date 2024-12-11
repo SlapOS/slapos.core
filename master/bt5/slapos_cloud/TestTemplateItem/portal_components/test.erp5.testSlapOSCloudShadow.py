@@ -96,7 +96,7 @@ class TestSlapOSShadowComputeNode(TestSlapOSSecurityMixin):
     self.login(shadow_user_id)
     user = getSecurityManager().getUser()
     self.assertIn('Authenticated', user.getRoles())
-    self.assertSameSet(['R-SHADOW-COMPUTENODE', 'SHADOW-%s' % user_id],
+    self.assertSameSet(['R-COMPUTER', 'R-SHADOW-COMPUTENODE', 'SHADOW-%s' % user_id],
       user.getGroups())
 
   def test_inactive(self):
@@ -136,7 +136,7 @@ class TestSlapOSShadowSoftwareInstance(TestSlapOSSecurityMixin):
     self.login(shadow_user_id)
     user = getSecurityManager().getUser()
     self.assertIn('Authenticated', user.getRoles())
-    self.assertSameSet(['R-SHADOW-SOFTWAREINSTANCE', 'SHADOW-%s' % user_id],
+    self.assertSameSet(['R-INSTANCE', 'R-SHADOW-SOFTWAREINSTANCE', 'SHADOW-%s' % user_id],
       user.getGroups())
 
   def test_inactive(self):

@@ -25,85 +25,11 @@
 #
 ##############################################################################
 
-from Products.ERP5Security.ERP5GroupManager import ConsistencyError
+#from Products.ERP5Security.ERP5GroupManager import ConsistencyError
 from AccessControl.SecurityManagement import getSecurityManager, \
              setSecurityManager, newSecurityManager
 from AccessControl import Unauthorized
 
-
-def getComputeNodeSecurityCategory(self, base_category_list, user_name,
-                                ob, portal_type):
-  """
-  This script returns a list of dictionaries which represent
-  the security groups which a compute_node is member of.
-  """
-  category_list = []
-
-  compute_node_list = self.portal_catalog.unrestrictedSearchResults(
-    portal_type='Compute Node',
-    user_id=user_name,
-    validation_state="validated",
-    limit=2,
-  )
-
-  if len(compute_node_list) == 1:
-    category_dict = {}
-    for base_category in base_category_list:
-      if base_category == "role":
-        category_list.append(
-         {base_category: ['role/computer']})
-      elif base_category == "destination_project":
-        compute_node = compute_node_list[0]
-        project = compute_node.getFollowUpValue(portal_type='Project')
-        if project is not None:
-          category_dict.setdefault(base_category, []).append(project.getRelativeUrl())
-      else:
-        raise NotImplementedError('Not supported base category: %s' % base_category)
-    category_list.append(category_dict)
-  elif len(compute_node_list) > 1:
-    raise ConsistencyError("Error: There is more than one Compute Node " \
-                            "with reference '%s'" % user_name)
-
-  return category_list
-
-def getSoftwareInstanceSecurityCategory(self, base_category_list, user_name,
-                                ob, portal_type): 
-  """
-  This script returns a list of dictionaries which represent
-  the security groups which a Software Instance is member of.
-  """
-  category_list = []
-
-  software_instance_list = self.portal_catalog.unrestrictedSearchResults(
-    portal_type='Software Instance',
-    user_id=user_name,
-    validation_state="validated",
-    limit=2,
-  )
-
-  if len(software_instance_list) == 1:
-    category_dict = {}
-    for base_category in base_category_list:
-      if base_category == "role":
-        category_dict.setdefault(base_category, []).extend(['role/instance'])
-      elif base_category == "destination_project":
-        software_instance = software_instance_list[0]
-        project = software_instance.getFollowUpValue(portal_type='Project')
-        if project is not None:
-          category_dict.setdefault(base_category, []).append(project.getRelativeUrl())
-      elif base_category == "aggregate":
-        software_instance = software_instance_list[0]
-        instance_tree = software_instance.getSpecialiseValue(portal_type='Instance Tree')
-        if instance_tree is not None:
-          category_dict.setdefault(base_category, []).append(instance_tree.getRelativeUrl())
-      else:
-        raise NotImplementedError('Not supported base category: %s' % base_category)
-    category_list.append(category_dict)
-  elif len(software_instance_list) > 1:
-    raise ConsistencyError("Error: There is more than one Software Instance " \
-                            "with reference %r" % user_name)
-
-  return category_list
 
 def restrictMethodAsShadowUser(self, shadow_document=None, callable_object=None,
     argument_list=None, argument_dict=None):

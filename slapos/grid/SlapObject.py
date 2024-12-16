@@ -273,6 +273,18 @@ class Software(object):
       if value:
         yield 'networkcache:%s=%s' % (networkcache_option, value)
 
+  def _copy_netrc_file(self, dest_path):
+    home_netrc = os.path.join(os.environ['HOME'], '.netrc')
+    buildout_netrc = os.path.join(dest_path, '.netrc')
+    if os.path.abspath(home_netrc) == buildout_netrc:
+      return
+    if os.path.exists(buildout_netrc):
+      os.unlink(buildout_netrc)
+    if os.path.exists(home_netrc):
+      shutil.copyfile(home_netrc, buildout_netrc)
+      os.chmod(buildout_netrc, 0o600)
+      self._set_ownership(buildout_netrc)
+
   def _install_from_buildout(self):
     """ Fetches buildout configuration from the server, run buildout with
     it. If it fails, we notify the server.
@@ -285,6 +297,7 @@ class Software(object):
     else:
       os.chmod(self.software_path, 0o755)
     self._set_ownership(self.software_path)
+    self._copy_netrc_file(self.software_path)
 
     f = None
     extends_cache = tempfile.mkdtemp()

@@ -260,8 +260,10 @@ def copyNetrcFile(dest_path):
   if os.path.abspath(netrc_file) == buildout_netrc:
     return
   if os.path.exists(netrc_file):
+    stat_home = os.stat(user_home)
     shutil.copyfile(netrc_file, buildout_netrc)
     os.chmod(buildout_netrc, 0o600)
+    os.chown(buildout_netrc, stat_home.st_uid, stat_home.st_gid)
 
 def cleanupNetrcFile(dest_path):
   buildout_netrc = os.path.join(dest_path, '.netrc')

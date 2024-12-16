@@ -2226,11 +2226,22 @@ class TestSlapgridSoftwareRelease(MasterMixin, unittest.TestCase):
 
   def setUp(self):
     MasterMixin.setUp(self)
+    self.os_chown_call_list = []
     self.orginal_home = os.environ['HOME']
     os.environ['HOME'] = self._tempdir
+    self.patcher_list = [
+      patch.object(os, 'chown', new=self.os_chown),
+    ]
+    [q.start() for q in self.patcher_list]
 
   def tearDown(self):
     os.environ['HOME'] = self.orginal_home
+    [q.stop() for q in self.patcher_list]
+
+  def os_chown(self, path, uid, gid, original=os.chown):
+    if path.startswith(self.software_root):
+      self.os_chown_call_list.append([path, uid, gid])
+    original(path, uid, gid)
 
   fake_waiting_time = 0.05
   def test_one_software_buildout_fail_is_correctly_logged(self):
@@ -2333,6 +2344,12 @@ fi
       self.assertTrue(os.path.exists(netrc_file))
       self.assertFalse(os.path.exists(buildout_netrc))
       self.assertTrue(os.path.exists(test_file))
+
+      stat_home = os.stat(software_path)
+      self.assertEqual(
+        self.os_chown_call_list,
+        [[buildout_netrc, stat_home.st_uid, stat_home.st_gid]]
+      )
       with open(test_file) as f:
         content = f.read()
         self.assertEqual(content, 'machine localhost login foo password bar')

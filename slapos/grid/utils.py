@@ -253,7 +253,7 @@ def getCleanEnvironment(logger, home_path='/tmp'):
     logger.debug('Removed from environment: %s',  ', '.join(sorted(removed_env)))
   return env
 
-def copyNetrcFile(dest_path):
+def copyNetrcFile(dest_path, uid, gid):
   user_home = os.environ['HOME']
   netrc_file = os.path.join(user_home, '.netrc')
   buildout_netrc = os.path.join(dest_path, '.netrc')
@@ -262,6 +262,7 @@ def copyNetrcFile(dest_path):
   if os.path.exists(netrc_file):
     shutil.copyfile(netrc_file, buildout_netrc)
     os.chmod(buildout_netrc, 0o600)
+    os.chown(buildout_netrc, uid, gid)
 
 def cleanupNetrcFile(dest_path):
   buildout_netrc = os.path.join(dest_path, '.netrc')
@@ -455,7 +456,7 @@ def launchBuildout(path, buildout_binary, logger,
       path))
     if timeout is not None:
       logger.debug('Launching buildout with %ss timeout', timeout)
-    copyNetrcFile(path)
+    copyNetrcFile(path, uid, gid)
     process_handler = SlapPopen(invocation_list,
                                 preexec_fn=lambda: dropPrivileges(uid, gid, logger=logger),
                                 cwd=path,

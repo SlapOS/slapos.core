@@ -52,12 +52,12 @@ class ListCommand(ClientConfigCommand):
 
 
 def do_list(logger, conf, local):
-    resetLogger(logger)
     # XXX catch exception
     instance_dict = local['slap'].getOpenOrderDict()
-    logger.info(
-      json.dumps(
-        {title: instance._software_release_url
-        for (title, instance) in six.iteritems(instance_dict)},
-        sort_keys=True,
-        indent=2))
+    with resetLogger(logger):
+      logger.info(
+        json.dumps(
+          {title: instance._software_release_url
+          for (title, instance) in six.iteritems(instance_dict)},
+          sort_keys=True,
+          indent=2))

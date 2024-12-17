@@ -80,7 +80,6 @@ class BasicMixin(object):
     """
     self._tempdir = tempfile.mkdtemp()
     self._rootdir = self.initRootDir()
-    logging.basicConfig(level=logging.DEBUG)
     self.setFiles()
     self.startProxy()
     os.environ.pop('SLAPGRID_INSTANCE_ROOT', None)

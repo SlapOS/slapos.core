@@ -690,7 +690,8 @@ class Partition(object):
                          buildout_binary=buildout_binary,
                          logger=self.logger,
                          debug=self.buildout_debug,
-                         timeout=self.partition_timeout)
+                         timeout=self.partition_timeout,
+                         is_instance=True)
     self.createRetentionLockDelay()
     self.instance_python = getPythonExecutableFromSoftwarePath(self.software_path)
 

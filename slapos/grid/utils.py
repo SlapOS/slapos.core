@@ -425,7 +425,8 @@ def bootstrapBuildout(path, logger, buildout=None,
 
 def launchBuildout(path, buildout_binary, logger,
                    additional_buildout_parameter_list=None,
-                   debug=False, timeout=None):
+                   debug=False, timeout=None,
+                   is_instance=False):
   """ Launches buildout."""
   if additional_buildout_parameter_list is None:
     additional_buildout_parameter_list = []
@@ -456,7 +457,8 @@ def launchBuildout(path, buildout_binary, logger,
       path))
     if timeout is not None:
       logger.debug('Launching buildout with %ss timeout', timeout)
-    copyNetrcFile(path, uid, gid)
+    if not is_instance:
+      copyNetrcFile(path, uid, gid)
     process_handler = SlapPopen(invocation_list,
                                 preexec_fn=lambda: dropPrivileges(uid, gid, logger=logger),
                                 cwd=path,
@@ -473,7 +475,8 @@ def launchBuildout(path, buildout_binary, logger,
     logger.exception(exc)
     raise BuildoutFailedError(exc)
   finally:
-    cleanupNetrcFile(path)
+    if not is_instance:
+      cleanupNetrcFile(path)
     old_umask = os.umask(umask)
     logger.debug('Restore umask from %03o to %03o' % (old_umask, umask))
 

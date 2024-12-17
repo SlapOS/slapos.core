@@ -39,6 +39,7 @@ import json
 import importlib
 import traceback
 import psutil
+import shutil
 import inspect
 import hashlib
 from datetime import datetime
@@ -435,10 +436,12 @@ class PromiseLauncher(object):
   def _savePromiseHistoryResult(self, result):
     state_dict = result.serialize()
     previous_state_dict = {}
+    tmp_dir = os.path.join(self.partition_folder, 'var/tmp')
     promise_status_file = os.path.join(self.partition_folder,
                                        PROMISE_STATE_FOLDER_NAME,
                                        'promise_status.json')
 
+    mkdir_p(tmp_dir)
     if os.path.exists(promise_status_file):
       with open(promise_status_file) as f:
         try:
@@ -448,6 +451,10 @@ class PromiseLauncher(object):
 
     history_file = os.path.join(
       self.promise_history_output_dir,
+      '%s.history.json' % result.title
+    )
+    tmp_history_file = os.path.join(
+      tmp_dir,
       '%s.history.json' % result.title
     )
 
@@ -476,10 +483,12 @@ class PromiseLauncher(object):
   
       state_dict.pop('title', '')
       state_dict.pop('name', '')
-      with open (history_file, mode="r+") as f:
+      shutil.copyfile(history_file, tmp_history_file)
+      with open (tmp_history_file, mode="r+") as f:
         f.seek(0,2)
         f.seek(f.tell() -2)
         f.write('%s}' % ',{}]'.format(json.dumps(state_dict)))
+      shutil.move(tmp_history_file, history_file)
 
   def _saveStatisticsData(self, stat_file_path, date, success, error):
     # csv-like document for success/error statictics

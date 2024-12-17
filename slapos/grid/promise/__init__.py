@@ -41,6 +41,7 @@ import traceback
 import psutil
 import inspect
 import hashlib
+import errno
 from datetime import datetime
 from multiprocessing import Process, Queue as MQueue
 from six.moves import queue, reload_module
@@ -57,6 +58,7 @@ from slapos.grid.promise.wrapper import WrapPromise
 from slapos.version import version
 
 PROMISE_CACHE_FOLDER_NAME = '.slapgrid/promise/cache'
+TMP_FOLDER_NAME = '.slapgrid/promise/tmp'
 
 class PromiseError(Exception):
   pass
@@ -354,6 +356,11 @@ class PromiseLauncher(object):
       mkdir_p(self.promise_history_output_dir)
       self._updateFolderOwner()
 
+    self.tmp_dir = os.path.join(self.partition_folder, TMP_FOLDER_NAME)
+    if not os.path.exists(self.tmp_dir):
+      mkdir_p(self.tmp_dir)
+      self._updateFolderOwner(self.tmp_dir)
+
   def _generatePromiseResult(self, promise_process, promise_name, promise_path,
       message, execution_time=0):
     if self.check_anomaly:
@@ -450,6 +457,7 @@ class PromiseLauncher(object):
       self.promise_history_output_dir,
       '%s.history.json' % result.title
     )
+    tmp_history_file = os.path.join(self.tmp_dir, '%s.history.json' % result.title)
 
     # Remove useless informations
     result_dict = state_dict.pop('result')
@@ -458,12 +466,20 @@ class PromiseLauncher(object):
     state_dict.pop('path', '')
     state_dict.pop('type', '')
     state_dict["status"] = "ERROR" if result.item.hasFailed() else "OK"
+    history_dict = {
+      "date": time.time(),
+      "data": [state_dict]
+    }
 
-    if not os.path.exists(history_file) or not os.stat(history_file).st_size:
-      with open(history_file, 'w') as f:
-        f.write("""{
-          "date": %s,
-          "data": %s}""" % (time.time(), json.dumps([state_dict])))
+    try:
+      with open(history_file) as f:
+        history_dict = json.load(f)
+    except OSError as e:
+      if e.errno != errno.ENOENT:
+        raise
+    except ValueError:
+      # Broken json, use default history_dict
+      pass
     else:
       previous_state_list = previous_state_dict.get(result.name, None)
       if previous_state_list is not None:
@@ -473,36 +489,42 @@ class PromiseLauncher(object):
             current_sum == checksum:
           # Only save the changes and not the same info
           return
-  
+
       state_dict.pop('title', '')
       state_dict.pop('name', '')
-      with open (history_file, mode="r+") as f:
-        f.seek(0,2)
-        f.seek(f.tell() -2)
-        f.write('%s}' % ',{}]'.format(json.dumps(state_dict)))
+      history_dict['data'].append(state_dict)
+
+    with open(tmp_history_file, mode="w") as f:
+      json.dump(history_dict, f)
+    os.rename(tmp_history_file, history_file)
 
   def _saveStatisticsData(self, stat_file_path, date, success, error):
     # csv-like document for success/error statictics
-    if not os.path.exists(stat_file_path) or os.stat(stat_file_path).st_size == 0:
-      with open(stat_file_path, 'w') as fstat:
-        fstat.write("""{
-          "date": %s,
-          "data": ["Date, Success, Error, Warning"]}""" % time.time())
-  
+    stat_dict = {
+      "date": time.time(),
+      "data": ["Date, Success, Error, Warning"]
+    }
+    try:
+      with open(stat_file_path) as f:
+        stat_dict = json.load(f)
+    except OSError as e:
+      if e.errno != errno.ENOENT:
+        raise
+    except ValueError:
+      # Broken json, we use default
+      pass
+
+    tmp_stat_file = os.path.join(self.tmp_dir,
+                                 os.path.basename(stat_file_path))
     current_state = '%s, %s, %s, %s' % (
         date,
         success,
         error,
         '')
-  
-    # append to file
-    # XXX this is bad, it is getting everywhere.
-    if current_state:
-      with open (stat_file_path, mode="r+") as fstat:
-        fstat.seek(0,2)
-        position = fstat.tell() -2
-        fstat.seek(position)
-        fstat.write('%s}' % ',"{}"]'.format(current_state))
+    stat_dict['data'].append(current_state)
+    with open (tmp_stat_file, mode="w") as f:
+      json.dump(stat_dict, f)
+    os.rename(tmp_stat_file, stat_file_path)
 
   def _loadPromiseResult(self, promise_title):
     promise_output_file = os.path.join(

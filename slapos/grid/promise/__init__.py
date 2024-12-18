@@ -58,6 +58,7 @@ from slapos.grid.promise.wrapper import WrapPromise
 from slapos.version import version
 
 PROMISE_CACHE_FOLDER_NAME = '.slapgrid/promise/cache'
+TMP_FOLDER_NAME = '.slapgrid/promise/tmp'
 
 class PromiseError(Exception):
   pass
@@ -355,6 +356,11 @@ class PromiseLauncher(object):
       mkdir_p(self.promise_history_output_dir)
       self._updateFolderOwner()
 
+    self.tmp_dir = os.path.join(self.partition_folder, TMP_FOLDER_NAME)
+    if not os.path.exists(self.tmp_dir):
+      mkdir_p(self.tmp_dir)
+      self._updateFolderOwner(self.tmp_dir)
+
   def _generatePromiseResult(self, promise_process, promise_name, promise_path,
       message, execution_time=0):
     if self.check_anomaly:
@@ -436,12 +442,10 @@ class PromiseLauncher(object):
   def _savePromiseHistoryResult(self, result):
     state_dict = result.serialize()
     previous_state_dict = {}
-    tmp_dir = os.path.join(self.partition_folder, 'var/tmp')
     promise_status_file = os.path.join(self.partition_folder,
                                        PROMISE_STATE_FOLDER_NAME,
                                        'promise_status.json')
 
-    mkdir_p(tmp_dir)
     if os.path.exists(promise_status_file):
       with open(promise_status_file) as f:
         try:
@@ -454,7 +458,7 @@ class PromiseLauncher(object):
       '%s.history.json' % result.title
     )
     tmp_history_file = os.path.join(
-      tmp_dir,
+      self.tmp_dir,
       '%s.history.json' % result.title
     )
 
@@ -498,20 +502,20 @@ class PromiseLauncher(object):
           "date": %s,
           "data": ["Date, Success, Error, Warning"]}""" % time.time())
   
+    tmp_stat_file = os.path.join(self.tmp_dir, 'promise_stats.json')
     current_state = '%s, %s, %s, %s' % (
         date,
         success,
         error,
         '')
-  
-    # append to file
-    # XXX this is bad, it is getting everywhere.
-    if current_state:
-      with open (stat_file_path, mode="r+") as fstat:
-        fstat.seek(0,2)
-        position = fstat.tell() -2
-        fstat.seek(position)
-        fstat.write('%s}' % ',"{}"]'.format(current_state))
+
+    shutil.copyfile(stat_file_path, tmp_stat_file)
+    with open (stat_file_path, mode="r+") as fstat:
+      fstat.seek(0,2)
+      position = fstat.tell() -2
+      fstat.seek(position)
+      fstat.write('%s}' % ',"{}"]'.format(current_state))
+    shutil.move(tmp_stat_file, stat_file_path)
 
   def _loadPromiseResult(self, promise_title):
     promise_output_file = os.path.join(

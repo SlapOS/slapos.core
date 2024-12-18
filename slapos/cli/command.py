@@ -28,6 +28,7 @@
 ##############################################################################
 
 import argparse
+import contextlib
 import functools
 import logging
 import os
@@ -36,9 +37,20 @@ import sys
 from cliff import command
 
 
+@contextlib.contextmanager
 def resetLogger(logger):
-    logger.propagate = False
-    logger.addHandler(logging.StreamHandler(sys.stdout))
+    has_propagate = hasattr(logger, 'propagate')  # XXX mocked Loggers do not have this
+    if has_propagate:
+        propagate = logger.propagate
+        logger.propagate = False
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    logger.addHandler(stdout_handler)
+    try:
+        yield
+    finally:
+      if has_propagate:
+          logger.propagate = propagate
+      logger.removeHandler(stdout_handler)
 
 
 class Command(command.Command):

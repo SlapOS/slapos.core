@@ -36,6 +36,7 @@ import warnings
 from pwd import getpwnam
 
 from six.moves import SimpleHTTPServer
+import six
 
 import slapos.util
 from slapos.testing.utils import ManagedHTTPServer
@@ -469,12 +470,32 @@ class TestSoftwareReleaseSchemaEdgeCases(unittest.TestCase):
     self.assertIn("Unable to load JSON", str(w[0].message))
 
   def test_software_schema_wrong_URL(self):
-    schema = SoftwareReleaseSchema('http://slapos.invalid/software.cfg', None)
+    schema = SoftwareReleaseSchema('http://slapos.invalid/wrong-url/software.cfg', None)
     with warnings.catch_warnings(record=True) as w:
       warnings.simplefilter("always")
       self.assertIsNone(schema.getSoftwareSchema())
     self.assertEqual(len(w), 1)
     self.assertIn("Unable to load JSON", str(w[0].message))
+
+  def test_software_schema_download_does_no_log(self):
+    schema = SoftwareReleaseSchema('http://slapos.invalid/no-log/software.cfg', None)
+    debug_level_log_stream = six.StringIO()
+    debug_level_handler = logging.StreamHandler(debug_level_log_stream)
+    debug_level_handler.setLevel(logging.DEBUG)
+    default_level_log_stream = six.StringIO()
+    default_level_handler = logging.StreamHandler(default_level_log_stream)
+    default_level_handler.setLevel(logging.INFO)
+    logger = logging.getLogger()
+    self.addCleanup(functools.partial(logger.setLevel, logger.getEffectiveLevel()))
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(debug_level_handler)
+    self.addCleanup(functools.partial(logger.removeHandler, debug_level_handler))
+    logger.addHandler(default_level_handler)
+    self.addCleanup(functools.partial(logger.removeHandler, default_level_handler))
+
+    self.assertIsNone(schema.getSoftwareSchema())
+    self.assertEqual(default_level_log_stream.getvalue(), "")
+    self.assertEqual(debug_level_log_stream.getvalue(), "Downloading http://slapos.invalid/no-log/software.cfg.json\n")
 
 
 if __name__ == '__main__':

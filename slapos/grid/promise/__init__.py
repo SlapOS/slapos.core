@@ -512,7 +512,7 @@ class PromiseLauncher(object):
         error,
         '')
     stat_dict['data'].append(current_state)
-    with open (history_file, mode="w") as f:
+    with open (stat_file_path, mode="w") as f:
       json.dump(stat_dict, f)
 
   def _loadPromiseResult(self, promise_title):

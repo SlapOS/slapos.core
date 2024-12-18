@@ -398,31 +398,23 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>reference</string>
+                          <string>aggregate_title</string>
                           <string>Title</string>
                         </tuple>
                         <tuple>
-                          <string>instance_title</string>
-                          <string>Instance</string>
+                          <string>url_string</string>
+                          <string>Software Release</string>
                         </tuple>
                         <tuple>
-                          <string>instance_tree_title</string>
+                          <string>source_reference</string>
+                          <string>Software Type</string>
+                        </tuple>
+                        <tuple>
+                          <string>specialise_title</string>
                           <string>Instance Tree</string>
                         </tuple>
                         <tuple>
-                          <string>image</string>
-                          <string>Image</string>
-                        </tuple>
-                        <tuple>
-                          <string>ComputePartition_getOwnerName</string>
-                          <string>Owner</string>
-                        </tuple>
-                        <tuple>
-                          <string>creation_date</string>
-                          <string>Instance Creation Date</string>
-                        </tuple>
-                        <tuple>
-                          <string>ComputePartition_getLastestContactedDate</string>
+                          <string>getLastAccessDate</string>
                           <string>Latest Contact Date</string>
                         </tuple>
                         <tuple>
@@ -451,12 +443,7 @@
                 <item>
                     <key> <string>default_params</string> </key>
                     <value>
-                      <list>
-                        <tuple>
-                          <string>slap_state</string>
-                          <string>busy</string>
-                        </tuple>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -486,24 +473,7 @@
                 <item>
                     <key> <string>editable_columns</string> </key>
                     <value>
-                      <list>
-                        <tuple>
-                          <string>instance_title</string>
-                          <string>Instance Title</string>
-                        </tuple>
-                        <tuple>
-                          <string>image</string>
-                          <string>Image</string>
-                        </tuple>
-                        <tuple>
-                          <string>creation_date</string>
-                          <string>Instance Creation Date</string>
-                        </tuple>
-                        <tuple>
-                          <string>ComputePartition_getLastestContactedDate</string>
-                          <string>Latest Contact Date</string>
-                        </tuple>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -534,7 +504,7 @@
                 </item>
                 <item>
                     <key> <string>lines</string> </key>
-                    <value> <int>10</int> </value>
+                    <value> <int>100</int> </value>
                 </item>
                 <item>
                     <key> <string>list_action</string> </key>
@@ -565,8 +535,8 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>Compute Partition</string>
-                          <string>Compute Partition</string>
+                          <string>Software Instance</string>
+                          <string>Software Instance</string>
                         </tuple>
                       </list>
                     </value>
@@ -608,7 +578,7 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>title</string>
+                          <string>source_reference</string>
                           <string>ASC</string>
                         </tuple>
                       </list>
@@ -617,7 +587,24 @@
                 <item>
                     <key> <string>sort_columns</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <tuple>
+                          <string>aggregate_title</string>
+                          <string>Title</string>
+                        </tuple>
+                        <tuple>
+                          <string>source_reference</string>
+                          <string>Software Type</string>
+                        </tuple>
+                        <tuple>
+                          <string>specialise_title</string>
+                          <string>Instance Tree</string>
+                        </tuple>
+                        <tuple>
+                          <string>creation_date</string>
+                          <string>Creation Date</string>
+                        </tuple>
+                      </list>
                     </value>
                 </item>
                 <item>
@@ -638,7 +625,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Compute Partition State</string> </value>
+                    <value> <string>Instances</string> </value>
                 </item>
                 <item>
                     <key> <string>untranslatable_columns</string> </key>
@@ -649,36 +636,7 @@
                 <item>
                     <key> <string>url_columns</string> </key>
                     <value>
-                      <list>
-                        <tuple>
-                          <string>instance_title</string>
-                          <string>ComputePartition_getInstanceUrlString</string>
-                        </tuple>
-                        <tuple>
-                          <string>instance_tree_title</string>
-                          <string>ComputePartition_getInstanceTreeUrlString</string>
-                        </tuple>
-                        <tuple>
-                          <string>creation_date</string>
-                          <string>ComputePartition_getInstanceUrlString</string>
-                        </tuple>
-                        <tuple>
-                          <string>image</string>
-                          <string>ComputePartition_getInstanceUrlString</string>
-                        </tuple>
-                        <tuple>
-                          <string>ComputePartition_getOwnerName</string>
-                          <string>ComputePartition_getOwnerUrl</string>
-                        </tuple>
-                        <tuple>
-                          <string>ComputePartition_getLastestContactedDate</string>
-                          <string>ComputePartition_getInstanceUrlString</string>
-                        </tuple>
-                        <tuple>
-                          <string>status</string>
-                          <string></string>
-                        </tuple>
-                      </list>
+                      <list/>
                     </value>
                 </item>
               </dictionary>
@@ -695,7 +653,7 @@
       <dictionary>
         <item>
             <key> <string>method_name</string> </key>
-            <value> <string>ComputeNode_getBusyComputePartitionList</string> </value>
+            <value> <string>portal_catalog</string> </value>
         </item>
       </dictionary>
     </pickle>

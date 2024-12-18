@@ -16,6 +16,7 @@
                 <string>portal_types</string>
                 <string>selection_name</string>
                 <string>sort</string>
+                <string>sort_columns</string>
                 <string>title</string>
               </list>
             </value>
@@ -55,6 +56,10 @@
             <value>
               <dictionary>
                 <item>
+                    <key> <string>columns</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>default_params</string> </key>
                     <value>
                       <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
@@ -66,6 +71,26 @@
                 </item>
                 <item>
                     <key> <string>form_id</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>list_method</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>portal_types</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>selection_name</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>sort</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>title</string> </key>
                     <value> <string></string> </value>
                 </item>
               </dictionary>
@@ -80,20 +105,16 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>title</string>
-                          <string>Title</string>
+                          <string>url_string</string>
+                          <string>Software Release</string>
+                        </tuple>
+                        <tuple>
+                          <string>source_reference</string>
+                          <string>Software Type</string>
                         </tuple>
                         <tuple>
                           <string>specialise_title</string>
                           <string>Instance Tree</string>
-                        </tuple>
-                        <tuple>
-                          <string>image</string>
-                          <string>Image</string>
-                        </tuple>
-                        <tuple>
-                          <string>destination_section_title</string>
-                          <string>Owner</string>
                         </tuple>
                         <tuple>
                           <string>creation_date</string>
@@ -151,8 +172,27 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>title</string>
+                          <string>source_reference</string>
                           <string>ASC</string>
+                        </tuple>
+                      </list>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>sort_columns</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>source_reference</string>
+                          <string>Software Type</string>
+                        </tuple>
+                        <tuple>
+                          <string>specialise_title</string>
+                          <string>Instance Tree</string>
+                        </tuple>
+                        <tuple>
+                          <string>creation_date</string>
+                          <string>Creation Date</string>
                         </tuple>
                       </list>
                     </value>
@@ -175,7 +215,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: [(\'aggregate__uid\', [x.getUid() for x in here.contentValues(portal_type=\'Compute Partition\')])]</string> </value>
+            <value> <string>python: [(\'aggregate__uid\', [x.getUid() for x in here.contentValues(portal_type=\'Compute Partition\')] or [-1])]</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -1,6 +1,14 @@
 Changes
 =======
 
+1.14.1 (2024-12-24)
+-------------------
+ * slapgrid: fixup! copy .netrc file to buildout home path
+ * cli: make resetLogger a context manager restoring the state
+ * util: make buildout.download log as debug level when fetching schema
+ * tests/example: use .example TLD to prevent lookups
+ * tests: use `assertAlmostEqual` for float comparison
+
 1.14.0 (2024-12-03)
 -------------------
  * cli: drop legacy `SafeConfigParser`

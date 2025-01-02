@@ -41,5 +41,6 @@ if node_value is not None:
 return [x.getObject() for x in domain_tool.searchPredicateList(
   tmp_context,
   portal_type=predicate_portal_type,
+  acquired=0,
   tested_base_category_list=tested_base_category_list
 ) if ((node_value is None) or (node_relative_url in x.getParentValue().getParentValue().getAggregateList()))]

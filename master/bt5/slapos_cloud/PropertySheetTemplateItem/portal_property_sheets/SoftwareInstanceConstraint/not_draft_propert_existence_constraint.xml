@@ -13,6 +13,23 @@
             </value>
         </item>
         <item>
+            <key> <string>_local_properties</string> </key>
+            <value>
+              <tuple>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>message_property_not_set</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>string</string> </value>
+                  </item>
+                </dictionary>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>_range_criterion</string> </key>
             <value>
               <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
@@ -23,6 +40,7 @@
             <value>
               <tuple>
                 <string>source_reference</string>
+                <string>text_content</string>
               </tuple>
             </value>
         </item>
@@ -50,6 +68,10 @@
         </item>
         <item>
             <key> <string>message_no_such_property</string> </key>
+            <value> <string>Property existence error for property ${property_id}, this document has no such property or the property has never been set</string> </value>
+        </item>
+        <item>
+            <key> <string>message_property_not_set</string> </key>
             <value> <string>Property existence error for property ${property_id}, this document has no such property or the property has never been set</string> </value>
         </item>
         <item>

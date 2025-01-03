@@ -34,7 +34,7 @@ from zExceptions import Unauthorized
 from DateTime import DateTime
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 from Acquisition import aq_base, aq_inner
-from slapos.util import dumps
+from slapos.util import dumps, dict2xml
 from lxml import etree
 
 def cloneDocumentWithANewPortalType(obj, portal_type):
@@ -360,3 +360,6 @@ def isValidXmlMarshaller(self, value, REQUEST=None):
   # No better way them this for now
   dumps(value)
   return True
+
+def convertDictToXml(self, dictionnary_value):
+  return dict2xml(dictionnary_value)

@@ -34,10 +34,37 @@ from App.Common import rfc1123_date
 from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
 
 import json
+import six
 
 ACCESS = "#access"
 ERROR = "#error"
 BUILDING = "#building"
+
+# On python2, make sure we use UTF-8 strings for the json schemas, so that we don't
+# have ugly u' prefixes in the reprs. This also transforms the collections.OrderedDict
+# to simple dicts, because the former also have an ugly representation.
+# http://stackoverflow.com/a/13105359
+if six.PY2:
+
+  def byteify(string):
+    if isinstance(string, dict):
+      return {
+        byteify(key): byteify(value)
+        for key, value in string.iteritems()
+      }
+    elif isinstance(string, list):
+      return [byteify(element) for element in string]
+    elif isinstance(string, tuple):
+      return tuple(byteify(element) for element in string)
+    elif isinstance(string, six.text_type):
+      return string.encode('utf-8')
+    else:
+      return string
+else:
+
+  def byteify(x):
+    return x
+
 
 class SlapOSCacheMixin:
 
@@ -87,7 +114,7 @@ class SlapOSCacheMixin:
       #data_dict["user"] = data_dict["user"].decode("UTF-8")
       return data_dict
 
-    data_dict = json.loads(data_json)
+    data_dict = byteify(json.loads(data_json))
     last_contact = DateTime(data_dict.get('created_at'))
     data_dict["no_data_since_15_minutes"] = 0
     data_dict["no_data_since_5_minutes"] = 0
@@ -117,7 +144,7 @@ class SlapOSCacheMixin:
     since = created_at
     status_changed = True
     if previous is not None:
-      previous_json = json.loads(previous)
+      previous_json = byteify(json.loads(previous))
       if text.split(" ")[0] == previous_json.get("text", "").split(" ")[0]:
         since = previous_json.get("since",
           previous_json.get("created_at", rfc1123_date(DateTime())))

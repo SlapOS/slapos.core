@@ -42,7 +42,7 @@ for instance in instance_list:
 
   software_product, software_release, software_type = instance_tree_context.InstanceTree_getSoftwareProduct()
 
-  compute_node, allocation_cell_list = instance_tree_context.InstanceTree_getNodeAndAllocationSupplyCellList(
+  allocable_compute_node, allocation_cell_list = instance_tree_context.InstanceTree_getNodeAndAllocationSupplyCellList(
     software_product=software_product,
     software_release=software_release,
     software_type=software_type)
@@ -56,10 +56,13 @@ for instance in instance_list:
     #      }
     #   }
     # }
-    value = (instance, compute_node)
-    compute_node_url = compute_node.getRelativeUrl()
+    if allocable_compute_node is None:
+      value = (instance, compute_node)
+    else:
+      value = (instance, allocable_compute_node)
+    compute_node_url = value[1].getRelativeUrl()
     if compute_node_url not in error_dict:
-      error_dict[compute_node.getRelativeUrl()] = {}
+      error_dict[compute_node_url] = {}
     if instance_software_release_url not in error_dict:
       error_dict[compute_node_url][instance_software_release_url] = {}
     if instance_software_type not in error_dict[compute_node_url][instance_software_release_url]:

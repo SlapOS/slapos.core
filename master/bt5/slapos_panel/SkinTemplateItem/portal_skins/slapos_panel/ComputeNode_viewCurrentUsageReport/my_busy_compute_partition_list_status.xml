@@ -126,9 +126,7 @@
                 </item>
                 <item>
                     <key> <string>enabled</string> </key>
-                    <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
-                    </value>
+                    <value> <string></string> </value>
                 </item>
                 <item>
                     <key> <string>external_validator</string> </key>
@@ -153,7 +151,7 @@
                 <item>
                     <key> <string>renderjs_extra</string> </key>
                     <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
+                      <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
                     </value>
                 </item>
                 <item>
@@ -255,20 +253,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: cell.getAggregateRelated(portal_type="Software Instance") is not None</string> </value>
-        </item>
-      </dictionary>
-    </pickle>
-  </record>
-  <record id="3" aka="AAAAAAAAAAM=">
-    <pickle>
-      <global name="TALESMethod" module="Products.Formulator.TALESField"/>
-    </pickle>
-    <pickle>
-      <dictionary>
-        <item>
-            <key> <string>_text</string> </key>
-            <value> <string>python: [(\'jio_key\', cell.getAggregateRelated(portal_type="Software Instance")), (\'result\', cell.getAggregateRelatedValue(portal_type="Software Instance").getAccessStatus())]</string> </value>
+            <value> <string>python: [(\'portal_type\', cell.getPortalType()), (\'jio_key\', cell.getRelativeUrl()), (\'result\', cell.SoftwareInstance_getNewsDict())]</string> </value>
         </item>
       </dictionary>
     </pickle>

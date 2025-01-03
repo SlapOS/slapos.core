@@ -89,6 +89,18 @@
                           <string>Compute Node</string>
                           <string>Compute Node</string>
                         </tuple>
+                        <tuple>
+                          <string>Remote Node</string>
+                          <string>Remote Node</string>
+                        </tuple>
+                        <tuple>
+                          <string>Instance Node</string>
+                          <string>Instance Node</string>
+                        </tuple>
+                        <tuple>
+                          <string>Project</string>
+                          <string>Project</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

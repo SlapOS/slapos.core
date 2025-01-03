@@ -14,6 +14,7 @@
                 <string>count_method</string>
                 <string>default_params</string>
                 <string>hide_rows_on_no_search_criterion</string>
+                <string>lines</string>
                 <string>list_method</string>
                 <string>portal_types</string>
                 <string>select</string>
@@ -89,6 +90,10 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>lines</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>list_method</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -105,6 +110,10 @@
                     <value>
                       <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
                     </value>
+                </item>
+                <item>
+                    <key> <string>sort</string> </key>
+                    <value> <string></string> </value>
                 </item>
                 <item>
                     <key> <string>target</string> </key>
@@ -129,10 +138,6 @@
                     <key> <string>columns</string> </key>
                     <value>
                       <list>
-                        <tuple>
-                          <string>software_release</string>
-                          <string>Title</string>
-                        </tuple>
                         <tuple>
                           <string>url_string</string>
                           <string>URL</string>
@@ -179,6 +184,10 @@
                 <item>
                     <key> <string>hide_rows_on_no_search_criterion</string> </key>
                     <value> <int>0</int> </value>
+                </item>
+                <item>
+                    <key> <string>lines</string> </key>
+                    <value> <int>50</int> </value>
                 </item>
                 <item>
                     <key> <string>list_method</string> </key>

@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>url_dict=False, brain=None, selection=None, selection_name=None, **kw</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputePartition_getInstanceTreeUrlString</string> </value>
+            <value> <string>InstanceTree_requestBang</string> </value>
         </item>
       </dictionary>
     </pickle>

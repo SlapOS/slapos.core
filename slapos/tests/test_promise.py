@@ -566,6 +566,38 @@ class RunPromise(GenericPromise):
 }""")
 
 
+  def test_runpromise_with_currupted_history(self):
+    promise_name = 'my_promise'
+    self.configureLauncher()
+    self.generatePromiseScript('my_promise.py', success=True, periodicity=0.03)
+
+    self.launcher.run()
+    self.assertSuccessResult(promise_name)
+
+    # will fail if history json is broken
+    self.assertSuccessHistoryResult(promise_name)
+    history_file = os.path.join(self.partition_dir,
+                                PROMISE_HISTORY_RESULT_FOLDER_NAME,
+                                '%s.history.json' % promise_name)
+    broken_history = """{
+	"data": [{
+		"failed": false,
+		"message": "success",
+		"name": "%s.py",
+		"status": "OK",
+		"title": "%s"
+	}, {]
+}""" % promise_name
+
+    with open(history_file, 'w') as f:
+      f.write(broken_history)
+    time.sleep(4)
+    with self.assertRaises(ValueError):
+      self.assertSuccessHistoryResult(promise_name)
+    self.launcher.run()
+    self.assertSuccessResult(promise_name)
+    # Promise history json is not broken anymore
+    self.assertSuccessHistoryResult(promise_name)
 
   def test_runpromise_no_logdir(self):
     promise_name = 'my_promise.py'

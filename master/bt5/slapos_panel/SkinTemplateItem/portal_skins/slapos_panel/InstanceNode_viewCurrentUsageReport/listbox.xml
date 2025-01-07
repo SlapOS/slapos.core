@@ -57,6 +57,10 @@
             <value>
               <dictionary>
                 <item>
+                    <key> <string>all_columns</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>columns</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -84,6 +88,14 @@
                 </item>
                 <item>
                     <key> <string>selection_name</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>sort</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>sort_columns</string> </key>
                     <value> <string></string> </value>
                 </item>
                 <item>
@@ -227,7 +239,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: [(\'aggregate__uid\', here.getSpecialiseValue().getAggregateUid(default=-1))]</string> </value>
+            <value> <string>python: [(\'aggregate__uid\', here.getSpecialiseValue().getAggregateUid() or -1)]</string> </value>
         </item>
       </dictionary>
     </pickle>

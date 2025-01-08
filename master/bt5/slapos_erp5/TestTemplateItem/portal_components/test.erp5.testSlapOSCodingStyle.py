@@ -311,6 +311,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/SoftwareInstance_getComputeNodeUrl',
         'slapos_panel/UpgradeDecision_cancelOnSlaposPanel',
         'slapos_panel_compatibility/Base_getComputerToken',
+        'slapos_panel/WebSection_filterSlaposPanelActionDict',
         'slapos_parameter_editor/SoftwareProductModule_updateParameterEditorTestDialog',
         'slapos_parameter_editor/SoftwareProductModule_validateParameterEditorTestDialog',
         'slapos_parameter_editor/SoftwareProductModule_validateSoftwareReleaseForParameterEditorTestDialog',

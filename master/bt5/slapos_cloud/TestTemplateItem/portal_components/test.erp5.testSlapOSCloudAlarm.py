@@ -8,6 +8,134 @@ from erp5.component.module.DateUtils import addToDate
 
 class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(SlapOSTestCaseMixin):
   #################################################################
+  # slapos_cloud_create_missing_subscription_assignment
+  #################################################################
+  def test_Assignment_createPersonMissingSubscriptionAssignment_alarm_notOpenAssignment(self):
+    # some preparation
+    project = self.portal.project_module.newContent()
+    preference = self.portal.portal_preferences.slapos_default_system_preference
+    preference.edit(
+      preferred_subscription_assignment_category_list=[
+        'destination_project/%s' % project.getRelativeUrl()
+      ]
+    )
+
+    person = self.portal.person_module.newContent(
+      portal_type='Person'
+    )
+    assignment = person.newContent(
+      portal_type='Assignment'
+    )
+    self.tic()
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_cloud_create_missing_subscription_assignment,
+      assignment,
+      'Assignment_createPersonMissingSubscriptionAssignment'
+    )
+
+  def test_Assignment_createPersonMissingSubscriptionAssignment_alarm_oneAssignment(self):
+    # some preparation
+    project = self.portal.project_module.newContent()
+    preference = self.portal.portal_preferences.slapos_default_system_preference
+    preference.edit(
+      preferred_subscription_assignment_category_list=[
+        'destination_project/%s' % project.getRelativeUrl()
+      ]
+    )
+
+    person = self.portal.person_module.newContent(
+      portal_type='Person'
+    )
+    assignment = person.newContent(
+      portal_type='Assignment'
+    )
+    assignment.open()
+    self.tic()
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_cloud_create_missing_subscription_assignment,
+      assignment,
+      'Assignment_createPersonMissingSubscriptionAssignment'
+    )
+
+  """
+  def test_Assignment_createPersonMissingSubscriptionAssignment_alarm_twoAssignment(self):
+    person = self.portal.person_module.newContent(
+      portal_type='Person'
+    )
+    assignment1 = person.newContent(
+      portal_type='Assignment'
+    )
+    assignment1.open()
+    assignment2 = person.newContent(
+      portal_type='Assignment'
+    )
+    assignment2.open()
+    self.tic()
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_cloud_create_missing_subscription_assignment,
+      assignment1,
+      'Assignment_createPersonMissingSubscriptionAssignment'
+    )
+  """
+
+  #################################################################
+  # Assignment_createPersonMissingSubscriptionAssignment
+  #################################################################
+  def test_Assignment_createPersonMissingSubscriptionAssignment_script_noSubscriptionAssignment(self):
+    subscription_category_list = ['activity/research', 'role/member']
+    person = self.portal.person_module.newContent(
+      portal_type='Person'
+    )
+    assignment = person.newContent(
+      portal_type='Assignment'
+    )
+    assignment.open()
+
+    assignment.Assignment_createPersonMissingSubscriptionAssignment(subscription_category_list)
+
+    self.assertEquals(2, len(person.contentValues(portal_type='Assignment')))
+    subscription_assignment = [x for x in person.contentValues(portal_type='Assignment') if x.getId() != assignment.getId()][0]
+    self.assertEquals('open', subscription_assignment.getValidationState())
+    self.assertSameSet(subscription_category_list, subscription_assignment.getCategoryList())
+
+  def test_Assignment_createPersonMissingSubscriptionAssignment_script_withOpenSubscriptionAssignment(self):
+    subscription_category_list = ['activity/research', 'role/member']
+    person = self.portal.person_module.newContent(
+      portal_type='Person'
+    )
+    assignment = person.newContent(
+      portal_type='Assignment'
+    )
+    assignment.setCategoryList(subscription_category_list)
+    assignment.open()
+
+    assignment.Assignment_createPersonMissingSubscriptionAssignment(subscription_category_list)
+
+    self.assertEquals(1, len(person.contentValues(portal_type='Assignment')))
+
+  def test_Assignment_createPersonMissingSubscriptionAssignment_script_withDraftSubscriptionAssignment(self):
+    subscription_category_list = ['activity/research', 'role/member']
+    person = self.portal.person_module.newContent(
+      portal_type='Person'
+    )
+    assignment1 = person.newContent(
+      portal_type='Assignment'
+    )
+    assignment1.setCategoryList(subscription_category_list)
+
+    assignment2 = person.newContent(
+      portal_type='Assignment'
+    )
+    assignment2.open()
+
+    assignment2.Assignment_createPersonMissingSubscriptionAssignment(subscription_category_list)
+
+    self.assertEquals(3, len(person.contentValues(portal_type='Assignment')))
+    subscription_assignment = [x for x in person.contentValues(portal_type='Assignment') if (x.getId() != assignment1.getId()) and (x.getId() != assignment2.getId())][0]
+    self.assertEquals('open', subscription_assignment.getValidationState())
+    self.assertSameSet(subscription_category_list, subscription_assignment.getCategoryList())
+
+  #################################################################
   # slapos_assert_instance_tree_successor
   #################################################################
   def test_InstanceTree_assertSuccessor_alarm_orphaned(self):

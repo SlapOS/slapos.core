@@ -720,7 +720,8 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
   @simulate('Item_getSubscriptionStatus', '*args, **kwargs', 'return "subscribed"')
   def bootstrapAllocableInstanceTree(self, allocation_state='possible', shared=False, node="compute",
-                                     is_accountable=False, base_price=None, has_organisation=False):
+                                     is_accountable=False, base_price=None, has_organisation=False,
+                                     has_allocation_supply=False):
     if allocation_state not in ('impossible', 'possible', 'allocated'):
       raise ValueError('Not supported allocation_state: %s' % allocation_state)
     project = self.addProject(
@@ -849,24 +850,41 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         )
         node_instance_tree = self.portal.instance_tree_module.newContent(
           title='TEST-%s' % self.generateNewId(),
+          follow_up_value=project
         )
+        service_software_product = self._makeSoftwareProduct(project)
+        service_release_variation = service_software_product.contentValues(portal_type='Software Product Release Variation')[0]
+        service_type_variation = service_software_product.contentValues(portal_type='Software Product Type Variation')[0]
         software_instance = self.portal.software_instance_module.newContent(
           portal_type="Software Instance",
           follow_up_value=project,
           specialise_value=node_instance_tree,
-          url_string=release_variation.getUrlString(),
+          url_string=service_release_variation.getUrlString(),
           title='TEST-%s' % self.generateNewId(),
           reference='TEST-%s' % self.generateNewId(),
-          source_reference='TEST-%s' % self.generateNewId(),
+          source_reference=service_type_variation.getTitle(),
           destination_reference='TEST-%s' % self.generateNewId(),
+          text_content=self.generateSafeXml(),
+          sla_xml=self.generateEmptyXml(),
           ssl_certificate='TEST-%s' % self.generateNewId(),
           ssl_key='TEST-%s' % self.generateNewId(),
         )
         self.tic()
         compute_node.edit(specialise_value=software_instance)
         software_instance.edit(aggregate_value=partition)
+        node_instance_tree.setSuccessorValue(software_instance)
         self.portal.portal_workflow._jumpToStateFor(software_instance, 'start_requested')
         self.portal.portal_workflow._jumpToStateFor(software_instance, 'validated')
+        self.portal.portal_workflow._jumpToStateFor(node_instance_tree, 'validated')
+        if has_allocation_supply:
+          self.addAllocationSupply(
+            "bootstraped test software instance for %s" % software_instance.getRelativeUrl(),
+            partition.getParentValue(),
+            service_software_product,
+            service_release_variation,
+            service_type_variation,
+            disable_alarm=True
+          )
         partition.validate()
         partition.markFree()
         partition.markBusy()
@@ -880,6 +898,42 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
         partition.validate()
         partition.markFree()
+
+        if shared and (node != "remote"):
+          # Create a software instance for the same partition
+          service_software_product = self._makeSoftwareProduct(project)
+          service_release_variation = service_software_product.contentValues(portal_type='Software Product Release Variation')[0]
+          service_type_variation = service_software_product.contentValues(portal_type='Software Product Type Variation')[0]
+          software_instance = self.portal.software_instance_module.newContent(
+            portal_type="Software Instance",
+            follow_up_value=project,
+            specialise_value=instance_tree,
+            url_string=service_release_variation.getUrlString(),
+            title='TEST-%s' % self.generateNewId(),
+            reference='TEST-%s' % self.generateNewId(),
+            source_reference=service_type_variation.getTitle(),
+            destination_reference='TEST-%s' % self.generateNewId(),
+            text_content=self.generateSafeXml(),
+            sla_xml=self.generateEmptyXml(),
+            ssl_certificate='TEST-%s' % self.generateNewId(),
+            ssl_key='TEST-%s' % self.generateNewId(),
+            aggregate_value=partition
+          )
+          self.portal.portal_workflow._jumpToStateFor(software_instance, 'start_requested')
+          self.portal.portal_workflow._jumpToStateFor(software_instance, 'validated')
+          instance = instance_tree.getSuccessorValue()
+          # Keep the graph connected
+          instance.edit(successor_value=software_instance)
+
+          if has_allocation_supply:
+            self.addAllocationSupply(
+              "bootstraped test software instance for %s" % software_instance.getRelativeUrl(),
+              partition.getParentValue(),
+              service_software_product,
+              service_release_variation,
+              service_type_variation,
+              disable_alarm=True
+            )
 
     #compute_node.validate()
 
@@ -904,6 +958,17 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         aggregate_value=item
       )
       self.portal.portal_workflow._jumpToStateFor(open_order, 'validated')
+
+    if has_allocation_supply:
+      self.addAllocationSupply(
+        "bootstraped test for %s" % instance_tree.getRelativeUrl(),
+        compute_node,
+        software_product,
+        release_variation,
+        type_variation,
+        is_slave_on_same_instance_tree_allocable=(node == "compute") and (shared),
+        disable_alarm=True
+      )
 
     self.tic()
     return software_product, release_variation, type_variation, compute_node, partition, instance_tree

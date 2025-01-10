@@ -319,12 +319,12 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <string>ERP5TypeTestCase</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
                       <value>
-                        <none/>
+                        <persistent> <string encoding="base64">AAAAAAAAAAg=</string> </persistent>
                       </value>
                   </item>
                   <item>
@@ -333,7 +333,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1021.59498.35282.30941</string> </value>
+                      <value> <string>1021.61321.33283.44697</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -353,7 +353,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1736395017.24</float>
+                              <float>1736504838.26</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -363,6 +363,33 @@
                 </dictionary>
               </list>
             </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="8" aka="AAAAAAAAAAg=">
+    <pickle>
+      <global name="Message" module="Products.ERP5Type.Message"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>default</string> </key>
+            <value> <string>Edited Web Section, it was older than default page</string> </value>
+        </item>
+        <item>
+            <key> <string>domain</string> </key>
+            <value> <string>erp5_ui</string> </value>
+        </item>
+        <item>
+            <key> <string>mapping</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>message</string> </key>
+            <value> <string>Edited Web Section, it was older than default page</string> </value>
         </item>
       </dictionary>
     </pickle>

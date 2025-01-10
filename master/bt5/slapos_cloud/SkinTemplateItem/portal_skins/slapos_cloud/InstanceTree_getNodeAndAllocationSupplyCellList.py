@@ -2,6 +2,10 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
+# If there is no software product, skip directly
+if software_product is None:
+  return (None, [])
+
 allocation_cell_list = []
 instance_tree = context
 compute_node = None
@@ -20,16 +24,18 @@ if len(root_instance_list) == 1:
         # Search the instance node linked to this partition
         soft_instance = partition.getAggregateRelatedValue(portal_type='Software Instance')
         if soft_instance is None:
-          return (None, allocation_cell_list)
-        instance_node = soft_instance.getSpecialiseRelatedValue(portal_type='Instance Node')
-        if instance_node is None:
-          return (None, allocation_cell_list)
-        compute_node = instance_node
-      elif (compute_node.getPortalType() != 'Remote Node'):
-        return (None, allocation_cell_list)
+          # No way to guess how the Slave Instance was allocated if the Software Instance is not there anymore
+          return (None, [])
 
-if software_product is None:
-  return (compute_node, allocation_cell_list)
+        instance_node = soft_instance.getSpecialiseRelatedValue(portal_type='Instance Node')
+        if instance_node is not None:
+          compute_node = instance_node
+          # Else, the Slave Instance was allocated with 'slave_on_same_instance_tree_allocable '
+      elif (compute_node.getPortalType() != 'Remote Node'):
+        raise NotImplementedError('Unhandled node portal type: %s for %s' % (
+          compute_node.getPortalType(),
+          compute_node.getRelativeUrl()
+        ))
 
 person = context.getDestinationSectionValue(checked_permission='Access contents information')
 
@@ -51,6 +57,10 @@ if (compute_node is None) and (root_instance is not None):
     allocation_cell_list = [x for x, y in allocation_cell_node_list if ("Remote Node" in y) or ("Instance Node" in y)]
   elif (root_instance.getPortalType() == 'Software Instance'):
     allocation_cell_list = [x for x, y in allocation_cell_node_list if ("Remote Node" in y) or ("Compute Node" in y)]
+
+if (compute_node is not None) and (root_instance is not None) and (root_instance.getPortalType() == 'Slave Instance') and (compute_node.getPortalType() == 'Compute Node'):
+  # If a Slave Instance uses a Compute Node to allocate, it requires slave_on_same_instance_tree_allocable
+  allocation_cell_list = [x for x in allocation_cell_list if x.isSlaveOnSameInstanceTreeAllocable()]
 
 # Remove duplicated allocation cells
 # ie, multiple allocation cells matching the same release/type/node

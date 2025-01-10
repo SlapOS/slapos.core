@@ -481,7 +481,10 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(SlapOSTestCaseMixin):
                              is_slave_on_same_instance_tree_allocable=True, disable_alarm=True)
     self.tic()
 
-    self.assertEqual(None, instance_tree.InstanceTree_createUpgradeDecision())
+    self.checkCreatedUpgradeDecision(
+      instance_tree.InstanceTree_createUpgradeDecision(),
+      instance_tree, software_product, new_release_variation, type_variation
+    )
 
   ##########################################################################
   # Allocated on Remote Node

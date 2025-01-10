@@ -11,90 +11,78 @@ project = context.getFollowUpValue()
 if project.Project_isSupportRequestCreationClosed():
   return
 
-# Exceptionally, we pre-check if the computer has a ticket already
-# Since calculation is a bit expensive to "just try".
-monitor_service_uid = portal.service_module.slapos_crm_monitoring.getUid()
-ticket_portal_type = "Support Request"
-if portal.portal_catalog.getResultValue(
-  portal_type=ticket_portal_type,
-  resource__uid=monitor_service_uid,
-  simulation_state=["validated", "submitted", "suspended"],
-  causality__uid=context.getUid(),
-) is not None:
-  return
-
-reference = context.getReference()
-compute_node_title = context.getTitle()
-
-# Use same dict from monitoring so we are consistent while writting
-# Notification messages
-error_dict = {
-        'should_notify': None,
-        'ticket_title': "%s has missing allocation supplies." % compute_node_title,
-        'ticket_description': None,
-        'notification_message_reference': 'slapos-crm-compute_node_check_allocation_supply_state.notification',
-        'compute_node_title': compute_node_title,
-        'compute_node_id': reference,
-        'last_contact': None,
-        'issue_document_reference': None,
-        'message': None,
-        'compute_node_error_dict': {}
-      }
-
-# Since we would like a single ticket per compute node do all at once:
+all_node_error_dict = {}
+# Since we would like a single ticket per node,
+# we aggregate all detected errors
 for compute_partition in context.contentValues(portal_type='Compute Partition'):
   if compute_partition.getSlapState() == 'busy':
     compute_partition_error_dict = compute_partition.ComputePartition_checkAllocationConsistencyState()
-    if compute_partition_error_dict:
-      error_dict['should_notify'] = True
-      error_dict['compute_node_error_dict'].update(compute_partition_error_dict)
+    for node_relative_url, node_release_dict in compute_partition_error_dict.items():
+      if node_relative_url not in all_node_error_dict:
+        all_node_error_dict[node_relative_url] = {}
+      for node_release_url, node_type_dict in node_release_dict.items():
+        if node_release_url not in all_node_error_dict[node_relative_url]:
+          all_node_error_dict[node_relative_url][node_release_url] = {}
+        for node_type, failing_instance in node_type_dict.items():
+          all_node_error_dict[node_relative_url][node_release_url][node_type] = failing_instance
 
-if not error_dict['should_notify']:
-  return
+ticket_list = []
+# Generate a single ticket per non consistent node
+ticket_portal_type = 'Support Request'
+for non_consistent_node_relative_url in all_node_error_dict:
+  non_consistent_node = portal.restrictedTraverse(non_consistent_node_relative_url)
+  non_consistent_node_title = non_consistent_node.getTitle()
+  non_consistent_node_reference = non_consistent_node.getReference()
+  # Use same dict from monitoring so we are consistent while writting
+  # Notification messages
+  compute_node_error_dict = all_node_error_dict[non_consistent_node_relative_url]
+  error_dict = {
+    'should_notify': True,
+    'ticket_title': "%s has missing allocation supplies." % non_consistent_node_title,
+    'ticket_description': None,
+    'notification_message_reference': 'slapos-crm-compute_node_check_allocation_supply_state.notification',
+    'compute_node_title': non_consistent_node_title,
+    'compute_node_id': non_consistent_node_reference,
+    'last_contact': None,
+    'issue_document_reference': None,
+    'message': None,
+    'compute_node_error_dict': compute_node_error_dict
+  }
 
-message = """The following contains instances that has Software Releases/Types that are missing on this %s's Allocation Supply configuration:
+  message = """The following contains instances that has Software Releases/Types that are missing on this %s's Allocation Supply configuration:
 
-""" % context.getPortalType()
-
-# It includes instance nodes lacking supplies
-error_dict_len = len(error_dict['compute_node_error_dict'])
-
-for compute_node in error_dict['compute_node_error_dict']:
-  compute_node_error_dict = error_dict['compute_node_error_dict'][compute_node]
-  compute_node_value = portal.restrictedTraverse(compute_node)
-  if error_dict_len > 1 or compute_node_value.getPortalType() == 'Instance Node':
-    # Highlight better where it comes from, it may include instance nodes
-    # lacking supplies.
-    message += """
- %s %s (%s)
-""" %  (compute_node_value.getTitle(),
-        compute_node_value.getReference(),
-        compute_node_value.getPortalType())
+  """ % non_consistent_node.getPortalType()
 
   for sofware_release_url in compute_node_error_dict:
     message += """   * Software Release: %s
 """ % sofware_release_url
-    for sofware_type, value_list in six.iteritems(compute_node_error_dict[sofware_release_url]):
+    for sofware_type, instance in six.iteritems(compute_node_error_dict[sofware_release_url]):
       message += """     * Software Type: %s (ie: %s)
-""" % (sofware_type, value_list[0].getTitle())
+""" % (sofware_type, instance.getTitle())
 
-error_dict['message'] = message
-support_request = project.Project_createTicketWithCausality(
-  ticket_portal_type,
-  error_dict['ticket_title'],
-  error_dict['ticket_description'],
-  causality=context.getRelativeUrl(),
-  destination_decision=project.getDestination()
-)
-
-if support_request is not None:
-  support_request.Ticket_createProjectEvent(
-    error_dict['ticket_title'], 'outgoing', 'Web Message',
-    portal.service_module.slapos_crm_information.getRelativeUrl(),
-    text_content=error_dict['message'],
-    content_type='text/plain',
-    notification_message=error_dict['notification_message_reference'],
-    #language=XXX,
-    substitution_method_parameter_dict=error_dict
+  error_dict['message'] = message
+  support_request = project.Project_createTicketWithCausality(
+    ticket_portal_type,
+    error_dict['ticket_title'],
+    error_dict['ticket_description'],
+    causality=non_consistent_node.getRelativeUrl(),
+    destination_decision=project.getDestination()
   )
-return support_request
+
+  if support_request is not None:
+    support_request.Ticket_createProjectEvent(
+      error_dict['ticket_title'], 'outgoing', 'Web Message',
+      portal.service_module.slapos_crm_information.getRelativeUrl(),
+      text_content=error_dict['message'],
+      content_type='text/plain',
+      notification_message=error_dict['notification_message_reference'],
+      #language=XXX,
+      substitution_method_parameter_dict=error_dict
+    )
+    ticket_list.append(support_request)
+
+if not ticket_list:
+  return
+if len(ticket_list) == 1:
+  return ticket_list[0]
+return ticket_list

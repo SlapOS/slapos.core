@@ -149,28 +149,23 @@ class TestSlapOSCrmCheckProjectAllocationConsistencyState(TestSlapOSCrmMonitorin
 
 class TestSlapOSCrmMonitoringCheckAllocationConsistencyState(TestSlapOSCrmMonitoringMixin):
 
-  def assertAllocationErrorDict(self, error_dict, compute_node, partition,
+  def assertAllocationErrorDict(self, error_dict, allocation_node,
                                       release_variation, type_variation):
     self.assertNotEqual({}, error_dict)
-    self.assertEqual(1, len(error_dict), error_dict)
+    self.assertTrue(allocation_node.getRelativeUrl() in error_dict, error_dict.keys())
 
     type_reference = type_variation.getReference()
     release_url = release_variation.getUrlString()
 
-    _error_dict = error_dict[compute_node.getRelativeUrl()]
-    self.assertEqual([release_url], _error_dict.keys())
-    self.assertEqual([type_reference], _error_dict[release_url].keys())
-
-    self.assertEqual(partition.getAggregateRelatedValue().getUid(),
-      _error_dict[release_url][type_reference][0].getUid())
-    self.assertEqual(compute_node.getUid(),
-      _error_dict[release_url][type_reference][1].getUid())
+    _error_dict = error_dict[allocation_node.getRelativeUrl()]
+    self.assertTrue(release_url in _error_dict, _error_dict.keys())
+    self.assertTrue(type_reference in _error_dict[release_url], _error_dict[release_url].keys())
 
   #############################################################################
   # ComputeNode_checkProjectAllocationConsistencyState > ComputeNode_checkAllocationConsistencyState
   #############################################################################
   @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
-  def test_ComputeNode_checkAllocationConsistencyState_script_noAllocationCell(self):
+  def test_ComputeNode_checkAllocationConsistencyState_script_ComputeNodeInstanceNoAllocationCell(self):
     with PinnedDateTime(self, DateTime() - 1.1):
       _, \
         release_variation, \
@@ -185,7 +180,7 @@ class TestSlapOSCrmMonitoringCheckAllocationConsistencyState(TestSlapOSCrmMonito
 
     # Double check error dict
     error_dict = partition.ComputePartition_checkAllocationConsistencyState()
-    self.assertAllocationErrorDict(error_dict, compute_node, partition,
+    self.assertAllocationErrorDict(error_dict, compute_node,
                                    release_variation, type_variation)
     ticket_title = "%s has missing allocation supplies." % compute_node.getTitle()
     self.assertNotEqual(ticket, None)
@@ -202,6 +197,263 @@ class TestSlapOSCrmMonitoringCheckAllocationConsistencyState(TestSlapOSCrmMonito
     self.assertIn(release_variation.getUrlString(), event.getTextContent())
     self.assertIn(type_variation.getReference(), event.getTextContent())
     self.assertEventTicket(event, ticket, compute_node)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_ComputeNodeInstanceWithAllocationCell(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, \
+        _, \
+        _, \
+        compute_node, \
+        partition, \
+        _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated',
+                                                has_allocation_supply=True)
+
+      self.tic()
+
+    ticket = compute_node.ComputeNode_checkAllocationConsistencyState()
+    self.assertEqual(ticket, None)
+
+    # Double check error dict
+    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
+    self.assertEqual({}, error_dict)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_ComputeNodeSlaveNoAllocationCell(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, \
+        release_variation, \
+        type_variation, \
+        compute_node, \
+        partition, \
+        _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated',
+                                                shared=True)
+
+      self.tic()
+
+    ticket = compute_node.ComputeNode_checkAllocationConsistencyState()
+    self.tic()
+
+    # Double check error dict
+    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
+    self.assertAllocationErrorDict(error_dict, compute_node,
+                                   release_variation, type_variation)
+    ticket_title = "%s has missing allocation supplies." % compute_node.getTitle()
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), ticket_title)
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn("The following contains instances that has Software Releases/Types",
+                  event.getTextContent())
+
+    self.assertIn(release_variation.getUrlString(), event.getTextContent())
+    self.assertIn(type_variation.getReference(), event.getTextContent())
+    self.assertEventTicket(event, ticket, compute_node)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_ComputeNodeSlaveWithAllocationCell(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, \
+        _, \
+        _, \
+        compute_node, \
+        partition, \
+        _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated',
+                                                shared=True,
+                                                has_allocation_supply=True)
+
+      self.tic()
+
+    ticket = compute_node.ComputeNode_checkAllocationConsistencyState()
+    self.tic()
+    self.assertEqual(ticket, None)
+
+    # Double check error dict
+    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
+    self.assertEqual({}, error_dict)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_RemoteNodeInstanceNoAllocationCell(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, \
+        release_variation, \
+        type_variation, \
+        remote_node, \
+        partition, \
+        _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated',
+                                                node="remote")
+
+      self.tic()
+
+    ticket = remote_node.ComputeNode_checkAllocationConsistencyState()
+    self.tic()
+    # Double check error dict
+    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
+    self.assertAllocationErrorDict(error_dict, remote_node,
+                                   release_variation, type_variation)
+    ticket_title = "%s has missing allocation supplies." % remote_node.getTitle()
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), ticket_title)
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn("The following contains instances that has Software Releases/Types",
+                  event.getTextContent())
+
+    self.assertIn(release_variation.getUrlString(), event.getTextContent())
+    self.assertIn(type_variation.getReference(), event.getTextContent())
+    self.assertEventTicket(event, ticket, remote_node)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_RemoteNodeInstanceWithAllocationCell(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, \
+        _, \
+        _, \
+        remote_node, \
+        partition, \
+        _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated',
+                                                node="remote",
+                                                has_allocation_supply=True)
+
+      self.tic()
+
+    ticket = remote_node.ComputeNode_checkAllocationConsistencyState()
+    self.assertEqual(ticket, None)
+
+    # Double check error dict
+    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
+    self.assertEqual({}, error_dict)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_RemoteNodeSlaveNoAllocationCell(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, \
+        release_variation, \
+        type_variation, \
+        remote_node, \
+        partition, \
+        _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated',
+                                                node="remote",
+                                                shared=True)
+
+      self.tic()
+
+    ticket = remote_node.ComputeNode_checkAllocationConsistencyState()
+
+    # Double check error dict
+    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
+    self.assertAllocationErrorDict(error_dict, remote_node,
+                                   release_variation, type_variation)
+    ticket_title = "%s has missing allocation supplies." % remote_node.getTitle()
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), ticket_title)
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn("The following contains instances that has Software Releases/Types",
+                  event.getTextContent())
+
+    self.assertIn(release_variation.getUrlString(), event.getTextContent())
+    self.assertIn(type_variation.getReference(), event.getTextContent())
+    self.assertEventTicket(event, ticket, remote_node)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_RemoteNodeSlaveWithAllocationCell(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, \
+        _, \
+        _, \
+        remote_node, \
+        partition, \
+        _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated',
+                                                shared=True,
+                                                node="remote",
+                                                has_allocation_supply=True)
+
+      self.tic()
+
+    ticket = remote_node.ComputeNode_checkAllocationConsistencyState()
+    self.tic()
+    self.assertEqual(ticket, None)
+
+    # Double check error dict
+    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
+    self.assertEqual({}, error_dict)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_InstanceNodeSlaveNoAllocationCell(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, \
+        release_variation, \
+        type_variation, \
+        instance_node, \
+        partition, \
+        _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated',
+                                                node="instance",
+                                                shared=True)
+
+      self.tic()
+
+    compute_node = partition.getParentValue()
+    ticket_list = compute_node.ComputeNode_checkAllocationConsistencyState()
+
+    # Double check error dict
+    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
+    self.assertEqual(2, len(error_dict), error_dict)
+    self.assertAllocationErrorDict(error_dict, instance_node,
+                                   release_variation, type_variation)
+    ticket_title = "%s has missing allocation supplies." % instance_node.getTitle()
+    self.assertEqual(len(ticket_list), 2)
+    ticket = ([x for x in ticket_list if x.getTitle() == ticket_title] or [None])[0]
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), ticket_title)
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn("The following contains instances that has Software Releases/Types",
+                  event.getTextContent())
+
+    self.assertIn(release_variation.getUrlString(), event.getTextContent())
+    self.assertIn(type_variation.getReference(), event.getTextContent())
+    self.assertEventTicket(event, ticket, instance_node)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  def test_ComputeNode_checkAllocationConsistencyState_script_InstanceNodeSlaveWithAllocationCell(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      _, \
+        _, \
+        _, \
+        _, \
+        partition, \
+        _ = self.bootstrapAllocableInstanceTree(allocation_state='allocated',
+                                                shared=True,
+                                                node="instance",
+                                                has_allocation_supply=True)
+
+      self.tic()
+
+    compute_node = partition.getParentValue()
+    ticket = compute_node.ComputeNode_checkAllocationConsistencyState()
+    self.tic()
+    self.assertEqual(ticket, None)
+
+    # Double check error dict
+    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
+    self.assertEqual({}, error_dict)
 
   @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   def test_ComputeNode_checkAllocationConsistencyState_script_hasTicketAlready(self):
@@ -228,7 +480,7 @@ class TestSlapOSCrmMonitoringCheckAllocationConsistencyState(TestSlapOSCrmMonito
 
     # Double check error dict exists despite ticket isnt created.
     error_dict = partition.ComputePartition_checkAllocationConsistencyState()
-    self.assertAllocationErrorDict(error_dict, compute_node, partition,
+    self.assertAllocationErrorDict(error_dict, compute_node,
                                    release_variation, type_variation)
 
   @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
@@ -275,118 +527,6 @@ class TestSlapOSCrmMonitoringCheckAllocationConsistencyState(TestSlapOSCrmMonito
 
     ticket = compute_node.ComputeNode_checkAllocationConsistencyState()
     self.assertEqual(None, ticket)
-
-  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
-  def test_ComputeNode_checkAllocationConsistencyState_script_RemotenoAllocationCell(self):
-    with PinnedDateTime(self, DateTime() - 1.1):
-      _, release_variation, \
-        type_variation, \
-        compute_node, \
-        partition, \
-        _ = self.bootstrapAllocableInstanceTree(
-          allocation_state='allocated', node='remote', shared=True)
-
-      self.tic()
-
-    ticket = compute_node.ComputeNode_checkAllocationConsistencyState()
-
-    # Double check error dict
-    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
-    self.assertAllocationErrorDict(error_dict, compute_node, partition,
-                                   release_variation, type_variation)
-
-    ticket_title = "%s has missing allocation supplies." % compute_node.getTitle()
-    self.assertNotEqual(ticket, None)
-    self.assertEqual(ticket.getTitle(), ticket_title)
-
-    self.tic()
-    event_list = ticket.getFollowUpRelatedValueList()
-    self.assertEqual(len(event_list), 1)
-    event = event_list[0]
-
-    self.assertIn("The following contains instances that has Software Releases/Types",
-                  event.getTextContent())
-
-    self.assertIn(release_variation.getUrlString(), event.getTextContent())
-    self.assertIn(type_variation.getReference(), event.getTextContent())
-    self.assertEventTicket(event, ticket, compute_node)
-
-  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
-  def test_ComputeNode_checkAllocationConsistencyState_script_InstanceNodenoAllocationCell(self):
-    with PinnedDateTime(self, DateTime() - 1.1):
-      _, release_variation, \
-        type_variation, \
-        instance_node, \
-        partition, \
-        _ = self.bootstrapAllocableInstanceTree(
-          allocation_state='allocated', node='instance', shared=True)
-
-      self.tic()
-
-    compute_node = partition.getParentValue()
-    self.assertEqual(compute_node.getPortalType(), 'Compute Node')
-
-    ticket = compute_node.ComputeNode_checkAllocationConsistencyState()
-
-    # Double check error dict
-    error_dict = partition.ComputePartition_checkAllocationConsistencyState()
-
-    self.assertNotEqual({}, error_dict)
-    self.assertEqual(2, len(error_dict), error_dict)
-
-    # Type refers to slave instance type
-    type_reference = type_variation.getReference()
-    release_url = release_variation.getUrlString()
-
-    # Check first missing allocation supply for the instance on the computer
-    _error_dict = error_dict[compute_node.getRelativeUrl()]
-
-
-    software_instance = partition.getAggregateRelatedValue(
-      portal_type="Software Instance")
-    self.assertEqual([release_url], _error_dict.keys())
-    instance_software_type = software_instance.getSourceReference()
-    self.assertEqual([instance_software_type],
-                     _error_dict[release_url].keys())
-
-    self.assertEqual(software_instance.getRelativeUrl(),
-      _error_dict[release_url][instance_software_type][0].getRelativeUrl())
-    self.assertEqual(compute_node.getRelativeUrl(),
-      _error_dict[release_url][instance_software_type][1].getRelativeUrl())
-
-    for _index in error_dict:
-      if _index != compute_node.getRelativeUrl():
-        instance_error_dict = error_dict[_index]
-
-    slave_instance = partition.getAggregateRelatedValue(portal_type='Slave Instance')
-    self.assertEqual([release_url], instance_error_dict.keys())
-    self.assertEqual([type_reference],  instance_error_dict[release_url].keys())
-
-    self.assertEqual(slave_instance.getSourceReference(), type_reference)
-    self.assertEqual(slave_instance.getRelativeUrl(),
-      instance_error_dict[release_url][type_reference][0].getRelativeUrl())
-    self.assertNotEqual(compute_node.getRelativeUrl(),
-      instance_error_dict[release_url][type_reference][1].getRelativeUrl())
-
-    instance_node = instance_error_dict[release_url][type_reference][1]
-    self.assertEqual(instance_node.getPortalType(), 'Instance Node')
-
-    ticket_title = "%s has missing allocation supplies." % compute_node.getTitle()
-    self.assertNotEqual(ticket, None)
-    self.assertEqual(ticket.getTitle(), ticket_title)
-
-    self.tic()
-    event_list = ticket.getFollowUpRelatedValueList()
-    self.assertEqual(len(event_list), 1)
-    event = event_list[0]
-
-    self.assertIn("The following contains instances that has Software Releases/Types",
-                  event.getTextContent())
-
-    self.assertIn(release_variation.getUrlString(), event.getTextContent())
-    self.assertIn(type_variation.getReference(), event.getTextContent())
-    self.assertEventTicket(event, ticket, compute_node)
-
 
 
 class TestSlapOSCrmMonitoringCheckComputeNodeProjectState(TestSlapOSCrmMonitoringMixin):
@@ -1239,15 +1379,25 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
       # the software instance.
       _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(
         allocation_state='allocated', shared=True)
-      software_instance = instance_tree.getSuccessorValue()
-    self.tic()
+      slave_instance = instance_tree.getSuccessorValue(portal_type="Slave Instance")
+      software_instance = instance_tree.getSpecialiseRelatedValue(portal_type="Software Instance")
+      instance_tree.requestInstance(
+        software_title=software_instance.getTitle(),
+        state='destroyed',
+        software_release=software_instance.getUrlString(),
+        software_type=software_instance.getSourceReference(),
+        instance_xml=software_instance.getTextContent(),
+        sla_xml=software_instance.getSlaXml(),
+        shared=False,
+      )
+      software_instance.unallocatePartition()
+      self.tic()
 
-    error_dict = software_instance.SoftwareInstance_getReportedErrorDict()
-    software_instance.SoftwareInstance_checkInstanceTreeMonitoringState()
+    error_dict = slave_instance.SoftwareInstance_getReportedErrorDict()
+    slave_instance.SoftwareInstance_checkInstanceTreeMonitoringState()
     self.tic()
 
     ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
-    self.assertEqual(error_dict['should_notify'], True)
 
     ticket_title =  "Instance Tree %s is failing." % (instance_tree.getTitle())
     self.assertEqual(error_dict['ticket_title'], ticket_title)

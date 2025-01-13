@@ -314,18 +314,15 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
       # create a default project
       project_relative_url = self.addProject(person=owner_person, currency=currency, is_accountable=True)
-
-      sale_supply = self.portal.sale_supply_module.newContent(
-        portal_type="Sale Supply",
-        title="price for %s" % project_relative_url,
-        source_project=project_relative_url,
-        price_currency_value=currency
+      self.tic()
+      sale_supply = self.portal.portal_catalog.getResultValue(
+        portal_type='Sale Supply',
+        source_project__relative_url=project_relative_url
       )
-      sale_supply.newContent(
-        portal_type="Sale Supply Line",
-        base_price=99,
-        resource="service_module/slapos_compute_node_subscription"
-      )
+      sale_supply.searchFolder(
+        portal_type='Sale Supply Line',
+        resource__relative_url="service_module/slapos_compute_node_subscription"
+      )[0].edit(base_price=99)
       sale_supply.validate()
 
       self.logout()

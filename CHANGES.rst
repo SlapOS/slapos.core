@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.14.2 (2025-01-13)
+-------------------
+ * slapgrid: prevent file corruption for promise history and stats
+
 1.14.1 (2024-12-24)
 -------------------
  * slapgrid: fixup! copy .netrc file to buildout home path

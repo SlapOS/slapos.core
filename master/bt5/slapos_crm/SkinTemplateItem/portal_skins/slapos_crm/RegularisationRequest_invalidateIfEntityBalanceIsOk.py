@@ -3,10 +3,10 @@ if REQUEST is not None:
   raise Unauthorized
 
 state = context.getSimulationState()
-person = context.getDestinationDecisionValue(portal_type="Person")
+entity = context.getDestinationDecisionValue(portal_type=["Person", "Organisation"])
 if (state not in ('suspended', 'validated')) or \
-   (person is None):
+   (entity is None):
   return
 
-if not person.Entity_hasOutstandingAmount(ledger_uid=context.getPortalObject().portal_categories.ledger.automated.getUid()):
+if not entity.Entity_hasOutstandingAmount(ledger_uid=context.getPortalObject().portal_categories.ledger.automated.getUid()):
   context.invalidate(comment="Automatically disabled as balance is ok")

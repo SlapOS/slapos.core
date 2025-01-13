@@ -22,7 +22,7 @@ return context.RegularisationRequest_checkToTriggerNextEscalationStep(
   comment='Deleting reminder.',
   notification_message="slapos-crm.stop.acknowledgment.escalation",
   substitution_method_parameter_dict={
-    'user_name': context.getDestinationSectionTitle(),
+    'user_name': context.getDestinationDecisionTitle(),
     'days': ndays
   }
 )

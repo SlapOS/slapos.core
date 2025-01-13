@@ -157,7 +157,9 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       # required to generate accounting report
       price_currency_value=currency,
       # required to calculate the vat
-      default_address_region='europe/west/france'
+      default_address_region='europe/west/france',
+      # required email to send events
+      default_email_url_string='test@example.org'
     )
     seller_bank_account = seller_organisation.newContent(
       portal_type="Bank Account",
@@ -553,7 +555,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         portal_type='Organisation',
         title='TestOrganisation Section %s' % self.generateNewId(),
         default_address_region='europe/west/france',
-        vat_code=self.generateNewId()
+        vat_code=self.generateNewId(),
+        # required email to send events
+        default_email_url_string='test@example.org'
       )
       customer_section_organisation.validate()
 

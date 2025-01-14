@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_checkToCreateRegularisationRequest</string> </value>
+            <value> <string>Entity_checkToCreateRegularisationRequest</string> </value>
         </item>
       </dictionary>
     </pickle>

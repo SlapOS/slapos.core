@@ -37,22 +37,20 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       software_product, _, _ = self.addSoftwareProduct(
         "instance product", project, software_release_url, software_type
       )
-      # Create supply to buy services
-      sale_supply = self.portal.sale_supply_module.newContent(
-        portal_type="Sale Supply",
-        title="price for %s" % project.getRelativeUrl(),
-        source_project_value=project,
-        price_currency_value=currency
+      self.tic()
+      sale_supply = self.portal.portal_catalog.getResultValue(
+        portal_type='Sale Supply',
+        source_project__uid=project.getUid()
       )
+      sale_supply.searchFolder(
+        portal_type='Sale Supply Line',
+        resource__relative_url="service_module/slapos_compute_node_subscription"
+      )[0].edit(base_price=7)
+      # Create supply to buy services
       sale_supply.newContent(
         portal_type="Sale Supply Line",
         base_price=6,
         resource_value=software_product
-      )
-      sale_supply.newContent(
-        portal_type="Sale Supply Line",
-        base_price=7,
-        resource="service_module/slapos_compute_node_subscription"
       )
       sale_supply.validate()
       self.tic()

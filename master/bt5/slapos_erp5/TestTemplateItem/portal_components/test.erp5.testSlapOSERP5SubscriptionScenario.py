@@ -86,11 +86,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.logout()
       self.login(sale_person.getUserId())
 
-      sale_supply = self.portal.sale_supply_module.newContent(
-        portal_type="Sale Supply",
-        title="price for %s" % project.getRelativeUrl(),
-        source_project_value=project,
-        price_currency_value=currency
+      self.tic()
+      sale_supply = self.portal.portal_catalog.getResultValue(
+        portal_type='Sale Supply',
+        source_project__uid=project.getUid()
       )
       sale_supply.newContent(
         portal_type="Sale Supply Line",
@@ -249,12 +248,12 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 5 (can reduce to 2) assignment
     # 2 simulation mvt
     # 1 packing list / line
-    # 2 sale supply / line
+    # 3 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 21)
+    self.assertRelatedObjectCount(project, 22)
 
     self.checkERP5StateBeforeExit()
 
@@ -352,9 +351,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # Ensure no unexpected object has been created
     # 1 credential request
     # 4 assignment
+    # 2 Sale Supply + Line
     # 2 Sale Trade condition
     # 1 subscription request
-    self.assertRelatedObjectCount(project, 8)
+    self.assertRelatedObjectCount(project, 10)
     self.checkERP5StateBeforeExit()
 
   def test_subscription_request_cancel_after_compute_node_is_invalidated(self):
@@ -405,21 +405,19 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.logout()
       self.login(sale_person.getUserId())
 
-      sale_supply = self.portal.sale_supply_module.newContent(
-        portal_type="Sale Supply",
-        title="price for %s" % project.getRelativeUrl(),
-        source_project_value=project,
-        price_currency_value=currency
+      self.tic()
+      sale_supply = self.portal.portal_catalog.getResultValue(
+        portal_type='Sale Supply',
+        source_project__uid=project.getUid()
       )
+      sale_supply.searchFolder(
+        portal_type='Sale Supply Line',
+        resource__relative_url="service_module/slapos_compute_node_subscription"
+      )[0].edit(base_price=99)
       sale_supply.newContent(
         portal_type="Sale Supply Line",
         base_price=9,
         resource_value=software_product
-      )
-      sale_supply.newContent(
-        portal_type="Sale Supply Line",
-        base_price=99,
-        resource="service_module/slapos_compute_node_subscription"
       )
       sale_supply.validate()
 
@@ -694,21 +692,19 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.logout()
       self.login(sale_person.getUserId())
 
-      sale_supply = self.portal.sale_supply_module.newContent(
-        portal_type="Sale Supply",
-        title="price for %s" % project.getRelativeUrl(),
-        source_project_value=project,
-        price_currency_value=currency
+      self.tic()
+      sale_supply = self.portal.portal_catalog.getResultValue(
+        portal_type='Sale Supply',
+        source_project__uid=project.getUid()
       )
+      sale_supply.searchFolder(
+        portal_type='Sale Supply Line',
+        resource__relative_url="service_module/slapos_compute_node_subscription"
+      )[0].edit(base_price=99)
       sale_supply.newContent(
         portal_type="Sale Supply Line",
         base_price=9,
         resource_value=software_product
-      )
-      sale_supply.newContent(
-        portal_type="Sale Supply Line",
-        base_price=99,
-        resource="service_module/slapos_compute_node_subscription"
       )
       sale_supply.validate()
 

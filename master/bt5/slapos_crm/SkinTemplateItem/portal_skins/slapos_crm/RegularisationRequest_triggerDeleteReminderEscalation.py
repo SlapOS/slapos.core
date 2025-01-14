@@ -23,7 +23,7 @@ return context.RegularisationRequest_checkToTriggerNextEscalationStep(
   comment='Deleting acknowledgment.',
   notification_message="slapos-crm.delete.reminder.escalation",
   substitution_method_parameter_dict={
-    'user_name': context.getDestinationSectionTitle(),
+    'user_name': context.getDestinationDecisionTitle(),
     'days': ndays
   }
 )

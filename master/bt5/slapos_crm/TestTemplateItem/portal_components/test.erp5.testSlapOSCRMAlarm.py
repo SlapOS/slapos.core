@@ -37,6 +37,7 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
 
     current_invoice = self.portal.accounting_module.newContent(
       portal_type="Sale Invoice Transaction",
+        destination_value=person,
         destination_section_value=person,
         start_date=DateTime('2019/10/20'),
         stop_date=DateTime('2019/10/20'),
@@ -62,7 +63,7 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
   #################################################################
   # slapos_crm_create_regularisation_request
   #################################################################
-  def test_Person_checkToCreateRegularisationRequest_alarm_expectedPerson(self):
+  def test_Entity_checkToCreateRegularisationRequest_alarm_expectedPerson(self):
     new_id = self.generateNewId()
     person = self.portal.person_module.newContent(
       portal_type='Person',
@@ -74,10 +75,25 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
     self._test_alarm(
       self.portal.portal_alarms.slapos_crm_create_regularisation_request,
       person,
-      'Person_checkToCreateRegularisationRequest'
+      'Entity_checkToCreateRegularisationRequest'
     )
 
-  def test_Person_checkToCreateRegularisationRequest_alarm_started(self):
+  def test_Entity_checkToCreateRegularisationRequest_alarm_expectedOrganisation(self):
+    new_id = self.generateNewId()
+    organisation = self.portal.organisation_module.newContent(
+      portal_type='Organisation',
+      title="Test organisation %s" % new_id
+      )
+    organisation.validate()
+    self.createFinalInvoice(organisation)
+    self.tic()
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_crm_create_regularisation_request,
+      organisation,
+      'Entity_checkToCreateRegularisationRequest'
+    )
+
+  def test_Entity_checkToCreateRegularisationRequest_alarm_started(self):
     new_id = self.generateNewId()
     person = self.portal.person_module.newContent(
       portal_type='Person',
@@ -89,10 +105,10 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
     self._test_alarm_not_visited(
       self.portal.portal_alarms.slapos_crm_create_regularisation_request,
       person,
-      'Person_checkToCreateRegularisationRequest'
+      'Entity_checkToCreateRegularisationRequest'
     )
 
-  def test_Person_checkToCreateRegularisationRequest_alarm_lettered(self):
+  def test_Entity_checkToCreateRegularisationRequest_alarm_lettered(self):
     new_id = self.generateNewId()
     person = self.portal.person_module.newContent(
       portal_type='Person',
@@ -104,10 +120,10 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
     self._test_alarm_not_visited(
       self.portal.portal_alarms.slapos_crm_create_regularisation_request,
       person,
-      'Person_checkToCreateRegularisationRequest'
+      'Entity_checkToCreateRegularisationRequest'
     )
 
-  def test_Person_checkToCreateRegularisationRequest_alarm_noLedger(self):
+  def test_Entity_checkToCreateRegularisationRequest_alarm_noLedger(self):
     new_id = self.generateNewId()
     person = self.portal.person_module.newContent(
       portal_type='Person',
@@ -119,10 +135,10 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
     self._test_alarm_not_visited(
       self.portal.portal_alarms.slapos_crm_create_regularisation_request,
       person,
-      'Person_checkToCreateRegularisationRequest'
+      'Entity_checkToCreateRegularisationRequest'
     )
 
-  def test_Person_checkToCreateRegularisationRequest_alarm_noReceivable(self):
+  def test_Entity_checkToCreateRegularisationRequest_alarm_noReceivable(self):
     new_id = self.generateNewId()
     person = self.portal.person_module.newContent(
       portal_type='Person',
@@ -134,10 +150,10 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
     self._test_alarm_not_visited(
       self.portal.portal_alarms.slapos_crm_create_regularisation_request,
       person,
-      'Person_checkToCreateRegularisationRequest'
+      'Entity_checkToCreateRegularisationRequest'
     )
 
-  def test_Person_checkToCreateRegularisationRequest_alarm_notValidatedPerson(self):
+  def test_Entity_checkToCreateRegularisationRequest_alarm_notValidatedPerson(self):
     new_id = self.generateNewId()
     person = self.portal.person_module.newContent(
       portal_type='Person',
@@ -150,10 +166,10 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
     self._test_alarm_not_visited(
       self.portal.portal_alarms.slapos_crm_create_regularisation_request,
       person,
-      'Person_checkToCreateRegularisationRequest'
+      'Entity_checkToCreateRegularisationRequest'
     )
 
-  def test_Person_checkToCreateRegularisationRequest_alarm_noInvoice(self):
+  def test_Entity_checkToCreateRegularisationRequest_alarm_noInvoice(self):
     new_id = self.generateNewId()
     person = self.portal.person_module.newContent(
       portal_type='Person',
@@ -164,7 +180,7 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
     self._test_alarm_not_visited(
       self.portal.portal_alarms.slapos_crm_create_regularisation_request,
       person,
-      'Person_checkToCreateRegularisationRequest'
+      'Entity_checkToCreateRegularisationRequest'
     )
 
   @simulate('NotificationTool_getDocumentValue',
@@ -172,7 +188,7 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
   'assert reference == "slapos-crm.create.regularisation.request"\n' \
   'return')
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
-  def test_Person_checkToCreateRegularisationRequest_script_paymentRequested(self):
+  def test_Entity_checkToCreateRegularisationRequest_script_paymentRequestedForPerson(self):
     for preference in \
       self.portal.portal_catalog(portal_type="System Preference"):
       preference = preference.getObject()
@@ -186,7 +202,7 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
     self.tic()
 
     before_date = DateTime()
-    ticket, event = person.Person_checkToCreateRegularisationRequest()
+    ticket, event = person.Entity_checkToCreateRegularisationRequest()
     after_date = DateTime()
 
     self.tic()
@@ -229,10 +245,72 @@ The slapos team
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, language="en"',
   'assert reference == "slapos-crm.create.regularisation.request"\n' \
+  'return')
+  @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
+  def test_Entity_checkToCreateRegularisationRequest_script_paymentRequestedForOrganisation(self):
+    for preference in \
+      self.portal.portal_catalog(portal_type="System Preference"):
+      preference = preference.getObject()
+      if preference.getPreferenceState() == 'global':
+        preference.setPreferredSlaposWebSiteUrl('http://foobar.org/')
+
+    organisation = self.portal.organisation_module.newContent(
+      portal_type='Organisation',
+      default_email_coordinate_text='test@example.org'
+    )
+    organisation.validate()
+
+    self.createFinalInvoice(organisation)
+    self.tic()
+
+    before_date = DateTime()
+    ticket, event = organisation.Entity_checkToCreateRegularisationRequest()
+    after_date = DateTime()
+
+    self.tic()
+
+    self.assertEqual(ticket.getPortalType(), 'Regularisation Request')
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getResource(),
+                      'service_module/slapos_crm_acknowledgement')
+    self.assertEqual(ticket.getTitle(),
+           'Account regularisation expected for "%s"' % organisation.getTitle())
+    self.assertEqual(ticket.getDestination(),
+                      organisation.getRelativeUrl())
+    self.assertEqual(ticket.getDestinationDecision(),
+                      organisation.getRelativeUrl())
+    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
+    self.assertEqual(event.getResource(),
+                      'service_module/slapos_crm_acknowledgement')
+    self.assertTrue(event.getStartDate() >= before_date)
+    self.assertTrue(event.getStopDate() <= after_date)
+    self.assertEqual(event.getTitle(), "Invoice payment requested")
+    self.assertEqual(event.getDestination(),
+                      organisation.getRelativeUrl())
+    self.assertEqual(event.getSource(),
+                      ticket.getSource())
+    expected_text_content = """Dear %s,
+
+A new invoice has been generated.
+You can access it in your invoice section at http://foobar.org/.
+
+Regards,
+The slapos team
+""" % organisation.getTitle()
+    self.assertEqual(event.getTextContent(), expected_text_content,
+                      '\n'.join([x for x in difflib.unified_diff(
+                                           event.getTextContent().splitlines(),
+                                           expected_text_content.splitlines())]))
+    self.assertEqual(event.getSimulationState(), 'delivered')
+
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None, language="en"',
+  'assert reference == "slapos-crm.create.regularisation.request"\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_addRegularisationRequest_notification_message"])')
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
-  def test_Person_checkToCreateRegularisationRequest_script_notificationMessage(self):
+  def test_Entity_checkToCreateRegularisationRequest_script_notificationMessage(self):
     for preference in \
       self.portal.portal_catalog(portal_type="System Preference"):
       preference = preference.getObject()
@@ -253,7 +331,7 @@ The slapos team
         notification_message.getRelativeUrl()
 
     before_date = DateTime()
-    ticket, event = person.Person_checkToCreateRegularisationRequest()
+    ticket, event = person.Entity_checkToCreateRegularisationRequest()
     after_date = DateTime()
     self.assertEqual(ticket.getPortalType(), 'Regularisation Request')
     self.assertEqual(ticket.getSimulationState(), 'suspended')
@@ -287,17 +365,17 @@ The slapos team
 
 #   def test_addRegularisationRequest_do_not_duplicate_ticket(self):
 #     person = self.createPerson()
-#     ticket = person.Person_checkToCreateRegularisationRequest()
-#     ticket2 = person.Person_checkToCreateRegularisationRequest()
+#     ticket = person.Entity_checkToCreateRegularisationRequest()
+#     ticket2 = person.Entity_checkToCreateRegularisationRequest()
 #     self.assertEqual(ticket.getRelativeUrl(), ticket2.getRelativeUrl())
 
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
-  def test_Person_checkToCreateRegularisationRequest_script_doNotDuplicateTicketIfNotReindexed(self):
+  def test_Entity_checkToCreateRegularisationRequest_script_doNotDuplicateTicketIfNotReindexed(self):
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
-    ticket, event = person.Person_checkToCreateRegularisationRequest()
+    ticket, event = person.Entity_checkToCreateRegularisationRequest()
     transaction.commit()
-    ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
+    ticket2, event2 = person.Entity_checkToCreateRegularisationRequest()
     self.assertNotEqual(ticket, None)
     self.assertNotEqual(event, None)
     self.assertEqual(ticket2, None)
@@ -307,58 +385,58 @@ The slapos team
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_Person_checkToCreateRegularisationRequest_script_balanceOk(self):
+  def test_Entity_checkToCreateRegularisationRequest_script_balanceOk(self):
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
-    ticket, event = person.Person_checkToCreateRegularisationRequest()
+    ticket, event = person.Entity_checkToCreateRegularisationRequest()
     self.assertEqual(ticket, None)
     self.assertEqual(event, None)
 
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
-  def test_Person_checkToCreateRegularisationRequest_script_existingSuspendedTicket(self):
+  def test_Entity_checkToCreateRegularisationRequest_script_existingSuspendedTicket(self):
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
-    ticket, event = person.Person_checkToCreateRegularisationRequest()
+    ticket, event = person.Entity_checkToCreateRegularisationRequest()
     transaction.commit()
     self.tic()
-    ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
+    ticket2, event2 = person.Entity_checkToCreateRegularisationRequest()
     self.assertNotEqual(ticket, None)
     self.assertNotEqual(event, None)
     self.assertEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
     self.assertEqual(event2, None)
 
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
-  def test_Person_checkToCreateRegularisationRequest_script_existingValidatedTicket(self):
+  def test_Entity_checkToCreateRegularisationRequest_script_existingValidatedTicket(self):
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
-    ticket, event = person.Person_checkToCreateRegularisationRequest()
+    ticket, event = person.Entity_checkToCreateRegularisationRequest()
     ticket.validate()
     transaction.commit()
     self.tic()
-    ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
+    ticket2, event2 = person.Entity_checkToCreateRegularisationRequest()
     self.assertNotEqual(ticket, None)
     self.assertNotEqual(event, None)
     self.assertEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
     self.assertEqual(event2, None)
 
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
-  def test_Person_checkToCreateRegularisationRequest_script_existingInvalidatedTicket(self):
+  def test_Entity_checkToCreateRegularisationRequest_script_existingInvalidatedTicket(self):
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
-    ticket = person.Person_checkToCreateRegularisationRequest()[0]
+    ticket = person.Entity_checkToCreateRegularisationRequest()[0]
     ticket.invalidate()
     transaction.commit()
     self.tic()
-    ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
+    ticket2, event2 = person.Entity_checkToCreateRegularisationRequest()
     self.assertNotEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
     self.assertNotEqual(event2, None)
 
-  def test_Person_checkToCreateRegularisationRequest_script_REQUEST_disallowed(self):
+  def test_Entity_checkToCreateRegularisationRequest_script_REQUEST_disallowed(self):
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
     self.assertRaises(
       Unauthorized,
-      person.Person_checkToCreateRegularisationRequest,
+      person.Entity_checkToCreateRegularisationRequest,
       REQUEST={})
 
 
@@ -373,77 +451,77 @@ The slapos team
   #################################################################
   # slapos_crm_invalidate_suspended_regularisation_request
   #################################################################
-  def test_RegularisationRequest_invalidateIfPersonBalanceIsOk_alarm_validatedRegularisationRequest(self):
+  def test_RegularisationRequest_invalidateIfEntityBalanceIsOk_alarm_validatedRegularisationRequest(self):
     ticket = self.createRegularisationRequest()
     ticket.validate()
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_invalidate_suspended_regularisation_request
-    self._test_alarm(alarm, ticket, "RegularisationRequest_invalidateIfPersonBalanceIsOk")
+    self._test_alarm(alarm, ticket, "RegularisationRequest_invalidateIfEntityBalanceIsOk")
 
-  def test_RegularisationRequest_invalidateIfPersonBalanceIsOk_alarm_suspendedRegularisationRequest(self):
+  def test_RegularisationRequest_invalidateIfEntityBalanceIsOk_alarm_suspendedRegularisationRequest(self):
     ticket = self.createRegularisationRequest()
     ticket.validate()
     ticket.suspend()
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_invalidate_suspended_regularisation_request
-    self._test_alarm(alarm, ticket, "RegularisationRequest_invalidateIfPersonBalanceIsOk")
+    self._test_alarm(alarm, ticket, "RegularisationRequest_invalidateIfEntityBalanceIsOk")
 
-  def test_RegularisationRequest_invalidateIfPersonBalanceIsOk_alarm_invalidatedRegularisationRequest(self):
+  def test_RegularisationRequest_invalidateIfEntityBalanceIsOk_alarm_invalidatedRegularisationRequest(self):
     ticket = self.createRegularisationRequest()
     ticket.validate()
     ticket.invalidate()
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_invalidate_suspended_regularisation_request
-    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_invalidateIfPersonBalanceIsOk")
+    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_invalidateIfEntityBalanceIsOk")
 
-  def test_RegularisationRequest_invalidateIfPersonBalanceIsOk_script_REQUESTdisallowed(self):
+  def test_RegularisationRequest_invalidateIfEntityBalanceIsOk_script_REQUESTdisallowed(self):
     ticket = self.createRegularisationRequest()
     self.assertRaises(
       Unauthorized,
-      ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk,
+      ticket.RegularisationRequest_invalidateIfEntityBalanceIsOk,
       REQUEST={})
 
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return False')
-  def test_RegularisationRequest_invalidateIfPersonBalanceIsOk_script_matchingCase(self):
+  def test_RegularisationRequest_invalidateIfEntityBalanceIsOk_script_matchingCase(self):
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(destination_decision_value=person)
     ticket.validate()
     ticket.suspend()
-    ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
+    ticket.RegularisationRequest_invalidateIfEntityBalanceIsOk()
     self.assertEqual(ticket.getSimulationState(), 'invalidated')
 
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return False')
-  def test_RegularisationRequest_invalidateIfPersonBalanceIsOk_script_validated(self):
+  def test_RegularisationRequest_invalidateIfEntityBalanceIsOk_script_validated(self):
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(destination_decision_value=person)
     ticket.validate()
-    ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
+    ticket.RegularisationRequest_invalidateIfEntityBalanceIsOk()
     self.assertEqual(ticket.getSimulationState(), 'invalidated')
 
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return False')
-  def test_RegularisationRequest_invalidateIfPersonBalanceIsOk_script_noPerson(self):
+  def test_RegularisationRequest_invalidateIfEntityBalanceIsOk_script_noPerson(self):
     ticket = self.createRegularisationRequest()
     ticket.validate()
     ticket.suspend()
-    ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
+    ticket.RegularisationRequest_invalidateIfEntityBalanceIsOk()
     self.assertEqual(ticket.getSimulationState(), 'suspended')
 
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
-  def test_RegularisationRequest_invalidateIfPersonBalanceIsOk_script_wrongBalance(self):
+  def test_RegularisationRequest_invalidateIfEntityBalanceIsOk_script_wrongBalance(self):
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(destination_decision_value=person)
     ticket.validate()
     ticket.suspend()
-    ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
+    ticket.RegularisationRequest_invalidateIfEntityBalanceIsOk()
     self.assertEqual(ticket.getSimulationState(), 'suspended')
 
 
@@ -896,6 +974,32 @@ class TestSlapOSCrmStopInstanceTree(SlapOSTestCaseMixinWithAbort):
     )
     self.tic()
 
+    accounting_transaction = self.portal.accounting_module.newContent(
+      portal_type="Sale Invoice Transaction",
+      destination_value=person,
+      destination_section_value=person,
+      start_date=DateTime(),
+      price_currency="currency_module/EUR",
+      resource="currency_module/EUR",
+      ledger="automated",
+    )
+    accounting_transaction.newContent(
+      portal_type="Invoice Line",
+      aggregate_value_list=[
+        instance_tree,
+        self.portal.hosting_subscription_module.newContent()
+      ]
+    )
+    accounting_transaction.newContent(
+      portal_type="Sale Invoice Transaction Line",
+      quantity=1,
+      source="account_module/receivable"
+    )
+    self.portal.portal_workflow._jumpToStateFor(accounting_transaction, 'stopped')
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+
+
     result = ticket.\
         RegularisationRequest_stopInstanceTreeList('footag')
     self.assertTrue(result)
@@ -928,6 +1032,32 @@ class TestSlapOSCrmStopInstanceTree(SlapOSTestCaseMixinWithAbort):
       destination_section=person.getRelativeUrl(),
     )
     self.tic()
+
+    accounting_transaction = self.portal.accounting_module.newContent(
+      portal_type="Sale Invoice Transaction",
+      destination_value=person,
+      destination_section_value=person,
+      start_date=DateTime(),
+      price_currency="currency_module/EUR",
+      resource="currency_module/EUR",
+      ledger="automated",
+    )
+    accounting_transaction.newContent(
+      portal_type="Invoice Line",
+      aggregate_value_list=[
+        instance_tree,
+        self.portal.hosting_subscription_module.newContent()
+      ]
+    )
+    accounting_transaction.newContent(
+      portal_type="Sale Invoice Transaction Line",
+      quantity=1,
+      source="account_module/receivable"
+    )
+    self.portal.portal_workflow._jumpToStateFor(accounting_transaction, 'stopped')
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+
 
     result = ticket.\
         RegularisationRequest_stopInstanceTreeList('footag')
@@ -1118,6 +1248,7 @@ class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
 
     accounting_transaction = self.portal.accounting_module.newContent(
       portal_type="Sale Invoice Transaction",
+      destination_value=person,
       destination_section_value=person,
       start_date=DateTime(),
       price_currency="currency_module/EUR",

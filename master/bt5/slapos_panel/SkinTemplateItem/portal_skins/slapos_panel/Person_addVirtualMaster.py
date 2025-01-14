@@ -110,6 +110,21 @@ sale_trade_condition = portal.sale_trade_condition_module.newContent(
 )
 sale_trade_condition.validate()
 
+if is_compute_node_payable or is_instance_tree_payable:
+  # Create a draft sale supply to buy nodes / instances
+  # Sale Manager must manually enter the prices on it and validate
+  sale_supply = portal.sale_supply_module.newContent(
+    portal_type="Sale Supply",
+    title="Project Prices for %s" % project.getReference(),
+    source_project_value=project,
+    price_currency_value=currency_value
+  )
+  if is_compute_node_payable:
+    sale_supply.newContent(
+      portal_type="Sale Supply Line",
+      resource="service_module/slapos_compute_node_subscription"
+    )
+
 if batch:
   return project
 return project.Base_redirect()

@@ -1,6 +1,6 @@
 portal = context.getPortalObject()
 
-person_uid_list = []
+entity_uid_list = []
 for (_, brain) in enumerate(portal.portal_simulation.getInventoryList(
     simulation_state=('stopped', 'delivered'),
     group_by_mirror_section=True,
@@ -10,16 +10,16 @@ for (_, brain) in enumerate(portal.portal_simulation.getInventoryList(
     grouping_reference=None
 )):
 
-  section_uid = brain.getDestinationSectionUid(portal_type="Person")
+  section_uid = brain.getDestinationSectionUid(portal_type=["Person", "Organisation"])
   if section_uid is not None:
-    person_uid_list.append(section_uid)
+    entity_uid_list.append(section_uid)
 
-if person_uid_list:
+if entity_uid_list:
   portal.portal_catalog.searchAndActivate(
-    portal_type="Person",
+    portal_type=["Person", "Organisation"],
     validation_state="validated",
-    uid=person_uid_list,
-    method_id='Person_checkToCreateRegularisationRequest',
+    uid=entity_uid_list,
+    method_id='Entity_checkToCreateRegularisationRequest',
     activate_kw={'tag': tag}
   )
 context.activate(after_tag=tag).getId()

@@ -474,7 +474,7 @@ class PromiseLauncher(object):
     try:
       with open(history_file) as f:
         history_dict = json.load(f)
-    except OSError as e:
+    except (IOError, OSError) as e:
       if e.errno != errno.ENOENT:
         raise
     except ValueError:
@@ -507,7 +507,7 @@ class PromiseLauncher(object):
     try:
       with open(stat_file_path) as f:
         stat_dict = json.load(f)
-    except OSError as e:
+    except (IOError, OSError) as e:
       if e.errno != errno.ENOENT:
         raise
     except ValueError:

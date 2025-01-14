@@ -569,7 +569,7 @@ class RunPromise(GenericPromise):
   def test_runpromise_with_currupted_history(self):
     promise_name = 'my_promise'
     self.configureLauncher()
-    self.generatePromiseScript('my_promise.py', success=True, periodicity=0.03)
+    self.generatePromiseScript('my_promise.py', success=True, periodicity=0.02)
 
     self.launcher.run()
     self.assertSuccessResult(promise_name)
@@ -598,7 +598,7 @@ class RunPromise(GenericPromise):
       f.write("""{
 	"data": ["Date, Success,
 """)
-    time.sleep(4)
+    time.sleep(3)
 
     with self.assertRaises(ValueError):
       self.assertSuccessHistoryResult(promise_name)
@@ -611,6 +611,13 @@ class RunPromise(GenericPromise):
     self.assertSuccessHistoryResult(promise_name)
     # Statistics data file is not broken anymore
     self.assertSuccessStatsResult(1)
+
+    # make sure all works after history_file not exists
+    os.unlink(history_file)
+    time.sleep(3)
+    self.launcher.run()
+    self.assertSuccessHistoryResult(promise_name)
+
 
   def test_runpromise_no_logdir(self):
     promise_name = 'my_promise.py'

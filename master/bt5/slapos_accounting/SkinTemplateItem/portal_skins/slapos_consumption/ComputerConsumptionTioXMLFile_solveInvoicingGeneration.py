@@ -1,6 +1,3 @@
-if True: # pylint: disable=using-constant-test
-  return "disabled as not matching yet the virtual master design"
-
 from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized

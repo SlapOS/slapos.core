@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.14.3 (2025-01-14)
+-------------------
+ * slapgrid: fixup: prevent file corruption for promise history and stats
+
 1.14.2 (2025-01-13)
 -------------------
  * slapgrid: prevent file corruption for promise history and stats

@@ -28,7 +28,6 @@
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
   TemporaryAlarmScript, Simulator, simulate, PinnedDateTime
-from unittest import expectedFailure
 from zExceptions import Unauthorized
 
 import os
@@ -609,14 +608,15 @@ class TestSlapOSGeneratePackingListFromTioXML(SlapOSTestCaseMixin):
     document = self.portal.consumption_document_module.newContent(
       title=self.generateNewId(),
       reference="TESTTIOCONS-%s" % self.generateNewId(),
+      portal_type="Computer Consumption TioXML File"
     )
     return document
 
-  @expectedFailure
   def test_ComputerConsumptionTioXMLFile_solveInvoicingGeneration_alarm(self):
-    document = self.createTioXMLFile()
-    document.submit()
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      document = self.createTioXMLFile()
+      document.submit()
+      self.tic()
 
     script_name = "ComputerConsumptionTioXMLFile_solveInvoicingGeneration"
     alarm = self.portal.portal_alarms.slapos_accounting_generate_packing_list_from_tioxml
@@ -625,9 +625,10 @@ class TestSlapOSGeneratePackingListFromTioXML(SlapOSTestCaseMixin):
       alarm, document, script_name)
 
   def test_ComputerConsumptionTioXMLFile_solveInvoicingGeneration_alarm_not_submitted(self):
-    document = self.createTioXMLFile()
-    self.tic()
-    
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      document = self.createTioXMLFile()
+      self.tic()
+
     script_name = "ComputerConsumptionTioXMLFile_solveInvoicingGeneration"
     alarm = self.portal.portal_alarms.slapos_accounting_generate_packing_list_from_tioxml
 

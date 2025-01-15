@@ -26,7 +26,7 @@ from cryptography.x509.oid import NameOID
 
 class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
-  launch_caucase = 1
+  require_certificate = 1
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)

@@ -28,7 +28,7 @@ from cryptography.x509.oid import NameOID
 class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
   """Tests instance.requestInstance"""
 
-  launch_caucase = 1
+  require_certificate = 1
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
@@ -1053,7 +1053,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
 class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
   """Tests instance.requestTransfer"""
-  launch_caucase = 1
+  require_certificate = 1
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)

@@ -13,7 +13,7 @@ def convertCategoryList(base, l):
 
 
 class TestSlapOSBuilderMixin(SlapOSTestCaseMixin):
-  launch_caucase = 1
+  require_certificate = 1
 
   def checkSimulationMovement(self, simulation_movement):
     self.assertEqual(1.0, simulation_movement.getDeliveryRatio())

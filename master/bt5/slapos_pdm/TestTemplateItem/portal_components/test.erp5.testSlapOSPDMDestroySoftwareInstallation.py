@@ -22,7 +22,7 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
 class TestSlapOSDestroySoftwareInstallation(SlapOSTestCaseMixin):
-  launch_caucase = 1
+  require_certificate = 1
 
   def bootstrapSoftwareInstallation(self, is_allocated=True, is_supplied=True):
     if is_allocated:

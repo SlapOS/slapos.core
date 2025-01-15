@@ -49,7 +49,7 @@ def canonical_xml(xml):
 
 
 class TestSlapOSSlapToolMixin(SlapOSTestCaseMixin):
-  launch_caucase = 1
+  require_certificate = 1
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self.portal_slap = self.portal.portal_slap

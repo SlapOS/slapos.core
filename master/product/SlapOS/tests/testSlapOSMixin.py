@@ -44,7 +44,7 @@ config = getConfiguration()
 class testSlapOSMixin(ERP5TypeCaucaseTestCase):
 
   abort_transaction = 0
-  launch_caucase = 0
+  require_certificate = 0
 
   def clearCache(self):
     self.portal.portal_caches.clearAllCache()
@@ -98,7 +98,7 @@ class testSlapOSMixin(ERP5TypeCaucaseTestCase):
     self.portal.email_from_address = 'romain@nexedi.com'
     self.portal.email_to_address = 'romain@nexedi.com'
 
-    if not self.isLiveTest() and self.launch_caucase:
+    if not self.isLiveTest() and self.require_certificate:
       self.setUpCaucase()
 
     if getattr(self.portal.portal_caches, 'erp5_site_global_id', None):

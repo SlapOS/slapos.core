@@ -52,7 +52,7 @@ def _decode_with_json(value):
 class TestSlapOSCloudSlapOSCacheMixin(
     SlapOSTestCaseMixin):
 
-  launch_caucase = 1
+  require_certificate = 1
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
@@ -432,7 +432,7 @@ class TestBase_isValidXml(SlapOSTestCaseMixinWithAbort):
 class TestSlapOSCloudSoftwareInstance(
     SlapOSTestCaseMixin):
 
-  launch_caucase = 1
+  require_certificate = 1
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
@@ -663,7 +663,7 @@ class TestSlapOSCloudSoftwareInstance(
 class TestSlapOSCloudSlaveInstance(
     TestSlapOSCloudSoftwareInstance):
 
-  launch_caucase = 1
+  require_certificate = 1
 
   def _skipTest(self):
     pass
@@ -683,7 +683,7 @@ class TestSlapOSCloudSlaveInstance(
 
 class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
       SlapOSTestCaseMixin):
-  launch_caucase = 1
+  require_certificate = 1
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
@@ -897,7 +897,7 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
     self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
 
 class TestSlapOSCloudInstanceInvalidRequest(SlapOSTestCaseMixin):
-  launch_caucase = 1 
+  require_certificate = 1 
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)

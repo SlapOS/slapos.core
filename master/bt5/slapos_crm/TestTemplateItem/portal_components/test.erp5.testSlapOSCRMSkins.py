@@ -229,7 +229,7 @@ class TestCRMPropertySheetConstraint(SlapOSTestCaseMixin):
 
 class TestProject_createTicketWithCausality(TestCRMSkinsMixin):
 
-  launch_caucase = 1
+  require_certificate = 1
 
   def testProject_createTicketWithCausality(self):
     self._makeComputeNode(self.project)

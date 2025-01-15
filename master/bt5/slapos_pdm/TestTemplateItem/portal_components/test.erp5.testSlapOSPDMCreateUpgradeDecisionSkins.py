@@ -23,7 +23,7 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
 class TestSlapOSPDMCreateUpgradeDecisionSkins(SlapOSTestCaseMixin):
 
-  launch_caucase = 1
+  require_certificate = 1
 
   def test_createUpgradeDecision_destroyed_instance(self):
     instance_tree = self.portal.instance_tree_module.newContent(

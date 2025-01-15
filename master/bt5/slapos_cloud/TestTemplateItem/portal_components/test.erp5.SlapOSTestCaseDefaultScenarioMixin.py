@@ -30,7 +30,7 @@ from AccessControl.SecurityManagement import getSecurityManager, \
 
 class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
-  launch_caucase = 1
+  require_certificate = 1
 
   def afterSetUp(self):
     TestSlapOSSecurityMixin.afterSetUp(self)

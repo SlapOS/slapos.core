@@ -603,7 +603,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeProjectState(TestSlapOSCrmMonitorin
 
 class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin):
 
-  launch_caucase = 1
+  require_certificate = 1
   ##########################################################################
   # ComputeNode_checkProjectMontoringState > ComputeNode_checkMonitoringState
   ##########################################################################

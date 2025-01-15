@@ -7,7 +7,7 @@ from erp5.component.module.DateUtils import addToDate
 
 
 class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(SlapOSTestCaseMixin):
-  launch_caucase = 1
+  require_certificate = 1
   #################################################################
   # slapos_cloud_create_missing_subscription_assignment
   #################################################################
@@ -244,7 +244,7 @@ class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(SlapOSTestCaseMixin):
 
 class TestSlapOSFreeComputePartitionAlarm(SlapOSTestCaseMixin):
 
-  launch_caucase = 1
+  require_certificate = 1
   #################################################################
   # slapos_free_compute_partition
   #################################################################
@@ -483,7 +483,7 @@ class TestSlapOSFreeComputePartitionAlarm(SlapOSTestCaseMixin):
 
 
 class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
-  launch_caucase = 1
+  require_certificate = 1
   #################################################################
   # slapos_garbage_collect_destroyed_root_tree
   #################################################################
@@ -601,7 +601,7 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
 
 
 class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
-  launch_caucase = 1
+  require_certificate = 1
   #################################################################
   # slapos_update_compute_node_capacity_scope
   #################################################################
@@ -832,7 +832,7 @@ class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
 
 
 class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
-  launch_caucase = 1
+  require_certificate = 1
   #################################################################
   # slapos_stop_collect_instance
   #################################################################
@@ -899,7 +899,7 @@ class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
 
 
 class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
-  launch_caucase = 1
+  require_certificate = 1
   #################################################################
   # slapos_garbage_collect_non_allocated_root_tree
   #################################################################
@@ -1114,7 +1114,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 
 
 class TestSlapOSInvalidateDestroyedInstance(SlapOSTestCaseMixin):
-  launch_caucase = 1
+  require_certificate = 1
   #################################################################
   # slapos_cloud_invalidate_destroyed_instance
   #################################################################
@@ -1292,7 +1292,7 @@ class TestSlapOSInvalidateDestroyedInstance(SlapOSTestCaseMixin):
 
 
 class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
-  launch_caucase = 1
+  require_certificate = 1
 
   #################################################################
   # slapos_cloud_propagate_remote_node_instance

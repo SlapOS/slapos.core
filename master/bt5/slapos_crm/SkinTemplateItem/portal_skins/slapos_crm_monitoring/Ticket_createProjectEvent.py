@@ -2,6 +2,7 @@
 It creates new Event for any context which become follow_up of created Event.
 """
 from erp5.component.tool.NotificationTool import buildEmailMessage
+from Products.ERP5Type.Utils import str2bytes
 
 from zExceptions import Unauthorized
 if REQUEST is not None:
@@ -84,7 +85,7 @@ if not event.hasTitle():
                             subject=title,
                             attachment_list=attachment_list)
   event.edit(
-    data=email.as_string()
+    data=str2bytes(email.as_string())
   )
 
 if not keep_draft:

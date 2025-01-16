@@ -28,6 +28,7 @@
 from erp5.component.module.SlapOSCloud import _assertACI
 from zLOG import LOG, INFO
 from OFS.Traversable import NotFound
+from Products.ERP5Type.Utils import unicode2str
 
 try:
   from slapos.util import calculate_dict_hash
@@ -76,11 +77,11 @@ class SlapOSComputePartitionMixin(object):
     compute_node = self
     while compute_node.getPortalType() != 'Compute Node':
       compute_node = compute_node.getParentValue()
-    compute_node_id = compute_node.getReference().decode("UTF-8")
+    compute_node_id = unicode2str(compute_node.getReference())
 
     partition_dict = {
       "compute_node_id": compute_node_id,
-      "partition_id": self.getReference().decode("UTF-8"),
+      "partition_id": unicode2str(self.getReference()),
       "_software_release_document": None,
       "_requested_state": 'destroyed',
       "_need_modification": 0
@@ -110,7 +111,7 @@ class SlapOSComputePartitionMixin(object):
         partition_dict['_requested_state'] = 'started'
 
       partition_dict['_software_release_document'] = {
-            "software_release": software_instance.getUrlString().decode("UTF-8"),
+            "software_release": unicode2str(software_instance.getUrlString()),
             "computer_guid": compute_node_id
       }
       partition_dict['_access_status'] = software_instance.getTextAccessStatus()

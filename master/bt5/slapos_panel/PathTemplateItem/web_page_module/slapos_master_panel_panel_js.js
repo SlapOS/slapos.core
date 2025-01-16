@@ -104,8 +104,6 @@
             "action_object_clone_action": "display_dialog_with_history"
           }, {
             "action_object_clone_action": true
-          }, function filter(action) {
-            return (action.name.indexOf('slapos') !== -1);
           });
 
         workflow_list = JSON.stringify(group_mapping.action_workflow);

@@ -73,7 +73,14 @@ if sla_dict:
       instance_sla_error_list.append('instance_guid is provided to a Software Instance: %s' % instance_title)
     else:
       if compute_node.getPortalType() == "Remote Node":
-        instance_sla_error_list.append('instance_guid provided on %s and it is allocated on a REMOTE NODE' % instance_title)
+        # RAFAEL: I disabled the following verification until further notice, the
+        # reasoning is that allocation allows this to happens for now, and we eventually
+        # need this feature for now.
+        # Once the implementation changes and this code be merged with allocation code, we will
+        # re-enable this feature:
+        # instance_sla_error_list.append(
+        #    'instance_guid provided on %s and it is allocated on a REMOTE NODE' % instance_title)
+        pass
       else:
         software_instance = compute_partition.getAggregateRelatedValue(portal_type='Software Instance')
         if software_instance is not None and software_instance.getReference() != instance_guid:

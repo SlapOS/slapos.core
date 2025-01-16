@@ -32,6 +32,7 @@ from Products.ERP5Type.tests.ERP5TypeFunctionalTestCase import ERP5TypeFunctiona
 class TestSlapOSPanelStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
   foreground = 0
   run_only = "slapos_panel_zuite"
+  require_certificate = 1
 
   def afterSetUp(self):
     ERP5TypeFunctionalTestCase.afterSetUp(self)

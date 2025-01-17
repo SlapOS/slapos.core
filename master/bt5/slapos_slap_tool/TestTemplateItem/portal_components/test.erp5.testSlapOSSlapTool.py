@@ -16,7 +16,6 @@ import hashlib
 import json
 from binascii import hexlify
 from OFS.Traversable import NotFound
-from Products.ERP5Type.Utils import unicode2str
 
 
 def hashData(data):
@@ -43,10 +42,11 @@ class Simulator:
 
 
 def canonical_xml(xml):
-  return unicode2str(etree.tostring(
+  return etree.tostring(
     etree.fromstring(xml),
     method="c14n",
-  ))
+  ).decode('utf-8')
+
 
 class TestSlapOSSlapToolMixin(SlapOSTestCaseMixin):
   def afterSetUp(self):

@@ -32,7 +32,6 @@ from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 from Products.ERP5Type.tests.utils import DummyMailHostMixin
 from OFS.Traversable import NotFound
 from erp5.component.module.SlapOSCloud import _assertACI
-from Products.ERP5Type.Utils import unicode2str
 
 import time
 from lxml import etree
@@ -65,8 +64,8 @@ class SlapOSComputeNodeMixin(object):
       ):
       software_installation = _assertACI(software_installation.getObject())
       software_release_dict = {
-        "software_release": unicode2str(software_installation.getUrlString()),
-        "computer_guid": unicode2str(self.getReference())
+        "software_release": software_installation.getUrlString().decode('UTF-8'),
+        "computer_guid": self.getReference().decode('UTF-8')
       }
       if software_installation.getSlapState() == 'destroy_requested':
         software_release_dict["_requested_state"] = 'destroyed'
@@ -86,7 +85,7 @@ class SlapOSComputeNodeMixin(object):
 
   def _getCacheComputeNodeInformation(self, user):
     compute_node_dict = {
-      "_computer_id": unicode2str(self.getReference()),
+      "_computer_id": self.getReference().decode("UTF-8"),
       "_computer_partition_list": [],
       "_software_release_list": self._getSoftwareReleaseValueList()
     }
@@ -193,7 +192,7 @@ class SlapOSComputeNodeMixin(object):
         return self._getCacheComputeNodeInformation(user), None
     else:
       compute_node_dict = {
-        "_computer_id": unicode2str(self.getReference()),
+        "_computer_id": self.getReference().decode("UTF-8"),
         "_computer_partition_list": [],
         "_software_release_list": []
         }
@@ -260,10 +259,10 @@ class SlapOSComputeNodeMixin(object):
     compute_node = compute_partition_document
     while compute_node.getPortalType() != 'Compute Node':
       compute_node = compute_node.getParentValue()
-    compute_node_id = unicode2str(compute_node.getReference())
+    compute_node_id = compute_node.getReference().decode("UTF-8")
     partition_dict = {
       "compute_node_id": compute_node_id,
-      "partition_id": unicode2str(compute_partition_document.getReference()),
+      "partition_id": compute_partition_document.getReference().decode("UTF-8"),
       "_software_release_document": None,
       "_requested_state": 'destroyed',
       "_need_modification": 0
@@ -289,7 +288,7 @@ class SlapOSComputeNodeMixin(object):
       partition_dict['_access_status'] = software_instance.getTextAccessStatus()
 
       partition_dict['_software_release_document'] = {
-            "software_release": unicode2str(software_instance.getUrlString()),
+            "software_release": software_instance.getUrlString().decode("UTF-8"),
             "computer_guid": compute_node_id
       }
 

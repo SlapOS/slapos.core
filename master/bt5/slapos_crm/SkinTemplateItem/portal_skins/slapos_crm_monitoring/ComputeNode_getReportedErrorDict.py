@@ -129,7 +129,7 @@ for software_installation in portal.portal_catalog(
 
     if access_status_text.startswith("#building"):
       error_dict['ticket_description'] = \
-        "The software release %s is building for mode them 12 hours on %s, started on %s" % message_list
+        "The software release %s is building for more than 12 hours on %s, started on %s" % message_list
     else:
       error_dict['ticket_description'] = \
         "The software release %s is failing to build for too long on %s, started on %s" % message_list

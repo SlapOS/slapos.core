@@ -987,7 +987,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
 
     message = ticket.SupportRequest_recheckMonitoring()
     self.assertEqual(error_dict['message'], message)
-    self.assertIn(" is building for mode them 12 hours on", message)
+    self.assertIn(" is building for more than 12 hours on", message)
 
     event_list = ticket.getFollowUpRelatedValueList()
     self.assertEqual(len(event_list), 1)

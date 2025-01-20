@@ -218,6 +218,7 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
     invoice = self.portal.accounting_module.newContent(
         portal_type='Sale Invoice Transaction',
         price_currency_value=currency,
+        ledger='automated',
         specialise_value=sale_trade_condition)
     invoice.newContent(portal_type='Invoice Line', quantity=1., price=1.,
         base_contribution='base_amount/invoicing/taxable')

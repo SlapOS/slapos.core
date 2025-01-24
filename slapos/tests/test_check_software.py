@@ -206,7 +206,7 @@ class TestCheckSoftwareEggVulnerability(SlapOSStandaloneTestCase):
 
     warning, = [w for w in warning_context if 'vulnerable' in str(w.message)]
     self.assertIn(
-        'urllib3 before version 1.23 does not remove the Authorization HTTP header when',
+        'Urllib3 before version 1.23 does not remove the Authorization HTTP header when',
         str(warning.message),
     )
     self.assertIn(

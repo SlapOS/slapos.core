@@ -28,6 +28,8 @@ def getSimulationStatePlannedDelivered(self, *args, **kwargs):
   return 'planned'
 
 class TestDefaultInvoiceTransactionRule(SlapOSTestCaseMixin):
+  require_certificate = 1
+
   @withAbort
   def test_simulation(self):
     SimulationMovement.original_getSimulationState = SimulationMovement\
@@ -169,6 +171,8 @@ class TestDefaultInvoiceTransactionRule(SlapOSTestCaseMixin):
 
 
 class TestDefaultInvoiceRule(SlapOSTestCaseMixin):
+  require_certificate = 1
+
   @withAbort
   def test_simulation(self):
     SimulationMovement.original_getSimulationState = SimulationMovement\
@@ -249,6 +253,8 @@ class TestDefaultInvoiceRule(SlapOSTestCaseMixin):
 
 
 class TestDefaultInvoicingRule(SlapOSTestCaseMixin):
+  require_certificate = 1
+
   @withAbort
   def test_simulation(self):
     SimulationMovement.original_getSimulationState = SimulationMovement\
@@ -381,6 +387,8 @@ class TestDefaultInvoicingRule(SlapOSTestCaseMixin):
         .original_getSimulationState
 
 class TestDefaultPaymentRule(SlapOSTestCaseMixin):
+  require_certificate = 1
+
   @withAbort
   def test_simulation(self):
     SimulationMovement.original_getSimulationState = SimulationMovement\
@@ -857,6 +865,7 @@ class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
         .original_getSimulationState
 
 class TestDefaultDeliveryRule(SlapOSTestCaseMixin):
+  require_certificate = 1
 
   def test(self):
     resource, _, _, _, _, aggregate = self.bootstrapAllocableInstanceTree(is_accountable=True)
@@ -950,6 +959,8 @@ class TestDefaultDeliveryRule(SlapOSTestCaseMixin):
         for q in simulation_movement.contentValues(portal_type='Applied Rule')])
 
 class TestDefaultDeliveryRuleConsumption(SlapOSTestCaseMixin):
+  require_certificate = 1
+
   def test(self):
     resource, _, _, _, _, aggregate = self.bootstrapAllocableInstanceTree(is_accountable=True)
     project = aggregate.getFollowUpValue()

@@ -603,6 +603,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeProjectState(TestSlapOSCrmMonitorin
 
 class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin):
 
+  require_certificate = 1
   ##########################################################################
   # ComputeNode_checkProjectMontoringState > ComputeNode_checkMonitoringState
   ##########################################################################

@@ -30,10 +30,10 @@ from Products.ERP5Type import Permissions
 from erp5.component.document.Item import Item
 from lxml import etree
 import collections
+from Products.ERP5Type.Utils import str2bytes, unicode2str, str2unicode
 
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 from erp5.component.module.SlapOSCloud import _assertACI
-
 
 from zLOG import LOG, INFO
 try:
@@ -66,16 +66,16 @@ class SoftwareInstance(Item):
   def _getXmlAsDict(self, xml):
     result_dict = {}
     if xml:
-      tree = etree.fromstring(xml)
+      tree = etree.fromstring(str2bytes(xml))
       for element in tree.iterfind('parameter'):
-        key = element.get('id').encode("UTF-8")
+        key = str2unicode(element.get('id'))
         value = result_dict.get(key, None)
         if value is not None:
           value = (value + ' ' + element.text)
         else:
           value = element.text
         if value is not None:
-          value = value.encode("UTF-8")
+          value = str2unicode(value)
         result_dict[key] = value
     return result_dict
 
@@ -198,14 +198,14 @@ class SoftwareInstance(Item):
     for internet_protocol_address in compute_partition.contentValues(portal_type='Internet Protocol Address'):
       # XXX - There is new values, and we must keep compatibility
       address_tuple = (
-          internet_protocol_address.getNetworkInterface('').decode("UTF-8"),
-          internet_protocol_address.getIpAddress().decode("UTF-8"))
+          str2unicode(internet_protocol_address.getNetworkInterface('')),
+          str2unicode(internet_protocol_address.getIpAddress()))
       if internet_protocol_address.getGatewayIpAddress('') and \
         internet_protocol_address.getNetmask(''):
         address_tuple = address_tuple + (
-              internet_protocol_address.getGatewayIpAddress().decode("UTF-8"),
-              internet_protocol_address.getNetmask().decode("UTF-8"),
-              internet_protocol_address.getNetworkAddress('').decode("UTF-8"))
+              str2unicode(internet_protocol_address.getGatewayIpAddress()),
+              str2unicode(internet_protocol_address.getNetmask()),
+              str2unicode(internet_protocol_address.getNetworkAddress('')))
         full_ip_list.append(address_tuple)
       else:
         ip_list.append(address_tuple)
@@ -228,31 +228,31 @@ class SoftwareInstance(Item):
               self._getModificationDateAsTimestamp(shared_instance)))
 
           append({
-            'slave_title': shared_instance.getTitle().decode("UTF-8"),
+            'slave_title': str2unicode(shared_instance.getTitle()),
             'slap_software_type': \
-                shared_instance.getSourceReference().decode("UTF-8"),
-            'slave_reference': shared_instance.getReference().decode("UTF-8"),
+                str2unicode(shared_instance.getSourceReference()),
+            'slave_reference': str2unicode(shared_instance.getReference()),
             'timestamp': shared_timestamp,
             'xml': shared_instance.getTextContent(),
             'connection_xml': shared_instance.getConnectionXml(),
           })
           timestamp = max(timestamp, shared_timestamp)
     return {
-      'instance_guid': self.getReference().decode("UTF-8"),
-      'instance_title': self.getTitle().decode("UTF-8"),
-      'root_instance_title': instance_tree.getTitle().decode("UTF-8"),
-      'root_instance_short_title': instance_tree.getShortTitle().decode("UTF-8"),
+      'instance_guid': str2unicode(self.getReference()),
+      'instance_title': str2unicode(self.getTitle()),
+      'root_instance_title': str2unicode(instance_tree.getTitle()),
+      'root_instance_short_title': str2unicode(instance_tree.getShortTitle()),
       'xml': self.getTextContent(),
       'connection_xml': self.getConnectionXml(),
       'filter_xml': self.getSlaXml(),
       'slap_computer_id': \
-        compute_partition.getParentValue().getReference().decode("UTF-8"),
+        str2unicode(compute_partition.getParentValue().getReference()),
       'slap_computer_partition_id': \
-        compute_partition.getReference().decode("UTF-8"),
+        str2unicode(compute_partition.getReference()),
       'slap_software_type': \
-        self.getSourceReference().decode("UTF-8"),
+        str2unicode(self.getSourceReference()),
       'slap_software_release_url': \
-        self.getUrlString().decode("UTF-8"),
+        str2unicode(self.getUrlString()),
       'slave_instance_list': shared_instance_list,
       'ip_list': ip_list,
       'full_ip_list': full_ip_list,
@@ -276,8 +276,8 @@ class SoftwareInstance(Item):
       for internet_protocol_address in compute_partition.contentValues(
                                       portal_type='Internet Protocol Address'):
         ip_address_list.append(
-              (internet_protocol_address.getNetworkInterface('').decode("UTF-8"),
-              internet_protocol_address.getIpAddress().decode("UTF-8"))
+              (str2unicode(internet_protocol_address.getNetworkInterface('')),
+              str2unicode(internet_protocol_address.getIpAddress()))
         )
     
     return ip_address_list

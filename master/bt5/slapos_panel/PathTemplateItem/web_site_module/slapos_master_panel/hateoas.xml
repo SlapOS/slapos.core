@@ -174,6 +174,16 @@
                       <value> <string>string</string> </value>
                   </item>
                 </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>configuration_filter_action_script_id</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>string</string> </value>
+                  </item>
+                </dictionary>
               </tuple>
             </value>
         </item>
@@ -202,6 +212,10 @@
                 <string>caching_policy/hateoas</string>
               </tuple>
             </value>
+        </item>
+        <item>
+            <key> <string>configuration_filter_action_script_id</string> </key>
+            <value> <string>WebSection_filterSlaposPanelActionDict</string> </value>
         </item>
         <item>
             <key> <string>configuration_login</string> </key>
@@ -466,7 +480,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1014.6188.10537.18773</string> </value>
+                      <value> <string>1021.45456.10756.3003</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -486,7 +500,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1707822098.93</float>
+                              <float>1736326074.9</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

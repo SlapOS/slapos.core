@@ -38,7 +38,7 @@ section_section_uid = entity.Person_restrictMethodAsShadowUser(
   argument_list=[portal, subscription_request.getSourceSection()])
 
 outstanding_amount_list = entity.Entity_getOutstandingDepositAmountList(
-  ledger_uid=subscription_request.getLedgerUid(), 
+  ledger_uid=subscription_request.getLedgerUid(),
   source_section_uid=section_section_uid,
   resource_uid=currency_uid)
 
@@ -49,12 +49,22 @@ outstanting_total_price += price
 if outstanting_total_price > 0:
   if not context.Base_isExternalPaymentConfigured(currency_uid):
     raise ValueError("External Payment support is not configured")
-  
-  payment_list.append(outstanding_amount_list[0].asContext(
-    reference="Subscriptions pre-payment",
-    # Format by hand is not a good idea probably
-    stop_date=DateTime().strftime('%d/%m/%Y'),
-    total_price=outstanting_total_price,
-  ))
+
+  if len(outstanding_amount_list) == 0:
+    # return payment_list
+    payment_list.append(context.asContext(
+      reference="Subscriptions pre-payment",
+      # Format by hand is not a good idea probably
+      stop_date=DateTime().strftime('%d/%m/%Y'),
+      resource_uid=currency_uid,
+      total_price=price,
+    ))
+  else:
+    payment_list.append(outstanding_amount_list[0].asContext(
+      reference="Subscriptions pre-payment",
+      # Format by hand is not a good idea probably
+      stop_date=DateTime().strftime('%d/%m/%Y'),
+      total_price=outstanting_total_price,
+    ))
 
 return payment_list

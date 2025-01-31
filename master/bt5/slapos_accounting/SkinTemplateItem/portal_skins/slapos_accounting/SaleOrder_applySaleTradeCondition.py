@@ -31,32 +31,29 @@ def rank_method(trade_condition):
   destination_project = trade_condition.getDestinationProject()
   if destination_project:
     if destination_project == context.getDestinationProject():
-      rank += 10
+      rank -= 10
     else:
-      rank -= 2
+      rank += 2
   destination_section = trade_condition.getDestinationSection()
   if destination_section:
     if destination_section == context.getDestinationSection():
-      rank += 10
+      rank -= 10
     else:
-      rank -= 2
+      rank += 2
   destination = trade_condition.getDestination()
   if destination:
     if destination == context.getDestination():
-      rank += 10
+      rank -= 10
     else:
-      rank -= 2
+      rank += 2
   if trade_condition.getSourceProject():
-    rank += 1
+    rank -= 1
   if trade_condition.getSourceSection():
-    rank += 1
+    rank -= 1
   if trade_condition.getSource():
-    rank += 1
-  rank += len(trade_condition.getSpecialiseList())
+    rank -= 1
+  rank -= len(trade_condition.getSpecialiseList())
   return rank
-
-def sort_method(a, b):
-  return -cmp(rank_method(a), rank_method(b))
 
 def filter_method(trade_condition_list):
   # Reject trade condition which has a non different value than the order
@@ -102,7 +99,7 @@ while count > 0 and len(trade_condition_list) == 0:
       predicate_context,
       tested_base_category_list=tested_base_category_list,#[:count],
       filter_method=filter_method,
-      sort_method=sort_method, **filter_kw)
+      sort_key_method=rank_method, **filter_kw)
 
 
 #raise NotImplementedError('trade cl %s' % str([(x, rank_method(x), x.getValidationState()) for x in trade_condition_list]))

@@ -24,7 +24,8 @@ import six.moves.urllib.parse
 from erp5.component.test.testSlapOSCloudSecurityGroup import TestSlapOSSecurityMixin
 from erp5.component.test.SlapOSTestCaseMixin import changeSkin
 import re
-import xml_marshaller
+from slapos.util import dumps, loads
+from Products.ERP5Type.Utils import str2bytes
 from AccessControl.SecurityManagement import getSecurityManager, \
              setSecurityManager
 
@@ -174,7 +175,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     requestXml = self.portal.portal_slap.requestComputer(title, project_reference)
     self.tic()
     self.assertIn('marshal', requestXml)
-    compute_node = xml_marshaller.xml_marshaller.loads(requestXml)
+    compute_node = loads(requestXml)
     compute_node_id = getattr(compute_node, '_computer_id', None)
     self.assertNotEqual(None, compute_node_id)
     return compute_node_id.encode('UTF-8')
@@ -228,7 +229,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     try:
       self.login(compute_node.getUserId())
       self.portal.portal_slap.loadComputerConfigurationFromXML(
-          xml_marshaller.xml_marshaller.dumps(compute_node_dict))
+          dumps(compute_node_dict))
       self.tic()
       self.assertEqual(partition_count,
           len(compute_node.contentValues(portal_type='Compute Partition')))
@@ -244,7 +245,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
           computer_id=compute_node.getReference())
       if not isinstance(compute_node_xml, str):
         compute_node_xml = compute_node_xml.getBody()
-      slap_compute_node = xml_marshaller.xml_marshaller.loads(compute_node_xml)
+      slap_compute_node = loads(str2bytes(compute_node_xml))
       self.assertEqual('Computer', slap_compute_node.__class__.__name__)
       for software_release in slap_compute_node._software_release_list:
         if software_release._requested_state == 'destroyed':
@@ -268,7 +269,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
           computer_id=compute_node.getReference())
       if not isinstance(compute_node_xml, str):
         compute_node_xml = compute_node_xml.getBody()
-      slap_compute_node = xml_marshaller.xml_marshaller.loads(compute_node_xml)
+      slap_compute_node = loads(str2bytes(compute_node_xml))
       self.assertEqual('Computer', slap_compute_node.__class__.__name__)
       destroyed_partition_id_list = []
       for partition in slap_compute_node._computer_partition_list:
@@ -298,14 +299,14 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         computer_id=compute_node.getReference())
       if not isinstance(compute_node_xml, str):
         compute_node_xml = compute_node_xml.getBody()
-      slap_compute_node = xml_marshaller.xml_marshaller.loads(compute_node_xml)
+      slap_compute_node = loads(str2bytes(compute_node_xml))
       self.assertEqual('Computer', slap_compute_node.__class__.__name__)
       for partition in slap_compute_node._computer_partition_list:
         if partition._requested_state in ('started', 'stopped') \
               and partition._need_modification == 1:
           instance_reference = partition._instance_guid.encode('UTF-8')
           ip_list = partition._parameter_dict['ip_list']
-          connection_xml = xml_marshaller.xml_marshaller.dumps(dict(
+          connection_xml = dumps(dict(
             url_1 = 'http://%s/' % ip_list[0][1],
             url_2 = 'http://%s/' % ip_list[1][1],
           ))
@@ -323,7 +324,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
             )
             for slave in partition._parameter_dict['slave_instance_list']:
               slave_reference = slave['slave_reference']
-              connection_xml = xml_marshaller.xml_marshaller.dumps(dict(
+              connection_xml = dumps(dict(
                 url_1 = 'http://%s/%s' % (ip_list[0][1], slave_reference),
                 url_2 = 'http://%s/%s' % (ip_list[1][1], slave_reference)
               ))
@@ -349,7 +350,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
   def personRequestInstance(self, **kw):
     response = self.portal.portal_slap.requestComputerPartition(**kw)
     self.assertTrue(isinstance(response, str), "response is not a string: %s" % response)
-    software_instance = xml_marshaller.xml_marshaller.loads(response)
+    software_instance = loads(str2bytes(response))
     self.assertEqual('SoftwareInstance', software_instance.__class__.__name__)
     self.tic()
     return software_instance

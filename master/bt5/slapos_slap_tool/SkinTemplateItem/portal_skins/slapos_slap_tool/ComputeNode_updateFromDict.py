@@ -57,10 +57,6 @@ public_ipv4_address = compute_node_dict.get('public_ipv4_address', None)
 if context.getPublicIpv4Address() != public_ipv4_address:
   edit_kw['public_ipv4_address'] = public_ipv4_address
 
-python_version = compute_node_dict.get('python_version', None)
-if context.getPythonVersion() != python_version:
-  edit_kw['python_version'] = python_version
-
 slapos_version = compute_node_dict.get('slapos_version', None)
 if context.getSlaposVersion() != slapos_version:
   edit_kw['slapos_version'] = slapos_version

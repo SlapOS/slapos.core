@@ -58,6 +58,21 @@ if data_array:
     compute_node_title, reference, error_dict['issue_document_reference'])
   return error_dict
 
+minimal_slapos_version = portal.portal_preferences.getPreferredMinimalSlaposVersion('1.10')
+# If version isn't uploaded yet dont fail too early
+compute_node_version = context.getSlaposVersion("10000")
+
+if compute_node_version < minimal_slapos_version:
+  error_dict['last_contact'] = last_contact
+  error_dict['should_notify'] = True
+  error_dict['notification_message_reference'] = "slapos-crm-compute_node_check_outdated_os.notification"
+  error_dict['ticket_title'] = "Compute Node %s uses an outdated version." % reference
+  error_dict['ticket_description'] = "The Compute Node %s (%s) uses an outdated slapos version:  %s (expected >= %s)" % (
+    compute_node_title, reference, compute_node_version, minimal_slapos_version)
+  error_dict['message'] = "Slapos version is oudated on %s. It is should be newer than %s (found %s)" % (
+    compute_node_title, minimal_slapos_version, compute_node_version)
+  return error_dict
+
 # Since server is contacting, check for stalled processes
 # If server has no partitions skip
 compute_partition_uid_list = [

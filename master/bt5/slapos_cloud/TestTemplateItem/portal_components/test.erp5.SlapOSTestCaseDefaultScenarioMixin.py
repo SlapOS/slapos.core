@@ -175,7 +175,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     requestXml = self.portal.portal_slap.requestComputer(title, project_reference)
     self.tic()
     self.assertIn('marshal', requestXml)
-    compute_node = loads(requestXml)
+    compute_node = loads(str2bytes(requestXml))
     compute_node_id = getattr(compute_node, '_computer_id', None)
     self.assertNotEqual(None, compute_node_id)
     return compute_node_id.encode('UTF-8')

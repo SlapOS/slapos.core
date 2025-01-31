@@ -10,6 +10,9 @@ if category_uid_list:
     default_allocation_scope_uid=category_uid_list,
     validation_state="validated",
     method_id='ComputeNode_checkAndUpdateCapacityScope',
-    activate_kw={'tag': tag}
+    # This alarm bruteforce checking all documents,
+    # without changing them directly.
+    # Increase priority to not block other activities
+    activate_kw={'tag': tag, 'priority': 2}
   )
 context.activate(after_tag=tag).getId()

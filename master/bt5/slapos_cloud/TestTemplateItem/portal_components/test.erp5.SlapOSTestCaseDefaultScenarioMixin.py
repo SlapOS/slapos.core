@@ -145,7 +145,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     web_site.slapos_master_panel.hateoas.connection.ERP5Site_activeLogin(key=join_key)
 
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 303)
-    self.assertIn(self.web_site.getId() + "/%23%21login%3Fp.page%3Dslapos%7B%26n.me%7D",
+    self.assertIn(self.web_site.getId() + "/%23%21login%3Fp.page%3Dslapos_master_panel_access%26p.view%3D1%7B%26n.me%7D",
       self.portal.REQUEST.RESPONSE.getHeader("Location"))
 
     self.tic()

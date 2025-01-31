@@ -1,6 +1,7 @@
 invoice = context
 if invoice.getLedger() != 'automated':
-  return False
+  # Non automated invoices can be used
+  return True
 
 delivery_list = invoice.getCausalityValueList(portal_type='Sale Packing List')
 amount = len(delivery_list)

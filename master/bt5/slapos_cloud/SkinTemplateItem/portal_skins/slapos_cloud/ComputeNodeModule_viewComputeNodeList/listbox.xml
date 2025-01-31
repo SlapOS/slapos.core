@@ -118,6 +118,10 @@
                           <string>ComputeNode_getFreeComputePartitionCount</string>
                           <string>Free Compute Partition</string>
                         </tuple>
+                        <tuple>
+                          <string>monitor_scope_title</string>
+                          <string>Monitor Scope</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

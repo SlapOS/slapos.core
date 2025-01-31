@@ -98,6 +98,7 @@
                     <value>
                       <list>
                         <string>listbox_status</string>
+                        <string>listbox_internet_protocol_address_text</string>
                       </list>
                     </value>
                 </item>

@@ -1,3 +1,7 @@
+if context.getLedger() != 'automated':
+  # Non automated invoices can be used
+  return True
+
 specialise = context.getSpecialiseValue(portal_type='Sale Trade Condition')
 if specialise is None or specialise.getSpecialiseValue() is None:
   # The trade model don't applies if the Trade Condition isn't attached to 

@@ -108,7 +108,10 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertTrue(expected_message in credential_request_form,
       '%s not in %s' % (expected_message, credential_request_form))
 
-    email = '%s@example.com' % reference
+    # According to email address RFC you should be 'ascii' compatible
+    # for email specificiations.
+    # reference: https://en.wikipedia.org/wiki/Email_address#Local-part
+    email = 'joe%s@example.com' % self.generateNewAsciiId()
 
     redirect_url = self.web_site.slapos_master_panel.hateoas.connection.WebSection_newCredentialRequest(
       reference=reference,

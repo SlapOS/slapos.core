@@ -275,7 +275,11 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     person_user.edit(
       title="live_test_%s" % new_id,
       reference="live_test_%s" % new_id,
-      default_email_text="live_test_%s@example.org" % new_id,
+      # According to email address RFC you should be 'ascii' compatible
+      # for email specificiations.
+      # reference: https://en.wikipedia.org/wiki/Email_address#Local-part
+      default_email_text="live_test_%s@example.org" % \
+        self.generateNewAsciiId(),
     )
 
     person_user.validate()
@@ -1043,6 +1047,10 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
   def _cleaupREQUEST(self):
     self.portal.REQUEST['request_instance'] = None
     self.portal.REQUEST.headers = {}
+
+  def generateNewAsciiId(self):
+    return "%s" % self.portal.portal_ids.generateNewId(
+        id_group=('slapos_core_test'))
 
   def generateNewId(self):
     return "%sö" % self.portal.portal_ids.generateNewId(

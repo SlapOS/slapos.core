@@ -1005,6 +1005,111 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
   @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None, **kw',
+  'assert reference == "slapos-crm-compute_node_check_outdated_os.notification", reference\n' \
+  'return context.restrictedTraverse(' \
+  'context.REQUEST["test_ComputeNode_checkMonitoringState_notify"])')
+  def test_ComputeNode_checkMonitoringState_outdatedVersion(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
+      compute_node = self.compute_node
+
+    compute_node.setSlaposVersion('0.9')
+    # Computer and instances are accessed fine.
+    compute_node.setAccessStatus("")
+    self.start_requested_software_instance.setAccessStatus("")
+    self.start_requested_software_installation.setAccessStatus("")
+    self.tic()
+    self.portal.REQUEST['test_ComputeNode_checkMonitoringState_notify'] = \
+        self._makeNotificationMessage(compute_node.getReference())
+
+    error_dict = compute_node.ComputeNode_getReportedErrorDict()
+    compute_node.ComputeNode_checkMonitoringState()
+    self.tic()
+
+    ticket_title = 'Compute Node %s uses an outdated version.' % (
+      compute_node.getReference()
+    )
+
+    ticket = self._getGeneratedSupportRequest(compute_node.getUid())
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket_title, error_dict['ticket_title'])
+    self.assertEqual(ticket_title, ticket.getTitle())
+
+    message = ticket.SupportRequest_recheckMonitoring()
+    self.assertEqual(error_dict['message'], message)
+    self.assertIn("It is should be newer than 1.10 (found 0.9)", message)
+
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertEqual(
+      event.getTitle(),
+      self.portal.restrictedTraverse(
+        self.portal.REQUEST['test_ComputeNode_checkMonitoringState_notify']
+      ).getTitle()
+    )
+    self.assertIn(compute_node.getReference(), event.getTextContent())
+    self.assertEventTicket(event, ticket, compute_node)
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None, **kw',
+  'assert reference == "slapos-crm-compute_node_check_outdated_os.notification", reference\n' \
+  'return context.restrictedTraverse(' \
+  'context.REQUEST["test_ComputeNode_checkMonitoringState_notify"])')
+  def test_ComputeNode_checkMonitoringState_outdatedVersion_1dot2(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      project = self.addProject()
+      self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
+      compute_node = self.compute_node
+
+    compute_node.setSlaposVersion('1.2')
+    # Computer and instances are accessed fine.
+    compute_node.setAccessStatus("")
+    self.start_requested_software_instance.setAccessStatus("")
+    self.start_requested_software_installation.setAccessStatus("")
+    self.tic()
+    self.portal.REQUEST['test_ComputeNode_checkMonitoringState_notify'] = \
+        self._makeNotificationMessage(compute_node.getReference())
+
+    error_dict = compute_node.ComputeNode_getReportedErrorDict()
+    compute_node.ComputeNode_checkMonitoringState()
+    self.tic()
+
+    ticket_title = 'Compute Node %s uses an outdated version.' % (
+      compute_node.getReference()
+    )
+
+    ticket = self._getGeneratedSupportRequest(compute_node.getUid())
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket_title, error_dict['ticket_title'])
+    self.assertEqual(ticket_title, ticket.getTitle())
+
+    message = ticket.SupportRequest_recheckMonitoring()
+    self.assertEqual(error_dict['message'], message)
+    self.assertIn("It is should be newer than 1.10 (found 1.2)", message)
+
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertEqual(
+      event.getTitle(),
+      self.portal.restrictedTraverse(
+        self.portal.REQUEST['test_ComputeNode_checkMonitoringState_notify']
+      ).getTitle()
+    )
+    self.assertIn(compute_node.getReference(), event.getTextContent())
+    self.assertEventTicket(event, ticket, compute_node)
+
+
+  @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None, **kw',
   'assert reference == "slapos-crm-compute_node_software_installation_state.notification", reference\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_ComputeNode_checkMonitoringState_notify"])')

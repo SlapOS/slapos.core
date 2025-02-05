@@ -115,7 +115,40 @@
                 <item>
                     <key> <string>all_columns</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <tuple>
+                          <string>translated_validation_state_title</string>
+                          <string>State</string>
+                        </tuple>
+                        <tuple>
+                          <string>capacity_scope_title</string>
+                          <string>Capacity</string>
+                        </tuple>
+                        <tuple>
+                          <string>python_version</string>
+                          <string>Python</string>
+                        </tuple>
+                        <tuple>
+                          <string>slapos_version</string>
+                          <string>SlapOS</string>
+                        </tuple>
+                        <tuple>
+                          <string>internet_protocol_address_text</string>
+                          <string>IP Address</string>
+                        </tuple>
+                        <tuple>
+                          <string>public_ipv4_address</string>
+                          <string>Public IPv4</string>
+                        </tuple>
+                        <tuple>
+                          <string>os_type</string>
+                          <string>OS Type</string>
+                        </tuple>
+                        <tuple>
+                          <string>monitor_scope_title</string>
+                          <string>Monitor Scope</string>
+                        </tuple>
+                      </list>
                     </value>
                 </item>
                 <item>

@@ -646,6 +646,13 @@ stderr_logfile_backups=1
             except NotFoundError:
               pass
             software.install()
+            # Report to the slapos master that the software is available
+            # before marking it locally
+            # this will allow to reprocess the installation in case
+            # of communication error, and so, try reporting a second time
+            # Once reported, no need to reprocess the installation later
+            # and no need to always report it as available
+            software_release.available()
             with open(completed_tag, 'w') as fout:
               fout.write(time.asctime())
         elif state == 'destroyed':
@@ -653,6 +660,7 @@ stderr_logfile_backups=1
             self.logger.info('Destroying %r...' % software_release_uri)
             software.destroy()
             self.logger.info('Destroyed %r.' % software_release_uri)
+          software_release.destroyed()
 
         # call manager for every software release
         for manager in self._manager_list:
@@ -677,17 +685,6 @@ stderr_logfile_backups=1
         self.logger.exception('')
         software_release.error(traceback.format_exc(), logger=self.logger)
         clean_run = False
-      else:
-        if state == 'available':
-          try:
-            software_release.available()
-          except (NotFoundError, ServerError):
-            pass
-        elif state == 'destroyed':
-          try:
-            software_release.destroyed()
-          except (NotFoundError, ServerError):
-            self.logger.exception('')
     self.logger.info('Finished software releases.')
 
     # Return success value

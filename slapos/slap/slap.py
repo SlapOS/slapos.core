@@ -40,7 +40,6 @@ import os
 import logging
 import re
 from functools import wraps
-import warnings
 
 import json
 import six
@@ -53,8 +52,7 @@ except ImportError: # XXX to be removed once we depend on typing
 from .exception import ResourceNotReady, ServerError, NotFoundError, \
           ConnectionError
 from .hateoas import SlapHateoasNavigator, ConnectionHelper
-from slapos.util import (SoftwareReleaseSchema, SoftwareReleaseSchemaValidationError,
-                         bytes2str, calculate_dict_hash, dict2xml, dumps, loads,
+from slapos.util import (bytes2str, calculate_dict_hash, dict2xml, dumps, loads,
                          unicode2str, xml2dict)
 
 from xml.sax import saxutils
@@ -92,44 +90,7 @@ class SlapRequester(SlapDocument):
   """
   Abstract class that allow to factor method for subclasses that use "request()"
   """
-  def _validateRequestParameters(self, software_release, software_type, parameter_dict):
-    """Validate requests parameters.
-
-    Default behavior is to fetch schema and warn using `warnings.warn` in case
-    of problems, with a special case for the magic git.erp5.org used as an alias
-    for frontend software release that does not have a software.cfg.json
-    """
-    if software_release in (
-      # no corresponding schema
-      'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
-    ):
-      return
-
-    try:
-      SoftwareReleaseSchema(
-        software_release,
-        software_type,
-      ).validateInstanceParameterDict(parameter_dict)
-    except SoftwareReleaseSchemaValidationError as e:
-      warnings.warn(
-        "Request parameters do not validate against schema definition:\n{e}".format(e=e.format_error(indent=2)),
-        UserWarning,
-      )
-    except Exception as e:
-      # note that we intentionally catch wide exceptions, so that if anything
-      # is wrong with fetching the schema or the schema itself this does not
-      # prevent users from requesting instances.
-      warnings.warn(
-        "Error validating request parameters against schema definition:\n{e.__class__.__name__} {e}".format(e=e),
-        UserWarning,
-      )
-
   def _requestComputerPartition(self, request_dict):
-    self._validateRequestParameters(
-      request_dict['software_release'],
-      request_dict['software_type'],
-      loads(request_dict['partition_parameter_xml']),
-    )
     try:
       xml = self._connection_helper.POST('requestComputerPartition', data=request_dict)
     except ResourceNotReady:

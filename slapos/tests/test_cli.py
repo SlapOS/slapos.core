@@ -25,6 +25,7 @@
 #
 ##############################################################################
 
+import httmock
 import json
 import logging
 import pprint
@@ -36,6 +37,7 @@ import textwrap
 import sys
 import os
 import pkg_resources
+import warnings
 
 from contextlib import contextmanager
 from mock import patch, create_autospec
@@ -975,6 +977,251 @@ class TestCliRequest(CliMixin):
               }
           }, f)
     self._test_request(sr, True)
+
+  def test_request_validate_request_parameter(self):
+    self.conf.reference = 'instance reference'
+    self.conf.software_url = 'https://example.com/software.cfg'
+    self.conf.parameters = {'foo': 'bar'}
+    self.conf.parameters_file = None
+    self.conf.node = {'computer_guid': 'COMP-1234'}
+    self.conf.type = 'default'
+    self.conf.state = None
+    self.conf.slave = False
+    self.conf.force_serialisation = None
+    connection_dict = {'foo': 'bar'}
+
+    def _readAsJson(url, set_schema_id=False):
+      if url == 'https://example.com/software.cfg.json':
+        assert not set_schema_id
+        return {
+          "name": "Test Software",
+          "description": "Dummy software for Test",
+          "serialisation": "json-in-xml",
+          "software-type": {
+            "default": {
+              "title": "Default",
+              "description": "Default type",
+              "request": "instance-default-input-schema.json",
+              "response": "instance-default-output-schema.json",
+              "index": 0
+            },
+          }
+        }
+      if url == 'https://example.com/instance-default-input-schema.json':
+        assert set_schema_id
+        return {
+          "$id": url,
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "description": "Simple instance parameters schema for tests",
+          "required": ["foo"],
+          "properties": {
+            "foo": {
+              "$ref": "./schemas-definitions.json#/foo",
+            }
+          },
+          "additionalProperties": False,
+          "type": "object",
+        }
+      if url == 'https://example.com/schemas-definitions.json':
+        assert not set_schema_id
+        return {
+          "foo": {
+            "type": "string",
+            "const": "bar",
+          },
+        }
+      assert False, "Unexpected url %s" % url
+
+    with mock.patch(
+        'slapos.util.SoftwareReleaseSchema._readAsJson',
+        side_effect=_readAsJson) as _readAsJson_mock, \
+        mock.patch.object(warnings, 'warn') as warn:
+      cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
+      cp._connection_helper = mock.Mock()
+      cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
+
+      self._do_request(connection_dict, False).assert_called_once_with(
+          software_release='https://example.com/software.cfg',
+          partition_reference='instance reference',
+          partition_parameter_kw={'foo': 'bar'},
+          software_type='default',
+          filter_kw={'computer_guid': 'COMP-1234'},
+          state=None,
+          shared=False,
+      )
+    self.assertEqual(
+      _readAsJson_mock.call_args_list,
+      [
+        mock.call('https://example.com/software.cfg.json'),
+        mock.call('https://example.com/instance-default-input-schema.json', True),
+        mock.call('https://example.com/schemas-definitions.json'),
+      ])
+    warn.assert_not_called()
+
+    self.conf.parameters = {'foo': 'baz'}
+    with mock.patch(
+        'slapos.util.SoftwareReleaseSchema._readAsJson',
+        side_effect=_readAsJson), \
+        mock.patch.object(warnings, 'warn') as warn:
+      cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
+      cp._connection_helper = mock.Mock()
+      cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
+      self._do_request(connection_dict, False).assert_called_once_with(
+          software_release='https://example.com/software.cfg',
+          partition_reference='instance reference',
+          partition_parameter_kw={'foo': 'baz'},
+          software_type='default',
+          filter_kw={'computer_guid': 'COMP-1234'},
+          state=None,
+          shared=False,
+      )
+    warn.assert_called_with(
+      "Request parameters do not validate against schema definition:\n"
+      "  $.foo: 'bar' was expected",
+      UserWarning
+    )
+
+    self.conf.parameters = {'fooo': 'xxx'}
+    with mock.patch(
+        'slapos.util.SoftwareReleaseSchema._readAsJson',
+        side_effect=_readAsJson), \
+        mock.patch.object(warnings, 'warn') as warn:
+      cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
+      cp._connection_helper = mock.Mock()
+      cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
+      self._do_request(connection_dict, False).assert_called_once_with(
+          software_release='https://example.com/software.cfg',
+          partition_reference='instance reference',
+          partition_parameter_kw={'fooo': 'xxx'},
+          software_type='default',
+          filter_kw={'computer_guid': 'COMP-1234'},
+          state=None,
+          shared=False,
+      )
+    warn.assert_called_with(
+      "Request parameters do not validate against schema definition:\n"
+      "  $: 'foo' is a required property\n"
+      "  $: Additional properties are not allowed ('fooo' was unexpected)",
+      UserWarning
+    )
+
+
+  def test_request_validate_request_parameter_broken_software_release_schema(self):
+    """Corner case tests for incorrect software release schema, these should
+    not prevent the request (mostly for backward compatibility)
+    """
+    self.conf.reference = 'reference'
+    self.conf.software_url = 'https://example.com/software.cfg'
+    self.conf.parameters = {'foo': 'bar'}
+    self.conf.parameters_file = None
+    self.conf.node = {'computer_guid': 'COMP-1234'}
+    self.conf.type = 'default'
+    self.conf.state = None
+    self.conf.slave = False
+    self.conf.force_serialisation = None
+    connection_dict = {'foo': 'bar'}
+
+    def wrong_software_cfg_schema(url, req):
+      if url.path.endswith('/software.cfg.json'):
+        return "wrong"
+      raise ValueError(404)
+
+    def wrong_instance_parameter_schema(url, req):
+      if url.path.endswith('/software.cfg.json'):
+        return json.dumps(
+          {
+              "name": "Test Software",
+              "description": "Dummy software for Test",
+              "serialisation": "json-in-xml",
+              "software-type": {
+                  'default': {
+                      "title": "Default",
+                      "description": "Default type",
+                      "request": "instance-default-input-schema.json",
+                      "response": "instance-default-output-schema.json",
+                      "index": 0
+                  },
+              }
+          })
+      if url.path.endswith('/instance-default-input-schema.json'):
+        return "wrong"
+      raise ValueError(404)
+
+    def invalid_instance_parameter_schema(url, req):
+      if url.path.endswith('/software.cfg.json'):
+        return json.dumps(
+          {
+              "name": "Test Software",
+              "description": "Dummy software for Test",
+              "serialisation": "json-in-xml",
+              "software-type": {
+                  'default': {
+                      "title": "Default",
+                      "description": "Default type",
+                      "request": "instance-default-input-schema.json",
+                      "response": "instance-default-output-schema.json",
+                      "index": 0
+                  },
+              }
+          })
+      if url.path.endswith('/instance-default-input-schema.json'):
+        return json.dumps(
+            {
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "description": "Invalid json schema",
+                "required": {"wrong": True},
+                "properties": {
+                    ["wrong schema"]
+                },
+                "type": "object"
+            })
+      raise ValueError(404)
+
+    def broken_reference(url, req):
+      if url.path.endswith('/software.cfg.json'):
+        return json.dumps(
+          {
+              "name": "Test Software",
+              "description": "Dummy software for Test",
+              "serialisation": "json-in-xml",
+              "software-type": {
+                  'default': {
+                      "title": "Default",
+                      "description": "Default type",
+                      "request": "instance-default-input-schema.json",
+                      "response": "instance-default-output-schema.json",
+                      "index": 0
+                  },
+              }
+          })
+      if url.path.endswith('/instance-default-input-schema.json'):
+        return json.dumps(
+            {
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "description": "Simple instance parameters schema for tests",
+                "required": ["foo"],
+                "properties": {
+                    "foo": {
+                        "$ref": "broken"
+                    }
+                },
+                "type": "object"
+            })
+      raise ValueError(404)
+
+    for handler in (
+      broken_reference,
+      wrong_software_cfg_schema,
+      wrong_instance_parameter_schema,
+      invalid_instance_parameter_schema,
+    ):
+      with httmock.HTTMock(handler):
+        with mock.patch.object(warnings, 'warn') as warn:
+          cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
+          cp._connection_helper = mock.Mock()
+          cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
+          self._do_request(connection_dict, False)
+        warn.assert_called()
 
 
 class TestCliRequestParameterFile(CliMixin):

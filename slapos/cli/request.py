@@ -31,6 +31,7 @@ import argparse
 import json
 import os.path
 import pprint
+import warnings
 
 import lxml.etree
 import six
@@ -41,7 +42,7 @@ from slapos.client import (ClientConfig, _getSoftwareReleaseFromSoftwareString,
                            init)
 from slapos.slap import ResourceNotReady
 from slapos.util import (SoftwareReleaseSchema, SoftwareReleaseSerialisation,
-                         StrPrettyPrinter)
+                         SoftwareReleaseSchemaValidationError, StrPrettyPrinter)
 
 try:
     from typing import IO, Dict
@@ -142,8 +143,30 @@ class RequestCommand(ClientConfigCommand):
         do_request(self.app.log, conf, local)
 
 
+def _validateRequestParameters(software_schema, parameter_dict):
+  """Validate requests parameters.
+
+  Default behavior is to fetch schema and warn using `warnings.warn` in case
+  of problems
+  """
+  try:
+    software_schema.validateInstanceParameterDict(parameter_dict)
+  except SoftwareReleaseSchemaValidationError as e:
+    warnings.warn(
+      "Request parameters do not validate against schema definition:\n{e}".format(e=e.format_error(indent=2)),
+      UserWarning,
+    )
+  except Exception as e:
+    # note that we intentionally catch wide exceptions, so that if anything
+    # is wrong with fetching the schema or the schema itself this does not
+    # prevent users from requesting instances.
+    warnings.warn(
+      "Error validating request parameters against schema definition:\n{e.__class__.__name__} {e}".format(e=e),
+      UserWarning,
+    )
+
 def do_request(logger, conf, local):
-    logger.info('Requesting %s as instance of %s...',
+    logger.info('Validating parameters for %s as instance of %s...',
                 conf.reference, conf.software_url)
 
     conf.software_url = _getSoftwareReleaseFromSoftwareString(
@@ -160,6 +183,20 @@ def do_request(logger, conf, local):
             software_schema.getSerialisation(strict=True))
     else:
         parameters = conf.parameters
+
+    # special case for the magic git.erp5.org used as an alias
+    # for frontend software release that does not have a software.cfg.json
+    if conf.software_url not in (
+      # no corresponding schema
+      'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
+    ):
+      _validateRequestParameters(
+        software_schema,
+        parameters,
+      )
+
+    logger.info('Requesting %s as instance of %s...',
+                conf.reference, conf.software_url)
     try:
         partition = local['slap'].registerOpenOrder().request(
             software_release=conf.software_url,

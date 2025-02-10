@@ -73,7 +73,8 @@ class IRequester(Interface):
   """
 
   def request(software_release, software_type, partition_reference,
-              shared=False, partition_parameter_kw=None, filter_kw=None):
+              shared=False, partition_parameter_kw=None, filter_kw=None,
+              software_release_schema=None):
     """
     Request software release instantiation to slapgrid server.
 
@@ -99,6 +100,10 @@ class IRequester(Interface):
       computer_guid - computer of the requested partition
       partition_type - virtio, slave, full, limited
       port - port provided by the requested partition
+
+    software_release_schema -- an instance of slapos.util.SoftwareReleaseSchema,
+                              that can be passed to prevent requester to automatically
+                              create a new one and achieve better performance.
 
     Example:
        request('http://example.com/foo/bar', 'typeA', 'mysql_1')

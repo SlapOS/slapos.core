@@ -41,7 +41,7 @@ import json
 import mock
 
 import slapos.slap
-from slapos.util import dumps, calculate_dict_hash, dict2xml
+from slapos.util import dumps, calculate_dict_hash, dict2xml, SoftwareReleaseSchema
 
 
 class UndefinedYetException(Exception):
@@ -873,8 +873,7 @@ class TestComputerPartition(SlapMixin):
         content_list = f.read().splitlines()
         self.assertEqual(sorted(content_list), ['myref', 'mysecondref'])
 
-  def test_request_validate_request_parameter(self):
-
+  def test_request_with_software_release_schema_validate_request_parameter(self):
     def _readAsJson(url, set_schema_id=False):
       if url == 'https://example.com/software.cfg.json':
         assert not set_schema_id
@@ -917,8 +916,10 @@ class TestComputerPartition(SlapMixin):
         }
       assert False, "Unexpected url %s" % url
 
-    with mock.patch(
-        'slapos.util.SoftwareReleaseSchema._readAsJson',
+    software_release_schema = SoftwareReleaseSchema('https://example.com/software.cfg', 'default')
+    with mock.patch.object(
+        software_release_schema,
+        '_readAsJson',
         side_effect=_readAsJson) as _readAsJson_mock, \
         mock.patch.object(warnings, 'warn') as warn:
       cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
@@ -926,7 +927,8 @@ class TestComputerPartition(SlapMixin):
       cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
       cp.request(
           'https://example.com/software.cfg', 'default', 'reference',
-          partition_parameter_kw={'foo': 'bar'})
+          partition_parameter_kw={'foo': 'bar'},
+          software_release_schema=software_release_schema)
     self.assertEqual(
       _readAsJson_mock.call_args_list,
       [
@@ -936,8 +938,9 @@ class TestComputerPartition(SlapMixin):
       ])
     warn.assert_not_called()
 
-    with mock.patch(
-        'slapos.util.SoftwareReleaseSchema._readAsJson',
+    with mock.patch.object(
+        software_release_schema,
+        '_readAsJson',
         side_effect=_readAsJson), \
         mock.patch.object(warnings, 'warn') as warn:
       cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
@@ -945,15 +948,17 @@ class TestComputerPartition(SlapMixin):
       cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
       cp.request(
           'https://example.com/software.cfg', 'default', 'reference',
-          partition_parameter_kw={'foo': 'baz'})
+          partition_parameter_kw={'foo': 'baz'},
+          software_release_schema=software_release_schema)
     warn.assert_called_with(
       "Request parameters do not validate against schema definition:\n"
       "  $.foo: 'bar' was expected",
       UserWarning
     )
 
-    with mock.patch(
-        'slapos.util.SoftwareReleaseSchema._readAsJson',
+    with mock.patch.object(
+        software_release_schema,
+        '_readAsJson',
         side_effect=_readAsJson), \
         mock.patch.object(warnings, 'warn') as warn:
       cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
@@ -961,7 +966,8 @@ class TestComputerPartition(SlapMixin):
       cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
       cp.request(
           'https://example.com/software.cfg', 'default', 'reference',
-          partition_parameter_kw={'fooo': 'xxx'})
+          partition_parameter_kw={'fooo': 'xxx'},
+          software_release_schema=software_release_schema)
     warn.assert_called_with(
       "Request parameters do not validate against schema definition:\n"
       "  $: 'foo' is a required property\n"
@@ -970,113 +976,106 @@ class TestComputerPartition(SlapMixin):
     )
 
 
-  def test_request_validate_request_parameter_broken_software_release_schema(self):
+  def test_request_with_software_release_schema_validate_request_parameter_broken_software_release_schema(self):
     """Corner case tests for incorrect software release schema, these should
     not prevent the request (mostly for backward compatibility)
     """
-    def wrong_software_cfg_schema(url, req):
-      if url.path.endswith('/software.cfg.json'):
+    def wrong_software_cfg_schema(url, set_schema_id=False):
+      if url.endswith('/software.cfg.json'):
         return "wrong"
-      raise ValueError(404)
 
-    def wrong_instance_parameter_schema(url, req):
-      if url.path.endswith('/software.cfg.json'):
-        return json.dumps(
-          {
-              "name": "Test Software",
-              "description": "Dummy software for Test",
-              "serialisation": "json-in-xml",
-              "software-type": {
-                  'default': {
-                      "title": "Default",
-                      "description": "Default type",
-                      "request": "instance-default-input-schema.json",
-                      "response": "instance-default-output-schema.json",
-                      "index": 0
-                  },
-              }
-          })
-      if url.path.endswith('/instance-default-input-schema.json'):
+    def wrong_instance_parameter_schema(url, set_schema_id=False):
+      if url.endswith('/software.cfg.json'):
+        return {
+            "name": "Test Software",
+            "description": "Dummy software for Test",
+            "serialisation": "json-in-xml",
+            "software-type": {
+                'default': {
+                    "title": "Default",
+                    "description": "Default type",
+                    "request": "instance-default-input-schema.json",
+                    "response": "instance-default-output-schema.json",
+                    "index": 0
+                },
+            }
+        }
+      if url.endswith('/instance-default-input-schema.json'):
         return "wrong"
-      raise ValueError(404)
 
-    def invalid_instance_parameter_schema(url, req):
-      if url.path.endswith('/software.cfg.json'):
-        return json.dumps(
-          {
-              "name": "Test Software",
-              "description": "Dummy software for Test",
-              "serialisation": "json-in-xml",
-              "software-type": {
-                  'default': {
-                      "title": "Default",
-                      "description": "Default type",
-                      "request": "instance-default-input-schema.json",
-                      "response": "instance-default-output-schema.json",
-                      "index": 0
-                  },
-              }
-          })
-      if url.path.endswith('/instance-default-input-schema.json'):
-        return json.dumps(
-            {
-                "$schema": "http://json-schema.org/draft-07/schema",
-                "description": "Invalid json schema",
-                "required": {"wrong": True},
-                "properties": {
-                    ["wrong schema"]
+    def invalid_instance_parameter_schema(url, set_schema_id=False):
+      if url.endswith('/software.cfg.json'):
+        return {
+            "name": "Test Software",
+            "description": "Dummy software for Test",
+            "serialisation": "json-in-xml",
+            "software-type": {
+                'default': {
+                    "title": "Default",
+                    "description": "Default type",
+                    "request": "instance-default-input-schema.json",
+                    "response": "instance-default-output-schema.json",
+                    "index": 0
                 },
-                "type": "object"
-            })
-      raise ValueError(404)
+            }
+        }
+      if url.endswith('/instance-default-input-schema.json'):
+        return {
+            "$schema": "http://json-schema.org/draft-07/schema",
+            "description": "Invalid json schema",
+            "required": {"wrong": True},
+            "properties": ["wrong schema"],
+            "type": "object"
+        }
 
-    def broken_reference(url, req):
-      if url.path.endswith('/software.cfg.json'):
-        return json.dumps(
-          {
-              "name": "Test Software",
-              "description": "Dummy software for Test",
-              "serialisation": "json-in-xml",
-              "software-type": {
-                  'default': {
-                      "title": "Default",
-                      "description": "Default type",
-                      "request": "instance-default-input-schema.json",
-                      "response": "instance-default-output-schema.json",
-                      "index": 0
-                  },
-              }
-          })
-      if url.path.endswith('/instance-default-input-schema.json'):
-        return json.dumps(
-            {
-                "$schema": "http://json-schema.org/draft-07/schema",
-                "description": "Simple instance parameters schema for tests",
-                "required": ["foo"],
-                "properties": {
-                    "foo": {
-                        "$ref": "broken"
-                    }
+    def broken_reference(url, set_schema_id=False):
+      if url.endswith('/software.cfg.json'):
+        return {
+            "name": "Test Software",
+            "description": "Dummy software for Test",
+            "serialisation": "json-in-xml",
+            "software-type": {
+                'default': {
+                    "title": "Default",
+                    "description": "Default type",
+                    "request": "instance-default-input-schema.json",
+                    "response": "instance-default-output-schema.json",
+                    "index": 0
                 },
-                "type": "object"
-            })
-      raise ValueError(404)
+            }
+        }
+      if url.endswith('/instance-default-input-schema.json'):
+        return {
+            "$schema": "http://json-schema.org/draft-07/schema",
+            "description": "Simple instance parameters schema for tests",
+            "required": ["foo"],
+            "properties": {
+                "foo": {
+                    "$ref": "broken"
+                }
+            },
+            "type": "object"
+        }
+      raise ValueError(url)
 
+    software_release_schema = SoftwareReleaseSchema('https://example.com/software.cfg', 'default')
     for handler in (
       broken_reference,
       wrong_software_cfg_schema,
       wrong_instance_parameter_schema,
       invalid_instance_parameter_schema,
     ):
-      with httmock.HTTMock(handler):
-        with mock.patch.object(warnings, 'warn') as warn:
-          cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
-          cp._connection_helper = mock.Mock()
-          cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
-          cp.request(
-              'https://example.com/software.cfg', 'default', 'reference',
-              partition_parameter_kw={'foo': 'bar'})
-        warn.assert_called()
+      with mock.patch.object(software_release_schema, '_readAsJson', side_effect=handler) as readAsJson,\
+          mock.patch.object(warnings, 'warn') as warn:
+        cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
+        cp._connection_helper = mock.Mock()
+        cp._connection_helper.POST.side_effect = slapos.slap.ResourceNotReady
+        cp.request(
+            'https://example.com/software.cfg', 'default', 'reference',
+            partition_parameter_kw={'foo': 'bar'},
+            software_release_schema=software_release_schema)
+      warn.assert_called()
+      readAsJson.assert_called()
 
   def _test_new_computer_partition_state(self, state):
     """

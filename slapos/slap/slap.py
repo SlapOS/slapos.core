@@ -92,42 +92,40 @@ class SlapRequester(SlapDocument):
   """
   Abstract class that allow to factor method for subclasses that use "request()"
   """
-  def _validateRequestParameters(self, software_release, software_type, parameter_dict):
+  def _validateRequestParameters(self, software_release_schema, parameter_dict):
+    # type: (SoftwareReleaseSchema | None, dict) -> None
     """Validate requests parameters.
 
     Default behavior is to fetch schema and warn using `warnings.warn` in case
     of problems, with a special case for the magic git.erp5.org used as an alias
     for frontend software release that does not have a software.cfg.json
     """
-    if software_release in (
-      # no corresponding schema
-      'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
-    ):
-      return
+    if software_release_schema is not None:
+      if software_release_schema.software_url in (
+        # no corresponding schema
+        'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
+      ):
+        return
 
-    try:
-      SoftwareReleaseSchema(
-        software_release,
-        software_type,
-      ).validateInstanceParameterDict(parameter_dict)
-    except SoftwareReleaseSchemaValidationError as e:
-      warnings.warn(
-        "Request parameters do not validate against schema definition:\n{e}".format(e=e.format_error(indent=2)),
-        UserWarning,
-      )
-    except Exception as e:
-      # note that we intentionally catch wide exceptions, so that if anything
-      # is wrong with fetching the schema or the schema itself this does not
-      # prevent users from requesting instances.
-      warnings.warn(
-        "Error validating request parameters against schema definition:\n{e.__class__.__name__} {e}".format(e=e),
-        UserWarning,
-      )
+      try:
+        software_release_schema.validateInstanceParameterDict(parameter_dict)
+      except SoftwareReleaseSchemaValidationError as e:
+        warnings.warn(
+          "Request parameters do not validate against schema definition:\n{e}".format(e=e.format_error(indent=2)),
+          UserWarning,
+        )
+      except Exception as e:
+        # note that we intentionally catch wide exceptions, so that if anything
+        # is wrong with fetching the schema or the schema itself this does not
+        # prevent users from requesting instances.
+        warnings.warn(
+          "Error validating request parameters against schema definition:\n{e.__class__.__name__} {e}".format(e=e),
+          UserWarning,
+        )
 
-  def _requestComputerPartition(self, request_dict):
+  def _requestComputerPartition(self, request_dict, software_release_schema=None):
     self._validateRequestParameters(
-      request_dict['software_release'],
-      request_dict['software_type'],
+      software_release_schema,
       loads(request_dict['partition_parameter_xml']),
     )
     try:
@@ -281,7 +279,7 @@ class OpenOrder(SlapRequester):
 
   def request(self, software_release, partition_reference,
               partition_parameter_kw=None, software_type=None,
-              filter_kw=None, state=None, shared=False):
+              filter_kw=None, state=None, shared=False, software_release_schema=None):
 
     if partition_parameter_kw is None:
       partition_parameter_kw = {}
@@ -310,7 +308,8 @@ class OpenOrder(SlapRequester):
         'state': dumps(state),
         'shared_xml': dumps(shared),
     }
-    return self._requestComputerPartition(request_dict)
+    return self._requestComputerPartition(
+      request_dict, software_release_schema=software_release_schema)
 
   def getInformation(self, partition_reference):
     if not getattr(self, '_hateoas_navigator', None):
@@ -501,7 +500,7 @@ class ComputerPartition(SlapRequester):
 
   def request(self, software_release, software_type, partition_reference,
               shared=False, partition_parameter_kw=None, filter_kw=None,
-              state=None):
+              state=None, software_release_schema=None):
     if partition_parameter_kw is None:
       partition_parameter_kw = {}
     elif not isinstance(partition_parameter_kw, dict):
@@ -530,7 +529,8 @@ class ComputerPartition(SlapRequester):
         'state': dumps(state),
     }
     self._updateTransactionFile(partition_reference)
-    return self._requestComputerPartition(request_dict)
+    return self._requestComputerPartition(
+      request_dict, software_release_schema=software_release_schema)
 
   def destroyed(self):
     self._connection_helper.POST('destroyedComputerPartition', data={

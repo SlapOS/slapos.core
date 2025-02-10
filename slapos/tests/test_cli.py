@@ -931,6 +931,7 @@ class TestCliRequest(CliMixin):
     self.conf.state = None
     self.conf.slave = False
     self.conf.force_serialisation = None
+    self.conf.no_schema_cache = False
 
     connection_dict = {'foo': 'bar'}
     self._do_request(connection_dict, json_in_xml).assert_called_once_with(
@@ -1004,6 +1005,7 @@ class TestCliRequestParameterFile(CliMixin):
     self.conf.state = None
     self.conf.slave = False
     self.conf.force_serialisation = None
+    self.conf.no_schema_cache = False
 
 
 class TestCliRequestParameterFileUndefinedSerialization(TestCliRequestParameterFile):

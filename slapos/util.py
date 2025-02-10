@@ -485,7 +485,7 @@ class SoftwareReleaseSchema(object):
       # we want these messages to be logged with level debug
       logger.info = logger.debug  # type: ignore
       download = zc.buildout.download.Download(logger=logger)
-    self._download = download.download
+    self._download = download.__call__
 
   def _warn(self, message, e):
     warnings.warn(

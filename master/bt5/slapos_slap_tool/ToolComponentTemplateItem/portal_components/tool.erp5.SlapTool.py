@@ -1044,6 +1044,10 @@ class SlapTool(BaseTool):
     if last_data is not None and isinstance(last_data, type(value)):
       requested_software_instance = self.restrictedTraverse(
           last_data.get('request_instance'), None)
+      # Bypass auto stop alarm bug
+      # which change instance state, without clearing this cache
+      if (requested_software_instance is not None) and (requested_software_instance.getSlapState() == "stop_requested") and (kw['state'] != 'stopped'):
+        requested_software_instance = None
 
     if last_data is None or not isinstance(last_data, type(value)) or \
       last_data.get('hash') != value['hash'] or \

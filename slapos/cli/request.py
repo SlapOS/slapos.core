@@ -29,12 +29,12 @@
 
 import argparse
 import json
-import os.path
-import pprint
+import os
 
 import lxml.etree
 import six
 import yaml
+import zc.buildout.download
 
 from slapos.cli.config import ClientConfigCommand
 from slapos.client import (ClientConfig, _getSoftwareReleaseFromSoftwareString,
@@ -117,6 +117,11 @@ class RequestCommand(ClientConfigCommand):
                         choices=[s.value for s in SoftwareReleaseSerialisation],
                         help='Enforce serialisation of instance parameters when using --parameters-file')
 
+        ap.add_argument(
+            '--no-schema-cache',
+            action='store_true',
+            help="Disable local caching of software release schemas.")
+
         parameter_args = ap.add_mutually_exclusive_group()
 
         parameter_args.add_argument(
@@ -152,7 +157,27 @@ def do_request(logger, conf, local):
     if conf.software_url in local:
         conf.software_url = local[conf.software_url]
 
-    software_schema = SoftwareReleaseSchema(conf.software_url, conf.type)
+    if conf.no_schema_cache:
+        software_schema_downloader = None
+    else:
+        cache_directory = os.path.join(os.getenv('XDG_CACHE_HOME', os.path.expanduser('~/.cache')), 'slapos')
+        if six.PY2:
+            try:
+                os.makedirs(cache_directory)
+            except OSError:
+                if not os.path.isdir(cache_directory):
+                    raise
+        else:
+            os.makedirs(cache_directory, exist_ok=True)
+        software_schema_downloader = zc.buildout.download.Download(
+            cache=cache_directory,
+            namespace='schemas',
+            hash_name=True
+        )
+    software_schema = SoftwareReleaseSchema(
+        conf.software_url,
+        conf.type,
+        download=software_schema_downloader)
     if conf.parameters_file:
         serialisation = conf.force_serialisation
         parameters = getParametersFromFile(conf.parameters_file,
@@ -168,7 +193,8 @@ def do_request(logger, conf, local):
             software_type=conf.type,
             filter_kw=conf.node,
             state=conf.state,
-            shared=conf.slave
+            shared=conf.slave,
+            software_release_schema=software_schema,
         )
         logger.info('Instance requested.\nState is : %s.', partition.getState())
         logger.info('Connection parameters of instance are:')

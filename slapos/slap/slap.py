@@ -53,8 +53,7 @@ except ImportError: # XXX to be removed once we depend on typing
 from .exception import ResourceNotReady, ServerError, NotFoundError, \
           ConnectionError
 from .hateoas import SlapHateoasNavigator, ConnectionHelper
-from slapos.util import (SoftwareReleaseSchema, SoftwareReleaseSchemaValidationError,
-                         bytes2str, calculate_dict_hash, dict2xml, dumps, loads,
+from slapos.util import (bytes2str, calculate_dict_hash, dict2xml, dumps, loads,
                          unicode2str, xml2dict)
 
 from xml.sax import saxutils

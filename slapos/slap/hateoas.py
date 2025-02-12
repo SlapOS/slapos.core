@@ -36,6 +36,7 @@ import os
 import logging
 
 from ..util import _addIpv6Brackets
+from ..version import version as slapos_version
 from .exception import ResourceNotReady, NotFoundError, \
           AuthenticationError, ConnectionError
 
@@ -91,6 +92,7 @@ class ConnectionHelper:
     if headers is None:
       headers = {}
     headers.setdefault('Accept', '*/*')
+    headers.setdefault('User-agent', 'slapos.core/%s' % slapos_version)
     if path.startswith('/'):
       path = path[1:]
 #      raise ValueError('method path should be relative: %s' % path)

@@ -40,7 +40,6 @@ import os
 import logging
 import re
 from functools import wraps
-import warnings
 
 import json
 import six

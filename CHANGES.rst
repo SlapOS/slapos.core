@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.15.0 (2025-02-13)
+-------------------
+ * slap: drop parameter schema validation before request
+ * console: existing script will not validate the parameters anymore. "slapos.util.SoftwareReleaseSchema.validateInstanceParameterDict" must be called explicitely. 
+ * cli: add parameter schema validation before request
+
 1.14.3 (2025-01-14)
 -------------------
  * slapgrid: fixup: prevent file corruption for promise history and stats

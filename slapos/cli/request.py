@@ -166,7 +166,7 @@ def _validateRequestParameters(software_schema, parameter_dict):
     )
 
 def do_request(logger, conf, local):
-    logger.info('Requesting %s as instance of %s...',
+    logger.info('Validating parameters for %s as instance of %s...',
                 conf.reference, conf.software_url)
 
     conf.software_url = _getSoftwareReleaseFromSoftwareString(
@@ -195,6 +195,8 @@ def do_request(logger, conf, local):
         parameters,
       )
 
+    logger.info('Requesting %s as instance of %s...',
+                conf.reference, conf.software_url)
     try:
         partition = local['slap'].registerOpenOrder().request(
             software_release=conf.software_url,

@@ -28,24 +28,25 @@
 from lxml import etree
 from zExceptions import Unauthorized
 import pkg_resources
-from six import StringIO
+from io import BytesIO
+from Products.ERP5Type.Utils import str2bytes
 
 def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
   """Call bang on self."""
   if REQUEST is not None:
     raise Unauthorized
-  xml = self.getData("")
 
   compute_node_consumption_model = \
     pkg_resources.resource_string(
       'slapos.slap', 'doc/computer_consumption.xsd')
 
   # Validate against the xsd
-  xsd_model = StringIO(compute_node_consumption_model)
+  xsd_model = BytesIO(compute_node_consumption_model)
   xmlschema_doc = etree.parse(xsd_model)
   xmlschema = etree.XMLSchema(xmlschema_doc)
 
-  string_to_validate = StringIO(xml)
+  xml = self.getData(str2bytes(""))
+  string_to_validate = BytesIO(xml)
 
   try:
     tree = etree.parse(string_to_validate)

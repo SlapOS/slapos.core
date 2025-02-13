@@ -25,7 +25,7 @@ from erp5.component.test.testSlapOSCloudSecurityGroup import TestSlapOSSecurityM
 from erp5.component.test.SlapOSTestCaseMixin import changeSkin
 import re
 from slapos.util import dumps, loads
-from Products.ERP5Type.Utils import str2bytes
+from Products.ERP5Type.Utils import str2bytes, bytes2str
 from AccessControl.SecurityManagement import getSecurityManager, \
              setSecurityManager
 
@@ -229,7 +229,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     try:
       self.login(compute_node.getUserId())
       self.portal.portal_slap.loadComputerConfigurationFromXML(
-          dumps(compute_node_dict))
+          bytes2str(dumps(compute_node_dict)))
       self.tic()
       self.assertEqual(partition_count,
           len(compute_node.contentValues(portal_type='Compute Partition')))
@@ -276,9 +276,9 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         if partition._requested_state == 'destroyed' \
               and partition._need_modification == 1:
           self.portal.portal_slap.destroyedComputerPartition(compute_node.getReference(),
-              partition._partition_id.encode("UTF-8")
+              partition._partition_id
               )
-          destroyed_partition_id_list.append(partition._partition_id.encode("UTF-8"))
+          destroyed_partition_id_list.append(partition._partition_id)
     finally:
       setSecurityManager(sm)
     self.tic()
@@ -306,10 +306,10 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
               and partition._need_modification == 1:
           instance_reference = partition._instance_guid.encode('UTF-8')
           ip_list = partition._parameter_dict['ip_list']
-          connection_xml = dumps(dict(
+          connection_xml = bytes2str(dumps(dict(
             url_1 = 'http://%s/' % ip_list[0][1],
             url_2 = 'http://%s/' % ip_list[1][1],
-          ))
+          )))
           self.login()
           instance_user_id = self.portal.portal_catalog.getResultValue(
               reference=instance_reference, portal_type="Software Instance").getUserId()
@@ -324,10 +324,10 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
             )
             for slave in partition._parameter_dict['slave_instance_list']:
               slave_reference = slave['slave_reference']
-              connection_xml = dumps(dict(
+              connection_xml = bytes2str(dumps(dict(
                 url_1 = 'http://%s/%s' % (ip_list[0][1], slave_reference),
                 url_2 = 'http://%s/%s' % (ip_list[1][1], slave_reference)
-              ))
+              )))
               self.portal.portal_slap.setComputerPartitionConnectionXml(
                 computer_id=compute_node_reference,
                 computer_partition_id=partition._partition_id,

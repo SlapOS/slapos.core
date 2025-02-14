@@ -4,11 +4,10 @@ from Products.ERP5Type.tests.utils import DummyMailHostMixin,\
 
 from Products.ERP5Security import SUPER_USER
 
-
+from slapos.util import loads, dumps
 from AccessControl.SecurityManagement import getSecurityManager
 from AccessControl.SecurityManagement import setSecurityManager
 from AccessControl.SecurityManagement import newSecurityManager
-import xml_marshaller
 
 
 def ComputeNode_simulateSlapgridInstance(self, instance_connection_dict=None,
@@ -32,7 +31,7 @@ def ComputeNode_simulateSlapgridInstance(self, instance_connection_dict=None,
     if not isinstance(compute_node_xml, str):
       compute_node_xml = compute_node_xml.getBody()
 
-    slap_compute_node = xml_marshaller.xml_marshaller.loads(compute_node_xml)
+    slap_compute_node = loads(str2bytes(compute_node_xml))
     assert 'Computer' == slap_compute_node.__class__.__name__
 
     for partition in slap_compute_node._computer_partition_list:
@@ -44,7 +43,7 @@ def ComputeNode_simulateSlapgridInstance(self, instance_connection_dict=None,
             url_1 = 'http://%s/' % ip_list[0][1],
             url_2 = 'http://%s/' % ip_list[1][1],
           ))
-        connection_xml = xml_marshaller.xml_marshaller.dumps(instance_connection_dict)
+        connection_xml = dumps(instance_connection_dict)
         portal.portal_slap.setComputerPartitionConnectionXml(
           computer_id=compute_node_reference,
           computer_partition_id=partition._partition_id,
@@ -62,7 +61,7 @@ def ComputeNode_simulateSlapgridInstance(self, instance_connection_dict=None,
             url_1 = 'http://%s/%s' % (ip_list[0][1], slave_reference),
             url_2 = 'http://%s/%s' % (ip_list[1][1], slave_reference)
           ))
-        connection_xml = xml_marshaller.xml_marshaller.dumps(slave_connection_dict)
+        connection_xml = dumps(slave_connection_dict)
         self.portal.portal_slap.setComputerPartitionConnectionXml(
             computer_id=compute_node_reference,
             computer_partition_id=partition._partition_id,
@@ -83,7 +82,7 @@ def ComputeNode_simulateSlapgridSoftware(self):
         computer_id=self.getReference())
     if not isinstance(compute_node_xml, str):
       compute_node_xml = compute_node_xml.getBody()
-    slap_compute_node = xml_marshaller.xml_marshaller.loads(compute_node_xml)
+    slap_compute_node = loads(str2bytes(compute_node_xml))
     assert 'Computer' == slap_compute_node.__class__.__name__
     for software_release in slap_compute_node._software_release_list:
       if software_release._requested_state == 'destroyed':
@@ -122,7 +121,7 @@ def ComputeNode_simulateSlapgridFormat(self, partition_count=10):
   try:
     newSecurityManager(None, portal.acl_users.getUserById(self.getUserId()))
     return portal.portal_slap.loadComputerConfigurationFromXML(
-        xml_marshaller.xml_marshaller.dumps(compute_node_dict))
+        dumps(compute_node_dict))
   finally:
     setSecurityManager(sm)
 

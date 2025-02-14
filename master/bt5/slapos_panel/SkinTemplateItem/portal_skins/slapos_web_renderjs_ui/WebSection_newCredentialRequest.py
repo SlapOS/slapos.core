@@ -3,6 +3,9 @@ Paramameter list :
 reference -- User login is mandatory (String)
 default_email_text -- Email is mandatory (String)"""
 # create the credential request
+import binascii
+from Products.ERP5Type.Utils import bytes2str, str2bytes
+
 portal = context.getPortalObject()
 module = portal.getDefaultModule(portal_type='Credential Request')
 portal_preferences = portal.portal_preferences
@@ -39,7 +42,8 @@ credential_request = module.newContent(
 credential_request.setCategoryList(category_list)
 # Same tag is used as in ERP5 Login._setReference, in order to protect against
 # concurrency between Credential Request and Person object too
-credential_request.reindexObject(activate_kw=dict(tag='set_login_%s' % reference.encode('hex')))
+tag = 'set_login_%s' % bytes2str(binascii.hexlify(str2bytes(reference)))
+credential_request.reindexObject(activate_kw={'tag': tag})
 
 if portal_preferences.getPreferredCredentialAlarmAutomaticCall():
   portal_type = context.Base_translateString("Credential Request")
@@ -64,8 +68,8 @@ else:
     portal_type = context.Base_translateString("Credential Request")
     credential_request.submit("Automatic submit")
     message_str = context.Base_translateString("${portal_type} Created.", mapping=({'portal_type': portal_type}))
-    
+
 if batch_mode:
   return credential_request
-    
+
 return context.REQUEST.RESPONSE.redirect(context.absolute_url() + "/login_form?portal_status_message=" + context.Base_translateString(message_str))

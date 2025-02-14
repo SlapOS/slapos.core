@@ -1162,6 +1162,7 @@ class TestSlapOSCrmStopInstanceTree(SlapOSTestCaseMixinWithAbort):
 
 
 class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
+  require_certificate = 1
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()

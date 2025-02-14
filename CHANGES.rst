@@ -6,6 +6,7 @@ Changes
  * slap: drop parameter schema validation before request
  * console: existing script will not validate the parameters anymore. "slapos.util.SoftwareReleaseSchema.validateInstanceParameterDict" must be called explicitely. 
  * cli: add parameter schema validation before request
+ * slapgrid: only call software_release.available() after successful compilation
 
 1.14.3 (2025-01-14)
 -------------------

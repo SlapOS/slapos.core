@@ -1745,22 +1745,30 @@ class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSC
     error_dict = software_instance.SoftwareInstance_getReportedErrorDict(tolerance=30)
     self.tic()
 
-    ticket_title = "Instance Tree %s is failing." % (instance_tree.getTitle())
-    self.assertEqual(error_dict['ticket_title'], ticket_title)
+    # For now the assertion is disabled, so we do not generate a ticket for
+    # this use case. Until allocation is improved to consider this a problem
     ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
+    self.assertEqual(ticket, None)
+    self.assertEqual(error_dict['should_notify'], None)
 
-    self.assertNotEqual(ticket, None)
-    self.assertEqual(ticket.getTitle(), error_dict['ticket_title'])
-    event_list = ticket.getFollowUpRelatedValueList()
-    self.assertEqual(len(event_list), 1)
-    event = event_list[0]
+    # Uncommend the following to when the SoftwareInstance_getReportedErrorDict
+    # changes back.
+    #ticket_title = "Instance Tree %s is failing." % (instance_tree.getTitle())
+    #self.assertEqual(error_dict['ticket_title'], ticket_title)
+    #ticket = self._getGeneratedSupportRequest(instance_tree.getUid())
 
-    self.assertIn('has invalid Service Level Aggrement.',
-                  event.getTextContent())
-    self.assertIn(
-      ' instance_guid provided on test tree and it is allocated on a REMOTE NODE',
-      event.getTextContent())
-    self.assertEventTicket(event, ticket, instance_tree)
+    #self.assertNotEqual(ticket, None)
+    #self.assertEqual(ticket.getTitle(), error_dict['ticket_title'])
+    #event_list = ticket.getFollowUpRelatedValueList()
+    #self.assertEqual(len(event_list), 1)
+    #event = event_list[0]
+
+    #self.assertIn('has invalid Service Level Aggrement.',
+    #              event.getTextContent())
+    #self.assertIn(
+    #  ' instance_guid provided on test tree and it is allocated on a REMOTE NODE',
+    #  event.getTextContent())
+    #self.assertEventTicket(event, ticket, instance_tree)
 
   @simulate('Project_isSupportRequestCreationClosed', '', 'return 0')
   def test_SoftwareInstance_checkInstanceTreeMonitoringState_script_slaveBadInstanceGuid(self):

@@ -125,6 +125,10 @@
                           <string>Title</string>
                         </tuple>
                         <tuple>
+                          <string>short_title</string>
+                          <string>Short Title</string>
+                        </tuple>
+                        <tuple>
                           <string>reference</string>
                           <string>Reference</string>
                         </tuple>

@@ -233,8 +233,8 @@ class SlapOSConfigWriter(ConfigWriter):
               master_rest_url = {standalone_slapos._master_url}/hateoas
               computer_id = {standalone_slapos._computer_id}
               root_check = False
-              pidfile_software = {standalone_slapos._instance_pid}
-              pidfile_instance = {standalone_slapos._software_pid}
+              pidfile_software = {standalone_slapos._software_pid}
+              pidfile_instance = {standalone_slapos._instance_pid}
               pidfile_report =  {standalone_slapos._report_pid}
               forbid_supervisord_automatic_launch = true
 

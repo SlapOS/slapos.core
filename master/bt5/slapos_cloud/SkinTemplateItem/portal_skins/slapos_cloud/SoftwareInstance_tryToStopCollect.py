@@ -44,3 +44,8 @@ if (instance_tree.getSlapState() == "stop_requested"):
         state="stopped",
         comment="Stop collect %s" % instance.getRelativeUrl()
       )
+      # reset request cache
+      # It is required to allow requested to start the instance again
+      # XXX TODO: the cache handling must be fixed, as it is spreaded
+      # in multiple places, which probably means there are other bugs like this
+      requester.setLastData({}, key='_'.join([requester.getRelativeUrl(), instance.getTitle()]))

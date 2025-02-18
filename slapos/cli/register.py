@@ -140,7 +140,7 @@ class RegisterCommand(Command):
 
 def check_credentials(url, login, password):
     """Check if login and password are correct"""
-    req = requests.get(url, auth=(login, password), verify=False)
+    req = requests.get(url, auth=(login, password))
     return 'Logout' in req.text
 
 
@@ -150,11 +150,10 @@ def get_certificate_key_pair(logger, master_url_web, node_name, token=None, logi
     if token:
         req = requests.post('/'.join([master_url_web, 'Person_requestComputer']),
                             data={'title': node_name},
-                            headers={'X-Access-Token': token},
-                            verify=False)
+                            headers={'X-Access-Token': token})
     else:
         register_server_url = '/'.join([master_url_web, ("Person_requestComputer?title={}".format(node_name))])
-        req = requests.get(register_server_url, auth=(login, password), verify=False)
+        req = requests.get(register_server_url, auth=(login, password))
 
     if not req.ok and 'Certificate still active.' in req.text:
         # raise a readable exception if the computer name is already used,

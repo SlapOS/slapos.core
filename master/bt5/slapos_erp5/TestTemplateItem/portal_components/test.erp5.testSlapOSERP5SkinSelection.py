@@ -57,6 +57,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_advanced_ecommerce_configuration
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -65,6 +66,7 @@ erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
+erp5_commerce_loyalty_program
 erp5_commerce_widget_library
 erp5_computer_immobilisation
 erp5_configurator

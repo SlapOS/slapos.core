@@ -32,6 +32,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
   def afterSetUp(self):
     TestSlapOSSecurityMixin.afterSetUp(self)
+    """
     preference = self.portal.portal_preferences.slapos_default_system_preference
 
     preference.edit(
@@ -40,7 +41,6 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       preferred_credential_request_automatic_approval=1
     )
 
-    """
     # Enable alarms for regularisation request
     self.portal.portal_alarms.slapos_crm_create_regularisation_request.setEnabled(True)
     self.portal.portal_alarms.slapos_crm_invalidate_suspended_regularisation_request.setEnabled(True)

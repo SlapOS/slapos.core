@@ -945,7 +945,9 @@ class TestCliRequest(CliMixin):
         shared=False,
     )
     self.assertEqual(self.logger.info.mock_calls, [
-        mock.call('Requesting %s as instance of %s...',
+        mock.call('Validating request parameters for %s as an instance of %s ...',
+                  'instance reference', software_url),
+        mock.call('Requesting %s as an instance of %s ...',
                   'instance reference', software_url),
         mock.call('Instance requested.\nState is : %s.', 'started'),
         mock.call('Connection parameters of instance are:'),
@@ -1302,7 +1304,7 @@ class TestCliRequestParametersFileJson(TestCliRequestParameterFile):
           shared=False,
       )
       self.logger.info.assert_any_call(
-          'Requesting %s as instance of %s...',
+          'Requesting %s as an instance of %s ...',
           'instance reference',
           'software URL',
       )
@@ -1379,7 +1381,7 @@ class TestCliRequestForceSerialisation(TestCliRequestParameterFile):
         shared=False,
     )
     self.logger.info.assert_any_call(
-        'Requesting %s as instance of %s...',
+        'Requesting %s as an instance of %s ...',
         'instance reference',
         'software URL',
     )

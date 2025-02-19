@@ -13,6 +13,7 @@ Internal Packing List Line | -delivery_movement_simulation_interaction_workflow
 Internal Packing List | -delivery_simulation_interaction_workflow
 Invoice Cell | -delivery_movement_simulation_interaction_workflow
 Invoice Line | -delivery_movement_simulation_interaction_workflow
+Loyalty Transaction Line | -delivery_movement_simulation_interaction_workflow
 Open Internal Order Cell | -open_order_path_simulation_interaction_workflow
 Open Internal Order Line | -open_order_path_simulation_interaction_workflow
 Open Internal Order | -open_order_simulation_interaction_workflow

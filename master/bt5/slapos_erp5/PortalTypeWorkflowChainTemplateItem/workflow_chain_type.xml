@@ -36,6 +36,10 @@
   <workflow>edit_workflow, validation_workflow</workflow>
  </chain>
  <chain>
+  <type>Credential Request</type>
+  <workflow>slapos_erp5_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Delivery Cell</type>
   <workflow>-immobilisation_movement_interaction_workflow</workflow>
  </chain>

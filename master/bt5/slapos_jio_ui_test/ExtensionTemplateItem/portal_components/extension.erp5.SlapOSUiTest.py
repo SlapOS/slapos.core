@@ -3,13 +3,19 @@ from Products.ERP5Type.tests.utils import DummyMailHostMixin,\
   createZODBPythonScript
 
 from Products.ERP5Security import SUPER_USER
-
+from erp5.component.test.testSlapOSJIOAPI import json_loads_byteified
 
 from AccessControl.SecurityManagement import getSecurityManager
 from AccessControl.SecurityManagement import setSecurityManager
 from AccessControl.SecurityManagement import newSecurityManager
-import xml_marshaller
+import json
 
+def callJioApi(action, portal, data_dict):
+  portal.REQUEST.set("live_test", True)
+  portal.REQUEST.set("BODY", json.dumps(data_dict))
+  return json_loads_byteified(
+    getattr(portal.web_site_module.hostingjs.api, action)()
+  )
 
 def ComputeNode_simulateSlapgridInstance(self, instance_connection_dict=None,
                        slave_connection_dict=None):
@@ -21,54 +27,53 @@ def ComputeNode_simulateSlapgridInstance(self, instance_connection_dict=None,
     instance_connection_dict = {}
 
   sm = getSecurityManager()
-  compute_node_reference = self.getReference()
   compute_node_user_id = self.getUserId()
   portal = self.getPortalObject()
   try:
     newSecurityManager(None, portal.acl_users.getUserById(compute_node_user_id))
-    compute_node_xml = portal.portal_slap.getFullComputerInformation(
-        computer_id=self.getReference())
+    instance_list = callJioApi('allDocs', portal, {
+      "portal_type": "Software Instance",
+      "compute_node_id": self.getReference()
+    })["result_list"]
     
-    if not isinstance(compute_node_xml, str):
-      compute_node_xml = compute_node_xml.getBody()
-
-    slap_compute_node = xml_marshaller.xml_marshaller.loads(compute_node_xml)
-    assert 'Computer' == slap_compute_node.__class__.__name__
-
-    for partition in slap_compute_node._computer_partition_list:
-      if partition._requested_state in ('started', 'stopped') \
-              and partition._need_modification == 1:
-        instance_reference = partition._instance_guid.encode('UTF-8')
-        ip_list = partition._parameter_dict['ip_list']
+    for partition in instance_list:
+      if partition["state"] in ('started', 'stopped'):
+        partition = callJioApi('get', portal, {
+          "portal_type": "Software Instance",
+          "reference": partition["reference"],
+        })
+        instance_reference = partition["reference"]
+        ip_list = partition['ip_list']
         instance_connection_dict.update(dict(
             url_1 = 'http://%s/' % ip_list[0][1],
             url_2 = 'http://%s/' % ip_list[1][1],
           ))
-        connection_xml = xml_marshaller.xml_marshaller.dumps(instance_connection_dict)
-        portal.portal_slap.setComputerPartitionConnectionXml(
-          computer_id=compute_node_reference,
-          computer_partition_id=partition._partition_id,
-          connection_xml=connection_xml
-        )
+        callJioApi("put", portal, {
+          "portal_type": "Software Instance",
+          "reference": partition["reference"],
+          "connection_parameters": instance_connection_dict,
+        })
         setSecurityManager(sm)
         instance_user_id = portal.portal_catalog.getResultValue(
               reference=instance_reference, portal_type="Software Instance").getUserId()
         
         newSecurityManager(None, portal.acl_users.getUserById(instance_user_id))
-        for slave in partition._parameter_dict['slave_instance_list']:
-          slave_reference = slave['slave_reference']
-      
-        slave_connection_dict.update(dict(
-            url_1 = 'http://%s/%s' % (ip_list[0][1], slave_reference),
-            url_2 = 'http://%s/%s' % (ip_list[1][1], slave_reference)
-          ))
-        connection_xml = xml_marshaller.xml_marshaller.dumps(slave_connection_dict)
-        self.portal.portal_slap.setComputerPartitionConnectionXml(
-            computer_id=compute_node_reference,
-            computer_partition_id=partition._partition_id,
-            connection_xml=connection_xml,
-            slave_reference=slave_reference
-          )
+        hosted_instance_list = callJioApi("allDocs", portal, {
+          "portal_type": "Shared Instance",
+          "host_instance_reference": partition["reference"],
+          "state": "started"
+        })["result_list"]
+        for hosted_instance in hosted_instance_list:
+          hosted_reference = hosted_instance['reference']
+          slave_connection_dict.update(dict(
+              url_1 = 'http://%s/%s' % (ip_list[0][1], hosted_reference),
+              url_2 = 'http://%s/%s' % (ip_list[1][1], hosted_reference)
+            ))
+          callJioApi("allDocs", portal, {
+            "portal_type": "Software Instance",
+            "reference": hosted_reference,
+            "connection_parameters": slave_connection_dict,
+          })
         
   finally:
     setSecurityManager(sm)
@@ -79,53 +84,70 @@ def ComputeNode_simulateSlapgridSoftware(self):
   compute_node_user_id = self.getUserId()
   try:
     newSecurityManager(None, portal.acl_users.getUserById(compute_node_user_id))
-    compute_node_xml = portal.portal_slap.getFullComputerInformation(
-        computer_id=self.getReference())
-    if not isinstance(compute_node_xml, str):
-      compute_node_xml = compute_node_xml.getBody()
-    slap_compute_node = xml_marshaller.xml_marshaller.loads(compute_node_xml)
-    assert 'Computer' == slap_compute_node.__class__.__name__
-    for software_release in slap_compute_node._software_release_list:
-      if software_release._requested_state == 'destroyed':
-        portal.portal_slap.destroyedSoftwareRelease(
-          software_release._software_release,
-					self.getReference())
+    software_release_list = callJioApi("allDocs", portal, {
+      "portal_type": "Software Installation",
+      "compute_node_id": self.getReference()
+    })["result_list"]
+    for software_release in software_release_list:
+      if software_release["state"] == 'destroyed':
+        callJioApi("put", portal, {
+          "portal_type": "Software Installation",
+          "compute_noode_id": self.getReference(),
+          "software_release_uri": software_release["software_release_uri"],
+          "reported_state": "destroyed",
+        })
       else:
-        portal.portal_slap.availableSoftwareRelease(
-          software_release._software_release,
-					self.getReference())
+        callJioApi("put", portal, {
+          "portal_type": "Software Installation",
+          "compute_noode_id": self.getReference(),
+          "software_release_uri": software_release["software_release_uri"],
+          "reported_state": "available",
+        })
   finally:
     setSecurityManager(sm)
 
 def ComputeNode_simulateSlapgridFormat(self, partition_count=10):
   portal = self.getPortalObject()
-
   compute_node_dict = dict(
-    software_root='/opt',
-    reference=self.getReference(),
-    netmask='255.255.255.0',
-    address='128.0.0.1',
-    instance_root='/srv'
+    compute_node_id=self.getReference(),
+    portal_type="Compute Node",
   )
-  compute_node_dict['partition_list'] = []
-  a = compute_node_dict['partition_list'].append
+  compute_node_dict['compute_partition_list'] = []
+  a = compute_node_dict['compute_partition_list'].append
   for i in range(1, partition_count+1):
     a(dict(
-      reference='part%s' % i,
-      tap=dict(name='tap%s' % i),
-      address_list=[
-        dict(addr='p%sa1' % i, netmask='p%sn1' % i),
-        dict(addr='p%sa2' % i, netmask='p%sn2' % i)
+      partition_id='part%s' % i,
+      ip_list=[
+        {
+          "ip-address":'p%sa1' % i,
+          "network-interface": 'tap%s' % i,
+        },
+        {
+          "ip-address":'p%sa2' % i,
+          "network-interface": 'tap%s' % i,
+        },
+        {
+          "ip-address":'p%sa1' % i,
+          "gateway-ip-address":'p%sn1' % i,
+          "network-interface": 'tap%s' % i,
+          "netmask": '255.255.255.0',
+          "network-address": '128.0.0.1',
+        },
+        {
+          "ip-address":'p%sa2' % i,
+          "gateway-ip-address":'p%sn2' % i,
+          "network-interface": 'tap%s' % i,
+          "netmask": '255.255.255.0',
+          "network-address": '128.0.0.1',
+        }
       ]
     ))
   sm = getSecurityManager()
   try:
     newSecurityManager(None, portal.acl_users.getUserById(self.getUserId()))
-    return portal.portal_slap.loadComputerConfigurationFromXML(
-        xml_marshaller.xml_marshaller.dumps(compute_node_dict))
+    return callJioApi("put", portal, compute_node_dict)
   finally:
     setSecurityManager(sm)
-
 
 def restoreDummyMailHost(self):
   """Restore the replacement of Original Mail Host by Dummy Mail Host.

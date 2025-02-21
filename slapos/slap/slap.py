@@ -571,13 +571,17 @@ class ComputerPartition(SlapRequester):
 
   def getInstanceGuid(self):
     """Return instance_guid. Raise ResourceNotReady if it doesn't exist."""
-    if not getattr(self, '_instance_guid', None):
+    if not hasattr(self, '_instance_guid'):
+      self._fetchComputerPartitionInformation()
+    if self._instance_guid is None:
       raise ResourceNotReady()
     return self._instance_guid
 
   def getState(self):
     """return _requested_state. Raise ResourceNotReady if it doesn't exist."""
-    if not getattr(self, '_requested_state', None):
+    if not hasattr(self, '_requested_state'):
+      self._fetchComputerPartitionInformation()
+    if self._requested_state is None:
       raise ResourceNotReady()
     return self._requested_state
 
@@ -597,17 +601,38 @@ class ComputerPartition(SlapRequester):
       raise ResourceNotReady()
     return software_type
 
+  def _updateComputerPartitionInformation(self, new_partition):
+    computer_partition = self
+    computer_partition._instance_guid = getattr(new_partition, '_instance_guid', None)
+    computer_partition._requested_state = getattr(new_partition, '_requested_state', None)
+    computer_partition._software_release_document = getattr(new_partition, '_software_release_document', None)
+    computer_partition._parameter_dict = getattr(new_partition, '_parameter_dict', None)
+    computer_partition._connection_dict = getattr(new_partition, '_connection_dict', None)
+
+  def _fetchComputerPartitionInformation(self):
+    xml = self._connection_helper.GET(
+      'registerComputerPartition',
+      params = {
+        'computer_reference': self._computer_id,
+        'computer_partition_reference': self.getId()
+      }
+    )
+    self._updateComputerPartitionInformation(loads(xml))
+
   def getInstanceParameterDict(self):
     # type: (...) -> Mapping[str, object]
-    return getattr(self, '_parameter_dict', None) or {}
+    if not hasattr(self, '_parameter_dict'):
+      self._fetchComputerPartitionInformation()
+    return self._parameter_dict or {}
 
   def getConnectionParameterDict(self):
     # type: (...) -> Mapping[str, str]
-    connection_dict = getattr(self, '_connection_dict', None)
+    if not hasattr(self, '_connection_dict'):
+      self._fetchComputerPartitionInformation()
+    connection_dict = self._connection_dict
     if connection_dict is None:
       # XXX Backward compatibility for older slapproxy (<= 1.0.0)
       connection_dict = xml2dict(getattr(self, 'connection_xml', ''))
-
     return connection_dict or {}
 
   def getSoftwareRelease(self):
@@ -615,11 +640,12 @@ class ComputerPartition(SlapRequester):
     """
     Returns the software release associate to the computer partition.
     """
-    if not getattr(self, '_software_release_document', None):
+    if not hasattr(self, '_software_release_document'):
+      self._fetchComputerPartitionInformation()
+    if self._software_release_document is None:
       raise NotFoundError("No software release information for partition %s" %
           self.getId())
-    else:
-      return self._software_release_document
+    return self._software_release_document
 
   def setConnectionDict(self, connection_dict, slave_reference=None):
     # recreate and stabilise connection_dict that it would became the same as on server
@@ -803,18 +829,13 @@ class slap:
       # XXX-Cedric: should raise something smarter than NotFound
       raise NotFoundError
 
-    xml = self._connection_helper.GET('registerComputerPartition',
-            params = {
-                'computer_reference': computer_guid,
-                'computer_partition_reference': partition_id,
-                }
-            )
-    result = loads(xml)
-    # XXX: dirty hack to make computer partition usable. xml_marshaller is too
-    # low-level for our needs here.
-    result._connection_helper = self._connection_helper
-    result._hateoas_navigator = self._hateoas_navigator
-    return result
+    computer_partition = ComputerPartition(
+      computer_guid,
+      partition_id
+    )
+    computer_partition._connection_helper = self._connection_helper
+    computer_partition._hateoas_navigator = self._hateoas_navigator
+    return computer_partition
 
   def registerOpenOrder(self):
     return OpenOrder(

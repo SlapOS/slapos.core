@@ -227,9 +227,23 @@ class TestSlap(SlapMixin):
                                                       self.partition_id)
       self.assertIsInstance(partition, slapos.slap.ComputerPartition)
 
-  def test_registerComputerPartition_unknown_computer_guid(self):
+  def test_registerComputerPartition_no_http_query(self):
     """
-    Asserts that calling slap.registerComputerPartition on unknown
+    Asserts that calling slap.registerComputerPartition does not trigger an http query
+    """
+    computer_guid = self._getTestComputerId()
+    self.slap.initializeConnection(self.server_url)
+    partition_id = self.id()
+
+    def handler(url, req):
+      return {'status_code': 500}
+
+    with httmock.HTTMock(handler):
+      self.slap.registerComputerPartition(computer_guid, partition_id)
+
+  def test_fetchComputerPartitionInformation_unknown_computer_guid(self):
+    """
+    Asserts that calling _fetchComputerPartitionInformation on unknown
     computer raises NotFoundError exception
     """
     computer_guid = self._getTestComputerId()
@@ -246,11 +260,10 @@ class TestSlap(SlapMixin):
       else:
         return {'status_code': 0}
 
+    partition = self.slap.registerComputerPartition(computer_guid, partition_id)
     with httmock.HTTMock(handler):
       self.assertRaises(slapos.slap.NotFoundError,
-                        self.slap.registerComputerPartition,
-                        computer_guid, partition_id)
-
+                        partition._fetchComputerPartitionInformation)
 
   def test_getFullComputerInformation_empty_computer_guid(self):
     """

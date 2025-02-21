@@ -1,6 +1,7 @@
 from Products.PythonScripts.standard import Object
 from DateTime import DateTime
 from hashlib import md5
+from Products.ERP5Type.Utils import str2bytes
 
 portal = context.getPortalObject()
 web_site = None
@@ -32,7 +33,7 @@ return [Object(**{
           'author': 'Administrator',
           'link': "%s?date=%s" % (url, date_id),
           'pubDate': DateTime().earliestTime(),
-          'guid': md5("%s-%s" % (url, date_id)).hexdigest(),
+          'guid': md5(str2bytes("%s-%s" % (url, date_id))).hexdigest(),
           'description': description,
           'thumbnail': ( None)})
         ]

@@ -16,6 +16,7 @@ import hashlib
 import json
 from binascii import hexlify
 from OFS.Traversable import NotFound
+from Products.ERP5Type.Utils import str2unicode
 
 
 def hashData(data):
@@ -42,13 +43,13 @@ class Simulator:
 
 
 def canonical_xml(xml):
-  return etree.tostring(
+  return str2unicode(etree.tostring(
     etree.fromstring(xml),
     method="c14n",
-  ).decode('utf-8')
-
+  ))
 
 class TestSlapOSSlapToolMixin(SlapOSTestCaseMixin):
+  maxDiff = None
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self.portal_slap = self.portal.portal_slap
@@ -763,7 +764,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
         os.unlink(self.compute_node_bang_simulator)
 
   def assertLoadComputeNodeConfigurationFromXML(self, args, kwargs):
-    stored = eval(open(self.compute_node_load_configuration_simulator).read()) #pylint: disable=eval-used
+    with open(self.compute_node_load_configuration_simulator) as f:
+      stored = eval(f.read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
@@ -1025,7 +1027,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     self.assertEqual("", response.body)
 
   def assertReportComputeNodeConsumption(self, args, kwargs):
-    stored = eval(open(self.compute_node_use_compute_node_simulator).read()) #pylint: disable=eval-used
+    with open(self.compute_node_use_compute_node_simulator) as f:
+      stored = eval(f.read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
@@ -1639,7 +1642,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertXMLEqual(expected_xml, got_xml)
 
   def assertInstanceUpdateConnectionSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_update_connection_simulator).read()) #pylint: disable=eval-used
+    with open(self.instance_update_connection_simulator) as f:
+      stored = eval(f.read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     kwargs['connection_xml'] = kwargs.pop('connection_xml')
     self.assertEqual(stored,
@@ -1857,7 +1861,9 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertXMLEqual(expected_xml, got_xml)
 
   def assertInstanceBangSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_bang_simulator).read()) #pylint: disable=eval-used
+    with open(self.instance_bang_simulator) as f:
+      stored = eval(f.read()) #pylint: disable=eval-used
+
     # do the same translation magic as in workflow
     kwargs['comment'] = kwargs.pop('comment')
     self.assertEqual(stored,
@@ -1918,9 +1924,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     finally:
       if os.path.exists(self.instance_bang_simulator):
         os.unlink(self.instance_bang_simulator)
-      
+
   def assertInstanceRenameSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_rename_simulator).read()) #pylint: disable=eval-used
+    with open(self.instance_rename_simulator) as f:
+      stored = eval(f.read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
@@ -1945,7 +1952,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     finally:
       if os.path.exists(self.instance_rename_simulator):
         os.unlink(self.instance_rename_simulator)
-      
+
   def test_destroyedComputePartition(self):
     self._makeComplexComputeNode(self.project)
     partition_id = self.destroy_requested_software_instance.getAggregateValue(
@@ -1968,7 +1975,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertEqual(ssl_cert, self.destroy_requested_software_instance.getSslCertificate())
 
   def assertInstanceRequestSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_request_simulator).read()) #pylint: disable=eval-used
+    with open(self.instance_request_simulator) as f:
+      stored = eval(f.read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
@@ -2557,7 +2565,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     self.assertXMLEqual(expected_xml, got_xml)
 
   def assertComputeNodeBangSimulator(self, args, kwargs):
-    stored = eval(open(self.compute_node_bang_simulator).read()) #pylint: disable=eval-used
+    with open(self.compute_node_bang_simulator) as f:
+      stored = eval(f.read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     kwargs['comment'] = kwargs.pop('comment')
     self.assertEqual(stored,

@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<ZopeData>
+  <record id="1" aka="AAAAAAAAAAE=">
+    <pickle>
+      <global name="JSON Form" module="erp5.portal_type"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>after_method_id</string> </key>
+            <value> <string>jIOWebSection_createSoftwareInstallation</string> </value>
+        </item>
+        <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>application/json</string> </value>
+        </item>
+        <item>
+            <key> <string>default_reference</string> </key>
+            <value> <string>jIOWebSection_createSoftwareInstallationFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>id</string> </key>
+            <value> <string>jIOWebSection_createSoftwareInstallationFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>JSON Form</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "Software Installation",\n
+  "description": "Software Installation",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+  "properties": {\n
+    "software_release_uri": {\n
+      "title": "Software Release URI",\n
+      "type": "string"\n
+    },\n
+    "compute_node_id": {\n
+      "title": "Compute Node ID",\n
+      "type": "string",\n
+      "description": "The Id of the compute node, example: COMP-1234"\n
+    },\n
+    "state": {\n
+      "title": "Requested State",\n
+      "type": "string",\n
+      "enum": ["available", "destroyed"],\n
+      "description": "State of the requested software",\n
+      "default": "available"\n
+    },\n
+    "portal_type": {\n
+      "title": "Portal Type",\n
+      "const": "Software Installation",\n
+      "type": "string"\n
+    }\n
+  },\n
+  "required": ["portal_type", "software_release_uri", "compute_node_id"]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>version</string> </key>
+            <value> <string>001</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+</ZopeData>

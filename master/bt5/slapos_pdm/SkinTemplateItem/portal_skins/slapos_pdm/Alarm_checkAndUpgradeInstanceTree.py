@@ -9,7 +9,10 @@ portal.portal_catalog.searchAndActivate(
   title=NegatedQuery(Query(title='_remote_%')),
 
   method_id = 'InstanceTree_createUpgradeDecision',
-  activate_kw = {'tag':tag},
+  # This alarm bruteforce checking all documents,
+  # without changing them directly.
+  # Increase priority to not block other activities
+  activate_kw = {'tag':tag, 'priority': 2},
   **{"slapos_item.slap_state": ['start_requested', 'stop_requested']}
 )
 

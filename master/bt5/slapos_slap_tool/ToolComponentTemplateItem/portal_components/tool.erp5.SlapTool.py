@@ -28,7 +28,7 @@
 #
 ##############################################################################
 
-
+from Products.ERP5Type.Utils import str2unicode, bytes2str, str2bytes
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
 from OFS.Traversable import NotFound
@@ -75,7 +75,7 @@ except ImportError:
 
 
 from zLOG import LOG, INFO
-from six import StringIO
+import six
 import pkg_resources
 from DateTime import DateTime
 from App.Common import rfc1123_date
@@ -112,19 +112,21 @@ def convertToREST(function):
       raise Unauthorized
 
     self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
+    if isinstance(retval, bytes):
+      return '%s' % bytes2str(retval)
     return '%s' % retval
   wrapper.__doc__ = function.__doc__
   return wrapper
 
 def castToStr(dict_kw):
   instance = etree.Element('instance')
-  for _id, _value in dict_kw.iteritems():
+  for _id, _value in six.iteritems(dict_kw):
     # cast everything to string.
     text = _value
     if not isinstance(_value, str):
       text = str(_value)
     etree.SubElement(instance, "parameter",
-                    attrib={'id': _id}).text = text.decode("utf-8")
+                    attrib={'id': _id}).text = str2unicode(text)
   return etree.tostring(instance, pretty_print=True,
                                   xml_declaration=True, encoding='utf-8')
 
@@ -522,7 +524,7 @@ class SlapTool(BaseTool):
     portal = self.getPortalObject()
     person = portal.portal_membership.getAuthenticatedMember().getUserValue()
     person.requestComputeNode(compute_node_title=compute_node_title, project_reference=project_reference)
-    compute_node = ComputeNode(self.REQUEST.get('compute_node_reference').decode("UTF-8"))
+    compute_node = ComputeNode(str2unicode(self.REQUEST.get('compute_node_reference')))
     return dumps(compute_node)
 
   security.declareProtected(Permissions.AccessContentsInformation,
@@ -690,7 +692,7 @@ class SlapTool(BaseTool):
     'loadComputerConfigurationFromXML')
   def loadComputerConfigurationFromXML(self, xml):
     "Load the given xml as configuration for the compute_node object"
-    compute_node_dict = loads(xml)
+    compute_node_dict = loads(str2bytes(xml))
     compute_node = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_dict['reference'])
     compute_node.ComputeNode_updateFromDict(compute_node_dict)
     return 'Content properly posted.'
@@ -699,8 +701,8 @@ class SlapTool(BaseTool):
   def _generateComputerCertificate(self, compute_node_id):
     self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id).generateCertificate()
     result = {
-     'certificate': self.REQUEST.get('compute_node_certificate').decode("UTF-8"),
-     'key': self.REQUEST.get('compute_node_key').decode("UTF-8")
+     'certificate': str2unicode(self.REQUEST.get('compute_node_certificate')),
+     'key': str2unicode(self.REQUEST.get('compute_node_key'))
      }
     return dumps(result)
 
@@ -771,11 +773,11 @@ class SlapTool(BaseTool):
   def _validateXML(self, to_be_validated, xsd_model):
     """Will validate the xml file"""
     #We parse the XSD model
-    xsd_model = StringIO(xsd_model)
+    xsd_model = six.StringIO(xsd_model)
     xmlschema_doc = etree.parse(xsd_model)
     xmlschema = etree.XMLSchema(xmlschema_doc)
 
-    string_to_validate = StringIO(to_be_validated)
+    string_to_validate = six.StringIO(to_be_validated)
 
     try:
       document = etree.parse(string_to_validate)
@@ -927,7 +929,7 @@ class SlapTool(BaseTool):
         compute_node_id,
         compute_partition_id,
         slave_reference)
-    connection_xml = dict2xml(loads(connection_xml))
+    connection_xml = dict2xml(loads(str2bytes(connection_xml)))
     if not software_instance.isLastData(value=connection_xml):
       software_instance.updateConnection(
         connection_xml=connection_xml,
@@ -952,19 +954,19 @@ class SlapTool(BaseTool):
     In any other case returns not important data and HTTP code is 403 Forbidden
     """
     if state:
-      state = loads(state)
+      state = loads(str2bytes(state))
     if state is None:
       state = 'started'
     if shared_xml is not _MARKER:
-      shared = loads(shared_xml)
+      shared = loads(str2bytes(shared_xml))
     else:
       shared = False
     if partition_parameter_xml:
-      partition_parameter_kw = loads(partition_parameter_xml)
+      partition_parameter_kw = loads(str2bytes(partition_parameter_xml))
     else:
       partition_parameter_kw = dict()
     if filter_xml:
-      filter_kw = loads(filter_xml)
+      filter_kw = loads(str2bytes(filter_xml))
       if software_type == 'pull-backup' and not 'retention_delay' in filter_kw:
         filter_kw['retention_delay'] = 7.0
     else:
@@ -1109,7 +1111,7 @@ class SlapTool(BaseTool):
       slap_software_release._known_state = software_release_dict['_known_state']
       slap_compute_node._software_release_list.append(slap_software_release)
 
-    return dumps(slap_compute_node)
+    return bytes2str(dumps(slap_compute_node))
 
   def _getSoftwareInstanceForComputePartition(self, compute_node_id,
       compute_partition_id, slave_reference=None):

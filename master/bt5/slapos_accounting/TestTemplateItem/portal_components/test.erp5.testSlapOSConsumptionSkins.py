@@ -7,6 +7,8 @@
 
 from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixinWithAbort, SlapOSTestCaseMixin, simulate
+
+from Products.ERP5Type.Utils import str2bytes
 from zExceptions import Unauthorized
 from unittest import expectedFailure
 
@@ -149,13 +151,13 @@ class TestSlapOSComputerConsumptionTioXMLFile_parseXml(SlapOSTestCaseMixinWithAb
 
   def test_parseXml_no_xml(self):
     document = self.createTioXMLFile()
-    document.edit(data="<?xml version='1.0' encoding='utf-8'?><foo></foo>")
+    document.edit(data=str2bytes("<?xml version='1.0' encoding='utf-8'?><foo></foo>"))
     result = document.ComputerConsumptionTioXMLFile_parseXml()
     self.assertEqual(result, None)
 
   def test_parseXml_invalid_xml(self):
     document = self.createTioXMLFile()
-    document.edit(data="<xml></foo>")
+    document.edit(data=str2bytes("<xml></foo>"))
     result = document.ComputerConsumptionTioXMLFile_parseXml()
     self.assertEqual(result, None)
 
@@ -186,7 +188,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_parseXml(SlapOSTestCaseMixinWithAb
 </movement>
 </transaction>
 </journal>"""
-    document.edit(data=consumption_xml)
+    document.edit(data=str2bytes(consumption_xml))
     result = document.ComputerConsumptionTioXMLFile_parseXml()
     self.assertEqual(result, {
       'title': 'Resource consumptionsé',
@@ -235,7 +237,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_parseXml(SlapOSTestCaseMixinWithAb
 </movement>
 </transaction>
 </journal>"""
-    document.edit(data=consumption_xml)
+    document.edit(data=str2bytes(consumption_xml))
     result = document.ComputerConsumptionTioXMLFile_parseXml()
     self.assertEqual(result, {
       'title': 'Resource consumptionsé',

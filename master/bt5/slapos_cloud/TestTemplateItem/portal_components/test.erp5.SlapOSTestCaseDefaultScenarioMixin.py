@@ -142,7 +142,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     to_click_url = re.search('href="(.+?)"', to_click_message).group(1)
 
     self.assertIn('%s/hateoas/connection/ERP5Site_activeLogin' % self.web_site.getId(), to_click_url)
-    
+
     join_key = to_click_url.split('=')[-1]
     self.assertNotEqual(join_key, None)
     self.portal.portal_skins.changeSkin('RJS')
@@ -156,6 +156,12 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     welcome_message = findMessage(email, "the creation of you new")
     self.assertNotEqual(None, welcome_message)
+
+    self.login()
+    # Fetch the user from login and return
+    return self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference=reference).getParentValue()
 
   def _getCurrentInstanceTreeList(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()

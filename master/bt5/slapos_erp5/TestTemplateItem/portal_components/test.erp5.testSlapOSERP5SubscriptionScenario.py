@@ -47,13 +47,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, project_owner_reference)
-
-      self.login()
-      project_owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=project_owner_reference).getParentValue()
-      # owner_person.setCareerSubordinationValue(seller_organisation)
+      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
       self.tic()
       self.logout()
@@ -104,12 +98,9 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
 
       # first slapos administrator assignment can only be created by
       # the erp5 manager
@@ -156,12 +147,9 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
-
+      public_person = self.joinSlapOS(self.web_site, public_reference)
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
+
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -267,13 +255,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, project_owner_reference)
-
-      self.login()
-      project_owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=project_owner_reference).getParentValue()
-      # owner_person.setCareerSubordinationValue(seller_organisation)
+      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
       self.tic()
       self.logout()
@@ -299,12 +281,9 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
 
       # first slapos administrator assignment can only be created by
       # the erp5 manager
@@ -316,7 +295,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       # Pay deposit to validate virtual master
       deposit_amount = 42.0
       ledger = self.portal.portal_categories.ledger.automated
-      
+
       outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
           currency.getUid(), ledger_uid=ledger.getUid())
       amount = sum([i.total_price for i in outstanding_amount_list])
@@ -367,13 +346,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, project_owner_reference)
-
-      self.login()
-      project_owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=project_owner_reference).getParentValue()
-      # owner_person.setCareerSubordinationValue(seller_organisation)
+      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
       self.tic()
       self.logout()
@@ -427,13 +400,9 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -653,14 +622,9 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, project_owner_reference)
+      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
       self.login()
-      project_owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=project_owner_reference).getParentValue()
-      # owner_person.setCareerSubordinationValue(seller_organisation)
-
       self.tic()
       self.logout()
       self.login(sale_person.getUserId())
@@ -714,13 +678,9 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -787,12 +747,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
-
+      public_person = self.joinSlapOS(self.web_site, public_reference)
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()

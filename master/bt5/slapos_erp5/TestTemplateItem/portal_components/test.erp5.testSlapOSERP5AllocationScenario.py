@@ -102,14 +102,8 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
   def joinSlapOSAsOwner(self):
     # lets join as slapos administrator, which will own few compute_nodes
     owner_reference = 'owner-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, owner_reference)
-
+    owner_person = self.joinSlapOS(self.web_site, owner_reference)
     self.login()
-    owner_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=owner_reference).getParentValue()
-    # owner_person.setCareerSubordinationValue(seller_organisation)
-
     self.tic()
     return owner_person
 
@@ -196,8 +190,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
       for d in computer_information_dict['_computer_partition_list'] 
         if d['partition_id'] == partition.getReference()][0]
     self.assertEqual(timestamp,
-      partition_parameter_dict['_parameter_dict']['timestamp'])                                                                                                                                                                                                          
-
+      partition_parameter_dict['_parameter_dict']['timestamp'])
     self.login(owner_person.getUserId())
 
     # and the instances
@@ -212,7 +205,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
     self.checkERP5StateBeforeExit()
 
   def test_slave_instance_allocation_scenario(self):
-    project, owner_person = self.bootstrapVirtualMasterTestWithProject()    
+    project, owner_person = self.bootstrapVirtualMasterTestWithProject()
     self.logout()
 
     # and install some software on them

@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.16.1 (2025-02-25)
+-------------------
+ * micro release to fix package
+
 1.16.0 (2025-02-25)
 -------------------
  * cli: update logged message for `slapos request`

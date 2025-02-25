@@ -117,11 +117,8 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     # lets join as slapos accountant, which will manages currencies
     self.logout()
     accountant_reference = 'accountant-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, accountant_reference)
+    accountant_person = self.joinSlapOS(self.web_site, accountant_reference)
     self.login()
-    accountant_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=accountant_reference).getParentValue()
     self.addAccountingManagerAssignment(accountant_person)
 
     self.tic()
@@ -140,11 +137,8 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     # lets join as slapos sales manager, which will manages trade condition
     self.logout()
     sale_reference = 'sales-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, sale_reference)
+    sale_person = self.joinSlapOS(self.web_site, sale_reference)
     self.login()
-    sale_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=sale_reference).getParentValue()
     self.addSaleManagerAssignment(sale_person)
 
     self.tic()
@@ -274,13 +268,9 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
 
   def createProductionManager(self, project):
     production_manager_reference = 'production_manager-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, production_manager_reference)
-
+    production_manager_person = self.joinSlapOS(
+      self.web_site, production_manager_reference)
     self.login()
-    production_manager_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=production_manager_reference).getParentValue()
-
     self.addProjectProductionManagerAssignment(production_manager_person, project)
     self.tic()
     return production_manager_person
@@ -292,12 +282,8 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     self.logout()
     # lets join as slapos administrator, which will manager the project
     owner_reference = 'project-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, owner_reference)
-
+    owner_person = self.joinSlapOS(self.web_site, owner_reference)
     self.login()
-    owner_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=owner_reference).getParentValue()
     self.tic()
     self.logout()
 
@@ -335,16 +321,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.logout()
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-      # owner_person.setCareerSubordinationValue(seller_organisation)
-
       self.tic()
-
       # hooray, now it is time to create compute_nodes
       self.logout()
       self.login(sale_person.getUserId())
@@ -404,12 +384,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
-
+      public_person = self.joinSlapOS(self.web_site, public_reference)
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -469,14 +445,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.logout()
     # lets join as slapos administrator, which will own few compute_nodes
     owner_reference = 'owner-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, owner_reference)
+    owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
     self.login()
-    owner_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=owner_reference).getParentValue()
     self.tic()
-
     self.logout()
     self.login(owner_person.getUserId())
 
@@ -538,13 +510,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.logout()
       # lets join as slapos administrator, which will manager the project
       owner_reference = 'project-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
-
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-
       self.tic()
 
       # hooray, now it is time to create compute_nodes
@@ -636,13 +603,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -673,12 +636,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
+      public_person = self.joinSlapOS(self.web_site, public_reference)
 
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
       public_person.setCareerSubordinationValue(customer_subordination_organisation)
 
       # XXX Instance will be paid by the organisation
@@ -815,14 +775,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, project_owner_reference)
+      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
       self.login()
-      project_owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=project_owner_reference).getParentValue()
-      # owner_person.setCareerSubordinationValue(seller_organisation)
-
       self.tic()
       self.logout()
       self.login(sale_person.getUserId())
@@ -876,13 +831,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -949,12 +900,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
-
+      public_person = self.joinSlapOS(self.web_site, public_reference)
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       # Simulate access from compute_node, to open the capacity scope
@@ -1066,14 +1013,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
       self.tic()
-
       self.logout()
       self.login(sale_person.getUserId())
       # create a default project
@@ -1125,18 +1068,13 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
+      public_person = self.joinSlapOS(self.web_site, public_reference)
 
+      self.logout()
       shared_public_reference = 'shared_public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, shared_public_reference)
+      shared_public_person = self.joinSlapOS(self.web_site, shared_public_reference)
 
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
-      shared_public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=shared_public_reference).getParentValue()
 
     with PinnedDateTime(self, DateTime('2024/02/17 00:05')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -1222,14 +1160,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
       self.tic()
-
       self.logout()
       self.login(sale_person.getUserId())
       # create a default project
@@ -1282,12 +1216,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
-
+      public_person = self.joinSlapOS(self.web_site, public_reference)
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
 
     with PinnedDateTime(self, DateTime('2024/02/17 00:05')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -1340,14 +1270,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       remote_owner_reference = 'remote-owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, remote_owner_reference)
+      remote_owner_person = self.joinSlapOS(self.web_site, remote_owner_reference)
 
       self.login()
-      remote_owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=remote_owner_reference).getParentValue()
       self.tic()
-
       self.logout()
       self.login(sale_person.getUserId())
       # create a default project
@@ -1399,12 +1325,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       remote_public_reference = 'remote-public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, remote_public_reference)
+      remote_public_person = self.joinSlapOS(self.web_site, remote_public_reference)
 
       self.login()
-      remote_public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=remote_public_reference).getParentValue()
 
       ####################################
       # Create a local project
@@ -1453,12 +1376,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
+      public_person = self.joinSlapOS(self.web_site, public_reference)
 
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -1573,14 +1493,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       remote_owner_reference = 'remote-owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, remote_owner_reference)
+      remote_owner_person = self.joinSlapOS(self.web_site, remote_owner_reference)
 
-      self.login()
-      remote_owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=remote_owner_reference).getParentValue()
       self.tic()
-
       self.logout()
       self.login(sale_person.getUserId())
       # create a default project
@@ -1651,12 +1566,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       remote_public_reference = 'remote-public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, remote_public_reference)
+      remote_public_person = self.joinSlapOS(self.web_site, remote_public_reference)
 
-      self.login()
-      remote_public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=remote_public_reference).getParentValue()
 
       ####################################
       # Create a local project
@@ -1705,13 +1616,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
+      public_person = self.joinSlapOS(self.web_site, public_reference)
 
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
-
       public_instance_title = 'Public title %s' % self.generateNewId()
       self.checkRemoteInstanceAllocation(public_person.getUserId(),
           public_reference, public_instance_title,

@@ -88,7 +88,8 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     )
     if not_consistent_document is not None:
       # XXX check disabled
-      assert not_consistent_document.checkConsistency() == [], not_consistent_document.checkConsistency()[0]
+      self.assertEqual([], not_consistent_document.checkConsistency(),
+              not_consistent_document.checkConsistency()[0])
 
 
   def addInstanceNode(self, title, software_instance):
@@ -264,7 +265,9 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     related_object_list = document.Base_getRelatedObjectList(**{'category.category_strict_membership': 1})
     related_object_list = [x.getRelativeUrl() for x in related_object_list]
     related_object_list.sort()
-    assert len(related_object_list) == count, '%i\n%s' % (len(related_object_list), '\n'.join(related_object_list))
+    self.assertEqual(
+      len(related_object_list), count,
+      '%i\n%s' % (len(related_object_list), '\n'.join(related_object_list)))
 
   def createProductionManager(self, project):
     production_manager_reference = 'production_manager-%s' % self.generateNewId()
@@ -490,7 +493,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     payment_transaction.stop()
     self.tic()
 
-    assert payment_transaction.receivable.getGroupingReference(None) is not None
+    self.assertNotEqual(
+      payment_transaction.receivable.getGroupingReference(None), None)
 
     # Check if the Deposit lead to proper balance.
     tmp_subscription_request = createTempSubscription(
@@ -680,7 +684,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       self.tic()
       self.assertEqual(payment_transaction.getSpecialiseValue().getTradeConditionType(), "deposit")
-      assert payment_transaction.receivable.getGroupingReference(None) is not None
+      self.assertNotEqual(None,
+        payment_transaction.receivable.getGroupingReference(None))
 
       outstanding_amount_list = customer_section_organisation.Entity_getOutstandingDepositAmountList(
           currency.getUid(), ledger_uid=ledger.getUid())
@@ -727,17 +732,20 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       'project_uid': None,
       'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
     })
-    assert len(inventory_list) == 1, len(inventory_list)
-    assert inventory_list[0].quantity == 1, inventory_list[0].quantity
+    self.assertEqual(len(inventory_list), 1)
+    self.assertEqual(inventory_list[0].quantity, 1)
     resource_vcl = [
       # 'software_release/%s' % release_variation.getRelativeUrl(),
       'software_type/%s' % type_variation.getRelativeUrl()
     ]
     resource_vcl.sort()
-    assert inventory_list[0].getVariationCategoryList() == resource_vcl, "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList())
+    self.assertEqual(inventory_list[0].getVariationCategoryList(),
+                     resource_vcl,
+       "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList()))
 
     # Check accounting
-    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(mirror_section_uid=customer_section_organisation.getUid())
+    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
+       mirror_section_uid=customer_section_organisation.getUid())
     self.assertSameSet(
       [x.total_price for x in transaction_list],
       [141.0, -141.0],
@@ -887,7 +895,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # payzen/wechat or accountant will only stop the payment
       payment_transaction.stop()
       self.tic()
-      assert payment_transaction.receivable.getGroupingReference(None) is not None
+      self.assertNotEqual(None,
+        payment_transaction.receivable.getGroupingReference(None))
       self.login(project_owner_person.getUserId())
 
       amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
@@ -960,18 +969,22 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       'project_uid': None,
       'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
     })
-    assert len(inventory_list) == 1, len(inventory_list)
-    assert inventory_list[0].quantity == 1, inventory_list[0].quantity
+    
+    self.assertEqual(len(inventory_list), 1)
+    self.assertEqual(inventory_list[0].quantity, 1)
     resource_vcl = [
       # 'software_release/%s' % release_variation.getRelativeUrl(),
       'software_type/%s' % type_variation.getRelativeUrl()
     ]
     resource_vcl.sort()
-    assert inventory_list[0].getVariationCategoryList() == resource_vcl, "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList())
+    self.assertEqual(resource_vcl, inventory_list[0].getVariationCategoryList(),
+          "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList()))
 
     # Check accounting
-    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(mirror_section_uid=public_person.getUid())
-    assert len(transaction_list) == 4, len(transaction_list)
+    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
+                                     mirror_section_uid=public_person.getUid())
+
+    self.assertEqual(len(transaction_list), 4)
     self.assertSameSet(
       [x.total_price for x in transaction_list],
       [9.0, -9.0, 10.8, -10.8],
@@ -1031,7 +1044,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         preferred_subscription_assignment_category_list=[
           'function/customer',
           'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
+          'destination_project/%s' % project_relative_url
         ]
       )
       self.tic()
@@ -1498,6 +1511,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.tic()
       self.logout()
       self.login(sale_person.getUserId())
+      
       # create a default project
       remote_project_relative_url = self.addProject(person=remote_owner_person, currency=currency)
 

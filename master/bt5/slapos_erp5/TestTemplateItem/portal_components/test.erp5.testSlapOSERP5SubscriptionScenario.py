@@ -130,11 +130,13 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
         destination_section_uid=project_owner_person.getUid(),
         simulation_state="started"
       )
-      self.assertEqual(payment_transaction.getSpecialiseValue().getTradeConditionType(), "deposit")
+      self.assertEqual("deposit",
+        payment_transaction.getSpecialiseValue().getTradeConditionType())
       # payzen/wechat or accountant will only stop the payment
       payment_transaction.stop()
       self.tic()
-      assert payment_transaction.receivable.getGroupingReference(None) is not None
+      self.assertNotEqual(None,
+                      payment_transaction.receivable.getGroupingReference(None))
       self.login(project_owner_person.getUserId())
 
       amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
@@ -155,7 +157,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       public_instance_title = 'Public title %s' % self.generateNewId()
 
       self.login(public_person.getUserId())
-  
+
       self.personRequestInstanceNotReady(
         software_release=public_server_software,
         software_type=public_instance_type,
@@ -163,7 +165,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
         project_reference=project.getReference()
       )
       self.tic()
-  
+
       instance_tree = self.portal.portal_catalog.getResultValue(
         portal_type="Instance Tree",
         title=public_instance_title,
@@ -171,17 +173,17 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       )
       person = instance_tree.getDestinationSectionValue()
       self.assertEqual(person.getUserId(), public_person.getUserId())
-  
+
       subscription_request = self.checkServiceSubscriptionRequest(instance_tree, 'submitted')
       expected_deposit_amount = 9.0
       self.assertEqual(subscription_request.getTotalPrice(),
         expected_deposit_amount)
-  
+
       self.tic()
-  
+
       outstanding_amount_list = person.Entity_getOutstandingDepositAmountList(
             currency.getUid(), ledger_uid=subscription_request.getLedgerUid())
-  
+
       self.assertEqual(sum([i.total_price for i in outstanding_amount_list]),
         expected_deposit_amount)
 
@@ -218,12 +220,12 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       'project_uid': None,
       'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
     })
-    assert len(inventory_list) == 0, len(inventory_list)
+    self.assertEqual(len(inventory_list), 0)
 
     # Check accounting
     transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
       mirror_section_uid=public_person.getUid())
-    assert len(transaction_list) == 0, len(transaction_list)
+    self.assertEqual(len(transaction_list), 0)
 
     self.login()
 
@@ -325,7 +327,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # Check accounting
     transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
       mirror_section_uid=project_owner_person.getUid())
-    assert len(transaction_list) == 0, len(transaction_list)
+    self.assertEqual(len(transaction_list),  0)
 
     # Ensure no unexpected object has been created
     # 1 credential request
@@ -413,12 +415,12 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       # Pay deposit to validate virtual master
       deposit_amount = 42.0
       ledger = self.portal.portal_categories.ledger.automated
-      
+
       outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
           currency.getUid(), ledger_uid=ledger.getUid())
       amount = sum([i.total_price for i in outstanding_amount_list])
       self.assertEqual(amount, deposit_amount)
-  
+
       # Ensure to pay from the website
       outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
       outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
@@ -435,9 +437,9 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       # payzen/wechat or accountant will only stop the payment
       payment_transaction.stop()
       self.tic()
-      assert payment_transaction.receivable.getGroupingReference(None) is not None
+      self.assertEqual(None,
+                      payment_transaction.receivable.getGroupingReference(None))
       self.login(project_owner_person.getUserId())
-
       amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
           currency.getUid(), ledger_uid=ledger.getUid())])
       self.assertEqual(0, amount)
@@ -501,7 +503,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # Check accounting
     transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
       mirror_section_uid=project_owner_person.getUid())
-    assert len(transaction_list) == 2, len(transaction_list)
+    self.assertEqual(len(transaction_list),  2)
 
     # Ensure no unexpected object has been created
     # 1 accounting transaction / line
@@ -734,7 +736,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       # payzen/wechat or accountant will only stop the payment
       payment_transaction.stop()
       self.tic()
-      assert payment_transaction.receivable.getGroupingReference(None) is not None
+      self.assertEqual(None,
+                      payment_transaction.receivable.getGroupingReference(None))
       self.login(project_owner_person.getUserId())
 
       amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
@@ -795,18 +798,21 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       'project_uid': None,
       'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
     })
-    assert len(inventory_list) == 1, len(inventory_list)
-    assert inventory_list[0].quantity == 1, inventory_list[0].quantity
+    self.assertEqual(len(inventory_list), 1)
+    self.assertEqual(inventory_list[0].quantity, 1)
     resource_vcl = [
       # 'software_release/%s' % release_variation.getRelativeUrl(),
       'software_type/%s' % type_variation.getRelativeUrl()
     ]
     resource_vcl.sort()
-    assert inventory_list[0].getVariationCategoryList() == resource_vcl, "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList())
+    self.assertEqual(resource_vcl,
+       inventory_list[0].getVariationCategoryList(),
+       "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList()))
 
     # Check accounting
-    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(mirror_section_uid=public_person.getUid())
-    assert len(transaction_list) == 0, len(transaction_list)
+    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
+      mirror_section_uid=public_person.getUid())
+    self.assertEqual(len(transaction_list),  0)
 
     self.login()
 

@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.16.0 (2025-02-25)
+-------------------
+ * cli: update logged message for `slapos request`
+ * standalone: fix swapped pidfiles of instance and software
+ * slap/slap.py: call remote registerComputerPartition only when needed
+
 1.15.0 (2025-02-13)
 -------------------
  * slap: drop parameter schema validation before request

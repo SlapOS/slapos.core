@@ -22,6 +22,7 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
 class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
+  require_certificate = 1
 
   def test_requestUpgrade(self):
     software_product, _, type_variation, compute_node, _, instance_tree = self.bootstrapAllocableInstanceTree()

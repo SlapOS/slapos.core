@@ -276,8 +276,8 @@ function GetOSVersion {
             fi
 
             if [[ -n "`grep \"$r\" /etc/os-release`" ]]; then
-                os_CODENAME=$(awk '/VERSION=/' /etc/os-release | sed 's/VERSION=//' | sed 's/\"//g')
-                os_RELEASE=$(awk '/VERSION_ID=/' /etc/os-release | sed 's/VERSION_ID=//' | sed 's/\"//g')
+                os_CODENAME=$(sed -n '/^VERSION=/p' /etc/os-release | sed 's/VERSION=//' | sed 's/\"//g')
+                os_RELEASE=$(sed -n '/^VERSION_ID=/p' /etc/os-release | sed 's/VERSION_ID=//' | sed 's/\"//g')
                 break
             fi
             os_VENDOR=""

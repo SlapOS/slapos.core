@@ -12,6 +12,24 @@ import pkg_resources
 
 class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
+  def addConsumptionService(self):
+    # Create a new service to sell.
+    service_new_id = self.generateNewId()
+    consumption_service = self.portal.service_module.newContent(
+      title="Resource for Consumption %s" % service_new_id,
+      reference='IRESOURCEFORCONSUMPTION-%s' % service_new_id,
+      quantity_unit='unit/piece',  # Probaly wrong
+      base_contribution=[
+        'base_amount/invoicing/discounted',
+        'base_amount/invoicing/taxable',
+      ],
+      use='trade/sale',
+      product_line='cloud/usage'
+    )
+    self.assertEqual(consumption_service.checkConsistency(), [])
+    consumption_service.validate()
+    return consumption_service
+
   def test_compute_node_consumption_scenario(self):
     with PinnedDateTime(self, DateTime('2024/12/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
@@ -144,22 +162,8 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertEqual(0, amount)
       self.logout()
       self.login()
-      # Create a new service to sell.
-      service_new_id = self.generateNewId()
-      consumption_service = self.portal.service_module.newContent(
-        title="Resource for Consumption %s" % service_new_id,
-        reference='IRESOURCEFORCONSUMPTION-%s' % service_new_id,
-        quantity_unit='unit/piece',  # Probaly wrong
-        base_contribution=[
-         'base_amount/invoicing/discounted',
-         'base_amount/invoicing/taxable',
-        ],
-        use='trade/sale',
-        product_line='cloud/usage'
-      )
-      self.assertEqual(consumption_service.checkConsistency(), [])
-      consumption_service.validate()
 
+      consumption_service = self.addConsumptionService()
       self.tic()
 
 
@@ -220,7 +224,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.stepCallSlaposAccountingGeneratePackingListFromTioxmlAlarm()
       self.tic()
 
-
       # and uninstall some software on them
       self.logout()
       self.login(owner_person.getUserId())
@@ -232,7 +235,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       # Uninstall from compute_node
       self.login()
       self.simulateSlapgridSR(public_server)
-
       self.tic()
 
     # Recheck for computer owner if he has consumption invoices
@@ -267,7 +269,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     self.checkERP5StateBeforeExit()
 
-  def __test_instance_tree_consumption_scenario(self):
+  def test_instance_tree_consumption_scenario(self):
     with PinnedDateTime(self, DateTime('2024/12/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
@@ -404,6 +406,9 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(self.web_site, public_reference)
 
+      self.login()
+      consumption_service = self.addConsumptionService()
+
     with PinnedDateTime(self, DateTime('2024/12/17 01:01')):
       # Simulate access from compute_node, to open the capacity scope
       self.login()
@@ -419,6 +424,15 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     with PinnedDateTime(self, DateTime('2025/01/18 01:00')):
       self.login()
 
+      # Search used partition
+      instance_tree = self.portal.portal_catalog.getResultValue(
+        title=public_instance_title, portal_type='Instance Tree',
+        default_destination_section_uid=public_person.getUid())
+      self.assertNotEqual(None, instance_tree)
+      software_instance = instance_tree.getSuccessorValue()
+      partition = software_instance.getAggregateValue()
+      self.assertEqual(partition.getParentValue(), public_server)
+
       # Minimazed version of the original file, only with a sub-set of values
       # that matter
       consumption_xml_report = """<?xml version="1.0" encoding="utf-8"?>
@@ -433,17 +447,20 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     <category/>
     <arrow type="Destination"/>
     <movement>
-      <resource>service_module/cpu_load_percent</resource>
-      <title>CPU Load Percent Average</title>
-      <reference>%(compute_node_reference)s</reference>
-      <quantity>27.266539196940727</quantity>
+      <resource>%(service_relative_url)s</resource>
+      <title>%(service_title)s</title>
+      <reference>%(partition_reference)s</reference>
+      <quantity>29.26123196927</quantity>
       <price>0.0</price>
       <VAT/>
       <category/>
     </movement>
   </transaction>
-</journal>""" % ({'compute_node_reference': public_server.getReference(),
-                 'partition_reference': 'slappart0'})
+</journal>""" % ({
+        'partition_reference': partition.getReference(),
+        'compute_node_reference': public_server.getReference(),
+        'service_relative_url': consumption_service.getRelativeUrl(),
+        'service_title': consumption_service.getTitle()})
 
       compute_node_consumption_model = \
         pkg_resources.resource_string(
@@ -518,17 +535,17 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     # Was 10.8 correspond to the first month since it passed a month by the
     # dates.
-    self.assertEqual(len(transaction_list),  3)
+    self.assertEqual(len(transaction_list),  4)
     self.assertSameSet(
       [x.total_price for x in transaction_list],
-      [9.0, -9.0, 10.8],
+      [9.0, -9.0, 10.8, 351.13478363124],
       [x.total_price for x in transaction_list]
     )
 
     self.login()
 
     # Ensure no unexpected object has been created
-    # 3+1 accounting transaction / line
+    # 5 accounting transaction / line
     # 3 allocation supply / line / cell
     # 1 compute node
     # 2 credential request
@@ -536,14 +553,14 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 instance tree
     # 6 open sale order / line
     # 5 (can reduce to 2) assignment
-    # 16+7 simulation mvt
-    # 3+1 packing list / line
+    # 30 simulation mvt
+    # 5 packing list / line
     # 3 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 1 software instance
     # 1 software product
     # 3 subscription requests
-    self.assertRelatedObjectCount(project, 53+9)
+    self.assertRelatedObjectCount(project, 71)
 
     self.checkERP5StateBeforeExit()

@@ -33,6 +33,8 @@ from erp5.component.test.testSlapOSERP5VirtualMasterScenario import \
 from DateTime import DateTime
 from erp5.component.module.DateUtils import addToDate
 from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, NegatedQuery
+import pkg_resources
+from Products.ERP5Type.Utils import str2bytes
 
 
 MAIN_TRADE_CONDITION_CREATION_DATE = DateTime('2026/03/29 03:04')
@@ -527,4 +529,141 @@ class TestSlapOSLinkConsumptionToCustomerAlarm(TestSlapOSVirtualMasterScenarioMi
 
     # no new internal/sale packing list created for customer
     self.assertRelatedObjectCount(customer_person, 11)
+
+  def test_createSPLTioXML(self):
+    user_dict = self.bootstrapComsumptionTest(
+      DateTime(MAIN_TRADE_CONDITION_CREATION_DATE),
+      is_virtual_master_accountable=False,
+      new_document_day_delay_count=1,
+      manager_count=1,
+      manager_project_count=1,
+      project_node_count=1,
+      project_customer_count=1,
+      customer_instance_count=1,
+    )
+
+    # manager_person = user_dict['manager_list'][0]
+    customer_person = user_dict['customer_list'][0]
+    self.login()
+
+    # Ensure no unexpected object has been created
+    # 1 assignment request
+    # 1 credential request
+    # 1 event
+    # 1 instance tree
+    # 3 open sale order / line
+    # 1 simulation movement
+    # 2 sale packing list
+    # 1 subscription request
+    self.assertRelatedObjectCount(customer_person, 11)
+    previous_sale_packing_list_uid_list = [x.getUid() for x in self.portal.portal_catalog(
+      portal_type='Sale Packing List',
+      destination__uid=customer_person.getUid()
+    )]
+
+    instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      destination_section__uid=customer_person.getUid(),
+    )
+    software_instance = instance_tree.getSuccessorValue()
+    public_server = self.portal.portal_catalog.getResultValue(
+      portal_type='Compute Node',
+      follow_up__uid=instance_tree.getFollowUpUid(),
+    )
+
+    consumption_service = self.addConsumptionService()
+    self.addConsumptionSupply("For compute node", public_server, consumption_service)
+    self.tic()
+    # Minimazed version of the original file, only with a sub-set of values
+    # that matter
+    consumption_xml_report = """<?xml version="1.0" encoding="utf-8"?>
+<journal>
+<transaction type="Sale Packing List">
+  <title>Test Consumption file for %(compute_node_reference)s </title>
+  <start_date>2026-04-14 00:00:00</start_date>
+  <stop_date>2026-04-17 23:59:59</stop_date>
+  <reference>2026-04-17-global</reference>
+  <currency/>
+  <payment_mode/>
+  <category/>
+  <arrow type="Destination"/>
+  <movement>
+    <resource>%(service_reference)s</resource>
+    <title>%(service_title)s</title>
+    <reference>%(software_instance_reference)s</reference>
+    <quantity>29.12</quantity>
+    <price>0.0</price>
+    <VAT/>
+    <category/>
+  </movement>
+</transaction>
+</journal>""" % ({
+      'software_instance_reference': software_instance.getReference(),
+      'compute_node_reference': public_server.getReference(),
+      'service_reference': consumption_service.getReference(),
+      'service_title': consumption_service.getTitle()})
+
+    compute_node_consumption_model = \
+      pkg_resources.resource_string(
+        'slapos.slap',
+        'doc/computer_consumption.xsd')
+
+    # Ensure what is written above is valid
+    self.assertTrue(self.portal.portal_slap._validateXML(
+      str2bytes(consumption_xml_report), compute_node_consumption_model))
+
+    # Simulate computer upload
+    response = self.portal.portal_slap.useComputer(
+       public_server.getReference(), consumption_xml_report)
+    # Ensure it succeed
+    self.assertEqual(200, response.status)
+    self.assertEqual(b"OK", response.body)
+    self.tic()
+
+    # This valid date is the manager creation date (max 28) minus 1
+    with PinnedDateTime(self, DateTime('2026/05/01')):
+      for _ in range(2):
+        # Run twice, to ensure packing list have a grouping reference
+        alarm = self.portal.portal_alarms.slapos_accounting_link_consumption_to_customer
+        alarm.activeSense()
+        self.tic()
+
+    # one new sale packing list created
+    self.assertRelatedObjectCount(customer_person, 12)
+    aggregated_sale_packinglist = self.portal.portal_catalog.getResultValue(
+      portal_type='Sale Packing List',
+      destination__uid=customer_person.getUid(),
+      uid=NegatedQuery(SimpleQuery(uid=previous_sale_packing_list_uid_list)),
+    )
+    self.assertEqual(aggregated_sale_packinglist.getPortalType(), "Sale Packing List")
+    self.assertEqual(aggregated_sale_packinglist.getSourceSection(), None)
+    self.assertEqual(aggregated_sale_packinglist.getSourceValue().getPortalType(), "Organisation")
+    self.assertEqual(aggregated_sale_packinglist.getDestination(), customer_person.getRelativeUrl())
+    self.assertEqual(aggregated_sale_packinglist.getDestinationDecision(), customer_person.getRelativeUrl())
+    self.assertEqual(aggregated_sale_packinglist.getDestinationSection(), customer_person.getRelativeUrl())
+    self.assertEqual(aggregated_sale_packinglist.getStartDate(), DateTime('2026/04/02 00:00:00 UTC'))
+    self.assertEqual(aggregated_sale_packinglist.getStopDate(), DateTime('2026/05/02 00:00:00 UTC'))
+    self.assertTrue(aggregated_sale_packinglist.getReference(), aggregated_sale_packinglist.getReference())
+    self.assertEqual(aggregated_sale_packinglist.getSimulationState(), "delivered")
+    self.assertEqual(aggregated_sale_packinglist.getCausalityState(), "solved")
+    self.assertEqual(aggregated_sale_packinglist.getSpecialiseValue().getPortalType(), 'Sale Trade Condition')
+    self.assertEqual(aggregated_sale_packinglist.getSourceProject(), public_server.getFollowUp())
+    self.assertEqual(aggregated_sale_packinglist.getDestinationProject(), None)
+    self.assertEqual(aggregated_sale_packinglist.getLedger(), 'automated')
+    self.assertEqual(aggregated_sale_packinglist.getPriceCurrencyValue().getPortalType(), 'Currency')
+
+    self.assertEqual(len(aggregated_sale_packinglist.contentIds()), 1)
+    sale_packing_list_line = aggregated_sale_packinglist.contentValues()[0]
+    self.assertEqual(sale_packing_list_line.getResource(), consumption_service.getRelativeUrl())
+    self.assertEqual(sale_packing_list_line.getQuantityUnit(), 'unit/piece')
+    self.assertAlmostEqual(sale_packing_list_line.getQuantity(), 29.12)
+    self.assertEqual(sale_packing_list_line.getPrice(), 0)
+    self.assertEqual(sale_packing_list_line.getGroupingReference(), aggregated_sale_packinglist.getReference())
+
+    # check matching internal packing list line
+    self.assertEqual(self.portal.portal_catalog.countResults(
+      portal_type='Internal Packing List Line',
+      grouping_reference=sale_packing_list_line.getGroupingReference()
+    )[0][0], 1)
+    self.assertEqual(len(aggregated_sale_packinglist.getCausalityList()), 1)
 

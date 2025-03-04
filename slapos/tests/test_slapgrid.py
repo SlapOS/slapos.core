@@ -48,6 +48,12 @@ import grp
 import hashlib
 import errno
 
+try:
+  from configparser import ConfigParser
+except ImportError:
+  unittest.TestCase.assertRaisesRegex = unittest.TestCase.assertRaisesRegexp
+  unittest.TestCase.assertRegex = unittest.TestCase.assertRegexpMatches
+
 import mock
 from mock import patch
 from zope.interface import implementer
@@ -284,7 +290,7 @@ class TestRequiredOnlyPartitions(unittest.TestCase):
   def test_one_missing(self):
     required = ['foobar', 'two', 'one']
     existing = ['one', 'two', 'three']
-    self.assertRaisesRegexp(ValueError,
+    self.assertRaisesRegex(ValueError,
                             'Unknown partition: foobar',
                             slapgrid.check_required_only_partitions,
                             existing, required)
@@ -292,7 +298,7 @@ class TestRequiredOnlyPartitions(unittest.TestCase):
   def test_several_missing(self):
     required = ['foobar', 'barbaz']
     existing = ['one', 'two', 'three']
-    self.assertRaisesRegexp(ValueError,
+    self.assertRaisesRegex(ValueError,
                             'Unknown partitions: barbaz, foobar',
                             slapgrid.check_required_only_partitions,
                             existing, required)
@@ -1969,7 +1975,7 @@ echo %s; echo %s; exit 42""" % (line1, line2))
     self.assertEqual(
         dummyLogger.mock_calls[-5][1][0] % dummyLogger.mock_calls[-5][1][1:],
         'Error while processing the following partitions:')
-    self.assertRegexpMatches(
+    self.assertRegex(
         dummyLogger.mock_calls[-4][1][0] % dummyLogger.mock_calls[-4][1][1:],
         r"  1\[\(not ready\)\]: Failed to run buildout profile in directory '.*/instance/1':\nfake buildout error\n\n")
     self.assertEqual(
@@ -4543,7 +4549,7 @@ class TestSVCBackend(unittest.TestCase):
     """
     logger = mock.create_autospec(logging.Logger)
 
-    with self.assertRaisesRegexp(
+    with self.assertRaisesRegex(
         RuntimeError,
         """Failed to launch supervisord:
 Error: could not find config file /not/exist/etc/supervisord.conf

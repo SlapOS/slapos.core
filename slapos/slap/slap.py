@@ -648,28 +648,6 @@ class ComputerPartition(SlapRequester):
     return self._software_release_document
 
   def setConnectionDict(self, connection_dict, slave_reference=None):
-    # recreate and stabilise connection_dict that it would became the same as on server
-    connection_dict = xml2dict(dict2xml(connection_dict))
-    if self.getConnectionParameterDict() == connection_dict:
-      return
-
-    if slave_reference is not None:
-      # check the connection parameters from the slave
-
-      # Should we check existence?
-      slave_parameter_list = self.getInstanceParameter("slave_instance_list")
-      slave_connection_dict = {}
-      connection_parameter_hash = None
-      for slave_parameter_dict in slave_parameter_list:
-        if slave_parameter_dict.get("slave_reference") == slave_reference:
-          connection_parameter_hash = slave_parameter_dict.get("connection-parameter-hash", None)
-          break
-
-      # Skip as nothing changed for the slave
-      if connection_parameter_hash is not None and \
-        connection_parameter_hash == calculate_dict_hash(connection_dict):
-        return
-
     self._connection_helper.POST('setComputerPartitionConnectionXml', data={
           'computer_id': self._computer_id,
           'computer_partition_id': self._partition_id,

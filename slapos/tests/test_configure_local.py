@@ -34,7 +34,12 @@ import slapos.cli.configure_local
 from slapos.cli.configure_local import ConfigureLocalCommand, _createConfigurationDirectory
 from slapos.cli.entry import SlapOSApp
 from argparse import Namespace
-from six.moves.configparser import ConfigParser
+try:
+  from configparser import ConfigParser
+except ImportError:
+  # BBB python2
+  from ConfigParser import SafeConfigParser as ConfigParser
+  ConfigParser.read_file = ConfigParser.readfp
 
 # Disable any command to launch slapformat and supervisor
 slapos.cli.configure_local._runFormat = lambda x: "Do nothing"
@@ -73,14 +78,14 @@ class TestConfigureLocal(unittest.TestCase):
             os.path.exists("%s/.slapos/slapos-client.cfg" % self.temp_dir))
         with open(self.temp_dir + '/slapos-proxy.cfg') as fout:
             proxy_config = ConfigParser()
-            proxy_config.readfp(fout)
+            proxy_config.read_file(fout)
             self.assertEqual(proxy_config.get('slapos', 'instance_root'),
                 self.instance_root)
             self.assertEqual(proxy_config.get('slapos', 'software_root'),
                 expected_software_root)
         with open(self.temp_dir + '/slapos.cfg') as fout:
             proxy_config = ConfigParser()
-            proxy_config.readfp(fout)
+            proxy_config.read_file(fout)
             self.assertEqual(proxy_config.get('slapos', 'instance_root'),
                 self.instance_root)
             self.assertEqual(proxy_config.get('slapos', 'software_root'),
@@ -102,14 +107,14 @@ class TestConfigureLocal(unittest.TestCase):
             os.path.exists("%s/.slapos/slapos-client.cfg" % self.temp_dir))
         with open(self.temp_dir + '/slapos-proxy.cfg') as fout:
             proxy_config = ConfigParser()
-            proxy_config.readfp(fout)
+            proxy_config.read_file(fout)
             self.assertEqual(proxy_config.get('slapos', 'instance_root'),
                 self.instance_root)
             self.assertEqual(proxy_config.get('slapos', 'software_root'),
                 self.software_root)
         with open(self.temp_dir + '/slapos.cfg') as fout:
             proxy_config = ConfigParser()
-            proxy_config.readfp(fout)
+            proxy_config.read_file(fout)
             self.assertEqual(proxy_config.get('slapos', 'instance_root'),
                 self.instance_root)
             self.assertEqual(proxy_config.get('slapos', 'software_root'),

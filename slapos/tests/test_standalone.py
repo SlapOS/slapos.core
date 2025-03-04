@@ -39,7 +39,12 @@ import glob
 import subprocess
 import multiprocessing
 from contextlib import closing
-from six.moves.configparser import ConfigParser
+try:
+  from configparser import ConfigParser
+except ImportError:
+  # BBB python2
+  from ConfigParser import SafeConfigParser as ConfigParser
+  unittest.TestCase.assertRaisesRegex = unittest.TestCase.assertRaisesRegexp
 
 import netaddr
 import psutil
@@ -73,11 +78,6 @@ def checkPortIsFree():
 
 
 class TestSlapOSStandaloneSetup(unittest.TestCase):
-  # BBB python2
-  assertRaisesRegex = getattr(
-      unittest.TestCase, 'assertRaisesRegex',
-      unittest.TestCase.assertRaisesRegexp)
-
   def setUp(self):
     checkPortIsFree()
 

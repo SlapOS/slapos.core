@@ -63,7 +63,11 @@ class EndToEndTestCase(unittest.TestCase):
     instance_name = args[1]
     cls._requested[instance_name] = (args, kw)
     partition = cls._request(*args, **kw)
-    return cls.unwrapConnectionDict(partition.getConnectionParameterDict())
+    try:
+      return cls.unwrapConnectionDict(partition.getConnectionParameterDict())
+    except cls.slap.ResourceNotReady:
+      # Instance has not yet been allocated, and could not retrieve any info
+      return {}
 
   @classmethod
   def supply(cls, software_release, computer_id, state):

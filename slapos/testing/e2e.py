@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 import requests
 import re
 import slapos.client
+from slapos.slap import ResourceNotReady
 import urllib.parse
 
 from logging.handlers import RotatingFileHandler
@@ -63,7 +64,11 @@ class EndToEndTestCase(unittest.TestCase):
     instance_name = args[1]
     cls._requested[instance_name] = (args, kw)
     partition = cls._request(*args, **kw)
-    return cls.unwrapConnectionDict(partition.getConnectionParameterDict())
+    try:
+      return cls.unwrapConnectionDict(partition.getConnectionParameterDict())
+    except ResourceNotReady:
+      # Instance has not yet been allocated, and could not retrieve any info
+      return {}
 
   @classmethod
   def supply(cls, software_release, computer_id, state):

@@ -14,7 +14,7 @@ def sort_key_method(e):
     minus = 0
   return 0 - 1 * int(parent.hasDestination()) - minus
 
-def filter_method(currency, destination_project, group):
+def filter_method(currency, destination_project):
   def filter_by_source_function_and_group(l):
     ret = []
     for i in l:
@@ -43,22 +43,21 @@ def filter_method(currency, destination_project, group):
 
     return ret
   return filter_by_source_function_and_group
-source = context.getSourceValue()
-if source is None:
-  group = None
-else:
-  group = source.getGroup()
-kw['filter_method'] = filter_method(context.getPriceCurrency(), context.getDestinationProject(), group)
 
+kw['filter_method'] = filter_method(context.getPriceCurrency(), context.getDestinationProject())
 kw['sort_key_method'] = sort_key_method
 
 resource = context.getResourceValue()
+price_currency = context.getPriceCurrencyValue()
 
-if resource is not None:
-  product_line = resource.getProductLine()
-  if product_line:
-    kw['categories'] = kw.get('categories', []) + ['product_line/%s' % product_line]
-
+if (resource is not None) and (price_currency is not None):
+  # Explicitely filter with SQL, to reduce the number of predicates to check
+  # Currently, only Sales are handled
+  # See also SaleSupplyLine_asPredicate
+  kw['resource__uid'] = resource.getUid()
+  kw['price_currency__uid'] = price_currency.getUid()
+  kw['validation_state'] = 'validated'
+  kw['portal_type'] = ['Sale Supply Line', 'Sale Supply Cell']
   return resource.getPriceCalculationOperandDict(
     default=default, context=context, **kw)
 

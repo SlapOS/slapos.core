@@ -112,7 +112,6 @@ for movement_entry in six.itervalues(movement_dict):
     # start_date?
     # stop_date?
     # Missing specialise?
-    # specialise_value...
     # For reference use the values of the subscription request, can they vary?
     specialise_value=subscription_request.getSpecialiseValue(),
     source_value=subscription_request.getSourceValue(),
@@ -123,7 +122,7 @@ for movement_entry in six.itervalues(movement_dict):
     destination_section_value=subscription_request.getDestinationSectionValue(),
     destination_decision_value=subscription_request.getDestinationDecisionValue(),
     destination_project_value=subscription_request.getDestinationProjectValue(),
-    ledger_value=portal.portal_categories.ledger.automated,
+    ledger_value=subscription_request.getLedgerValue(),
     causality_value=document, ## Should be like this?
     start_date=document.getCreationDate(),
     price_currency_value=subscription_request.getPriceCurrencyValue(),
@@ -131,18 +130,17 @@ for movement_entry in six.itervalues(movement_dict):
 
   for movement in movement_entry:
     service = portal.restrictedTraverse(movement['resource'])
-    sale_packing_list.newContent(
+    line = sale_packing_list.newContent(
       portal_type="Sale Packing List Line",
       title=movement['title'],
       quantity=movement['quantity'],
       aggregate_value_list=movement['aggregate_value_list'],
       resource_value=service,
       quantity_unit=service.getQuantityUnit(),
-      # use ?
-      # base_contribution ?
-      # Pricing calculation is done for on Resource_createSubscriptionRequest
-      price=10, # I should calculate price here.
+      base_contribution_list=service.getBaseContributionList(),
+      use=service.getUse()
     )
+    assert line.getPrice(), line.getPrice()
   sale_packing_list.Delivery_fixBaseContributionTaxableRate()
   sale_packing_list.Base_checkConsistency()
   sale_packing_list.confirm(comment="Created from %s" % document.getRelativeUrl())

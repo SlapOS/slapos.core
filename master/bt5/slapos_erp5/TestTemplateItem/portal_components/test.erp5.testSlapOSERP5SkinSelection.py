@@ -26,7 +26,7 @@ slapos_folder_list = """slapos_erp5
 slapos_upgrader
 slapos_abyss
 slapos_base
-slapos_jio_api
+slapos_json_rpc_api
 slapos_contract
 slapos_subscription_request
 slapos_crm_monitoring

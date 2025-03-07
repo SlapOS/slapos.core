@@ -25,7 +25,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 ##############################################################################
+<<<<<<< HEAD
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, TemporaryAlarmScript, PinnedDateTime
+=======
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, PinnedDateTime
+>>>>>>> c0f3efed1 (slapos_json_rpc_api: request coding style)
 from erp5.component.document.OpenAPITypeInformation import byteify
 
 from DateTime import DateTime
@@ -35,6 +39,25 @@ import json
 import io
 from binascii import hexlify
 from OFS.Traversable import NotFound
+
+class PortalAlarmDisabled(object):
+  """
+  Context manager to disable portal alarm
+  """
+  def __init__(self, portal):
+    self.portal_alarms = portal.portal_alarms
+    self.was_subscribed = self.portal_alarms.isSubscribed()
+
+  def __enter__(self):
+    if self.was_subscribed:
+      self.portal_alarms.unsubscribe()
+      # transaction.commit()
+
+  def __exit__(self, exc_type, exc_value, traceback):
+    if self.was_subscribed:
+      self.portal_alarms.subscribe()
+      # transaction.commit()
+
 
 def hashData(data):
   return hexlify(hashlib.sha1(json.dumps(data, sort_keys=True)).digest())
@@ -70,33 +93,11 @@ def json_loads_byteified(json_text):
     ignore_dicts=True
   )
 
+
 class TestSlapOSJsonRpcMixin(SlapOSTestCaseMixin):
   def afterSetUp(self):
     self.maxDiff = None
     SlapOSTestCaseMixin.afterSetUp(self)
-    self.portal_slap = self.portal.portal_slap
-    self.connector = self.portal.portal_web_services.slapos_master_api
-
-    # Create project and person
-    if getattr(self, "project", None) is None:
-      self.project = self.addProject()
-
-    self.person = self.makePerson(self.project)
-    self.addProjectProductionManagerAssignment(self.person, self.project)
-    self.commit()
-
-    # Prepare compute_node
-    compute_node, _ = self.addComputeNodeAndPartition(self.project)
-    self.compute_node = compute_node
-
-    # Make compute node access
-    self._addCertificateLogin(self.compute_node)
-
-    self.tic()
-
-    self.compute_node_id = self.compute_node.getReference()
-    self.compute_node_user_id = self.compute_node.getUserId()
-    self.pinDateTime(DateTime())
 
   def getAPIStateFromSlapState(self, state):
     state_dict = {
@@ -108,7 +109,7 @@ class TestSlapOSJsonRpcMixin(SlapOSTestCaseMixin):
 
   def callJsonRpcWebService(self, entry_point, data_dict, user=None):
     response = self.publish(
-      self.connector.getPath() + '/' + entry_point,
+      self.portal.portal_web_services.slapos_master_api.getPath() + '/' + entry_point,
       user=user,
       request_method='POST',
       stdin=io.BytesIO(json.dumps(data_dict)),
@@ -1167,86 +1168,139 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(None, instance.getSslCertificate())
 
   def test_InstanceAccess_20_request_withSlave(self):
-    self._makeComplexComputeNode(self.project)
-    instance = self.start_requested_software_instance
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    project = instance_tree.getFollowUpValue()
+    instance = instance_tree.getSuccessorValue()
 
-    #partition_id = instance.getAggregateValue(portal_type='Compute Partition').getReference()
-    response = self.callJsonRpcWebService(
-      "slapos.post.software_instance",
-      {
-        "software_release_uri": "req_release",
-        "software_type": "req_type",
-        "title": "req_reference",
-        "shared": True,
-        #"compute_node_id": self.compute_node_id,
-        #"compute_partition_id": partition_id,
-      },
-      instance.getUserId()
-    )
-    self.assertEqual('application/json', response.headers.get('content-type'))
+    with PinnedDateTime(self, DateTime()):
+      #partition_id = instance.getAggregateValue(portal_type='Compute Partition').getReference()
+      response = self.callJsonRpcWebService(
+        "slapos.post.software_instance",
+        {
+          "software_release_uri": "req_release",
+          "software_type": "req_type",
+          "title": "req_reference",
+          "shared": True,
+          #"compute_node_id": self.compute_node_id,
+          #"compute_partition_id": partition_id,
+        },
+        instance.getUserId()
+      )
+      self.assertEqual('application/json', response.headers.get('content-type'))
 
-    self.tic()
-    requested_instance = self.portal.portal_catalog.getResultValue(
-      portal_type='Slave Instance',
-      title='req_reference',
-      follow_up__uid=self.project.getUid()
-    )
-    if requested_instance is None:
-      self.assertEqual({
-        'not created': 'foobar'
-      }, byteify(json.loads(response.getBody())))
-    else:
-      self.assertEqual({
-        'access_status_message': '#error no data found for %s' % requested_instance.getReference(),
-        'compute_node_id': '',
-        'compute_partition_id': '',
-        'connection_parameters': {},
-        'full_ip_list': [],
-        'ip_list': [],
-        'parameters': {},
-        'portal_type': 'Software Instance',
-        'processing_timestamp': requested_instance.getSlapTimestamp(),
-        'reference': requested_instance.getReference(),
-        'root_instance_title': '',
-        'shared': True,
-        'sla_parameters': {},
-        'software_release_uri': 'req_release',
-        'software_type': 'req_type',
-        'state': 'started',
-        'title': 'req_reference'
-      }, byteify(json.loads(response.getBody())))
-      self.assertTrue(requested_instance.getRelativeUrl() in instance.getSuccessorList())
-    self.assertEqual(response.getStatus(), 200)
+      self.tic()
+      requested_instance = self.portal.portal_catalog.getResultValue(
+        portal_type='Slave Instance',
+        title='req_reference',
+        follow_up__uid=project.getUid()
+      )
+      if requested_instance is None:
+        self.assertEqual({
+          'not created': 'foobar'
+        }, byteify(json.loads(response.getBody())))
+      else:
+        self.assertEqual({
+          'access_status_message': '#error no data found for %s' % requested_instance.getReference(),
+          'compute_node_id': '',
+          'compute_partition_id': '',
+          'connection_parameters': {},
+          'full_ip_list': [],
+          'ip_list': [],
+          'parameters': {},
+          'portal_type': 'Software Instance',
+          'processing_timestamp': requested_instance.getSlapTimestamp(),
+          'reference': requested_instance.getReference(),
+          'root_instance_title': '',
+          'shared': True,
+          'sla_parameters': {},
+          'software_release_uri': 'req_release',
+          'software_type': 'req_type',
+          'state': 'started',
+          'title': 'req_reference'
+        }, byteify(json.loads(response.getBody())))
+        self.assertTrue(requested_instance.getRelativeUrl() in instance.getSuccessorList())
+      self.assertEqual(response.getStatus(), 200)
 
   def test_InstanceAccess_21_request(self):
-    self._makeComplexComputeNode(self.project)
-    instance = self.start_requested_software_instance
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    project = instance_tree.getFollowUpValue()
+    instance = instance_tree.getSuccessorValue()
+
+    with PinnedDateTime(self, DateTime()):
+      #partition_id = instance.getAggregateValue(portal_type='Compute Partition').getReference()
+      response = self.callJsonRpcWebService(
+        "slapos.post.software_instance",
+        {
+          "software_release_uri": "req_release",
+          "software_type": "req_type",
+          "title": "req_reference",
+          #"compute_node_id": self.compute_node_id,
+          #"compute_partition_id": partition_id,
+        },
+        instance.getUserId()
+      )
+      self.assertEqual('application/json', response.headers.get('content-type'))
+
+      self.tic()
+      requested_instance = self.portal.portal_catalog.getResultValue(
+        portal_type='Software Instance',
+        title='req_reference',
+        follow_up__uid=project.getUid()
+      )
+      if requested_instance is None:
+        self.assertEqual({
+          'not created': 'foobar'
+        }, byteify(json.loads(response.getBody())))
+      else:
+        self.assertEqual({
+          'access_status_message': '#error no data found for %s' % requested_instance.getReference(),
+          'compute_node_id': '',
+          'compute_partition_id': '',
+          'connection_parameters': {},
+          'full_ip_list': [],
+          'ip_list': [],
+          'parameters': {},
+          'portal_type': 'Software Instance',
+          'processing_timestamp': requested_instance.getSlapTimestamp(),
+          'reference': requested_instance.getReference(),
+          'root_instance_title': '',
+          'shared': False,
+          'sla_parameters': {},
+          'software_release_uri': 'req_release',
+          'software_type': 'req_type',
+          'state': 'started',
+          'title': 'req_reference'
+        }, byteify(json.loads(response.getBody())))
+        self.assertTrue(requested_instance.getRelativeUrl() in instance.getSuccessorList())
+      self.assertEqual(response.getStatus(), 200)
+
+  def test_InstanceAccess_22_request_stopped(self):
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    project = instance_tree.getFollowUpValue()
+    instance = instance_tree.getSuccessorValue()
 
     #partition_id = instance.getAggregateValue(portal_type='Compute Partition').getReference()
-    response = self.callJsonRpcWebService(
-      "slapos.post.software_instance",
-      {
-        "software_release_uri": "req_release",
-        "software_type": "req_type",
-        "title": "req_reference",
-        #"compute_node_id": self.compute_node_id,
-        #"compute_partition_id": partition_id,
-      },
-      instance.getUserId()
-    )
-    self.assertEqual('application/json', response.headers.get('content-type'))
+    with PinnedDateTime(self, DateTime()):
+      response = self.callJsonRpcWebService(
+        "slapos.post.software_instance",
+        {
+          "software_release_uri": "req_release",
+          "software_type": "req_type",
+          "title": "req_reference",
+          "state": "stopped",
+          #"compute_node_id": self.compute_node_id,
+          #"compute_partition_id": partition_id,
+        },
+        instance.getUserId()
+      )
+      self.assertEqual('application/json', response.headers.get('content-type'))
 
-    self.tic()
-    requested_instance = self.portal.portal_catalog.getResultValue(
-      portal_type='Software Instance',
-      title='req_reference',
-      follow_up__uid=self.project.getUid()
-    )
-    if requested_instance is None:
-      self.assertEqual({
-        'not created': 'foobar'
-      }, byteify(json.loads(response.getBody())))
-    else:
+      self.tic()
+      requested_instance = self.portal.portal_catalog.getResultValue(
+        portal_type='Software Instance',
+        title='req_reference',
+        follow_up__uid=project.getUid()
+      )
       self.assertEqual({
         'access_status_message': '#error no data found for %s' % requested_instance.getReference(),
         'compute_node_id': '',
@@ -1263,58 +1317,11 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
         'sla_parameters': {},
         'software_release_uri': 'req_release',
         'software_type': 'req_type',
-        'state': 'started',
+        'state': 'stopped',
         'title': 'req_reference'
       }, byteify(json.loads(response.getBody())))
+      self.assertEqual(response.getStatus(), 200)
       self.assertTrue(requested_instance.getRelativeUrl() in instance.getSuccessorList())
-    self.assertEqual(response.getStatus(), 200)
-
-  def test_InstanceAccess_22_request_stopped(self):
-    self._makeComplexComputeNode(self.project)
-    instance = self.stop_requested_software_instance
-
-    #partition_id = instance.getAggregateValue(portal_type='Compute Partition').getReference()
-    response = self.callJsonRpcWebService(
-      "slapos.post.software_instance",
-      {
-        "software_release_uri": "req_release",
-        "software_type": "req_type",
-        "title": "req_reference",
-        "state": "started",
-        #"compute_node_id": self.compute_node_id,
-        #"compute_partition_id": partition_id,
-      },
-      instance.getUserId()
-    )
-    self.assertEqual('application/json', response.headers.get('content-type'))
-
-    self.tic()
-    requested_instance = self.portal.portal_catalog.getResultValue(
-      portal_type='Software Instance',
-      title='req_reference',
-      follow_up__uid=self.project.getUid()
-    )
-    self.assertEqual({
-      'access_status_message': '#error no data found for %s' % requested_instance.getReference(),
-      'compute_node_id': '',
-      'compute_partition_id': '',
-      'connection_parameters': {},
-      'full_ip_list': [],
-      'ip_list': [],
-      'parameters': {},
-      'portal_type': 'Software Instance',
-      'processing_timestamp': requested_instance.getSlapTimestamp(),
-      'reference': requested_instance.getReference(),
-      'root_instance_title': '',
-      'shared': False,
-      'sla_parameters': {},
-      'software_release_uri': 'req_release',
-      'software_type': 'req_type',
-      'state': 'stopped',
-      'title': 'req_reference'
-    }, byteify(json.loads(response.getBody())))
-    self.assertEqual(response.getStatus(), 200)
-    self.assertTrue(requested_instance.getRelativeUrl() in instance.getSuccessorList())
 
   def test_InstanceAccess_26_stoppedComputePartition(self):
     with PinnedDateTime(self, DateTime('2020/05/19')):
@@ -1615,108 +1622,118 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(instance.getTitle(), new_name)
 
   def test_PersonAccess_34_request_withSlave(self):
-    project_reference = self.project.getReference()
+    # disable alarms to speed up the test
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      person = self.makePerson(project)
+      person_user_id = person.getUserId()
+      project_reference = project.getReference()
+      self.tic()
 
-    response = self.callJsonRpcWebService(
-      "slapos.post.software_instance",
-      {
-        "project_reference": project_reference,
-        "software_release_uri": "req_release",
-        "software_type": "req_type",
-        "title": "req_reference",
-        "shared": True,
-      },
-      self.person_user_id
-    )
-    self.assertEqual('application/json', response.headers.get('content-type'))
-    self.assertEqual({
-      'message': 'Software Instance Not Ready',
-      'name': 'SoftwareInstanceNotReady',
-      'status': 102
-    }, byteify(json.loads(response.getBody())))
-    self.assertEqual(response.getStatus(), 200)
+      response = self.callJsonRpcWebService(
+        "slapos.post.software_instance",
+        {
+          "project_reference": project_reference,
+          "software_release_uri": "req_release",
+          "software_type": "req_type",
+          "title": "req_reference",
+          "shared": True,
+        },
+        person_user_id
+      )
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual({
+        'message': 'Software Instance Not Ready',
+        'name': 'SoftwareInstanceNotReady',
+        'status': 102
+      }, byteify(json.loads(response.getBody())))
+      self.assertEqual(response.getStatus(), 200)
 
-    self.tic()
-    requested_instance_tree = self.portal.portal_catalog.getResultValue(
-      portal_type='Instance Tree',
-      title="req_reference",
-      follow_up__uid=self.project.getUid()
-    )
-    self.assertEqual(requested_instance_tree.getDestinationSectionValue().getUserId(), self.person_user_id)
-    self.assertEqual(requested_instance_tree.getFollowUpReference(), project_reference)
-    self.assertEqual(requested_instance_tree.getTitle(), "req_reference")
-    self.assertEqual(requested_instance_tree.getUrlString(), "req_release")
-    self.assertEqual(requested_instance_tree.getSourceReference(), "req_type")
-    self.assertTrue(requested_instance_tree.isRootSlave())
+      self.tic()
+      requested_instance_tree = self.portal.portal_catalog.getResultValue(
+        portal_type='Instance Tree',
+        title="req_reference",
+        follow_up__uid=project.getUid()
+      )
+      self.assertEqual(requested_instance_tree.getDestinationSectionValue().getUserId(), person_user_id)
+      self.assertEqual(requested_instance_tree.getFollowUpReference(), project_reference)
+      self.assertEqual(requested_instance_tree.getTitle(), "req_reference")
+      self.assertEqual(requested_instance_tree.getUrlString(), "req_release")
+      self.assertEqual(requested_instance_tree.getSourceReference(), "req_type")
+      self.assertTrue(requested_instance_tree.isRootSlave())
 
   def test_PersonAccess_35_request(self):
-    project_reference = self.project.getReference()
+    # disable alarms to speed up the test
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      person = self.makePerson(project)
+      person_user_id = person.getUserId()
+      project_reference = project.getReference()
+      self.tic()
 
-    response = self.callJsonRpcWebService(
-      "slapos.post.software_instance",
-      {
-        "project_reference": project_reference,
-        "software_release_uri": "req_release",
-        "software_type": "req_type",
-        "title": "req_reference"
-      },
-      self.person_user_id
-    )
-    self.assertEqual('application/json', response.headers.get('content-type'))
-    self.assertEqual({
-      'message': 'Software Instance Not Ready',
-      'name': 'SoftwareInstanceNotReady',
-      'status': 102
-    }, byteify(json.loads(response.getBody())))
-    self.assertEqual(response.getStatus(), 200)
+      response = self.callJsonRpcWebService(
+        "slapos.post.software_instance",
+        {
+          "project_reference": project_reference,
+          "software_release_uri": "req_release",
+          "software_type": "req_type",
+          "title": "req_reference"
+        },
+        person_user_id
+      )
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual({
+        'message': 'Software Instance Not Ready',
+        'name': 'SoftwareInstanceNotReady',
+        'status': 102
+      }, byteify(json.loads(response.getBody())))
+      self.assertEqual(response.getStatus(), 200)
 
-    self.tic()
-    requested_instance_tree = self.portal.portal_catalog.getResultValue(
-      portal_type='Instance Tree',
-      title="req_reference",
-      follow_up__uid=self.project.getUid()
-    )
-    self.assertEqual(requested_instance_tree.getDestinationSectionValue().getUserId(), self.person_user_id)
-    self.assertEqual(requested_instance_tree.getFollowUpReference(), project_reference)
-    self.assertEqual(requested_instance_tree.getTitle(), "req_reference")
-    self.assertEqual(requested_instance_tree.getUrlString(), "req_release")
-    self.assertEqual(requested_instance_tree.getSourceReference(), "req_type")
-    self.assertFalse(requested_instance_tree.isRootSlave())
+      self.tic()
+      requested_instance_tree = self.portal.portal_catalog.getResultValue(
+        portal_type='Instance Tree',
+        title="req_reference",
+        follow_up__uid=project.getUid()
+      )
+      self.assertEqual(requested_instance_tree.getDestinationSectionValue().getUserId(), person_user_id)
+      self.assertEqual(requested_instance_tree.getFollowUpReference(), project_reference)
+      self.assertEqual(requested_instance_tree.getTitle(), "req_reference")
+      self.assertEqual(requested_instance_tree.getUrlString(), "req_release")
+      self.assertEqual(requested_instance_tree.getSourceReference(), "req_type")
+      self.assertFalse(requested_instance_tree.isRootSlave())
 
   def test_PersonAccess_36_request_allocated_instance(self):
-    self.tic()
-    self.person.edit(
-      default_email_coordinate_text="%s@example.org" % self.person.getReference(),
-      career_role='member',
-    )
-    self._makeComplexComputeNode(self.project, person=self.person)
-    instance = self.start_requested_software_instance
-    self.login(self.person_user_id)
-    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+    with PinnedDateTime(self, DateTime()):
+      _, _, _, _, partition, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+      project = instance_tree.getFollowUpValue()
+      person = instance_tree.getDestinationSectionValue()
+      person_user_id = person.getUserId()
+      project_reference = project.getReference()
+      instance = instance_tree.getSuccessorValue()
+
       response = self.callJsonRpcWebService("slapos.post.software_instance", {
+        "software_release_uri": instance_tree.getUrlString(),
+        "software_type": instance_tree.getSourceReference(),
+        "title": instance_tree.getTitle(),
+        "project_reference": project_reference
+      },
+      person_user_id)
+
+      # Check Data is correct
+      # partition = instance.getAggregateValue(portal_type="Compute Partition")
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual({
+        #"$schema": instance.getJSONSchemaUrl(),
+        "title": instance.getTitle(),
+        "reference": instance.getReference(),
         "software_release_uri": instance.getUrlString(),
         "software_type": instance.getSourceReference(),
-        "title": instance.getTitle(),
-        "project_reference": self.project.getReference()
-      },
-      self.person_user_id)
-
-    # Check Data is correct
-    partition = instance.getAggregateValue(portal_type="Compute Partition")
-    self.assertEqual('application/json', response.headers.get('content-type'))
-    self.assertEqual({
-      #"$schema": instance.getJSONSchemaUrl(),
-      "title": instance.getTitle(),
-      "reference": instance.getReference(),
-      "software_release_uri": instance.getUrlString(),
-      "software_type": instance.getSourceReference(),
-      "state": self.getAPIStateFromSlapState(instance.getSlapState()),
-      "connection_parameters": instance.getConnectionXmlAsDict(),
-      "parameters": instance.getInstanceXmlAsDict(),
-      "shared": False,
-      "root_instance_title": instance.getSpecialiseValue().getTitle(),
-      "ip_list":
-        [
+        "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+        "connection_parameters": instance.getConnectionXmlAsDict(),
+        "parameters": instance.getInstanceXmlAsDict(),
+        "shared": False,
+        "root_instance_title": instance.getSpecialiseValue().getTitle(),
+        "ip_list":
           [
             x.getNetworkInterface(''),
             x.getIpAddress()

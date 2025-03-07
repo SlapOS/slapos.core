@@ -221,6 +221,28 @@ class JsonRpcAPIService(OpenAPIService):
 
     return matched_operation
 
+  def handleException(self, exception, request):
+    if isinstance(exception, JsonRpcAPIError):
+      # Prevent catching all exceptions in the script
+      # to prevent returning wrong content in case of bugs...
+      script_id = self.getErrorHandlerScriptId()
+      if script_id:
+        try:
+          script_result = getattr(self, script_id)(exception)
+        except Exception as e:
+          exception = e
+        else:
+          # If the script returns something, consider the exception
+          # has explicitely handled
+          if script_result:
+            response = request.response
+            response.setBody(json.dumps(script_result).encode())#, lock=True)
+            response.setHeader("Content-Type", "application/json")
+            response.setStatus(exception.status)#, lock=True)
+            return
+    # ... but if really needed, developer is still able to use the type based method
+    return super(JsonRpcAPIService, self).handleException(exception, request)
+
   def executeMethod(self, request):
     # type: (HTTPRequest) -> Any
     operation = self.getMatchingOperation(request)

@@ -1,2 +1,2 @@
-portal_callables/jIOWebSection_requestSoftwareInstanceFromJSON
+portal_callables/JSONRPCService_requestSoftwareInstanceFromJSON
 portal_web_services/slapos_master_api

@@ -67,7 +67,7 @@
             <key> <string>json_form</string> </key>
             <value>
               <tuple>
-                <string>slapos.post.software_instance | jIOWebSection_requestSoftwareInstanceFromJSON</string>
+                <string>slapos.post.software_instance | JSONRPCService_requestSoftwareInstanceFromJSON</string>
               </tuple>
             </value>
         </item>
@@ -147,7 +147,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1022.52170.28074.12834</string> </value>
+                      <value> <string>1023.15552.10600.58999</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -167,7 +167,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1741363208.77</float>
+                              <float>1741365105.2</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

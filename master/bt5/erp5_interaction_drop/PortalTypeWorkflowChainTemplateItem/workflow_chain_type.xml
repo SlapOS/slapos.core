@@ -60,6 +60,10 @@
   <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
  </chain>
  <chain>
+  <type>Loyalty Transaction Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Open Internal Order</type>
   <workflow>-open_order_simulation_interaction_workflow</workflow>
  </chain>

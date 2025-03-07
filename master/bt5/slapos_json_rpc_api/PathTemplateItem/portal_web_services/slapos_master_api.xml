@@ -75,7 +75,7 @@
                 <string>slapos.get.software_installation | SoftwareInstallation_getFromJSON</string>
                 <string>slapos.get.software_instance_certificate | SoftwareInstanceCertificateRecord_getFromJSON</string>
                 <string>slapos.post.compute_node | jIOWebSection_createComputeNodeFromJSON</string>
-                <string>slapos.post.software_instance | jIOWebSection_requestSoftwareInstanceFromJSON</string>
+                <string>slapos.post.software_instance | JSONRPCService_requestSoftwareInstanceFromJSON</string>
                 <string>slapos.post.software_installation | jIOWebSection_createSoftwareInstallationFromJSON</string>
                 <string>slapos.allDocs.compute_node | jIOWebSection_searchComputeNodeFromJSON</string>
                 <string>slapos.allDocs.instance | jIOWebSection_searchInstanceFromJSON</string>

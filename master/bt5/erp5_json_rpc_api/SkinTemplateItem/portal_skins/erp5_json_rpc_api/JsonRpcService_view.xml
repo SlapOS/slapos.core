@@ -65,7 +65,6 @@
                     <value>
                       <list>
                         <string>my_json_form_list</string>
-                        <string>my_error_handler_script_id</string>
                       </list>
                     </value>
                 </item>

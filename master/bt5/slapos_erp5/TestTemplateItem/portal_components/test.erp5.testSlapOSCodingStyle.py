@@ -204,7 +204,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_base/Login_notifyPasswordExpire',
         'slapos_base/Person_applyContractInvitation',
         'slapos_erp5/CertificateAuthorityTool_checkCertificateAuthorityConsistency',
-        'slapos_jio_api/JSONRPCService_requestSoftwareInstance',
+        'slapos_json_rpc_api/JSONRPCService_requestSoftwareInstance',
         'slapos_panel_compatibility/Base_getComputerToken',
         'slapos_panel_compatibility/Person_requestComputer',
         'slapos_panel/AllocationSupply_invalidateComputeNodeList',

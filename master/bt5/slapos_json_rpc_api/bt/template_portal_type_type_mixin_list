@@ -1,4 +1,2 @@
-Compute Node | ComputeNodeJsonTypeMixin
 Slave Instance | SoftwareInstanceJsonTypeMixin
-Software Installation | SoftwareInstallationJsonTypeMixin
 Software Instance | SoftwareInstanceJsonTypeMixin

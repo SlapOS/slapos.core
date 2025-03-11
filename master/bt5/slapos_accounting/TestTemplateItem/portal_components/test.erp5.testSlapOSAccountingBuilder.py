@@ -15,6 +15,16 @@ def convertCategoryList(base, l):
 class TestSlapOSBuilderMixin(SlapOSTestCaseMixin):
   require_certificate = 1
 
+  def addServiceSetup(self):
+    """ Just an additional service added to movement to validate it works """
+    service = self.portal.service_module.newContent(
+      title="Instance Setup %s " % self.generateNewId(),
+      reference="ISETUP-%s" % self.generateNewId(),
+      use='trade/sale',
+    )
+    service.validate()
+    return service
+
   def checkSimulationMovement(self, simulation_movement):
     self.assertEqual(1.0, simulation_movement.getDeliveryRatio())
     self.assertEqual(0.0, simulation_movement.getDeliveryError())
@@ -184,8 +194,9 @@ class TestSlapOSSalePackingListBuilder(TestSlapOSBuilderMixin):
 
 class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
 
-  def test_sale_invoice_builder(self, causality1=None, causality2=None): # pylint: disable=arguments-differ 
+  def test_sale_invoice_builder(self, causality1=None, causality2=None): # pylint: disable=arguments-differ
     resource, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(is_accountable=True)
+    service_setup = self.addServiceSetup()
     project = instance_tree.getFollowUpValue()
     trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
     currency = trade_condition.getPriceCurrencyValue()
@@ -244,7 +255,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
         batch_mode=1)
     delivery_line_1_bis.edit(
         price=0.0,
-        resource='service_module/slapos_instance_setup',
+        resource_value=service_setup,
         quantity_unit='unit/piece'
     )
 
@@ -425,7 +436,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
     self.checkDelivery(invoice_movement_1, invoice_1,
         category_list=category_list + convertCategoryList('causality',
           [delivery_1.getRelativeUrl(), delivery_2.getRelativeUrl()]), **invoice_kw)
-    
+
     # Start building and check again, remember invoice_1 and invoice_2 
     invoice_1.startBuilding()
     self.checkDelivery(invoice_movement_2, invoice_2,
@@ -439,7 +450,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
         # Keep price different else this line will be merged with delivery_line_1_bis
         # on the invoice side
         price=1.1,
-        resource='service_module/slapos_instance_setup',
+        resource_value=service_setup,
         quantity_unit='unit/piece'
     )
     simulation_movement_2_bis = applied_rule_2.newContent(
@@ -522,6 +533,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
 
   def test_sale_invoice_builder_with_different_date(self):
     resource, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(is_accountable=True)
+    service_setup = self.addServiceSetup()
     project = instance_tree.getFollowUpValue()
     trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
     currency = trade_condition.getPriceCurrencyValue()
@@ -555,7 +567,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
         stop_date=DateTime('2012/02/01'),
         **delivery_kw
     )
-    
+
     # Create Applied rule and set causality
     applied_rule_1 = self.portal.portal_simulation.newContent(
       portal_type='Applied Rule',
@@ -577,7 +589,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
         batch_mode=1)
     delivery_line_1_bis.edit(
         price=0.0,
-        resource='service_module/slapos_instance_setup',
+        resource_value=service_setup,
         quantity_unit='unit/piece'
     )
 

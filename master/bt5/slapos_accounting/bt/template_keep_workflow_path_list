@@ -22,9 +22,6 @@ portal_rules/slapos_subscription_item_rule
 portal_rules/slapos_trade_model_simulation_rule
 quantity_unit_conversion_module/slapos_time_month
 quantity_unit_conversion_module/slapos_time_month/**
-service_module/cpu_load_percent
-service_module/disk_used
-service_module/memory_used
 service_module/slapos_account_validation
 service_module/slapos_deposit
 service_module/slapos_discount
@@ -33,9 +30,5 @@ service_module/slapos_instance_hosting
 service_module/slapos_instance_setup
 service_module/slapos_instance_subscription
 service_module/slapos_instance_update
-service_module/slapos_netdrive_consumption
-service_module/slapos_reservation_fee
-service_module/slapos_reservation_fee/**
-service_module/slapos_reservation_refund
 service_module/slapos_tax
 service_module/slapos_virtual_master_subscription

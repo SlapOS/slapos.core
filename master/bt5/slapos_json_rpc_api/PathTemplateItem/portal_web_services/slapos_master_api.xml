@@ -67,7 +67,19 @@
             <key> <string>json_form</string> </key>
             <value>
               <tuple>
+                <string>slapos.put.software_instance | SoftwareInstance_updateFromJSON</string>
+                <string>slapos.put.software_installation | SoftwareInstallation_updateFromJSON</string>
+                <string>slapos.put.compute_node | ComputeNode_updateFromJSON</string>
+                <string>slapos.get.software_instance | SoftwareInstance_getFromJSON</string>
+                <string>slapos.get.compute_node | ComputeNode_getFromJSON</string>
+                <string>slapos.get.software_installation | SoftwareInstallation_getFromJSON</string>
+                <string>slapos.get.software_instance_certificate | SoftwareInstanceCertificateRecord_getFromJSON</string>
+                <string>slapos.post.compute_node | jIOWebSection_createComputeNodeFromJSON</string>
                 <string>slapos.post.software_instance | JSONRPCService_requestSoftwareInstanceFromJSON</string>
+                <string>slapos.post.software_installation | jIOWebSection_createSoftwareInstallationFromJSON</string>
+                <string>slapos.allDocs.compute_node | jIOWebSection_searchComputeNodeFromJSON</string>
+                <string>slapos.allDocs.instance | jIOWebSection_searchInstanceFromJSON</string>
+                <string>slapos.allDocs.software_installation | jIOWebSection_searchSoftwareInstallationFromJSON</string>
               </tuple>
             </value>
         </item>
@@ -147,7 +159,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1023.15552.10600.58999</string> </value>
+                      <value> <string>1022.44997.33638.665</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -167,7 +179,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1741365105.2</float>
+                              <float>1739457072.62</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

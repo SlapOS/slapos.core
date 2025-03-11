@@ -34,6 +34,7 @@ import hashlib
 import json
 import io
 from binascii import hexlify
+from OFS.Traversable import NotFound
 
 class PortalAlarmDisabled(object):
   """
@@ -111,8 +112,1057 @@ class TestSlapOSJsonRpcMixin(SlapOSTestCaseMixin):
       env={'CONTENT_TYPE': 'application/json'})
     return response
 
+  def beforeTearDown(self):
+    self.unpinDateTime()
+    self._cleaupREQUEST()
+
+class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
+  def test_ComputeNodeAccess_01_getFullComputerInformationInstanceList(self):
+    self._makeComplexComputeNode(self.project, with_slave=True)
+
+    instance_1 = self.compute_node.partition1.getAggregateRelatedValue(portal_type='Software Instance')
+    instance_2 = self.compute_node.partition2.getAggregateRelatedValue(portal_type='Software Instance')
+    instance_3 = self.compute_node.partition3.getAggregateRelatedValue(portal_type='Software Instance')
+    instance_4 = self.compute_node.partition4.getAggregateRelatedValue(portal_type='Software Instance')
+
+    # This is the expected instance list, it is sorted by api_revision
+    instance_list = [instance_1, instance_2, instance_3, instance_4]
+    # instance_list.sort(key=lambda x: x.getJIOAPIRevision(self.connector.getRelativeUrl()))
+
+    # Check result_list match instance_list=
+    expected_instance_list = []
+    for instance in instance_list:
+      expected_instance_list.append({
+        # "api_revision": instance.getJIOAPIRevision(self.connector.getRelativeUrl()),
+        "compute_partition_id": instance.getAggregateReference(),
+        "get_parameters": {
+          "portal_type": "Software Instance",
+          "reference": instance.getReference(),
+        },
+        "portal_type": "Software Instance",
+        "reference": instance.getReference(),
+        "software_release_uri": instance.getUrlString(),
+        "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+        "title": instance.getTitle(),
+      })
+
+    response = self.callJsonRpcWebService('slapos.allDocs.instance', {
+      "compute_node_id": self.compute_node_id,
+      "portal_type": "Software Instance",
+    }, self.compute_node_user_id)
+
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    instance_list_response = byteify(json.loads(response.getBody()))
+    # self.assertTrue(instance_list_response["$schema"].endswith("jIOWebSection_searchInstanceFromJSON/getOutputJSONSchema"))
+    self.assertEqual(
+      instance_list_response,
+      {
+        'current_page_full': False,
+        'next_page_request': {'compute_node_id': self.compute_node.getReference(),
+                              'portal_type': 'Software Instance'},
+        'result_list': expected_instance_list
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    for i in range(len(expected_instance_list)):
+      instance_resut_dict = expected_instance_list[i]
+      instance = instance_list[i]
+      # Get instance as "user"
+      # Check Data is correct
+      partition = instance.getAggregateValue(portal_type="Compute Partition")
+      response = self.callJsonRpcWebService(
+        'slapos.get.software_instance',
+        instance_resut_dict["get_parameters"],
+        self.compute_node_user_id
+      )
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual(
+        byteify(json.loads(response.getBody())),
+        {
+          #"$schema": instance.getJSONSchemaUrl(),
+          "title": instance.getTitle(),
+          "reference": instance.getReference(),
+          "software_release_uri": instance.getUrlString(),
+          "software_type": instance.getSourceReference(),
+          "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+          "connection_parameters": instance.getConnectionXmlAsDict(),
+          "parameters": instance.getInstanceXmlAsDict(),
+          "shared": False,
+          "root_instance_title": instance.getSpecialiseValue().getTitle(),
+          "ip_list":
+            [
+              [
+                x.getNetworkInterface(''),
+                x.getIpAddress()
+              ] for x in partition.contentValues(portal_type='Internet Protocol Address')
+            ],
+          "full_ip_list": [],
+          "sla_parameters": instance.getSlaXmlAsDict(),
+          "compute_node_id": partition.getParentValue().getReference(),
+          "compute_partition_id": partition.getReference(),
+          "processing_timestamp": instance.getSlapTimestamp(),
+          "access_status_message": instance.getTextAccessStatus(),
+          #"api_revision": instance.getJIOAPIRevision(self.connector.getRelativeUrl()),
+          "portal_type": instance.getPortalType(),
+        })
+      self.assertEqual(response.getStatus(), 200)
+
+  def test_ComputeNodeAccess_01_bis_getFullComputerInformationSoftwareList(self):
+    self._makeComplexComputeNode(self.project, with_slave=True)
+
+    software_list = [self.start_requested_software_installation, self.destroy_requested_software_installation]
+    # This is the expected instance list, it is sorted by api_revision
+    # software_list.sort(key=lambda x: x.getJIOAPIRevision(self.connector.getRelativeUrl()))
+    # Check result_list match instance_list=
+    expected_software_list = []
+    for software in software_list:
+      expected_software_list.append({
+        # "api_revision": software.getJIOAPIRevision(self.connector.getRelativeUrl()),
+        "get_parameters": {
+          "portal_type": "Software Installation",
+          "software_release_uri": software.getUrlString(),
+          "compute_node_id": self.compute_node_id
+        },
+        "portal_type": "Software Installation",
+        "software_release_uri": software.getUrlString(),
+        "state": "available" if software.getSlapState() == "start_requested" else "destroyed",
+        "compute_node_id": self.compute_node_id,
+      })
+
+    response = self.callJsonRpcWebService('slapos.allDocs.software_installation', {
+      "compute_node_id": self.compute_node_id,
+      "portal_type": "Software Installation",
+    }, self.compute_node_user_id)
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    software_list_response = byteify(json.loads(response.getBody()))
+    # self.assertTrue(software_list_response["$schema"].endswith("jIOWebSection_searchSoftwareInstallationFromJSON/getOutputJSONSchema"))
+    self.assertEqual(
+      software_list_response,
+      {
+        'current_page_full': False,
+        'next_page_request': {'compute_node_id': self.compute_node.getReference(),
+                              'portal_type': 'Software Installation'},
+        'result_list': expected_software_list
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    for i in range(len(expected_software_list)):
+      software_resut_dict = expected_software_list[i]
+      software = software_list[i]
+      # Get instance as "user"
+      response = self.callJsonRpcWebService(
+        "slapos.get.software_installation",
+        software_resut_dict["get_parameters"],
+        self.compute_node_user_id
+      )
+      # Check Data is correct
+      status_dict = software.getAccessStatus()
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual(
+        byteify(json.loads(response.getBody())),
+        {
+          # "$schema": software.getJSONSchemaUrl(),
+          # "api_revision": software.getJIOAPIRevision(self.connector.getRelativeUrl()),
+          "portal_type": "Software Installation",
+          "software_release_uri": software.getUrlString(),
+          "state": "available" if software.getSlapState() == "start_requested" else "destroyed",
+          "compute_node_id": self.compute_node_id,
+          "reported_state": status_dict.get("state"),
+          "status_message": status_dict.get("text"),
+        })
+      self.assertEqual(response.getStatus(), 200)
+
+  def test_ComputeNodeAccess_02_computerBang(self):
+    error_log = 'Please force slapos node rerun'
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService(
+        "slapos.put.compute_node",
+        {
+          "compute_node_id": self.compute_node_id,
+          "portal_type": "Compute Node",
+          "bang_status_message": error_log,
+        },
+        self.compute_node_user_id
+      )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'compute_node_id': self.compute_node.getReference(),
+      'date': '2020-05-19T00:00:00+00:00',
+      'portal_type': 'Compute Node',
+      'success': 'Done'
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+    portal_workflow = self.portal.portal_workflow
+    comment = portal_workflow.getInfoFor(ob=self.compute_node,
+                                         name='comment',
+                                         wf_id='compute_node_slap_interface_workflow')
+    self.assertEqual(comment, error_log)
+    action_id = portal_workflow.getInfoFor(ob=self.compute_node,
+                                           name='action',
+                                           wf_id='compute_node_slap_interface_workflow')
+    self.assertEqual(action_id, 'report_compute_node_bang')
+
+  def test_ComputeNodeAccess_03_not_accessed_getSoftwareInstallationStatus(self):
+    """
+    xXXX TODO Cedric Make sure we can create and modifiy when using weird url strings
+    """
+    self._makeComplexComputeNode(self.project)
+
+    software_installation = self.start_requested_software_installation
+    url_string = software_installation.getUrlString()
+    status_dict = software_installation.getAccessStatus()
+    response = self.callJsonRpcWebService(
+      "slapos.get.software_installation",
+      {
+        "portal_type": "Software Installation",
+        "software_release_uri": url_string,
+        "compute_node_id": self.compute_node_id,
+      },
+      self.compute_node_user_id
+    )
+    # Check Data is correct
+    status_dict = software_installation.getAccessStatus()
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        # "$schema": software_installation.getJSONSchemaUrl(),
+        # "api_revision": software_installation.getJIOAPIRevision(self.connector.getRelativeUrl()),
+        "portal_type": "Software Installation",
+        "software_release_uri": software_installation.getUrlString(),
+        "state": "available" if software_installation.getSlapState() == "start_requested" else "destroyed",
+        "compute_node_id": software_installation.getAggregateReference(),
+        "reported_state": status_dict.get("state"),
+        "status_message": status_dict.get("text"),
+       })
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_ComputeNodeAccess_04_destroyedSoftwareRelease_noSoftwareInstallation(self):
+    software_release_uri = "http://example.org/foo"
+    response = self.callJsonRpcWebService(
+      "slapos.put.software_installation",
+      {
+        "software_release_uri": software_release_uri,
+        "compute_node_id": self.compute_node_id,
+        "reported_state": "destroyed",
+        "portal_type": "Software Installation",
+      },
+      self.compute_node_user_id
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        'status': 403,
+        'title': 'No installation found with url: %s' % software_release_uri,
+        'type': 'SOFTWARE-INSTALLATION-NOT-FOUND'
+      })
+    self.assertEqual(response.getStatus(), 403)
+
+  def test_ComputeNodeAccess_05_destroyedSoftwareRelease_noDestroyRequested(self):
+    self._makeComplexComputeNode(self.project)
+
+    software_installation = self.start_requested_software_installation
+    software_release_uri = software_installation.getUrlString()
+    response = self.callJsonRpcWebService(
+      "slapos.put.software_installation",
+      {
+        "software_release_uri": software_release_uri,
+        "compute_node_id": self.compute_node_id,
+        "reported_state": "destroyed",
+        "portal_type": "Software Installation",
+      },
+      self.compute_node_user_id
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        'status': 403,
+        'title': "Reported state is destroyed but requested state is not destroyed",
+        'type': 'SOFTWARE-INSTALLATION-DESTROY-NOT-REQUESTED'
+      })
+    self.assertEqual(response.getStatus(), 403)
+
+  def test_ComputeNodeAccess_06_destroyedSoftwareRelease_destroyRequested(self):
+    self._makeComplexComputeNode(self.project)
+
+    software_installation = self.destroy_requested_software_installation
+    self.assertEqual(software_installation.getValidationState(), "validated")
+    software_release_uri = software_installation.getUrlString()
+
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService(
+        "slapos.put.software_installation",
+        {
+          "software_release_uri": software_release_uri,
+          "compute_node_id": self.compute_node_id,
+          "reported_state": "destroyed",
+          "portal_type": "Software Installation",
+        },
+        self.compute_node_user_id
+      )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        'compute_node_id': self.compute_node_id,
+        'date': '2020-05-19T00:00:00+00:00',
+        'portal_type': 'Software Installation',
+        'software_release_uri': software_release_uri,
+        'success': 'Done'
+      })
+    self.assertEqual(response.getStatus(), 200)
+    self.assertEqual(software_installation.getValidationState(), "invalidated")
+
+  def test_ComputeNodeAccess_07_availableSoftwareRelease(self):
+    self._makeComplexComputeNode(self.project)
+
+    software_installation = self.start_requested_software_installation
+    self.assertEqual(software_installation.getValidationState(), "validated")
+    software_release_uri = software_installation.getUrlString()
+
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService("slapos.put.software_installation", {
+        "portal_type": "Software Installation",
+        "software_release_uri": software_release_uri,
+        "compute_node_id": self.compute_node_id,
+        "reported_state": "available",
+      },
+          self.compute_node_user_id)
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        'compute_node_id': self.compute_node_id,
+        'date': '2020-05-19T00:00:00+00:00',
+        'portal_type': 'Software Installation',
+        'software_release_uri': software_release_uri,
+        'success': 'Done'
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    response = self.callJsonRpcWebService("slapos.get.software_installation", {
+      "portal_type": "Software Installation",
+      "software_release_uri": software_release_uri,
+      "compute_node_id": self.compute_node_id
+    },
+        self.compute_node_user_id)
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        # "$schema": software_installation.getJSONSchemaUrl(),
+        "software_release_uri": software_release_uri,
+        "compute_node_id": software_installation.getAggregateReference(),
+        "state": "available",
+        "reported_state": "available",
+        "status_message": "#access software release %s available" % software_release_uri,
+        "portal_type": "Software Installation",
+        # "api_revision": software_installation.getJIOAPIRevision(self.connector.getRelativeUrl()),
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_ComputeNodeAccess_08_buildingSoftwareRelease(self):
+    self._makeComplexComputeNode(self.project)
+
+    software_installation = self.start_requested_software_installation
+    self.assertEqual(software_installation.getValidationState(), "validated")
+    software_release_uri = software_installation.getUrlString()
+
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService("slapos.put.software_installation", {
+        "portal_type": "Software Installation",
+        "software_release_uri": software_release_uri,
+        "compute_node_id": self.compute_node_id,
+        "reported_state": "building",
+      },
+          self.compute_node_user_id)
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        'compute_node_id': self.compute_node_id,
+        'date': '2020-05-19T00:00:00+00:00',
+        'portal_type': 'Software Installation',
+        'software_release_uri': software_release_uri,
+        'success': 'Done'
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    response = self.callJsonRpcWebService("slapos.get.software_installation", {
+      "portal_type": "Software Installation",
+      "software_release_uri": software_release_uri,
+      "compute_node_id": self.compute_node_id
+    },
+        self.compute_node_user_id)
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        # "$schema": software_installation.getJSONSchemaUrl(),
+        "software_release_uri": software_release_uri,
+        "compute_node_id": software_installation.getAggregateReference(),
+        "state": "available",
+        "reported_state": "building",
+        "status_message": "#building software release %s" % software_release_uri,
+        "portal_type": "Software Installation",
+        # "api_revision": software_installation.getJIOAPIRevision(self.connector.getRelativeUrl()),
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_ComputeNodeAccess_09_softwareReleaseError(self):
+    self._makeComplexComputeNode(self.project)
+
+    software_installation = self.start_requested_software_installation
+    self.assertEqual(software_installation.getValidationState(), "validated")
+    software_release_uri = software_installation.getUrlString()
+
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService("slapos.put.software_installation", {
+        "portal_type": "Software Installation",
+        "software_release_uri": software_release_uri,
+        "compute_node_id": self.compute_node_id,
+        "error_status": 'error log',
+      },
+          self.compute_node_user_id)
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        'compute_node_id': self.compute_node_id,
+        'date': '2020-05-19T00:00:00+00:00',
+        'portal_type': 'Software Installation',
+        'software_release_uri': software_release_uri,
+        'success': 'Done'
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    response = self.callJsonRpcWebService("slapos.get.software_installation", {
+      "portal_type": "Software Installation",
+      "software_release_uri": software_release_uri,
+      "compute_node_id": self.compute_node_id
+    },
+        self.compute_node_user_id)
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        # "$schema": software_installation.getJSONSchemaUrl(),
+        "software_release_uri": software_release_uri,
+        "compute_node_id": software_installation.getAggregateReference(),
+        "state": "available",
+        "reported_state": "",
+        "status_message": "#error while installing %s" % software_release_uri,
+        "portal_type": "Software Installation",
+        # "api_revision": software_installation.getJIOAPIRevision(self.connector.getRelativeUrl()),
+      })
+    self.assertEqual(response.getStatus(), 200)
+
 
 class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
+  def test_InstanceAccess_10_getComputerPartitionCertificate(self):
+    self._makeComplexComputeNode(self.project)
+
+    response = self.callJsonRpcWebService("slapos.get.software_instance_certificate", {
+      "portal_type": "Software Instance Certificate Record",
+      "reference": self.start_requested_software_instance.getReference(),
+    }, self.start_requested_software_instance.getUserId())
+
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      "key" :self.start_requested_software_instance.getSslKey(),
+      "certificate": self.start_requested_software_instance.getSslCertificate(),
+      "portal_type": "Software Instance Certificate Record",
+      "reference": self.start_requested_software_instance.getReference(),
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_InstanceAccess_11_getFullComputerInformationWithSharedInstance(self, with_slave=True):
+    self._makeComplexComputeNode(self.project, with_slave=with_slave)
+    instance = self.start_requested_software_instance
+
+    # Check result_list match instance_list=
+    expected_instance_list = [{
+      # "api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+      "compute_partition_id": instance.getAggregateReference(),
+      "get_parameters": {
+        "portal_type": "Software Instance",
+        "reference": instance.getReference(),
+      },
+      "portal_type": "Software Instance",
+      "reference": instance.getReference(),
+      "software_release_uri": instance.getUrlString(),
+      "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+      "title": instance.getTitle(),
+    }]
+
+    response = self.callJsonRpcWebService("slapos.allDocs.instance", {
+      "compute_node_id": self.compute_node_id,
+      "portal_type": "Software Instance",
+    }, instance.getUserId())
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'current_page_full': False,
+      'next_page_request': {'compute_node_id': self.compute_node_id,
+                             'portal_type': 'Software Instance'},
+      "result_list": expected_instance_list
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+
+    instance_resut_dict = expected_instance_list[0]
+
+    # Get instance as "user"
+    response = self.callJsonRpcWebService(
+      "slapos.get.software_instance",
+      instance_resut_dict["get_parameters"],
+      instance.getUserId()
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    # Check Data is correct
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    self.assertEqual({
+      # "$schema": instance.getJSONSchemaUrl(),
+      "title": instance.getTitle(),
+      "reference": instance.getReference(),
+      "software_release_uri": instance.getUrlString(),
+      "software_type": instance.getSourceReference(),
+      "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+      "connection_parameters": instance.getConnectionXmlAsDict(),
+      "parameters": instance.getInstanceXmlAsDict(),
+      "shared": False,
+      "root_instance_title": instance.getSpecialiseValue().getTitle(),
+      "ip_list":
+        [
+          [
+            x.getNetworkInterface(''),
+            x.getIpAddress()
+          ] for x in partition.contentValues(portal_type='Internet Protocol Address')
+        ],
+      "full_ip_list": [],
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      "processing_timestamp": instance.getSlapTimestamp(),
+      "access_status_message": instance.getTextAccessStatus(),
+      # "api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+      "portal_type": instance.getPortalType(),
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+
+    # Get instance as "partition"
+    response = self.callJsonRpcWebService(
+      "slapos.get.software_instance",
+      {
+        'portal_type': 'Software Instance',
+        'compute_node_id': partition.getParentValue().getReference(),
+        'compute_partition_id': partition.getReference()
+      },
+      instance.getUserId()
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    # Check Data is correct
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    self.assertEqual({
+      # "$schema": instance.getJSONSchemaUrl(),
+      "title": instance.getTitle(),
+      "reference": instance.getReference(),
+      "software_release_uri": instance.getUrlString(),
+      "software_type": instance.getSourceReference(),
+      "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+      "connection_parameters": instance.getConnectionXmlAsDict(),
+      "parameters": instance.getInstanceXmlAsDict(),
+      "shared": False,
+      "root_instance_title": instance.getSpecialiseValue().getTitle(),
+      "ip_list":
+        [
+          [
+            x.getNetworkInterface(''),
+            x.getIpAddress()
+          ] for x in partition.contentValues(portal_type='Internet Protocol Address')
+        ],
+      "full_ip_list": [],
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      "processing_timestamp": instance.getSlapTimestamp(),
+      "access_status_message": instance.getTextAccessStatus(),
+      # "api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+      "portal_type": instance.getPortalType(),
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_InstanceAccess_11_bis_getFullComputerInformationNoSharedInstance(self):
+    self.test_InstanceAccess_11_getFullComputerInformationWithSharedInstance(with_slave=False)
+
+  def test_InstanceAccess_12_getSharedInstance(self):
+    self._makeComplexComputeNode(self.project, with_slave=True)
+    instance = self.start_requested_software_instance
+    # Check Slaves
+    # XXX It should be the same portal_type
+    response = self.callJsonRpcWebService("slapos.allDocs.instance", {
+      "host_instance_reference": instance.getReference(),
+      "portal_type": "Slave Instance",
+    },
+      instance.getUserId())
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    shared_instance_list_response = byteify(json.loads(response.getBody()))
+    shared_instance = self.start_requested_slave_instance
+    #shared_instance_revision = shared_instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl())
+    self.assertEqual(shared_instance_list_response,
+    {
+      'current_page_full': False,
+      'next_page_request': {#'from_api_revision': shared_instance_revision,
+                            'host_instance_reference': instance.getReference(),
+                            'portal_type': 'Slave Instance'},
+      'result_list': [{#'api_revision': shared_instance_revision,
+                      'compute_partition_id': 'partition1',
+                      'get_parameters': {'portal_type': 'Slave Instance',
+                                          'reference': shared_instance.getReference()},
+                      'portal_type': 'Slave Instance',
+                      'reference': shared_instance.getReference(),
+                      'state': 'started',
+                      'title': shared_instance.getTitle()}]
+    })
+    self.assertEqual(response.getStatus(), 200)
+
+    response = response = self.callJsonRpcWebService(
+      "slapos.get.software_instance",
+      shared_instance_list_response["result_list"][0]["get_parameters"],
+      instance.getUserId()
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    # Check Data is correct
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    self.assertEqual({
+      #"$schema": instance.getJSONSchemaUrl(),
+      "title": shared_instance.getTitle(),
+      "reference": shared_instance.getReference(),
+      "software_release_uri": shared_instance.getUrlString(),
+      "software_type": shared_instance.getSourceReference(),
+      "state": self.getAPIStateFromSlapState(shared_instance.getSlapState()),
+      "connection_parameters": shared_instance.getConnectionXmlAsDict(),
+      "parameters": shared_instance.getInstanceXmlAsDict(),
+      "shared": True,
+      "root_instance_title": shared_instance.getSpecialiseValue().getTitle(),
+      "ip_list":
+        [
+          [
+            x.getNetworkInterface(''),
+            x.getIpAddress()
+          ] for x in partition.contentValues(portal_type='Internet Protocol Address')
+        ],
+      "full_ip_list": [],
+      "sla_parameters": shared_instance.getSlaXmlAsDict(),
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      "processing_timestamp": shared_instance.getSlapTimestamp(),
+      "access_status_message": shared_instance.getTextAccessStatus(),
+      #"api_revision": shared_instance_revision,
+      "portal_type": "Software Instance",
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_InstanceAccess_13_setConnectionXml_withSlave(self):
+    # XXX CLN No idea how to deal with ascii
+    self._makeComplexComputeNode(self.project, with_slave=True)
+    connection_parameters_dict = {
+      "p1e": "v1e",
+      "p2e": "v2e",
+    }
+    stored_xml = """<?xml version='1.0' encoding='utf-8'?>
+<instance>
+  <parameter id="p1e">v1e</parameter>
+  <parameter id="p2e">v2e</parameter>
+</instance>
+"""
+
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService(
+        "slapos.put.software_instance",
+        {
+          "reference": self.start_requested_slave_instance.getReference(),
+          "portal_type": "Software Instance",
+          "connection_parameters": connection_parameters_dict,
+        },
+        self.start_requested_software_instance.getUserId()
+      )
+
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        'reference': self.start_requested_slave_instance.getReference(),
+        'date': '2020-05-19T00:00:00+00:00',
+        'portal_type': 'Software Instance',
+        'success': 'Done'
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    self.assertEqual(self.start_requested_slave_instance.getConnectionXml(), stored_xml)
+
+  def test_InstanceAccess_14_setConnectionXml(self):
+    # XXX CLN No idea how to deal with ascii
+    self._makeComplexComputeNode(self.project)
+    connection_parameters_dict = {
+      "p1e": "v1e",
+      "p2e": "v2e",
+    }
+    stored_xml = """<?xml version='1.0' encoding='utf-8'?>
+<instance>
+  <parameter id="p1e">v1e</parameter>
+  <parameter id="p2e">v2e</parameter>
+</instance>
+"""
+
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService(
+        "slapos.put.software_instance",
+        {
+          "reference": self.start_requested_software_instance.getReference(),
+          "portal_type": "Software Instance",
+          "connection_parameters": connection_parameters_dict,
+        },
+        self.start_requested_software_instance.getUserId()
+      )
+
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        'reference': self.start_requested_software_instance.getReference(),
+        'date': '2020-05-19T00:00:00+00:00',
+        'portal_type': 'Software Instance',
+        'success': 'Done'
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    self.assertEqual(self.start_requested_software_instance.getConnectionXml(), stored_xml)
+
+  def test_InstanceAccess_15_softwareInstanceError(self):
+    self._makeComplexComputeNode(self.project)
+    instance = self.start_requested_software_instance
+
+    error_log = 'The error'
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService(
+        "slapos.put.software_instance",
+        {
+          "reference": instance.getReference(),
+          "portal_type": "Software Instance",
+          "reported_state": "error",
+          "status_message": error_log,
+        },
+        instance.getUserId()
+      )
+
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        'reference': instance.getReference(),
+        'date': '2020-05-19T00:00:00+00:00',
+        'portal_type': 'Software Instance',
+        'success': 'Done'
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    # Check Data is correct
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    response = self.callJsonRpcWebService("slapos.get.software_instance", {
+      "portal_type": "Software Instance",
+      "reference": instance.getReference(),
+    },
+        instance.getUserId())
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      #"$schema": instance.getJSONSchemaUrl(),
+      "title": instance.getTitle(),
+      "reference": instance.getReference(),
+      "software_release_uri": instance.getUrlString(),
+      "software_type": instance.getSourceReference(),
+      "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+      "connection_parameters": instance.getConnectionXmlAsDict(),
+      "parameters": instance.getInstanceXmlAsDict(),
+      "shared": False,
+      "root_instance_title": instance.getSpecialiseValue().getTitle(),
+      "ip_list":
+        [
+          [
+            x.getNetworkInterface(''),
+            x.getIpAddress()
+          ] for x in partition.contentValues(portal_type='Internet Protocol Address')
+        ],
+      "full_ip_list": [],
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      "processing_timestamp": instance.getSlapTimestamp(),
+      "access_status_message": '#error while instanciating: The error',
+      #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+      "portal_type": instance.getPortalType(),
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_InstanceAccess_16_softwareInstanceError_twice(self):
+    self._makeComplexComputeNode(self.project)
+    instance = self.start_requested_software_instance
+
+    # First call
+    error_log = 'The error'
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService(
+        "slapos.put.software_instance",
+        {
+          "reference": instance.getReference(),
+          "portal_type": "Software Instance",
+          "reported_state": "error",
+          "status_message": error_log,
+        },
+        instance.getUserId()
+      )
+
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        'reference': instance.getReference(),
+        'date': '2020-05-19T00:00:00+00:00',
+        'portal_type': 'Software Instance',
+        'success': 'Done'
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    # Check Data is correct
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    response = self.callJsonRpcWebService("slapos.get.software_instance", {
+      "portal_type": "Software Instance",
+      "reference": instance.getReference(),
+    },
+        instance.getUserId())
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      #"$schema": instance.getJSONSchemaUrl(),
+      "title": instance.getTitle(),
+      "reference": instance.getReference(),
+      "software_release_uri": instance.getUrlString(),
+      "software_type": instance.getSourceReference(),
+      "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+      "connection_parameters": instance.getConnectionXmlAsDict(),
+      "parameters": instance.getInstanceXmlAsDict(),
+      "shared": False,
+      "root_instance_title": instance.getSpecialiseValue().getTitle(),
+      "ip_list":
+        [
+          [
+            x.getNetworkInterface(''),
+            x.getIpAddress()
+          ] for x in partition.contentValues(portal_type='Internet Protocol Address')
+        ],
+      "full_ip_list": [],
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      "processing_timestamp": instance.getSlapTimestamp(),
+      "access_status_message": '#error while instanciating: The error',
+      #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+      "portal_type": instance.getPortalType(),
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+    # Second call
+    with PinnedDateTime(self, DateTime('2020/05/20')):
+      response = self.callJsonRpcWebService(
+        "slapos.put.software_instance",
+        {
+          "reference": instance.getReference(),
+          "portal_type": "Software Instance",
+          "reported_state": "error",
+          "status_message": error_log,
+        },
+        instance.getUserId()
+      )
+
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        'reference': instance.getReference(),
+        'date': '2020-05-20T00:00:00+00:00',
+        'portal_type': 'Software Instance',
+        'success': 'Done'
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    # Check Data is correct
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    response = self.callJsonRpcWebService("slapos.get.software_instance", {
+      "portal_type": "Software Instance",
+      "reference": instance.getReference(),
+    },
+        instance.getUserId())
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      #"$schema": instance.getJSONSchemaUrl(),
+      "title": instance.getTitle(),
+      "reference": instance.getReference(),
+      "software_release_uri": instance.getUrlString(),
+      "software_type": instance.getSourceReference(),
+      "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+      "connection_parameters": instance.getConnectionXmlAsDict(),
+      "parameters": instance.getInstanceXmlAsDict(),
+      "shared": False,
+      "root_instance_title": instance.getSpecialiseValue().getTitle(),
+      "ip_list":
+        [
+          [
+            x.getNetworkInterface(''),
+            x.getIpAddress()
+          ] for x in partition.contentValues(portal_type='Internet Protocol Address')
+        ],
+      "full_ip_list": [],
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      "processing_timestamp": instance.getSlapTimestamp(),
+      "access_status_message": '#error while instanciating: The error',
+      #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+      "portal_type": instance.getPortalType(),
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_InstanceAccess_17_softwareInstanceBang(self):
+    self._makeComplexComputeNode(self.project)
+    instance = self.start_requested_software_instance
+
+    error_log = 'Please force slapos instance rerun'
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService(
+        "slapos.put.software_instance",
+        {
+          "reference": instance.getReference(),
+          "portal_type": "Software Instance",
+          "reported_state": "bang",
+          "status_message": error_log
+        },
+        instance.getUserId()
+      )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'reference': instance.getReference(),
+      'date': '2020-05-19T00:00:00+00:00',
+      'portal_type': 'Software Instance',
+      'success': 'Done'
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+    portal_workflow = self.portal.portal_workflow
+    comment = portal_workflow.getInfoFor(ob=instance,
+                                         name='comment',
+                                         wf_id='instance_slap_interface_workflow')
+    self.assertEqual(comment, error_log)
+    action_id = portal_workflow.getInfoFor(ob=instance,
+                                           name='action',
+                                           wf_id='instance_slap_interface_workflow')
+    self.assertEqual(action_id, 'bang')
+
+    # Check get return the expected results after
+    response = self.callJsonRpcWebService(
+      "slapos.get.software_instance",
+      {
+        "portal_type": "Software Instance",
+        "reference": instance.getReference(),
+      },
+      instance.getUserId()
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    self.assertEqual({
+      'access_status_message': '#error bang called',
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      'full_ip_list': [],
+      'ip_list': [['', 'ip_address_1']],
+      'portal_type': 'Software Instance',
+      'processing_timestamp': 1589846400000000,
+      'reference': instance.getReference(),
+      'root_instance_title': instance.getSpecialiseTitle(),
+      'shared': False,
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "parameters": instance.getInstanceXmlAsDict(),
+      "connection_parameters": instance.getConnectionXmlAsDict(),
+      'software_release_uri': instance.getUrlString(),
+      'software_type': instance.getSourceReference(),
+      'state': 'started',
+      'title': instance.getTitle()
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_InstanceAccess_18_softwareInstanceRename(self):
+    self._makeComplexComputeNode(self.project)
+    instance = self.start_requested_software_instance
+
+    previous_name = instance.getTitle()
+    new_name = 'new me'
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService(
+        "slapos.put.software_instance",
+        {
+          "reference": instance.getReference(),
+          "portal_type": "Software Instance",
+          "title": new_name,
+        },
+        instance.getUserId()
+      )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'reference': instance.getReference(),
+      'date': '2020-05-19T00:00:00+00:00',
+      'portal_type': 'Software Instance',
+      'success': 'Done'
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+    portal_workflow = self.portal.portal_workflow
+    comment = portal_workflow.getInfoFor(ob=instance,
+                                         name='comment',
+                                         wf_id='instance_slap_interface_workflow')
+    self.assertEqual(comment, 'Rename %s into %s' % (previous_name, new_name))
+    action_id = portal_workflow.getInfoFor(ob=instance,
+                                           name='action',
+                                           wf_id='instance_slap_interface_workflow')
+    self.assertEqual(action_id, 'rename')
+    self.assertEqual(instance.getTitle(), new_name)
+
+  def test_InstanceAccess_19_destroyedComputePartition(self):
+    self._makeComplexComputeNode(self.project)
+    instance = self.destroy_requested_software_instance
+
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService(
+        "slapos.put.software_instance",
+        {
+          "reference": instance.getReference(),
+          "portal_type": "Software Instance",
+          "reported_state": "destroyed"
+        },
+        instance.getUserId()
+      )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'reference': instance.getReference(),
+      'date': '2020-05-19T00:00:00+00:00',
+      'portal_type': 'Software Instance',
+      'success': 'Done'
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+    self.assertEqual('invalidated',
+        instance.getValidationState())
+    self.assertEqual(None, instance.getSslKey())
+    self.assertEqual(None, instance.getSslCertificate())
+
   def test_InstanceAccess_20_request_withSlave(self):
     _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
     project = instance_tree.getFollowUpValue()
@@ -269,8 +1319,304 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       self.assertEqual(response.getStatus(), 200)
       self.assertTrue(requested_instance.getRelativeUrl() in instance.getSuccessorList())
 
+  def test_InstanceAccess_26_stoppedComputePartition(self):
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      # XXX Should reported_state added to Instance returned json?
+      self._makeComplexComputeNode(self.project)
+      instance = self.start_requested_software_instance
+      response = self.callJsonRpcWebService(
+        "slapos.put.software_instance",
+        {
+          "reference": instance.getReference(),
+          "portal_type": "Software Instance",
+          "reported_state": "stopped"
+        },
+        instance.getUserId()
+      )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'reference': instance.getReference(),
+      'date': '2020-05-19T00:00:00+00:00',
+      'portal_type': 'Software Instance',
+      'success': 'Done'
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+    # Check get return the expected results after
+    response = self.callJsonRpcWebService(
+      "slapos.get.software_instance",
+      {
+        "portal_type": "Software Instance",
+        "reference": instance.getReference(),
+      },
+      instance.getUserId()
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    self.assertEqual({
+      'access_status_message': "#access Instance correctly stopped",
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      'full_ip_list': [],
+      'ip_list': [['', 'ip_address_1']],
+      'portal_type': 'Software Instance',
+      'processing_timestamp': 1589846400000000,
+      'reference': instance.getReference(),
+      'root_instance_title': instance.getSpecialiseTitle(),
+      'shared': False,
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "parameters": instance.getInstanceXmlAsDict(),
+      "connection_parameters": instance.getConnectionXmlAsDict(),
+      'software_release_uri': instance.getUrlString(),
+      'software_type': instance.getSourceReference(),
+      'state': 'started',
+      'title': instance.getTitle()
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_InstanceAccess_27_startedComputePartition(self):
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      # XXX Should reported_state added to Instance returned json?
+      self._makeComplexComputeNode(self.project)
+      instance = self.start_requested_software_instance
+      response = self.callJsonRpcWebService(
+        "slapos.put.software_instance",
+        {
+          "reference": instance.getReference(),
+          "portal_type": "Software Instance",
+          "reported_state": "started"
+        },
+        instance.getUserId()
+      )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'reference': instance.getReference(),
+      'date': '2020-05-19T00:00:00+00:00',
+      'portal_type': 'Software Instance',
+      'success': 'Done'
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+    # Check get return the expected results after
+    response = self.callJsonRpcWebService(
+      "slapos.get.software_instance",
+      {
+        "portal_type": "Software Instance",
+        "reference": instance.getReference(),
+      },
+      instance.getUserId()
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    self.assertEqual({
+      'access_status_message': "#access Instance correctly started",
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      'full_ip_list': [],
+      'ip_list': [['', 'ip_address_1']],
+      'portal_type': 'Software Instance',
+      'processing_timestamp': 1589846400000000,
+      'reference': instance.getReference(),
+      'root_instance_title': instance.getSpecialiseTitle(),
+      'shared': False,
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "parameters": instance.getInstanceXmlAsDict(),
+      "connection_parameters": instance.getConnectionXmlAsDict(),
+      'software_release_uri': instance.getUrlString(),
+      'software_type': instance.getSourceReference(),
+      'state': 'started',
+      'title': instance.getTitle()
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
 
 class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
+  def afterSetUp(self):
+    TestSlapOSJsonRpcMixin.afterSetUp(self)
+
+    self.person_reference = self.person.getReference()
+    self.person_user_id = self.person.getUserId()
+
+  def test_PersonAccess_30_computerBang(self):
+    error_log = 'Please force slapos node rerun'
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService(
+        "slapos.put.compute_node",
+        {
+          "compute_node_id": self.compute_node_id,
+          "portal_type": "Compute Node",
+          "bang_status_message": error_log,
+        },
+        self.person_user_id
+      )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'compute_node_id': self.compute_node.getReference(),
+      'date': '2020-05-19T00:00:00+00:00',
+      'portal_type': 'Compute Node',
+      'success': 'Done'
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+    portal_workflow = self.portal.portal_workflow
+    comment = portal_workflow.getInfoFor(ob=self.compute_node,
+                                         name='comment',
+                                         wf_id='compute_node_slap_interface_workflow')
+    self.assertEqual(comment, error_log)
+    action_id = portal_workflow.getInfoFor(ob=self.compute_node,
+                                           name='action',
+                                           wf_id='compute_node_slap_interface_workflow')
+    self.assertEqual(action_id, 'report_compute_node_bang')
+
+  def test_PersonAccess_31_getInstanceWithSharedInstance(self, with_slave=True):
+    self._makeComplexComputeNode(self.project, person=self.person, with_slave=with_slave)
+    instance = self.start_requested_software_instance
+    response = self.callJsonRpcWebService(
+      "slapos.get.software_instance",
+      {
+        "portal_type": "Software Instance",
+        "reference": instance.getReference(),
+      },
+      self.person_user_id
+    )
+    self.assertEqual('application/json',
+        response.headers.get('content-type'))
+    # Check Data is correct
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    self.assertEqual({
+      #"$schema": instance.getJSONSchemaUrl(),
+      "title": instance.getTitle(),
+      "reference": instance.getReference(),
+      "software_release_uri": instance.getUrlString(),
+      "software_type": instance.getSourceReference(),
+      "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+      "connection_parameters": instance.getConnectionXmlAsDict(),
+      "parameters": instance.getInstanceXmlAsDict(),
+      "shared": False,
+      "root_instance_title": instance.getSpecialiseValue().getTitle(),
+      "ip_list":
+        [
+          [
+            x.getNetworkInterface(''),
+            x.getIpAddress()
+          ] for x in partition.contentValues(portal_type='Internet Protocol Address')
+        ],
+      "full_ip_list": [],
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      "processing_timestamp": instance.getSlapTimestamp(),
+      "access_status_message": instance.getTextAccessStatus(),
+      #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+      "portal_type": instance.getPortalType(),
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_PersonAccess_31_bis_getInstance(self):
+    self.test_PersonAccess_31_getInstanceWithSharedInstance(with_slave=False)
+
+
+  def test_PersonAccess_32_softwareInstanceBang(self):
+    self._makeComplexComputeNode(self.project, person=self.person)
+    instance = self.start_requested_software_instance
+
+    error_log = 'Please force slapos instance rerun'
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService(
+        "slapos.put.software_instance",
+        {
+          "reference": instance.getReference(),
+          "portal_type": "Software Instance",
+          "reported_state": "bang",
+          "status_message": error_log
+        },
+        self.person_user_id
+      )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'reference': instance.getReference(),
+      'date': '2020-05-19T00:00:00+00:00',
+      'portal_type': 'Software Instance',
+      'success': 'Done'
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+    portal_workflow = self.portal.portal_workflow
+    comment = portal_workflow.getInfoFor(ob=instance,
+                                         name='comment',
+                                         wf_id='instance_slap_interface_workflow')
+    self.assertEqual(comment, error_log)
+    action_id = portal_workflow.getInfoFor(ob=instance,
+                                           name='action',
+                                           wf_id='instance_slap_interface_workflow')
+    self.assertEqual(action_id, 'bang')
+
+    # Check get return the expected results after
+    response = self.callJsonRpcWebService(
+      "slapos.get.software_instance",
+      {
+        "portal_type": "Software Instance",
+        "reference": instance.getReference(),
+      },
+      self.person_user_id
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    self.assertEqual({
+      'access_status_message': '#error bang called',
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      'full_ip_list': [],
+      'ip_list': [['', 'ip_address_1']],
+      'portal_type': 'Software Instance',
+      'processing_timestamp': 1589846400000000,
+      'reference': instance.getReference(),
+      'root_instance_title': instance.getSpecialiseTitle(),
+      'shared': False,
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "parameters": instance.getInstanceXmlAsDict(),
+      "connection_parameters": instance.getConnectionXmlAsDict(),
+      'software_release_uri': instance.getUrlString(),
+      'software_type': instance.getSourceReference(),
+      'state': 'started',
+      'title': instance.getTitle()
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_PersonAccess_33_softwareInstanceRename(self):
+    self._makeComplexComputeNode(self.project, person=self.person)
+    instance = self.start_requested_software_instance
+
+    previous_name = instance.getTitle()
+    new_name = 'new me'
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService(
+        "slapos.put.software_instance",
+        {
+          "reference": instance.getReference(),
+          "portal_type": "Software Instance",
+          "title": new_name,
+        },
+        self.person_user_id
+      )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'reference': instance.getReference(),
+      'date': '2020-05-19T00:00:00+00:00',
+      'portal_type': 'Software Instance',
+      'success': 'Done'
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+    portal_workflow = self.portal.portal_workflow
+    comment = portal_workflow.getInfoFor(ob=instance,
+                                         name='comment',
+                                         wf_id='instance_slap_interface_workflow')
+    self.assertEqual(comment, 'Rename %s into %s' % (previous_name, new_name))
+    action_id = portal_workflow.getInfoFor(ob=instance,
+                                           name='action',
+                                           wf_id='instance_slap_interface_workflow')
+    self.assertEqual(action_id, 'rename')
+    self.assertEqual(instance.getTitle(), new_name)
+
   def test_PersonAccess_34_request_withSlave(self):
     # disable alarms to speed up the test
     with PortalAlarmDisabled(self.portal):
@@ -385,18 +1731,92 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
         "root_instance_title": instance.getSpecialiseValue().getTitle(),
         "ip_list":
           [
-            [
-              x.getNetworkInterface(''),
-              x.getIpAddress()
-            ] for x in partition.contentValues(portal_type='Internet Protocol Address')
-          ],
-        "full_ip_list": [],
-        "sla_parameters": instance.getSlaXmlAsDict(),
-        "compute_node_id": partition.getParentValue().getReference(),
-        "compute_partition_id": partition.getReference(),
-        "processing_timestamp": instance.getSlapTimestamp(),
-        "access_status_message": instance.getTextAccessStatus(),
-        #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
-        "portal_type": instance.getPortalType(),
-      }, byteify(json.loads(response.getBody())))
-      self.assertEqual(response.getStatus(), 200)
+            x.getNetworkInterface(''),
+            x.getIpAddress()
+          ] for x in partition.contentValues(portal_type='Internet Protocol Address')
+        ],
+      "full_ip_list": [],
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      "processing_timestamp": instance.getSlapTimestamp(),
+      "access_status_message": instance.getTextAccessStatus(),
+      #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+      "portal_type": instance.getPortalType(),
+    }, byteify(json.loads(response.getBody())))
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_PersonAccess_37_ComputeNodeSupply(self):
+    software_url = 'live💩é /?%%20_test_url_%s' % self.generateNewId()
+    response = self.callJsonRpcWebService(
+      "slapos.post.software_installation",
+      {
+        "portal_type": "Software Installation",
+        "compute_node_id": self.compute_node.getReference(),
+        "software_release_uri": software_url
+      },
+      self.person_user_id
+    )
+
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      byteify(json.loads(response.getBody())),
+      {
+        'type': 'success-type',
+        'title': "query completed",
+        'status': 200
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    self.tic()
+    software_installation = self.portal.portal_catalog.getResultValue(
+      portal_type='Software Installation',
+      aggregate__uid=self.compute_node.getUid()
+    )
+    self.assertTrue(software_installation is not None)
+    self.assertEqual(software_installation.getUrlString(), software_url)
+    self.assertEqual(software_installation.getSlapState(), 'start_requested')
+
+  def test_PersonAccess_38_getHateoasUrl_NotConfigured(self):
+    for preference in \
+      self.portal.portal_catalog(portal_type="System Preference"):
+      preference = preference.getObject()
+      if preference.getPreferenceState() == 'global':
+        preference.setPreferredHateoasUrl('')
+    self.tic()
+    self.login(self.person_user_id)
+    self.assertRaises(NotFound, self.portal_slap.getHateoasUrl)
+
+  def test_PersonAccess_39_getHateoasUrl(self):
+    for preference in \
+      self.portal.portal_catalog(portal_type="System Preference"):
+      preference = preference.getObject()
+      if preference.getPreferenceState() == 'global':
+        preference.setPreferredHateoasUrl('foo')
+    self.tic()
+    self.login(self.person_user_id)
+    response = self.portal_slap.getHateoasUrl()
+    self.assertEqual(200, response.status)
+    self.assertEqual('foo', response.body)
+
+  def test_PersonAccess_40_getJIOAPIUrl_NotConfigured(self):
+    for preference in \
+      self.portal.portal_catalog(portal_type="System Preference"):
+      preference = preference.getObject()
+      if preference.getPreferenceState() == 'global':
+        preference.setPreferredJioApiUrl('')
+    self.tic()
+    self.login(self.person_user_id)
+    self.assertRaises(NotFound, self.portal_slap.getJIOAPIUrl)
+
+  def test_PersonAccess_41_getJIOAPIUrl(self):
+    for preference in \
+      self.portal.portal_catalog(portal_type="System Preference"):
+      preference = preference.getObject()
+      if preference.getPreferenceState() == 'global':
+        preference.setPreferredJioApiUrl('bar')
+    self.tic()
+    self.login(self.person_user_id)
+    response = self.portal_slap.getJIOAPIUrl()
+    self.assertEqual(200, response.status)
+    self.assertEqual('bar', response.body)

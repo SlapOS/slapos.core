@@ -1434,19 +1434,28 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
 
   def test_PersonAccess_30_computerBang(self):
     error_log = 'Please force slapos node rerun'
-    with PinnedDateTime(self, DateTime('2020/05/19')):
-      response = self.callJsonRpcWebService(
-        "slapos.put.compute_node",
-        {
-          "compute_node_id": self.compute_node_id,
-          "portal_type": "Compute Node",
-          "bang_status_message": error_log,
-        },
-        self.person_user_id
-      )
+    # disable alarms to speed up the test
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      person = self.makePerson(project)
+      self.addProjectProductionManagerAssignment(person, project)
+      person_user_id = person.getUserId()
+      compute_node, _ = self.addComputeNodeAndPartition(project)
+      self.tic()
+
+      with PinnedDateTime(self, DateTime('2020/05/19')):
+        response = self.callJsonRpcWebService(
+          "slapos.put.compute_node",
+          {
+            "compute_node_id": compute_node.getReference(),
+            "portal_type": "Compute Node",
+            "bang_status_message": error_log,
+          },
+          person_user_id
+        )
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
-      'compute_node_id': self.compute_node.getReference(),
+      'compute_node_id': compute_node.getReference(),
       'date': '2020-05-19T00:00:00+00:00',
       'portal_type': 'Compute Node',
       'success': 'Done'
@@ -1454,11 +1463,11 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(response.getStatus(), 200)
 
     portal_workflow = self.portal.portal_workflow
-    comment = portal_workflow.getInfoFor(ob=self.compute_node,
+    comment = portal_workflow.getInfoFor(ob=compute_node,
                                          name='comment',
                                          wf_id='compute_node_slap_interface_workflow')
     self.assertEqual(comment, error_log)
-    action_id = portal_workflow.getInfoFor(ob=self.compute_node,
+    action_id = portal_workflow.getInfoFor(ob=compute_node,
                                            name='action',
                                            wf_id='compute_node_slap_interface_workflow')
     self.assertEqual(action_id, 'report_compute_node_bang')

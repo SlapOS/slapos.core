@@ -1578,8 +1578,10 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(response.getStatus(), 200)
 
   def test_PersonAccess_33_softwareInstanceRename(self):
-    self._makeComplexComputeNode(self.project, person=self.person)
-    instance = self.start_requested_software_instance
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    person = instance_tree.getDestinationSectionValue()
+    person_user_id = person.getUserId()
+    instance = instance_tree.getSuccessorValue()
 
     previous_name = instance.getTitle()
     new_name = 'new me'
@@ -1591,7 +1593,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
           "portal_type": "Software Instance",
           "title": new_name,
         },
-        self.person_user_id
+        person_user_id
       )
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({

@@ -28,6 +28,7 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, PinnedDateTime
 from erp5.component.document.OpenAPITypeInformation import byteify
 
+
 from DateTime import DateTime
 
 import hashlib
@@ -1729,22 +1730,22 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
         "parameters": instance.getInstanceXmlAsDict(),
         "shared": False,
         "root_instance_title": instance.getSpecialiseValue().getTitle(),
-        "ip_list":
+        "ip_list": [
           [
             x.getNetworkInterface(''),
             x.getIpAddress()
           ] for x in partition.contentValues(portal_type='Internet Protocol Address')
         ],
-      "full_ip_list": [],
-      "sla_parameters": instance.getSlaXmlAsDict(),
-      "compute_node_id": partition.getParentValue().getReference(),
-      "compute_partition_id": partition.getReference(),
-      "processing_timestamp": instance.getSlapTimestamp(),
-      "access_status_message": instance.getTextAccessStatus(),
-      #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
-      "portal_type": instance.getPortalType(),
-    }, byteify(json.loads(response.getBody())))
-    self.assertEqual(response.getStatus(), 200)
+        "full_ip_list": [],
+        "sla_parameters": instance.getSlaXmlAsDict(),
+        "compute_node_id": partition.getParentValue().getReference(),
+        "compute_partition_id": partition.getReference(),
+        "processing_timestamp": instance.getSlapTimestamp(),
+        "access_status_message": instance.getTextAccessStatus(),
+        #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
+        "portal_type": instance.getPortalType(),
+      }, byteify(json.loads(response.getBody())))
+      self.assertEqual(response.getStatus(), 200)
 
   def test_PersonAccess_37_ComputeNodeSupply(self):
     software_url = 'live💩é /?%%20_test_url_%s' % self.generateNewId()

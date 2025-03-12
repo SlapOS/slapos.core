@@ -1512,8 +1512,14 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
 
 
   def test_PersonAccess_32_softwareInstanceBang(self):
-    self._makeComplexComputeNode(self.project, person=self.person)
-    instance = self.start_requested_software_instance
+    _, _, _, _, partition, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    person = instance_tree.getDestinationSectionValue()
+    person_user_id = person.getUserId()
+    instance = instance_tree.getSuccessorValue()
+    partition.edit(
+      default_network_address_ip_address='ip_address_1',
+      default_network_address_netmask='netmask_1'
+    )
 
     error_log = 'Please force slapos instance rerun'
     with PinnedDateTime(self, DateTime('2020/05/19')):
@@ -1525,7 +1531,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
           "reported_state": "bang",
           "status_message": error_log
         },
-        self.person_user_id
+        person_user_id
       )
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
@@ -1552,7 +1558,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
         "portal_type": "Software Instance",
         "reference": instance.getReference(),
       },
-      self.person_user_id
+      person_user_id
     )
     self.assertEqual('application/json', response.headers.get('content-type'))
     partition = instance.getAggregateValue(portal_type="Compute Partition")

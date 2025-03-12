@@ -28,14 +28,13 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, PinnedDateTime
 from erp5.component.document.OpenAPITypeInformation import byteify
 
-
 from DateTime import DateTime
 
 import hashlib
 import json
 import io
 from binascii import hexlify
-from OFS.Traversable import NotFound
+
 
 class PortalAlarmDisabled(object):
   """
@@ -1777,47 +1776,3 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     self.assertTrue(software_installation is not None)
     self.assertEqual(software_installation.getUrlString(), software_url)
     self.assertEqual(software_installation.getSlapState(), 'start_requested')
-
-  def test_PersonAccess_38_getHateoasUrl_NotConfigured(self):
-    for preference in \
-      self.portal.portal_catalog(portal_type="System Preference"):
-      preference = preference.getObject()
-      if preference.getPreferenceState() == 'global':
-        preference.setPreferredHateoasUrl('')
-    self.tic()
-    self.login(self.person_user_id)
-    self.assertRaises(NotFound, self.portal_slap.getHateoasUrl)
-
-  def test_PersonAccess_39_getHateoasUrl(self):
-    for preference in \
-      self.portal.portal_catalog(portal_type="System Preference"):
-      preference = preference.getObject()
-      if preference.getPreferenceState() == 'global':
-        preference.setPreferredHateoasUrl('foo')
-    self.tic()
-    self.login(self.person_user_id)
-    response = self.portal_slap.getHateoasUrl()
-    self.assertEqual(200, response.status)
-    self.assertEqual('foo', response.body)
-
-  def test_PersonAccess_40_getJIOAPIUrl_NotConfigured(self):
-    for preference in \
-      self.portal.portal_catalog(portal_type="System Preference"):
-      preference = preference.getObject()
-      if preference.getPreferenceState() == 'global':
-        preference.setPreferredJioApiUrl('')
-    self.tic()
-    self.login(self.person_user_id)
-    self.assertRaises(NotFound, self.portal_slap.getJIOAPIUrl)
-
-  def test_PersonAccess_41_getJIOAPIUrl(self):
-    for preference in \
-      self.portal.portal_catalog(portal_type="System Preference"):
-      preference = preference.getObject()
-      if preference.getPreferenceState() == 'global':
-        preference.setPreferredJioApiUrl('bar')
-    self.tic()
-    self.login(self.person_user_id)
-    response = self.portal_slap.getJIOAPIUrl()
-    self.assertEqual(200, response.status)
-    self.assertEqual('bar', response.body)

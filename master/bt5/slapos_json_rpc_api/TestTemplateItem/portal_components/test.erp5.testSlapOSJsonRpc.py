@@ -417,7 +417,12 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(software_installation.getValidationState(), "invalidated")
 
   def test_ComputeNodeAccess_07_availableSoftwareRelease(self):
-    self._makeComplexComputeNode(self.project)
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      self.compute_node, _ = self.addComputeNodeAndPartition(project)
+      self._makeComplexComputeNode(project)
+    compute_node_reference = self.compute_node.getReference()
+    compute_node_user_id = self.compute_node.getUserId()
 
     software_installation = self.start_requested_software_installation
     self.assertEqual(software_installation.getValidationState(), "validated")
@@ -427,15 +432,15 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       response = self.callJsonRpcWebService("slapos.put.software_installation", {
         "portal_type": "Software Installation",
         "software_release_uri": software_release_uri,
-        "compute_node_id": self.compute_node_id,
+        "compute_node_id": compute_node_reference,
         "reported_state": "available",
       },
-          self.compute_node_user_id)
+          compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
       byteify(json.loads(response.getBody())),
       {
-        'compute_node_id': self.compute_node_id,
+        'compute_node_id': compute_node_reference,
         'date': '2020-05-19T00:00:00+00:00',
         'portal_type': 'Software Installation',
         'software_release_uri': software_release_uri,
@@ -446,9 +451,9 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     response = self.callJsonRpcWebService("slapos.get.software_installation", {
       "portal_type": "Software Installation",
       "software_release_uri": software_release_uri,
-      "compute_node_id": self.compute_node_id
+      "compute_node_id": compute_node_reference
     },
-        self.compute_node_user_id)
+        compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
       byteify(json.loads(response.getBody())),

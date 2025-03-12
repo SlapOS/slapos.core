@@ -1464,15 +1464,22 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(action_id, 'report_compute_node_bang')
 
   def test_PersonAccess_31_getInstanceWithSharedInstance(self, with_slave=True):
-    self._makeComplexComputeNode(self.project, person=self.person, with_slave=with_slave)
-    instance = self.start_requested_software_instance
+    _, _, _, _, partition, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', shared=with_slave)
+    person = instance_tree.getDestinationSectionValue()
+    person_user_id = person.getUserId()
+    instance = instance_tree.getSuccessorValue()
+    partition.edit(
+      default_network_address_ip_address='ip_address_1',
+      default_network_address_netmask='netmask_1'
+    )
+
     response = self.callJsonRpcWebService(
       "slapos.get.software_instance",
       {
         "portal_type": "Software Instance",
         "reference": instance.getReference(),
       },
-      self.person_user_id
+      person_user_id
     )
     self.assertEqual('application/json',
         response.headers.get('content-type'))
@@ -1487,7 +1494,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       "state": self.getAPIStateFromSlapState(instance.getSlapState()),
       "connection_parameters": instance.getConnectionXmlAsDict(),
       "parameters": instance.getInstanceXmlAsDict(),
-      "shared": False,
+      "shared": with_slave,
       "root_instance_title": instance.getSpecialiseValue().getTitle(),
       "ip_list":
         [
@@ -1503,7 +1510,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": instance.getTextAccessStatus(),
       #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
-      "portal_type": instance.getPortalType(),
+      "portal_type": "Software Instance",
     }, byteify(json.loads(response.getBody())))
     self.assertEqual(response.getStatus(), 200)
 

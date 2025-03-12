@@ -700,8 +700,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.test_InstanceAccess_11_getFullComputerInformationWithSharedInstance(with_slave=False)
 
   def test_InstanceAccess_12_getSharedInstance(self):
-    self._makeComplexComputeNode(self.project, with_slave=True)
-    instance = self.start_requested_software_instance
+    _, _, _, _, partition, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', shared=True)
+    instance = partition.getAggregateRelatedValue(portal_type='Software Instance')
+    shared_instance = instance_tree.getSuccessorValue()
+
     # Check Slaves
     # XXX It should be the same portal_type
     response = self.callJsonRpcWebService("slapos.allDocs.instance", {
@@ -711,7 +713,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
     shared_instance_list_response = byteify(json.loads(response.getBody()))
-    shared_instance = self.start_requested_slave_instance
     #shared_instance_revision = shared_instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl())
     self.assertEqual(shared_instance_list_response,
     {
@@ -720,7 +721,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
                             'host_instance_reference': instance.getReference(),
                             'portal_type': 'Slave Instance'},
       'result_list': [{#'api_revision': shared_instance_revision,
-                      'compute_partition_id': 'partition1',
+                      'compute_partition_id': partition.getReference(),
                       'get_parameters': {'portal_type': 'Slave Instance',
                                           'reference': shared_instance.getReference()},
                       'portal_type': 'Slave Instance',

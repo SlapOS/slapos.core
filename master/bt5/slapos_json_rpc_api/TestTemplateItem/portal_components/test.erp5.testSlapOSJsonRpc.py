@@ -563,19 +563,20 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
 
 class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
   def test_InstanceAccess_10_getComputerPartitionCertificate(self):
-    self._makeComplexComputeNode(self.project)
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    instance = instance_tree.getSuccessorValue()
 
     response = self.callJsonRpcWebService("slapos.get.software_instance_certificate", {
       "portal_type": "Software Instance Certificate Record",
-      "reference": self.start_requested_software_instance.getReference(),
-    }, self.start_requested_software_instance.getUserId())
+      "reference": instance.getReference(),
+    }, instance.getUserId())
 
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
-      "key" :self.start_requested_software_instance.getSslKey(),
-      "certificate": self.start_requested_software_instance.getSslCertificate(),
+      "key" :instance.getSslKey(),
+      "certificate": instance.getSslCertificate(),
       "portal_type": "Software Instance Certificate Record",
-      "reference": self.start_requested_software_instance.getReference(),
+      "reference": instance.getReference(),
     }, byteify(json.loads(response.getBody())))
     self.assertEqual(response.getStatus(), 200)
 
@@ -768,7 +769,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
   def test_InstanceAccess_13_setConnectionXml_withSlave(self):
     # XXX CLN No idea how to deal with ascii
-    self._makeComplexComputeNode(self.project, with_slave=True)
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    instance = instance_tree.getSuccessorValue()
     connection_parameters_dict = {
       "p1e": "v1e",
       "p2e": "v2e",
@@ -784,29 +786,30 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       response = self.callJsonRpcWebService(
         "slapos.put.software_instance",
         {
-          "reference": self.start_requested_slave_instance.getReference(),
+          "reference": instance.getReference(),
           "portal_type": "Software Instance",
           "connection_parameters": connection_parameters_dict,
         },
-        self.start_requested_software_instance.getUserId()
+        instance.getUserId()
       )
 
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
       byteify(json.loads(response.getBody())),
       {
-        'reference': self.start_requested_slave_instance.getReference(),
+        'reference': instance.getReference(),
         'date': '2020-05-19T00:00:00+00:00',
         'portal_type': 'Software Instance',
         'success': 'Done'
       })
     self.assertEqual(response.getStatus(), 200)
 
-    self.assertEqual(self.start_requested_slave_instance.getConnectionXml(), stored_xml)
+    self.assertEqual(instance.getConnectionXml(), stored_xml)
 
   def test_InstanceAccess_14_setConnectionXml(self):
     # XXX CLN No idea how to deal with ascii
-    self._makeComplexComputeNode(self.project)
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    instance = instance_tree.getSuccessorValue()
     connection_parameters_dict = {
       "p1e": "v1e",
       "p2e": "v2e",
@@ -822,29 +825,29 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       response = self.callJsonRpcWebService(
         "slapos.put.software_instance",
         {
-          "reference": self.start_requested_software_instance.getReference(),
+          "reference": instance.getReference(),
           "portal_type": "Software Instance",
           "connection_parameters": connection_parameters_dict,
         },
-        self.start_requested_software_instance.getUserId()
+        instance.getUserId()
       )
 
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
       byteify(json.loads(response.getBody())),
       {
-        'reference': self.start_requested_software_instance.getReference(),
+        'reference': instance.getReference(),
         'date': '2020-05-19T00:00:00+00:00',
         'portal_type': 'Software Instance',
         'success': 'Done'
       })
     self.assertEqual(response.getStatus(), 200)
 
-    self.assertEqual(self.start_requested_software_instance.getConnectionXml(), stored_xml)
+    self.assertEqual(instance.getConnectionXml(), stored_xml)
 
   def test_InstanceAccess_15_softwareInstanceError(self):
-    self._makeComplexComputeNode(self.project)
-    instance = self.start_requested_software_instance
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    instance = instance_tree.getSuccessorValue()
 
     error_log = 'The error'
     with PinnedDateTime(self, DateTime('2020/05/19')):
@@ -908,8 +911,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(response.getStatus(), 200)
 
   def test_InstanceAccess_16_softwareInstanceError_twice(self):
-    self._makeComplexComputeNode(self.project)
-    instance = self.start_requested_software_instance
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    instance = instance_tree.getSuccessorValue()
 
     # First call
     error_log = 'The error'
@@ -1035,8 +1038,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(response.getStatus(), 200)
 
   def test_InstanceAccess_17_softwareInstanceBang(self):
-    self._makeComplexComputeNode(self.project)
-    instance = self.start_requested_software_instance
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    instance = instance_tree.getSuccessorValue()
 
     error_log = 'Please force slapos instance rerun'
     with PinnedDateTime(self, DateTime('2020/05/19')):
@@ -1084,7 +1087,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_node_id": partition.getParentValue().getReference(),
       "compute_partition_id": partition.getReference(),
       'full_ip_list': [],
-      'ip_list': [['', 'ip_address_1']],
+      'ip_list': [],
       'portal_type': 'Software Instance',
       'processing_timestamp': 1589846400000000,
       'reference': instance.getReference(),
@@ -1101,8 +1104,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(response.getStatus(), 200)
 
   def test_InstanceAccess_18_softwareInstanceRename(self):
-    self._makeComplexComputeNode(self.project)
-    instance = self.start_requested_software_instance
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    instance = instance_tree.getSuccessorValue()
 
     previous_name = instance.getTitle()
     new_name = 'new me'

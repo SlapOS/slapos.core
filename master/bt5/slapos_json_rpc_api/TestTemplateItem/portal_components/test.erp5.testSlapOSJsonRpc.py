@@ -361,7 +361,12 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(response.getStatus(), 403)
 
   def test_ComputeNodeAccess_05_destroyedSoftwareRelease_noDestroyRequested(self):
-    self._makeComplexComputeNode(self.project)
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      self.compute_node, _ = self.addComputeNodeAndPartition(project)
+      self._makeComplexComputeNode(project)
+    compute_node_reference = self.compute_node.getReference()
+    compute_node_user_id = self.compute_node.getUserId()
 
     software_installation = self.start_requested_software_installation
     software_release_uri = software_installation.getUrlString()
@@ -369,11 +374,11 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       "slapos.put.software_installation",
       {
         "software_release_uri": software_release_uri,
-        "compute_node_id": self.compute_node_id,
+        "compute_node_id": compute_node_reference,
         "reported_state": "destroyed",
         "portal_type": "Software Installation",
       },
-      self.compute_node_user_id
+      compute_node_user_id
     )
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(

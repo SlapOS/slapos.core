@@ -581,8 +581,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(response.getStatus(), 200)
 
   def test_InstanceAccess_11_getFullComputerInformationWithSharedInstance(self, with_slave=True):
-    self._makeComplexComputeNode(self.project, with_slave=with_slave)
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      self.compute_node, _ = self.addComputeNodeAndPartition(project)
+      self._makeComplexComputeNode(project, with_slave=with_slave)
     instance = self.start_requested_software_instance
+    compute_node_reference = self.compute_node.getReference()
 
     # Check result_list match instance_list=
     expected_instance_list = [{
@@ -600,13 +604,13 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     }]
 
     response = self.callJsonRpcWebService("slapos.allDocs.instance", {
-      "compute_node_id": self.compute_node_id,
+      "compute_node_id": compute_node_reference,
       "portal_type": "Software Instance",
     }, instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
       'current_page_full': False,
-      'next_page_request': {'compute_node_id': self.compute_node_id,
+      'next_page_request': {'compute_node_id': compute_node_reference,
                              'portal_type': 'Software Instance'},
       "result_list": expected_instance_list
     }, byteify(json.loads(response.getBody())))

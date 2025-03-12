@@ -1,4 +1,4 @@
-software_instance = context.jIOWebSection_getObjectFromData(data_dict)
+software_instance = context.JSONRPCService_getObjectFromData(data_dict)
 
 # software_instance = context.getParentValue()
 return {

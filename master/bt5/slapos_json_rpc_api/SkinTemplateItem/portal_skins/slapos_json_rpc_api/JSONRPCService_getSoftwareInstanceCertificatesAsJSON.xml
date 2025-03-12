@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SoftwareInstance_updateFromDict</string> </value>
+            <value> <string>JSONRPCService_getSoftwareInstanceCertificatesAsJSON</string> </value>
         </item>
       </dictionary>
     </pickle>

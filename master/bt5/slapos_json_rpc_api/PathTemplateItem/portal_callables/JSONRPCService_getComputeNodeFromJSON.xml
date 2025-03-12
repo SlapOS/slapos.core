@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>after_method_id</string> </key>
-            <value> <string>jIOWebSection_asJSONText</string> </value>
+            <value> <string>JSONRPCService_asJSONText</string> </value>
         </item>
         <item>
             <key> <string>content_type</string> </key>
@@ -16,7 +16,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>ComputeNode_getFromJSON</string> </value>
+            <value> <string>JSONRPCService_getComputeNodeFromJSON</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -26,7 +26,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputeNode_getFromJSON</string> </value>
+            <value> <string>JSONRPCService_getComputeNodeFromJSON</string> </value>
         </item>
         <item>
             <key> <string>output_schema</string> </key>
@@ -63,6 +63,12 @@
     "portal_type"\n
   ]\n
 }</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>version</string> </key>

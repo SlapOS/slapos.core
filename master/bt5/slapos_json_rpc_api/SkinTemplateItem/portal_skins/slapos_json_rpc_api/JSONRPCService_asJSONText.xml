@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>data_dict, json_form</string> </value>
+            <value> <string>data_dict, form_reference</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SoftwareInstallation_updateFromDict</string> </value>
+            <value> <string>JSONRPCService_asJSONText</string> </value>
         </item>
       </dictionary>
     </pickle>

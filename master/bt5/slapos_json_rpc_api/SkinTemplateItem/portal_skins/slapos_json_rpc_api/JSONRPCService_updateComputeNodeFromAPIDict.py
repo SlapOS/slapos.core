@@ -1,4 +1,4 @@
-compute_node = context.jIOWebSection_getObjectFromData(data_dict)
+compute_node = context.JSONRPCService_getObjectFromData(data_dict)
 
 def compareAndUpdateAddressList(partition, partition_ip_list):
   to_delete_ip_id_list = []

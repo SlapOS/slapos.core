@@ -4,7 +4,7 @@ class RequestFailsError(JsonRpcAPIError):
   type = "SUPPLY-FAILED"
   status = 403
 
-compute_node = context.jIOWebSection_getObjectFromData({
+compute_node = context.JSONRPCService_getObjectFromData({
   'portal_type': 'Compute Node',
   'compute_node_id': data_dict['compute_node_id']
 })

@@ -1,6 +1,6 @@
 from erp5.component.document.JsonRpcAPIService import JsonRpcAPIError
 
-software_installation = context.jIOWebSection_getObjectFromData(data_dict)
+software_installation = context.JSONRPCService_getObjectFromData(data_dict)
 
 class WrongStateError(JsonRpcAPIError):
   type = "SOFTWARE-INSTALLATION-WRONG-STATE"

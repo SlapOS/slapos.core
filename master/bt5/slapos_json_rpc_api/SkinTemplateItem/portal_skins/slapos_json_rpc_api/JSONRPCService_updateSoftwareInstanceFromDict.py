@@ -4,7 +4,7 @@ class WrongReportedStateError(JsonRpcAPIError):
   type = "SOFTWARE-INSTANCE-WRONG-REPORTED-STATE"
   status = 403
 
-software_instance = context.jIOWebSection_getObjectFromData(data_dict)
+software_instance = context.JSONRPCService_getObjectFromData(data_dict)
 
 castToStr = context.Base_castDictToXMLString
 if "connection_parameters" in data_dict:

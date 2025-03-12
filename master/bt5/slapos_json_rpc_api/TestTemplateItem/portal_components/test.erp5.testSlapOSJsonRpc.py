@@ -118,7 +118,12 @@ class TestSlapOSJsonRpcMixin(SlapOSTestCaseMixin):
 
 class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
   def test_ComputeNodeAccess_01_getFullComputerInformationInstanceList(self):
-    self._makeComplexComputeNode(self.project, with_slave=True)
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      self.compute_node, _ = self.addComputeNodeAndPartition(project)
+      self._makeComplexComputeNode(project, with_slave=True)
+    compute_node_reference = self.compute_node.getReference()
+    compute_node_user_id = self.compute_node.getUserId()
 
     instance_1 = self.compute_node.partition1.getAggregateRelatedValue(portal_type='Software Instance')
     instance_2 = self.compute_node.partition2.getAggregateRelatedValue(portal_type='Software Instance')
@@ -147,9 +152,9 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       })
 
     response = self.callJsonRpcWebService('slapos.allDocs.instance', {
-      "compute_node_id": self.compute_node_id,
+      "compute_node_id": compute_node_reference,
       "portal_type": "Software Instance",
-    }, self.compute_node_user_id)
+    }, compute_node_user_id)
 
     self.assertEqual('application/json', response.headers.get('content-type'))
     instance_list_response = byteify(json.loads(response.getBody()))
@@ -158,7 +163,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       instance_list_response,
       {
         'current_page_full': False,
-        'next_page_request': {'compute_node_id': self.compute_node.getReference(),
+        'next_page_request': {'compute_node_id': compute_node_reference,
                               'portal_type': 'Software Instance'},
         'result_list': expected_instance_list
       })
@@ -173,7 +178,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       response = self.callJsonRpcWebService(
         'slapos.get.software_instance',
         instance_resut_dict["get_parameters"],
-        self.compute_node_user_id
+        compute_node_user_id
       )
       self.assertEqual('application/json', response.headers.get('content-type'))
       self.assertEqual(
@@ -208,7 +213,12 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       self.assertEqual(response.getStatus(), 200)
 
   def test_ComputeNodeAccess_01_bis_getFullComputerInformationSoftwareList(self):
-    self._makeComplexComputeNode(self.project, with_slave=True)
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      self.compute_node, _ = self.addComputeNodeAndPartition(project)
+      self._makeComplexComputeNode(project, with_slave=True)
+    compute_node_reference = self.compute_node.getReference()
+    compute_node_user_id = self.compute_node.getUserId()
 
     software_list = [self.start_requested_software_installation, self.destroy_requested_software_installation]
     # This is the expected instance list, it is sorted by api_revision
@@ -221,18 +231,18 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
         "get_parameters": {
           "portal_type": "Software Installation",
           "software_release_uri": software.getUrlString(),
-          "compute_node_id": self.compute_node_id
+          "compute_node_id": compute_node_reference
         },
         "portal_type": "Software Installation",
         "software_release_uri": software.getUrlString(),
         "state": "available" if software.getSlapState() == "start_requested" else "destroyed",
-        "compute_node_id": self.compute_node_id,
+        "compute_node_id": compute_node_reference,
       })
 
     response = self.callJsonRpcWebService('slapos.allDocs.software_installation', {
-      "compute_node_id": self.compute_node_id,
+      "compute_node_id": compute_node_reference,
       "portal_type": "Software Installation",
-    }, self.compute_node_user_id)
+    }, compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
     software_list_response = byteify(json.loads(response.getBody()))
     # self.assertTrue(software_list_response["$schema"].endswith("jIOWebSection_searchSoftwareInstallationFromJSON/getOutputJSONSchema"))
@@ -240,7 +250,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       software_list_response,
       {
         'current_page_full': False,
-        'next_page_request': {'compute_node_id': self.compute_node.getReference(),
+        'next_page_request': {'compute_node_id': compute_node_reference,
                               'portal_type': 'Software Installation'},
         'result_list': expected_software_list
       })
@@ -253,7 +263,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       response = self.callJsonRpcWebService(
         "slapos.get.software_installation",
         software_resut_dict["get_parameters"],
-        self.compute_node_user_id
+        compute_node_user_id
       )
       # Check Data is correct
       status_dict = software.getAccessStatus()
@@ -266,7 +276,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
           "portal_type": "Software Installation",
           "software_release_uri": software.getUrlString(),
           "state": "available" if software.getSlapState() == "start_requested" else "destroyed",
-          "compute_node_id": self.compute_node_id,
+          "compute_node_id": compute_node_reference,
           "reported_state": status_dict.get("state"),
           "status_message": status_dict.get("text"),
         })

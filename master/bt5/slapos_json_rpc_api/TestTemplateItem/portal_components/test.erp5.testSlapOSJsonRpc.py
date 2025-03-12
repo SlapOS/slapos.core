@@ -1431,11 +1431,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
 
 class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
-  def afterSetUp(self):
-    TestSlapOSJsonRpcMixin.afterSetUp(self)
-
-    self.person_reference = self.person.getReference()
-    self.person_user_id = self.person.getUserId()
 
   def test_PersonAccess_30_computerBang(self):
     error_log = 'Please force slapos node rerun'

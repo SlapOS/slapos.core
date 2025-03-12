@@ -1136,8 +1136,15 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(instance.getTitle(), new_name)
 
   def test_InstanceAccess_19_destroyedComputePartition(self):
-    self._makeComplexComputeNode(self.project)
-    instance = self.destroy_requested_software_instance
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    instance = instance_tree.getSuccessorValue()
+    instance.requestDestroy(**{
+      'instance_xml': instance.getTextContent(),
+      'software_type': instance.getSourceReference(),
+      'sla_xml': instance.getSlaXml(),
+      'software_release': instance.getUrlString(),
+      'shared': False,
+    })
 
     with PinnedDateTime(self, DateTime('2020/05/19')):
       response = self.callJsonRpcWebService(

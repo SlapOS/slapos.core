@@ -273,20 +273,27 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       self.assertEqual(response.getStatus(), 200)
 
   def test_ComputeNodeAccess_02_computerBang(self):
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      self.compute_node, _ = self.addComputeNodeAndPartition(project)
+      self._makeComplexComputeNode(project)
+    compute_node_reference = self.compute_node.getReference()
+    compute_node_user_id = self.compute_node.getUserId()
+
     error_log = 'Please force slapos node rerun'
     with PinnedDateTime(self, DateTime('2020/05/19')):
       response = self.callJsonRpcWebService(
         "slapos.put.compute_node",
         {
-          "compute_node_id": self.compute_node_id,
+          "compute_node_id": compute_node_reference,
           "portal_type": "Compute Node",
           "bang_status_message": error_log,
         },
-        self.compute_node_user_id
+        compute_node_user_id
       )
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
-      'compute_node_id': self.compute_node.getReference(),
+      'compute_node_id': compute_node_reference,
       'date': '2020-05-19T00:00:00+00:00',
       'portal_type': 'Compute Node',
       'success': 'Done'

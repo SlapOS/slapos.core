@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>data_dict, json_form</string> </value>
+            <value> <string>data_dict, form_reference, approve_registration=True</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>jIOWebSection_searchComputeNode</string> </value>
+            <value> <string>JSONRPCService_createComputeNode</string> </value>
         </item>
       </dictionary>
     </pickle>

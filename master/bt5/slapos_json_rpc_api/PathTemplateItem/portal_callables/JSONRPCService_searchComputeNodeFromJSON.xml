@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>after_method_id</string> </key>
-            <value> <string>jIOWebSection_searchSoftwareInstallation</string> </value>
+            <value> <string>JSONRPCService_searchComputeNode</string> </value>
         </item>
         <item>
             <key> <string>content_type</string> </key>
@@ -16,7 +16,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>jIOWebSection_searchSoftwareInstallationFromJSON</string> </value>
+            <value> <string>JSONRPCService_searchComputeNodeFromJSON</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -26,7 +26,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>jIOWebSection_searchSoftwareInstallationFromJSON</string> </value>
+            <value> <string>JSONRPCService_searchComputeNodeFromJSON</string> </value>
         </item>
         <item>
             <key> <string>output_schema</string> </key>
@@ -37,15 +37,15 @@
   "type": "object",\n
   "additionalProperties": false,\n
   "properties": {\n
-    "next_page_request": {\n
-      "title": "Next Page Request",\n
-      "description": "Use the content of this object with all docs to get to the next page of this research",\n
-      "type": "object"\n
-    },\n
     "current_page_full": {\n
       "title": "Current Page Full",\n
       "description": "If set to true, the current page has the max quantity of results for one page, the next page might contain more results.",\n
       "type": "boolean"\n
+    },\n
+    "next_page_request": {\n
+      "title": "Next Page Request",\n
+      "description": "Use the content of this object with all docs to get to the next page of this research",\n
+      "type": "object"\n
     },\n
     "result_list": {\n
       "title": "Result List",\n
@@ -53,30 +53,13 @@
       "type": "array",\n
       "items": {\n
         "type": "object",\n
+        "additionalProperties": false,\n
         "title": "Item",\n
         "properties": {\n
-          "get_parameters": {\n
-            "title": "Get Parameters",\n
-            "description": "Copy Paste the content of this object in order to get the object",\n
-            "type": "object",\n
-            "software_release_uri": {\n
-              "title": "Software Release URI",\n
-              "type": "string"\n
-            },\n
-            "compute_node_id": {\n
-              "title": "Compute Node ID",\n
-              "type": "string",\n
-              "description": "The Id of the compute node, example: COMP-1234"\n
-            },\n
-            "portal_type": {\n
-              "title": "Portal Type",\n
-              "const": "Software Installation",\n
-              "type": "string"\n
-            }\n
-          },\n
-          "software_release_uri": {\n
-            "title": "Software Release URI",\n
-            "type": "string"\n
+          "title": {\n
+            "title": "Compute Node Title",\n
+            "type": "string",\n
+            "maxLength": 200\n
           },\n
           "compute_node_id": {\n
             "title": "Compute Node ID",\n
@@ -85,7 +68,7 @@
           },\n
           "portal_type": {\n
             "title": "Portal Type",\n
-            "const": "Software Installation",\n
+            "const": "Compute Node",\n
             "type": "string"\n
           },\n
           "api_revision": {\n
@@ -93,15 +76,32 @@
             "type": "string",\n
             "description": "The API Revision is set by the master node to mark when the element was last processed. It is incremental. If revision has changed, critical data has been updated"\n
           },\n
-          "state": {\n
-            "title": "Requested State",\n
-            "type": "string",\n
-            "enum": ["available", "destroyed"],\n
-            "description": "State of the requested software",\n
-            "default": "available"\n
+          "get_parameters": {\n
+            "title": "Get Parameters",\n
+            "description": "Copy Paste the content of this object in order to get the object",\n
+            "type": "object",\n
+            "additionalProperties": false,\n
+            "properties": {\n
+              "compute_node_id": {\n
+                "title": "Compute Node ID",\n
+                "type": "string",\n
+                "description": "The Id of the compute node, example: COMP-1234"\n
+              },\n
+              "portal_type": {\n
+                "title": "Portal Type",\n
+                "const": "Compute Node",\n
+                "type": "string"\n
+              }\n
+            },\n
+            "required": [\n
+              "title",\n
+              "compute_node_id",\n
+              "portal_type"\n
+            ]\n
           }\n
         },\n
         "required": [\n
+          "title",\n
           "compute_node_id",\n
           "portal_type",\n
           "get_parameters"\n
@@ -123,15 +123,15 @@
             <key> <string>text_content</string> </key>
             <value> <string>{\n
   "$schema": "http://json-schema.org/draft-07/schema#",\n
-  "$id": "software-instance-base-schema.json",\n
-  "title": "Software Instance",\n
-  "description": "Software Instance",\n
+  "title": "Search Compute Node",\n
+  "description": "JSON Schema to query/search for a Compute Node",\n
   "type": "object",\n
   "additionalProperties": false,\n
   "properties": {\n
-    "software_release_uri": {\n
-      "title": "Software Release URI",\n
-      "type": "string"\n
+    "title": {\n
+      "title": "Compute Node Title",\n
+      "type": "string",\n
+      "maxLength": 200\n
     },\n
     "compute_node_id": {\n
       "title": "Compute Node ID",\n
@@ -145,13 +145,19 @@
     },\n
     "portal_type": {\n
       "title": "Portal Type",\n
-      "const": "Software Installation",\n
+      "const": "Compute Node",\n
       "type": "string"\n
     }\n
   },\n
   "required": ["portal_type"]\n
 }\n
 </string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>version</string> </key>

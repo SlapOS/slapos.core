@@ -1742,32 +1742,41 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       self.assertEqual(response.getStatus(), 200)
 
   def test_PersonAccess_37_ComputeNodeSupply(self):
-    software_url = 'live💩é /?%%20_test_url_%s' % self.generateNewId()
-    response = self.callJsonRpcWebService(
-      "slapos.post.software_installation",
-      {
-        "portal_type": "Software Installation",
-        "compute_node_id": self.compute_node.getReference(),
-        "software_release_uri": software_url
-      },
-      self.person_user_id
-    )
+    # disable alarms to speed up the test
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      person = self.makePerson(project)
+      self.addProjectProductionManagerAssignment(person, project)
+      person_user_id = person.getUserId()
+      compute_node, _ = self.addComputeNodeAndPartition(project)
+      self.tic()
 
-    self.assertEqual('application/json', response.headers.get('content-type'))
-    self.assertEqual(
-      byteify(json.loads(response.getBody())),
-      {
-        'type': 'success-type',
-        'title': "query completed",
-        'status': 200
-      })
-    self.assertEqual(response.getStatus(), 200)
+      software_url = 'live💩é /?%%20_test_url_%s' % self.generateNewId()
+      response = self.callJsonRpcWebService(
+        "slapos.post.software_installation",
+        {
+          "portal_type": "Software Installation",
+          "compute_node_id": compute_node.getReference(),
+          "software_release_uri": software_url
+        },
+        person_user_id
+      )
 
-    self.tic()
-    software_installation = self.portal.portal_catalog.getResultValue(
-      portal_type='Software Installation',
-      aggregate__uid=self.compute_node.getUid()
-    )
-    self.assertTrue(software_installation is not None)
-    self.assertEqual(software_installation.getUrlString(), software_url)
-    self.assertEqual(software_installation.getSlapState(), 'start_requested')
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual(
+        byteify(json.loads(response.getBody())),
+        {
+          'type': 'success-type',
+          'title': "query completed",
+          'status': 200
+        })
+      self.assertEqual(response.getStatus(), 200)
+
+      self.tic()
+      software_installation = self.portal.portal_catalog.getResultValue(
+        portal_type='Software Installation',
+        aggregate__uid=compute_node.getUid()
+      )
+      self.assertTrue(software_installation is not None)
+      self.assertEqual(software_installation.getUrlString(), software_url)
+      self.assertEqual(software_installation.getSlapState(), 'start_requested')

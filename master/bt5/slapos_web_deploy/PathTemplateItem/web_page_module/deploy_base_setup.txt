@@ -30,16 +30,12 @@ function download_playbook {
 # Determine what system we are running on.  This provides ``os_VENDOR``,
 # ``os_RELEASE``, ``os_UPDATE``, ``os_PACKAGE``, ``os_CODENAME``
 # and ``DISTRO``
+is_package_installed lsb-release || install_package lsb-release
 GetDistro
-
-if [[ ${DISTRO} =~ (-.) ]] && [[ -f /etc/debian_version ]]; then
-  apt_get install lsb-release
-  GetDistro
-fi
 
 # Warn users who aren't on an explicitly supported distro, but allow them to
 # override check and attempt installation with ``export FORCE=yes``
-if [[ ! ${DISTRO} =~ (buster|bullseye|bookworm|bionic|focal|jammy|noble|Kylin-v10.|rhel7|Linuxmint-21.1) ]]; then
+if [[ ! ${DISTRO} =~ (buster|bullseye|bookworm|bionic|focal|jammy|noble|Kylin-v10.|rhel7|Linuxmint-21.1|sle) ]]; then
     echo "WARNING: this script has not been tested on $DISTRO"
     if [[ "$FORCE" != "yes" ]]; then
         die $LINENO "If you wish to run this script anyway run with FORCE=yes"
@@ -53,21 +49,20 @@ fi
 
 is_package_installed unzip || install_package unzip
 is_package_installed openssl || install_package openssl
-is_package_installed ansible || install_package ansible
 
-if [[ $DISTRO = sle15.6 ]]; then
-  # Python 3.11 is in a separate module, called Python 3, while the base system has Python 3.6.
-  # If the Python 3 module is enabled, we assume that the user has preference for it.
-  # Otherwise, we install the base packages.
-  is_package_installed python311-pip || is_package_installed python3-pip || install_package python311-pip || install_package python3-pip 
-  pip3 install --upgrade pip
-elif ! is_ubuntu || [[ $DISTRO = wheezy || $DISTRO == jessie || $DISTRO == stretch || $DISTRO == xenial || $DISTRO == bionic ]]; then
+if ! is_suse && ! is_ubuntu || [[ $DISTRO = wheezy || $DISTRO == jessie || $DISTRO == stretch || $DISTRO == xenial || $DISTRO == bionic ]]; then
   is_package_installed python-pip || install_package python-pip
   pip install --upgrade "pip < 21.0"
 else
   # Ansible is using python3 now
   is_package_installed python3-pip || install_package python3-pip
-  pip3 install --upgrade --ignore-installed pip
+  python3 -m pip install --upgrade --ignore-installed pip
+fi
+
+if is_suse; then
+  python3 -m pip install ansible
+else
+  is_package_installed ansible || install_package ansible
 fi
 
 if is_ubuntu && [[ $DISTRO == focal || $DISTRO == buster ]]; then
@@ -190,7 +185,7 @@ ansible localhost -m pip -a name=slapcache --connection=local
 ansible localhost -m pip -a name=requests --connection=local
 
 if [ ! -f /usr/share/ansible_plugins/mitogen.zip ]; then
-    wget -O /usr/share/ansible_plugins/mitogen.zip https://shacache.nxdcdn.com/3a935ff257ddc0ad4e0f23d71681e026f14f309f4bed0a8e2a217da9b294be2c676196703f0dde856ece49d711d0221deae70812f035b24aa5cdd0ca02790e85
+    curl -o /usr/share/ansible_plugins/mitogen.zip https://shacache.nxdcdn.com/3a935ff257ddc0ad4e0f23d71681e026f14f309f4bed0a8e2a217da9b294be2c676196703f0dde856ece49d711d0221deae70812f035b24aa5cdd0ca02790e85
     unzip /usr/share/ansible_plugins/mitogen.zip -d /usr/share/ansible_plugins/mitogen/
     mv /usr/share/ansible_plugins/mitogen/mitogen-*/* /usr/share/ansible_plugins/mitogen/
 fi

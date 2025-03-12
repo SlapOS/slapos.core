@@ -1321,9 +1321,14 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
   def test_InstanceAccess_26_stoppedComputePartition(self):
     with PinnedDateTime(self, DateTime('2020/05/19')):
+      _, _, _, _, partition, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+      instance = instance_tree.getSuccessorValue()
+      partition.edit(
+        default_network_address_ip_address='ip_address_1',
+        default_network_address_netmask='netmask_1'
+      )
+
       # XXX Should reported_state added to Instance returned json?
-      self._makeComplexComputeNode(self.project)
-      instance = self.start_requested_software_instance
       response = self.callJsonRpcWebService(
         "slapos.put.software_instance",
         {
@@ -1352,7 +1357,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       instance.getUserId()
     )
     self.assertEqual('application/json', response.headers.get('content-type'))
-    partition = instance.getAggregateValue(portal_type="Compute Partition")
     self.assertEqual({
       'access_status_message': "#access Instance correctly stopped",
       "compute_node_id": partition.getParentValue().getReference(),

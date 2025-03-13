@@ -1,0 +1,14 @@
+<type_mixin>
+ <portal_type id="Compute Node">
+  <item>JIOAPIRevisionMixin</item>
+ </portal_type>
+ <portal_type id="Slave Instance">
+  <item>JIOAPIRevisionMixin</item>
+ </portal_type>
+ <portal_type id="Software Installation">
+  <item>JIOAPIRevisionMixin</item>
+ </portal_type>
+ <portal_type id="Software Instance">
+  <item>JIOAPIRevisionMixin</item>
+ </portal_type>
+</type_mixin>

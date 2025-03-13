@@ -368,10 +368,32 @@ class Computer(object):
                                        **connection_dict)
     slap_computer = slap_instance.registerComputer(self.reference)
 
+    partition_list = []
+    for partition in self.partition_list:
+      ip_list = []
+      network_interface = partition.tap.name if partition.tap else partition.reference 
+      for address in partition.address_list:
+        ip_list.append({
+          "ip-address": address["addr"],
+          "network-interface": network_interface,
+        })
+      if partition.tap and partition.tap.ipv4_addr:
+        ip_list.append({
+          "ip-address": partition.tap.ipv4_addr,
+          "network-interface": partition.tap.name,
+          "gateway-ip-address": partition.tap.ipv4_gateway,
+          "netmask": partition.tap.netmask,
+          "network-address": partition.tap.ipv4_network
+        })
+      partition_list.append({
+        "partition_id": partition.reference,
+        "ip_list": ip_list
+      })
+
     if conf.dry_run:
       return
     try:
-      slap_computer.updateConfiguration(dumps(_getDict(self)))
+      slap_computer.updateConfiguration(partition_list)
     except slap.NotFoundError as error:
       raise slap.NotFoundError("%s\nERROR: This SlapOS node is not recognised by "
           "SlapOS Master and/or computer_id and certificates don't match. "

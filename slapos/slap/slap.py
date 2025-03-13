@@ -253,14 +253,16 @@ class SoftwareInstance(SlapDocument):
 class Supply(SlapDocument):
 
   def supply(self, software_release, computer_guid=None, state='available'):
-    try:
-      self._connection_helper.POST('supplySupply', data={
-        'url': software_release,
-        'computer_id': computer_guid,
-        'state': state})
-    except NotFoundError:
-      raise NotFoundError("Computer %s has not been found by SlapOS Master."
-          % computer_guid)
+    self._connection_helper.callJsonRpcAPI(
+      'slapos.post.software_installation',
+      {
+        "portal_type": "Software Installation",
+        'compute_node_id': computer_guid,
+        'software_release_uri': software_release,
+        'state': state
+      }
+    )
+
 
 @implementer(interface.IToken)
 class Token(SlapDocument):

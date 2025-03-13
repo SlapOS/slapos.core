@@ -133,7 +133,7 @@ class TestRegister(unittest.TestCase):
               certificate = self.certificate,
               key = self.key)
       save_former_config_mock.assert_called()
-    self.assertEquals(0, return_code)
+    self.assertEqual(0, return_code)
     self.assertTrue(
       os.path.exists('%s/slapos.cfg' % self.temp_dir))
     config_content = open('%s/slapos.cfg' % self.temp_dir).read()

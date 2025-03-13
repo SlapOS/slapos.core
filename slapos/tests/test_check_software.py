@@ -40,13 +40,6 @@ from .test_standalone import SlapOSStandaloneTestCase
 
 
 class TestCheckSoftwareLDD(SlapOSStandaloneTestCase):
-  # BBB python2
-  assertRaisesRegex = getattr(
-      unittest.TestCase,
-      'assertRaisesRegex',
-      unittest.TestCase.assertRaisesRegexp,
-  )
-
   def _get_zlib_environment(self, with_rpath=True):
     """returns an environment that will compile with slapos' zlib
     """

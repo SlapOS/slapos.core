@@ -627,13 +627,19 @@ class ComputerPartition(SlapRequester):
 
   def rename(self, new_name, slave_reference=None):
     post_dict = {
-            'computer_id': self._computer_id,
-            'computer_partition_id': self.getId(),
-            'new_name': new_name,
-            }
+      'title': new_name,
+    }
     if slave_reference:
-      post_dict['slave_reference'] = slave_reference
-    self._connection_helper.POST('softwareInstanceRename', data=post_dict)
+      post_dict['reference'] = slave_reference
+      post_dict['portal_type'] = 'Slave Instance'
+    else:
+      post_dict['computer_id'] = self._computer_id
+      post_dict['computer_partition_id'] = self.getId()
+      post_dict['portal_type'] = 'Software Instance'
+    self._connection_helper.callJsonRpcAPI(
+      'slapos.put.software_instance',
+      post_dict
+    )
 
   def getInformation(self, partition_reference):
     """

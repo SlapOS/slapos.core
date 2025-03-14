@@ -91,8 +91,6 @@ erp5_graph_editor"""
 common_folder_list = """erp5_jquery_sheet_editor
 erp5_json_editor
 erp5_json_form
-erp5_json_form_react_jsonschema_form
-erp5_json_form_slapos
 erp5_json_rpc_api
 erp5_json_type
 erp5_monaco_editor

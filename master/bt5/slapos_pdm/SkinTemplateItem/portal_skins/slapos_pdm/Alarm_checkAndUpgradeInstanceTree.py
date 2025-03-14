@@ -12,7 +12,9 @@ portal.portal_catalog.searchAndActivate(
   # This alarm bruteforce checking all documents,
   # without changing them directly.
   # Increase priority to not block other activities
-  activate_kw = {'tag':tag, 'priority': 2},
+  # Put a really high value, as this alarm is not critical
+  # And should not slow down others
+  activate_kw = {'tag':tag, 'priority': 5},
   **{"slapos_item.slap_state": ['start_requested', 'stop_requested']}
 )
 

@@ -1,6 +1,7 @@
 Applied Rule | slapos_simulation_interaction_workflow
 Compute Node | slapos_accounting_interaction_workflow
 Computer Consumption TioXML File | edit_workflow
+Computer Consumption TioXML File | slapos_accounting_interaction_workflow
 Computer Consumption TioXML File | slapos_consumption_document_workflow
 Consumption Subscription | edit_workflow
 Consumption Subscription | item_workflow

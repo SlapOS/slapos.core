@@ -17,7 +17,7 @@
  </chain>
  <chain>
   <type>Computer Consumption TioXML File</type>
-  <workflow>document_conversion_interaction_workflow, document_publication_workflow, edit_workflow</workflow>
+  <workflow>document_conversion_interaction_workflow, document_publication_workflow, edit_workflow, slapos_accounting_consumption_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Hosting Subscription</type>
@@ -45,7 +45,7 @@
  </chain>
  <chain>
   <type>Sale Packing List</type>
-  <workflow>slapos_accounting_interaction_workflow, slapos_simulation_interaction_workflow</workflow>
+  <workflow>slapos_accounting_consumption_workflow, slapos_accounting_interaction_workflow, slapos_simulation_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Simulation Movement</type>

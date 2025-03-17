@@ -243,7 +243,7 @@ class JsonRpcAPIService(OpenAPIService):
     except jsonschema.exceptions.ValidationError as e:
       raise JsonRpcAPIInvalidJsonDictContent(str(e))
     response = request.RESPONSE
-    output_schema = json_form.getOutputSchema()
+    output_schema = json_form.getResponseSchema()
     # XXX Hardcoded JSONForm behaviour
     if (result == "Nothing to do") or (not result):
       # If there is no output, ensure no output schema is defined

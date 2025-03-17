@@ -42,7 +42,7 @@ class JsonRpcAPITestCase(ERP5TypeTestCase):
       id=script_id,
       text_content=input_json_schema,
       after_method_id=after_method_id,
-      output_schema=output_json_schema
+      response_schema=output_json_schema
     )
     self.tic()
     self._json_form_id_to_cleanup.append(script_id)

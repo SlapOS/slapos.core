@@ -3,6 +3,7 @@ Compute Node | slapos_accounting_interaction_workflow
 Computer Consumption TioXML File | document_conversion_interaction_workflow
 Computer Consumption TioXML File | document_publication_workflow
 Computer Consumption TioXML File | edit_workflow
+Computer Consumption TioXML File | slapos_accounting_consumption_interaction_workflow
 Instance Tree | slapos_accounting_interaction_workflow
 Open Sale Order | slapos_accounting_interaction_workflow
 Open Sale Order | slapos_simulation_interaction_workflow

@@ -28,6 +28,7 @@
 
 from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
 from AccessControl import Unauthorized
+from zExceptions import Unauthorized as zExceptionsUnauthorized
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 from Products.ERP5Type.tests.utils import DummyMailHostMixin
 from OFS.Traversable import NotFound
@@ -124,7 +125,7 @@ class SlapOSComputeNodeMixin(object):
             .getRamCacheRoot().get('compute_node_information_cache_factory'\
               ).cache_duration
         )
-    except (Unauthorized, IndexError):
+    except (Unauthorized, IndexError, zExceptionsUnauthorized):
       # XXX: Unauthorized hack. Race condition of not ready setup delivery which provides
       # security information shall not make this method fail, as it will be
       # called later anyway

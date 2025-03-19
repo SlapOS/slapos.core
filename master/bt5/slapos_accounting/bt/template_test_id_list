@@ -4,6 +4,7 @@ test.erp5.testSlapOSAccountingConstraint
 test.erp5.testSlapOSAccountingInteractionWorkflow
 test.erp5.testSlapOSAccountingRule
 test.erp5.testSlapOSAccountingSkins
+test.erp5.testSlapOSConsumptionDelivery
 test.erp5.testSlapOSConsumptionScenario
 test.erp5.testSlapOSConsumptionSkins
 test.erp5.testSlapOSERP5AccountingScenario

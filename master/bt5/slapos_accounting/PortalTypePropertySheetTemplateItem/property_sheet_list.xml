@@ -14,6 +14,17 @@
  <portal_type id="Computer Consumption TioXML File">
   <item>SortIndex</item>
  </portal_type>
+ <portal_type id="Consumption Delivery">
+  <item>DeliveryCausalityStateConstraint</item>
+  <item>SlapOSAccountingSalePackingListConstraint</item>
+  <item>SlapOSLedgerConstraint</item>
+  <item>SlapOSSaleProfileConstraint</item>
+ </portal_type>
+ <portal_type id="Consumption Delivery Line">
+  <item>OutcomeDescription</item>
+  <item>SlapOSAccountingSalePackingListLineConstraint</item>
+  <item>SlapOSMovementConstraint</item>
+ </portal_type>
  <portal_type id="Hosting Subscription">
   <item>SlapOSAccountingHostingSubscriptionConstraint</item>
   <item>SlapOSLedgerConstraint</item>

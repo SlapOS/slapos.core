@@ -1,6 +1,19 @@
 Compute Node | jump_to_consumption_report_view
 Computer Consumption TioXML File | download
 Computer Consumption TioXML File | view
+Consumption Delivery Cell | view
+Consumption Delivery Line | price_view
+Consumption Delivery Line | profile_view
+Consumption Delivery Line | quantity_view
+Consumption Delivery Line | view
+Consumption Delivery Module | view
+Consumption Delivery | aggregate_item
+Consumption Delivery | details
+Consumption Delivery | jump_related_sale_invoice
+Consumption Delivery | payment_condition
+Consumption Delivery | profile_view
+Consumption Delivery | view
+Consumption Delivery | view_stock
 Consumption Document Module | view
 Hosting Subscription | periodicity
 Instance Tree | jump_to_related_open_order_line

@@ -45,7 +45,7 @@
  </chain>
  <chain>
   <type>Sale Packing List</type>
-  <workflow>slapos_accounting_interaction_workflow, slapos_simulation_interaction_workflow</workflow>
+  <workflow>slapos_accounting_consumption_workflow, slapos_accounting_interaction_workflow, slapos_simulation_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Simulation Movement</type>

@@ -4,6 +4,22 @@ Computer Consumption TioXML File | document_conversion_interaction_workflow
 Computer Consumption TioXML File | document_publication_workflow
 Computer Consumption TioXML File | edit_workflow
 Computer Consumption TioXML File | slapos_accounting_consumption_interaction_workflow
+Consumption Delivery Cell | delivery_movement_causality_interaction_workflow
+Consumption Delivery Cell | pricing_interaction_workflow
+Consumption Delivery Line | delivery_movement_causality_interaction_workflow
+Consumption Delivery Line | edit_workflow
+Consumption Delivery Line | movement_resource_interaction_workflow
+Consumption Delivery Line | pricing_interaction_workflow
+Consumption Delivery Line | trade_matrix_workflow
+Consumption Delivery | delivery_causality_interaction_workflow
+Consumption Delivery | delivery_causality_workflow
+Consumption Delivery | edit_workflow
+Consumption Delivery | immobilisation_workflow
+Consumption Delivery | local_permission_slapos_interaction_workflow
+Consumption Delivery | packing_list_container_workflow
+Consumption Delivery | packing_list_workflow
+Consumption Delivery | slapos_accounting_interaction_workflow
+Consumption Delivery | slapos_simulation_interaction_workflow
 Instance Tree | slapos_accounting_interaction_workflow
 Open Sale Order | slapos_accounting_interaction_workflow
 Open Sale Order | slapos_simulation_interaction_workflow

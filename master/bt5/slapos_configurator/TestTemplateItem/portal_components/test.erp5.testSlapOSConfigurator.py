@@ -166,6 +166,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'computer_module',
        'compute_node_module',
        'computer_network_module',
+       'consumption_delivery_module',
        'consumption_document_module',
        'credential_recovery_module',
        'credential_request_module',

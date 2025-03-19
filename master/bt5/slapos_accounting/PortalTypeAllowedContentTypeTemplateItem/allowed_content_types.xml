@@ -1,4 +1,13 @@
 <allowed_content_type_list>
+ <portal_type id="Consumption Delivery">
+  <item>Consumption Delivery Line</item>
+ </portal_type>
+ <portal_type id="Consumption Delivery Line">
+  <item>Consumption Delivery Cell</item>
+ </portal_type>
+ <portal_type id="Consumption Delivery Module">
+  <item>Consumption Delivery</item>
+ </portal_type>
  <portal_type id="Consumption Document Module">
   <item>Computer Consumption TioXML File</item>
   <item>User Consumption HTML File</item>

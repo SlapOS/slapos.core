@@ -21,6 +21,6 @@ if len(product_list) != 0:
     parent_uid=[x.getUid() for x in product_list]
   )
   if software_release is not None:
-    pass
+    a = 1
 
 return software_release_url.split("?")[0] + ".json"

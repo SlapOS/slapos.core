@@ -103,12 +103,20 @@ for movement in tioxml_dict["movement"]:
                        project=project_value,
                        person=destination_decision_value,
                        # Quantity is recorded here as negative
-                       quantity=-movement['quantity'],
+                       quantity=movement['quantity'],
                        # Should I aggregate instance?
                        aggregate_value_list=aggregate_value_list,
                        resource=resource))
 
 module = portal.portal_trash
+
+# This is mandatory so we expect to fail if not set
+start_date = tioxml_dict['start_date']
+
+# XXX RAFAEL we should ensure date is not in future
+stop_date = tioxml_dict['stop_date']
+
+
 
 # Only create if something to be done.
 for movement_entry in six.itervalues(movement_dict):
@@ -121,7 +129,8 @@ for movement_entry in six.itervalues(movement_dict):
     source_project_value=subscription_request.getSourceProjectValue(),
     destination_project_value=subscription_request.getDestinationProjectValue(),
     ledger_value=subscription_request.getLedgerValue(),
-    start_date=document.getCreationDate(),
+    # calculate price based on stop date.
+    start_date=stop_date,
     price_currency_value=subscription_request.getPriceCurrencyValue(),
     destination_value=destination_decision_value,
   )
@@ -151,7 +160,8 @@ for movement_entry in six.itervalues(movement_dict):
     destination_project_value=tmp_sale_order.getDestinationProjectValue(),
     ledger_value=tmp_sale_order.getLedgerValue(),
     causality_value=document, ## Should be like this?
-    start_date=tmp_sale_order.getCreationDate(),
+    start_date=start_date,
+    stop_date=stop_date,
     price_currency_value=tmp_sale_order.getPriceCurrencyValue(),
   )
 

@@ -12,7 +12,7 @@ product_list = portal.portal_catalog(
   portal_type="Software Product",
   validation_state=['validated', 'published'],
   use__uid=use_category_uid,
-  follow_up__uid=context.getFollowUpUid()
+  follow_up__uid=context.getUid()
 )
 if len(product_list) != 0:
   software_release = portal.portal_catalog.getResultValue(

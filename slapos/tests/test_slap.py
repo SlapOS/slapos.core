@@ -972,15 +972,8 @@ class TestComputerPartition(SlapMixin):
 
   def _test_setConnectionDict(
     self, connection_dict, slave_reference=None, connection_xml=None,
-    getConnectionParameterDict=None, connection_parameter_hash=None):
+    getConnectionParameterDict=None):
     getInstanceParameter = []
-    if connection_parameter_hash is not None:
-      getInstanceParameter = [
-        {
-          'slave_reference': slave_reference,
-          'connection-parameter-hash': connection_parameter_hash
-        }
-      ]
     with \
         mock.patch.object(
           slapos.slap.ComputerPartition, '__init__', return_value=None), \
@@ -1019,13 +1012,14 @@ class TestComputerPartition(SlapMixin):
     self._test_setConnectionDict(
       {'a': 'b'},
       getConnectionParameterDict={'a': 'b'},
-      connection_xml=False)
+      connection_xml='<marshal><dictionary id="i2"><string>a</string>'
+                     '<string>b</string></dictionary></marshal>')
 
   def test_setConnectionDict_optimised_tricky(self):
     self._test_setConnectionDict(
       {u'a': u'b', 'b': '', 'c': None},
       getConnectionParameterDict={'a': 'b', 'b': None, 'c': 'None'},
-      connection_xml=False)
+      connection_xml='<marshal><dictionary id="i2"><string>a</string><string>b</string><string>b</string><string></string><string>c</string><none/></dictionary></marshal>')
 
   def test_setConnectionDict_update(self):
     self._test_setConnectionDict(
@@ -1041,28 +1035,6 @@ class TestComputerPartition(SlapMixin):
       connection_xml='<marshal><dictionary id="i2"><string>a</string>'
                      '<string>b</string></dictionary></marshal>')
 
-  def test_setConnectionDict_slave_expired_hash(self):
-    self._test_setConnectionDict(
-      {'a': 'b'},
-      slave_reference='SLAVE-0',
-      connection_parameter_hash='mess',
-      connection_xml='<marshal><dictionary id="i2"><string>a</string>'
-                     '<string>b</string></dictionary></marshal>')
-
-  def test_setConnectionDict_slave_hash(self):
-    self._test_setConnectionDict(
-      {'a': 'b'},
-      slave_reference='SLAVE-0',
-      connection_parameter_hash=calculate_dict_hash({'a': 'b'}),
-      connection_xml=False)
-
-  def test_setConnectionDict_slave_hash_tricky(self):
-    self._test_setConnectionDict(
-      {u'a': u'b', 'b': '', 'c': None},
-      slave_reference='SLAVE-0',
-      connection_parameter_hash=calculate_dict_hash({
-        'a': 'b', 'b': None, 'c': 'None'}),
-      connection_xml=False)
 
 
 class TestSoftwareRelease(SlapMixin):

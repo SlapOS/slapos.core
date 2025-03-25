@@ -83,13 +83,18 @@ for movement in tioxml_dict["movement"]:
     aggregate_value_list = [item, instance]
     assert item is not None, "Instance has no Instance Tree"
 
-  # Fetch related Subscription Request for the service
-  subscription_request = portal.portal_catalog.getResultValue(
-    portal_type='Subscription Request',
-    aggregate__uid=item.getUid()
-  )
-  if subscription_request is None:
-    raise ValueError('Subscription Request is None for %s' % item.getRelativeUrl())
+  # If no open order, subscription must be approved
+  open_sale_order_movement_list = portal.portal_catalog(
+    portal_type=['Open Sale Order Line', 'Open Sale Order Cell'],
+    aggregate__uid=item.getUid(),
+    destination__uid = destination_decision_value.getUid(),
+    validation_state='validated',
+    limit=1)
+
+  if len(open_sale_order_movement_list) == 0:
+    raise ValueError('No open order for %s' % item.getRelativeUrl())
+
+  open_sale_order_movement = open_sale_order_movement_list[0]
 
   # Check if resource exists with the variation
   resource = movement['resource']
@@ -98,7 +103,7 @@ for movement in tioxml_dict["movement"]:
   mindex = "%s-%s" % (project_value.getUid(), destination_decision_value.getUid())
   movement_dict.setdefault(mindex, [])
   movement_dict[mindex].append(dict(
-                       subscription=subscription_request,
+                       open_sale_order_movement=open_sale_order_movement,
                        title=movement['title'],
                        project=project_value,
                        person=destination_decision_value,
@@ -116,22 +121,20 @@ start_date = tioxml_dict['start_date']
 # XXX RAFAEL we should ensure date is not in future
 stop_date = tioxml_dict['stop_date']
 
-
-
 # Only create if something to be done.
 for movement_entry in six.itervalues(movement_dict):
-  subscription_request = movement_entry[0]['subscription']
+  open_sale_order_movement = movement_entry[0]['open_sale_order_movement']
 
   tmp_sale_order = module.newContent(
     portal_type='Sale Order',
     temp_object=True,
-    trade_condition_type="consumption",
-    source_project_value=subscription_request.getSourceProjectValue(),
-    destination_project_value=subscription_request.getDestinationProjectValue(),
-    ledger_value=subscription_request.getLedgerValue(),
+    specialise=open_sale_order_movement.getSpecialise(),
+    source_project_value=open_sale_order_movement.getSourceProjectValue(),
+    destination_project_value=open_sale_order_movement.getDestinationProjectValue(),
+    ledger_value=open_sale_order_movement.getLedgerValue(),
     # calculate price based on stop date.
     start_date=stop_date,
-    price_currency_value=subscription_request.getPriceCurrencyValue(),
+    price_currency_value=open_sale_order_movement.getPriceCurrencyValue(),
     destination_value=destination_decision_value,
   )
   tmp_sale_order.SaleOrder_applySaleTradeCondition(batch_mode=1, force=1)
@@ -140,20 +143,18 @@ for movement_entry in six.itervalues(movement_dict):
     raise AssertionError('Can not find a trade condition to generate the Subscription Request')
 
   specialise_value = tmp_sale_order.getSpecialiseValue()
-  if tmp_sale_order.getTradeConditionType() != specialise_value.getTradeConditionType():
-    raise AssertionError('Unexpected different trade_condition_type: %s %s' % (tmp_sale_order.getTradeConditionType(), specialise_value.getTradeConditionType()))
 
   # Time to create the PL
   consumption_delivery = portal.consumption_delivery_module.newContent(
     portal_type="Consumption Delivery",
     title=tioxml_dict['title'],
 
-    source_value=subscription_request.getSourceValue(),
-    source_section_value=subscription_request.getSourceSectionValue(),
-    source_decision_value=subscription_request.getSourceDecisionValue(),
-    destination_value=subscription_request.getDestinationValue(),
-    destination_section_value=subscription_request.getDestinationSectionValue(),
-    destination_decision_value=subscription_request.getDestinationDecisionValue(),
+    source_value=open_sale_order_movement.getSourceValue(),
+    source_section_value=open_sale_order_movement.getSourceSectionValue(),
+    source_decision_value=open_sale_order_movement.getSourceDecisionValue(),
+    destination_value=open_sale_order_movement.getDestinationValue(),
+    destination_section_value=open_sale_order_movement.getDestinationSectionValue(),
+    destination_decision_value=open_sale_order_movement.getDestinationDecisionValue(),
 
     specialise_value=specialise_value,
     source_project_value=tmp_sale_order.getSourceProjectValue(),

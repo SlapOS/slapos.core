@@ -1019,13 +1019,14 @@ class TestComputerPartition(SlapMixin):
     self._test_setConnectionDict(
       {'a': 'b'},
       getConnectionParameterDict={'a': 'b'},
-      connection_xml=False)
+      connection_xml='<marshal><dictionary id="i2"><string>a</string>'
+                     '<string>b</string></dictionary></marshal>')
 
   def test_setConnectionDict_optimised_tricky(self):
     self._test_setConnectionDict(
       {u'a': u'b', 'b': '', 'c': None},
       getConnectionParameterDict={'a': 'b', 'b': None, 'c': 'None'},
-      connection_xml=False)
+      connection_xml='<marshal><dictionary id="i2"><string>a</string><string>b</string><string>b</string><string></string><string>c</string><none/></dictionary></marshal>')
 
   def test_setConnectionDict_update(self):
     self._test_setConnectionDict(
@@ -1054,7 +1055,7 @@ class TestComputerPartition(SlapMixin):
       {'a': 'b'},
       slave_reference='SLAVE-0',
       connection_parameter_hash=calculate_dict_hash({'a': 'b'}),
-      connection_xml=False)
+      connection_xml='<marshal><dictionary id="i2"><string>a</string><string>b</string></dictionary></marshal>')
 
   def test_setConnectionDict_slave_hash_tricky(self):
     self._test_setConnectionDict(
@@ -1062,7 +1063,7 @@ class TestComputerPartition(SlapMixin):
       slave_reference='SLAVE-0',
       connection_parameter_hash=calculate_dict_hash({
         'a': 'b', 'b': None, 'c': 'None'}),
-      connection_xml=False)
+      connection_xml='<marshal><dictionary id="i2"><string>a</string><string>b</string><string>b</string><string></string><string>c</string><none/></dictionary></marshal>')
 
 
 class TestSoftwareRelease(SlapMixin):

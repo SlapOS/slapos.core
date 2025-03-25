@@ -30,19 +30,6 @@ from zLOG import LOG, INFO
 from OFS.Traversable import NotFound
 from Products.ERP5Type.Utils import str2unicode
 
-try:
-  from slapos.util import calculate_dict_hash
-except ImportError:
-  # Do no prevent instance from starting
-  # if libs are not installed
-  class SlapComputePartition:
-    def __init__(self):
-      raise ImportError
-  class SoftwareRelease:
-    def __init__(self):
-      raise ImportError
-  def calculate_dict_hash(*args):
-    raise ImportError
 
 class SlapOSComputePartitionMixin(object):
 
@@ -134,8 +121,6 @@ class SlapOSComputePartitionMixin(object):
           connection_dict = software_instance._instanceXmlToDict(
             slave_instance_dict.pop("connection_xml"))
           slave_instance_dict.update(connection_dict)
-          slave_instance_dict['connection-parameter-hash'] = \
-            calculate_dict_hash(connection_dict)
         if "xml" in slave_instance_dict:
           slave_instance_dict.update(software_instance._instanceXmlToDict(
             slave_instance_dict.pop("xml")))

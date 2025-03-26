@@ -41,7 +41,7 @@ import json
 import mock
 
 import slapos.slap
-from slapos.util import dumps, calculate_dict_hash, dict2xml
+from slapos.util import dumps, dict2xml
 
 
 class UndefinedYetException(Exception):

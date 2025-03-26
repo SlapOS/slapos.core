@@ -105,6 +105,7 @@
                       <list>
                         <string>my_title</string>
                         <string>my_url_string</string>
+                        <string>my_instantiation_descriptor_link_url_string</string>
                       </list>
                     </value>
                 </item>

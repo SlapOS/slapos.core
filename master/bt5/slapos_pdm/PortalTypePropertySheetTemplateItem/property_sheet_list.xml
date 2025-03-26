@@ -9,6 +9,7 @@
   <item>SlaposCapacity</item>
  </portal_type>
  <portal_type id="Software Product Release Variation">
+  <item>SlapOSSoftwareRelease</item>
   <item>SlaposCapacity</item>
  </portal_type>
  <portal_type id="Software Product Type Variation">

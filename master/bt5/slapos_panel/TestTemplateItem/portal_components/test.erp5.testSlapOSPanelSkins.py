@@ -21,7 +21,8 @@
 #
 ##############################################################################
 
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort,\
+  TemporaryAlarmScript
 import json
 
 def getFakeSlapState():
@@ -33,6 +34,9 @@ class TestPanelSkinsMixin(SlapOSTestCaseMixinWithAbort):
     SlapOSTestCaseMixinWithAbort.afterSetUp(self)
     self.project = self.addProject()
 
+  def getDocumentOnPanelContext(self, document):
+    web_site = self.portal.web_site_module.slapos_master_panel
+    return web_site.restrictedTraverse(document.getRelativeUrl())
 
 class TestSupportRequestModule_getRssFeedUrl(TestPanelSkinsMixin):
 
@@ -465,3 +469,89 @@ class TestTicket_closeSlapOS(TestPanelSkinsMixin):
     self.assertEqual(ticket.getSimulationState(), 'invalidated')
     ticket.Ticket_closeSlapOS("x")
     self.assertEqual(ticket.getSimulationState(), 'invalidated')
+
+class TestInstanceTree_redirectToManualDepositPayment(TestPanelSkinsMixin):
+
+  def addNonSubscribedInstanceTree(self, project, person,
+                                   software_release, software_type,
+                                   shared=False):
+    request_kw = dict(
+      software_release=software_release,
+      software_title=self.generateNewSoftwareTitle(),
+      software_type=software_type,
+      instance_xml=self.generateSafeXml(),
+      sla_xml=self.generateEmptyXml(),
+      shared=shared,
+      state="started",
+      project_reference=project.getReference()
+    )
+    person.requestSoftwareInstance(**request_kw)
+    return person.REQUEST.get('request_instance_tree')
+
+  def testInstanceTree_redirectToManualDepositPayment_no_subscription(self):
+    _, release_variation, type_variation, _, _, instance_tree = \
+      self.bootstrapAllocableInstanceTree(is_accountable=True, base_price=5)
+    self.tic()
+
+    person = instance_tree.getDestinationSectionValue()
+    project = instance_tree.getFollowUpValue()
+    self.assertNotEqual(person, None)
+    self.assertNotEqual(project, None)
+
+    # Don't trigger the alarms to emulate the subscription request is not
+    # found yet
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'",
+                              attribute='comment'):
+      instance_tree = self.addNonSubscribedInstanceTree(
+        project, person, release_variation.getUrlString(),
+        type_variation.getTitle())
+      self.tic()
+
+    self.assertNotEqual(instance_tree, None)
+
+    subscription_request = self.portal.portal_catalog.getResultValue(
+      portal_type='Subscription Request',
+      aggregate__uid=instance_tree.getUid())
+    self.assertEqual(subscription_request, None)
+
+    self.login(person.getUserId())
+
+    instance_tree_on_website = self.getDocumentOnPanelContext(instance_tree)
+
+    # This script only works on website context, and shoult not raise and return
+    # a redirect.
+    response = instance_tree_on_website.InstanceTree_redirectToManualDepositPayment()
+    self.assertIn('?page=slapos_master_panel_external_payment_result', response)
+
+  def testInstanceTree_redirectToManualDepositPayment(self):
+    _, release_variation, type_variation, _, _, instance_tree = \
+      self.bootstrapAllocableInstanceTree(is_accountable=True, base_price=5)
+    self.tic()
+
+    person = instance_tree.getDestinationSectionValue()
+    project = instance_tree.getFollowUpValue()
+    self.assertNotEqual(person, None)
+    self.assertNotEqual(project, None)
+
+    instance_tree = self.addNonSubscribedInstanceTree(
+      project, person, release_variation.getUrlString(),
+      type_variation.getTitle())
+    self.tic()
+
+    self.assertNotEqual(instance_tree, None)
+
+    subscription_request = self.portal.portal_catalog.getResultValue(
+      portal_type='Subscription Request',
+      aggregate__uid=instance_tree.getUid())
+    self.assertNotEqual(subscription_request, None)
+
+    self.login(person.getUserId())
+
+    instance_tree_on_website = self.getDocumentOnPanelContext(instance_tree)
+
+    # This script only works on website context, and shoult not raise and return
+    # a redirect.
+    response = instance_tree_on_website.InstanceTree_redirectToManualDepositPayment()
+    self.assertIn('?page=slapos_master_panel_external_payment_result', response)
+
+

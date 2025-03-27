@@ -1005,7 +1005,9 @@ class TestSoftwareProductModule(TestSlapOSGroupRoleSecurityMixin):
   def test_SoftwareProductModule(self):
     module = self.portal.software_product_module
     self.assertSecurityGroup(module,
-        ['F-PRODUCTION*', 'F-CUSTOMER', module.Base_getOwnerId()], False)
+        ['F-ACCOUNTING*', 'F-SALE*', 'F-PRODUCTION*', 'F-CUSTOMER', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-ACCOUNTING*', ['Auditor'])
+    self.assertRoles(module, 'F-SALE*', ['Auditor'])
     self.assertRoles(module, 'F-CUSTOMER', ['Auditor'])
     self.assertRoles(module, 'F-PRODUCTION*', ['Auditor', 'Author'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
@@ -1016,8 +1018,9 @@ class TestSoftwareProduct(TestSlapOSGroupRoleSecurityMixin):
     product = self.portal.software_product_module.newContent(
         portal_type='Software Product')
     self.assertSecurityGroup(product,
-        [self.user_id, 'F-SALE*'], False)
+        [self.user_id, 'F-ACCOUNTING*', 'F-SALE*'], False)
     self.assertRoles(product, self.user_id, ['Owner'])
+    self.assertRoles(product, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(product, 'F-SALE*', ['Auditor'])
 
   def test_SoftwareProduct_Project(self):
@@ -1027,11 +1030,13 @@ class TestSoftwareProduct(TestSlapOSGroupRoleSecurityMixin):
     product.edit(
         follow_up_value=project)
     self.assertSecurityGroup(product, [self.user_id,
+        'F-ACCOUNTING*',
         'F-SALE*',
         '%s_F-CUSTOMER' % project.getReference(),
         '%s_F-PRODAGNT' % project.getReference(),
         '%s_F-PRODMAN' % project.getReference()], False)
     self.assertRoles(product, self.user_id, ['Owner'])
+    self.assertRoles(product, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(product, 'F-SALE*', ['Auditor'])
     self.assertRoles(product, '%s_F-PRODMAN' % project.getReference(), ['Assignor'])
     self.assertRoles(product, '%s_F-PRODAGNT' % project.getReference(), ['Assignee'])

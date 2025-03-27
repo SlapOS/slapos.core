@@ -36,7 +36,7 @@ from slapos.client import init, ClientConfig
 
 
 class ListCommand(ClientConfigCommand):
-    """request an instance and get status and parameters of instance"""
+    """List all available compute nodes"""
 
     def get_parser(self, prog_name):
         ap = super(ListCommand, self).get_parser(prog_name)

@@ -51,7 +51,7 @@ class InfoCommand(ClientConfigCommand):
         ap = super(InfoCommand, self).get_parser(prog_name)
 
         ap.add_argument('reference',
-                        help='Your instance reference')
+                        help='Your instance reference (for now it is its title)')
 
         ap.add_argument('--news',
                         action='store_true',

@@ -92,7 +92,7 @@ class RequestCommand(ClientConfigCommand):
         ap = super(RequestCommand, self).get_parser(prog_name)
 
         ap.add_argument('reference',
-                        help='Your instance reference')
+                        help='Your instance reference (for now it is its title)')
 
         ap.add_argument('software_url',
                         help='Your software url')

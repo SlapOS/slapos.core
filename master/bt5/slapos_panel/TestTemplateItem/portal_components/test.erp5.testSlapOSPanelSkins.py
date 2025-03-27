@@ -21,7 +21,8 @@
 #
 ##############################################################################
 
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort,\
+  TemporaryAlarmScript
 import json
 
 def getFakeSlapState():
@@ -33,6 +34,9 @@ class TestPanelSkinsMixin(SlapOSTestCaseMixinWithAbort):
     SlapOSTestCaseMixinWithAbort.afterSetUp(self)
     self.project = self.addProject()
 
+  def getDocumentOnPanelContext(self, document):
+    web_site = self.portal.web_site_module.slapos_master_panel
+    return web_site.restrictedTraverse(document.getRelativeUrl())
 
 class TestSupportRequestModule_getRssFeedUrl(TestPanelSkinsMixin):
 
@@ -465,3 +469,162 @@ class TestTicket_closeSlapOS(TestPanelSkinsMixin):
     self.assertEqual(ticket.getSimulationState(), 'invalidated')
     ticket.Ticket_closeSlapOS("x")
     self.assertEqual(ticket.getSimulationState(), 'invalidated')
+
+
+class TestInstanceTree_redirectToManualDepositPayment(TestPanelSkinsMixin):
+
+  def addNonSubscribedInstanceTree(self, project, person,
+                                   software_release, software_type,
+                                   shared=False):
+    request_kw = dict(
+      software_release=software_release,
+      software_title=self.generateNewSoftwareTitle(),
+      software_type=software_type,
+      instance_xml=self.generateSafeXml(),
+      sla_xml=self.generateEmptyXml(),
+      shared=shared,
+      state="started",
+      project_reference=project.getReference()
+    )
+    person.requestSoftwareInstance(**request_kw)
+    return person.REQUEST.get('request_instance_tree')
+
+  def bootstrapSaleTradeCondition(self, project, person):
+
+    software_product = self._makeSoftwareProduct(project)
+    release_variation = software_product.contentValues(
+      portal_type='Software Product Release Variation')[0]
+    type_variation = software_product.contentValues(
+      portal_type='Software Product Type Variation')[0]
+    self.tic()
+    currency = self.portal.currency_module.newContent(
+      portal_type="Currency",
+      title="test %s" % self.generateNewId()
+    )
+    currency.validate()
+    seller_organisation = self.portal.organisation_module.newContent(
+      portal_type="Organisation",
+      title="seller-%s" % self.generateNewId(),
+      # required to generate accounting report
+      price_currency_value=currency,
+      # required to calculate the vat
+      default_address_region='europe/west/france'
+    )
+    seller_bank_account = seller_organisation.newContent(
+      portal_type="Bank Account",
+      title="test_bank_account_%s" % self.generateNewId(),
+      price_currency_value=currency
+    )
+    seller_bank_account.validate()
+    seller_organisation.validate()
+    sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
+        portal_type="Sale Trade Condition",
+        trade_condition_type="instance_tree",
+        source_section_value=seller_organisation,
+        source_project_value=project,
+        price_currency_value=currency,
+        specialise="business_process_module/slapos_sale_subscription_business_process"
+    )
+    sale_trade_condition.validate()
+
+    # Create Trade Condition to create Deposit
+    self.portal.sale_trade_condition_module.newContent(
+      portal_type="Sale Trade Condition",
+      reference="For deposit",
+      trade_condition_type="deposit",
+      specialise_value=sale_trade_condition,
+      source_value=seller_organisation,
+      source_section_value=seller_organisation,
+      price_currency_value=currency,
+    ).validate()
+
+    self.tic()
+    base_price = 5
+    sale_supply = self.portal.sale_supply_module.newContent(
+      portal_type="Sale Supply",
+      source_project_value=project,
+      price_currency_value=currency
+    )
+    sale_supply.newContent(
+      portal_type="Sale Supply Line",
+      base_price=base_price,
+      resource_value=software_product
+    )
+    sale_supply.validate()
+    return release_variation, type_variation
+
+  def testInstanceTree_redirectToManualDepositPayment_no_subscription(self):
+
+    project = self.addProject()
+    person = self.makePerson(project)
+    person.edit(
+      # required to calculate the vat
+      default_address_region='europe/west/france'
+    )
+
+    self.tic()
+    release_variation, type_variation = self.bootstrapSaleTradeCondition(
+                                                                project, person)
+    self.tic()
+
+    # Don't trigger the alarms to emulate the subscription request is not
+    # found yet
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'",
+                              attribute='comment'):
+      instance_tree = self.addNonSubscribedInstanceTree(
+        project, person, release_variation.getUrlString(),
+        type_variation.getTitle())
+      self.tic()
+
+    self.assertNotEqual(instance_tree, None)
+
+    subscription_request = self.portal.portal_catalog.getResultValue(
+      portal_type='Subscription Request',
+      aggregate__uid=instance_tree.getUid())
+    self.assertEqual(subscription_request, None)
+
+    self.login(person.getUserId())
+
+    instance_tree_on_website = self.getDocumentOnPanelContext(instance_tree)
+
+    # This script only works on website context, and shoult not raise and return
+    # a redirect.
+    response = instance_tree_on_website.InstanceTree_redirectToManualDepositPayment()
+    self.assertIn('?page=slapos_master_panel_external_payment_result', response)
+
+  def testInstanceTree_redirectToManualDepositPayment(self):
+
+    project = self.addProject()
+    person = self.makePerson(project)
+    person.edit(
+      # required to calculate the vat
+      default_address_region='europe/west/france'
+    )
+
+    self.tic()
+    release_variation, type_variation = self.bootstrapSaleTradeCondition(
+                                                                project, person)
+    self.tic()
+
+    instance_tree = self.addNonSubscribedInstanceTree(
+      project, person, release_variation.getUrlString(),
+      type_variation.getTitle())
+    self.tic()
+
+    self.assertNotEqual(instance_tree, None)
+
+    subscription_request = self.portal.portal_catalog.getResultValue(
+      portal_type='Subscription Request',
+      aggregate__uid=instance_tree.getUid())
+    self.assertNotEqual(subscription_request, None)
+
+    self.login(person.getUserId())
+
+    instance_tree_on_website = self.getDocumentOnPanelContext(instance_tree)
+
+    # This script only works on website context, and shoult not raise and return
+    # a redirect.
+    response = instance_tree_on_website.InstanceTree_redirectToManualDepositPayment()
+    self.assertIn('?page=slapos_master_panel_external_payment_result', response)
+
+

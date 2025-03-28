@@ -84,6 +84,7 @@ if (remote_instance_tree is not None) and \
     return upgrade_decision
 
 if (remote_instance_tree is None) or \
+  (remote_node.getSlaXml() != remote_instance_tree.getSlaXml()) or \
   (local_instance.getTextContent() != remote_instance_tree.getTextContent()) or \
   (local_instance.getSlapState() != remote_instance_tree.getSlapState()):
 
@@ -93,7 +94,7 @@ if (remote_instance_tree is None) or \
     software_title='_remote_%s_%s' % (remote_node.getFollowUpReference(), local_instance.getReference()),
     software_type=local_instance.getSourceReference(),
     instance_xml=local_instance.getTextContent(),
-    sla_xml=None,
+    sla_xml=remote_node.getSlaXml(),
     shared=(local_instance.getPortalType() == 'Slave Instance'),
     state={'start_requested': 'started', 'stop_requested': 'stopped'}[local_instance.getSlapState()]
   )

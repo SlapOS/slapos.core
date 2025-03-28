@@ -10,6 +10,9 @@ business_process_module/slapos_subscription_business_process
 business_process_module/slapos_subscription_business_process/**
 organisation_module/slapos
 organisation_module/slapos/bank_account
+portal_categories/trade_state/new
+portal_categories/trade_state/trade
+portal_categories/trade_state/trade/**
 sale_trade_condition_module/default_subscription_trade_condition
 sale_trade_condition_module/default_subscription_trade_condition/**
 sale_trade_condition_module/slapos_aggregated_consumption_trade_condition

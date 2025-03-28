@@ -776,11 +776,23 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         price_currency_value=currency,
         specialise="business_process_module/slapos_sale_subscription_business_process"
       )
+
+      # Create Trade Condition to create Deposit
+      self.portal.sale_trade_condition_module.newContent(
+        portal_type="Sale Trade Condition",
+        reference="For deposit",
+        trade_condition_type="deposit",
+        specialise_value=sale_trade_condition,
+        source_value=seller_organisation,
+        source_section_value=seller_organisation,
+        price_currency_value=currency,
+      ).validate()
+
       sale_trade_condition.validate()
       if (base_price is not None):
         sale_supply = self.portal.sale_supply_module.newContent(
           portal_type="Sale Supply",
-          destination_project_value=project,
+          source_project_value=project,
           price_currency_value=currency
         )
         sale_supply.newContent(

@@ -91,7 +91,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>trade_phase/slapos/report</string>
+                <string>trade_phase/slapos/delivery</string>
               </tuple>
             </value>
         </item>

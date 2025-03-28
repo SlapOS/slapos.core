@@ -44,6 +44,7 @@ Remote Node | SlapOSReferenceConstraint
 Remote Node | SlapOSVirtualMasterConstraint
 Remote Node | SlaposComputeNodeConstraint
 Remote Node | SlaposRemoteNodeConstraint
+Remote Node | SoftwareInstance
 Slave Instance | InstanceTree
 Slave Instance | Reference
 Slave Instance | SlapOSReferenceConstraint

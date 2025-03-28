@@ -65,7 +65,7 @@
         </item>
         <item>
             <key> <string>delivery_after_generation_script_id</string> </key>
-            <value> <string>SaleInvoiceTransaction_postSlapOSGeneration</string> </value>
+            <value> <string>SaleInvoiceTransaction_postSlapOSSaleInvoiceTransactionLineGeneration</string> </value>
         </item>
         <item>
             <key> <string>delivery_cell_collect_order</string> </key>
@@ -104,7 +104,7 @@
         </item>
         <item>
             <key> <string>delivery_creatable</string> </key>
-            <value> <int>1</int> </value>
+            <value> <int>0</int> </value>
         </item>
         <item>
             <key> <string>delivery_line_collect_order</string> </key>
@@ -135,11 +135,11 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Builds Sale Invoices</string> </value>
+            <value> <string>Builds Sale Invoices for consumption</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_sale_invoice_builder</string> </value>
+            <value> <string>slapos_consumption_sale_invoice_transaction_builder</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -153,11 +153,11 @@
         </item>
         <item>
             <key> <string>simulation_select_method_id</string> </key>
-            <value> <string>DeliveryBuilder_selectNonConsumptionUseSlapOSMovement</string> </value>
+            <value> <string>DeliveryBuilder_selectConsumptionMovementSlapOSMovement</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>SlapOS Sale Invoice Builder</string> </value>
+            <value> <string>SlapOS Consumption Sale Invoice Builder</string> </value>
         </item>
       </dictionary>
     </pickle>

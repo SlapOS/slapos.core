@@ -107,6 +107,7 @@
                       <list>
                         <string>my_title</string>
                         <string>my_reference</string>
+                        <string>my_sla_xml</string>
                       </list>
                     </value>
                 </item>

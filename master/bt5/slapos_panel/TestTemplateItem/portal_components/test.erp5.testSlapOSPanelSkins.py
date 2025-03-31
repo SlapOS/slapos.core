@@ -22,7 +22,7 @@
 ##############################################################################
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort,\
-  TemporaryAlarmScript
+  TemporaryAlarmScript, simulate
 import json
 
 def getFakeSlapState():
@@ -488,7 +488,7 @@ class TestInstanceTree_redirectToManualDepositPayment(TestPanelSkinsMixin):
     person.requestSoftwareInstance(**request_kw)
     return person.REQUEST.get('request_instance_tree')
 
-  def testInstanceTree_redirectToManualDepositPayment_no_subscription(self):
+  def _testInstanceTree_redirectToManualDepositPayment_no_subscription(self):
     _, release_variation, type_variation, _, _, instance_tree = \
       self.bootstrapAllocableInstanceTree(is_accountable=True, base_price=5)
     self.tic()
@@ -516,14 +516,28 @@ class TestInstanceTree_redirectToManualDepositPayment(TestPanelSkinsMixin):
 
     self.login(person.getUserId())
 
-    instance_tree_on_website = self.getDocumentOnPanelContext(instance_tree)
+    return self.getDocumentOnPanelContext(instance_tree)
 
+  def testInstanceTree_redirectToManualDepositPayment_no_subscription(self):
+    instance_tree_on_website = self._testInstanceTree_redirectToManualDepositPayment_no_subscription()
     # This script only works on website context, and shoult not raise and return
     # a redirect.
     response = instance_tree_on_website.InstanceTree_redirectToManualDepositPayment()
     self.assertIn('?page=slapos_master_panel_external_payment_result', response)
 
-  def testInstanceTree_redirectToManualDepositPayment(self):
+  @simulate("PaymentTransaction_triggerPaymentCheckAlarmAndRedirectToPanel",
+            "*args, **kwargs",
+            "return context")
+  def testInstanceTree_redirectToManualDepositPayment_no_subscription_with_simulate(self):
+    instance_tree_on_website = self._testInstanceTree_redirectToManualDepositPayment_no_subscription()
+    self.tic()
+    payment_transaction = instance_tree_on_website.InstanceTree_redirectToManualDepositPayment()
+    self.login()
+    # Virtual Master subscription request + Instance Tree subscription request = -10
+    self.assertEqual(payment_transaction.PaymentTransaction_getTotalPayablePrice(),
+                     -10)
+
+  def _testInstanceTree_redirectToManualDepositPayment(self):
     _, release_variation, type_variation, _, _, instance_tree = \
       self.bootstrapAllocableInstanceTree(is_accountable=True, base_price=5)
     self.tic()
@@ -547,11 +561,26 @@ class TestInstanceTree_redirectToManualDepositPayment(TestPanelSkinsMixin):
 
     self.login(person.getUserId())
 
-    instance_tree_on_website = self.getDocumentOnPanelContext(instance_tree)
+    return self.getDocumentOnPanelContext(instance_tree)
 
+
+  def testInstanceTree_redirectToManualDepositPayment(self):
+    instance_tree_on_website = self._testInstanceTree_redirectToManualDepositPayment()
     # This script only works on website context, and shoult not raise and return
     # a redirect.
     response = instance_tree_on_website.InstanceTree_redirectToManualDepositPayment()
     self.assertIn('?page=slapos_master_panel_external_payment_result', response)
+
+
+  @simulate("PaymentTransaction_triggerPaymentCheckAlarmAndRedirectToPanel", "*args, **kwargs",
+              "return context")
+  def testInstanceTree_redirectToManualDepositPayment_with_simulate(self):
+    instance_tree_on_website = self._testInstanceTree_redirectToManualDepositPayment()
+    self.tic()
+    payment_transaction = instance_tree_on_website.InstanceTree_redirectToManualDepositPayment()
+    self.login()
+    # Virtual Master subscription request + Instance Tree subscription request = -10
+    self.assertEqual(payment_transaction.PaymentTransaction_getTotalPayablePrice(),
+                     -10)
 
 

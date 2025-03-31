@@ -277,7 +277,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/SaleInvoiceTransaction_getInvoicePrintoutUrl',
         'slapos_panel/InstanceTree_proposeUpgradeDecision',
         'slapos_panel/InstanceTree_searchUpgradableSoftwareReleaseList',
-        'slapos_panel/PaymentTransaction_triggerPaymentCheckAlarmAndRedirectToPanel',
         'slapos_panel/SoftwareInstance_getComputeNodeUrl',
         'slapos_panel_compatibility/Base_getComputerToken',
         'slapos_parameter_editor/SoftwareProductModule_updateParameterEditorTestDialog',

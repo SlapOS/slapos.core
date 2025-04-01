@@ -80,6 +80,7 @@
   <item>SlapOSVirtualMasterConstraint</item>
   <item>SlaposComputeNodeConstraint</item>
   <item>SlaposRemoteNodeConstraint</item>
+  <item>SoftwareInstance</item>
  </portal_type>
  <portal_type id="Slave Instance">
   <item>InstanceTree</item>

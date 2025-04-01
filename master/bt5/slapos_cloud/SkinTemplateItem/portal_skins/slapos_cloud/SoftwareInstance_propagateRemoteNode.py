@@ -1,4 +1,5 @@
 from zExceptions import Unauthorized
+from Products.ERP5Type.Core.Workflow import ValidationFailed
 if REQUEST is not None:
   raise Unauthorized
 
@@ -87,6 +88,12 @@ if (remote_instance_tree is None) or \
   (remote_node.getSlaXml() != remote_instance_tree.getSlaXml()) or \
   (local_instance.getTextContent() != remote_instance_tree.getTextContent()) or \
   (local_instance.getSlapState() != remote_instance_tree.getSlapState()):
+
+  try:
+    remote_node.Base_checkConsistency()
+  except ValidationFailed:
+    local_instance.setErrorStatus("Can not propagate from inconsistent Remote Node")
+    return
 
   remote_person.requestSoftwareInstance(
     project_reference=remote_project.getReference(),

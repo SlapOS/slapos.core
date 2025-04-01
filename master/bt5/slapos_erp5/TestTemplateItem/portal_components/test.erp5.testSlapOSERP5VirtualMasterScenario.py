@@ -88,7 +88,8 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     )
     if not_consistent_document is not None:
       # XXX check disabled
-      assert not_consistent_document.checkConsistency() == [], not_consistent_document.checkConsistency()[0]
+      self.assertEqual([], not_consistent_document.checkConsistency(),
+              not_consistent_document.checkConsistency()[0])
 
 
   def addInstanceNode(self, title, software_instance):
@@ -117,11 +118,8 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     # lets join as slapos accountant, which will manages currencies
     self.logout()
     accountant_reference = 'accountant-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, accountant_reference)
+    accountant_person = self.joinSlapOS(self.web_site, accountant_reference)
     self.login()
-    accountant_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=accountant_reference).getParentValue()
     self.addAccountingManagerAssignment(accountant_person)
 
     self.tic()
@@ -140,11 +138,8 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     # lets join as slapos sales manager, which will manages trade condition
     self.logout()
     sale_reference = 'sales-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, sale_reference)
+    sale_person = self.joinSlapOS(self.web_site, sale_reference)
     self.login()
-    sale_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=sale_reference).getParentValue()
     self.addSaleManagerAssignment(sale_person)
 
     self.tic()
@@ -270,17 +265,15 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     related_object_list = document.Base_getRelatedObjectList(**{'category.category_strict_membership': 1})
     related_object_list = [x.getRelativeUrl() for x in related_object_list]
     related_object_list.sort()
-    assert len(related_object_list) == count, '%i\n%s' % (len(related_object_list), '\n'.join(related_object_list))
+    self.assertEqual(
+      len(related_object_list), count,
+      '%i\n%s' % (len(related_object_list), '\n'.join(related_object_list)))
 
   def createProductionManager(self, project):
     production_manager_reference = 'production_manager-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, production_manager_reference)
-
+    production_manager_person = self.joinSlapOS(
+      self.web_site, production_manager_reference)
     self.login()
-    production_manager_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=production_manager_reference).getParentValue()
-
     self.addProjectProductionManagerAssignment(production_manager_person, project)
     self.tic()
     return production_manager_person
@@ -292,12 +285,8 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     self.logout()
     # lets join as slapos administrator, which will manager the project
     owner_reference = 'project-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, owner_reference)
-
+    owner_person = self.joinSlapOS(self.web_site, owner_reference)
     self.login()
-    owner_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=owner_reference).getParentValue()
     self.tic()
     self.logout()
 
@@ -335,16 +324,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.logout()
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-      # owner_person.setCareerSubordinationValue(seller_organisation)
-
       self.tic()
-
       # hooray, now it is time to create compute_nodes
       self.logout()
       self.login(sale_person.getUserId())
@@ -404,12 +387,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
-
+      public_person = self.joinSlapOS(self.web_site, public_reference)
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -469,14 +448,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.logout()
     # lets join as slapos administrator, which will own few compute_nodes
     owner_reference = 'owner-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, owner_reference)
+    owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
     self.login()
-    owner_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=owner_reference).getParentValue()
     self.tic()
-
     self.logout()
     self.login(owner_person.getUserId())
 
@@ -518,7 +493,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     payment_transaction.stop()
     self.tic()
 
-    assert payment_transaction.receivable.getGroupingReference(None) is not None
+    self.assertNotEqual(
+      payment_transaction.receivable.getGroupingReference(None), None)
 
     # Check if the Deposit lead to proper balance.
     tmp_subscription_request = createTempSubscription(
@@ -538,13 +514,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.logout()
       # lets join as slapos administrator, which will manager the project
       owner_reference = 'project-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
-
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-
       self.tic()
 
       # hooray, now it is time to create compute_nodes
@@ -636,13 +607,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -673,12 +640,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
+      public_person = self.joinSlapOS(self.web_site, public_reference)
 
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
       public_person.setCareerSubordinationValue(customer_subordination_organisation)
 
       # XXX Instance will be paid by the organisation
@@ -720,7 +684,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       self.tic()
       self.assertEqual(payment_transaction.getSpecialiseValue().getTradeConditionType(), "deposit")
-      assert payment_transaction.receivable.getGroupingReference(None) is not None
+      self.assertNotEqual(None,
+        payment_transaction.receivable.getGroupingReference(None))
 
       outstanding_amount_list = customer_section_organisation.Entity_getOutstandingDepositAmountList(
           currency.getUid(), ledger_uid=ledger.getUid())
@@ -767,17 +732,20 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       'project_uid': None,
       'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
     })
-    assert len(inventory_list) == 1, len(inventory_list)
-    assert inventory_list[0].quantity == 1, inventory_list[0].quantity
+    self.assertEqual(len(inventory_list), 1)
+    self.assertEqual(inventory_list[0].quantity, 1)
     resource_vcl = [
       # 'software_release/%s' % release_variation.getRelativeUrl(),
       'software_type/%s' % type_variation.getRelativeUrl()
     ]
     resource_vcl.sort()
-    assert inventory_list[0].getVariationCategoryList() == resource_vcl, "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList())
+    self.assertEqual(inventory_list[0].getVariationCategoryList(),
+                     resource_vcl,
+       "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList()))
 
     # Check accounting
-    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(mirror_section_uid=customer_section_organisation.getUid())
+    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
+       mirror_section_uid=customer_section_organisation.getUid())
     self.assertSameSet(
       [x.total_price for x in transaction_list],
       [141.0, -141.0],
@@ -815,14 +783,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, project_owner_reference)
+      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
       self.login()
-      project_owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=project_owner_reference).getParentValue()
-      # owner_person.setCareerSubordinationValue(seller_organisation)
-
       self.tic()
       self.logout()
       self.login(sale_person.getUserId())
@@ -876,13 +839,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -936,7 +895,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # payzen/wechat or accountant will only stop the payment
       payment_transaction.stop()
       self.tic()
-      assert payment_transaction.receivable.getGroupingReference(None) is not None
+      self.assertNotEqual(None,
+        payment_transaction.receivable.getGroupingReference(None))
       self.login(project_owner_person.getUserId())
 
       amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
@@ -949,12 +909,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
-
+      public_person = self.joinSlapOS(self.web_site, public_reference)
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       # Simulate access from compute_node, to open the capacity scope
@@ -1013,18 +969,22 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       'project_uid': None,
       'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
     })
-    assert len(inventory_list) == 1, len(inventory_list)
-    assert inventory_list[0].quantity == 1, inventory_list[0].quantity
+    
+    self.assertEqual(len(inventory_list), 1)
+    self.assertEqual(inventory_list[0].quantity, 1)
     resource_vcl = [
       # 'software_release/%s' % release_variation.getRelativeUrl(),
       'software_type/%s' % type_variation.getRelativeUrl()
     ]
     resource_vcl.sort()
-    assert inventory_list[0].getVariationCategoryList() == resource_vcl, "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList())
+    self.assertEqual(resource_vcl, inventory_list[0].getVariationCategoryList(),
+          "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList()))
 
     # Check accounting
-    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(mirror_section_uid=public_person.getUid())
-    assert len(transaction_list) == 4, len(transaction_list)
+    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
+                                     mirror_section_uid=public_person.getUid())
+
+    self.assertEqual(len(transaction_list), 4)
     self.assertSameSet(
       [x.total_price for x in transaction_list],
       [9.0, -9.0, 10.8, -10.8],
@@ -1066,14 +1026,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
       self.tic()
-
       self.logout()
       self.login(sale_person.getUserId())
       # create a default project
@@ -1088,7 +1044,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         preferred_subscription_assignment_category_list=[
           'function/customer',
           'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
+          'destination_project/%s' % project_relative_url
         ]
       )
       self.tic()
@@ -1125,18 +1081,13 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
+      public_person = self.joinSlapOS(self.web_site, public_reference)
 
+      self.logout()
       shared_public_reference = 'shared_public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, shared_public_reference)
+      shared_public_person = self.joinSlapOS(self.web_site, shared_public_reference)
 
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
-      shared_public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=shared_public_reference).getParentValue()
 
     with PinnedDateTime(self, DateTime('2024/02/17 00:05')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -1222,14 +1173,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
       self.tic()
-
       self.logout()
       self.login(sale_person.getUserId())
       # create a default project
@@ -1282,12 +1229,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
-
+      public_person = self.joinSlapOS(self.web_site, public_reference)
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
 
     with PinnedDateTime(self, DateTime('2024/02/17 00:05')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -1340,14 +1283,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       remote_owner_reference = 'remote-owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, remote_owner_reference)
+      remote_owner_person = self.joinSlapOS(self.web_site, remote_owner_reference)
 
       self.login()
-      remote_owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=remote_owner_reference).getParentValue()
       self.tic()
-
       self.logout()
       self.login(sale_person.getUserId())
       # create a default project
@@ -1399,12 +1338,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       remote_public_reference = 'remote-public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, remote_public_reference)
+      remote_public_person = self.joinSlapOS(self.web_site, remote_public_reference)
 
       self.login()
-      remote_public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=remote_public_reference).getParentValue()
 
       ####################################
       # Create a local project
@@ -1453,12 +1389,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
+      public_person = self.joinSlapOS(self.web_site, public_reference)
 
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -1573,16 +1506,12 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       remote_owner_reference = 'remote-owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, remote_owner_reference)
+      remote_owner_person = self.joinSlapOS(self.web_site, remote_owner_reference)
 
-      self.login()
-      remote_owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=remote_owner_reference).getParentValue()
       self.tic()
-
       self.logout()
       self.login(sale_person.getUserId())
+      
       # create a default project
       remote_project_relative_url = self.addProject(person=remote_owner_person, currency=currency)
 
@@ -1651,12 +1580,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       remote_public_reference = 'remote-public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, remote_public_reference)
+      remote_public_person = self.joinSlapOS(self.web_site, remote_public_reference)
 
-      self.login()
-      remote_public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=remote_public_reference).getParentValue()
 
       ####################################
       # Create a local project
@@ -1705,13 +1630,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
+      public_person = self.joinSlapOS(self.web_site, public_reference)
 
       self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=public_reference).getParentValue()
-
       public_instance_title = 'Public title %s' % self.generateNewId()
       self.checkRemoteInstanceAllocation(public_person.getUserId(),
           public_reference, public_instance_title,

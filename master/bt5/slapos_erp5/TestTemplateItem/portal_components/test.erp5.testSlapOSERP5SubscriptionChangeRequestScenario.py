@@ -26,16 +26,10 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-      #owner_person.setCareerSubordinationValue(seller_organisation)
-
       self.tic()
-
       # hooray, now it is time to create compute_nodes
       self.logout()
       self.login(sale_person.getUserId())
@@ -74,19 +68,14 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     with PinnedDateTime(self, DateTime('2023/12/29')):
       public_reference = 'public-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference)
+      public_person = self.joinSlapOS(self.web_site, public_reference)
+      self.logout()
     with PinnedDateTime(self, DateTime('2024/01/01')):
       public_reference2 = 'public2-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, public_reference2)
+      public_person2 = self.joinSlapOS(self.web_site, public_reference2)
+      self.logout()
 
     self.login()
-    public_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=public_reference).getParentValue()
-    public_person2 = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=public_reference2).getParentValue()
-
     person_user_id = public_person.getUserId()
     software_release = public_server_software
     software_type = public_instance_type
@@ -194,16 +183,10 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     with PinnedDateTime(self, DateTime('2024/01/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-      #owner_person.setCareerSubordinationValue(seller_organisation)
-
       self.tic()
-
       # hooray, now it is time to create compute_nodes
       self.logout()
       self.login(sale_person.getUserId())
@@ -298,16 +281,10 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     with PinnedDateTime(self, DateTime('2024/01/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
       self.login()
-      owner_person = self.portal.portal_catalog.getResultValue(
-        portal_type="ERP5 Login",
-        reference=owner_reference).getParentValue()
-      #owner_person.setCareerSubordinationValue(seller_organisation)
-
       self.tic()
-
       # hooray, now it is time to create compute_nodes
       self.logout()
       self.login(sale_person.getUserId())

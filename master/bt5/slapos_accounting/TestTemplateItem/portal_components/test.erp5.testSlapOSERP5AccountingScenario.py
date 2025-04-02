@@ -16,7 +16,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     """
     User does not pay the subscription, which is cancelled after some time
     """
-    with PinnedDateTime(self, DateTime('2020/05/19')):
+    with PinnedDateTime(self, DateTime('2023/05/19')):
       owner_person, _, project = self.bootstrapAccountingTest()
     # Ensure no unexpected object has been created
     # 2 assignment
@@ -38,7 +38,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.assertEqual(subscription_request.getUid(),
      deposit_outstanding_amount_list[0].getUid())
     
-    with PinnedDateTime(self, DateTime('2021/04/04')):
+    with PinnedDateTime(self, DateTime('2024/04/04')):
       payment_transaction = owner_person.Entity_createDepositPaymentTransaction(
         deposit_outstanding_amount_list)
       # payzen interface will only stop the payment
@@ -57,8 +57,8 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     ).getParentValue()
     self.assertEqual(open_sale_order.getValidationState(), "validated")
     # invoice is the same month's day of the person creation
-    # So, the open order period before '2021/04/03' starts on '2021/03/19'
-    self.assertEqual(open_sale_order.getStartDate(), DateTime('2021/03/19'))
+    # So, the open order period before '2024/04/03' starts on '2024/03/19'
+    self.assertEqual(open_sale_order.getStartDate(), DateTime('2024/03/19'))
     self.assertEqual(open_sale_order.getStartDate(),
                      open_sale_order.getStopDate())
     first_invoice = self.portal.portal_catalog.getResultValue(
@@ -67,8 +67,8 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     ).getParentValue()
     self.assertEqual(first_invoice.getUid(), amount_list[0].payment_request_uid)
     self.assertEqual(first_invoice.getSimulationState(), "confirmed")
-    self.assertEqual(first_invoice.getStartDate(), DateTime('2021/03/19'))
-    self.assertEqual(first_invoice.getStopDate(), DateTime('2021/04/19'))
+    self.assertEqual(first_invoice.getStartDate(), DateTime('2024/03/19'))
+    self.assertEqual(first_invoice.getStopDate(), DateTime('2024/04/19'))
     # Discount and first subscription
     self.assertAlmostEqual(first_invoice.getTotalPrice(), 24.192)
     # Ensure no unexpected object has been created
@@ -82,7 +82,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 subscription requests
     self.assertRelatedObjectCount(project, 12)
 
-    with PinnedDateTime(self, DateTime('2021/07/05')):
+    with PinnedDateTime(self, DateTime('2024/07/05')):
       self.portal.portal_alarms.update_open_order_simulation.activeSense()
       self.tic()
 
@@ -107,11 +107,11 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.assertRelatedObjectCount(project, 24)
 
     # Try to pay previous period
-    with PinnedDateTime(self, DateTime('2021/07/06')):
+    with PinnedDateTime(self, DateTime('2024/07/06')):
 
       payment_transaction = owner_person.Entity_createPaymentTransaction(
         owner_person.Entity_getOutstandingAmountList(
-          at_date=DateTime('2021/05/06'),
+          at_date=DateTime('2024/05/06'),
           section_uid=first_invoice.getSourceSectionUid(),
           resource_uid=first_invoice.getPriceCurrencyUid(),
           ledger_uid=first_invoice.getLedgerUid(),
@@ -157,7 +157,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       # Ensure no unexpected object has been created
       self.assertRelatedObjectCount(project, 24)
 
-    with PinnedDateTime(self, DateTime('2021/07/06')):
+    with PinnedDateTime(self, DateTime('2024/07/06')):
       self.checkERP5StateBeforeExit()
 
 
@@ -166,7 +166,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     Generate many different open order
     Try to ensure monthly invoices are correctly created
     """
-    creation_date = DateTime('2020/05/19')
+    creation_date = DateTime('2023/05/19')
     with PinnedDateTime(self, creation_date):
       owner_person, currency, project = self.bootstrapAccountingTest()
       # Create software product
@@ -318,7 +318,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     """
     Check that VAT rules are applied by default
     """
-    creation_date = DateTime('2020/02/19')
+    creation_date = DateTime('2023/02/19')
     with PinnedDateTime(self, creation_date):
       owner_person, _, project = self.bootstrapAccountingTest()
       owner_person.edit(default_address_region='america/south/brazil')

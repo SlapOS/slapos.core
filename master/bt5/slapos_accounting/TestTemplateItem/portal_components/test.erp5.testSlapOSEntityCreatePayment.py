@@ -124,12 +124,14 @@ class TestSlapOSEntityCreatePaymentMixin(SlapOSTestCaseMixin):
 
     invoice_amount = self.sumReceivable(invoice)
     assertLine(bank_list[0], invoice_amount, [
-        'destination/account_module/payment_to_encash',
+        # 'destination/account_module/payment_to_encash',
         'source/account_module/payment_to_encash'])
+    self.assertEqual(bank_list[0].getDestination(portal_type='Account'), None)
     for rec in rec_list:
       assertLine(rec, -invoice_amount / len(rec_list), [
-          'destination/account_module/payable',
+          # 'destination/account_module/payable',
           'source/account_module/receivable'])
+      self.assertEqual(rec.getDestination(portal_type='Account'), None)
 
   def fullBuild(self, person, invoice_list):
     payment = person.Entity_createPaymentTransaction(person.Entity_getOutstandingAmountList(

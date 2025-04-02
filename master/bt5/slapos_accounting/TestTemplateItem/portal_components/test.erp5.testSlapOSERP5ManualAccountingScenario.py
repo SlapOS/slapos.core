@@ -12,45 +12,10 @@ from DateTime import DateTime
 
 class TestSlapOSManualAccountingScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
   def bootstrapManualAccountingTest(self):
-    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
-    self.tic()
-
-    self.logout()
-    # lets join as slapos administrator, which will manager the project
-    accountant_reference = 'accountant-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, accountant_reference)
-
-    self.login()
-    accountant_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=accountant_reference).getParentValue()
-    self.tic()
-
-    self.login(sale_person.getUserId())
-    self.addAccountingManagerAssignment(accountant_person)
-
+    currency, accountant_organisation, bank_account, _, accountant_person = self.bootstrapVirtualMasterTest()
     self.tic()
     self.logout()
-
     self.login(accountant_person.getUserId())
-
-    accountant_organisation = self.portal.organisation_module.newContent(
-      portal_type="Organisation",
-      title="test-accountant-%s" % self.generateNewId(),
-      # required to generate accounting report
-      price_currency_value=currency,
-      # required to calculate the vat
-      default_address_region='europe/west/france'
-    )
-    bank_account = accountant_organisation.newContent(
-      portal_type="Bank Account",
-      title="test_bank_account_%s" % self.generateNewId(),
-      price_currency_value=currency
-    )
-
-    bank_account.validate()
-    accountant_organisation.validate()
-
     return accountant_person, accountant_organisation, \
       bank_account, currency
 

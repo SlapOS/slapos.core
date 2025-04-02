@@ -22,6 +22,7 @@ The returned value must be hashable.
 # This can be achieved easily by customizing this script.
 
 # SlapOS change: allow to group automated transaction with ledger less transactions
+default_ledger = 'automated'
 if source:
-  return context.getLedger('automated'), context.getSource(portal_type='Account')
-return context.getLedger('automated'), context.getDestination(portal_type='Account')
+  return context.getLedger(default_ledger), context.getSource(portal_type='Account')
+return context.getLedger(default_ledger), context.getDestination(portal_type='Account')

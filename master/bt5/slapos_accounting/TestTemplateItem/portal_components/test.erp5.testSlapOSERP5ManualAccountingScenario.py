@@ -8,6 +8,7 @@
 from erp5.component.test.testSlapOSERP5VirtualMasterScenario import TestSlapOSVirtualMasterScenarioMixin
 from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
 from DateTime import DateTime
+import io
 
 
 class TestSlapOSManualAccountingScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
@@ -556,15 +557,37 @@ class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin
       source='account_module/bank',
       source_debit=payment_transaction.bank.getSourceDebit()
     )
-    bank_transaction.newContent(
+    encash_line = bank_transaction.newContent(
       portal_type='Accounting Transaction Line',
       source_credit=payment_transaction.bank.getSourceDebit(),
       source="account_module/payment_to_encash"
     )
     self.tic()
     self.stopAndAssertTransaction(bank_transaction)
-
     self.tic()
+
+    response = self.publish(
+      owner_person.getPath() + '/Base_callDialogMethod',
+      user=accountant_person.getUserId(),
+      request_method='POST',
+      stdin=io.BytesIO(
+        b'field_your_section_category=group/company&' +
+        b'field_your_grouping=grouping&' +
+        b'field_your_node=account_module/payment_to_encash&' +
+        b'field_your_mirror_section=%s&' % owner_person.getRelativeUrl() +
+        b'listbox_uid:list=%s&' % payment_transaction.bank.getUid() +
+        b'uid:list=%s&' % payment_transaction.bank.getUid() +
+        b'listbox_uid:list=%s&' % encash_line.getUid() +
+        b'uid:list=%s&' % encash_line.getUid() +
+        b'list_selection_name=accounting_transaction_module_grouping_reference_fast_input&' +
+        b'form_id=Person_view&' +
+        b'dialog_id=AccountingTransactionModule_viewGroupingFastInputDialog&' +
+        b'dialog_method=AccountingTransactionModule_setGroupingReference'
+      ),
+      env={'CONTENT_TYPE': 'application/x-www-form-urlencoded'}
+    )
+    self.assertEqual(response.getStatus(), 200)
+
     assert payment_transaction.bank.getGroupingReference(None) is not None
 
     self.checkERP5StateBeforeExit()

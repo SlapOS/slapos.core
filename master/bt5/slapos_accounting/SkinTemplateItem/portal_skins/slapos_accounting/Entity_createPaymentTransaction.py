@@ -71,7 +71,8 @@ payment_transaction.newContent(
   id='bank',
   portal_type='Accounting Transaction Line',
   source_value=collection_account,
-  destination_value=collection_account,
+  # Do not set destination account, as those transactions will be grouped
+  # with ledger less transaction, where accountants do not set such account
   quantity=-price,
   activate_kw=activate_kw,
 )

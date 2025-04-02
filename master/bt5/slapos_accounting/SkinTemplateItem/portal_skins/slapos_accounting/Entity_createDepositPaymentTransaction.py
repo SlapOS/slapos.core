@@ -122,7 +122,7 @@ payment_transaction.newContent(
   portal_type='Accounting Transaction Line',
   quantity=price,
   source_value=getAccountForUse('asset_receivable_subscriber'),
-  destination_value=getAccountForUse('payable'),
+  # Do not set destination account, as the other line does not have any
   activate_kw=activate_kw
 )
 
@@ -133,7 +133,8 @@ payment_transaction.newContent(
   portal_type='Accounting Transaction Line',
   quantity=-price,
   source_value=collection_account,
-  destination_value=collection_account,
+  # Do not set destination account, as those transactions will be grouped
+  # with ledger less transaction, where accountants do not set such account
   activate_kw=activate_kw
 )
 

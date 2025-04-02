@@ -18,14 +18,9 @@ class TestSlapOSManualAccountingScenarioMixin(TestSlapOSVirtualMasterScenarioMix
     self.logout()
     # lets join as slapos administrator, which will manager the project
     accountant_reference = 'accountant-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, accountant_reference)
+    accountant_person = self.joinSlapOS(self.web_site, accountant_reference)
 
-    self.login()
-    accountant_person = self.portal.portal_catalog.getResultValue(
-      portal_type="ERP5 Login",
-      reference=accountant_reference).getParentValue()
     self.tic()
-
     self.login(sale_person.getUserId())
     self.addAccountingManagerAssignment(accountant_person)
 

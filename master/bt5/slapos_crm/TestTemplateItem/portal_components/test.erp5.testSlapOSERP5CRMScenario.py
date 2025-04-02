@@ -135,7 +135,7 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
     Ensure services are destroyed, open order are archived, and
     deposit is used to pay the invoice
     """
-    creation_date = DateTime('2020/05/19')
+    creation_date = DateTime('2024/05/19')
     project, owner_person, instance_tree, compute_node = self.bootstrapCRMScenario(
       creation_date)
 
@@ -189,7 +189,7 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertEqual(open_order.getValidationState(), 'archived')
       self.assertNotEqual(open_order.getStopDate(), open_order.getStartDate())
       self.assertNotEqual(open_order.getStopDate(), None)
-      self.assertEqual(open_order.getStopDate(), DateTime('2020/07/17'))
+      self.assertEqual(open_order.getStopDate(), DateTime('2024/07/17'))
 
       for line in open_order.contentValues():
         for cell in line.contentValues():
@@ -234,7 +234,7 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
     Ensure services are destroyed, open order are archived, and
     deposit is used to pay the invoice
     """
-    creation_date = DateTime('2020/05/19')
+    creation_date = DateTime('2024/05/19')
     project, owner_person, instance_tree, compute_node = self.bootstrapCRMScenario(
       creation_date)
 

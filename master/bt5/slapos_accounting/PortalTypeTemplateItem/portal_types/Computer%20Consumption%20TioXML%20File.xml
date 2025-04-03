@@ -51,9 +51,7 @@
         <item>
             <key> <string>searchable_text_method_id</string> </key>
             <value>
-              <tuple>
-                <string>as_text</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>

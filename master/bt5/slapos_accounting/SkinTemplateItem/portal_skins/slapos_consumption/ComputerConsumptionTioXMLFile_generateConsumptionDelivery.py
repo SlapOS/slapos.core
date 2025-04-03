@@ -11,7 +11,6 @@ def rejectWithComment(comment):
   document.reject(comment=comment)
   return []
 
-
 if document.getValidationState() in ["cancelled", "shared"]:
   return result
 
@@ -91,7 +90,8 @@ for movement in tioxml_dict["movement"]:
         continue
 
       if len(instance_list) > 1:
-        return rejectWithComment("Multiple instances found for %s (%s)" % (reference, len(instance_list)))
+        return rejectWithComment(
+          "Multiple instances found for %s (%s)" % (reference, len(instance_list)))
 
       instance = instance_list[0]
       partition = instance.getAggregateValue(portal_type="Compute Partition")
@@ -247,5 +247,5 @@ for movement_entry in six.itervalues(movement_dict):
 
   result.append(consumption_delivery.getRelativeUrl())
 
-document.share(comment="Created Delivery: %s" % result)
+document.accept(comment="Created Delivery: %s" % result)
 return result

@@ -7,6 +7,13 @@ Balance Transaction | SlapOSVirtualMasterSourceProjectAccountingConstraint
 Cloud Contract Line | SlapOSCloudContractLineAccounting
 Cloud Contract | SlapOSCloudContractAccounting
 Computer Consumption TioXML File | SortIndex
+Consumption Delivery Line | OutcomeDescription
+Consumption Delivery Line | SlapOSAccountingSalePackingListLineConstraint
+Consumption Delivery Line | SlapOSMovementConstraint
+Consumption Delivery | DeliveryCausalityStateConstraint
+Consumption Delivery | SlapOSAccountingSalePackingListConstraint
+Consumption Delivery | SlapOSLedgerConstraint
+Consumption Delivery | SlapOSSaleProfileConstraint
 Hosting Subscription | SlapOSAccountingHostingSubscriptionConstraint
 Hosting Subscription | SlapOSLedgerConstraint
 Internal Invoice Transaction | SlapOSLedgerAccountingConstraint

@@ -10,7 +10,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>after_script/portal_workflow/slapos_accounting_consumption_interaction_workflow/script_Base_triggerSlaposAccountingGeneratePackingListFromTioAlarm</string>
+                <string>after_script/portal_workflow/slapos_accounting_interaction_workflow/script_Base_triggerSlaposAccountingGenerateConsumptionDeliveryFromTioxmlAlarm</string>
               </tuple>
             </value>
         </item>

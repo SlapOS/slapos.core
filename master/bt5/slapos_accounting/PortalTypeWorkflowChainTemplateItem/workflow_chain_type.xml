@@ -9,7 +9,7 @@
  </chain>
  <chain>
   <type>Computer Consumption TioXML File</type>
-  <workflow>document_conversion_interaction_workflow, document_publication_workflow, edit_workflow, slapos_accounting_consumption_interaction_workflow</workflow>
+  <workflow>edit_workflow, slapos_accounting_interaction_workflow, slapos_consumption_document_workflow</workflow>
  </chain>
  <chain>
   <type>Consumption Delivery</type>

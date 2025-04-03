@@ -1,9 +1,8 @@
 Applied Rule | slapos_simulation_interaction_workflow
 Compute Node | slapos_accounting_interaction_workflow
-Computer Consumption TioXML File | document_conversion_interaction_workflow
-Computer Consumption TioXML File | document_publication_workflow
 Computer Consumption TioXML File | edit_workflow
-Computer Consumption TioXML File | slapos_accounting_consumption_interaction_workflow
+Computer Consumption TioXML File | slapos_accounting_interaction_workflow
+Computer Consumption TioXML File | slapos_consumption_document_workflow
 Consumption Delivery Cell | delivery_movement_causality_interaction_workflow
 Consumption Delivery Cell | pricing_interaction_workflow
 Consumption Delivery Line | delivery_movement_causality_interaction_workflow

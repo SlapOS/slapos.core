@@ -345,6 +345,9 @@ class RunPromise(GenericPromise):
     if sys.version_info < (3, 9):
       expected_assertion_message = "Can't instantiate abstract class RunPromise with abstract methods sense"
 
+    if sys.version_info >= (3, 12):
+      expected_assertion_message = "Can't instantiate abstract class RunPromise without an implementation for abstract method 'sense'"
+
     self.assertEqual(str(exc.exception), expected_assertion_message)
 
   def test_promise_extra_config(self):

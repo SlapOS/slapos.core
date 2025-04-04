@@ -341,12 +341,12 @@ class RunPromise(GenericPromise):
       promise_module = promise_process._loadPromiseModule()
       promise = promise_module.RunPromise({})
 
-    expected_assertion_message = "Can't instantiate abstract class RunPromise with abstract method sense"
-    if sys.version_info < (3, 9):
-      expected_assertion_message = "Can't instantiate abstract class RunPromise with abstract methods sense"
-
     if sys.version_info >= (3, 12):
       expected_assertion_message = "Can't instantiate abstract class RunPromise without an implementation for abstract method 'sense'"
+    elif sys.version_info >= (3, 9)
+      expected_assertion_message = "Can't instantiate abstract class RunPromise with abstract method sense"
+    else: # version_info < 3.9
+      expected_assertion_message = "Can't instantiate abstract class RunPromise with abstract methods sense"
 
     self.assertEqual(str(exc.exception), expected_assertion_message)
 

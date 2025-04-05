@@ -46,9 +46,11 @@ for movement in tioxml_dict["movement"]:
     destination_decision_value = project_value.getDestinationValue(portal_type="Person")
     aggregate_value_list = [item]
   else:
+    # Otherwise it was an instance or slave instance
     instance = None
 
-    # XXX This looks like bad
+    # Backward compability while report, the computer
+    # uses slapuser while the partition reference is slappart.
     if reference.startswith("slapuser"):
       reference = reference.replace("slapuser", "slappart")
 
@@ -69,15 +71,29 @@ for movement in tioxml_dict["movement"]:
         validation_state="validated")
 
     if instance is None:
-      instance = portal.portal_catalog.getResultValue(
+      # Use reference to search
+      instance_list = portal.portal_catalog(
         reference=reference,
         portal_type=["Software Instance", "Slave Instance"],
         validation_state="validated")
 
-    if instance is None:
-      continue
+      if len(instance_list) == 0:
+        continue
 
-    assert project_value.getRelativeUrl() == instance.getFollowUp(portal_type='Project')
+      if len(instance_list) > 1:
+        raise ValueError("Multiple instances found for %s (%s)" % (reference, len(instance_list)))
+
+      instance = instance_list[0]
+      partition = instance.getAggregateValue(portal_type="Compute Partition")
+      if partition is None:
+        raise ValueError('Bad reference found (%s).' % (reference))
+
+      if partition.getParentValue() != compute_node:
+        raise ValueError('You found an instance outside the compute node partitions (%s).' % (reference))
+
+    assert project_value.getUid() == instance.getFollowUpUid(portal_type='Project'), \
+      'Project configuration is inconsistent.'
+
     item = instance.getSpecialiseValue(portal_type="Instance Tree")
     destination_decision_value = item.getDestinationSectionValue(portal_type="Person")
     aggregate_value_list = [item, instance]
@@ -87,11 +103,14 @@ for movement in tioxml_dict["movement"]:
   open_sale_order_movement_list = portal.portal_catalog(
     portal_type=['Open Sale Order Line', 'Open Sale Order Cell'],
     aggregate__uid=item.getUid(),
-    destination__uid = destination_decision_value.getUid(),
+    parent_destination__uid = destination_decision_value.getUid(),
     validation_state='validated',
     limit=1)
 
   if len(open_sale_order_movement_list) == 0:
+    # It is really unexpected that a report comes before the
+    # Open order been created by the alarm, in case, this happens often
+    # we can just skip (return), and retry later on.
     raise ValueError('No open order for %s' % item.getRelativeUrl())
 
   open_sale_order_movement = open_sale_order_movement_list[0]
@@ -130,7 +149,7 @@ for movement_entry in six.itervalues(movement_dict):
     temp_object=True,
     specialise=open_sale_order_movement.getSpecialise(),
     source_project_value=open_sale_order_movement.getSourceProjectValue(),
-    destination_project_value=open_sale_order_movement.getDestinationProjectValue(),
+    #destination_project_value=open_sale_order_movement.getDestinationProjectValue(),
     ledger_value=open_sale_order_movement.getLedgerValue(),
     # calculate price based on stop date.
     start_date=stop_date,
@@ -167,8 +186,30 @@ for movement_entry in six.itervalues(movement_dict):
   )
 
   for movement in movement_entry:
-    resource = portal.restrictedTraverse(movement['resource'])
-    line = consumption_delivery.newContent(
+
+    if not movement['resource']:
+      raise ValueError("Movement without resource")
+    try:
+      resource = portal.restrictedTraverse(movement['resource'])
+    except KeyError:
+      # Reference was used, rather them legacy path
+      resource = None
+      resource_list = portal.portal_catalog(
+        portal_type='Service',
+        reference=movement['resource'],
+        validation_state="Validated",
+        limit=2)
+      if len(resource_list) == 1:
+        resource = resource_list[0]
+      if len(resource_list) > 1:
+        raise ValueError(
+          "%s too many services found for %s" % movement['resource'])
+
+    if resource is None:
+      raise ValueError("%s service is not found or configured.")
+    assert resource.getPortalType() == "Service", "Bad object found"
+
+    consumption_delivery.newContent(
       portal_type="Consumption Delivery Line",
       title=movement['title'],
       quantity=movement['quantity'],
@@ -178,7 +219,6 @@ for movement_entry in six.itervalues(movement_dict):
       base_contribution_list=resource.getBaseContributionList(),
       use_list=resource.getUseList()
     )
-    assert line.getPrice(), line.getPrice()
   consumption_delivery.Delivery_fixBaseContributionTaxableRate()
   consumption_delivery.Base_checkConsistency()
   consumption_delivery.confirm(comment="Created from %s" % document.getRelativeUrl())

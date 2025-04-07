@@ -40,6 +40,7 @@ customer_payment_transaction = portal.accounting_module.newContent(
   payment_mode=payment_transaction.getPaymentMode(),
   ledger=payment_transaction.getLedger(),
   resource=payment_transaction.getResource(),
+  # Attach the payment transaction to trigger the automatic grouping
   causality_value=payment_transaction,
   created_by_builder=1, # XXX this prevent init script from creating lines.
   activate_kw=activate_kw
@@ -61,7 +62,6 @@ customer_payment_transaction.newContent(
   id='bank',
   portal_type='Accounting Transaction Line',
   quantity=-payment_transaction.PaymentTransaction_getTotalPayablePrice(),
-  # source='account_module/bank',
   # XXX XXX use another account?
   source_value='account_module/payment_to_encash',
   activate_kw=activate_kw
@@ -73,8 +73,8 @@ if len(customer_payment_transaction.checkConsistency()) != 0:
 customer_payment_transaction.start(comment=translateString("Payment Transaction stopped."))
 customer_payment_transaction.stop(comment=translateString("Payment Transaction stopped."))
 
-# Attach the payment transaction, to prevent creating multiple mirror transactions
-payment_transaction.edit(causality_list=payment_transaction.getCausalityList() +  [customer_payment_transaction.getRelativeUrl()])
-
 payment_transaction.reindexObject(activate_kw=activate_kw)
 customer_payment_transaction.reindexObject(activate_kw=activate_kw)
+
+if accounting_transaction_line.getGroupingReference(None) is None:
+  raise ValueError('%s should have been grouped' % accounting_transaction_line.getRelativeUrl())

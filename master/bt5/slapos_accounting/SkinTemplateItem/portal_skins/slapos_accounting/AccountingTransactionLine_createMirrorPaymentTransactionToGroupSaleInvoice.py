@@ -74,4 +74,4 @@ customer_payment_transaction.reindexObject(activate_kw=activate_kw)
 if accounting_transaction_line.getGroupingReference(None) is None:
   # This check is required to prevent getting an infinite loop
   # in the alarm which create infinite number of payment transaction
-  raise ValueError('%s should have been grouped' % accounting_transaction_line.getRelativeUrl())
+  raise AssertionError('%s should have been grouped' % accounting_transaction_line.getRelativeUrl())

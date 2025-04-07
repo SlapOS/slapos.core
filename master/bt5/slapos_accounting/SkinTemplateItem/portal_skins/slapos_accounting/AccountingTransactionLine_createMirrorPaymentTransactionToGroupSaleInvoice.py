@@ -16,6 +16,13 @@ if accounting_transaction_line.getGroupingReference(None) is not None:
   # line is already grouped
   return
 
+# Ensure the sale invoice is also ready to be groupped
+sale_invoice = ([x for x in payment_transaction.AccountingTransaction_getCausalityGroupedAccountingTransactionList() if x.getPortalType() == 'Sale Invoice Transaction'] + [None])[0]
+if (sale_invoice is None) or (sale_invoice.getSimulationState() not in ['stopped', 'delivered']):
+  # The sale invoice has not been generated yet
+  return
+assert sale_invoice.getLedger() == 'automated'
+
 # Create mirroring payment transaction
 # required to have grouping reference with the invoice
 customer_payment_transaction = portal.accounting_module.newContent(

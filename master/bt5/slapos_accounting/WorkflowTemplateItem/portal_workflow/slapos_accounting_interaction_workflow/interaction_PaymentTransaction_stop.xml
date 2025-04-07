@@ -29,6 +29,7 @@
             <value>
               <tuple>
                 <string>Payment Transaction</string>
+                <string>Sale Invoice Transaction</string>
               </tuple>
             </value>
         </item>

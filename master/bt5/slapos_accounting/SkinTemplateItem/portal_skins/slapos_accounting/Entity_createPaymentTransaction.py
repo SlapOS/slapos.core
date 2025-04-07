@@ -84,7 +84,7 @@ for index, line in enumerate(invoice_list):
       title="receivable%s - %s" % (index, line.getSourceReference()),
       portal_type='Accounting Transaction Line',
       source=line.node_relative_url,
-      destination_value=getAccountForUse('payable'),
+      # Do not set destination account, as the other line does not have any
       quantity=line.total_price,
       activate_kw=activate_kw,
     )

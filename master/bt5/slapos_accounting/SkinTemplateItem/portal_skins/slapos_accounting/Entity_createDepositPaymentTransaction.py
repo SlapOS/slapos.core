@@ -122,7 +122,7 @@ payment_transaction.newContent(
   portal_type='Accounting Transaction Line',
   quantity=price,
   source_value=getAccountForUse('asset_receivable_subscriber'),
-  destination_value=getAccountForUse('payable'),
+  # Do not set destination account, as the other line does not have any
   activate_kw=activate_kw
 )
 

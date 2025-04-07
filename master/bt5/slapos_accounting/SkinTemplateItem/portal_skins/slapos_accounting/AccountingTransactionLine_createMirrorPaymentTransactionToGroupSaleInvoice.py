@@ -12,11 +12,6 @@ assert not accounting_transaction_line.getDestination(portal_type='Account')
 assert payment_transaction.getLedger() == 'automated'
 assert payment_transaction.getSimulationState() in ['stopped', 'delivered']
 
-if payment_transaction.getCausalityValue(portal_type=payment_transaction.getPortalType()) is not None:
-  # It seems that the alarm already created a mirror transaction
-  # prevent created a new one indefinitely
-  return
-
 if accounting_transaction_line.getGroupingReference(None) is not None:
   # line is already grouped
   return

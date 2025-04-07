@@ -57,8 +57,7 @@ customer_payment_transaction.newContent(
   id='bank',
   portal_type='Accounting Transaction Line',
   quantity=-payment_transaction.PaymentTransaction_getTotalPayablePrice(),
-  # XXX XXX use another account?
-  source_value='account_module/payment_to_encash',
+  source_value=getAccountForUse('suspense'),
   activate_kw=activate_kw
 )
 

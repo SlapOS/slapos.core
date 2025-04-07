@@ -376,7 +376,7 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
       result_list.append(line_list)
     return result_list
 
-  def __readResultList(self, result_list):
+  def __readLineList(self, result_list):
     failed = False
     message = ""
     for result in result_list:
@@ -407,7 +407,7 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
     result_size = len(latest_result_list)
     if result_size == 0:
       return module(problem=False, message="No result found!")
-    problem, message = self.__readResultList(latest_result_list[0])
+    problem, message = self.__readLineList(latest_result_list[0])
     if not problem:
       # latest execution is OK
       return module(problem=False, message=message)

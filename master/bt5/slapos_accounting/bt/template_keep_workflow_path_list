@@ -12,6 +12,7 @@ account_module/purchase
 account_module/receivable
 account_module/refundable_vat
 account_module/sales
+account_module/suspense
 business_process_module/slapos_sale_subscription_business_process
 portal_rules/slapos_delivery_root_simulation_rule
 portal_rules/slapos_invoice_root_simulation_rule

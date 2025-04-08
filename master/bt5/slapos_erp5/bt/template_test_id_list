@@ -1,5 +1,6 @@
 test.erp5.testSlapOSAuthenticationPolicy
 test.erp5.testSlapOSCodingStyle
+test.erp5.testSlapOSConsumptionScenario
 test.erp5.testSlapOSCoreSkins
 test.erp5.testSlapOSERP5Alarm
 test.erp5.testSlapOSERP5AllocationScenario

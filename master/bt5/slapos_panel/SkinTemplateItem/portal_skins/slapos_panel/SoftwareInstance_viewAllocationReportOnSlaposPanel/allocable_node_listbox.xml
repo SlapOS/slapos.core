@@ -133,6 +133,14 @@
                           <string>capacity_scope_title</string>
                           <string>Capacity Scope</string>
                         </tuple>
+                        <tuple>
+                          <string>allocation_scope_title</string>
+                          <string>Allocation Scope</string>
+                        </tuple>
+                        <tuple>
+                          <string>subordination_title</string>
+                          <string>Computer Network</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

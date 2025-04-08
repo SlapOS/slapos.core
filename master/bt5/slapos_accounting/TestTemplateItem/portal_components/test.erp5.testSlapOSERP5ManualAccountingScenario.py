@@ -8,44 +8,15 @@
 from erp5.component.test.testSlapOSERP5VirtualMasterScenario import TestSlapOSVirtualMasterScenarioMixin
 from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
 from DateTime import DateTime
+import io
 
 
 class TestSlapOSManualAccountingScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
-  def bootstrapManualAccountingTest(self):
-    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
-    self.tic()
-
-    self.logout()
-    # lets join as slapos administrator, which will manager the project
-    accountant_reference = 'accountant-%s' % self.generateNewId()
-    accountant_person = self.joinSlapOS(self.web_site, accountant_reference)
-
-    self.tic()
-    self.login(sale_person.getUserId())
-    self.addAccountingManagerAssignment(accountant_person)
-
+  def bootstrapManualAccountingTest(self, **kw):
+    currency, accountant_organisation, bank_account, _, accountant_person = self.bootstrapVirtualMasterTest(**kw)
     self.tic()
     self.logout()
-
     self.login(accountant_person.getUserId())
-
-    accountant_organisation = self.portal.organisation_module.newContent(
-      portal_type="Organisation",
-      title="test-accountant-%s" % self.generateNewId(),
-      # required to generate accounting report
-      price_currency_value=currency,
-      # required to calculate the vat
-      default_address_region='europe/west/france'
-    )
-    bank_account = accountant_organisation.newContent(
-      portal_type="Bank Account",
-      title="test_bank_account_%s" % self.generateNewId(),
-      price_currency_value=currency
-    )
-
-    bank_account.validate()
-    accountant_organisation.validate()
-
     return accountant_person, accountant_organisation, \
       bank_account, currency
 
@@ -512,4 +483,111 @@ class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin
     """
     self.test_sale_invoice_transaction(customer_as_organisation=True)
 
+  def test_bank_transaction_for_automated_accounting(self, customer_as_organisation=False):
+    """ Basic scenario for accountant create an Payment Transaction
+        to register the bank of an automated transaction
+    """
+    accountant_person, seller_organisation, bank_account, currency = \
+      self.bootstrapManualAccountingTest(is_virtual_master_accountable=True)
 
+    ##########################################
+    # Register a deposit as a customer
+    self.logout()
+    owner_reference = 'owner-%s' % self.generateNewId()
+    self.joinSlapOS(self.web_site, owner_reference)
+    self.login()
+    owner_person = self.portal.portal_catalog.getResultValue(
+      portal_type="ERP5 Login",
+      reference=owner_reference).getParentValue()
+    self.tic()
+    self.logout()
+    self.login(owner_person.getUserId())
+    # Pre-input a reservation payment for a huge amount, to have enough amount.
+    # to check if other services are ok
+    total_price = 1234
+    def createTempSubscription(person, source_section, total_price, currency):
+      return self.portal.portal_trash.newContent(
+        portal_type='Subscription Request',
+        temp_object=True,
+        start_date=DateTime(),
+        source_section=source_section,
+        destination_value=person,
+        destination_section_value=person,
+        ledger_value=self.portal.portal_categories.ledger.automated,
+        price_currency=currency,
+        total_price=total_price
+      )
+    # Action to submit project subscription
+    def wrapWithShadow(person, source_section, total_price, currency):
+      # pre-include a large amount of w/o any subscription request using a temp
+      # object. It requires to be created under shadow user for security reasons.
+      tmp_subscription_request = createTempSubscription(person, source_section, total_price, currency)
+      return person.Entity_createDepositPaymentTransaction([tmp_subscription_request])
+    payment_transaction = owner_person.Person_restrictMethodAsShadowUser(
+      shadow_document=owner_person,
+      callable_object=wrapWithShadow,
+      argument_list=[owner_person, seller_organisation.getRelativeUrl(),
+       total_price, currency.getRelativeUrl()])
+    self.tic()
+    self.logout()
+    self.login()
+    # payzen interface will only stop the payment
+    payment_transaction.stop()
+    self.tic()
+    assert payment_transaction.receivable.getGroupingReference(None) is not None
+    assert payment_transaction.bank.getGroupingReference(None) is None
+
+    ##########################################
+    # Manually create and letter the bank transaction
+    self.logout()
+    self.login(accountant_person.getUserId())
+
+    bank_transaction = self.portal.accounting_module.newContent(
+      title='Bank transaction for %s' % payment_transaction.getTitle(),
+      portal_type="Payment Transaction",
+      start_date=DateTime(),
+      resource_value=currency,
+      price_currency_value=currency,
+      destination_section_value=owner_person,
+      source_section_value=seller_organisation,
+      source_payment_value=bank_account
+    )
+    bank_transaction.manage_delObjects(ids=[x for x in bank_transaction.contentIds() if (x != 'bank')])
+    bank_transaction.bank.edit(
+      source='account_module/bank',
+      source_debit=payment_transaction.bank.getSourceDebit()
+    )
+    encash_line = bank_transaction.newContent(
+      portal_type='Accounting Transaction Line',
+      source_credit=payment_transaction.bank.getSourceDebit(),
+      source="account_module/payment_to_encash"
+    )
+    self.tic()
+    self.stopAndAssertTransaction(bank_transaction)
+    self.tic()
+
+    response = self.publish(
+      owner_person.getPath() + '/Base_callDialogMethod',
+      user=accountant_person.getUserId(),
+      request_method='POST',
+      stdin=io.BytesIO(
+        b'field_your_section_category=group/company&' +
+        b'field_your_grouping=grouping&' +
+        b'field_your_node=account_module/payment_to_encash&' +
+        b'field_your_mirror_section=%s&' % owner_person.getRelativeUrl() +
+        b'listbox_uid:list=%s&' % payment_transaction.bank.getUid() +
+        b'uids:list=%s&' % payment_transaction.bank.getUid() +
+        b'listbox_uid:list=%s&' % encash_line.getUid() +
+        b'uids:list=%s&' % encash_line.getUid() +
+        b'list_selection_name=accounting_transaction_module_grouping_reference_fast_input&' +
+        b'form_id=Person_view&' +
+        b'dialog_id=AccountingTransactionModule_viewGroupingFastInputDialog&' +
+        b'dialog_method=AccountingTransactionModule_setGroupingReference'
+      ),
+      env={'CONTENT_TYPE': 'application/x-www-form-urlencoded'}
+    )
+    self.assertEqual(response.getStatus(), 200)
+
+    assert payment_transaction.bank.getGroupingReference(None) is not None
+
+    self.checkERP5StateBeforeExit()

@@ -149,6 +149,8 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     seller_organisation = self.portal.organisation_module.newContent(
       portal_type="Organisation",
       title="test-seller-%s" % self.generateNewId(),
+      # required for manual grouping reference
+      group="company",
       # required to generate accounting report
       price_currency_value=currency,
       # required to calculate the vat

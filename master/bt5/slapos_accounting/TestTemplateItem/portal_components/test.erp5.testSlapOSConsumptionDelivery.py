@@ -192,7 +192,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
                               attribute='comment'):
       result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
     self.assertEqual(document.getValidationState(), "draft")
-    self.assertEqual('No related Compute Node!',
+    self.assertEqual('No related Compute Node or Software Instance!',
         document.workflow_history['document_publication_workflow'][-1]['comment'])
     self.assertEqual(result, None)
 

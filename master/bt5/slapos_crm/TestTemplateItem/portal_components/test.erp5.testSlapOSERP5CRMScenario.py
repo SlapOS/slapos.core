@@ -248,6 +248,7 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.tic()
       regularisation_request = self.portal.portal_catalog.getResultValue(
         portal_type='Regularisation Request',
+        simulation_state='suspended',
         destination__uid=owner_person.getUid()
       )
       self.assertNotEqual(regularisation_request, None)

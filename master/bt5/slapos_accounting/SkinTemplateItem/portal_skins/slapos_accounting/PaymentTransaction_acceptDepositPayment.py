@@ -3,6 +3,7 @@ if REQUEST is not None:
   raise Unauthorized
 
 from DateTime import DateTime
+from Products.ERP5Type.Message import translateString
 
 portal = context.getPortalObject()
 payment_transaction = context
@@ -67,8 +68,8 @@ open_sale_order.newContent(
   activate_kw=activate_kw
 )
 
-open_sale_order.confirm()
-open_sale_order.stop()
-open_sale_order.deliver()
+open_sale_order.confirm(comment=translateString("Deposit payment accepted."))
+open_sale_order.stop(comment=translateString("Deposit payment accepted."))
+open_sale_order.deliver(comment=translateString("Deposit payment accepted."))
 
 return open_sale_order

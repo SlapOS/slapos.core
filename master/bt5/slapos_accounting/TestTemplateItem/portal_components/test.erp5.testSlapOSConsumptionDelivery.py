@@ -151,20 +151,6 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
       document.submit()
     return document
 
-  def assertCreatedConsumptionDelivery(self, person, delivery):
-    self.assertEqual(delivery.getPortalType(), "Consumption Delivery")
-    self.assertEqual(delivery.getSourceSection(), None)
-    self.assertNotEqual(delivery.getSource(), None)
-    self.assertEqual(delivery.getDestination(), person.getRelativeUrl())
-    self.assertEqual(delivery.getDestinationDecision(),
-                     person.getRelativeUrl())
-    self.assertEqual(delivery.getStartDate(), self._start_date)
-    self.assertEqual(delivery.getStopDate(), self._stop_date)
-    self.assertEqual(delivery.getTitle(), 'Resource consumptionsé')
-    self.assertEqual(delivery.getSimulationState(), "delivered")
-    self.assertEqual(delivery.getCausalityState(), "building")
-    self.assertNotEqual(delivery.getSpecialise(), None)
-
   def assertCreatedConsumptionDeliveryLine(self,
          line, title, quantity, aggregate_list, person, service, price=None):
 
@@ -177,6 +163,46 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     self.assertEqual(line.getQuantityUnit(), "unit/piece")
     self.assertEqual(line.getPrice(), None)
 
+  def generateConsumptionDelivery(self, person, document, tio_dict):
+    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
+                              tio_dict, attribute='comment'):
+      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
+
+    self.assertEqual(document.getValidationState(), "accepted")
+    self.assertEqual("Created Delivery: %s" % result,
+        document.workflow_history['slapos_consumption_document_workflow'][-1]['comment'])
+    self.assertEqual(len(result), 1)
+
+    delivery = self.portal.restrictedTraverse(result[0])
+    self.assertEqual(delivery.getPortalType(), "Consumption Delivery")
+    self.assertEqual(delivery.getSourceSection(), None)
+    self.assertNotEqual(delivery.getSource(), None)
+    self.assertEqual(delivery.getDestination(), person.getRelativeUrl())
+    self.assertEqual(delivery.getDestinationDecision(),
+                     person.getRelativeUrl())
+    self.assertEqual(delivery.getStartDate(), self._start_date)
+    self.assertEqual(delivery.getStopDate(), self._stop_date)
+    self.assertEqual(delivery.getTitle(), 'Resource consumptionsé')
+    self.assertEqual(delivery.getSimulationState(), "delivered")
+    self.assertEqual(delivery.getCausalityState(), "building")
+    self.assertNotEqual(delivery.getSpecialise(), None)
+    return delivery
+
+
+  def generateNewTioDict(self, service, partition, quantity):
+    return {
+      'title': 'Resource consumptionsé',
+      'start_date': self._start_date,
+      'stop_date': self._stop_date,
+      'movement': [{
+        'title': 'fooà',
+        'resource': service,
+        'reference': partition.getReference(),
+        'quantity': quantity,
+        'category': "caté",
+      }],
+    }
+
   def test_generateConsumptionDelivery_REQUEST_disallowed(self):
     document = self.createTioXMLFile()
     self.assertRaises(
@@ -188,13 +214,12 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     document = self.createTioXMLFile()
     self.assertEqual(document.getValidationState(), "submitted")
     with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
-                              None,
-                              attribute='comment'):
+                              None, attribute='comment'):
       result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
-    self.assertEqual(document.getValidationState(), "draft")
+    self.assertEqual(document.getValidationState(), "rejected")
     self.assertEqual('No related Compute Node or Software Instance!',
-        document.workflow_history['document_publication_workflow'][-1]['comment'])
-    self.assertEqual(result, None)
+        document.workflow_history['slapos_consumption_document_workflow'][-1]['comment'])
+    self.assertEqual(result, [])
 
   def test_generateConsumptionDelivery_no_data(self):
     _, compute_node, _, _, _ = self.bootstrapGenerateConsumptionDeliveryTest()
@@ -203,14 +228,12 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     document = self.createTioXMLFile(compute_node)
     self.assertEqual(document.getValidationState(), "submitted")
     with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
-                              None,
-                              attribute='comment'):
+                              None, attribute='comment'):
       result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
-    self.assertEqual(document.getValidationState(), "draft")
+    self.assertEqual(document.getValidationState(), "rejected")
     self.assertEqual("Not usable TioXML data",
-        document.workflow_history['document_publication_workflow'][-1]['comment'])
+        document.workflow_history['slapos_consumption_document_workflow'][-1]['comment'])
     self.assertEqual(result, [])
-
 
   def test_generateConsumptionDelivery_valid_xml_compute_node_one_movement(self):
     person, compute_node, _, _, service = self.bootstrapGenerateConsumptionDeliveryTest()
@@ -221,28 +244,8 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
 
-    tio_dict = {
-      'title': 'Resource consumptionsé',
-      'start_date': self._start_date,
-      'stop_date': self._stop_date,
-      'movement': [{
-        'title': 'fooà',
-        'resource': service.getRelativeUrl(),
-        'reference': compute_node.getReference(),
-        'quantity': 10.10,
-        'category': "caté",
-      }],
-    }
-    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
-                              tio_dict, attribute='comment'):
-      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
-
-    self.assertEqual(document.getValidationState(), "shared")
-    self.assertEqual("Created Delivery: %s" % result,
-        document.workflow_history['document_publication_workflow'][-1]['comment'])
-    self.assertEqual(len(result), 1)
-    delivery = self.portal.restrictedTraverse(result[0])
-    self.assertCreatedConsumptionDelivery(person, delivery)
+    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), compute_node, 10.10)
+    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
 
     delivery_line_list = delivery.contentValues(
       portal_type="Consumption Delivery Line")
@@ -262,28 +265,9 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     document = self.createTioXMLFile(compute_node)
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
-    tio_dict = {
-      'title': 'Resource consumptionsé',
-      'start_date': self._start_date,
-      'stop_date': self._stop_date,
-      'movement': [{
-        'title': 'fooà',
-        'resource': service.getRelativeUrl(),
-        'reference': instance.getReference(),
-        'quantity': 42.42,
-        'category': "caté",
-      }],
-    }
-    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
-                              tio_dict, attribute='comment'):
-      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
 
-    self.assertEqual(document.getValidationState(), "shared")
-    self.assertEqual("Created Delivery: %s" % result,
-        document.workflow_history['document_publication_workflow'][-1]['comment'])
-    self.assertEqual(len(result), 1)
-    delivery = self.portal.restrictedTraverse(result[0])
-    self.assertCreatedConsumptionDelivery(person, delivery)
+    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), instance, 42.42)
+    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
 
     delivery_line_list = delivery.contentValues(
       portal_type="Consumption Delivery Line")
@@ -304,29 +288,9 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     document = self.createTioXMLFile(compute_node)
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
-    tio_dict = {
-      'title': 'Resource consumptionsé',
-      'start_date': self._start_date,
-      'stop_date': self._stop_date,
-      'movement': [{
-        'title': 'fooà',
-        'resource': service.getReference(),
-        'reference': instance.getReference(),
-        'quantity': 42.42,
-        'category': "caté",
-      }],
-    }
-    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
-                              tio_dict, attribute='comment'):
-      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
 
-    self.assertEqual(document.getValidationState(), "shared")
-    self.assertEqual("Created Delivery: %s" % result,
-        document.workflow_history['document_publication_workflow'][-1]['comment'])
-    self.assertEqual(len(result), 1)
-    delivery = self.portal.restrictedTraverse(result[0])
-
-    self.assertCreatedConsumptionDelivery(person, delivery)
+    tio_dict = self.generateNewTioDict(service.getReference(), instance, 42.42)
+    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
 
     delivery_line_list = delivery.contentValues(
       portal_type="Consumption Delivery Line")
@@ -349,29 +313,9 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     document = self.createTioXMLFile(compute_node)
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
-    tio_dict = {
-      'title': 'Resource consumptionsé',
-      'start_date': self._start_date,
-      'stop_date': self._stop_date,
-      'movement': [{
-        'title': 'fooà',
-        'resource': service.getRelativeUrl(),
-        'reference': partition.getReference(),
-        'quantity': 42.42,
-        'category': "caté",
-      }],
-    }
-    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
-                              tio_dict, attribute='comment'):
-      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
 
-    self.assertEqual(document.getValidationState(), "shared")
-    self.assertEqual("Created Delivery: %s" % result,
-        document.workflow_history['document_publication_workflow'][-1]['comment'])
-    self.assertEqual(len(result), 1, partition.getReference())
-    delivery = self.portal.restrictedTraverse(result[0])
-
-    self.assertCreatedConsumptionDelivery(person, delivery)
+    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), partition, 42.42)
+    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
 
     delivery_line_list = delivery.contentValues(
       portal_type="Consumption Delivery Line")
@@ -394,29 +338,9 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     document = self.createTioXMLFile(compute_node)
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
-    tio_dict = {
-      'title': 'Resource consumptionsé',
-      'start_date': self._start_date,
-      'stop_date': self._stop_date,
-      'movement': [{
-        'title': 'fooà',
-        'resource': service.getRelativeUrl(),
-        'reference': partition.getReference(),
-        'quantity': 43.43,
-        'category': "caté",
-      }],
-    }
-    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
-                              tio_dict, attribute='comment'):
-      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
+    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), partition, 43.43)
+    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
 
-    self.assertEqual(document.getValidationState(), "shared")
-    self.assertEqual("Created Delivery: %s" % result,
-        document.workflow_history['document_publication_workflow'][-1]['comment'])
-    self.assertEqual(len(result), 1)
-    delivery = self.portal.restrictedTraverse(result[0])
-
-    self.assertCreatedConsumptionDelivery(person, delivery)
     delivery_line_list = delivery.contentValues(
       portal_type="Consumption Delivery Line")
     self.assertEqual(len(delivery_line_list), 1)
@@ -458,16 +382,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
         'category': "caté",
       }],
     }
-    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
-                              tio_dict, attribute='comment'):
-      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
-
-    self.assertEqual(document.getValidationState(), "shared")
-    self.assertEqual("Created Delivery: %s" % result,
-        document.workflow_history['document_publication_workflow'][-1]['comment'])
-    self.assertEqual(len(result), 1)
-    delivery = self.portal.restrictedTraverse(result[0])
-    self.assertCreatedConsumptionDelivery(person, delivery)
+    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
 
     delivery_line_list = delivery.contentValues(
       portal_type="Consumption Delivery Line")
@@ -519,17 +434,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
         'category': "caté",
       }],
     }
-    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
-                              tio_dict, attribute='comment'):
-      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
-
-    self.assertEqual(document.getValidationState(), "shared")
-    self.assertEqual("Created Delivery: %s" % result,
-        document.workflow_history['document_publication_workflow'][-1]['comment'])
-    self.assertEqual(len(result), 1)
-    delivery = self.portal.restrictedTraverse(result[0])
-
-    self.assertCreatedConsumptionDelivery(person, delivery)
+    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
 
     delivery_line_list = delivery.contentValues(
       portal_type="Consumption Delivery Line")
@@ -579,17 +484,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
         'category': "caté",
       }]
     }
-    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
-                              tio_dict, attribute='comment'):
-      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
-
-    self.assertEqual(document.getValidationState(), "shared")
-    self.assertEqual("Created Delivery: %s" % result,
-        document.workflow_history['document_publication_workflow'][-1]['comment'])
-    self.assertEqual(len(result), 1)
-    delivery = self.portal.restrictedTraverse(result[0])
-    self.assertCreatedConsumptionDelivery(person, delivery)
-
+    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
     delivery_line_list = delivery.contentValues(
       portal_type="Consumption Delivery Line")
     self.assertEqual(len(delivery_line_list), 2)
@@ -605,3 +500,60 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
         instance_tree_slave.getRelativeUrl()
       ], person, service)
 
+  def test_generateConsumptionDelivery_valid_xml_instance_one_movement(self):
+    person, _, _, instance_tree, service = \
+                self.bootstrapGenerateConsumptionDeliveryTest()
+
+    instance = instance_tree.getSuccessorValue()
+    self.logout()
+    self.login()
+    document = self.createTioXMLFile(instance)
+    self.tic()
+    self.assertEqual(document.getValidationState(), "submitted")
+    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), instance, 10.10)
+    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
+
+    delivery_line_list = delivery.contentValues(
+      portal_type="Consumption Delivery Line")
+    self.assertEqual(len(delivery_line_list), 1)
+    self.assertCreatedConsumptionDeliveryLine(
+      delivery_line_list[0], "fooà", 10.10, [
+        instance_tree.getRelativeUrl(),
+        instance.getRelativeUrl()
+      ], person, service)
+
+  def test_generateConsumptionDelivery_valid_xml_instance_two_movement(self):
+    person, _, instance_tree, _ , service = \
+       self.bootstrapGenerateConsumptionDeliveryTest()
+
+    instance = instance_tree.getSuccessorValue()
+
+    self.logout()
+    self.login()
+    document = self.createTioXMLFile(instance)
+    self.tic()
+    self.assertEqual(document.getValidationState(), "submitted")
+    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), instance, 42.42)
+    tio_dict['movement'].append({
+      'title': 'foob',
+      'resource': service.getRelativeUrl(),
+      'reference': instance.getReference(),
+      'quantity': 24.24,
+      'category': "caté",
+    })
+    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
+    delivery_line_list = delivery.contentValues(
+      portal_type="Consumption Delivery Line")
+    self.assertEqual(len(delivery_line_list), 2)
+
+    self.assertCreatedConsumptionDeliveryLine(
+      delivery_line_list[0], "fooà", 42.42, [
+        instance.getRelativeUrl(),
+        instance_tree.getRelativeUrl()
+      ], person, service)
+
+    self.assertCreatedConsumptionDeliveryLine(
+      delivery_line_list[1], "foob", 24.24, [
+        instance.getRelativeUrl(),
+        instance_tree.getRelativeUrl()
+      ], person, service)

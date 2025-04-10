@@ -612,6 +612,14 @@ class Partition(object):
       raise IOError('Software Release %s is not present on system.\n'
                     'Cannot deploy instance.' % self.software_release_url)
 
+    # Check that Software Release is ready in the directory
+    completed_path = os.path.join(self.software_path, '.completed')
+    if not os.path.exists(completed_path):
+      # XXX What should it raise?
+      raise IOError('Software Release %s is not ready on system.\n'
+                    'Missing file: %s\n'
+                    'Cannot deploy instance.' % (completed_path, self.software_release_url))
+
     # Generate buildout instance profile from template in Software Release
     template_location = os.path.join(self.software_path, 'instance.cfg')
     if not os.path.exists(template_location):

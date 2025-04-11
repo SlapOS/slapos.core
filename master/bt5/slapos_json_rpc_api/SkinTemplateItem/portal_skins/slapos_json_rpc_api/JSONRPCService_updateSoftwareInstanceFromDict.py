@@ -29,7 +29,7 @@ if "reported_state" in data_dict:
     if not software_instance.isLastData(key, timestamp):
       software_instance.bang(bang_tree=True, comment=data_dict.get("status_message", ""))
   else:
-    raise WrongReportedStateError("Unexcepected Reported State: %s" % reported_state)
+    raise WrongReportedStateError("Unexpected Reported State: %s" % reported_state)
 
 if "title" in data_dict and data_dict["title"] != software_instance.getTitle():
   software_instance.rename(

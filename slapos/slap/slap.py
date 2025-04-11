@@ -801,19 +801,17 @@ class ComputerPartition(SlapRequester):
 
   def setConnectionDict(self, connection_dict, slave_reference=None):
     if slave_reference is None:
-      json_dict = {
-        'compute_node_id': self._computer_id,
-        'compute_partition_id': self.getId(),
-      }
-    else:
-      json_dict = {
-        'reference': slave_reference
-      }
-    json_dict['connection_parameters'] = connection_dict
-    json_dict['portal_type'] = 'Software Instance'
+      # Update a Software Instance
+      # get the reference from the current documents
+      slave_reference = self.getInstanceGuid()
+
+    json_dict = {
+      'reference': slave_reference,
+      'connection_parameter_dict': connection_dict
+    }
 
     self._connection_helper.callJsonRpcAPI(
-      'slapos.put.software_instance',
+      'slapos.put.v0.instance_connection_parameter',
       json_dict
     )
 

@@ -565,41 +565,35 @@ class ComputerPartition(SlapRequester):
 
   def destroyed(self):
     self._connection_helper.callJsonRpcAPI(
-      'slapos.put.software_instance',
+      'slapos.put.v0.instance_reported_state',
       {
-        "portal_type": "Software Instance",
-        "reported_state": "destroyed",
-        'compute_node_id': self._computer_id,
-        'compute_partition_id': self.getId()
+        "reference": self.getInstanceGuid(),
+        "state": "destroyed"
       }
     )
 
   def started(self):
     self._connection_helper.callJsonRpcAPI(
-      'slapos.put.software_instance',
+      'slapos.put.v0.instance_reported_state',
       {
-        "portal_type": "Software Instance",
-        "reported_state": "started",
-        'compute_node_id': self._computer_id,
-        'compute_partition_id': self.getId()
+        "reference": self.getInstanceGuid(),
+        "state": "started"
       }
     )
 
   def stopped(self):
     self._connection_helper.callJsonRpcAPI(
-      'slapos.put.software_instance',
+      'slapos.put.v0.instance_reported_state',
       {
-        "portal_type": "Software Instance",
-        "reported_state": "stopped",
-        'compute_node_id': self._computer_id,
-        'compute_partition_id': self.getId()
+        "reference": self.getInstanceGuid(),
+        "state": "stopped"
       }
     )
 
   def error(self, error_log, logger=None):
     try:
       self._connection_helper.callJsonRpcAPI(
-        'slapos.put.v0.instance_state_error',
+        'slapos.put.v0.instance_error',
         {
           "reference": self.getInstanceGuid(),
           "message": str(error_log)

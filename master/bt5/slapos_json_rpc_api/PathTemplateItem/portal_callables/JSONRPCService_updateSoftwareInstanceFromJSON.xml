@@ -109,7 +109,7 @@
     "reported_state": {\n
       "title": "Reported State",\n
       "type": "string",\n
-      "enum": ["started", "destroyed", "stopped", "error", "bang"],\n
+      "enum": ["bang"],\n
       "description": "State reported by the node installing the Software Installation"\n
     },\n
     "status_message": {\n

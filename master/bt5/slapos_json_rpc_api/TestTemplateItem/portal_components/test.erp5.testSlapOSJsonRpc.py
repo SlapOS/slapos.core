@@ -1187,21 +1187,20 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     with PinnedDateTime(self, DateTime('2020/05/19')):
       response = self.callJsonRpcWebService(
-        "slapos.put.software_instance",
+        "slapos.put.v0.instance_reported_state",
         {
           "reference": instance.getReference(),
-          "portal_type": "Software Instance",
           "reported_state": "destroyed"
         },
         instance.getUserId()
       )
     self.assertEqual('application/json', response.headers.get('content-type'))
-    self.assertEqual({
-      'reference': instance.getReference(),
-      'date': '2020-05-19T00:00:00+00:00',
-      'portal_type': 'Software Instance',
-      'success': 'Done'
-    }, loadJson(response.getBody()))
+    self.assertEqual(
+      loadJson(response.getBody()),
+      {
+        'title': 'State reported',
+        'type': 'success'
+      })
     self.assertEqual(response.getStatus(), 200)
 
     self.assertEqual('invalidated',
@@ -1376,21 +1375,20 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
       # XXX Should reported_state added to Instance returned json?
       response = self.callJsonRpcWebService(
-        "slapos.put.software_instance",
+        "slapos.put.v0.instance_reported_state",
         {
           "reference": instance.getReference(),
-          "portal_type": "Software Instance",
           "reported_state": "stopped"
         },
         instance.getUserId()
       )
     self.assertEqual('application/json', response.headers.get('content-type'))
-    self.assertEqual({
-      'reference': instance.getReference(),
-      'date': '2020-05-19T00:00:00+00:00',
-      'portal_type': 'Software Instance',
-      'success': 'Done'
-    }, loadJson(response.getBody()))
+    self.assertEqual(
+      loadJson(response.getBody()),
+      {
+        'title': 'State reported',
+        'type': 'success'
+      })
     self.assertEqual(response.getStatus(), 200)
 
     # Check get return the expected results after
@@ -1435,21 +1433,20 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
       # XXX Should reported_state added to Instance returned json?
       response = self.callJsonRpcWebService(
-        "slapos.put.software_instance",
+        "slapos.put.v0.instance_reported_state",
         {
           "reference": instance.getReference(),
-          "portal_type": "Software Instance",
           "reported_state": "started"
         },
         instance.getUserId()
       )
     self.assertEqual('application/json', response.headers.get('content-type'))
-    self.assertEqual({
-      'reference': instance.getReference(),
-      'date': '2020-05-19T00:00:00+00:00',
-      'portal_type': 'Software Instance',
-      'success': 'Done'
-    }, loadJson(response.getBody()))
+    self.assertEqual(
+      loadJson(response.getBody()),
+      {
+        'title': 'State reported',
+        'type': 'success'
+      })
     self.assertEqual(response.getStatus(), 200)
 
     # Check get return the expected results after

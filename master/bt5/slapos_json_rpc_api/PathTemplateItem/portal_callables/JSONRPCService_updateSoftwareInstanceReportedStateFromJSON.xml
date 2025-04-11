@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>after_method_id</string> </key>
-            <value> <string>JSONRPCService_updateSoftwareInstanceErrorStateFromDict</string> </value>
+            <value> <string>JSONRPCService_updateSoftwareInstanceReportedStateFromDict</string> </value>
         </item>
         <item>
             <key> <string>content_type</string> </key>
@@ -16,7 +16,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>JSONRPCService_updateSoftwareInstanceErrorStateFromJSON</string> </value>
+            <value> <string>JSONRPCService_updateSoftwareInstanceReportedStateFromJSON</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -26,7 +26,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>JSONRPCService_updateSoftwareInstanceErrorStateFromJSON</string> </value>
+            <value> <string>JSONRPCService_updateSoftwareInstanceReportedStateFromJSON</string> </value>
         </item>
         <item>
             <key> <string>output_schema</string> </key>
@@ -42,8 +42,8 @@
             <key> <string>response_schema</string> </key>
             <value> <string>{\n
   "$schema": "http://json-schema.org/draft-07/schema#",\n
-  "title": "Instance Error State reported",\n
-  "description": "Response when the instance error state has been handled",\n
+  "title": "Instance State reported",\n
+  "description": "Response when the instance reported state has been handled",\n
   "type": "object",\n
   "additionalProperties": false,\n
   "properties": {\n
@@ -69,8 +69,8 @@
             <key> <string>text_content</string> </key>
             <value> <string>{\n
   "$schema": "http://json-schema.org/draft-07/schema#",\n
-  "title": "Update the Instance error state",\n
-  "description": "Update the Instance error state",\n
+  "title": "Report the Instance state",\n
+  "description": "Report the Instance state",\n
   "type": "object",\n
   "additionalProperties": false,\n
   "properties": {\n
@@ -79,15 +79,16 @@
       "type": "string",\n
       "description": "The unique reference of the Software Instance, example: SOFTINST-1234"\n
     },\n
-    "message": {\n
-      "title": "Message",\n
-      "description": "Message Used to inform master with readable text. Use to justify an error",\n
-      "type": "string"\n
+    "reported_state": {\n
+      "title": "Reported State",\n
+      "type": "string",\n
+      "enum": ["started", "destroyed", "stopped"],\n
+      "description": "State reported by the node"\n
     }\n
   },\n
   "required": [\n
     "reference",\n
-    "message"\n
+    "reported_state"\n
   ]\n
 }\n
 </string> </value>

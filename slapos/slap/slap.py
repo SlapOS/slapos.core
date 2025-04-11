@@ -599,13 +599,10 @@ class ComputerPartition(SlapRequester):
   def error(self, error_log, logger=None):
     try:
       self._connection_helper.callJsonRpcAPI(
-        'slapos.put.software_instance',
+        'slapos.put.v0.instance_state_error',
         {
-          "portal_type": "Software Instance",
-          "reported_state": "error",
-          "status_message": str(error_log),
-          'compute_node_id': self._computer_id,
-          'compute_partition_id': self.getId()
+          "reference": self.getInstanceGuid(),
+          "message": str(error_log)
         }
       )
     except (RequestException, ConnectionError):

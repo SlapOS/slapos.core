@@ -67,6 +67,7 @@
             <key> <string>json_form</string> </key>
             <value>
               <tuple>
+                <string>slapos.put.v0.instance_connection_parameter | JSONRPCService_updateSoftwareInstanceConnectionParameterFromJSON</string>
                 <string>slapos.put.software_instance | JSONRPCService_updateSoftwareInstanceFromJSON</string>
                 <string>slapos.put.software_installation | JSONRPCService_updateSoftwareInstallationFromJSON</string>
                 <string>slapos.put.compute_node | JSONRPCService_updateComputeNodeFromJSON</string>
@@ -86,7 +87,7 @@
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>0.0.1</string> </value>
+            <value> <string>0.0.2</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -156,7 +157,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1023.23929.12653.38041</string> </value>
+                      <value> <string>1024.27.51213.32290</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -176,7 +177,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1741866146.5</float>
+                              <float>1744363916.06</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

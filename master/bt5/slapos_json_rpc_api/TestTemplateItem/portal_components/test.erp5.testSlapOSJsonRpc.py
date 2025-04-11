@@ -841,25 +841,21 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 </instance>
 """
 
-    with PinnedDateTime(self, DateTime('2020/05/19')):
-      response = self.callJsonRpcWebService(
-        "slapos.put.software_instance",
-        {
-          "reference": instance.getReference(),
-          "portal_type": "Software Instance",
-          "connection_parameters": connection_parameters_dict,
-        },
-        instance.getUserId()
-      )
+    response = self.callJsonRpcWebService(
+      "slapos.put.v0.instance_connection_parameter",
+      {
+        "reference": instance.getReference(),
+        "connection_parameter_dict": connection_parameters_dict,
+      },
+      instance.getUserId()
+    )
 
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
       loadJson(response.getBody()),
       {
-        'reference': instance.getReference(),
-        'date': '2020-05-19T00:00:00+00:00',
-        'portal_type': 'Software Instance',
-        'success': 'Done'
+        'title': 'connection parameter updated',
+        'type': 'success'
       })
     self.assertEqual(response.getStatus(), 200)
 
@@ -880,25 +876,21 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 </instance>
 """
 
-    with PinnedDateTime(self, DateTime('2020/05/19')):
-      response = self.callJsonRpcWebService(
-        "slapos.put.software_instance",
-        {
-          "reference": instance.getReference(),
-          "portal_type": "Software Instance",
-          "connection_parameters": connection_parameters_dict,
-        },
-        instance.getUserId()
-      )
+    response = self.callJsonRpcWebService(
+      "slapos.put.v0.instance_connection_parameter",
+      {
+        "reference": instance.getReference(),
+        "connection_parameter_dict": connection_parameters_dict,
+      },
+      instance.getUserId()
+    )
 
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
       loadJson(response.getBody()),
       {
-        'reference': instance.getReference(),
-        'date': '2020-05-19T00:00:00+00:00',
-        'portal_type': 'Software Instance',
-        'success': 'Done'
+        'title': 'connection parameter updated',
+        'type': 'success'
       })
     self.assertEqual(response.getStatus(), 200)
 

@@ -106,11 +106,6 @@
       "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance"\n
     },\n
 \n
-    "connection_parameters": {\n
-      "title": "Connections Parameters",\n
-      "type": "object",\n
-      "description": "List of parameters provided by the instance to access it."\n
-    },\n
     "reported_state": {\n
       "title": "Reported State",\n
       "type": "string",\n

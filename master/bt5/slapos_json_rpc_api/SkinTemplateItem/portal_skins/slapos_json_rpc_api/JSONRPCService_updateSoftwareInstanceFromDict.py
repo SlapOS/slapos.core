@@ -28,9 +28,6 @@ if "reported_state" in data_dict:
 
     if not software_instance.isLastData(key, timestamp):
       software_instance.bang(bang_tree=True, comment=data_dict.get("status_message", ""))
-  elif (reported_state == "error"):
-    error_log = data_dict.get("status_message", "")
-    software_instance.setErrorStatus('while instanciating: %s' % error_log[-80:], reindex=1)
   else:
     raise WrongReportedStateError("Unexcepected Reported State: %s" % reported_state)
 

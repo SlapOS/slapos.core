@@ -9,19 +9,7 @@ software_instance = context.JSONRPCService_getObjectFromData(data_dict)
 if "reported_state" in data_dict:
 # Change desired state
   reported_state = data_dict["reported_state"]
-  if (reported_state == "started"):
-    software_instance.setAccessStatus(
-      'Instance correctly started', "started", reindex=1)
-  elif (reported_state == "stopped"):
-    software_instance.setAccessStatus(
-      'Instance correctly stopped', "stopped", reindex=1)
-  elif (reported_state == "destroyed"):
-    if software_instance.getSlapState() == 'destroy_requested':
-      # remove certificate from SI
-      software_instance.revokeCertificate()
-      if software_instance.getValidationState() == 'validated':
-        software_instance.invalidate()
-  elif (reported_state == "bang"):
+  if (reported_state == "bang"):
     software_instance.setErrorStatus('bang called')
     timestamp = str(int(software_instance.getModificationDate()))
     key = "%s_bangstamp" % software_instance.getReference()

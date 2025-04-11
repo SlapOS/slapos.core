@@ -902,7 +902,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     error_log = 'The error'
     response = self.callJsonRpcWebService(
-      "slapos.put.v0.instance_state_error",
+      "slapos.put.v0.instance_error",
       {
         "reference": instance.getReference(),
         "message": error_log
@@ -963,7 +963,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     # First call
     error_log = 'The error'
     response = self.callJsonRpcWebService(
-      "slapos.put.v0.instance_state_error",
+      "slapos.put.v0.instance_error",
       {
         "reference": instance.getReference(),
         "message": error_log
@@ -1019,7 +1019,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     # Second call
     response = self.callJsonRpcWebService(
-      "slapos.put.v0.instance_state_error",
+      "slapos.put.v0.instance_error",
       {
         "reference": instance.getReference(),
         "message": error_log

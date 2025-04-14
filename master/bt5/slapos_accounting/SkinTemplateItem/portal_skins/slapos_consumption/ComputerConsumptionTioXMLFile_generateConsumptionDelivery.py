@@ -11,7 +11,7 @@ def rejectWithComment(comment):
   document.reject(comment=comment)
   return []
 
-if document.getValidationState() in ["cancelled", "shared"]:
+if document.getValidationState() != 'submitted':
   return result
 
 # What happens if Contributor is Person?
@@ -37,15 +37,16 @@ if tioxml_dict is None:
 
 # This is mandatory so we expect to fail if not set
 start_date = tioxml_dict['start_date']
-
-# XXX RAFAEL we should ensure date is not in future
 stop_date = tioxml_dict['stop_date']
+
+if stop_date > DateTime():
+  return rejectWithComment("You cannot invoice future consumption %s" % stop_date)
 
 movement_dict = {}
 for movement in tioxml_dict["movement"]:
   reference = movement.get('reference', None)
   if reference is None:
-    continue
+    return rejectWithComment("One of Movement has no reference.")
 
   # Consumption was provided for the computer
   if reporter.getPortalType() == 'Compute Node' and \
@@ -72,7 +73,8 @@ for movement in tioxml_dict["movement"]:
     if partition is not None:
       if partition.getSlapState() != 'busy':
         # Instance was already detached
-        continue
+        return rejectWithComment(
+          "Reported consumption for an unattach partition (%s)" % (reference))
 
       instance = portal.portal_catalog.getResultValue(
         default_aggregate_uid=partition.getUid(),
@@ -87,10 +89,12 @@ for movement in tioxml_dict["movement"]:
         validation_state="validated")
 
       if len(instance_list) == 0:
-        continue
+        return rejectWithComment(
+          "Reported consumption for an unknown partition (%s)" % (reference))
 
       if len(instance_list) > 1:
-        return rejectWithComment(
+        # The instance is too inconsistent to continue.
+        raise ValueError(
           "Multiple instances found for %s (%s)" % (reference, len(instance_list)))
 
       instance = instance_list[0]
@@ -121,7 +125,8 @@ for movement in tioxml_dict["movement"]:
       return rejectWithComment("Instance has no Instance Tree %s" % (instance.getReference()))
 
   else:
-    return rejectWithComment("Not Implemented TODO")
+    return rejectWithComment("%s reported a consumption for %s which is not supported." % \
+      (reporter.getRelativeUrl(), reference))
 
   # If no open order, subscription must be approved
   open_sale_order_movement_list = portal.portal_catalog(
@@ -247,5 +252,6 @@ for movement_entry in six.itervalues(movement_dict):
 
   result.append(consumption_delivery.getRelativeUrl())
 
+document.setFollowUpValue(project_value)
 document.accept(comment="Created Delivery: %s" % result)
 return result

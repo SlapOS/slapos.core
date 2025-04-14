@@ -151,6 +151,10 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
       document.submit()
     return document
 
+  def assertWorkflowComment(self, document, message):
+    self.assertEqual(message,
+        document.workflow_history['slapos_consumption_document_workflow'][-1]['comment'])
+    
   def assertCreatedConsumptionDeliveryLine(self,
          line, title, quantity, aggregate_list, person, service, price=None):
 
@@ -169,8 +173,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
       result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
 
     self.assertEqual(document.getValidationState(), "accepted")
-    self.assertEqual("Created Delivery: %s" % result,
-        document.workflow_history['slapos_consumption_document_workflow'][-1]['comment'])
+    self.assertWorkflowComment(document, "Created Delivery: %s" % result)
     self.assertEqual(len(result), 1)
 
     delivery = self.portal.restrictedTraverse(result[0])
@@ -180,12 +183,16 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     self.assertEqual(delivery.getDestination(), person.getRelativeUrl())
     self.assertEqual(delivery.getDestinationDecision(),
                      person.getRelativeUrl())
+    self.assertEqual(delivery.getDestinationSection(), person.getRelativeUrl())
     self.assertEqual(delivery.getStartDate(), self._start_date)
     self.assertEqual(delivery.getStopDate(), self._stop_date)
     self.assertEqual(delivery.getTitle(), 'Resource consumptionsé')
     self.assertEqual(delivery.getSimulationState(), "delivered")
     self.assertEqual(delivery.getCausalityState(), "building")
     self.assertNotEqual(delivery.getSpecialise(), None)
+    self.assertNotEqual(delivery.getSourceProject(), None)
+    self.assertNotEqual(delivery.getDestinationProject(), None)
+    self.assertEqual(document.getFollowUp(), delivery.getSourceProject())
     return delivery
 
 
@@ -217,8 +224,8 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
                               None, attribute='comment'):
       result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
     self.assertEqual(document.getValidationState(), "rejected")
-    self.assertEqual('No related Compute Node or Software Instance!',
-        document.workflow_history['slapos_consumption_document_workflow'][-1]['comment'])
+    self.assertWorkflowComment(document,
+                               'No related Compute Node or Software Instance!')
     self.assertEqual(result, [])
 
   def test_generateConsumptionDelivery_no_data(self):
@@ -233,6 +240,117 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     self.assertEqual(document.getValidationState(), "rejected")
     self.assertEqual("Not usable TioXML data",
         document.workflow_history['slapos_consumption_document_workflow'][-1]['comment'])
+    self.assertEqual(result, [])
+
+  def test_generateConsumptionDelivery_no_project(self):
+    _, compute_node, _, _, _ = self.bootstrapGenerateConsumptionDeliveryTest()
+    self.logout()
+    self.login()
+    # Project is missing for some resason
+    compute_node.setFollowUp(None)
+    document = self.createTioXMLFile(compute_node)
+    self.assertEqual(document.getValidationState(), "submitted")
+    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
+                              None, attribute='comment'):
+      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
+    self.assertEqual(document.getValidationState(), "rejected")
+    self.assertWorkflowComment(document,
+           "Unknown project for %s." % compute_node.getReference())
+    self.assertEqual(result, [])
+
+  def test_generateConsumptionDelivery_valid_xml_compute_node_future(self):
+    _, compute_node, _, _, service = self.bootstrapGenerateConsumptionDeliveryTest()
+
+    self.logout()
+    self.login()
+    document = self.createTioXMLFile(compute_node)
+    self.tic()
+    self.assertEqual(document.getValidationState(), "submitted")
+    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), compute_node, 10.10)
+    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
+                              tio_dict, attribute='comment'):
+      with PinnedDateTime(self, DateTime('2023/12/20')):
+        result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
+    self.assertEqual(document.getValidationState(), "rejected")
+    self.assertWorkflowComment(document,
+      'You cannot invoice future consumption 2024/06/01 00:00:00 UTC')
+    self.assertEqual(result, [])
+
+  def test_generateConsumptionDelivery_valid_xml_no_reference(self):
+    _, compute_node, _, _, service = self.bootstrapGenerateConsumptionDeliveryTest()
+
+    self.logout()
+    self.login()
+    document = self.createTioXMLFile(compute_node)
+    self.tic()
+    self.assertEqual(document.getValidationState(), "submitted")
+    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), compute_node, 10.10)
+    del tio_dict['movement'][0]['reference']
+    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
+                              tio_dict, attribute='comment'):
+      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
+    self.assertEqual(document.getValidationState(), "rejected")
+    self.assertWorkflowComment(document, 'One of Movement has no reference.')
+    self.assertEqual(result, [])
+
+  def test_generateConsumptionDelivery_valid_xml_compute_unknown_reference(self):
+    _, compute_node, _, _, service = self.bootstrapGenerateConsumptionDeliveryTest()
+
+    self.logout()
+    self.login()
+    document = self.createTioXMLFile(compute_node)
+    self.tic()
+    self.assertEqual(document.getValidationState(), "submitted")
+    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), compute_node, 10.10)
+    tio_dict['movement'][0]['reference'] = 'RANDOMREF'
+    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
+                              tio_dict, attribute='comment'):
+      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
+    self.assertEqual(document.getValidationState(), "rejected")
+    self.assertWorkflowComment(document,
+                    'Reported consumption for an unknown partition (RANDOMREF)')
+    self.assertEqual(result, [])
+
+  def test_generateConsumptionDelivery_valid_xml_unknown_reference(self):
+    _, compute_node, instance_tree, _, service = \
+      self.bootstrapGenerateConsumptionDeliveryTest()
+
+    instance = instance_tree.getSuccessorValue()
+    self.logout()
+    self.login()
+    document = self.createTioXMLFile(instance)
+    self.tic()
+    self.assertEqual(document.getValidationState(), "submitted")
+    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), compute_node, 10.10)
+    tio_dict['movement'][0]['reference'] = 'RANDOMREF'
+    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
+                              tio_dict, attribute='comment'):
+      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
+    self.assertEqual(document.getValidationState(), "rejected")
+    self.assertWorkflowComment(document,
+      '%s reported a consumption for RANDOMREF which is not supported.' % \
+      (instance.getRelativeUrl()))
+    self.assertEqual(result, [])
+
+  def test_generateConsumptionDelivery_valid_xml_cross_report(self):
+    _, _, instance_tree_a, instance_tree_b, service = self.bootstrapGenerateConsumptionDeliveryTest()
+
+    instance_a = instance_tree_a.getSuccessorValue()
+    instance_b = instance_tree_b.getSuccessorValue()
+
+    self.logout()
+    self.login()
+    document = self.createTioXMLFile(instance_a)
+    self.tic()
+    self.assertEqual(document.getValidationState(), "submitted")
+    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), instance_b, 10.10)
+    with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
+                              tio_dict, attribute='comment'):
+      result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
+    self.assertEqual(document.getValidationState(), "rejected")
+    self.assertWorkflowComment(document,
+      '%s reported a consumption for %s which is not supported.' % \
+      (instance_a.getRelativeUrl(),  instance_b.getReference()))
     self.assertEqual(result, [])
 
   def test_generateConsumptionDelivery_valid_xml_compute_node_one_movement(self):

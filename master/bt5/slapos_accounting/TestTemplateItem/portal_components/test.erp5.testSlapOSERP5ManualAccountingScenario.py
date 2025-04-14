@@ -20,6 +20,20 @@ class TestSlapOSManualAccountingScenarioMixin(TestSlapOSVirtualMasterScenarioMix
     return accountant_person, accountant_organisation, \
       bank_account, currency
 
+  def createAccountingPeriodForOrganisation(self, organisation):
+    year = DateTime().strftime("%Y")
+    # Create Accounting Period and start
+    accounting_period = organisation.newContent(
+      portal_type="Accounting Period",
+      title=year,
+      start_date=DateTime("%s/01/01" % year),
+      stop_date=DateTime("%s/12/31" % year)
+    )
+
+    self.portal.portal_workflow.doActionFor(accounting_period, "start_action")
+    self.tic()
+    return accounting_period
+
   def createBalanceForOrganisation(self, accountant, organisation, transaction_list):
 
     # Group is required and should be unique, else the Balance will
@@ -34,17 +48,12 @@ class TestSlapOSManualAccountingScenarioMixin(TestSlapOSVirtualMasterScenarioMix
     self.login(accountant.getUserId())
     organisation.setGroup(group.getId())
 
-    # Create Accounting Period and start
-    year = DateTime().strftime("%Y")
-    accounting_period = organisation.newContent(
-      portal_type="Accounting Period",
-      title=year,
-      start_date=DateTime("%s/01/01" % year),
-      stop_date=DateTime("%s/12/31" % year)
-    )
+    accounting_period = self.portal.portal_catalog.getResultValue(
+      # See: self.createAccountingPeriodForOrganisation
+      title=DateTime().strftime("%Y"),
+      parent_uid=organisation.getUid(),
+      simulation_state="started")
 
-    self.portal.portal_workflow.doActionFor(accounting_period, "start_action")
-    self.tic()
     # Close all transactions before close the period.
     for transaction in transaction_list:
       self.portal.portal_workflow.doActionFor(transaction, "deliver_action")
@@ -115,7 +124,7 @@ class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin
     with PinnedDateTime(self, DateTime('2020/05/19')):
       accountant_person, accountant_organisation, bank_account, currency = \
         self.bootstrapManualAccountingTest()
-    
+
     self.login(accountant_person.getUserId())
 
     # Accountant can create one account for Hosting
@@ -129,6 +138,7 @@ class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin
     )
     account.validate()
 
+    self.createAccountingPeriodForOrganisation(accountant_organisation)
     if provider_as_organisation:
       # Accountaint can create a hosting provider
       provider = self.portal.organisation_module.newContent(
@@ -243,7 +253,7 @@ class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin
     with PinnedDateTime(self, DateTime('2020/05/19')):
       accountant_person, accountant_organisation, bank_account, currency = \
         self.bootstrapManualAccountingTest()
-    
+
     self.login(accountant_person.getUserId())
 
     # Accountant can create one account for Remboursement of a customer
@@ -256,6 +266,8 @@ class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin
       gap_list=['ias/ifrs/6/60/600', 'fr/pcg/6/62/628']
     )
     account.validate()
+
+    self.createAccountingPeriodForOrganisation(accountant_organisation)
 
     if not customer_as_organisation:
       customer = self.portal.organisation_module.newContent(
@@ -376,6 +388,7 @@ class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin
     )
     account.validate()
 
+    self.createAccountingPeriodForOrganisation(accountant_organisation)
     if customer_as_organisation:
       # Accountaint can create a hosting provider
       customer = self.portal.organisation_module.newContent(
@@ -490,6 +503,7 @@ class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin
     accountant_person, seller_organisation, bank_account, currency = \
       self.bootstrapManualAccountingTest(is_virtual_master_accountable=True)
 
+    self.createAccountingPeriodForOrganisation(seller_organisation)
     ##########################################
     # Register a deposit as a customer
     self.logout()

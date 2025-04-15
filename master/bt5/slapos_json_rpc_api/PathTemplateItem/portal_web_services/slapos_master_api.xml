@@ -71,7 +71,7 @@
                 <string>slapos.put.v0.instance_reported_state | JSONRPCService_updateSoftwareInstanceReportedStateFromJSON</string>
                 <string>slapos.put.v0.instance_error | JSONRPCService_updateSoftwareInstanceErrorStateFromJSON</string>
                 <string>slapos.put.v0.instance_title | JSONRPCService_updateSoftwareInstanceTitleFromJSON</string>
-                <string>slapos.put.software_instance | JSONRPCService_updateSoftwareInstanceFromJSON</string>
+                <string>slapos.put.v0.instance_bang | JSONRPCService_bangSoftwareInstanceFromJSON</string>
                 <string>slapos.put.software_installation | JSONRPCService_updateSoftwareInstallationFromJSON</string>
                 <string>slapos.put.compute_node | JSONRPCService_updateComputeNodeFromJSON</string>
                 <string>slapos.get.software_instance | JSONRPCService_getSoftwareInstanceFromJSON</string>
@@ -160,7 +160,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1024.353.34949.30549</string> </value>
+                      <value> <string>1024.5969.60309.32170</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -180,7 +180,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1744720435.05</float>
+                              <float>1744721785.04</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

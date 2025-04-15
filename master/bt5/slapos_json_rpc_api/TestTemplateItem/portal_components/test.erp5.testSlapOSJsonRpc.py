@@ -1080,22 +1080,20 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     error_log = 'Please force slapos instance rerun'
     with PinnedDateTime(self, DateTime('2020/05/19')):
       response = self.callJsonRpcWebService(
-        "slapos.put.software_instance",
+        "slapos.put.v0.instance_bang",
         {
           "reference": instance.getReference(),
-          "portal_type": "Software Instance",
-          "reported_state": "bang",
-          "status_message": error_log
+          "message": error_log
         },
         instance.getUserId()
       )
     self.assertEqual('application/json', response.headers.get('content-type'))
-    self.assertEqual({
-      'reference': instance.getReference(),
-      'date': '2020-05-19T00:00:00+00:00',
-      'portal_type': 'Software Instance',
-      'success': 'Done'
-    }, loadJson(response.getBody()))
+    self.assertEqual(
+      loadJson(response.getBody()),
+      {
+        'title': 'Bang handled',
+        'type': 'success'
+      })
     self.assertEqual(response.getStatus(), 200)
     portal_workflow = self.portal.portal_workflow
     comment = portal_workflow.getInfoFor(ob=instance,

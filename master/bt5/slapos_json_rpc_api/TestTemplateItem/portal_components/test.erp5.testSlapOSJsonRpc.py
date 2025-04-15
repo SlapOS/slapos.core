@@ -320,46 +320,6 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
                                            wf_id='compute_node_slap_interface_workflow')
     self.assertEqual(action_id, 'report_compute_node_bang')
 
-  def test_ComputeNodeAccess_03_not_accessed_getSoftwareInstallationStatus(self):
-    """
-    xXXX TODO Cedric Make sure we can create and modifiy when using weird url strings
-    """
-    with PortalAlarmDisabled(self.portal):
-      project = self.addProject()
-      self.compute_node, _ = self.addComputeNodeAndPartition(project)
-      self._makeComplexComputeNode(project)
-    compute_node_reference = self.compute_node.getReference()
-    compute_node_user_id = self.compute_node.getUserId()
-
-    software_installation = self.start_requested_software_installation
-    url_string = software_installation.getUrlString()
-    status_dict = software_installation.getAccessStatus()
-    response = self.callJsonRpcWebService(
-      "slapos.get.software_installation",
-      {
-        "portal_type": "Software Installation",
-        "software_release_uri": url_string,
-        "compute_node_id": compute_node_reference,
-      },
-      compute_node_user_id
-    )
-    # Check Data is correct
-    status_dict = software_installation.getAccessStatus()
-    self.assertEqual('application/json', response.headers.get('content-type'))
-    self.assertEqual(
-      loadJson(response.getBody()),
-      {
-        # "$schema": software_installation.getJSONSchemaUrl(),
-        # "api_revision": software_installation.getJIOAPIRevision(self.connector.getRelativeUrl()),
-        "portal_type": "Software Installation",
-        "software_release_uri": software_installation.getUrlString(),
-        "state": "available" if software_installation.getSlapState() == "start_requested" else "destroyed",
-        "compute_node_id": software_installation.getAggregateReference(),
-        "reported_state": status_dict.get("state"),
-        "status_message": status_dict.get("text"),
-       })
-    self.assertEqual(response.getStatus(), 200)
-
   def test_ComputeNodeAccess_04_destroyedSoftwareRelease_noSoftwareInstallation(self):
     with PortalAlarmDisabled(self.portal):
       project = self.addProject()

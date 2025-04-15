@@ -254,10 +254,9 @@ class Supply(SlapDocument):
 
   def supply(self, software_release, computer_guid=None, state='available'):
     self._connection_helper.callJsonRpcAPI(
-      'slapos.post.software_installation',
+      'slapos.post.v0.software_installation',
       {
-        "portal_type": "Software Installation",
-        'compute_node_id': computer_guid,
+        'reference': computer_guid,
         'software_release_uri': software_release,
         'state': state
       }

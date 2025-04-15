@@ -10,7 +10,7 @@ from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
 from DateTime import DateTime
 import pkg_resources
 
-class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
+class TestSlapOSConsumptionScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
 
   def addConsumptionService(self):
     # Create a new service to sell.
@@ -30,148 +30,167 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     consumption_service.validate()
     return consumption_service
 
-  def test_compute_node_consumption_scenario(self):
-    with PinnedDateTime(self, DateTime('2024/12/17')):
-      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
-      self.logout()
-      # lets join as slapos administrator, which will manager the project
-      project_owner_reference = 'project-%s' % self.generateNewId()
-      project_owner_person = self.joinSlapOS(
-        self.web_site, project_owner_reference)
+  def bootstrapConsumptionScenarioTest(self):
+    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
-      self.login()
-      self.tic()
-      self.logout()
-      self.login(sale_person.getUserId())
+    self.logout()
+    # lets join as slapos administrator, which will manager the project
+    project_owner_reference = 'project-%s' % self.generateNewId()
+    project_owner_person = self.joinSlapOS(
+      self.web_site, project_owner_reference)
 
-      project_relative_url = self.addProject(
-        is_accountable=True,
-        person=project_owner_person,
-        currency=currency)
+    self.login()
+    self.tic()
+    self.logout()
+    self.login(sale_person.getUserId())
 
-      self.logout()
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
+    project_relative_url = self.addProject(
+      is_accountable=True,
+      person=project_owner_person,
+      currency=currency)
 
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project_relative_url
-        ]
-      )
+    project = self.portal.restrictedTraverse(project_relative_url)
+    self.logout()
+    self.login()
 
-      public_server_software = self.generateNewSoftwareReleaseUrl()
-      public_instance_type = 'public type'
+    preference = self.portal.portal_preferences.slapos_default_system_preference
+    preference.edit(
+      preferred_subscription_assignment_category_list=[
+        'function/customer',
+        'role/client',
+        'destination_project/%s' % project_relative_url
+      ]
+    )
 
-      software_product, release_variation, type_variation = self.addSoftwareProduct(
-        "instance product", project, public_server_software, public_instance_type
-      )
-      consumption_service = self.addConsumptionService()
-      self.logout()
-      self.login(sale_person.getUserId())
+    public_server_software = self.generateNewSoftwareReleaseUrl()
+    public_instance_type = 'public type'
 
-      self.tic()
-      sale_supply = self.portal.portal_catalog.getResultValue(
-        portal_type='Sale Supply',
-        source_project__uid=project.getUid()
-      )
-      sale_supply.searchFolder(
-        portal_type='Sale Supply Line',
-        resource__relative_url="service_module/slapos_compute_node_subscription"
-      )[0].edit(base_price=99)
-      sale_supply.newContent(
-        portal_type="Sale Supply Line",
-        base_price=9,
-        resource_value=software_product
-      )
-      sale_supply.newContent(
-        portal_type="Sale Supply Line",
-        base_price=7,
-        resource_value=consumption_service
-      )
-      sale_supply.validate()
+    software_product, release_variation, type_variation = self.addSoftwareProduct(
+      "instance product", project, public_server_software, public_instance_type
+    )
+    consumption_service = self.addConsumptionService()
+    self.logout()
+    self.login(sale_person.getUserId())
 
-      self.tic()
-      # some preparation
-      self.logout()
+    self.tic()
+    sale_supply = self.portal.portal_catalog.getResultValue(
+      portal_type='Sale Supply',
+      source_project__uid=project.getUid()
+    )
+    sale_supply.searchFolder(
+      portal_type='Sale Supply Line',
+      resource__relative_url="service_module/slapos_compute_node_subscription"
+    )[0].edit(base_price=99)
+    sale_supply.newContent(
+      portal_type="Sale Supply Line",
+      base_price=9,
+      resource_value=software_product
+    )
+    sale_supply.newContent(
+      portal_type="Sale Supply Line",
+      base_price=7,
+      resource_value=consumption_service
+    )
+    sale_supply.validate()
 
-      # lets join as slapos administrator, which will own few compute_nodes
-      owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+    self.tic()
+    # some preparation
+    self.logout()
 
-      self.login()
+    # lets join as slapos administrator, which will own few compute_nodes
+    owner_reference = 'owner-%s' % self.generateNewId()
+    owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
-      # first slapos administrator assignment can only be created by
-      # the erp5 manager
-      self.addProjectProductionManagerAssignment(owner_person, project)
-      self.tic()
+    self.login()
 
-      # hooray, now it is time to create compute_nodes
-      self.login(owner_person.getUserId())
+    # first slapos administrator assignment can only be created by
+    # the erp5 manager
+    self.addProjectProductionManagerAssignment(owner_person, project)
+    self.tic()
 
-      public_server_title = 'Public Server for %s' % owner_reference
-      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
-      public_server = self.portal.portal_catalog.getResultValue(
-          portal_type='Compute Node', reference=public_server_id)
-      self.setAccessToMemcached(public_server)
-      self.assertNotEqual(None, public_server)
-      self.setServerOpenPublic(public_server)
-      public_server.generateCertificate()
+    # hooray, now it is time to create compute_nodes
+    self.login(owner_person.getUserId())
 
-      self.addAllocationSupply("for compute node", public_server, software_product,
+    public_server_title = 'Public Server for %s' % owner_reference
+    public_server_id = self.requestComputeNode(public_server_title, project.getReference())
+    public_server = self.portal.portal_catalog.getResultValue(
+        portal_type='Compute Node', reference=public_server_id)
+    self.setAccessToMemcached(public_server)
+    self.assertNotEqual(None, public_server)
+    self.setServerOpenPublic(public_server)
+    public_server.generateCertificate()
+
+    self.addAllocationSupply("for compute node", public_server, software_product,
                                release_variation, type_variation)
 
-      # and install some software on them
-      self.supplySoftware(public_server, public_server_software)
+    # and install some software on them
+    self.supplySoftware(public_server, public_server_software)
 
-      # format the compute_nodes
-      self.formatComputeNode(public_server)
-      self.logout()
+    # format the compute_nodes
+    self.formatComputeNode(public_server)
+    self.logout()
 
-      # Pay deposit to validate virtual master + one computer
-      deposit_amount = 42.0 + 99.0
-      self.login(project_owner_person.getUserId())
-      ledger = self.portal.portal_categories.ledger.automated
+    # Pay deposit to validate virtual master + one computer
+    deposit_amount = 42.0 + 99.0
+    self.login(project_owner_person.getUserId())
+    ledger = self.portal.portal_categories.ledger.automated
 
-      outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
-          currency.getUid(), ledger_uid=ledger.getUid())
-      amount = sum([i.total_price for i in outstanding_amount_list])
-      self.assertEqual(amount, deposit_amount)
+    outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
+        currency.getUid(), ledger_uid=ledger.getUid())
+    amount = sum([i.total_price for i in outstanding_amount_list])
+    self.assertEqual(amount, deposit_amount)
 
-      # Ensure to pay from the website
-      outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
-      outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
+    # Ensure to pay from the website
+    outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
+    outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
 
-      self.tic()
-      self.logout()
+    self.tic()
+    self.logout()
+    self.login()
+    payment_transaction = self.portal.portal_catalog.getResultValue(
+      portal_type="Payment Transaction",
+      destination_section_uid=project_owner_person.getUid(),
+      simulation_state="started"
+    )
+    self.assertEqual("deposit",
+      payment_transaction.getSpecialiseValue().getTradeConditionType())
+    # payzen/wechat or accountant will only stop the payment
+    payment_transaction.stop()
+    self.tic()
+    self.assertNotEqual(None,
+                    payment_transaction.receivable.getGroupingReference(None))
+    self.login(project_owner_person.getUserId())
+
+    amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
+        currency.getUid(), ledger_uid=ledger.getUid())])
+    self.assertEqual(0, amount)
+    self.logout()
+
+    return project, currency, owner_person, project_owner_person, public_server, \
+             public_instance_type, public_server_software, software_product, \
+             consumption_service, type_variation
+
+class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
+
+  def test_compute_node_consumption_scenario(self):
+    with PinnedDateTime(self, DateTime('2024/12/17')):
+      project, _, owner_person, project_owner_person, public_server, _, \
+        public_server_software, _, consumption_service, \
+        _ = self.bootstrapConsumptionScenarioTest()
+
       self.login()
-      payment_transaction = self.portal.portal_catalog.getResultValue(
-        portal_type="Payment Transaction",
-        destination_section_uid=project_owner_person.getUid(),
-        simulation_state="started"
-      )
-      self.assertEqual("deposit",
-        payment_transaction.getSpecialiseValue().getTradeConditionType())
-      # payzen/wechat or accountant will only stop the payment
-      payment_transaction.stop()
       self.tic()
-      self.assertNotEqual(None,
-                      payment_transaction.receivable.getGroupingReference(None))
-      self.login(project_owner_person.getUserId())
 
-      amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
-          currency.getUid(), ledger_uid=ledger.getUid())])
-      self.assertEqual(0, amount)
-      self.logout()
-      self.login()
+    with PinnedDateTime(self, DateTime('2024/12/18')):
+      # This alarms is called every day, so it is ok to invoke this here.
+      # and not for via interaction workflows
+      self.stepCallSlaposAccountingCreateHostingSubscriptionSimulationAlarm()
       self.tic()
 
     # No instance is created, since we would like to charge for the computer
     # itself.
-    with PinnedDateTime(self, DateTime('2025/02/20 01:00')):
+    with PinnedDateTime(self, DateTime('2025/01/18  01:00')):
       # Minimazed version of the original file, only with a sub-set of values
       # that matter
       consumption_xml_report = """<?xml version="1.0" encoding="utf-8"?>
@@ -219,12 +238,12 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertEqual(consumption_report.getReference(),
                 'TIOCONS-%s-2025-01-17-global' % public_server.getReference())
 
-      self.assertEqual(consumption_report.getValidationState(), "submitted")
+      self.assertEqual(consumption_report.getValidationState(), "accepted")
+      # This alarms is called every day, so it is ok to invoke this here.
+      # and not for via interaction workflows
+      self.stepCallSlaposAccountingCreateHostingSubscriptionSimulationAlarm()
 
-      # XXX This could be called by an interaction workflow
-      self.stepCallSlaposAccountingGeneratePackingListFromTioxmlAlarm()
       self.tic()
-
       # and uninstall some software on them
       self.logout()
       self.login(owner_person.getUserId())
@@ -242,195 +261,42 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
       mirror_section_uid=project_owner_person.getUid())
 
-    self.assertEqual(len(transaction_list),  3)
+    self.assertEqual(len(transaction_list),  4)
     self.assertSameSet(
-      [x.total_price for x in transaction_list],
-      [229.0389292543021, 141.0, -141.0],
-      [x.total_price for x in transaction_list]
+      [round(x.total_price, 2) for x in transaction_list],
+      [50.4, 347.84, 141.0, -141.0],
+      [round(x.total_price, 2) for x in transaction_list],
     )
 
     self.login()
 
     # Ensure no unexpected object has been created
-    # 1 accounting transaction / line > this is consumption invoice
+    # 2 accounting transaction / line
     # 3 allocation supply / line / cell
     # 1 compute node
+    # 1 consumption delivery
+    # 1 consumption deocument
     # 1 credential request
     # 1 event
     # 3 open sale order / line
     # 4 assignment
-    # 7 simulation mvt
-    # 1 packing list / line
+    # 16 simulation mvt
+    # 2 packing list / line
     # 4 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 32)
+    self.assertRelatedObjectCount(project, 45)
 
     self.checkERP5StateBeforeExit()
 
   def test_instance_tree_consumption_scenario(self):
     with PinnedDateTime(self, DateTime('2024/12/17')):
-      currency, seller_organisation, _, sale_person, _ = self.bootstrapVirtualMasterTest()
+      project, currency, owner_person, _, public_server, public_instance_type, \
+        public_server_software, software_product, consumption_service, \
+        type_variation = self.bootstrapConsumptionScenarioTest()
 
-      self.logout()
-      # lets join as slapos administrator, which will manager the project
-      project_owner_reference = 'project-%s' % self.generateNewId()
-      project_owner_person = self.joinSlapOS(
-        self.web_site, project_owner_reference)
-
-      self.login()
-      self.tic()
-      self.logout()
-      self.login()
-      business_process_for_consumption = self.portal.\
-                business_process_module.slapos_sale_consumption_business_process
-      specialise_value = self.portal.portal_catalog.getResultValue(
-        portal_type="Sale Trade Condition",
-        validation_state="Validated",
-        price_currency__uid=currency.getUid(),
-        specialise__uid=business_process_for_consumption.getUid())
-      self.logout()
-      self.login(sale_person.getUserId())
-
-      project_relative_url = self.addProject(
-        is_accountable=True,
-        person=project_owner_person,
-        currency=currency)
-
-      project = self.portal.restrictedTraverse(project_relative_url)
-
-      # Add extra trade contidition for consumption, this should be moved into
-      # Person_addProject hosever the search for the proper root sale trade condition
-      # for consumption is missing to define.
-      self.portal.sale_trade_condition_module.newContent(
-        portal_type="Sale Trade Condition",
-        reference='%s-Consumption' % project.getReference(),
-        trade_condition_type="consumption",
-        specialise_value=specialise_value,
-        source_project_value=project,
-        source_value=seller_organisation,
-        source_section_value=seller_organisation,
-        price_currency_value=currency,
-      ).validate()
-
-      self.logout()
-      self.login()
-
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project_relative_url
-        ]
-      )
-
-      # XXX Workarround add trade condition for consumption
-      public_server_software = self.generateNewSoftwareReleaseUrl()
-      public_instance_type = 'public type'
-
-      software_product, release_variation, type_variation = self.addSoftwareProduct(
-        "instance product", project, public_server_software, public_instance_type
-      )
-      consumption_service = self.addConsumptionService()
-
-      self.logout()
-      self.login(sale_person.getUserId())
-
-      self.tic()
-      sale_supply = self.portal.portal_catalog.getResultValue(
-        portal_type='Sale Supply',
-        source_project__uid=project.getUid()
-      )
-      sale_supply.searchFolder(
-        portal_type='Sale Supply Line',
-        resource__relative_url="service_module/slapos_compute_node_subscription"
-      )[0].edit(base_price=99)
-      sale_supply.newContent(
-        portal_type="Sale Supply Line",
-        base_price=9,
-        resource_value=software_product
-      )
-      sale_supply.newContent(
-        portal_type="Sale Supply Line",
-        base_price=7,
-        resource_value=consumption_service
-      )
-      sale_supply.validate()
-
-      self.tic()
-      # some preparation
-      self.logout()
-
-      # lets join as slapos administrator, which will own few compute_nodes
-      owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
-
-      # first slapos administrator assignment can only be created by
-      # the erp5 manager
-      self.addProjectProductionManagerAssignment(owner_person, project)
-      self.tic()
-
-      # hooray, now it is time to create compute_nodes
-      self.login(owner_person.getUserId())
-
-      public_server_title = 'Public Server for %s' % owner_reference
-      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
-      public_server = self.portal.portal_catalog.getResultValue(
-          portal_type='Compute Node', reference=public_server_id)
-      self.setAccessToMemcached(public_server)
-      self.assertNotEqual(None, public_server)
-      self.setServerOpenPublic(public_server)
-      public_server.generateCertificate()
-
-      self.addAllocationSupply("for compute node", public_server, software_product,
-                               release_variation, type_variation)
-
-      # and install some software on them
-      self.supplySoftware(public_server, public_server_software)
-
-      # format the compute_nodes
-      self.formatComputeNode(public_server)
-      self.logout()
-
-      # Pay deposit to validate virtual master + one computer
-      deposit_amount = 42.0 + 99.0
-      self.login(project_owner_person.getUserId())
-      ledger = self.portal.portal_categories.ledger.automated
-
-      outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
-          currency.getUid(), ledger_uid=ledger.getUid())
-      amount = sum([i.total_price for i in outstanding_amount_list])
-      self.assertEqual(amount, deposit_amount)
-
-      # Ensure to pay from the website
-      outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
-      outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
-
-      self.tic()
-      self.logout()
-      self.login()
-      payment_transaction = self.portal.portal_catalog.getResultValue(
-        portal_type="Payment Transaction",
-        destination_section_uid=project_owner_person.getUid(),
-        simulation_state="started"
-      )
-      self.assertEqual("deposit",
-        payment_transaction.getSpecialiseValue().getTradeConditionType())
-      # payzen/wechat or accountant will only stop the payment
-      payment_transaction.stop()
-      self.tic()
-      self.assertNotEqual(None,
-                      payment_transaction.receivable.getGroupingReference(None))
-      self.login(project_owner_person.getUserId())
-
-      amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
-          currency.getUid(), ledger_uid=ledger.getUid())])
-      self.assertEqual(0, amount)
       self.logout()
 
       # join as the another visitor and request software instance on public
@@ -460,7 +326,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
           public_server, project.getReference(),
           10.8, currency)
 
-    # XXX create service with S-USED-BANDWIDTH
     with PinnedDateTime(self, DateTime('2025/01/18 01:00')):
       self.login()
 
@@ -500,7 +365,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       <resource>%(service_relative_url)s</resource>
       <title>%(service_title)s</title>
       <reference>%(partition_reference)s</reference>
-      <quantity>29.12</quantity>
+      <quantity>29</quantity>
       <price>0.0</price>
       <VAT/>
       <category/>
@@ -509,7 +374,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       <resource>%(service_relative_url)s</resource>
       <title>%(service_title)s</title>
       <reference>%(partition_reference2)s</reference>
-      <quantity>29.12</quantity>
+      <quantity>29</quantity>
       <price>0.0</price>
       <VAT/>
       <category/>
@@ -540,7 +405,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       consumption_report = consumption_report_list[0]
       self.assertEqual(consumption_report.getReference(),
                 'TIOCONS-%s-2025-01-17-global' % public_server.getReference())
-      self.assertEqual(consumption_report.getValidationState(), "shared")
+      self.assertEqual(consumption_report.getValidationState(), "accepted")
 
     with PinnedDateTime(self, DateTime('2025/01/19 01:00')):
       self.login()
@@ -560,7 +425,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       <resource>%(service_relative_url)s</resource>
       <title>%(service_title)s</title>
       <reference>%(partition_reference)s</reference>
-      <quantity>23.10</quantity>
+      <quantity>23</quantity>
       <price>0.0</price>
       <VAT/>
       <category/>
@@ -569,7 +434,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       <resource>%(service_relative_url)s</resource>
       <title>%(service_title)s</title>
       <reference>%(partition_reference2)s</reference>
-      <quantity>23.10</quantity>
+      <quantity>23</quantity>
       <price>0.0</price>
       <VAT/>
       <category/>
@@ -603,7 +468,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertEqual(consumption_report.getReference(),
                 'TIOCONS-%s-2025-01-18-global' % public_server.getReference())
 
-      self.assertEqual(consumption_report.getValidationState(), "shared")
+      self.assertEqual(consumption_report.getValidationState(), "accepted")
 
       self.login(owner_person.getUserId())
       # Unallocate and destroy the instance the instances
@@ -658,173 +523,45 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     # Was 10.8 correspond to the first month since it passed a month by the
     # dates.
-    self.assertEqual(len(transaction_list), 6)
+    self.assertEqual(len(transaction_list), 5)
     self.assertSameSet(
-      [x.total_price for x in transaction_list],
-      [489.216, 9.0, -9.0, 10.8, -10.8, 21.6],
-      [x.total_price for x in transaction_list]
+      [round(x.total_price, 2) for x in transaction_list],
+      [9.0, -9.0, round(508.8, 2), -10.8, 10.8],
+      [round(x.total_price, 2) for x in transaction_list]
     )
 
     self.login()
 
     # Ensure no unexpected object has been created
-    # 5 accounting transaction / line
+    # 4 accounting transaction / line
     # 3 allocation supply / line / cell
     # 1 compute node
+    # 2 consumption delivery
+    # 2 consumption document
     # 2 credential request
     # 3 event
     # 2 instance tree
     # 9 open sale order / line
     # 5 (can reduce to 2) assignment
-    # 51 simulation mvt
-    # 7 packing list / line
+    # 65 simulation mvt
+    # 6 packing list / line
     # 4 sale supply / line
     # 2 sale trade condition
     # 1 software installation
-    # 1 software instance
+    # 2 software instance
     # 1 software product
-    # 3 subscription requests
-    self.assertRelatedObjectCount(project, 102)
+    # 4 subscription requests
+    self.assertRelatedObjectCount(project, 118)
 
     self.checkERP5StateBeforeExit()
 
   def test_sparse_instance_tree_consumption_scenario(self):
     """ Split into multiple reports """
     with PinnedDateTime(self, DateTime('2024/12/17')):
-      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
+      project, currency, owner_person, _, public_server, public_instance_type, \
+        public_server_software, software_product, consumption_service, \
+        type_variation = self.bootstrapConsumptionScenarioTest()
 
-      self.logout()
-      # lets join as slapos administrator, which will manager the project
-      project_owner_reference = 'project-%s' % self.generateNewId()
-      project_owner_person = self.joinSlapOS(
-        self.web_site, project_owner_reference)
-
-      self.login()
-      self.tic()
-      self.logout()
-      self.login(sale_person.getUserId())
-
-      project_relative_url = self.addProject(
-        is_accountable=True,
-        person=project_owner_person,
-        currency=currency)
-
-      self.logout()
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project_relative_url
-        ]
-      )
-
-      public_server_software = self.generateNewSoftwareReleaseUrl()
-      public_instance_type = 'public type'
-
-      software_product, release_variation, type_variation = self.addSoftwareProduct(
-        "instance product", project, public_server_software, public_instance_type
-      )
-      consumption_service = self.addConsumptionService()
-
-      self.logout()
-      self.login(sale_person.getUserId())
-
-      self.tic()
-      sale_supply = self.portal.portal_catalog.getResultValue(
-        portal_type='Sale Supply',
-        source_project__uid=project.getUid()
-      )
-      sale_supply.searchFolder(
-        portal_type='Sale Supply Line',
-        resource__relative_url="service_module/slapos_compute_node_subscription"
-      )[0].edit(base_price=99)
-      sale_supply.newContent(
-        portal_type="Sale Supply Line",
-        base_price=9,
-        resource_value=software_product
-      )
-      sale_supply.newContent(
-        portal_type="Sale Supply Line",
-        base_price=7,
-        resource_value=consumption_service
-      )
-      sale_supply.validate()
-
-      self.tic()
-      # some preparation
-      self.logout()
-
-      # lets join as slapos administrator, which will own few compute_nodes
-      owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
-
-      # first slapos administrator assignment can only be created by
-      # the erp5 manager
-      self.addProjectProductionManagerAssignment(owner_person, project)
-      self.tic()
-
-      # hooray, now it is time to create compute_nodes
-      self.login(owner_person.getUserId())
-
-      public_server_title = 'Public Server for %s' % owner_reference
-      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
-      public_server = self.portal.portal_catalog.getResultValue(
-          portal_type='Compute Node', reference=public_server_id)
-      self.setAccessToMemcached(public_server)
-      self.assertNotEqual(None, public_server)
-      self.setServerOpenPublic(public_server)
-      public_server.generateCertificate()
-
-      self.addAllocationSupply("for compute node", public_server, software_product,
-                               release_variation, type_variation)
-
-      # and install some software on them
-      self.supplySoftware(public_server, public_server_software)
-
-      # format the compute_nodes
-      self.formatComputeNode(public_server)
-      self.logout()
-
-      # Pay deposit to validate virtual master + one computer
-      deposit_amount = 42.0 + 99.0
-      self.login(project_owner_person.getUserId())
-      ledger = self.portal.portal_categories.ledger.automated
-
-      outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
-          currency.getUid(), ledger_uid=ledger.getUid())
-      amount = sum([i.total_price for i in outstanding_amount_list])
-      self.assertEqual(amount, deposit_amount)
-
-      # Ensure to pay from the website
-      outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
-      outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
-
-      self.tic()
-      self.logout()
-      self.login()
-      payment_transaction = self.portal.portal_catalog.getResultValue(
-        portal_type="Payment Transaction",
-        destination_section_uid=project_owner_person.getUid(),
-        simulation_state="started"
-      )
-      self.assertEqual("deposit",
-        payment_transaction.getSpecialiseValue().getTradeConditionType())
-      # payzen/wechat or accountant will only stop the payment
-      payment_transaction.stop()
-      self.tic()
-      self.assertNotEqual(None,
-                      payment_transaction.receivable.getGroupingReference(None))
-      self.login(project_owner_person.getUserId())
-
-      amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
-          currency.getUid(), ledger_uid=ledger.getUid())])
-      self.assertEqual(0, amount)
       self.logout()
 
       # join as the another visitor and request software instance on public
@@ -916,7 +653,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertEqual(consumption_report.getReference(),
                 'TIOCONS-%s-2025-01-17-global' % public_server.getReference())
 
-      self.assertEqual(consumption_report.getValidationState(), "shared")
+      self.assertEqual(consumption_report.getValidationState(), "accepted")
 
     # Include second report
     with PinnedDateTime(self, DateTime('2025/01/19 01:00')):
@@ -929,7 +666,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       software_instance2 = instance_tree2.getSuccessorValue()
       partition2 = software_instance2.getAggregateValue()
       self.assertEqual(partition2.getParentValue(), public_server)
-
 
       # Minimazed version of the original file, only with a sub-set of values
       # that matter
@@ -976,7 +712,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertEqual(consumption_report.getReference(),
                 'TIOCONS-%s-2025-01-18-global' % public_server.getReference())
 
-      self.assertEqual(consumption_report.getValidationState(), "shared")
+      self.assertEqual(consumption_report.getValidationState(), "accepted")
 
       self.login(owner_person.getUserId())
       # Unallocate and destroy the instance the instances
@@ -1031,32 +767,34 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     # Was 10.8 correspond to the first month since it passed a month by the
     # dates.
-    self.assertEqual(len(transaction_list), 6)
+    self.assertEqual(len(transaction_list), 5)
     self.assertSameSet(
-      [x.total_price for x in transaction_list],
-      [489.216, 9.0, -9.0, 10.8, -10.8, 21.6],
-      [x.total_price for x in transaction_list]
+      [round(x.total_price, 2) for x in transaction_list],
+      [round(266.208, 2), 9.0, -9.0, 10.8, -10.8],
+      [round(x.total_price, 2) for x in transaction_list]
     )
 
     self.login()
 
     # Ensure no unexpected object has been created
-    # 5 accounting transaction / line
+    # 4 accounting transaction / line
     # 3 allocation supply / line / cell
     # 1 compute node
+    # 2 consumption delivery
+    # 2 consumption document
     # 2 credential request
     # 3 event
     # 2 instance tree
     # 9 open sale order / line
     # 5 (can reduce to 2) assignment
     # 51 simulation mvt
-    # 7 packing list / line
+    # 6 packing list / line
     # 4 sale supply / line
     # 2 sale trade condition
     # 1 software installation
-    # 1 software instance
+    # 2 software instance
     # 1 software product
-    # 3 subscription requests
-    self.assertRelatedObjectCount(project, 102)
+    # 4 subscription requests
+    self.assertRelatedObjectCount(project, 104)
 
     self.checkERP5StateBeforeExit()

@@ -1825,10 +1825,9 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
 
       software_url = 'live💩é /?%%20_test_url_%s' % self.generateNewId()
       response = self.callJsonRpcWebService(
-        "slapos.post.software_installation",
+        "slapos.post.v0.software_installation",
         {
-          "portal_type": "Software Installation",
-          "compute_node_id": compute_node.getReference(),
+          "reference": compute_node.getReference(),
           "software_release_uri": software_url
         },
         person_user_id
@@ -1838,9 +1837,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       self.assertEqual(
         loadJson(response.getBody()),
         {
-          'type': 'success-type',
-          'title': "query completed",
-          'status': 200
+          'type': 'success',
+          'title': "State changed"
         })
       self.assertEqual(response.getStatus(), 200)
 

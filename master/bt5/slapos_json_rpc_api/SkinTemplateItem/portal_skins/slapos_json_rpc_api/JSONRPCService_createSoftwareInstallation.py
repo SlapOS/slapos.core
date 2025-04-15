@@ -6,7 +6,7 @@ class RequestFailsError(JsonRpcAPIError):
 
 compute_node = context.JSONRPCService_getObjectFromData({
   'portal_type': 'Compute Node',
-  'compute_node_id': data_dict['compute_node_id']
+  'compute_node_id': data_dict['reference']
 })
 
 compute_node.requestSoftwareRelease(
@@ -19,7 +19,10 @@ if not software_installation_url:
   raise RequestFailsError("Installation request for '%s' with state '%s' on '%s' failed" % (
     data_dict["software_release_uri"],
     data_dict.get("state", "available"),
-    data_dict["compute_node_id"]
+    data_dict["reference"]
   ))
 
-return
+return {
+  "title": "State changed",
+  "type": "success"
+}

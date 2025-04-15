@@ -5,38 +5,21 @@
 #
 ##############################################################################
 
-from erp5.component.test.testSlapOSERP5VirtualMasterScenario import \
-  TestSlapOSVirtualMasterScenarioMixin, PinnedDateTime
+from erp5.component.test.testSlapOSConsumptionScenario import \
+  TestSlapOSConsumptionScenarioMixin
 
-from erp5.component.test.SlapOSTestCaseMixin import  TemporaryAlarmScript
+from erp5.component.test.SlapOSTestCaseMixin import  TemporaryAlarmScript, \
+  PinnedDateTime
 
 from zExceptions import Unauthorized
 from DateTime import DateTime
 
 class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
-                                          TestSlapOSVirtualMasterScenarioMixin):
+                                          TestSlapOSConsumptionScenarioMixin):
 
   require_certificate = 1
   _start_date = DateTime('2024/05/01')
   _stop_date = DateTime('2024/06/01')
-
-  def addConsumptionService(self):
-    # Create a new service to sell.
-    service_new_id = self.generateNewId()
-    consumption_service = self.portal.service_module.newContent(
-      title="Resource for Consumption %s" % service_new_id,
-      reference='IRESOURCEFORCONSUMPTION-%s' % service_new_id,
-      quantity_unit='unit/piece',  # Probaly wrong
-      base_contribution=[
-        'base_amount/invoicing/discounted',
-        'base_amount/invoicing/taxable',
-      ],
-      use='trade/consumption',
-      product_line='cloud/usage'
-    )
-    self.assertEqual(consumption_service.checkConsistency(), [])
-    consumption_service.validate()
-    return consumption_service
 
   def bootstrapGenerateConsumptionDeliveryTest(self, shared=False):
     with PinnedDateTime(self, DateTime('2024/12/20')):
@@ -154,7 +137,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
   def assertWorkflowComment(self, document, message):
     self.assertEqual(message,
         document.workflow_history['slapos_consumption_document_workflow'][-1]['comment'])
-    
+
   def assertCreatedConsumptionDeliveryLine(self,
          line, title, quantity, aggregate_list, person, service, price=None):
 
@@ -191,7 +174,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     self.assertEqual(delivery.getCausalityState(), "building")
     self.assertNotEqual(delivery.getSpecialise(), None)
     self.assertNotEqual(delivery.getSourceProject(), None)
-    self.assertNotEqual(delivery.getDestinationProject(), None)
+    self.assertEqual(delivery.getDestinationProject(), None)
     self.assertEqual(document.getFollowUp(), delivery.getSourceProject())
     return delivery
 

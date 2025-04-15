@@ -606,13 +606,10 @@ class ComputerPartition(SlapRequester):
 
   def bang(self, message):
     return self._connection_helper.callJsonRpcAPI(
-      'slapos.put.software_instance',
+      'slapos.put.v0.instance_bang',
       {
-        "portal_type": "Software Instance",
-        'compute_node_id': self._computer_id,
-        'compute_partition_id': self.getId(),
-        'reported_state': 'bang',
-        'status_message': message
+        "reference": self.getInstanceGuid(),
+        'message': message
       }
     )
 

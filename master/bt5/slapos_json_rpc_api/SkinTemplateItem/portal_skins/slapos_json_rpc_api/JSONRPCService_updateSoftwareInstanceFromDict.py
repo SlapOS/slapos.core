@@ -19,12 +19,6 @@ if "reported_state" in data_dict:
   else:
     raise WrongReportedStateError("Unexpected Reported State: %s" % reported_state)
 
-if "title" in data_dict and data_dict["title"] != software_instance.getTitle():
-  software_instance.rename(
-    new_name=data_dict["title"],
-    comment="Rename %s into %s" % (software_instance.getTitle(), data_dict["title"])
-  )
-
 return {
   #"$schema": json_form.absolute_url().strip() + "/getOutputJSONSchema",
   "reference": software_instance.getReference(),

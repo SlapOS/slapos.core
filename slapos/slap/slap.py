@@ -174,9 +174,8 @@ class SoftwareRelease(SlapDocument):
     # if getattr(self, '_known_state', 'unknown') != "available":
     # Not required to repost if not needed.
     self._connection_helper.callJsonRpcAPI(
-      'slapos.put.software_installation',
+      'slapos.put.v0.software_installation_reported_state',
       {
-        "portal_type": "Software Installation",
         'compute_node_id': self.getComputerId(),
         'software_release_uri': self.getURI(),
         'reported_state': 'available'
@@ -186,9 +185,8 @@ class SoftwareRelease(SlapDocument):
   def building(self):
     # if getattr(self, '_known_state', 'unknown') != "building":
     self._connection_helper.callJsonRpcAPI(
-      'slapos.put.software_installation',
+      'slapos.put.v0.software_installation_reported_state',
       {
-        "portal_type": "Software Installation",
         'compute_node_id': self.getComputerId(),
         'software_release_uri': self.getURI(),
         'reported_state': 'building'
@@ -197,9 +195,8 @@ class SoftwareRelease(SlapDocument):
 
   def destroyed(self):
     self._connection_helper.callJsonRpcAPI(
-      'slapos.put.software_installation',
+      'slapos.put.v0.software_installation_reported_state',
       {
-        "portal_type": "Software Installation",
         'compute_node_id': self.getComputerId(),
         'software_release_uri': self.getURI(),
         'reported_state': 'destroyed'

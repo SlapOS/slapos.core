@@ -158,13 +158,11 @@ class SoftwareRelease(SlapDocument):
     # Does not follow interface
     try:
       self._connection_helper.callJsonRpcAPI(
-        'slapos.put.software_installation',
+        'slapos.put.v0.software_installation_error',
         {
-          "portal_type": "Software Installation",
           'software_release_uri': self.getURI(),
           'compute_node_id': self.getComputerId(),
-          "reported_state": "error",
-          'error_status': str(error_log)
+          'message': str(error_log)
         }
       )
     except (RequestException, ConnectionError):
@@ -371,7 +369,7 @@ class Computer(SlapDocument):
       for result in allDocs_dict['result_list']:
         software_release_document = SoftwareRelease(
           software_release=result['software_release_uri'],
-          computer_guid=result['compute_node_id'])
+          computer_guid=self._computer_id)
         software_release_document._requested_state = result['state']
         software_release_document._connection_helper = self._connection_helper
         software_release_document._hateoas_navigator = self._hateoas_navigator

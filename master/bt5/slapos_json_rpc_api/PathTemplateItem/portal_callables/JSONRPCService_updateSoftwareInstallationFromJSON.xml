@@ -105,13 +105,6 @@
       "const": "Software Installation",\n
       "type": "string"\n
     },\n
-    "state": {\n
-      "title": "Requested State",\n
-      "type": "string",\n
-      "enum": ["available", "destroyed"],\n
-      "description": "State of the requested software",\n
-      "default": "available"\n
-    },\n
     "reported_state": {\n
       "title": "Reported State",\n
       "type": "string",\n

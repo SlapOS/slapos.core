@@ -2,10 +2,6 @@ from erp5.component.document.JsonRpcAPIService import JsonRpcAPIError
 
 software_installation = context.JSONRPCService_getObjectFromData(data_dict)
 
-class WrongStateError(JsonRpcAPIError):
-  type = "SOFTWARE-INSTALLATION-WRONG-STATE"
-  status = 403
-
 class WrongReportedStateError(JsonRpcAPIError):
   type = "SOFTWARE-INSTALLATION-WRONG-REPORTED-STATE"
   status = 403
@@ -15,18 +11,6 @@ class DestroyNotRequestedError(JsonRpcAPIError):
   status = 403
 
 url = software_installation.getUrlString()
-tag = "%s_%s_inProgress" % (software_installation.getAggregateUid(portal_type="Compute Node"),
-                            software_installation.getUrlString())
-
-if "state" in data_dict:
-# Change desired state
-  state = data_dict["state"]
-  if (state == "available"):
-    software_installation.requestStart()
-  elif (state == "destroyed"):
-    software_installation.requestDestroy(activate_kw={'tag': tag})
-  else:
-    raise WrongStateError("State should be available or destroyed, but is %s" % state)
 
 if "reported_state" in data_dict:
   reported_state = data_dict["reported_state"]

@@ -534,45 +534,21 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     software_release_uri = software_installation.getUrlString()
 
     with PinnedDateTime(self, DateTime('2020/05/19')):
-      response = self.callJsonRpcWebService("slapos.put.software_installation", {
-        "portal_type": "Software Installation",
+      response = self.callJsonRpcWebService("slapos.put.v0.software_installation_error", {
         "software_release_uri": software_release_uri,
         "compute_node_id": compute_node_reference,
-        "error_status": 'error log',
+        "message": 'error log',
       },
           compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
       loadJson(response.getBody()),
       {
-        'compute_node_id': compute_node_reference,
-        'date': '2020-05-19T00:00:00+00:00',
-        'portal_type': 'Software Installation',
-        'software_release_uri': software_release_uri,
-        'success': 'Done'
+        'title': 'Error reported',
+        'type': 'success'
       })
     self.assertEqual(response.getStatus(), 200)
-
-    response = self.callJsonRpcWebService("slapos.get.software_installation", {
-      "portal_type": "Software Installation",
-      "software_release_uri": software_release_uri,
-      "compute_node_id": compute_node_reference
-    },
-        compute_node_user_id)
-    self.assertEqual('application/json', response.headers.get('content-type'))
-    self.assertEqual(
-      loadJson(response.getBody()),
-      {
-        # "$schema": software_installation.getJSONSchemaUrl(),
-        "software_release_uri": software_release_uri,
-        "compute_node_id": software_installation.getAggregateReference(),
-        "state": "available",
-        "reported_state": "",
-        "status_message": "#error while installing %s" % software_release_uri,
-        "portal_type": "Software Installation",
-        # "api_revision": software_installation.getJIOAPIRevision(self.connector.getRelativeUrl()),
-      })
-    self.assertEqual(response.getStatus(), 200)
+    self.assertEqual(software_installation.getAccessStatus()['text'], '#error while installing: error log')
 
 
 class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):

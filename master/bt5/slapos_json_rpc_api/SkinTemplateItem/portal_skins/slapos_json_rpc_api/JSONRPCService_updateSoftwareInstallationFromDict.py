@@ -27,10 +27,7 @@ if "reported_state" in data_dict:
       software_installation.invalidate(
         comment="Software Release destroyed report.")
   else:
-    raise WrongReportedStateError("Reported state should be available, destroyed or building, but is %s" % state)
-
-if "error_status" in data_dict:
-  software_installation.setErrorStatus('while installing %s' % url)
+    raise WrongReportedStateError("Reported state should be available, destroyed or building, but is %s" % reported_state)
 
 return {
   # "$schema": json_form.absolute_url().strip() + "/getOutputJSONSchema",

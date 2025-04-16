@@ -4,7 +4,7 @@ Cloud Contract | edit_workflow
 Cloud Contract | item_workflow
 Compute Node | slapos_accounting_interaction_workflow
 Computer Consumption TioXML File | edit_workflow
-Computer Consumption TioXML File | slapos_accounting_consumption_interaction_workflow
+Computer Consumption TioXML File | slapos_accounting_interaction_workflow
 Computer Consumption TioXML File | slapos_consumption_document_workflow
 Consumption Delivery Cell | delivery_movement_causality_interaction_workflow
 Consumption Delivery Cell | pricing_interaction_workflow
@@ -30,7 +30,6 @@ Payment Transaction | slapos_accounting_interaction_workflow
 Project | slapos_accounting_interaction_workflow
 Sale Invoice Transaction | slapos_accounting_interaction_workflow
 Sale Invoice Transaction | slapos_simulation_interaction_workflow
-Sale Packing List | slapos_accounting_consumption_workflow
 Sale Packing List | slapos_accounting_interaction_workflow
 Sale Packing List | slapos_simulation_interaction_workflow
 Simulation Movement | slapos_simulation_interaction_workflow

@@ -815,10 +815,9 @@ class ComputerPartition(SlapRequester):
 
   def getCertificate(self):
     return self._connection_helper.callJsonRpcAPI(
-      'slapos.get.software_instance_certificate',
+      'slapos.get.v0.software_instance_certificate',
       {
-        "portal_type": "Software Instance Certificate Record",
-        "reference": self.getInstanceGuid(),
+        "reference": self.getInstanceGuid()
       }
     )
 

@@ -184,7 +184,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
 
     # No instance is created, since we would like to charge for the computer
     # itself.
-    with PinnedDateTime(self, DateTime('2025/02/20 01:00')):
+    with PinnedDateTime(self, DateTime('2025/01/18 01:00')):
       # Minimazed version of the original file, only with a sub-set of values
       # that matter
       consumption_xml_report = """<?xml version="1.0" encoding="utf-8"?>
@@ -233,8 +233,11 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
                 'TIOCONS-%s-2025-01-17-global' % public_server.getReference())
 
       self.assertEqual(consumption_report.getValidationState(), "accepted")
+      # This alarms is called every day, so it is ok to invoke this here.
+      # and not for via interaction workflows
+      self.stepCallSlaposAccountingCreateHostingSubscriptionSimulationAlarm()
 
-
+      self.tic()
       # and uninstall some software on them
       self.logout()
       self.login(owner_person.getUserId())
@@ -252,31 +255,33 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
       mirror_section_uid=project_owner_person.getUid())
 
-    self.assertEqual(len(transaction_list),  3)
+    self.assertEqual(len(transaction_list),  4)
     self.assertSameSet(
-      [x.total_price for x in transaction_list],
-      [229.0389292543021, 141.0, -141.0],
-      [x.total_price for x in transaction_list]
+      [round(x.total_price, 2) for x in transaction_list],
+      [50.4, 118.8, 141.0, -141.0],
+      [round(x.total_price, 2) for x in transaction_list],
     )
 
     self.login()
 
     # Ensure no unexpected object has been created
-    # 1 accounting transaction / line > this is consumption invoice
+    # 4 accounting transaction / line
     # 3 allocation supply / line / cell
     # 1 compute node
+    # 1 consumption delivery
+    # 1 consumption deocument
     # 1 credential request
     # 1 event
     # 3 open sale order / line
     # 4 assignment
-    # 7 simulation mvt
-    # 1 packing list / line
+    # 25 simulation mvt
+    # 4 packing list / line
     # 4 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 32)
+    self.assertRelatedObjectCount(project, 58)
 
     self.checkERP5StateBeforeExit()
 
@@ -315,7 +320,6 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
           public_server, project.getReference(),
           10.8, currency)
 
-    # XXX create service with S-USED-BANDWIDTH
     with PinnedDateTime(self, DateTime('2025/01/18 01:00')):
       self.login()
 
@@ -523,7 +527,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     self.login()
 
     # Ensure no unexpected object has been created
-    # 3 accounting transaction / line
+    # 4 accounting transaction / line
     # 3 allocation supply / line / cell
     # 1 compute node
     # 2 consumption delivery
@@ -533,15 +537,15 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     # 2 instance tree
     # 9 open sale order / line
     # 5 (can reduce to 2) assignment
-    # 41 simulation mvt
-    # 4 packing list / line
+    # 65 simulation mvt
+    # 6 packing list / line
     # 4 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 2 software instance
     # 1 software product
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 91)
+    self.assertRelatedObjectCount(project, 118)
 
     self.checkERP5StateBeforeExit()
 
@@ -759,15 +763,15 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     # dates.
     self.assertEqual(len(transaction_list), 5)
     self.assertSameSet(
-      [x.total_price for x in transaction_list],
-      [266.208, 9.0, -9.0, 10.8, -10.8],
-      [x.total_price for x in transaction_list]
+      [round(x.total_price, 2) for x in transaction_list],
+      [round(266.208, 2), 9.0, -9.0, 10.8, -10.8],
+      [round(x.total_price, 2) for x in transaction_list]
     )
 
     self.login()
 
     # Ensure no unexpected object has been created
-    # 3 accounting transaction / line
+    # 4 accounting transaction / line
     # 3 allocation supply / line / cell
     # 1 compute node
     # 2 consumption delivery
@@ -777,14 +781,14 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     # 2 instance tree
     # 9 open sale order / line
     # 5 (can reduce to 2) assignment
-    # 32 simulation mvt
-    # 4 packing list / line
+    # 51 simulation mvt
+    # 6 packing list / line
     # 4 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 2 software instance
     # 1 software product
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 82)
+    self.assertRelatedObjectCount(project, 104)
 
     self.checkERP5StateBeforeExit()

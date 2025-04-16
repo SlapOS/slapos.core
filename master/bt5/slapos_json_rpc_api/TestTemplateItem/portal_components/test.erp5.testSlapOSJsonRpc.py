@@ -490,8 +490,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
     instance = instance_tree.getSuccessorValue()
 
-    response = self.callJsonRpcWebService("slapos.get.software_instance_certificate", {
-      "portal_type": "Software Instance Certificate Record",
+    response = self.callJsonRpcWebService("slapos.get.v0.software_instance_certificate", {
       "reference": instance.getReference(),
     }, instance.getUserId())
 
@@ -499,8 +498,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual({
       "key" :instance.getSslKey(),
       "certificate": instance.getSslCertificate(),
-      "portal_type": "Software Instance Certificate Record",
-      "reference": instance.getReference(),
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
 

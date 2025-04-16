@@ -47,12 +47,6 @@
   "type": "object",\n
   "additionalProperties": false,\n
   "properties": {\n
-    "reference": {\n
-      "title": "Software Instance Reference",\n
-      "description": "Unique identifier of the Software Instance",\n
-      "type": "string",\n
-      "maxLength": 50\n
-    },\n
     "key": {\n
       "title": "X509 Key",\n
       "type": "string",\n
@@ -62,17 +56,10 @@
       "title": "X509 Certificate",\n
       "type": "string",\n
       "descritpion": "X509 Certificate used by the instance to authentify itself on master"\n
-    },\n
-    "portal_type": {\n
-      "title": "Portal Type",\n
-      "const": "Software Instance Certificate Record",\n
-      "type": "string"\n
     }\n
   },\n
   "required": [\n
-    "reference",\n
     "key",\n
-    "portal_type",\n
     "certificate"\n
   ]\n
 }</string> </value>
@@ -90,16 +77,10 @@
       "title": "Software Instance Id/Reference",\n
       "type": "string",\n
       "description": "The unique reference of the Software Instance, example: SOFTINST-1234"\n
-    },\n
-    "portal_type": {\n
-      "title": "Portal Type",\n
-      "const": "Software Instance Certificate Record",\n
-      "type": "string"\n
     }\n
   },\n
   "required": [\n
-    "reference",\n
-    "portal_type"\n
+    "reference"\n
   ]\n
 }\n
 </string> </value>

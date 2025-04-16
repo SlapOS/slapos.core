@@ -329,16 +329,12 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     compute_node_user_id = self.compute_node.getUserId()
 
     software_release_uri = "http://example.org/foo"
-    response = self.callJsonRpcWebService(
-      "slapos.put.software_installation",
-      {
-        "software_release_uri": software_release_uri,
-        "compute_node_id": compute_node_reference,
-        "reported_state": "destroyed",
-        "portal_type": "Software Installation",
-      },
-      compute_node_user_id
-    )
+    response = self.callJsonRpcWebService("slapos.put.v0.software_installation_reported_state", {
+      "software_release_uri": software_release_uri,
+      "compute_node_id": compute_node_reference,
+      "reported_state": "destroyed",
+    },
+        compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
       loadJson(response.getBody()),
@@ -359,16 +355,12 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
 
     software_installation = self.start_requested_software_installation
     software_release_uri = software_installation.getUrlString()
-    response = self.callJsonRpcWebService(
-      "slapos.put.software_installation",
-      {
-        "software_release_uri": software_release_uri,
-        "compute_node_id": compute_node_reference,
-        "reported_state": "destroyed",
-        "portal_type": "Software Installation",
-      },
-      compute_node_user_id
-    )
+    response = self.callJsonRpcWebService("slapos.put.v0.software_installation_reported_state", {
+      "software_release_uri": software_release_uri,
+      "compute_node_id": compute_node_reference,
+      "reported_state": "destroyed",
+    },
+        compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
       loadJson(response.getBody()),
@@ -391,26 +383,18 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(software_installation.getValidationState(), "validated")
     software_release_uri = software_installation.getUrlString()
 
-    with PinnedDateTime(self, DateTime('2020/05/19')):
-      response = self.callJsonRpcWebService(
-        "slapos.put.software_installation",
-        {
-          "software_release_uri": software_release_uri,
-          "compute_node_id": compute_node_reference,
-          "reported_state": "destroyed",
-          "portal_type": "Software Installation",
-        },
-        compute_node_user_id
-      )
+    response = self.callJsonRpcWebService("slapos.put.v0.software_installation_reported_state", {
+      "software_release_uri": software_release_uri,
+      "compute_node_id": compute_node_reference,
+      "reported_state": "destroyed",
+    },
+        compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
       loadJson(response.getBody()),
       {
-        'compute_node_id': compute_node_reference,
-        'date': '2020-05-19T00:00:00+00:00',
-        'portal_type': 'Software Installation',
-        'software_release_uri': software_release_uri,
-        'success': 'Done'
+        'title': 'State reported',
+        'type': 'success'
       })
     self.assertEqual(response.getStatus(), 200)
     self.assertEqual(software_installation.getValidationState(), "invalidated")
@@ -427,46 +411,21 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(software_installation.getValidationState(), "validated")
     software_release_uri = software_installation.getUrlString()
 
-    with PinnedDateTime(self, DateTime('2020/05/19')):
-      response = self.callJsonRpcWebService("slapos.put.software_installation", {
-        "portal_type": "Software Installation",
-        "software_release_uri": software_release_uri,
-        "compute_node_id": compute_node_reference,
-        "reported_state": "available",
-      },
-          compute_node_user_id)
-    self.assertEqual('application/json', response.headers.get('content-type'))
-    self.assertEqual(
-      loadJson(response.getBody()),
-      {
-        'compute_node_id': compute_node_reference,
-        'date': '2020-05-19T00:00:00+00:00',
-        'portal_type': 'Software Installation',
-        'software_release_uri': software_release_uri,
-        'success': 'Done'
-      })
-    self.assertEqual(response.getStatus(), 200)
-
-    response = self.callJsonRpcWebService("slapos.get.software_installation", {
-      "portal_type": "Software Installation",
+    response = self.callJsonRpcWebService("slapos.put.v0.software_installation_reported_state", {
       "software_release_uri": software_release_uri,
-      "compute_node_id": compute_node_reference
+      "compute_node_id": compute_node_reference,
+      "reported_state": "available",
     },
         compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
       loadJson(response.getBody()),
       {
-        # "$schema": software_installation.getJSONSchemaUrl(),
-        "software_release_uri": software_release_uri,
-        "compute_node_id": software_installation.getAggregateReference(),
-        "state": "available",
-        "reported_state": "available",
-        "status_message": "#access software release %s available" % software_release_uri,
-        "portal_type": "Software Installation",
-        # "api_revision": software_installation.getJIOAPIRevision(self.connector.getRelativeUrl()),
+        'title': 'State reported',
+        'type': 'success'
       })
     self.assertEqual(response.getStatus(), 200)
+    self.assertEqual(software_installation.getAccessStatus()['text'], "#access software release %s available" % software_release_uri)
 
   def test_ComputeNodeAccess_08_buildingSoftwareRelease(self):
     with PortalAlarmDisabled(self.portal):
@@ -480,46 +439,21 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(software_installation.getValidationState(), "validated")
     software_release_uri = software_installation.getUrlString()
 
-    with PinnedDateTime(self, DateTime('2020/05/19')):
-      response = self.callJsonRpcWebService("slapos.put.software_installation", {
-        "portal_type": "Software Installation",
-        "software_release_uri": software_release_uri,
-        "compute_node_id": compute_node_reference,
-        "reported_state": "building",
-      },
-          compute_node_user_id)
-    self.assertEqual('application/json', response.headers.get('content-type'))
-    self.assertEqual(
-      loadJson(response.getBody()),
-      {
-        'compute_node_id': compute_node_reference,
-        'date': '2020-05-19T00:00:00+00:00',
-        'portal_type': 'Software Installation',
-        'software_release_uri': software_release_uri,
-        'success': 'Done'
-      })
-    self.assertEqual(response.getStatus(), 200)
-
-    response = self.callJsonRpcWebService("slapos.get.software_installation", {
-      "portal_type": "Software Installation",
+    response = self.callJsonRpcWebService("slapos.put.v0.software_installation_reported_state", {
       "software_release_uri": software_release_uri,
-      "compute_node_id": compute_node_reference
+      "compute_node_id": compute_node_reference,
+      "reported_state": "building",
     },
         compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
       loadJson(response.getBody()),
       {
-        # "$schema": software_installation.getJSONSchemaUrl(),
-        "software_release_uri": software_release_uri,
-        "compute_node_id": software_installation.getAggregateReference(),
-        "state": "available",
-        "reported_state": "building",
-        "status_message": "#building software release %s" % software_release_uri,
-        "portal_type": "Software Installation",
-        # "api_revision": software_installation.getJIOAPIRevision(self.connector.getRelativeUrl()),
+        'title': 'State reported',
+        'type': 'success'
       })
     self.assertEqual(response.getStatus(), 200)
+    self.assertEqual(software_installation.getAccessStatus()['text'], '#building software release %s' % software_release_uri)
 
   def test_ComputeNodeAccess_09_softwareReleaseError(self):
     with PortalAlarmDisabled(self.portal):

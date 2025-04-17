@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>JSONRPCService_updateComputeNodeFromAPIDict</string> </value>
+            <value> <string>JSONRPCService_formatComputeNodeFromAPIDict</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>after_method_id</string> </key>
-            <value> <string>JSONRPCService_updateComputeNodeFromAPIDict</string> </value>
+            <value> <string>JSONRPCService_formatComputeNodeFromAPIDict</string> </value>
         </item>
         <item>
             <key> <string>content_type</string> </key>
@@ -16,7 +16,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>JSONRPCService_updateComputeNodeFromJSON</string> </value>
+            <value> <string>JSONRPCService_formatComputeNodeFromJSON</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -26,7 +26,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>JSONRPCService_updateComputeNodeFromJSON</string> </value>
+            <value> <string>JSONRPCService_formatComputeNodeFromJSON</string> </value>
         </item>
         <item>
             <key> <string>output_schema</string> </key>
@@ -42,34 +42,26 @@
             <key> <string>response_schema</string> </key>
             <value> <string>{\n
   "$schema": "http://json-schema.org/draft-07/schema#",\n
-  "title": "Software Installation Updated",\n
-  "description": "Response when the software installation is updated",\n
+  "title": "Compute node format requested",\n
+  "description": "Response when the compute node format has been handled",\n
   "type": "object",\n
   "additionalProperties": false,\n
   "properties": {\n
-    "compute_node_id": {\n
-      "title": "Compute Node ID",\n
-      "type": "string",\n
-      "description": "The Id of the compute node, example: COMP-1234"\n
-    },\n
-    "portal_type": {\n
-      "title": "Portal Type",\n
-      "const": "Compute Node",\n
+    "title": {\n
+      "title": "Title",\n
+      "description": "Result message",\n
       "type": "string"\n
     },\n
-    "date": {\n
-      "title": "Date",\n
-      "description": "Date and Time of the operation",\n
-      "type": "string",\n
-      "format": "date-time"\n
-    },\n
-    "success": {\n
-      "title": "Success Message",\n
-      "type": "string",\n
-      "description": "Success Message"\n
+    "type": {\n
+      "title": "Type",\n
+      "const": "success",\n
+      "type": "string"\n
     }\n
   },\n
-  "required": ["portal_type", "compute_node_id", "date", "success"]\n
+  "required": [\n
+    "title",\n
+    "type"\n
+  ]\n
 }\n
 </string> </value>
         </item>
@@ -77,7 +69,7 @@
             <key> <string>text_content</string> </key>
             <value> <string>{\n
   "$schema": "http://json-schema.org/draft-07/schema#",\n
-  "title": "Update Compute Node",\n
+  "title": "Format Compute Node",\n
   "description": "Update Compute Node Information. Send the list of partition and their ip addresses.",\n
   "type": "object",\n
   "additionalProperties": false,\n
@@ -137,14 +129,9 @@
       "title": "Compute Node ID",\n
       "type": "string",\n
       "description": "Unique Id of the object. It is not editable."\n
-    },\n
-    "portal_type": {\n
-      "title": "Portal Type",\n
-      "const": "Compute Node",\n
-      "type": "string"\n
     }\n
   },\n
-  "required": ["portal_type", "compute_node_id"]\n
+  "required": ["compute_partition_list", "compute_node_id"]\n
 }\n
 </string> </value>
         </item>

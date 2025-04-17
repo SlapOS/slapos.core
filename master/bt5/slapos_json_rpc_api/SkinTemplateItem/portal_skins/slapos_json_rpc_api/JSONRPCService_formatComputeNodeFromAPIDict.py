@@ -1,3 +1,4 @@
+data_dict['portal_type'] = 'Compute Node'
 compute_node = context.JSONRPCService_getObjectFromData(data_dict)
 
 def compareAndUpdateAddressList(partition, partition_ip_list):
@@ -91,9 +92,6 @@ if 'compute_partition_list' in data_dict:
         value.invalidate(comment="Desactivated by slapformat")
 
 return {
-  #"$schema": json_form.absolute_url().strip() + "/getOutputJSONSchema",
-  "compute_node_id": compute_node.getReference(),
-  "date": DateTime().ISO8601(),
-  "portal_type": "Compute Node",
-  "success": "Done"
+  "title": "Format handled",
+  "type": "success"
 }

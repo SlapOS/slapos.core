@@ -138,11 +138,6 @@
       "type": "string",\n
       "description": "Unique Id of the object. It is not editable."\n
     },\n
-    "bang_status_message": {\n
-      "title": "Bang Message",\n
-      "description": "It trigger a Bang on the Compute Node and will force reprocessing og all hosted instances. Message Used to inform master with readable text.",\n
-      "type": "string"\n
-    },\n
     "portal_type": {\n
       "title": "Portal Type",\n
       "const": "Compute Node",\n

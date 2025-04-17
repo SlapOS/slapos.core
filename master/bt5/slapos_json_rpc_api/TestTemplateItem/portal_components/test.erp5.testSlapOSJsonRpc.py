@@ -291,22 +291,18 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     compute_node_user_id = self.compute_node.getUserId()
 
     error_log = 'Please force slapos node rerun'
-    with PinnedDateTime(self, DateTime('2020/05/19')):
-      response = self.callJsonRpcWebService(
-        "slapos.put.compute_node",
-        {
-          "compute_node_id": compute_node_reference,
-          "portal_type": "Compute Node",
-          "bang_status_message": error_log,
-        },
-        compute_node_user_id
-      )
+    response = self.callJsonRpcWebService(
+      "slapos.put.v0.compute_node_bang",
+      {
+        "compute_node_id": compute_node_reference,
+        "message": error_log,
+      },
+      compute_node_user_id
+    )
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
-      'compute_node_id': compute_node_reference,
-      'date': '2020-05-19T00:00:00+00:00',
-      'portal_type': 'Compute Node',
-      'success': 'Done'
+      'type': 'success',
+      'title': 'Bang handled'
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
 
@@ -1358,22 +1354,18 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       compute_node, _ = self.addComputeNodeAndPartition(project)
       self.tic()
 
-      with PinnedDateTime(self, DateTime('2020/05/19')):
-        response = self.callJsonRpcWebService(
-          "slapos.put.compute_node",
-          {
-            "compute_node_id": compute_node.getReference(),
-            "portal_type": "Compute Node",
-            "bang_status_message": error_log,
-          },
-          person_user_id
-        )
+    response = self.callJsonRpcWebService(
+      "slapos.put.v0.compute_node_bang",
+      {
+        "compute_node_id": compute_node.getReference(),
+        "message": error_log,
+      },
+      person_user_id
+    )
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
-      'compute_node_id': compute_node.getReference(),
-      'date': '2020-05-19T00:00:00+00:00',
-      'portal_type': 'Compute Node',
-      'success': 'Done'
+      'type': 'success',
+      'title': 'Bang handled'
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
 

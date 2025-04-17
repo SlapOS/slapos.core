@@ -44,9 +44,6 @@ def compareAndUpdateAddressList(partition, partition_ip_list):
   if to_delete_ip_id_list:
     partition.deleteContent(to_delete_ip_id_list)
 
-if "bang_status_message" in data_dict:
-  compute_node.reportComputeNodeBang(comment=data_dict["bang_status_message"])
-
 # Getting existing partitions
 existing_partition_dict = {}
 for c in compute_node.contentValues(portal_type="Compute Partition"):

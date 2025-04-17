@@ -287,7 +287,7 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
 class TestSalePackingList(TestSlapOSConstraintMixin):
   @withAbort
   def test_lines(self):
-    message = 'Sale Packing List Line is not defined'
+    message = 'Delivery Line is not defined'
     delivery = self.portal.sale_packing_list_module.newContent(
         portal_type='Sale Packing List')
 

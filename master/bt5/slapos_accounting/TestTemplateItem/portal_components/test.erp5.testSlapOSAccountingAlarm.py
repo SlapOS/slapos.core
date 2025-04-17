@@ -30,7 +30,6 @@ import transaction
 from functools import wraps
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort, TemporaryAlarmScript
-from unittest import expectedFailure
 
 
 import os
@@ -137,6 +136,7 @@ class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
         ledger='automated',
         delivery=delivery_line.getRelativeUrl(),
         title='Not visited by SimulationMovement_buildSlapOS')
+
     with TemporaryAlarmScript(self.portal, 'SimulationMovement_buildSlapOS', "''", attribute='title'):
       self.tic()
     self._test_alarm_not_visited(
@@ -511,7 +511,7 @@ class TestSlapOSStopConfirmedAggregatedSaleInvoiceTransactionAlarm(SlapOSTestCas
         'confirmed', True)
 
 
-class TestSlapOSGeneratePackingListFromTioXML(SlapOSTestCaseMixin):
+class TestSlapOSGenerateConsumptionDeliveryFromTioXML(SlapOSTestCaseMixin):
   #################################################################
   # slapos_accounting_generate_packing_list_from_tioxml
   #################################################################
@@ -519,27 +519,29 @@ class TestSlapOSGeneratePackingListFromTioXML(SlapOSTestCaseMixin):
     document = self.portal.consumption_document_module.newContent(
       title=self.generateNewId(),
       reference="TESTTIOCONS-%s" % self.generateNewId(),
+      portal_type="Computer Consumption TioXML File"
     )
     return document
 
-  @expectedFailure
-  def test_ComputerConsumptionTioXMLFile_solveInvoicingGeneration_alarm(self):
-    document = self.createTioXMLFile()
-    document.submit()
-    self.tic()
+  def test_ComputerConsumptionTioXMLFile_generateConsumptionDelivery_alarm(self):
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      document = self.createTioXMLFile()
+      document.submit()
+      self.tic()
 
-    script_name = "ComputerConsumptionTioXMLFile_solveInvoicingGeneration"
-    alarm = self.portal.portal_alarms.slapos_accounting_generate_packing_list_from_tioxml
+    script_name = "ComputerConsumptionTioXMLFile_generateConsumptionDelivery"
+    alarm = self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_from_tioxml
 
     self._test_alarm(
       alarm, document, script_name)
 
-  def test_ComputerConsumptionTioXMLFile_solveInvoicingGeneration_alarm_not_submitted(self):
-    document = self.createTioXMLFile()
-    self.tic()
-    
-    script_name = "ComputerConsumptionTioXMLFile_solveInvoicingGeneration"
-    alarm = self.portal.portal_alarms.slapos_accounting_generate_packing_list_from_tioxml
+  def test_ComputerConsumptionTioXMLFile_generateConsumptionDelivery_alarm_not_submitted(self):
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      document = self.createTioXMLFile()
+      self.tic()
+
+    script_name = "ComputerConsumptionTioXMLFile_generateConsumptionDelivery"
+    alarm = self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_from_tioxml
 
     self._test_alarm_not_visited(
       alarm, document, script_name)

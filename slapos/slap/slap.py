@@ -428,11 +428,10 @@ class Computer(SlapDocument):
 
   def bang(self, message):
     return self._connection_helper.callJsonRpcAPI(
-      'slapos.put.compute_node',
+      'slapos.put.v0.compute_node_bang',
       {
-        "portal_type": "Compute Node",
         'compute_node_id': self._computer_id,
-        'bang_status_message': message
+        'message': message
       }
     )
 

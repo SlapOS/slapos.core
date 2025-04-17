@@ -1455,21 +1455,17 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     error_log = 'Please force slapos instance rerun'
     with PinnedDateTime(self, DateTime('2020/05/19')):
       response = self.callJsonRpcWebService(
-        "slapos.put.software_instance",
+        "slapos.put.v0.instance_bang",
         {
           "reference": instance.getReference(),
-          "portal_type": "Software Instance",
-          "reported_state": "bang",
-          "status_message": error_log
+          "message": error_log
         },
         person_user_id
       )
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
-      'reference': instance.getReference(),
-      'date': '2020-05-19T00:00:00+00:00',
-      'portal_type': 'Software Instance',
-      'success': 'Done'
+      'title': 'Bang handled',
+      'type': 'success'
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
     portal_workflow = self.portal.portal_workflow
@@ -1524,20 +1520,17 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     new_name = 'new me'
     with PinnedDateTime(self, DateTime('2020/05/19')):
       response = self.callJsonRpcWebService(
-        "slapos.put.software_instance",
+        "slapos.put.v0.instance_title",
         {
           "reference": instance.getReference(),
-          "portal_type": "Software Instance",
           "title": new_name,
         },
         person_user_id
       )
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
-      'reference': instance.getReference(),
-      'date': '2020-05-19T00:00:00+00:00',
-      'portal_type': 'Software Instance',
-      'success': 'Done'
+      'title': 'Title updated',
+      'type': 'success'
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
     portal_workflow = self.portal.portal_workflow

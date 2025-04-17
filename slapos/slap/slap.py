@@ -418,9 +418,8 @@ class Computer(SlapDocument):
 
   def updateConfiguration(self, compute_partition_list):
     return self._connection_helper.callJsonRpcAPI(
-      'slapos.put.compute_node',
+      'slapos.put.v0.compute_node_format',
       {
-        "portal_type": "Compute Node",
         'compute_node_id': self._computer_id,
         'compute_partition_list': compute_partition_list
       }

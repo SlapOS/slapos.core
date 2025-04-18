@@ -227,21 +227,12 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     expected_software_list = []
     for software in software_list:
       expected_software_list.append({
-        # "api_revision": software.getJIOAPIRevision(self.connector.getRelativeUrl()),
-        "get_parameters": {
-          "portal_type": "Software Installation",
-          "software_release_uri": software.getUrlString(),
-          "compute_node_id": compute_node_reference
-        },
-        "portal_type": "Software Installation",
         "software_release_uri": software.getUrlString(),
-        "state": "available" if software.getSlapState() == "start_requested" else "destroyed",
-        "compute_node_id": compute_node_reference,
+        "state": "available" if software.getSlapState() == "start_requested" else "destroyed"
       })
 
-    response = self.callJsonRpcWebService('slapos.allDocs.software_installation', {
+    response = self.callJsonRpcWebService('slapos.allDocs.v0.compute_node_software_installation', {
       "compute_node_id": compute_node_reference,
-      "portal_type": "Software Installation",
     }, compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
     software_list_response = loadJson(response.getBody())
@@ -249,38 +240,9 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(
       software_list_response,
       {
-        'current_page_full': False,
-        'next_page_request': {'compute_node_id': compute_node_reference,
-                              'portal_type': 'Software Installation'},
         'result_list': expected_software_list
       })
     self.assertEqual(response.getStatus(), 200)
-
-    for i in range(len(expected_software_list)):
-      software_resut_dict = expected_software_list[i]
-      software = software_list[i]
-      # Get instance as "user"
-      response = self.callJsonRpcWebService(
-        "slapos.get.software_installation",
-        software_resut_dict["get_parameters"],
-        compute_node_user_id
-      )
-      # Check Data is correct
-      status_dict = software.getAccessStatus()
-      self.assertEqual('application/json', response.headers.get('content-type'))
-      self.assertEqual(
-        loadJson(response.getBody()),
-        {
-          # "$schema": software.getJSONSchemaUrl(),
-          # "api_revision": software.getJIOAPIRevision(self.connector.getRelativeUrl()),
-          "portal_type": "Software Installation",
-          "software_release_uri": software.getUrlString(),
-          "state": "available" if software.getSlapState() == "start_requested" else "destroyed",
-          "compute_node_id": compute_node_reference,
-          "reported_state": status_dict.get("state"),
-          "status_message": status_dict.get("text"),
-        })
-      self.assertEqual(response.getStatus(), 200)
 
   def test_ComputeNodeAccess_02_computerBang(self):
     with PortalAlarmDisabled(self.portal):

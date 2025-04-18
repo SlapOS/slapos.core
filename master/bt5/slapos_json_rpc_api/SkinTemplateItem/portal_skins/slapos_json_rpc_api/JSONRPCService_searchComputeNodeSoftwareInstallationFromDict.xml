@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>JSONRPCService_searchSoftwareInstallation</string> </value>
+            <value> <string>JSONRPCService_searchComputeNodeSoftwareInstallationFromDict</string> </value>
         </item>
       </dictionary>
     </pickle>

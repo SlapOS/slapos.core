@@ -197,10 +197,6 @@
   "type": "object",\n
   "additionalProperties": false,\n
   "properties": {\n
-    "project_reference": {\n
-      "title": "Project Reference",\n
-      "type": "string"\n
-    },\n
     "title": {\n
       "title": "Title",\n
       "type": "string",\n
@@ -268,7 +264,7 @@
       "additionalProperties": { "type": "string" }\n
     }\n
   },\n
-  "required": ["title", "software_release_uri", "software_type"]\n
+  "required": ["title", "software_release_uri", "software_type", "shared"]\n
 }\n
 </string> </value>
         </item>

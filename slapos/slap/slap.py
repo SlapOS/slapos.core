@@ -354,10 +354,9 @@ class Computer(SlapDocument):
     if getattr(self, '__software_release_list', None) is None:
       # Sync the software release list on demand
       allDocs_dict = self._connection_helper.callJsonRpcAPI(
-        'slapos.allDocs.software_installation',
+        'slapos.allDocs.v0.compute_node_software_installation',
         {
-          'compute_node_id': self._computer_id,
-          'portal_type': 'Software Installation'
+          'compute_node_id': self._computer_id
         }
       )
       # XXX check if full page

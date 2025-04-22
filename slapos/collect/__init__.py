@@ -159,20 +159,26 @@ def do_collect(logger, conf):
     SystemCSVReporterDumper(database).dump(log_directory)
     RawCSVDumper(database).dump(log_directory)
 
-    # Write xml files
-    consumption_report = ConsumptionReport(
+    upload_consumption_report = False
+    if conf.has_option("collect", "upload_consumption_report"):
+      upload_consumption_report = conf.get("collect",
+        "upload_consumption_report")
+
+    if upload_consumption_report:
+      # Write xml files
+      consumption_report = ConsumptionReport(
                       computer_id=conf.get("slapos", "computer_id"), 
                       user_list=user_dict,
                       database=database,
                       location=consumption_report_directory)
     
-    base = datetime.datetime.utcnow().date()
-    for x in range(1, 3):
-      report_file = consumption_report.buildXMLReport(
-          (base - datetime.timedelta(days=x)).strftime("%Y-%m-%d"))
+      base = datetime.datetime.utcnow().date()
+      for x in range(1, 3):
+        report_file = consumption_report.buildXMLReport(
+            (base - datetime.timedelta(days=x)).strftime("%Y-%m-%d"))
 
-      if report_file is not None:
-        shutil.copy(report_file, xml_report_directory)
+        if report_file is not None:
+          shutil.copy(report_file, xml_report_directory)
 
     # write json
     partition_report = PartitionReport(

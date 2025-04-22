@@ -26,6 +26,7 @@ Invitation Token | validation_workflow
 Mail Message | local_permission_slapos_interaction_workflow
 Open Sale Order | local_permission_slapos_interaction_workflow
 Organisation | local_permission_slapos_interaction_workflow
+PDF | local_permission_slapos_interaction_workflow
 Payment Transaction | local_permission_slapos_interaction_workflow
 Payzen Event | local_permission_slapos_interaction_workflow
 Person | local_permission_slapos_interaction_workflow
@@ -48,8 +49,10 @@ Slave Instance | local_permission_slapos_interaction_workflow
 Software Installation | local_permission_slapos_interaction_workflow
 Software Instance | local_permission_slapos_interaction_workflow
 Software Product | local_permission_slapos_interaction_workflow
+Spreadsheet | local_permission_slapos_interaction_workflow
 Subscription Request | local_permission_slapos_interaction_workflow
 Support Request | local_permission_slapos_interaction_workflow
+Text | local_permission_slapos_interaction_workflow
 Upgrade Decision | local_permission_slapos_interaction_workflow
 Web Message | local_permission_slapos_interaction_workflow
 Wechat Event | local_permission_slapos_interaction_workflow

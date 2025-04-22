@@ -96,6 +96,10 @@
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
  <chain>
+  <type>PDF</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Payment Transaction</type>
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
@@ -180,11 +184,19 @@
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
  <chain>
+  <type>Spreadsheet</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Subscription Request</type>
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Support Request</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Text</type>
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
  <chain>

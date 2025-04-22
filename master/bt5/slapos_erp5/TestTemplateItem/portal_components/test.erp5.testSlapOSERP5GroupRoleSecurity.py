@@ -1968,9 +1968,18 @@ class TestDocumentModule(TestSlapOSGroupRoleSecurityMixin):
 
 
 class TestPDF(TestSlapOSGroupRoleSecurityMixin):
+
   def test_PDF_default(self):
     delivery = self.portal.document_module.newContent(
         portal_type='PDF')
+    self.assertSecurityGroup(delivery,
+        [self.user_id], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
+
+  def test_PDF_accounting(self):
+    delivery = self.portal.document_module.newContent(
+        portal_type='PDF',
+        publication_section='accounting')
     self.assertSecurityGroup(delivery,
         ['F-ACCMAN', 'F-ACCAGT',
          self.user_id], False)
@@ -1978,6 +1987,42 @@ class TestPDF(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'F-ACCMAN', ['Assignor'])
     self.assertRoles(delivery, 'F-ACCAGT', ['Assignee'])
 
+  def test_PDF_report_contributor(self):
+    person = self.portal.person_module.newContent(portal_type='Person')
+    delivery = self.portal.document_module.newContent(
+        contributor_value=person,
+        publication_section='report',
+        portal_type='PDF')
+    self.assertSecurityGroup(delivery,
+        [person.getUserId(), self.user_id], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
+    self.assertRoles(delivery, person.getUserId(), ['Associate'])
+
+class TestText(TestSlapOSGroupRoleSecurityMixin):
+
+  def test_Text_report_contributor(self):
+    person = self.portal.person_module.newContent(portal_type='Person')
+    delivery = self.portal.document_module.newContent(
+        publication_section='report',
+        contributor_value=person,
+        portal_type='Text')
+    self.assertSecurityGroup(delivery,
+        [person.getUserId(), self.user_id], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
+    self.assertRoles(delivery, person.getUserId(), ['Associate'])
+
+class TestSpreadsheet(TestSlapOSGroupRoleSecurityMixin):
+
+  def test_Spreadsheet_report_contributor(self):
+    person = self.portal.person_module.newContent(portal_type='Person')
+    delivery = self.portal.document_module.newContent(
+        publication_section='report',
+        contributor_value=person,
+        portal_type='Spreadsheet')
+    self.assertSecurityGroup(delivery,
+        [person.getUserId(), self.user_id], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
+    self.assertRoles(delivery, person.getUserId(), ['Associate'])
 
 class TestQuery(TestSlapOSGroupRoleSecurityMixin):
   def test_Query_default(self):

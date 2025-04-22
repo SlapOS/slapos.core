@@ -559,7 +559,7 @@ class ComputerPartition(SlapRequester):
       'slapos.put.v0.instance_reported_state',
       {
         "reference": self.getInstanceGuid(),
-        "state": "destroyed"
+        "reported_state": "destroyed"
       }
     )
 
@@ -568,7 +568,7 @@ class ComputerPartition(SlapRequester):
       'slapos.put.v0.instance_reported_state',
       {
         "reference": self.getInstanceGuid(),
-        "state": "started"
+        "reported_state": "started"
       }
     )
 
@@ -577,7 +577,7 @@ class ComputerPartition(SlapRequester):
       'slapos.put.v0.instance_reported_state',
       {
         "reference": self.getInstanceGuid(),
-        "state": "stopped"
+        "reported_state": "stopped"
       }
     )
 

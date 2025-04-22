@@ -1097,6 +1097,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
           "software_release_uri": "req_release",
           "software_type": "req_type",
           "title": "req_reference",
+          "shared": False
           #"compute_node_id": self.compute_node_id,
           #"compute_partition_id": partition_id,
         },
@@ -1151,6 +1152,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
           "software_type": "req_type",
           "title": "req_reference",
           "state": "stopped",
+          "shared": False
           #"compute_node_id": self.compute_node_id,
           #"compute_partition_id": partition_id,
         },
@@ -1510,7 +1512,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       response = self.callJsonRpcWebService(
         "slapos.post.software_instance",
         {
-          "project_reference": project_reference,
+          # "project_reference": project_reference,
           "software_release_uri": "req_release",
           "software_type": "req_type",
           "title": "req_reference",
@@ -1551,7 +1553,6 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       response = self.callJsonRpcWebService(
         "slapos.post.software_instance",
         {
-          "project_reference": project_reference,
           "software_release_uri": "req_release",
           "software_type": "req_type",
           "title": "req_reference"
@@ -1582,17 +1583,14 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
   def test_PersonAccess_36_request_allocated_instance(self):
     with PinnedDateTime(self, DateTime()):
       _, _, _, _, partition, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
-      project = instance_tree.getFollowUpValue()
       person = instance_tree.getDestinationSectionValue()
       person_user_id = person.getUserId()
-      project_reference = project.getReference()
       instance = instance_tree.getSuccessorValue()
 
       response = self.callJsonRpcWebService("slapos.post.software_instance", {
         "software_release_uri": instance_tree.getUrlString(),
         "software_type": instance_tree.getSourceReference(),
-        "title": instance_tree.getTitle(),
-        "project_reference": project_reference
+        "title": instance_tree.getTitle()
       },
       person_user_id)
 

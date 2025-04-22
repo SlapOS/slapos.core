@@ -228,6 +228,7 @@
     "shared": {\n
       "title": "Shared Instance",\n
       "type": "boolean",\n
+      "default": false,\n
       "description": "Ask for a Shared Instance"\n
     },\n
     "sla_parameters": {\n
@@ -264,7 +265,7 @@
       "additionalProperties": { "type": "string" }\n
     }\n
   },\n
-  "required": ["title", "software_release_uri", "software_type", "shared"]\n
+  "required": ["title", "software_release_uri", "software_type"]\n
 }\n
 </string> </value>
         </item>

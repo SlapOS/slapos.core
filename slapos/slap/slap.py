@@ -88,13 +88,24 @@ class LazyInstanceParameterDict(dict):
   def __init__(self, instance, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.__instance = instance
+    self.__slave_instance_list_calculated = False
 
   def __missing__(self, key):
-    if key == 'slave_instance_list':
+    if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
       slave_instance_list = self.__instance.getSlaveInstanceList()
       self[key] = slave_instance_list
+      self.__slave_instance_list_calculated = True
       return slave_instance_list
     raise KeyError('Key %s is missing' % key)
+
+  def pop(self, key):
+    try:
+      return super().pop(key)
+    except KeyError:
+      if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
+        self.__slave_instance_list_calculated = True
+        return self.__instance.getSlaveInstanceList()
+      raise
 
 
 class SlapDocument:

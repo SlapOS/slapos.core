@@ -2000,6 +2000,13 @@ class TestPDF(TestSlapOSGroupRoleSecurityMixin):
 
 class TestText(TestSlapOSGroupRoleSecurityMixin):
 
+  def test_Text_default(self):
+    delivery = self.portal.document_module.newContent(
+        portal_type='Text')
+    self.assertSecurityGroup(delivery,
+        [self.user_id], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
+
   def test_Text_report_contributor(self):
     person = self.portal.person_module.newContent(portal_type='Person')
     delivery = self.portal.document_module.newContent(
@@ -2012,6 +2019,13 @@ class TestText(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, person.getUserId(), ['Associate'])
 
 class TestSpreadsheet(TestSlapOSGroupRoleSecurityMixin):
+
+  def test_Spreadsheet_default(self):
+    delivery = self.portal.document_module.newContent(
+        portal_type='Spreadsheet')
+    self.assertSecurityGroup(delivery,
+        [self.user_id], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
 
   def test_Spreadsheet_report_contributor(self):
     person = self.portal.person_module.newContent(portal_type='Person')

@@ -79,6 +79,24 @@ OLD_DEFAULT_SOFTWARE_TYPE = 'RootSoftwareInstance'
 DEFAULT_SOFTWARE_TYPE = 'default'
 COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME = '.slapos-request-transaction-%s'
 
+
+class LazyInstanceParameterDict(dict):
+  """
+  Only fetch the slave instance list on demand.
+  Created to keep compatibility with the slapconfiguration recipe
+  """
+  def __init__(self, instance, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.__instance = instance
+
+  def __missing__(self, key):
+    if key == 'slave_instance_list':
+      slave_instance_list = self.__instance.getSlaveInstanceList()
+      self[key] = slave_instance_list
+      return slave_instance_list
+    raise KeyError('Key %s is missing' % key)
+
+
 class SlapDocument:
   def __init__(self, connection_helper=None, hateoas_navigator=None):
     if connection_helper is not None:
@@ -689,7 +707,8 @@ class ComputerPartition(SlapRequester):
       software_release=result['software_release_uri'],
       computer_guid=self._computer_id
     )
-    computer_partition._parameter_dict = result['parameters']
+    computer_partition._parameter_dict = LazyInstanceParameterDict(self)
+    computer_partition._parameter_dict.update(result['parameters'])
     if result['processing_timestamp'] is not None:
       computer_partition._parameter_dict['timestamp'] = result['processing_timestamp']
     # computer_partition._filter_dict = result['sla_parameters']
@@ -704,18 +723,8 @@ class ComputerPartition(SlapRequester):
     computer_partition._parameter_dict['slap_computer_partition_id'] = self.getId()
     computer_partition._parameter_dict['slap_computer_id'] = self._computer_id
     computer_partition._parameter_dict['slap_software_release_url'] = result['software_release_uri']
-    # XXX XXX XXX TODO implement slave instance support
-    computer_partition._parameter_dict['slave_instance_list'] = result.get("slave_instance_list", [])
 
-  def _fetchComputerPartitionInformation(self):
-    result = self._connection_helper.callJsonRpcAPI(
-      'slapos.get.software_instance',
-      {
-        "portal_type": "Software Instance",
-        'compute_node_id': self._computer_id,
-        'compute_partition_id': self.getId()
-      }
-    )
+  def getSlaveInstanceList(self):
 
     # Sync the shared instances
     allDocs_shared_dict = self._connection_helper.callJsonRpcAPI(
@@ -727,7 +736,7 @@ class ComputerPartition(SlapRequester):
     )
     # XXX check if full page
     # XXX use a yield instead
-    result['slave_instance_list'] = []
+    slave_instance_list = []
     for shared_item in allDocs_shared_dict['result_list']:
       shared_result = self._connection_helper.callJsonRpcAPI(
         'slapos.get.software_instance',
@@ -737,7 +746,7 @@ class ComputerPartition(SlapRequester):
         }
       )
       if shared_result['state'] == 'started':
-        result['slave_instance_list'].append({
+        slave_instance_list.append({
           'slave_title': shared_result['title'],
           'slap_software_type': shared_result['software_type'],
           'slave_reference': shared_result['reference'],
@@ -745,7 +754,17 @@ class ComputerPartition(SlapRequester):
           'xml': dumps(shared_result['parameters']),
           'connection_xml': dumps(shared_result['connection_parameters'])
         })
+      return slave_instance_list
 
+  def _fetchComputerPartitionInformation(self):
+    result = self._connection_helper.callJsonRpcAPI(
+      'slapos.get.software_instance',
+      {
+        "portal_type": "Software Instance",
+        'compute_node_id': self._computer_id,
+        'compute_partition_id': self.getId()
+      }
+    )
     self._updateComputerPartitionInformation(result)
 
   def getInstanceParameterDict(self):

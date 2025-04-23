@@ -78,7 +78,7 @@ fallback_logger.addHandler(fallback_handler)
 OLD_DEFAULT_SOFTWARE_TYPE = 'RootSoftwareInstance'
 DEFAULT_SOFTWARE_TYPE = 'default'
 COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME = '.slapos-request-transaction-%s'
-
+DEFAULT = []
 
 class LazyInstanceParameterDict(dict):
   """
@@ -98,13 +98,15 @@ class LazyInstanceParameterDict(dict):
       return slave_instance_list
     raise KeyError('Key %s is missing' % key)
 
-  def pop(self, key):
+  def pop(self, key, default=DEFAULT):
     try:
       return super().pop(key)
     except KeyError:
       if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
         self.__slave_instance_list_calculated = True
         return self.__instance.getSlaveInstanceList()
+      if default is not DEFAULT:
+        return default
       raise
 
 

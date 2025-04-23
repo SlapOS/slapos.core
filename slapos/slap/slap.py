@@ -741,7 +741,7 @@ class ComputerPartition(SlapRequester):
     allDocs_shared_dict = self._connection_helper.callJsonRpcAPI(
       'slapos.allDocs.instance',
       {
-        'host_instance_reference': result['reference'],
+        'host_instance_reference': self.getInstanceGuid(),
         'portal_type': 'Slave Instance'
       }
     )

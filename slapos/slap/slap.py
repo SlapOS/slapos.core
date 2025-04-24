@@ -120,12 +120,13 @@ class LazyInstanceParameterDict(dict):
       self['slave_instance_list'] = self.__instance.getSlaveInstanceList()
     return super().__iter__()
 
+  """
   def __len__(self):
     if (not self.__slave_instance_list_calculated):
       self.__slave_instance_list_calculated = True
       self['slave_instance_list'] = self.__instance.getSlaveInstanceList()
     return super().__len__()
-
+"""
   """
   def __missing__(self, key, *args, **kw):
     if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):

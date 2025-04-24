@@ -436,8 +436,7 @@ class Computer(SlapDocument):
       allDocs_dict = self._connection_helper.callJsonRpcAPI(
         'slapos.allDocs.v0.compute_node_software_instance',
         {
-          'compute_node_id': self._computer_id,
-          'portal_type': 'Software Instance'
+          'compute_node_id': self._computer_id
         }
       )
       # XXX check if full page
@@ -769,8 +768,7 @@ class ComputerPartition(SlapRequester):
     allDocs_shared_dict = self._connection_helper.callJsonRpcAPI(
       'slapos.allDocs.v0.software_instance_shared_instance',
       {
-        'host_instance_reference': self.getInstanceGuid(),
-        'portal_type': 'Slave Instance'
+        'reference': self.getInstanceGuid()
       }
     )
     # XXX check if full page

@@ -771,25 +771,17 @@ class ComputerPartition(SlapRequester):
         'reference': self.getInstanceGuid()
       }
     )
-    # XXX check if full page
-    # XXX use a yield instead
     slave_instance_list = []
     for shared_item in allDocs_shared_dict['result_list']:
-      shared_result = self._connection_helper.callJsonRpcAPI(
-        'slapos.get.software_instance',
-        {
-          "portal_type": "Slave Instance",
-          'reference': shared_item['reference']
-        }
-      )
-      if shared_result['state'] == 'started':
+      if shared_item['state'] == 'started':
         slave_instance_list.append({
-          'slave_title': shared_result['title'],
-          'slap_software_type': shared_result['software_type'],
-          'slave_reference': shared_result['reference'],
-          'timestamp': shared_result['processing_timestamp'],
-          'xml': dumps(shared_result['parameters']),
-          'connection_xml': dumps(shared_result['connection_parameters'])
+          'slave_title': shared_item['title'],
+          'slap_software_type': shared_item['software_type'],
+          'slave_reference': shared_item['reference'],
+          #'timestamp': shared_item['processing_timestamp'],
+          'xml': dumps(shared_item['parameters']),
+          # unused?
+          # 'connection_xml': dumps(shared_result['connection_parameters'])
         })
     return slave_instance_list
 

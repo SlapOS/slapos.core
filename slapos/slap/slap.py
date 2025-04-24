@@ -86,40 +86,39 @@ DEFAULT_SOFTWARE_TYPE = 'default'
 COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME = '.slapos-request-transaction-%s'
 DEFAULT = []
 
-class LazyInstanceParameterDict(MutableMapping):
+class LazyInstanceParameterDict(dict):
   """
   Only fetch the slave instance list on demand.
   Created to keep compatibility with the slapconfiguration recipe
   """
   def __init__(self, instance, *args, **kwargs):
-    super().__init__()
+    super().__init__(, *args, **kwargs)
     self.__instance = instance
-    self.__parameter_dict = dict(*args, **kwargs)
     self.__slave_instance_list_calculated = False
 
   def __getitem__(self, key):
-    return self.__parameter_dict[key]
+    return self[key]
 
   def __setitem__(self, key, value):
-    self.__parameter_dict[key] = value
+    self[key] = value
 
   def __delitem__(self, key):
-    del self.__parameter_dict[key]
+    del self[key]
 
   def __iter__(self):
-      return iter(self.__parameter_dict)
+    return iter(self)
 
   def __len__(self):
-      return len(self.__parameter_dict)
+    return len(self)
 
   def __repr__(self):
-      return f"{self.__class__.__name__}({self.__parameter_dict})"
+    return f"{self.__class__.__name__}({self})"
 
   def __str__(self):
-      return str(self.__parameter_dict)
+    return str(self)
 
   def __contains__(self, key):
-      return key in self.__parameter_dict
+    return key in self
 
   """
   def __missing__(self, key):

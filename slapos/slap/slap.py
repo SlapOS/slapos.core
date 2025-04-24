@@ -96,6 +96,7 @@ class LazyInstanceParameterDict(dict):
     self.__instance = instance
     self.__slave_instance_list_calculated = False
 
+  """
   def __getitem__(self, key):
     return self[key]
 
@@ -119,7 +120,7 @@ class LazyInstanceParameterDict(dict):
 
   def __contains__(self, key):
     return key in self
-
+"""
   """
   def __missing__(self, key):
     if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):

@@ -47,16 +47,6 @@
   "type": "object",\n
   "additionalProperties": false,\n
   "properties": {\n
-    "current_page_full": {\n
-      "title": "Current Page Full",\n
-      "description": "If set to true, the current page has the max quantity of results for one page, the next page might contain more results.",\n
-      "type": "boolean"\n
-    },\n
-    "next_page_request": {\n
-      "title": "Next Page Request",\n
-      "description": "Use the content of this object with all docs to get to the next page of this research",\n
-      "type": "object"\n
-    },\n
     "result_list": {\n
       "title": "Result List",\n
       "description": "Contains a representation of the items",\n
@@ -64,30 +54,8 @@
       "items": {\n
         "type": "object",\n
         "additionalProperties": false,\n
-        "title": "Software/Shared Instance",\n
+        "title": "Shared Instance",\n
         "properties": {\n
-          "get_parameters": {\n
-            "title": "Get Parameters",\n
-            "description": "Copy Paste the content of this object in order to get the object",\n
-            "type": "object",\n
-            "additionalProperties": false,\n
-            "properties": {\n
-              "reference": {\n
-                "title": "Software Instance Id/Reference",\n
-                "type": "string",\n
-                "description": "The unique reference of the Software Instance, example: SOFTINST-1234"\n
-              },\n
-              "portal_type": {\n
-                "title": "Portal Type",\n
-                "enum": ["Software Instance", "Slave Instance"],\n
-                "type": "string"\n
-              }\n
-            },\n
-            "required": [\n
-              "reference",\n
-              "portal_type"\n
-             ]\n
-          },\n
           "reference": {\n
             "title": "Software Instance Reference",\n
             "description": "Unique identifier of the Software Instance",\n
@@ -113,19 +81,13 @@
             "type": "string",\n
             "description": "URL of the software release used by the software instance"\n
           },\n
-          "api_revision": {\n
-            "title": "API Revision",\n
-            "type": "string",\n
-            "description": "The API Revision is set by the master node to mark when the element was last processed. It is incremental. If revision has changed, critical data has been updated"\n
-          },\n
           "portal_type": {\n
             "title": "Portal Type",\n
-            "enum": ["Software Instance", "Slave Instance"],\n
+            "enum": ["Slave Instance"],\n
             "type": "string"\n
           }\n
         },\n
         "required": [\n
-          "get_parameters",\n
           "reference",\n
           "title",\n
           "state",\n
@@ -135,7 +97,6 @@
     }\n
   },\n
   "required": [\n
-    "current_page_full",\n
     "result_list"\n
   ]\n
 }</string> </value>

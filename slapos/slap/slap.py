@@ -126,13 +126,14 @@ class LazyInstanceParameterDict(dict):
       self['slave_instance_list'] = self.__instance.getSlaveInstanceList()
     return super().__len__()
 
+  """
   def __missing__(self, key, *args, **kw):
     if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
       self.__slave_instance_list_calculated = True
       self[key] = self.__instance.getSlaveInstanceList()
       return self[key]
     return super().__missing__(key, *args, **kw)
-
+"""
 
 class SlapDocument:
   def __init__(self, connection_helper=None, hateoas_navigator=None):

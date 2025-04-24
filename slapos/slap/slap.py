@@ -793,7 +793,7 @@ class ComputerPartition(SlapRequester):
           'xml': dumps(shared_result['parameters']),
           'connection_xml': dumps(shared_result['connection_parameters'])
         })
-      return slave_instance_list
+    return slave_instance_list
 
   def _fetchComputerPartitionInformation(self):
     result = self._connection_helper.callJsonRpcAPI(

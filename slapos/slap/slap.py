@@ -91,56 +91,48 @@ class LazyInstanceParameterDict(dict):
   Only fetch the slave instance list on demand.
   Created to keep compatibility with the slapconfiguration recipe
   """
-  def __init__(self, instance, *args, **kwargs):
-    super().__init__(*args, **kwargs)
+  def __init__(self, instance, *args, **kw):
+    super().__init__(*args, **kw)
     self.__instance = instance
     self.__slave_instance_list_calculated = False
 
-  """
-  def __getitem__(self, key):
-    return self[key]
+  def pop(self, key, *args, **kw):
+    if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
+      self.__slave_instance_list_calculated = True
+      return self.__instance.getSlaveInstanceList()
+    return super().pop(key, *args, **kw)
 
-  def __setitem__(self, key, value):
-    self[key] = value
+  def __getitem__(self, key, *args, **kw):
+    if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
+      self.__slave_instance_list_calculated = True
+      self[key] = self.__instance.getSlaveInstanceList()
+    return super().__getitem__(key, *args, **kw)
 
-  def __delitem__(self, key):
-    del self[key]
+  def __contains__(self, key, *args, **kw):
+    if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
+      self.__slave_instance_list_calculated = True
+      self[key] = self.__instance.getSlaveInstanceList()
+    return super().__contains__(key, *args, **kw)
 
   def __iter__(self):
-    return iter(self)
+    if (not self.__slave_instance_list_calculated):
+      self.__slave_instance_list_calculated = True
+      self['slave_instance_list'] = self.__instance.getSlaveInstanceList()
+    return super().__iter__(key)
 
   def __len__(self):
-    return len(self)
-
-  def __repr__(self):
-    return f"{self.__class__.__name__}({self})"
-
-  def __str__(self):
-    return str(self)
-
-  def __contains__(self, key):
-    return key in self
-"""
-  """
-  def __missing__(self, key):
-    if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
-      slave_instance_list = self.__instance.getSlaveInstanceList()
-      self[key] = slave_instance_list
+    if (not self.__slave_instance_list_calculated):
       self.__slave_instance_list_calculated = True
-      return slave_instance_list
-    raise KeyError('Key %s is missing' % key)
+      self['slave_instance_list'] = self.__instance.getSlaveInstanceList()
+    return super().__len__(key)
 
-  def pop(self, key, default=DEFAULT):
-    try:
-      return super().pop(key)
-    except KeyError:
-      if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
-        self.__slave_instance_list_calculated = True
-        return self.__instance.getSlaveInstanceList()
-      if default is not DEFAULT:
-        return default
-      raise
-"""
+  def __missing__(self, key, *args, **kw):
+    if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
+      self.__slave_instance_list_calculated = True
+      self[key] = self.__instance.getSlaveInstanceList()
+      return self[key]
+    return super().__missing__(key, *args, **kw)
+
 
 class SlapDocument:
   def __init__(self, connection_helper=None, hateoas_navigator=None):

@@ -65,11 +65,19 @@
             "title": "Unique Title of the Instance",\n
             "type": "string"\n
           },\n
+          "software_type": {\n
+            "title": "Software Type",\n
+            "type": "string"\n
+          },\n
           "state": {\n
             "title": "Requested State",\n
             "type": "string",\n
             "enum": ["started", "stopped", "destroyed"],\n
             "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
+          },\n
+          "parameters": {\n
+            "title": "Parameters",\n
+            "type": "object"\n
           },\n
           "compute_partition_id": {\n
             "title": "Compute Partition Id",\n
@@ -90,7 +98,9 @@
         "required": [\n
           "reference",\n
           "title",\n
+          "software_type",\n
           "state",\n
+          "parameters",\n
           "portal_type"\n
         ]\n
       }\n

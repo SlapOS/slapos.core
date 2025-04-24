@@ -140,10 +140,6 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       expected_instance_list.append({
         # "api_revision": instance.getJIOAPIRevision(self.connector.getRelativeUrl()),
         "compute_partition_id": instance.getAggregateReference(),
-        "get_parameters": {
-          "portal_type": "Software Instance",
-          "reference": instance.getReference(),
-        },
         "portal_type": "Software Instance",
         "reference": instance.getReference(),
         "software_release_uri": instance.getUrlString(),
@@ -161,9 +157,6 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(
       instance_list_response,
       {
-        'current_page_full': False,
-        'next_page_request': {'compute_node_id': compute_node_reference,
-                              'portal_type': 'Software Instance'},
         'result_list': expected_instance_list
       })
     self.assertEqual(response.getStatus(), 200)
@@ -176,7 +169,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       partition = instance.getAggregateValue(portal_type="Compute Partition")
       response = self.callJsonRpcWebService(
         'slapos.get.software_instance',
-        instance_resut_dict["get_parameters"],
+        {"reference": instance_resut_dict["reference"], "portal_type": instance_resut_dict["portal_type"]},
         compute_node_user_id
       )
       self.assertEqual('application/json', response.headers.get('content-type'))
@@ -470,10 +463,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     expected_instance_list = [{
       # "api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
       "compute_partition_id": instance.getAggregateReference(),
-      "get_parameters": {
-        "portal_type": "Software Instance",
-        "reference": instance.getReference(),
-      },
       "portal_type": "Software Instance",
       "reference": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
@@ -486,9 +475,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     }, instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
-      'current_page_full': False,
-      'next_page_request': {'compute_node_id': compute_node_reference,
-                             'portal_type': 'Software Instance'},
       "result_list": expected_instance_list
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
@@ -499,7 +485,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     # Get instance as "user"
     response = self.callJsonRpcWebService(
       "slapos.get.software_instance",
-      instance_resut_dict["get_parameters"],
+      {"reference": instance_resut_dict['reference'], "portal_type": instance_resut_dict['portal_type']},
       instance.getUserId()
     )
     self.assertEqual('application/json', response.headers.get('content-type'))
@@ -588,7 +574,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     # Check Slaves
     # XXX It should be the same portal_type
     response = self.callJsonRpcWebService("slapos.allDocs.v0.software_instance_shared_instance", {
-      "host_instance_reference": instance.getReference()
+      "reference": instance.getReference()
     },
       instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
@@ -596,14 +582,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     #shared_instance_revision = shared_instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl())
     self.assertEqual(shared_instance_list_response,
     {
-      'current_page_full': False,
-      'next_page_request': {#'from_api_revision': shared_instance_revision,
-                            'host_instance_reference': instance.getReference(),
-                            'portal_type': 'Slave Instance'},
       'result_list': [{#'api_revision': shared_instance_revision,
+                      'software_type': shared_instance.getSourceReference(),
+                      'parameters': shared_instance.getInstanceXmlAsDict(),
                       'compute_partition_id': partition.getReference(),
-                      'get_parameters': {'portal_type': 'Slave Instance',
-                                          'reference': shared_instance.getReference()},
                       'portal_type': 'Slave Instance',
                       'reference': shared_instance.getReference(),
                       'state': 'started',
@@ -613,7 +595,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     response = response = self.callJsonRpcWebService(
       "slapos.get.software_instance",
-      shared_instance_list_response["result_list"][0]["get_parameters"],
+      {"reference": shared_instance.getReference(), "portal_type": "Slave Instance"},
       instance.getUserId()
     )
     self.assertEqual('application/json', response.headers.get('content-type'))

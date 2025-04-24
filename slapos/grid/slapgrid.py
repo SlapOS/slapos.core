@@ -1031,7 +1031,8 @@ stderr_logfile_backups=1
                                   cmd_list, add=add_rules)
 
   def _checkPromiseAnomaly(self, local_partition, computer_partition):
-    partition_access_status = computer_partition.getAccessStatus()
+    #partition_access_status = computer_partition.getAccessStatus()
+    partition_access_status = "OK"
     status_error = False
     if partition_access_status and partition_access_status.startswith("#error"):
       status_error = True
@@ -1041,13 +1042,13 @@ stderr_logfile_backups=1
                              force=False)
     except PromiseError as e:
       self.logger.error(e)
-      if partition_access_status is None or not status_error:
-        local_partition._updateCertificate()
-        computer_partition.error(e, logger=self.logger)
-    else:
-      if partition_access_status is None or status_error:
-        local_partition._updateCertificate()
-        computer_partition.started()
+      #if partition_access_status is None or not status_error:
+      #  local_partition._updateCertificate()
+      #  computer_partition.error(e, logger=self.logger)
+    #else:
+    #  if partition_access_status is None or status_error:
+    #    local_partition._updateCertificate()
+    #    computer_partition.started()
 
   def processPromise(self, computer_partition):
     """
@@ -1421,10 +1422,11 @@ stderr_logfile_backups=1
     return filtered_computer_partition_list
 
   def processComputerPartitionList(self):
-    try:
-      return self.processComputerPartitionListOnline()
-    except (RequestException, ConnectionError):
-      return self.processComputerPartitionListOffline()
+    return self.processComputerPartitionListOffline()
+    #try:
+    #  return self.processComputerPartitionListOnline()
+    #except (RequestException, ConnectionError):
+    #  return self.processComputerPartitionListOffline()
 
   def processComputerPartitionListOnline(self):
     """
@@ -1527,6 +1529,34 @@ stderr_logfile_backups=1
         if e.errno != errno.ENOENT and e.errno != errno.ENOTDIR:
           raise
         requested_state = None
+      supervisor_conf = os.path.join(self.instance_root, 'etc/supervisord.conf.d/{}.conf'.format(name))
+      try:
+        open(supervisor_conf).close()
+        requested_state = 'started'
+      except FileNotFoundError as e:
+        pass
+      self.logger.info('Processing %s (state: %s)', name, requested_state)
+      if requested_state == 'started':
+        local_partition = Partition(
+          software_path=os.readlink(os.path.join(instance_path, 'software_release')),
+          instance_path=instance_path,
+          shared_part_list='',
+          supervisord_partition_configuration_dir=(
+            _getSupervisordConfigurationDirectory(self.instance_root)),
+          supervisord_socket=self.supervisord_socket,
+          computer_partition=None,
+          computer_id=self.computer_id,
+          partition_id=name,
+          server_url=self.master_url,
+          software_release_url='toto',
+          certificate_repository_path=self.certificate_repository_path,
+          buildout=self.buildout,
+          buildout_debug=self.buildout_debug,
+          logger=self.logger,
+          instance_storage_home=self.instance_storage_home,
+          ipv4_global_network=self.ipv4_global_network,
+        )
+        self._checkPromiseAnomaly(local_partition, None)
       if requested_state == 'stopped':
         local_partition = Partition(
           software_path=None,

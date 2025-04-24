@@ -434,7 +434,7 @@ class Computer(SlapDocument):
     if getattr(self, '__computer_partition_list', None) is None:
       # Sync the computer partition list on demand
       allDocs_dict = self._connection_helper.callJsonRpcAPI(
-        'slapos.allDocs.instance',
+        'slapos.allDocs.v0.compute_node_software_instance',
         {
           'compute_node_id': self._computer_id,
           'portal_type': 'Software Instance'
@@ -767,7 +767,7 @@ class ComputerPartition(SlapRequester):
 
     # Sync the shared instances
     allDocs_shared_dict = self._connection_helper.callJsonRpcAPI(
-      'slapos.allDocs.instance',
+      'slapos.allDocs.v0.software_instance_shared_instance',
       {
         'host_instance_reference': self.getInstanceGuid(),
         'portal_type': 'Slave Instance'

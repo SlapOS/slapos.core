@@ -152,8 +152,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       })
 
     response = self.callJsonRpcWebService('slapos.allDocs.v0.compute_node_software_instance', {
-      "compute_node_id": compute_node_reference,
-      "portal_type": "Software Instance",
+      "compute_node_id": compute_node_reference
     }, compute_node_user_id)
 
     self.assertEqual('application/json', response.headers.get('content-type'))
@@ -483,8 +482,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     }]
 
     response = self.callJsonRpcWebService("slapos.allDocs.v0.compute_node_software_instance", {
-      "compute_node_id": compute_node_reference,
-      "portal_type": "Software Instance",
+      "compute_node_id": compute_node_reference
     }, instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
@@ -590,8 +588,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     # Check Slaves
     # XXX It should be the same portal_type
     response = self.callJsonRpcWebService("slapos.allDocs.v0.software_instance_shared_instance", {
-      "host_instance_reference": instance.getReference(),
-      "portal_type": "Slave Instance",
+      "host_instance_reference": instance.getReference()
     },
       instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))

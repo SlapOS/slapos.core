@@ -41,6 +41,12 @@ import logging
 import re
 from functools import wraps
 
+import collections
+try:
+    from collections.abc import MutableMapping
+except ImportError:
+    from collections import MutableMapping
+
 import json
 import six
 
@@ -80,16 +86,42 @@ DEFAULT_SOFTWARE_TYPE = 'default'
 COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME = '.slapos-request-transaction-%s'
 DEFAULT = []
 
-class LazyInstanceParameterDict(dict):
+class LazyInstanceParameterDict(MutableMapping):
   """
   Only fetch the slave instance list on demand.
   Created to keep compatibility with the slapconfiguration recipe
   """
   def __init__(self, instance, *args, **kwargs):
-    super().__init__(*args, **kwargs)
+    super().__init__()
     self.__instance = instance
+    self.__parameter_dict = dict(*args, **kwargs)
     self.__slave_instance_list_calculated = False
 
+  def __getitem__(self, key):
+    return self.__parameter_dict[key]
+
+  def __setitem__(self, key, value):
+    self.__parameter_dict[key] = value
+
+  def __delitem__(self, key):
+    del self.__parameter_dict[key]
+
+  def __iter__(self):
+      return iter(self.__parameter_dict)
+
+  def __len__(self):
+      return len(self.__parameter_dict)
+
+  def __repr__(self):
+      return f"{self.__class__.__name__}({self.__parameter_dict})"
+
+  def __str__(self):
+      return str(self.__parameter_dict)
+
+  def __contains__(self, key):
+      return key in self.__parameter_dict
+
+  """
   def __missing__(self, key):
     if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
       slave_instance_list = self.__instance.getSlaveInstanceList()
@@ -108,7 +140,7 @@ class LazyInstanceParameterDict(dict):
       if default is not DEFAULT:
         return default
       raise
-
+"""
 
 class SlapDocument:
   def __init__(self, connection_helper=None, hateoas_navigator=None):

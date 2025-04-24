@@ -92,7 +92,7 @@ class LazyInstanceParameterDict(dict):
   Created to keep compatibility with the slapconfiguration recipe
   """
   def __init__(self, instance, *args, **kwargs):
-    super().__init__(, *args, **kwargs)
+    super().__init__(*args, **kwargs)
     self.__instance = instance
     self.__slave_instance_list_calculated = False
 

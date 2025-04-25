@@ -1017,7 +1017,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     with PinnedDateTime(self, DateTime()):
       #partition_id = instance.getAggregateValue(portal_type='Compute Partition').getReference()
       response = self.callJsonRpcWebService(
-        "slapos.post.software_instance",
+        "slapos.post.v0.instance",
         {
           "software_release_uri": "req_release",
           "software_type": "req_type",
@@ -1071,7 +1071,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     with PinnedDateTime(self, DateTime()):
       #partition_id = instance.getAggregateValue(portal_type='Compute Partition').getReference()
       response = self.callJsonRpcWebService(
-        "slapos.post.software_instance",
+        "slapos.post.v0.instance",
         {
           "software_release_uri": "req_release",
           "software_type": "req_type",
@@ -1125,7 +1125,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     #partition_id = instance.getAggregateValue(portal_type='Compute Partition').getReference()
     with PinnedDateTime(self, DateTime()):
       response = self.callJsonRpcWebService(
-        "slapos.post.software_instance",
+        "slapos.post.v0.instance",
         {
           "software_release_uri": "req_release",
           "software_type": "req_type",
@@ -1489,7 +1489,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       self.tic()
 
       response = self.callJsonRpcWebService(
-        "slapos.post.software_instance",
+        "slapos.post.v0.instance",
         {
           # "project_reference": project_reference,
           "software_release_uri": "req_release",
@@ -1530,7 +1530,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       self.tic()
 
       response = self.callJsonRpcWebService(
-        "slapos.post.software_instance",
+        "slapos.post.v0.instance",
         {
           "software_release_uri": "req_release",
           "software_type": "req_type",
@@ -1566,7 +1566,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       person_user_id = person.getUserId()
       instance = instance_tree.getSuccessorValue()
 
-      response = self.callJsonRpcWebService("slapos.post.software_instance", {
+      response = self.callJsonRpcWebService("slapos.post.v0.instance", {
         "software_release_uri": instance_tree.getUrlString(),
         "software_type": instance_tree.getSourceReference(),
         "title": instance_tree.getTitle()

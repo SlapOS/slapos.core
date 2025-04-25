@@ -147,7 +147,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
         "title": instance.getTitle(),
       })
 
-    response = self.callJsonRpcWebService('slapos.allDocs.v0.compute_node_software_instance', {
+    response = self.callJsonRpcWebService('slapos.allDocs.v0.compute_node_instance_list', {
       "compute_node_id": compute_node_reference
     }, compute_node_user_id)
 
@@ -223,7 +223,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
         "state": "available" if software.getSlapState() == "start_requested" else "destroyed"
       })
 
-    response = self.callJsonRpcWebService('slapos.allDocs.v0.compute_node_software_installation', {
+    response = self.callJsonRpcWebService('slapos.allDocs.v0.compute_node_software_installation_list', {
       "compute_node_id": compute_node_reference,
     }, compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
@@ -470,7 +470,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "title": instance.getTitle(),
     }]
 
-    response = self.callJsonRpcWebService("slapos.allDocs.v0.compute_node_software_instance", {
+    response = self.callJsonRpcWebService("slapos.allDocs.v0.compute_node_instance_list", {
       "compute_node_id": compute_node_reference
     }, instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
@@ -571,7 +571,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     # Check Slaves
     # XXX It should be the same portal_type
-    response = self.callJsonRpcWebService("slapos.allDocs.v0.software_instance_shared_instance", {
+    response = self.callJsonRpcWebService("slapos.allDocs.v0.instance_node_instance_list", {
       "reference": instance.getReference()
     },
       instance.getUserId())

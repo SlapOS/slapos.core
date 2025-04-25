@@ -258,7 +258,7 @@
         },\n
         "retention_delay": {\n
           "title": "Retention Delay",\n
-          "Description": "Number of days during the data is preserved after the instance is destroyed",\n
+          "description": "Number of days during the data is preserved after the instance is destroyed",\n
           "type": "number"\n
         }\n
       },\n

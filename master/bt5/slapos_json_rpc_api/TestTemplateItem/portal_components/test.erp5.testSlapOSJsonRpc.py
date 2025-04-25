@@ -168,8 +168,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       # Check Data is correct
       partition = instance.getAggregateValue(portal_type="Compute Partition")
       response = self.callJsonRpcWebService(
-        'slapos.get.software_instance',
-        {"reference": instance_resut_dict["reference"], "portal_type": instance_resut_dict["portal_type"]},
+        'slapos.get.v0.instance',
+        {"reference": instance_resut_dict["reference"]},
         compute_node_user_id
       )
       self.assertEqual('application/json', response.headers.get('content-type'))
@@ -484,8 +484,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     # Get instance as "user"
     response = self.callJsonRpcWebService(
-      "slapos.get.software_instance",
-      {"reference": instance_resut_dict['reference'], "portal_type": instance_resut_dict['portal_type']},
+      "slapos.get.v0.instance",
+      {"reference": instance_resut_dict['reference']},
       instance.getUserId()
     )
     self.assertEqual('application/json', response.headers.get('content-type'))
@@ -523,11 +523,9 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     # Get instance as "partition"
     response = self.callJsonRpcWebService(
-      "slapos.get.software_instance",
+      "slapos.get.v0.instance",
       {
-        'portal_type': 'Software Instance',
-        'compute_node_id': partition.getParentValue().getReference(),
-        'compute_partition_id': partition.getReference()
+        'reference': instance.getReference(),
       },
       instance.getUserId()
     )
@@ -594,8 +592,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(response.getStatus(), 200)
 
     response = response = self.callJsonRpcWebService(
-      "slapos.get.software_instance",
-      {"reference": shared_instance.getReference(), "portal_type": "Slave Instance"},
+      "slapos.get.v0.instance",
+      {"reference": shared_instance.getReference()},
       instance.getUserId()
     )
     self.assertEqual('application/json', response.headers.get('content-type'))
@@ -725,8 +723,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     # Check Data is correct
     partition = instance.getAggregateValue(portal_type="Compute Partition")
-    response = self.callJsonRpcWebService("slapos.get.software_instance", {
-      "portal_type": "Software Instance",
+    response = self.callJsonRpcWebService("slapos.get.v0.instance", {
       "reference": instance.getReference(),
     },
         instance.getUserId())
@@ -786,8 +783,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     # Check Data is correct
     partition = instance.getAggregateValue(portal_type="Compute Partition")
-    response = self.callJsonRpcWebService("slapos.get.software_instance", {
-      "portal_type": "Software Instance",
+    response = self.callJsonRpcWebService("slapos.get.v0.instance", {
       "reference": instance.getReference(),
     },
         instance.getUserId())
@@ -842,8 +838,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     # Check Data is correct
     partition = instance.getAggregateValue(portal_type="Compute Partition")
-    response = self.callJsonRpcWebService("slapos.get.software_instance", {
-      "portal_type": "Software Instance",
+    response = self.callJsonRpcWebService("slapos.get.v0.instance", {
       "reference": instance.getReference(),
     },
         instance.getUserId())
@@ -911,9 +906,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     # Check get return the expected results after
     response = self.callJsonRpcWebService(
-      "slapos.get.software_instance",
+      "slapos.get.v0.instance",
       {
-        "portal_type": "Software Instance",
         "reference": instance.getReference(),
       },
       instance.getUserId()
@@ -1196,9 +1190,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     # Check get return the expected results after
     response = self.callJsonRpcWebService(
-      "slapos.get.software_instance",
+      "slapos.get.v0.instance",
       {
-        "portal_type": "Software Instance",
         "reference": instance.getReference(),
       },
       instance.getUserId()
@@ -1254,9 +1247,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     # Check get return the expected results after
     response = self.callJsonRpcWebService(
-      "slapos.get.software_instance",
+      "slapos.get.v0.instance",
       {
-        "portal_type": "Software Instance",
         "reference": instance.getReference(),
       },
       instance.getUserId()
@@ -1333,9 +1325,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     )
 
     response = self.callJsonRpcWebService(
-      "slapos.get.software_instance",
+      "slapos.get.v0.instance",
       {
-        "portal_type": "Software Instance",
         "reference": instance.getReference(),
       },
       person_user_id
@@ -1415,9 +1406,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
 
     # Check get return the expected results after
     response = self.callJsonRpcWebService(
-      "slapos.get.software_instance",
+      "slapos.get.v0.instance",
       {
-        "portal_type": "Software Instance",
         "reference": instance.getReference(),
       },
       person_user_id

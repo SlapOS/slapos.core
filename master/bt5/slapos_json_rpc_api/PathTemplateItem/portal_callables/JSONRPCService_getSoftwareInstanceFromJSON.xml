@@ -42,8 +42,8 @@
             <key> <string>response_schema</string> </key>
             <value> <string>{\n
   "$schema": "http://json-schema.org/draft-07/schema#",\n
-  "title": "Get Compute Node",\n
-  "description": "Data necessary to get Compute Node",\n
+  "title": "Instance informations",\n
+  "description": "Instance informations",\n
   "type": "object",\n
   "additionalProperties": false,\n
   "properties": {\n
@@ -171,8 +171,8 @@
             <key> <string>text_content</string> </key>
             <value> <string>{\n
   "$schema": "http://json-schema.org/draft-07/schema#",\n
-  "title": "Get Compute Node",\n
-  "description": "Data necessary to get Compute Node",\n
+  "title": "Get Instance informations",\n
+  "description": "Get Instance informations",\n
   "type": "object",\n
   "additionalProperties": false,\n
 \n
@@ -181,40 +181,9 @@
       "title": "Software Instance Id/Reference",\n
       "type": "string",\n
       "description": "The unique reference of the Software Instance, example: SOFTINST-1234"\n
-    },\n
-\n
-    "compute_node_id": {\n
-      "title": "Compute Node Id",\n
-      "type": "string",\n
-      "description": "Id Of the Requesting Compute Node, used by Slap Client when an instance is requesting an instance"\n
-    },\n
-    "compute_partition_id": {\n
-      "title": "Compute Partition Id",\n
-      "type": "string",\n
-      "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance"\n
-    },\n
-\n
-    "portal_type": {\n
-      "title": "Portal Type",\n
-      "oneOf": [\n
-        {"const": "Slave Instance"},\n
-        {"const": "Software Instance"}\n
-      ],\n
-      "type": "string"\n
     }\n
   },\n
-  "oneOf": [{\n
-    "required": [\n
-      "reference",\n
-      "portal_type"\n
-    ]\n
-  },{\n
-    "required": [\n
-      "compute_node_id",\n
-      "compute_partition_id",\n
-      "portal_type"\n
-    ]\n
-  }]\n
+  "required": ["reference"]\n
 }\n
 </string> </value>
         </item>

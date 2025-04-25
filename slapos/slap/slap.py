@@ -502,9 +502,12 @@ class Computer(SlapDocument):
     )
 
   def generateCertificate(self):
-    xml = self._connection_helper.POST('generateComputerCertificate', data={
-      'computer_id': self._computer_id})
-    return loads(xml)
+    return self._connection_helper.callJsonRpcAPI(
+      'slapos.post.v0.compute_node_certificate',
+      {
+        'compute_node_id': self._computer_id
+      }
+    )
 
   def getInformation(self):
     if not getattr(self, '_hateoas_navigator', None):

@@ -1631,3 +1631,40 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       self.assertTrue(software_installation is not None)
       self.assertEqual(software_installation.getUrlString(), software_url)
       self.assertEqual(software_installation.getSlapState(), 'start_requested')
+
+  def test_PersonAccess_38_ComputeNodeRemoveCertificate(self):
+    # disable alarms to speed up the test
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      person = self.makePerson(project)
+      self.addProjectProductionManagerAssignment(person, project)
+      person_user_id = person.getUserId()
+      compute_node, _ = self.addComputeNodeAndPartition(project)
+      compute_node.generateCertificate()
+      self.tic()
+
+      certificate_list = compute_node.contentValues(portal_type='Certificate Login')
+      self.assertEqual(len(certificate_list), 1)
+      self.assertEqual(certificate_list[0].getValidationState(), 'validated')
+
+      response = self.callJsonRpcWebService(
+        "slapos.remove.v0.compute_node_certificate",
+        {
+          "compute_node_id": compute_node.getReference()
+        },
+        person_user_id
+      )
+
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual(
+        loadJson(response.getBody()),
+        {
+          'type': 'success',
+          'title': "Certificate removed"
+        })
+      self.assertEqual(response.getStatus(), 200)
+
+      certificate_list = compute_node.contentValues(portal_type='Certificate Login')
+      self.assertEqual(len(certificate_list), 1)
+      self.assertEqual(certificate_list[0].getValidationState(), 'invalidated')
+

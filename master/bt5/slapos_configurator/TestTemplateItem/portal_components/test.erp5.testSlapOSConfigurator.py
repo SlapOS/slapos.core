@@ -193,6 +193,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'invitation_token_module',
        'item_module',
        'knowledge_pad_module',
+       'loyalty_transaction_module',
        'meeting_module',
        'notebook_module',
        'notification_message_module',

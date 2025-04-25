@@ -57,6 +57,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_advanced_ecommerce_configuration
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -65,6 +66,7 @@ erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
+erp5_commerce_loyalty_program
 erp5_commerce_widget_library
 erp5_computer_immobilisation
 erp5_configurator
@@ -134,6 +136,7 @@ class TestSlaposSkinSelectionMixin(SlapOSTestCaseMixin):
           'Deferred',
           'Deploy',
           'Download',
+          'E-Commerce',
           'Hal',
           'HalRestricted',
           'Multiflex',
@@ -278,6 +281,7 @@ erp5_interaction_drop
 erp5_web_hal_json
 %(slapos_folder_list)s
 erp5_commerce_multiflex_layout
+erp5_web_multiflex5_theme
 erp5_knowledge_pad
 erp5_simulation
 erp5_dms_base
@@ -289,6 +293,58 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 %(common_folder_list)s
+erp5_xhtml_style
+external_method
+""" % {'common_folder_list': common_folder_list,
+       'common2_folder_list': common2_folder_list,
+       'common3_folder_list': common3_folder_list,
+       'slapos_folder_list': slapos_folder_list
+      }
+
+  ecommerce_selection_string_list = \
+"""
+custom
+erp5_font
+erp5_interaction_drop
+erp5_web_hal_json
+slapos_erp5
+slapos_upgrader
+erp5_advanced_ecommerce
+slapos_abyss
+slapos_base
+slapos_contract
+slapos_subscription_request
+slapos_crm_monitoring
+slapos_accounting
+slapos_administration
+slapos_cloud
+slapos_consumption
+slapos_core
+slapos_crm
+slapos_payzen
+slapos_pdm
+slapos_simulation
+slapos_slap_tool
+slapos_wechat
+slapos_panel
+slapos_panel_compatibility
+slapos_parameter_editor
+slapos_configurator
+erp5_commerce_multiflex_layout
+erp5_web_multiflex5_theme
+erp5_knowledge_pad
+erp5_simulation
+erp5_dms_base
+erp5_dms_web
+%(common2_folder_list)s
+%(common3_folder_list)s
+erp5_immobilisation
+erp5_ingestion
+erp5_integration
+erp5_invoicing
+erp5_jquery
+%(common_folder_list)s
+erp5_xhtml_style
 external_method
 """ % {'common_folder_list': common_folder_list,
        'common2_folder_list': common2_folder_list,
@@ -651,6 +707,9 @@ external_method
     self.assertSameSkinSelection("SlideShow",
       self.slideshow_selection_string_list)
 
+  def _test_21_ECommerce_selection(self):
+    self.assertSameSkinSelection("E-Commerce",
+      self.ecommerce_selection_string_list)
 
 class TestSlaposSkinSelection(TestSlaposSkinSelectionMixin):
 
@@ -669,3 +728,4 @@ class TestSlaposSkinSelection(TestSlaposSkinSelectionMixin):
   test_18_RJS_selection = TestSlaposSkinSelectionMixin._test_18_RJS_selection
   test_19_SlapOSHalRestricted_selection = TestSlaposSkinSelectionMixin._test_19_SlapOSHalRestricted_selection
   test_20_SlideShow_selection = TestSlaposSkinSelectionMixin._test_20_SlideShow_selection
+  test_21_ECommerce_selection = TestSlaposSkinSelectionMixin._test_21_ECommerce_selection

@@ -151,7 +151,7 @@ class SlapRequester(SlapDocument):
   """
   def _requestComputerPartition(self, request_dict):
     result = self._connection_helper.callJsonRpcAPI(
-      'slapos.post.software_instance',
+      'slapos.post.v0.instance',
       {
         'title': request_dict['partition_reference'],
         'software_release_uri': request_dict['software_release'],

@@ -50,12 +50,12 @@
     "key": {\n
       "title": "X509 Key",\n
       "type": "string",\n
-      "descritpion": "X509 Key used by the instance to authentify itself on master"\n
+      "description": "X509 Key used by the instance to authentify itself on master"\n
     },\n
     "certificate": {\n
       "title": "X509 Certificate",\n
       "type": "string",\n
-      "descritpion": "X509 Certificate used by the instance to authentify itself on master"\n
+      "description": "X509 Certificate used by the instance to authentify itself on master"\n
     }\n
   },\n
   "required": [\n

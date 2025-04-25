@@ -77,7 +77,7 @@
     "compute_partition_list": {\n
       "title": "Compute Partition List",\n
       "type": "array",\n
-      "descritpion": "List Compute Node Partitions hosted on the computer",\n
+      "description": "List Compute Node Partitions hosted on the computer",\n
       "items": {\n
         "type": "object",\n
         "title": "Compute Node Partition",\n
@@ -85,7 +85,7 @@
         "properties": {\n
           "partition_id": {\n
             "title": "Partition ID",\n
-            "descritpion": "Unique ID of the Compute Node Partition",\n
+            "description": "Unique ID of the Compute Node Partition",\n
             "type": "string"\n
           },\n
           "ip_list": {\n

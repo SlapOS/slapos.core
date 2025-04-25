@@ -494,8 +494,12 @@ class Computer(SlapDocument):
     return loads(xml)
 
   def revokeCertificate(self):
-    self._connection_helper.POST('revokeComputerCertificate', data={
-      'computer_id': self._computer_id})
+    return self._connection_helper.callJsonRpcAPI(
+      'slapos.remove.v0.compute_node_certificate',
+      {
+        'compute_node_id': self._computer_id
+      }
+    )
 
   def generateCertificate(self):
     xml = self._connection_helper.POST('generateComputerCertificate', data={

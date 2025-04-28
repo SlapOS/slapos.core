@@ -434,6 +434,153 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(response.getStatus(), 200)
     self.assertEqual(software_installation.getAccessStatus()['text'], '#error while installing: error log')
 
+  def test_ComputeNodeAccess_10_reportUsageWithReference(self):
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      self.compute_node, _ = self.addComputeNodeAndPartition(project)
+      self._makeComplexComputeNode(project)
+    compute_node_reference = self.compute_node.getReference()
+    compute_node_user_id = self.compute_node.getUserId()
+
+    consumption_xml = """<?xml version='1.0' encoding='utf-8'?>
+<journal>
+<transaction type="Sale Packing List">
+<title>Resource consumptions</title>
+<start_date></start_date>
+<stop_date></stop_date>
+<reference>testusagé</reference>
+<currency></currency>
+<payment_mode></payment_mode>
+<category></category>
+<arrow type="Administration">
+<source></source>
+<destination></destination>
+</arrow>
+<movement>
+<resource>CPU Consumption</resource>
+<title>Title Sale Packing List Line 1</title>
+<reference>slappart0</reference>
+<quantity>42.42</quantity>
+<price>0.00</price>
+<VAT>None</VAT>
+<category>None</category>
+</movement>
+</transaction>
+</journal>"""
+
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService("slapos.post.v0.compute_node_usage", {
+        "tioxml": consumption_xml,
+        "compute_node_id": compute_node_reference
+      },
+          compute_node_user_id)
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      loadJson(response.getBody()),
+      {
+        'title': 'Usage reported',
+        'type': 'success'
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    self.tic()
+    tioxml_file = self.compute_node.getContributorRelatedValue(
+      portal_type='Computer Consumption TioXML File'
+    )
+    self.assertEqual(tioxml_file.getValidationState(), 'submitted')
+    self.assertEqual(tioxml_file.getData(), consumption_xml)
+    self.assertEqual(tioxml_file.getSourceReference(), 'testusagé')
+    self.assertEqual(tioxml_file.getReference(), "TIOCONS-%s-%s" % (self.compute_node.getReference(),
+                                                                    tioxml_file.getSourceReference()))
+
+  def test_ComputeNodeAccess_11_reportUsageWithEmptyReference(self):
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      self.compute_node, _ = self.addComputeNodeAndPartition(project)
+      self._makeComplexComputeNode(project)
+    compute_node_reference = self.compute_node.getReference()
+    compute_node_user_id = self.compute_node.getUserId()
+
+    consumption_xml = """<?xml version='1.0' encoding='utf-8'?>
+<journal>
+<transaction type="Sale Packing List">
+<title>Resource consumptions</title>
+<start_date></start_date>
+<stop_date></stop_date>
+<reference></reference>
+<currency></currency>
+<payment_mode></payment_mode>
+<category></category>
+<arrow type="Administration">
+<source></source>
+<destination></destination>
+</arrow>
+<movement>
+<resource>CPU Consumption</resource>
+<title>Title Sale Packing List Line 1</title>
+<reference>slappart0</reference>
+<quantity>42.42</quantity>
+<price>0.00</price>
+<VAT>None</VAT>
+<category>None</category>
+</movement>
+</transaction>
+</journal>"""
+
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService("slapos.post.v0.compute_node_usage", {
+        "tioxml": consumption_xml,
+        "compute_node_id": compute_node_reference
+      },
+          compute_node_user_id)
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      loadJson(response.getBody()),
+      {
+        'title': 'Usage reported',
+        'type': 'success'
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    self.tic()
+    tioxml_file = self.compute_node.getContributorRelatedValue(
+      portal_type='Computer Consumption TioXML File'
+    )
+    self.assertEqual(tioxml_file.getValidationState(), 'submitted')
+    self.assertEqual(tioxml_file.getData(), consumption_xml)
+    self.assertEqual(tioxml_file.getSourceReference(), None)
+    self.assertEqual(tioxml_file.getReference(), "TIOCONS-%s-" % (self.compute_node.getReference(),))
+
+  def test_ComputeNodeAccess_12_reportUsageWithWrongXml(self):
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      self.compute_node, _ = self.addComputeNodeAndPartition(project)
+      self._makeComplexComputeNode(project)
+    compute_node_reference = self.compute_node.getReference()
+    compute_node_user_id = self.compute_node.getUserId()
+
+    consumption_xml = """foobar"""
+
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      response = self.callJsonRpcWebService("slapos.post.v0.compute_node_usage", {
+        "tioxml": consumption_xml,
+        "compute_node_id": compute_node_reference
+      },
+          compute_node_user_id)
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      loadJson(response.getBody()),
+      {'status': 400,
+        'title': 'The tioxml does not validate the xsd',
+        'type': 'INVALIDATE_TIOXML'})
+    self.assertEqual(response.getStatus(), 400)
+
+    self.tic()
+    tioxml_file = self.compute_node.getContributorRelatedValue(
+      portal_type='Computer Consumption TioXML File'
+    )
+    self.assertEqual(tioxml_file, None)
+
 
 class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
   def test_InstanceAccess_10_getComputerPartitionCertificate(self):

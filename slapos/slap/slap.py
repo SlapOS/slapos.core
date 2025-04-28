@@ -939,8 +939,9 @@ class slap:
         pass
     if not slapgrid_rest_uri:
       try:
-        slapgrid_rest_uri = getHateoasUrl_cache[getHateoasUrl_cache_key] = \
-          bytes2str(self._connection_helper.GET('getHateoasUrl'))
+        slapgrid_rest_uri = self._connection_helper.callJsonRpcAPI(
+          'slapos.get.v0.hateoas_url', {}
+        )['hateoas_url']
       except:
         pass
     if slapgrid_rest_uri:

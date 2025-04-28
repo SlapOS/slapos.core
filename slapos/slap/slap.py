@@ -494,8 +494,12 @@ class Computer(SlapDocument):
     )
 
   def getStatus(self):
-    xml = self._connection_helper.GET('getComputerStatus', params={'computer_id': self._computer_id})
-    return loads(xml)
+    return self._connection_helper.callJsonRpcAPI(
+      'slapos.get.v0.compute_node_status',
+      {
+        'compute_node_id': self._computer_id
+      }
+    )
 
   def revokeCertificate(self):
     return self._connection_helper.callJsonRpcAPI(

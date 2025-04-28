@@ -29,6 +29,7 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, PinnedD
 from erp5.component.module.JsonUtils import loadJson
 
 from DateTime import DateTime
+from App.Common import rfc1123_date
 
 import hashlib
 import json
@@ -1899,4 +1900,74 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
           'title': 'The hateoas url is not configured',
           'type': 'HATEOAS-URL-NOT-FOUND'})
       self.assertEqual(response.getStatus(), 403)
+
+  def test_PersonAccess_41_NotAccessedComputeNodeStatus(self):
+    now = DateTime()
+    with PinnedDateTime(self, now):
+      # disable alarms to speed up the test
+      with PortalAlarmDisabled(self.portal):
+        project = self.addProject()
+        person = self.makePerson(project)
+        self.addProjectProductionManagerAssignment(person, project)
+        person_user_id = person.getUserId()
+        compute_node, _ = self.addComputeNodeAndPartition(project)
+        self.tic()
+
+        response = self.callJsonRpcWebService(
+          "slapos.get.v0.compute_node_status",
+          {
+            "compute_node_id": compute_node.getReference()
+          },
+          person_user_id
+        )
+
+        self.assertEqual('application/json', response.headers.get('content-type'))
+        self.assertEqual(
+          loadJson(response.getBody()),
+           {'created_at': rfc1123_date(now),
+            'no_data': 1,
+            'portal_type': 'Compute Node',
+            'reference': compute_node.getReference(),
+            'since': rfc1123_date(now),
+            'state': '',
+            'text': '#error no data found for %s' % compute_node.getReference(),
+            'user': 'SlapOS Master'}
+        )
+        self.assertEqual(response.getStatus(), 200)
+
+  def test_PersonAccess_42_AccessedComputeNodeStatus(self):
+    now = DateTime()
+    with PinnedDateTime(self, now):
+      # disable alarms to speed up the test
+      with PortalAlarmDisabled(self.portal):
+        project = self.addProject()
+        person = self.makePerson(project)
+        self.addProjectProductionManagerAssignment(person, project)
+        person_user_id = person.getUserId()
+        compute_node, _ = self.addComputeNodeAndPartition(project)
+        compute_node.setAccessStatus(compute_node.getReference())
+        self.tic()
+
+        response = self.callJsonRpcWebService(
+          "slapos.get.v0.compute_node_status",
+          {
+            "compute_node_id": compute_node.getReference()
+          },
+          person_user_id
+        )
+
+        self.assertEqual('application/json', response.headers.get('content-type'))
+        self.assertEqual(
+          loadJson(response.getBody()),
+           {'created_at': rfc1123_date(now),
+            'no_data_since_15_minutes': 0,
+            'no_data_since_5_minutes': 0,
+            'portal_type': 'Compute Node',
+            'reference': compute_node.getReference(),
+            'since': rfc1123_date(now),
+            'state': '',
+            'text': '#access %s' % compute_node.getReference(),
+            'user': 'ERP5TypeTestCase'}
+        )
+        self.assertEqual(response.getStatus(), 200)
 

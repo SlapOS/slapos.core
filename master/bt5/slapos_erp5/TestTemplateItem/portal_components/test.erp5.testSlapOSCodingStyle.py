@@ -133,6 +133,8 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_json_rpc_api/JSONRPCService_updateSoftwareInstanceErrorStateFromDict',
         'slapos_json_rpc_api/JSONRPCService_updateSoftwareInstanceReportedStateFromDict',
         'slapos_json_rpc_api/JSONRPCService_updateSoftwareInstanceTitleFromDict',
+        'slapos_json_rpc_api/JSONRPCService_createComputeNodeCertificateRecordFromDict',
+        'slapos_json_rpc_api/JSONRPCService_removeComputeNodeCertificateRecordFromDict',
         'slapos_pdm/UpgradeDecision_afterClone',
         'slapos_pdm/UpgradeDecision_getResourceItemList',
         'slapos_pdm/UpgradeDecision_init',

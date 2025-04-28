@@ -467,9 +467,13 @@ class Computer(SlapDocument):
   def reportUsage(self, computer_usage):
     if computer_usage == "":
       return
-    self._connection_helper.POST('useComputer', data={
-      'computer_id': self._computer_id,
-      'use_string': computer_usage})
+    return self._connection_helper.callJsonRpcAPI(
+      'slapos.post.v0.compute_node_usage',
+      {
+        'compute_node_id': self._computer_id,
+        'tioxml': computer_usage
+      }
+    )
 
   def updateConfiguration(self, compute_partition_list):
     return self._connection_helper.callJsonRpcAPI(

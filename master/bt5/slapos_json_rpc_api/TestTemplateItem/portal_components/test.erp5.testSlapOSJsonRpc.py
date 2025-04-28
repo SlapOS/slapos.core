@@ -1844,3 +1844,59 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       self.assertEqual(len(certificate_list), 1)
       self.assertEqual(certificate_list[0].getValidationState(), 'validated')
 
+  def test_PersonAccess_39_HateoasUrl(self):
+    for preference in \
+      self.portal.portal_catalog(portal_type="System Preference"):
+      preference = preference.getObject()
+      if preference.getPreferenceState() == 'global':
+        preference.setPreferredHateoasUrl('foo')
+
+    # disable alarms to speed up the test
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      person = self.makePerson(project)
+      person_user_id = person.getUserId()
+      self.tic()
+
+      response = self.callJsonRpcWebService(
+        "slapos.get.v0.hateoas_url",
+        {},
+        person_user_id
+      )
+
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual(
+        loadJson(response.getBody()),
+        {
+          'hateoas_url': 'foo'
+        })
+      self.assertEqual(response.getStatus(), 200)
+
+  def test_PersonAccess_40_HateoasUrlNotConfigured(self):
+    for preference in \
+      self.portal.portal_catalog(portal_type="System Preference"):
+      preference = preference.getObject()
+      if preference.getPreferenceState() == 'global':
+        preference.setPreferredHateoasUrl('')
+
+    # disable alarms to speed up the test
+    with PortalAlarmDisabled(self.portal):
+      project = self.addProject()
+      person = self.makePerson(project)
+      person_user_id = person.getUserId()
+      self.tic()
+
+      response = self.callJsonRpcWebService(
+        "slapos.get.v0.hateoas_url",
+        {},
+        person_user_id
+      )
+
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual(
+        loadJson(response.getBody()),
+         {'status': 403,
+          'title': 'The hateoas url is not configured',
+          'type': 'HATEOAS-URL-NOT-FOUND'})
+      self.assertEqual(response.getStatus(), 403)
+

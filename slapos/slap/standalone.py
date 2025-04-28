@@ -178,6 +178,8 @@ class SupervisorConfigWriter(ConfigWriter):
         startsecs = 0
         redirect_stderr = true
         stdout_logfile = {standalone_slapos._log_directory}/slapos-instance-supervisord.log
+        # Explictly autostart the supervisord managing instances
+        autostart = true
 
         """).format(**locals())
 

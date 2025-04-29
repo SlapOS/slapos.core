@@ -308,7 +308,7 @@ class Supply(SlapDocument):
     self._connection_helper.callJsonRpcAPI(
       'slapos.post.v0.software_installation',
       {
-        'reference': computer_guid,
+        'computer_guid': computer_guid,
         'software_release_uri': software_release,
         'state': state
       }

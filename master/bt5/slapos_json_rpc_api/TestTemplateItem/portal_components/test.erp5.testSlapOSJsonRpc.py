@@ -1132,7 +1132,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       response = self.callJsonRpcWebService(
         "slapos.put.v0.instance_reported_state",
         {
-          "reference": instance.getReference(),
+          "instance_guid": instance.getReference(),
           "reported_state": "destroyed"
         },
         instance.getUserId()
@@ -1322,7 +1322,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       response = self.callJsonRpcWebService(
         "slapos.put.v0.instance_reported_state",
         {
-          "reference": instance.getReference(),
+          "instance_guid": instance.getReference(),
           "reported_state": "stopped"
         },
         instance.getUserId()
@@ -1379,7 +1379,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       response = self.callJsonRpcWebService(
         "slapos.put.v0.instance_reported_state",
         {
-          "reference": instance.getReference(),
+          "instance_guid": instance.getReference(),
           "reported_state": "started"
         },
         instance.getUserId()

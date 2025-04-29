@@ -436,7 +436,7 @@ class Computer(SlapDocument):
       allDocs_dict = self._connection_helper.callJsonRpcAPI(
         'slapos.allDocs.v0.compute_node_instance_list',
         {
-          'compute_node_id': self._computer_id
+          'computer_guid': self._computer_id
         }
       )
       # XXX check if full page
@@ -452,7 +452,7 @@ class Computer(SlapDocument):
         computer_partition._hateoas_navigator = self._hateoas_navigator
 
         # XXX duplicated with fetchPartitionInfo
-        computer_partition._instance_guid = result['reference']
+        computer_partition._instance_guid = result['instance_guid']
         computer_partition._requested_state = result['state']
         computer_partition._software_release_document = SoftwareRelease(
           software_release=result['software_release_uri'],

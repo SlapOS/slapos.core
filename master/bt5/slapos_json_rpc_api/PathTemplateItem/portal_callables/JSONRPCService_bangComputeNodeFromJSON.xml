@@ -74,7 +74,7 @@
   "type": "object",\n
   "additionalProperties": false,\n
   "properties": {\n
-    "compute_node_id": {\n
+    "computer_guid": {\n
       "title": "Compute Node ID",\n
       "type": "string",\n
       "description": "Unique Id of the object. It is not editable."\n
@@ -85,7 +85,7 @@
       "type": "string"\n
     }\n
   },\n
-  "required": ["compute_node_id", "message"]\n
+  "required": ["computer_guid", "message"]\n
 }\n
 </string> </value>
         </item>

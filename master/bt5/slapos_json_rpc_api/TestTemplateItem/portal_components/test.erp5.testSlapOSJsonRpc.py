@@ -249,7 +249,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     response = self.callJsonRpcWebService(
       "slapos.put.v0.compute_node_bang",
       {
-        "compute_node_id": compute_node_reference,
+        "computer_guid": compute_node_reference,
         "message": error_log,
       },
       compute_node_user_id
@@ -1498,7 +1498,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     response = self.callJsonRpcWebService(
       "slapos.put.v0.compute_node_bang",
       {
-        "compute_node_id": compute_node.getReference(),
+        "computer_guid": compute_node.getReference(),
         "message": error_log,
       },
       person_user_id

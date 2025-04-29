@@ -673,7 +673,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     response = self.callJsonRpcWebService(
       "slapos.get.v0.instance",
       {
-        'reference': instance.getReference(),
+        'instance_guid': instance.getReference(),
       },
       instance.getUserId()
     )
@@ -683,7 +683,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual({
       # "$schema": instance.getJSONSchemaUrl(),
       "title": instance.getTitle(),
-      "reference": instance.getReference(),
+      "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
       "software_type": instance.getSourceReference(),
       "state": self.getAPIStateFromSlapState(instance.getSlapState()),
@@ -700,7 +700,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
         ],
       "full_ip_list": [],
       "sla_parameters": instance.getSlaXmlAsDict(),
-      "compute_node_id": partition.getParentValue().getReference(),
+      "computer_guid": partition.getParentValue().getReference(),
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": instance.getTextAccessStatus(),
@@ -872,14 +872,14 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     # Check Data is correct
     partition = instance.getAggregateValue(portal_type="Compute Partition")
     response = self.callJsonRpcWebService("slapos.get.v0.instance", {
-      "reference": instance.getReference(),
+      "instance_guid": instance.getReference(),
     },
         instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
       #"$schema": instance.getJSONSchemaUrl(),
       "title": instance.getTitle(),
-      "reference": instance.getReference(),
+      "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
       "software_type": instance.getSourceReference(),
       "state": self.getAPIStateFromSlapState(instance.getSlapState()),
@@ -896,7 +896,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
         ],
       "full_ip_list": [],
       "sla_parameters": instance.getSlaXmlAsDict(),
-      "compute_node_id": partition.getParentValue().getReference(),
+      "computer_guid": partition.getParentValue().getReference(),
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": '#error while instanciating: The error',
@@ -932,14 +932,14 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     # Check Data is correct
     partition = instance.getAggregateValue(portal_type="Compute Partition")
     response = self.callJsonRpcWebService("slapos.get.v0.instance", {
-      "reference": instance.getReference(),
+      "instance_guid": instance.getReference(),
     },
         instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
       #"$schema": instance.getJSONSchemaUrl(),
       "title": instance.getTitle(),
-      "reference": instance.getReference(),
+      "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
       "software_type": instance.getSourceReference(),
       "state": self.getAPIStateFromSlapState(instance.getSlapState()),
@@ -956,7 +956,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
         ],
       "full_ip_list": [],
       "sla_parameters": instance.getSlaXmlAsDict(),
-      "compute_node_id": partition.getParentValue().getReference(),
+      "computer_guid": partition.getParentValue().getReference(),
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": '#error while instanciating: The error',
@@ -987,14 +987,14 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     # Check Data is correct
     partition = instance.getAggregateValue(portal_type="Compute Partition")
     response = self.callJsonRpcWebService("slapos.get.v0.instance", {
-      "reference": instance.getReference(),
+      "instance_guid": instance.getReference(),
     },
         instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
       #"$schema": instance.getJSONSchemaUrl(),
       "title": instance.getTitle(),
-      "reference": instance.getReference(),
+      "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
       "software_type": instance.getSourceReference(),
       "state": self.getAPIStateFromSlapState(instance.getSlapState()),
@@ -1011,7 +1011,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
         ],
       "full_ip_list": [],
       "sla_parameters": instance.getSlaXmlAsDict(),
-      "compute_node_id": partition.getParentValue().getReference(),
+      "computer_guid": partition.getParentValue().getReference(),
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": '#error while instanciating: The error',
@@ -1056,7 +1056,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     response = self.callJsonRpcWebService(
       "slapos.get.v0.instance",
       {
-        "reference": instance.getReference(),
+        "instance_guid": instance.getReference(),
       },
       instance.getUserId()
     )
@@ -1064,13 +1064,13 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     partition = instance.getAggregateValue(portal_type="Compute Partition")
     self.assertEqual({
       'access_status_message': '#error bang called',
-      "compute_node_id": partition.getParentValue().getReference(),
+      "computer_guid": partition.getParentValue().getReference(),
       "compute_partition_id": partition.getReference(),
       'full_ip_list': [],
       'ip_list': [],
       'portal_type': 'Software Instance',
       'processing_timestamp': 1589846400000000,
-      'reference': instance.getReference(),
+      'instance_guid': instance.getReference(),
       'root_instance_title': instance.getSpecialiseTitle(),
       'shared': False,
       "sla_parameters": instance.getSlaXmlAsDict(),
@@ -1340,20 +1340,20 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     response = self.callJsonRpcWebService(
       "slapos.get.v0.instance",
       {
-        "reference": instance.getReference(),
+        "instance_guid": instance.getReference(),
       },
       instance.getUserId()
     )
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
       'access_status_message': "#access Instance correctly stopped",
-      "compute_node_id": partition.getParentValue().getReference(),
+      "computer_guid": partition.getParentValue().getReference(),
       "compute_partition_id": partition.getReference(),
       'full_ip_list': [],
       'ip_list': [['', 'ip_address_1']],
       'portal_type': 'Software Instance',
       'processing_timestamp': 1589846400000000,
-      'reference': instance.getReference(),
+      'instance_guid': instance.getReference(),
       'root_instance_title': instance.getSpecialiseTitle(),
       'shared': False,
       "sla_parameters": instance.getSlaXmlAsDict(),
@@ -1397,20 +1397,20 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     response = self.callJsonRpcWebService(
       "slapos.get.v0.instance",
       {
-        "reference": instance.getReference(),
+        "instance_guid": instance.getReference(),
       },
       instance.getUserId()
     )
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
       'access_status_message': "#access Instance correctly started",
-      "compute_node_id": partition.getParentValue().getReference(),
+      "computer_guid": partition.getParentValue().getReference(),
       "compute_partition_id": partition.getReference(),
       'full_ip_list': [],
       'ip_list': [['', 'ip_address_1']],
       'portal_type': 'Software Instance',
       'processing_timestamp': 1589846400000000,
-      'reference': instance.getReference(),
+      'instance_guid': instance.getReference(),
       'root_instance_title': instance.getSpecialiseTitle(),
       'shared': False,
       "sla_parameters": instance.getSlaXmlAsDict(),
@@ -1533,7 +1533,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     response = self.callJsonRpcWebService(
       "slapos.get.v0.instance",
       {
-        "reference": instance.getReference(),
+        "instance_guid": instance.getReference(),
       },
       person_user_id
     )
@@ -1544,7 +1544,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual({
       #"$schema": instance.getJSONSchemaUrl(),
       "title": instance.getTitle(),
-      "reference": instance.getReference(),
+      "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
       "software_type": instance.getSourceReference(),
       "state": self.getAPIStateFromSlapState(instance.getSlapState()),
@@ -1561,7 +1561,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
         ],
       "full_ip_list": [],
       "sla_parameters": instance.getSlaXmlAsDict(),
-      "compute_node_id": partition.getParentValue().getReference(),
+      "computer_guid": partition.getParentValue().getReference(),
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": instance.getTextAccessStatus(),
@@ -1614,7 +1614,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     response = self.callJsonRpcWebService(
       "slapos.get.v0.instance",
       {
-        "reference": instance.getReference(),
+        "instance_guid": instance.getReference(),
       },
       person_user_id
     )
@@ -1622,13 +1622,13 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     partition = instance.getAggregateValue(portal_type="Compute Partition")
     self.assertEqual({
       'access_status_message': '#error bang called',
-      "compute_node_id": partition.getParentValue().getReference(),
+      "computer_guid": partition.getParentValue().getReference(),
       "compute_partition_id": partition.getReference(),
       'full_ip_list': [],
       'ip_list': [['', 'ip_address_1']],
       'portal_type': 'Software Instance',
       'processing_timestamp': 1589846400000000,
-      'reference': instance.getReference(),
+      'instance_guid': instance.getReference(),
       'root_instance_title': instance.getSpecialiseTitle(),
       'shared': False,
       "sla_parameters": instance.getSlaXmlAsDict(),

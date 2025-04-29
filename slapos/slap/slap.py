@@ -470,7 +470,7 @@ class Computer(SlapDocument):
     return self._connection_helper.callJsonRpcAPI(
       'slapos.post.v0.compute_node_usage',
       {
-        'compute_node_id': self._computer_id,
+        'computer_guid': self._computer_id,
         'tioxml': computer_usage
       }
     )

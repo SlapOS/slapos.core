@@ -169,7 +169,7 @@ class SlapRequester(SlapDocument):
       )
 
     computer_partition = ComputerPartition(
-      result['compute_node_id'],
+      result['computer_guid'],
       result['compute_partition_id'],
       connection_helper=self._connection_helper,
     )

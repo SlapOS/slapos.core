@@ -41,6 +41,12 @@ import logging
 import re
 from functools import wraps
 
+import collections
+try:
+    from collections.abc import MutableMapping
+except ImportError:
+    from collections import MutableMapping
+
 import json
 import six
 
@@ -61,6 +67,8 @@ from .interface import slap as interface
 
 
 import requests
+from requests.exceptions import RequestException
+
 # silence messages like 'Starting connection' that are logged with INFO
 urllib3_logger = logging.getLogger('requests.packages.urllib3')
 urllib3_logger.setLevel(logging.WARNING)
@@ -76,6 +84,57 @@ fallback_logger.addHandler(fallback_handler)
 OLD_DEFAULT_SOFTWARE_TYPE = 'RootSoftwareInstance'
 DEFAULT_SOFTWARE_TYPE = 'default'
 COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME = '.slapos-request-transaction-%s'
+DEFAULT = []
+
+class LazyInstanceParameterDict(dict):
+  """
+  Only fetch the slave instance list on demand.
+  Created to keep compatibility with the slapconfiguration recipe
+  """
+  def __init__(self, instance, *args, **kw):
+    super().__init__(*args, **kw)
+    self.__instance = instance
+    self.__slave_instance_list_calculated = False
+
+  def pop(self, key, *args, **kw):
+    if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
+      self.__slave_instance_list_calculated = True
+      return self.__instance.getSlaveInstanceList()
+    return super().pop(key, *args, **kw)
+
+  def __getitem__(self, key, *args, **kw):
+    if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
+      self.__slave_instance_list_calculated = True
+      self[key] = self.__instance.getSlaveInstanceList()
+    return super().__getitem__(key, *args, **kw)
+
+  def __contains__(self, key, *args, **kw):
+    if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
+      self.__slave_instance_list_calculated = True
+      self[key] = self.__instance.getSlaveInstanceList()
+    return super().__contains__(key, *args, **kw)
+
+  def __iter__(self):
+    if (not self.__slave_instance_list_calculated):
+      self.__slave_instance_list_calculated = True
+      self['slave_instance_list'] = self.__instance.getSlaveInstanceList()
+    return super().__iter__()
+
+  """
+  def __len__(self):
+    if (not self.__slave_instance_list_calculated):
+      self.__slave_instance_list_calculated = True
+      self['slave_instance_list'] = self.__instance.getSlaveInstanceList()
+    return super().__len__()
+"""
+  """
+  def __missing__(self, key, *args, **kw):
+    if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
+      self.__slave_instance_list_calculated = True
+      self[key] = self.__instance.getSlaveInstanceList()
+      return self[key]
+    return super().__missing__(key, *args, **kw)
+"""
 
 class SlapDocument:
   def __init__(self, connection_helper=None, hateoas_navigator=None):
@@ -91,28 +150,30 @@ class SlapRequester(SlapDocument):
   Abstract class that allow to factor method for subclasses that use "request()"
   """
   def _requestComputerPartition(self, request_dict):
-    try:
-      xml = self._connection_helper.POST('requestComputerPartition', data=request_dict)
-    except ResourceNotReady:
+    result = self._connection_helper.callJsonRpcAPI(
+      'slapos.post.v0.instance',
+      {
+        'title': request_dict['partition_reference'],
+        'software_release_uri': request_dict['software_release'],
+        'software_type': request_dict['software_type'],
+        'state': loads(request_dict['state']),
+        'parameters': loads(request_dict['partition_parameter_xml']),
+        'shared': loads(request_dict['shared_xml']),
+        'sla_parameters': loads(request_dict['filter_xml']),
+      }
+    )
+    if (result.get('status', None) == 102):
       return ComputerPartition(
         request_dict=request_dict,
         connection_helper=self._connection_helper,
       )
-    software_instance = loads(xml)
+
     computer_partition = ComputerPartition(
-      software_instance.slap_computer_id,
-      software_instance.slap_computer_partition_id,
+      result['compute_node_id'],
+      result['compute_partition_id'],
       connection_helper=self._connection_helper,
     )
-    # Hack to give all object attributes to the ComputerPartition instance
-    # XXX Should be removed by correctly specifying difference between
-    # ComputerPartition and SoftwareInstance
-    computer_partition.__dict__.update(software_instance.__dict__)
-    # XXX not generic enough.
-    if loads(request_dict['shared_xml']):
-      computer_partition._synced = True
-      computer_partition._connection_dict = software_instance._connection_dict
-      computer_partition._parameter_dict = software_instance._parameter_dict
+    computer_partition._updateComputerPartitionInformation(result)
     return computer_partition
 
 
@@ -151,32 +212,53 @@ class SoftwareRelease(SlapDocument):
       return self._software_release
 
   def error(self, error_log, logger=None):
+    # Does not follow interface
     try:
-      # Does not follow interface
-      self._connection_helper.POST('softwareReleaseError', data={
-        'url': self.getURI(),
-        'computer_id': self.getComputerId(),
-        'error_log': error_log})
-    except Exception:
+      self._connection_helper.callJsonRpcAPI(
+        'slapos.put.v0.software_installation_error',
+        {
+          'software_release_uri': self.getURI(),
+          'compute_node_id': self.getComputerId(),
+          'message': str(error_log)
+        }
+      )
+    except (RequestException, ConnectionError):
+      # Do not block the caller if the connection
+      # to the slapos master fails
       (logger or fallback_logger).exception('')
 
   def available(self):
-    if getattr(self, '_known_state', 'unknown') != "available":
-      # Not required to repost if not needed.
-      self._connection_helper.POST('availableSoftwareRelease', data={
-        'url': self.getURI(),
-        'computer_id': self.getComputerId()})
+    # if getattr(self, '_known_state', 'unknown') != "available":
+    # Not required to repost if not needed.
+    self._connection_helper.callJsonRpcAPI(
+      'slapos.put.v0.software_installation_reported_state',
+      {
+        'compute_node_id': self.getComputerId(),
+        'software_release_uri': self.getURI(),
+        'reported_state': 'available'
+      }
+    )
 
   def building(self):
-    if getattr(self, '_known_state', 'unknown') != "building":
-      self._connection_helper.POST('buildingSoftwareRelease', data={
-        'url': self.getURI(),
-        'computer_id': self.getComputerId()})
+    # if getattr(self, '_known_state', 'unknown') != "building":
+    self._connection_helper.callJsonRpcAPI(
+      'slapos.put.v0.software_installation_reported_state',
+      {
+        'compute_node_id': self.getComputerId(),
+        'software_release_uri': self.getURI(),
+        'reported_state': 'building'
+      }
+    )
 
   def destroyed(self):
-    self._connection_helper.POST('destroyedSoftwareRelease', data={
-      'url': self.getURI(),
-      'computer_id': self.getComputerId()})
+    self._connection_helper.callJsonRpcAPI(
+      'slapos.put.v0.software_installation_reported_state',
+      {
+        'compute_node_id': self.getComputerId(),
+        'software_release_uri': self.getURI(),
+        'reported_state': 'destroyed'
+      }
+    )
 
   def getState(self):
     return getattr(self, '_requested_state', 'available')
@@ -223,14 +305,15 @@ class SoftwareInstance(SlapDocument):
 class Supply(SlapDocument):
 
   def supply(self, software_release, computer_guid=None, state='available'):
-    try:
-      self._connection_helper.POST('supplySupply', data={
-        'url': software_release,
-        'computer_id': computer_guid,
-        'state': state})
-    except NotFoundError:
-      raise NotFoundError("Computer %s has not been found by SlapOS Master."
-          % computer_guid)
+    self._connection_helper.callJsonRpcAPI(
+      'slapos.post.v0.software_installation',
+      {
+        'reference': computer_guid,
+        'software_release_uri': software_release,
+        'state': state
+      }
+    )
+
 
 @implementer(interface.IToken)
 class Token(SlapDocument):
@@ -310,22 +393,6 @@ class OpenOrder(SlapRequester):
     return computer
 
 
-def _syncComputerInformation(func):
-  """
-  Synchronize computer object with server information
-  """
-  def decorated(self, *args, **kw):
-    if not getattr(self, '_synced', 0):
-      computer = self._connection_helper.getFullComputerInformation(
-        self._computer_id)
-      self.__dict__.update(computer.__dict__)
-      self._synced = True
-      for computer_partition in self.getComputerPartitionList():
-        computer_partition._synced = True
-    return func(self, *args, **kw)
-  return wraps(func)(decorated)
-
-
 @implementer(interface.IComputer)
 class Computer(SlapDocument):
 
@@ -336,54 +403,119 @@ class Computer(SlapDocument):
   def __getinitargs__(self):
     return (self._computer_id, )
 
-  @_syncComputerInformation
   def getSoftwareReleaseList(self):
     """
     Returns the list of software release which has to be supplied by the
     computer.
-
-    Raise an INotFoundError if computer_guid doesn't exist.
     """
-    for software_relase in self._software_release_list:
-      software_relase._connection_helper = self._connection_helper
-      software_relase._hateoas_navigator = self._hateoas_navigator
-    return self._software_release_list
+    if getattr(self, '__software_release_list', None) is None:
+      # Sync the software release list on demand
+      allDocs_dict = self._connection_helper.callJsonRpcAPI(
+        'slapos.allDocs.v0.compute_node_software_installation_list',
+        {
+          'compute_node_id': self._computer_id
+        }
+      )
+      # XXX check if full page
+      # XXX use a yield instead
+      self.__software_release_list = []
+      for result in allDocs_dict['result_list']:
+        software_release_document = SoftwareRelease(
+          software_release=result['software_release_uri'],
+          computer_guid=self._computer_id)
+        software_release_document._requested_state = result['state']
+        software_release_document._connection_helper = self._connection_helper
+        software_release_document._hateoas_navigator = self._hateoas_navigator
+        self.__software_release_list.append(software_release_document)
+    return self.__software_release_list
 
-  @_syncComputerInformation
   def getComputerPartitionList(self):
     # type: (...) -> Sequence[ComputerPartition]
-    for computer_partition in self._computer_partition_list:
-      computer_partition._connection_helper = self._connection_helper
-      computer_partition._hateoas_navigator = self._hateoas_navigator
-    return [x for x in self._computer_partition_list]
+    if getattr(self, '__computer_partition_list', None) is None:
+      # Sync the computer partition list on demand
+      allDocs_dict = self._connection_helper.callJsonRpcAPI(
+        'slapos.allDocs.v0.compute_node_instance_list',
+        {
+          'compute_node_id': self._computer_id
+        }
+      )
+      # XXX check if full page
+      # XXX use a yield instead
+      self.__computer_partition_list = []
+      for result in allDocs_dict['result_list']:
+        # XXX duplicated with registerComputerPartition
+        computer_partition = ComputerPartition(
+          self._computer_id,
+          result['compute_partition_id']
+        )
+        computer_partition._connection_helper = self._connection_helper
+        computer_partition._hateoas_navigator = self._hateoas_navigator
+
+        # XXX duplicated with fetchPartitionInfo
+        computer_partition._instance_guid = result['reference']
+        computer_partition._requested_state = result['state']
+        computer_partition._software_release_document = SoftwareRelease(
+          software_release=result['software_release_uri'],
+          computer_guid=self._computer_id
+        )
+
+        self.__computer_partition_list.append(computer_partition)
+
+    # Create a new list to prevent caller to change it
+    return [x for x in self.__computer_partition_list]
 
   def reportUsage(self, computer_usage):
     if computer_usage == "":
       return
-    self._connection_helper.POST('useComputer', data={
-      'computer_id': self._computer_id,
-      'use_string': computer_usage})
+    return self._connection_helper.callJsonRpcAPI(
+      'slapos.post.v0.compute_node_usage',
+      {
+        'compute_node_id': self._computer_id,
+        'tioxml': computer_usage
+      }
+    )
 
-  def updateConfiguration(self, xml):
-    return self._connection_helper.POST('loadComputerConfigurationFromXML', data={'xml': xml})
+  def updateConfiguration(self, compute_partition_list):
+    return self._connection_helper.callJsonRpcAPI(
+      'slapos.put.v0.compute_node_format',
+      {
+        'compute_node_id': self._computer_id,
+        'compute_partition_list': compute_partition_list
+      }
+    )
 
   def bang(self, message):
-    self._connection_helper.POST('computerBang', data={
-      'computer_id': self._computer_id,
-      'message': message})
+    return self._connection_helper.callJsonRpcAPI(
+      'slapos.put.v0.compute_node_bang',
+      {
+        'compute_node_id': self._computer_id,
+        'message': message
+      }
+    )
 
   def getStatus(self):
-    xml = self._connection_helper.GET('getComputerStatus', params={'computer_id': self._computer_id})
-    return loads(xml)
+    return self._connection_helper.callJsonRpcAPI(
+      'slapos.get.v0.compute_node_status',
+      {
+        'compute_node_id': self._computer_id
+      }
+    )
 
   def revokeCertificate(self):
-    self._connection_helper.POST('revokeComputerCertificate', data={
-      'computer_id': self._computer_id})
+    return self._connection_helper.callJsonRpcAPI(
+      'slapos.remove.v0.compute_node_certificate',
+      {
+        'compute_node_id': self._computer_id
+      }
+    )
 
   def generateCertificate(self):
-    xml = self._connection_helper.POST('generateComputerCertificate', data={
-      'computer_id': self._computer_id})
-    return loads(xml)
+    return self._connection_helper.callJsonRpcAPI(
+      'slapos.post.v0.compute_node_certificate',
+      {
+        'compute_node_id': self._computer_id
+      }
+    )
 
   def getInformation(self):
     if not getattr(self, '_hateoas_navigator', None):
@@ -429,7 +561,7 @@ class ComputerPartition(SlapRequester):
     self._request_dict = request_dict
 
     # Just create an empty file (for nothing requested yet)
-    self._updateTransactionFile(partition_reference=None)
+    # self._updateTransactionFile(partition_reference=None)
 
   def __getinitargs__(self):
     return (self._computer_id, self._partition_id, self._request_dict)
@@ -494,47 +626,68 @@ class ComputerPartition(SlapRequester):
     return self._requestComputerPartition(request_dict)
 
   def destroyed(self):
-    self._connection_helper.POST('destroyedComputerPartition', data={
-      'computer_id': self._computer_id,
-      'computer_partition_id': self.getId(),
-      })
+    self._connection_helper.callJsonRpcAPI(
+      'slapos.put.v0.instance_reported_state',
+      {
+        "reference": self.getInstanceGuid(),
+        "reported_state": "destroyed"
+      }
+    )
 
   def started(self):
-    self._connection_helper.POST('startedComputerPartition', data={
-      'computer_id': self._computer_id,
-      'computer_partition_id': self.getId(),
-      })
+    self._connection_helper.callJsonRpcAPI(
+      'slapos.put.v0.instance_reported_state',
+      {
+        "reference": self.getInstanceGuid(),
+        "reported_state": "started"
+      }
+    )
 
   def stopped(self):
-    self._connection_helper.POST('stoppedComputerPartition', data={
-      'computer_id': self._computer_id,
-      'computer_partition_id': self.getId(),
-      })
+    self._connection_helper.callJsonRpcAPI(
+      'slapos.put.v0.instance_reported_state',
+      {
+        "reference": self.getInstanceGuid(),
+        "reported_state": "stopped"
+      }
+    )
 
   def error(self, error_log, logger=None):
     try:
-      self._connection_helper.POST('softwareInstanceError', data={
-        'computer_id': self._computer_id,
-        'computer_partition_id': self.getId(),
-        'error_log': error_log})
-    except Exception:
+      self._connection_helper.callJsonRpcAPI(
+        'slapos.put.v0.instance_error',
+        {
+          "reference": self.getInstanceGuid(),
+          "message": str(error_log)
+        }
+      )
+    except (RequestException, ConnectionError):
+      # Do not block the caller if the connection
+      # to the slapos master fails
       (logger or fallback_logger).exception('')
 
   def bang(self, message):
-    self._connection_helper.POST('softwareInstanceBang', data={
-      'computer_id': self._computer_id,
-      'computer_partition_id': self.getId(),
-      'message': message})
+    return self._connection_helper.callJsonRpcAPI(
+      'slapos.put.v0.instance_bang',
+      {
+        "reference": self.getInstanceGuid(),
+        'message': message
+      }
+    )
 
   def rename(self, new_name, slave_reference=None):
     post_dict = {
-            'computer_id': self._computer_id,
-            'computer_partition_id': self.getId(),
-            'new_name': new_name,
-            }
+      'title': new_name,
+      "reference": self.getInstanceGuid()
+    }
     if slave_reference:
-      post_dict['slave_reference'] = slave_reference
-    self._connection_helper.POST('softwareInstanceRename', data=post_dict)
+      post_dict['reference'] = slave_reference
+    else:
+      post_dict['reference'] = self.getInstanceGuid()
+    self._connection_helper.callJsonRpcAPI(
+      'slapos.put.v0.instance_title',
+      post_dict
+    )
 
   def getInformation(self, partition_reference):
     """
@@ -565,8 +718,6 @@ class ComputerPartition(SlapRequester):
 
   def getId(self):
     # type: (...) -> str
-    if not getattr(self, '_partition_id', None):
-      raise ResourceNotReady()
     return self._partition_id
 
   def getInstanceGuid(self):
@@ -601,23 +752,62 @@ class ComputerPartition(SlapRequester):
       raise ResourceNotReady()
     return software_type
 
-  def _updateComputerPartitionInformation(self, new_partition):
+  def _updateComputerPartitionInformation(self, result):
     computer_partition = self
-    computer_partition._instance_guid = getattr(new_partition, '_instance_guid', None)
-    computer_partition._requested_state = getattr(new_partition, '_requested_state', None)
-    computer_partition._software_release_document = getattr(new_partition, '_software_release_document', None)
-    computer_partition._parameter_dict = getattr(new_partition, '_parameter_dict', None)
-    computer_partition._connection_dict = getattr(new_partition, '_connection_dict', None)
+    computer_partition._instance_guid = result['reference']
+    computer_partition._requested_state = result['state']
+    computer_partition._software_release_document = SoftwareRelease(
+      software_release=result['software_release_uri'],
+      computer_guid=self._computer_id
+    )
+    computer_partition._parameter_dict = LazyInstanceParameterDict(self)
+    computer_partition._parameter_dict.update(result['parameters'])
+    if result['processing_timestamp'] is not None:
+      computer_partition._parameter_dict['timestamp'] = result['processing_timestamp']
+    # computer_partition._filter_dict = result['sla_parameters']
+    computer_partition._connection_dict = result['connection_parameters']
+    computer_partition._parameter_dict['ip_list'] = result['ip_list']
+    computer_partition._parameter_dict['full_ip_list'] = result['full_ip_list']
 
-  def _fetchComputerPartitionInformation(self):
-    xml = self._connection_helper.GET(
-      'registerComputerPartition',
-      params = {
-        'computer_reference': self._computer_id,
-        'computer_partition_reference': self.getId()
+    computer_partition._parameter_dict['instance_title'] = result['title']
+    computer_partition._parameter_dict['root_instance_title'] = result['root_instance_title']
+
+    computer_partition._parameter_dict['slap_software_type'] = result['software_type']
+    computer_partition._parameter_dict['slap_computer_partition_id'] = self.getId()
+    computer_partition._parameter_dict['slap_computer_id'] = self._computer_id
+    computer_partition._parameter_dict['slap_software_release_url'] = result['software_release_uri']
+
+  def getSlaveInstanceList(self):
+
+    # Sync the shared instances
+    allDocs_shared_dict = self._connection_helper.callJsonRpcAPI(
+      'slapos.allDocs.v0.instance_node_instance_list',
+      {
+        'reference': self.getInstanceGuid()
       }
     )
-    self._updateComputerPartitionInformation(loads(xml))
+    slave_instance_list = []
+    for shared_item in allDocs_shared_dict['result_list']:
+      if shared_item['state'] == 'started':
+        slave_instance_list.append({
+          'slave_title': shared_item['title'],
+          'slap_software_type': shared_item['software_type'],
+          'slave_reference': shared_item['reference'],
+          #'timestamp': shared_item['processing_timestamp'],
+          'xml': dumps(shared_item['parameters']),
+          # unused?
+          # 'connection_xml': dumps(shared_result['connection_parameters'])
+        })
+    return slave_instance_list
+
+  def _fetchComputerPartitionInformation(self):
+    result = self._connection_helper.callJsonRpcAPI(
+      'slapos.get.v0.instance',
+      {
+        'reference': self.getInstanceGuid()
+      }
+    )
+    self._updateComputerPartitionInformation(result)
 
   def getInstanceParameterDict(self):
     # type: (...) -> Mapping[str, object]
@@ -648,14 +838,23 @@ class ComputerPartition(SlapRequester):
     return self._software_release_document
 
   def setConnectionDict(self, connection_dict, slave_reference=None):
-    self._connection_helper.POST('setComputerPartitionConnectionXml', data={
-          'computer_id': self._computer_id,
-          'computer_partition_id': self._partition_id,
-          'connection_xml': dumps(connection_dict),
-          'slave_reference': slave_reference})
+    if slave_reference is None:
+      # Update a Software Instance
+      # get the reference from the current documents
+      slave_reference = self.getInstanceGuid()
+
+    json_dict = {
+      'reference': slave_reference,
+      'connection_parameter_dict': connection_dict
+    }
+
+    self._connection_helper.callJsonRpcAPI(
+      'slapos.put.v0.instance_connection_parameter',
+      json_dict
+    )
 
   def getInstanceParameter(self, key):
-    parameter_dict = getattr(self, '_parameter_dict', None) or {}
+    parameter_dict = self.getInstanceParameterDict()
     try:
       return parameter_dict[key]
     except KeyError:
@@ -673,18 +872,22 @@ class ComputerPartition(SlapRequester):
     self.usage = usage_log
 
   def getCertificate(self):
-    xml = self._connection_helper.GET('getComputerPartitionCertificate',
-            params={
-                'computer_id': self._computer_id,
-                'computer_partition_id': self._partition_id,
-                }
-            )
-    return loads(xml)
+    return self._connection_helper.callJsonRpcAPI(
+      'slapos.get.v0.software_instance_certificate',
+      {
+        "reference": self.getInstanceGuid()
+      }
+    )
 
   def getStatus(self):
     return self.getAccessStatus()
 
   def getFullHostingIpAddressList(self):
+    raise NotImplementedError('getFullHostingIpAddressList')
+    """
+    if getattr(self, '_connection_dict', None) is None:
+      self._fetchComputerPartitionInformation()
+    return self._parameter_dict['full_ip_list']
     xml = self._connection_helper.GET('getHostingSubscriptionIpList',
             params={
                 'computer_id': self._computer_id,
@@ -692,7 +895,8 @@ class ComputerPartition(SlapRequester):
                 }
             )
     return loads(xml)
-
+"""
+  """
   def setComputerPartitionRelatedInstanceList(self, instance_reference_list):
     self._connection_helper.POST('updateComputerPartitionRelatedInstanceList',
         data={
@@ -700,7 +904,7 @@ class ComputerPartition(SlapRequester):
           'computer_partition_id': self._partition_id,
           'instance_reference_xml': dumps(instance_reference_list)
           }
-        )
+        )"""
 
 class SlapConnectionHelper(ConnectionHelper):
 
@@ -713,19 +917,8 @@ class SlapConnectionHelper(ConnectionHelper):
     Retrieve from SlapOS Master Computer instance containing all needed
     informations (Software Releases, Computer Partitions, ...).
     """
-    path = 'getFullComputerInformation'
-    params = {'computer_id': computer_id}
-    if not computer_id:
-      # XXX-Cedric: should raise something smarter than "NotFound".
-      raise NotFoundError('%r %r' % (path, params))
-    try:
-      xml = self.GET(path, params=params)
-    except NotFoundError:
-      # XXX: This is a ugly way to keep backward compatibility,
-      # We should stablise slap library soon.
-      xml = self.GET('getComputerInformation', params=params)
+    return Computer(computer_id)
 
-    return loads(xml)
 
 getHateoasUrl_cache = {}
 @implementer(interface.slap)
@@ -750,8 +943,9 @@ class slap:
         pass
     if not slapgrid_rest_uri:
       try:
-        slapgrid_rest_uri = getHateoasUrl_cache[getHateoasUrl_cache_key] = \
-          bytes2str(self._connection_helper.GET('getHateoasUrl'))
+        slapgrid_rest_uri = self._connection_helper.callJsonRpcAPI(
+          'slapos.get.v0.hateoas_url', {}
+        )['hateoas_url']
       except:
         pass
     if slapgrid_rest_uri:

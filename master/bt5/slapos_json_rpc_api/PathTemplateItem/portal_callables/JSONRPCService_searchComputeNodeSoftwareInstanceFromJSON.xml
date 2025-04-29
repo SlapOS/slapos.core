@@ -56,7 +56,7 @@
         "additionalProperties": false,\n
         "title": "Software Instance",\n
         "properties": {\n
-          "reference": {\n
+          "instance_guid": {\n
             "title": "Software Instance Reference",\n
             "description": "Unique identifier of the Software Instance",\n
             "type": "string"\n
@@ -88,7 +88,7 @@
           }\n
         },\n
         "required": [\n
-          "reference",\n
+          "instance_guid",\n
           "title",\n
           "state",\n
           "portal_type"\n
@@ -111,14 +111,14 @@
   "additionalProperties": false,\n
 \n
   "properties": {\n
-    "compute_node_id": {\n
-      "title": "Compute Node ID",\n
+    "computer_guid": {\n
+      "title": "Compute Node Reference",\n
       "type": "string",\n
-      "description": "The Id of the compute node hosting the instance, example: COMP-1234"\n
+      "description": "Compute Node Reference hosting the instances, like COMP-1234"\n
     }\n
   },\n
   "required": [\n
-    "compute_node_id"\n
+    "computer_guid"\n
   ]\n
 \n
 }\n

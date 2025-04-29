@@ -142,14 +142,14 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
         # "api_revision": instance.getJIOAPIRevision(self.connector.getRelativeUrl()),
         "compute_partition_id": instance.getAggregateReference(),
         "portal_type": "Software Instance",
-        "reference": instance.getReference(),
+        "instance_guid": instance.getReference(),
         "software_release_uri": instance.getUrlString(),
         "state": self.getAPIStateFromSlapState(instance.getSlapState()),
         "title": instance.getTitle(),
       })
 
     response = self.callJsonRpcWebService('slapos.allDocs.v0.compute_node_instance_list', {
-      "compute_node_id": compute_node_reference
+      "computer_guid": compute_node_reference
     }, compute_node_user_id)
 
     self.assertEqual('application/json', response.headers.get('content-type'))
@@ -170,7 +170,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       partition = instance.getAggregateValue(portal_type="Compute Partition")
       response = self.callJsonRpcWebService(
         'slapos.get.v0.instance',
-        {"reference": instance_resut_dict["reference"]},
+        {"instance_guid": instance_resut_dict["instance_guid"]},
         compute_node_user_id
       )
       self.assertEqual('application/json', response.headers.get('content-type'))
@@ -179,7 +179,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
         {
           #"$schema": instance.getJSONSchemaUrl(),
           "title": instance.getTitle(),
-          "reference": instance.getReference(),
+          "instance_guid": instance.getReference(),
           "software_release_uri": instance.getUrlString(),
           "software_type": instance.getSourceReference(),
           "state": self.getAPIStateFromSlapState(instance.getSlapState()),
@@ -197,7 +197,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
           "full_ip_list": [],
           "sla_parameters": instance.getSlaXmlAsDict(),
           "compute_node_id": partition.getParentValue().getReference(),
-          "compute_partition_id": partition.getReference(),
+          "computer_guid": partition.getReference(),
           "processing_timestamp": instance.getSlapTimestamp(),
           "access_status_message": instance.getTextAccessStatus(),
           #"api_revision": instance.getJIOAPIRevision(self.connector.getRelativeUrl()),
@@ -612,14 +612,14 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       # "api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
       "compute_partition_id": instance.getAggregateReference(),
       "portal_type": "Software Instance",
-      "reference": instance.getReference(),
+      "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
       "state": self.getAPIStateFromSlapState(instance.getSlapState()),
       "title": instance.getTitle(),
     }]
 
     response = self.callJsonRpcWebService("slapos.allDocs.v0.compute_node_instance_list", {
-      "compute_node_id": compute_node_reference
+      "computer_guid": compute_node_reference
     }, instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
@@ -633,7 +633,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     # Get instance as "user"
     response = self.callJsonRpcWebService(
       "slapos.get.v0.instance",
-      {"reference": instance_resut_dict['reference']},
+      {"instance_guid": instance_resut_dict['instance_guid']},
       instance.getUserId()
     )
     self.assertEqual('application/json', response.headers.get('content-type'))
@@ -642,7 +642,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual({
       # "$schema": instance.getJSONSchemaUrl(),
       "title": instance.getTitle(),
-      "reference": instance.getReference(),
+      "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
       "software_type": instance.getSourceReference(),
       "state": self.getAPIStateFromSlapState(instance.getSlapState()),

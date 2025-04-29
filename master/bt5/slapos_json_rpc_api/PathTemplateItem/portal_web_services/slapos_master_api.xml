@@ -71,6 +71,7 @@
                 <string>slapos.allDocs.v0.compute_node_software_installation_list | JSONRPCService_searchComputeNodeSoftwareInstallationFromJSON</string>
                 <string>slapos.allDocs.v0.instance_node_instance_list | JSONRPCService_searchInstanceNodeSlaveInstanceFromJSON</string>
                 <string>slapos.get.v0.compute_node_status | JSONRPCService_getComputeNodeStatusFromJSON</string>
+                <string>slapos.get.v0.compute_partition | JSONRPCService_getComputePartitionFromJSON</string>
                 <string>slapos.get.v0.hateoas_url | JSONRPCService_getHateoasUrlFromJSON</string>
                 <string>slapos.get.v0.instance | JSONRPCService_getSoftwareInstanceFromJSON</string>
                 <string>slapos.get.v0.software_instance_certificate | JSONRPCService_getSoftwareInstanceCertificateRecordFromJSON</string>
@@ -167,7 +168,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1024.24559.38975.13363</string> </value>
+                      <value> <string>1024.25896.41.3328</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -187,7 +188,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1745835831.35</float>
+                              <float>1745916345.9</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

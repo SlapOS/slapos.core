@@ -1423,6 +1423,64 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
 
+  def test_InstanceAccess_28_getComputePartitionInformation(self):
+    with PinnedDateTime(self, DateTime('2020/05/19')):
+      _, _, _, _, partition, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+      instance = instance_tree.getSuccessorValue()
+      partition.edit(
+        default_network_address_ip_address='ip_address_1',
+        default_network_address_netmask='netmask_1'
+      )
+
+      # XXX Should reported_state added to Instance returned json?
+      response = self.callJsonRpcWebService(
+        "slapos.put.v0.instance_reported_state",
+        {
+          "reference": instance.getReference(),
+          "reported_state": "started"
+        },
+        instance.getUserId()
+      )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual(
+      loadJson(response.getBody()),
+      {
+        'title': 'State reported',
+        'type': 'success'
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+    # Check get return the expected results after
+    response = self.callJsonRpcWebService(
+      "slapos.get.v0.compute_partition",
+      {
+        'compute_node_id': partition.getParentValue().getReference(),
+        'compute_partition_id': partition.getReference()
+      },
+      instance.getUserId()
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'access_status_message': "#access Instance correctly started",
+      "compute_node_id": partition.getParentValue().getReference(),
+      "compute_partition_id": partition.getReference(),
+      'full_ip_list': [],
+      'ip_list': [['', 'ip_address_1']],
+      'portal_type': 'Software Instance',
+      'processing_timestamp': 1589846400000000,
+      'reference': instance.getReference(),
+      'root_instance_title': instance.getSpecialiseTitle(),
+      'shared': False,
+      "sla_parameters": instance.getSlaXmlAsDict(),
+      "parameters": instance.getInstanceXmlAsDict(),
+      "connection_parameters": instance.getConnectionXmlAsDict(),
+      'software_release_uri': instance.getUrlString(),
+      'software_type': instance.getSourceReference(),
+      'state': 'started',
+      'title': instance.getTitle()
+    }, loadJson(response.getBody()))
+    self.assertEqual(response.getStatus(), 200)
+
 
 class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
 

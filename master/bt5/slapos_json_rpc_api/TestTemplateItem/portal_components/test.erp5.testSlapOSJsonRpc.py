@@ -282,7 +282,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     software_release_uri = "http://example.org/foo"
     response = self.callJsonRpcWebService("slapos.put.v0.software_installation_reported_state", {
       "software_release_uri": software_release_uri,
-      "compute_node_id": compute_node_reference,
+      "computer_guid": compute_node_reference,
       "reported_state": "destroyed",
     },
         compute_node_user_id)
@@ -308,7 +308,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     software_release_uri = software_installation.getUrlString()
     response = self.callJsonRpcWebService("slapos.put.v0.software_installation_reported_state", {
       "software_release_uri": software_release_uri,
-      "compute_node_id": compute_node_reference,
+      "computer_guid": compute_node_reference,
       "reported_state": "destroyed",
     },
         compute_node_user_id)
@@ -336,7 +336,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
 
     response = self.callJsonRpcWebService("slapos.put.v0.software_installation_reported_state", {
       "software_release_uri": software_release_uri,
-      "compute_node_id": compute_node_reference,
+      "computer_guid": compute_node_reference,
       "reported_state": "destroyed",
     },
         compute_node_user_id)
@@ -364,7 +364,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
 
     response = self.callJsonRpcWebService("slapos.put.v0.software_installation_reported_state", {
       "software_release_uri": software_release_uri,
-      "compute_node_id": compute_node_reference,
+      "computer_guid": compute_node_reference,
       "reported_state": "available",
     },
         compute_node_user_id)
@@ -392,7 +392,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
 
     response = self.callJsonRpcWebService("slapos.put.v0.software_installation_reported_state", {
       "software_release_uri": software_release_uri,
-      "compute_node_id": compute_node_reference,
+      "computer_guid": compute_node_reference,
       "reported_state": "building",
     },
         compute_node_user_id)

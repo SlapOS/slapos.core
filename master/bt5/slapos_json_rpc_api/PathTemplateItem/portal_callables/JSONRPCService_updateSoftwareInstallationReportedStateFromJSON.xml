@@ -78,7 +78,7 @@
       "title": "Software Release URI",\n
       "type": "string"\n
     },\n
-    "compute_node_id": {\n
+    "computer_guid": {\n
       "title": "Compute Node ID",\n
       "type": "string",\n
       "description": "The Id of the compute node, example: COMP-1234"\n
@@ -92,7 +92,7 @@
   },\n
   "required": [\n
     "software_release_uri",\n
-    "compute_node_id",\n
+    "computer_guid",\n
     "reported_state"\n
   ]\n
 }\n

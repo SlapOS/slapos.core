@@ -1814,7 +1814,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       response = self.callJsonRpcWebService(
         "slapos.post.v0.software_installation",
         {
-          "reference": compute_node.getReference(),
+          "computer_guid": compute_node.getReference(),
           "software_release_uri": software_url
         },
         person_user_id

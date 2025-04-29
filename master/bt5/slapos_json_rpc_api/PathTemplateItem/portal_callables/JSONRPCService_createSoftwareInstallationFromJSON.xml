@@ -72,7 +72,7 @@
       "title": "Software Release URI",\n
       "type": "string"\n
     },\n
-    "reference": {\n
+    "computer_guid": {\n
       "title": "Compute Node Id/Reference",\n
       "type": "string",\n
       "description": "The unique reference of the compute node, example: COMP-1234"\n
@@ -85,7 +85,7 @@
       "default": "available"\n
     }\n
   },\n
-  "required": ["software_release_uri", "reference"]\n
+  "required": ["software_release_uri", "computer_guid"]\n
 }\n
 </string> </value>
         </item>

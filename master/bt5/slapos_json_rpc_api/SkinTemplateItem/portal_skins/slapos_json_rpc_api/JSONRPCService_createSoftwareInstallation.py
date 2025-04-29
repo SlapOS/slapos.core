@@ -6,7 +6,7 @@ class RequestFailsError(JsonRpcAPIError):
 
 compute_node = context.JSONRPCService_getObjectFromData({
   'portal_type': 'Compute Node',
-  'compute_node_id': data_dict['reference']
+  'compute_node_id': data_dict['computer_guid']
 })
 
 compute_node.requestSoftwareRelease(

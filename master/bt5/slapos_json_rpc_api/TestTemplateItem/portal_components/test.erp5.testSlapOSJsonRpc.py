@@ -421,7 +421,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     with PinnedDateTime(self, DateTime('2020/05/19')):
       response = self.callJsonRpcWebService("slapos.put.v0.software_installation_error", {
         "software_release_uri": software_release_uri,
-        "compute_node_id": compute_node_reference,
+        "computer_guid": compute_node_reference,
         "message": 'error log',
       },
           compute_node_user_id)

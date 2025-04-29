@@ -802,9 +802,10 @@ class ComputerPartition(SlapRequester):
 
   def _fetchComputerPartitionInformation(self):
     result = self._connection_helper.callJsonRpcAPI(
-      'slapos.get.v0.instance',
+      'slapos.get.v0.compute_partition',
       {
-        'reference': self.getInstanceGuid()
+        'compute_node_id': self._computer_id,
+        'compute_partition_id': self.getId()
       }
     )
     self._updateComputerPartitionInformation(result)

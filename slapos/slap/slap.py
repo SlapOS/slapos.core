@@ -754,7 +754,7 @@ class ComputerPartition(SlapRequester):
 
   def _updateComputerPartitionInformation(self, result):
     computer_partition = self
-    computer_partition._instance_guid = result['reference']
+    computer_partition._instance_guid = result['instance_guid']
     computer_partition._requested_state = result['state']
     computer_partition._software_release_document = SoftwareRelease(
       software_release=result['software_release_uri'],
@@ -804,7 +804,7 @@ class ComputerPartition(SlapRequester):
     result = self._connection_helper.callJsonRpcAPI(
       'slapos.get.v0.compute_partition',
       {
-        'compute_node_id': self._computer_id,
+        'computer_guid': self._computer_id,
         'compute_partition_id': self.getId()
       }
     )

@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<ZopeData>
+  <record id="1" aka="AAAAAAAAAAE=">
+    <pickle>
+      <global name="JSON Form" module="erp5.portal_type"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>after_method_id</string> </key>
+            <value> <string>JSONRPCService_removeComputeNodeCertificateRecordFromDict</string> </value>
+        </item>
+        <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>application/json</string> </value>
+        </item>
+        <item>
+            <key> <string>default_reference</string> </key>
+            <value> <string>JSONRPCService_removeComputeNodeCertificateRecordFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>id</string> </key>
+            <value> <string>JSONRPCService_removeComputeNodeCertificateRecordFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>output_schema</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>JSON Form</string> </value>
+        </item>
+        <item>
+            <key> <string>response_schema</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "Compute node certificate removed",\n
+  "description": "Response when the compute node certificate has been removed",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+  "properties": {\n
+    "title": {\n
+      "title": "Title",\n
+      "description": "Result message",\n
+      "type": "string"\n
+    },\n
+    "type": {\n
+      "title": "Type",\n
+      "const": "success",\n
+      "type": "string"\n
+    }\n
+  },\n
+  "required": [\n
+    "title",\n
+    "type"\n
+  ]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "Remove the Compute Node certificate",\n
+  "description": "Remove the Compute Node certificate",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+  "properties": {\n
+    "compute_node_id": {\n
+      "title": "Compute Node ID",\n
+      "type": "string",\n
+      "description": "Unique Id of the object."\n
+    }\n
+  },\n
+  "required": ["compute_node_id"]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>version</string> </key>
+            <value> <string>01</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+</ZopeData>

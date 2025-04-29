@@ -119,7 +119,7 @@ class SoftwareInstanceJsonTypeMixin:
     result = {
       #"$schema": self.getJSONSchemaUrl(),
       "title": self.getTitle().decode("UTF-8"),
-      "reference": self.getReference().decode("UTF-8"),
+      "instance_guid": self.getReference().decode("UTF-8"),
       "software_release_uri": self.getUrlString(),
       "software_type": self.getSourceReference().decode("UTF-8"),
       "state": state,
@@ -130,7 +130,7 @@ class SoftwareInstanceJsonTypeMixin:
       "ip_list": [list(x) for x in parameter_dict.get("ip_list", [])],
       "full_ip_list": [list(x) for x in parameter_dict.get("full_ip_list", [])],
       "sla_parameters": self.getSlaXmlAsDict(),
-      "compute_node_id": parameter_dict.get("slap_computer_id", ""),
+      "computer_guid": parameter_dict.get("slap_computer_id", ""),
       "compute_partition_id": parameter_dict.get("slap_computer_partition_id", ""),
       "processing_timestamp": self.getSlapTimestamp(),
       "access_status_message": self.getTextAccessStatus(),

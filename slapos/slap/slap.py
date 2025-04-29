@@ -629,7 +629,7 @@ class ComputerPartition(SlapRequester):
     self._connection_helper.callJsonRpcAPI(
       'slapos.put.v0.instance_reported_state',
       {
-        "reference": self.getInstanceGuid(),
+        "instance_guid": self.getInstanceGuid(),
         "reported_state": "destroyed"
       }
     )
@@ -638,7 +638,7 @@ class ComputerPartition(SlapRequester):
     self._connection_helper.callJsonRpcAPI(
       'slapos.put.v0.instance_reported_state',
       {
-        "reference": self.getInstanceGuid(),
+        "instance_guid": self.getInstanceGuid(),
         "reported_state": "started"
       }
     )
@@ -647,7 +647,7 @@ class ComputerPartition(SlapRequester):
     self._connection_helper.callJsonRpcAPI(
       'slapos.put.v0.instance_reported_state',
       {
-        "reference": self.getInstanceGuid(),
+        "instance_guid": self.getInstanceGuid(),
         "reported_state": "stopped"
       }
     )

@@ -794,7 +794,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     response = self.callJsonRpcWebService(
       "slapos.put.v0.instance_connection_parameter",
       {
-        "reference": instance.getReference(),
+        "instance_guid": instance.getReference(),
         "connection_parameter_dict": connection_parameters_dict,
       },
       instance.getUserId()
@@ -829,7 +829,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     response = self.callJsonRpcWebService(
       "slapos.put.v0.instance_connection_parameter",
       {
-        "reference": instance.getReference(),
+        "instance_guid": instance.getReference(),
         "connection_parameter_dict": connection_parameters_dict,
       },
       instance.getUserId()

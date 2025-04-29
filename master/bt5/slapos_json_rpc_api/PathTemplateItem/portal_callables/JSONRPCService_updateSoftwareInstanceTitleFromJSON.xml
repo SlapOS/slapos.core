@@ -74,7 +74,7 @@
   "type": "object",\n
   "additionalProperties": false,\n
   "properties": {\n
-    "reference": {\n
+    "instance_guid": {\n
       "title": "Software Instance Id/Reference",\n
       "type": "string",\n
       "description": "The unique reference of the Software Instance, example: SOFTINST-1234"\n
@@ -87,7 +87,7 @@
     }\n
   },\n
   "required": [\n
-    "reference",\n
+    "instance_guid",\n
     "title"\n
   ]\n
 }\n

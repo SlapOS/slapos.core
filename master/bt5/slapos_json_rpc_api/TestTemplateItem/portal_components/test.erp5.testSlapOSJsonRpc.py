@@ -1974,7 +1974,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
         response = self.callJsonRpcWebService(
           "slapos.get.v0.compute_node_status",
           {
-            "compute_node_id": compute_node.getReference()
+            "computer_guid": compute_node.getReference()
           },
           person_user_id
         )
@@ -2009,7 +2009,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
         response = self.callJsonRpcWebService(
           "slapos.get.v0.compute_node_status",
           {
-            "compute_node_id": compute_node.getReference()
+            "computer_guid": compute_node.getReference()
           },
           person_user_id
         )

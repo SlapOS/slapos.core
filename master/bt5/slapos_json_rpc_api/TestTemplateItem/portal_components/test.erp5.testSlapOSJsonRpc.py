@@ -1185,7 +1185,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       else:
         self.assertEqual({
           'access_status_message': '#error no data found for %s' % requested_instance.getReference(),
-          'compute_node_id': '',
+          'computer_guid': '',
           'compute_partition_id': '',
           'connection_parameters': {},
           'full_ip_list': [],
@@ -1193,7 +1193,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
           'parameters': {},
           'portal_type': 'Software Instance',
           'processing_timestamp': requested_instance.getSlapTimestamp(),
-          'reference': requested_instance.getReference(),
+          'instance_guid': requested_instance.getReference(),
           'root_instance_title': '',
           'shared': True,
           'sla_parameters': {},
@@ -1239,7 +1239,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       else:
         self.assertEqual({
           'access_status_message': '#error no data found for %s' % requested_instance.getReference(),
-          'compute_node_id': '',
+          'computer_guid': '',
           'compute_partition_id': '',
           'connection_parameters': {},
           'full_ip_list': [],
@@ -1247,7 +1247,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
           'parameters': {},
           'portal_type': 'Software Instance',
           'processing_timestamp': requested_instance.getSlapTimestamp(),
-          'reference': requested_instance.getReference(),
+          'instance_guid': requested_instance.getReference(),
           'root_instance_title': '',
           'shared': False,
           'sla_parameters': {},
@@ -1289,7 +1289,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       )
       self.assertEqual({
         'access_status_message': '#error no data found for %s' % requested_instance.getReference(),
-        'compute_node_id': '',
+        'computer_guid': '',
         'compute_partition_id': '',
         'connection_parameters': {},
         'full_ip_list': [],
@@ -1297,7 +1297,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
         'parameters': {},
         'portal_type': 'Software Instance',
         'processing_timestamp': requested_instance.getSlapTimestamp(),
-        'reference': requested_instance.getReference(),
+        'instance_guid': requested_instance.getReference(),
         'root_instance_title': '',
         'shared': False,
         'sla_parameters': {},
@@ -1775,7 +1775,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       self.assertEqual({
         #"$schema": instance.getJSONSchemaUrl(),
         "title": instance.getTitle(),
-        "reference": instance.getReference(),
+        "instance_guid": instance.getReference(),
         "software_release_uri": instance.getUrlString(),
         "software_type": instance.getSourceReference(),
         "state": self.getAPIStateFromSlapState(instance.getSlapState()),
@@ -1791,7 +1791,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
         ],
         "full_ip_list": [],
         "sla_parameters": instance.getSlaXmlAsDict(),
-        "compute_node_id": partition.getParentValue().getReference(),
+        "computer_guid": partition.getParentValue().getReference(),
         "compute_partition_id": partition.getReference(),
         "processing_timestamp": instance.getSlapTimestamp(),
         "access_status_message": instance.getTextAccessStatus(),

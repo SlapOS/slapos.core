@@ -876,7 +876,7 @@ class ComputerPartition(SlapRequester):
     return self._connection_helper.callJsonRpcAPI(
       'slapos.get.v0.software_instance_certificate',
       {
-        "reference": self.getInstanceGuid()
+        "instance_guid": self.getInstanceGuid()
       }
     )
 

@@ -218,7 +218,7 @@ class SoftwareRelease(SlapDocument):
         'slapos.put.v0.software_installation_error',
         {
           'software_release_uri': self.getURI(),
-          'compute_node_id': self.getComputerId(),
+          'computer_guid': self.getComputerId(),
           'message': str(error_log)
         }
       )

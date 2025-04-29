@@ -783,7 +783,7 @@ class ComputerPartition(SlapRequester):
     allDocs_shared_dict = self._connection_helper.callJsonRpcAPI(
       'slapos.allDocs.v0.instance_node_instance_list',
       {
-        'reference': self.getInstanceGuid()
+        'instance_guid': self.getInstanceGuid()
       }
     )
     slave_instance_list = []
@@ -792,7 +792,7 @@ class ComputerPartition(SlapRequester):
         slave_instance_list.append({
           'slave_title': shared_item['title'],
           'slap_software_type': shared_item['software_type'],
-          'slave_reference': shared_item['reference'],
+          'slave_reference': shared_item['instance_guid'],
           #'timestamp': shared_item['processing_timestamp'],
           'xml': dumps(shared_item['parameters']),
           # unused?

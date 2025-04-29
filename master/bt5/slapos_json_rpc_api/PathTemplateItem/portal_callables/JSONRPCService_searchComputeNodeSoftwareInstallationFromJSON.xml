@@ -89,13 +89,13 @@
   "type": "object",\n
   "additionalProperties": false,\n
   "properties": {\n
-    "compute_node_id": {\n
+    "computer_guid": {\n
       "title": "Compute Node ID",\n
       "type": "string",\n
-      "description": "The Id of the compute node, example: COMP-1234"\n
+      "description": "The reference of the compute node, example: COMP-1234"\n
     }\n
   },\n
-  "required": ["compute_node_id"]\n
+  "required": ["computer_guid"]\n
 }\n
 </string> </value>
         </item>

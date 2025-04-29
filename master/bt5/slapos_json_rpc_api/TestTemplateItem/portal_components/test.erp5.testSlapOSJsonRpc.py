@@ -225,7 +225,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       })
 
     response = self.callJsonRpcWebService('slapos.allDocs.v0.compute_node_software_installation_list', {
-      "compute_node_id": compute_node_reference,
+      "computer_guid": compute_node_reference,
     }, compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
     software_list_response = loadJson(response.getBody())

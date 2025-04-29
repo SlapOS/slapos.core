@@ -413,7 +413,7 @@ class Computer(SlapDocument):
       allDocs_dict = self._connection_helper.callJsonRpcAPI(
         'slapos.allDocs.v0.compute_node_software_installation_list',
         {
-          'compute_node_id': self._computer_id
+          'computer_guid': self._computer_id
         }
       )
       # XXX check if full page

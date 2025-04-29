@@ -472,7 +472,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     with PinnedDateTime(self, DateTime('2020/05/19')):
       response = self.callJsonRpcWebService("slapos.post.v0.compute_node_usage", {
         "tioxml": consumption_xml,
-        "compute_node_id": compute_node_reference
+        "computer_guid": compute_node_reference
       },
           compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
@@ -531,7 +531,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     with PinnedDateTime(self, DateTime('2020/05/19')):
       response = self.callJsonRpcWebService("slapos.post.v0.compute_node_usage", {
         "tioxml": consumption_xml,
-        "compute_node_id": compute_node_reference
+        "computer_guid": compute_node_reference
       },
           compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
@@ -565,7 +565,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     with PinnedDateTime(self, DateTime('2020/05/19')):
       response = self.callJsonRpcWebService("slapos.post.v0.compute_node_usage", {
         "tioxml": consumption_xml,
-        "compute_node_id": compute_node_reference
+        "computer_guid": compute_node_reference
       },
           compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))

@@ -22,7 +22,7 @@ search_kw = {
 
 host_instance_list = portal.portal_catalog(
   portal_type="Software Instance",
-  reference=data_dict["reference"],
+  reference=data_dict["instance_guid"],
   validation_state="validated",
   limit=2
 )
@@ -33,7 +33,7 @@ else:
 
 result_list = [{
   "title": x.title,
-  "reference": x.reference,
+  "instance_guid": x.reference,
   "portal_type": "Slave Instance",
   "software_type": x.source_reference,
   "state": slap_state_dict.get(x.slap_state, ""),

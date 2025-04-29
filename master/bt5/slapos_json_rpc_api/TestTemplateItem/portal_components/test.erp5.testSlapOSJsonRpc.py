@@ -720,7 +720,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     # Check Slaves
     # XXX It should be the same portal_type
     response = self.callJsonRpcWebService("slapos.allDocs.v0.instance_node_instance_list", {
-      "reference": instance.getReference()
+      "instance_guid": instance.getReference()
     },
       instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
@@ -733,7 +733,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
                       'parameters': shared_instance.getInstanceXmlAsDict(),
                       'compute_partition_id': partition.getReference(),
                       'portal_type': 'Slave Instance',
-                      'reference': shared_instance.getReference(),
+                      'instance_guid': shared_instance.getReference(),
                       'state': 'started',
                       'title': shared_instance.getTitle()}]
     })
@@ -741,7 +741,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     response = response = self.callJsonRpcWebService(
       "slapos.get.v0.instance",
-      {"reference": shared_instance.getReference()},
+      {"instance_guid": shared_instance.getReference()},
       instance.getUserId()
     )
     self.assertEqual('application/json', response.headers.get('content-type'))
@@ -750,7 +750,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual({
       #"$schema": instance.getJSONSchemaUrl(),
       "title": shared_instance.getTitle(),
-      "reference": shared_instance.getReference(),
+      "instance_guid": shared_instance.getReference(),
       "software_release_uri": shared_instance.getUrlString(),
       "software_type": shared_instance.getSourceReference(),
       "state": self.getAPIStateFromSlapState(shared_instance.getSlapState()),
@@ -767,7 +767,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
         ],
       "full_ip_list": [],
       "sla_parameters": shared_instance.getSlaXmlAsDict(),
-      "compute_node_id": partition.getParentValue().getReference(),
+      "computer_guid": partition.getParentValue().getReference(),
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": shared_instance.getSlapTimestamp(),
       "access_status_message": shared_instance.getTextAccessStatus(),

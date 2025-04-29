@@ -313,7 +313,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'erp5_data_notebook',
       'erp5_wendelin',
       'slapos_abyss',
-      'erp5_development_wizard',
       'slapos_rss_style',
       'erp5_rss_style'
     ]

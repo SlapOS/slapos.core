@@ -497,7 +497,7 @@ class Computer(SlapDocument):
     return self._connection_helper.callJsonRpcAPI(
       'slapos.get.v0.compute_node_status',
       {
-        'compute_node_id': self._computer_id
+        'computer_guid': self._computer_id
       }
     )
 

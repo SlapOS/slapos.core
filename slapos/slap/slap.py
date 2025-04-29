@@ -677,13 +677,12 @@ class ComputerPartition(SlapRequester):
 
   def rename(self, new_name, slave_reference=None):
     post_dict = {
-      'title': new_name,
-      "reference": self.getInstanceGuid()
+      'title': new_name
     }
     if slave_reference:
-      post_dict['reference'] = slave_reference
+      post_dict['instance_guid'] = slave_reference
     else:
-      post_dict['reference'] = self.getInstanceGuid()
+      post_dict['instance_guid'] = self.getInstanceGuid()
     self._connection_helper.callJsonRpcAPI(
       'slapos.put.v0.instance_title',
       post_dict

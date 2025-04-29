@@ -125,13 +125,13 @@
         "required": ["partition_id"]\n
       }\n
     },\n
-    "compute_node_id": {\n
+    "computer_guid": {\n
       "title": "Compute Node ID",\n
       "type": "string",\n
       "description": "Unique Id of the object. It is not editable."\n
     }\n
   },\n
-  "required": ["compute_partition_list", "compute_node_id"]\n
+  "required": ["compute_partition_list", "computer_guid"]\n
 }\n
 </string> </value>
         </item>

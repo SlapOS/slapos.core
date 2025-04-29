@@ -233,7 +233,7 @@ class SoftwareRelease(SlapDocument):
     self._connection_helper.callJsonRpcAPI(
       'slapos.put.v0.software_installation_reported_state',
       {
-        'compute_node_id': self.getComputerId(),
+        'computer_guid': self.getComputerId(),
         'software_release_uri': self.getURI(),
         'reported_state': 'available'
       }
@@ -244,7 +244,7 @@ class SoftwareRelease(SlapDocument):
     self._connection_helper.callJsonRpcAPI(
       'slapos.put.v0.software_installation_reported_state',
       {
-        'compute_node_id': self.getComputerId(),
+        'computer_guid': self.getComputerId(),
         'software_release_uri': self.getURI(),
         'reported_state': 'building'
       }
@@ -254,7 +254,7 @@ class SoftwareRelease(SlapDocument):
     self._connection_helper.callJsonRpcAPI(
       'slapos.put.v0.software_installation_reported_state',
       {
-        'compute_node_id': self.getComputerId(),
+        'computer_guid': self.getComputerId(),
         'software_release_uri': self.getURI(),
         'reported_state': 'destroyed'
       }

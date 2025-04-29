@@ -657,7 +657,7 @@ class ComputerPartition(SlapRequester):
       self._connection_helper.callJsonRpcAPI(
         'slapos.put.v0.instance_error',
         {
-          "reference": self.getInstanceGuid(),
+          "instance_guid": self.getInstanceGuid(),
           "message": str(error_log)
         }
       )

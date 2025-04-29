@@ -845,7 +845,7 @@ class ComputerPartition(SlapRequester):
       slave_reference = self.getInstanceGuid()
 
     json_dict = {
-      'reference': slave_reference,
+      'instance_guid': slave_reference,
       'connection_parameter_dict': connection_dict
     }
 

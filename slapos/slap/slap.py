@@ -670,7 +670,7 @@ class ComputerPartition(SlapRequester):
     return self._connection_helper.callJsonRpcAPI(
       'slapos.put.v0.instance_bang',
       {
-        "reference": self.getInstanceGuid(),
+        "instance_guid": self.getInstanceGuid(),
         'message': message
       }
     )

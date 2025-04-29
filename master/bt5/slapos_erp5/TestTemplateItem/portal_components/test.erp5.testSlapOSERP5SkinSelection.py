@@ -79,7 +79,6 @@ erp5_crm
 erp5_data_notebook
 erp5_data_set
 erp5_deferred_style_core
-erp5_development
 erp5_diff
 erp5_dms
 erp5_fckeditor
@@ -195,7 +194,6 @@ erp5_data_notebook
 erp5_data_set
 erp5_deferred_style
 erp5_deferred_style_core
-erp5_development
 erp5_diff
 erp5_dms
 erp5_fckeditor

@@ -20,7 +20,8 @@ slapos_bt_list = [
     'slapos_panel_ui_test',
     'slapos_parameter_editor_ui_test',
     'slapos_abyss',
-    'slapos_rss_style'
+    'slapos_rss_style',
+    'slapos_json_rpc_api',
   ]
 
 class SlapOSCloud(SavedTestSuite, ProjectTestSuite):

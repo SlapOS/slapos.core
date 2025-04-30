@@ -567,7 +567,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: [[\'simulation_state\', \'!=invalidated\'], [\'destination_decision__uid\', context.Base_getAuthenticatedPersonUid()]]</string> </value>
+            <value> <string>python: [[\'destination_decision__uid\', context.Base_getAuthenticatedPersonUid()]]</string> </value>
         </item>
       </dictionary>
     </pickle>

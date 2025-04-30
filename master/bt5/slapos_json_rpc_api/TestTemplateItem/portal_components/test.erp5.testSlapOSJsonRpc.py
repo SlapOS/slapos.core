@@ -133,13 +133,11 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
 
     # This is the expected instance list, it is sorted by api_revision
     instance_list = [instance_1, instance_2, instance_3, instance_4]
-    # instance_list.sort(key=lambda x: x.getJIOAPIRevision(self.connector.getRelativeUrl()))
 
     # Check result_list match instance_list=
     expected_instance_list = []
     for instance in instance_list:
       expected_instance_list.append({
-        # "api_revision": instance.getJIOAPIRevision(self.connector.getRelativeUrl()),
         "compute_partition_id": instance.getAggregateReference(),
         "portal_type": "Software Instance",
         "instance_guid": instance.getReference(),
@@ -200,7 +198,6 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
           "compute_partition_id": partition.getReference(),
           "processing_timestamp": instance.getSlapTimestamp(),
           "access_status_message": instance.getTextAccessStatus(),
-          #"api_revision": instance.getJIOAPIRevision(self.connector.getRelativeUrl()),
           "portal_type": instance.getPortalType(),
         })
       self.assertEqual(response.getStatus(), 200)
@@ -214,8 +211,6 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     compute_node_user_id = self.compute_node.getUserId()
 
     software_list = [self.start_requested_software_installation, self.destroy_requested_software_installation]
-    # This is the expected instance list, it is sorted by api_revision
-    # software_list.sort(key=lambda x: x.getJIOAPIRevision(self.connector.getRelativeUrl()))
     # Check result_list match instance_list=
     expected_software_list = []
     for software in software_list:
@@ -609,7 +604,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
     # Check result_list match instance_list=
     expected_instance_list = [{
-      # "api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
       "compute_partition_id": instance.getAggregateReference(),
       "portal_type": "Software Instance",
       "instance_guid": instance.getReference(),
@@ -663,7 +657,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": instance.getTextAccessStatus(),
-      # "api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
       "portal_type": instance.getPortalType(),
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
@@ -704,7 +697,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": instance.getTextAccessStatus(),
-      # "api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
       "portal_type": instance.getPortalType(),
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
@@ -725,7 +717,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
     shared_instance_list_response = loadJson(response.getBody())
-    #shared_instance_revision = shared_instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl())
     self.assertEqual(shared_instance_list_response,
     {
       'result_list': [{#'api_revision': shared_instance_revision,
@@ -900,7 +891,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": '#error while instanciating: The error',
-      #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
       "portal_type": instance.getPortalType(),
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
@@ -960,7 +950,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": '#error while instanciating: The error',
-      #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
       "portal_type": instance.getPortalType(),
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
@@ -1015,7 +1004,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": '#error while instanciating: The error',
-      #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
       "portal_type": instance.getPortalType(),
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
@@ -1565,7 +1553,6 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": instance.getTextAccessStatus(),
-      #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
       "portal_type": "Software Instance",
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
@@ -1795,7 +1782,6 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
         "compute_partition_id": partition.getReference(),
         "processing_timestamp": instance.getSlapTimestamp(),
         "access_status_message": instance.getTextAccessStatus(),
-        #"api_revision": instance.getJIOAPIRevision(self.web_site.api.getRelativeUrl()),
         "portal_type": instance.getPortalType(),
       }, loadJson(response.getBody()))
       self.assertEqual(response.getStatus(), 200)

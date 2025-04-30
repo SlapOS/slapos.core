@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+<ZopeData>
+  <record id="1" aka="AAAAAAAAAAE=">
+    <pickle>
+      <global name="JSON Form" module="erp5.portal_type"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>after_method_id</string> </key>
+            <value> <string>JSONRPCService_asJSONText</string> </value>
+        </item>
+        <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>application/json</string> </value>
+        </item>
+        <item>
+            <key> <string>default_reference</string> </key>
+            <value> <string>JSONRPCService_getComputePartitionFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>id</string> </key>
+            <value> <string>JSONRPCService_getComputePartitionFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>JSON Form</string> </value>
+        </item>
+        <item>
+            <key> <string>response_schema</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "Instance informations",\n
+  "description": "Instance informations",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+  "properties": {\n
+    "computer_guid": {\n
+      "title": "Compute Node Id",\n
+      "type": "string",\n
+      "description": "Id Of the Requesting Compute Node, used by Slap Client when an instance is requesting an instance"\n
+    },\n
+    "portal_type": {\n
+      "title": "Portal Type",\n
+      "oneOf": [\n
+        {"const": "Software Instance"},\n
+        {"const": "Slave Instance"}\n
+      ],\n
+      "type": "string"\n
+    },\n
+    "instance_guid": {\n
+      "title": "Software Instance Reference",\n
+      "description": "Unique identifier of the Software Instance",\n
+      "type": "string"\n
+    },\n
+    "root_instance_title": {\n
+      "title": "Title of the Roor Instance",\n
+      "type": "string"\n
+    },\n
+    "title": {\n
+      "title": "Unique Title of the Instance",\n
+      "type": "string"\n
+    },\n
+    "state": {\n
+      "title": "Requested State",\n
+      "type": "string",\n
+      "enum": ["started", "stopped", "destroyed"],\n
+      "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
+    },\n
+    "compute_partition_id": {\n
+      "title": "Compute Partition Id",\n
+      "type": "string",\n
+      "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance"\n
+    },\n
+    "software_release_uri": {\n
+      "title": "Software Release URI",\n
+      "type": "string",\n
+      "description": "URL of the software release used by the software instance"\n
+    },\n
+    "software_type": {\n
+      "title": "Software Type",\n
+      "type": "string"\n
+    },\n
+    "shared": {\n
+      "title": "Shared",\n
+      "type": "boolean",\n
+      "description": "Is it a shared instance"\n
+    },\n
+    "processing_timestamp": {\n
+      "title": "Processing Timestamp",\n
+      "type": "integer"\n
+    },\n
+    "access_status_message": {\n
+      "title": "Access Status Message",\n
+      "type": "string"\n
+    },\n
+    "parameters": {\n
+      "title": "Parameters",\n
+      "type": "object"\n
+    },\n
+    "sla_parameters": {\n
+      "title": "SLA Parameters",\n
+      "type": "object"\n
+    },\n
+    "connection_parameters": {\n
+      "title": "Connection Parameters",\n
+      "type": "object"\n
+    },\n
+    "ip_list": {\n
+      "title": "IP List",\n
+      "type": "array",\n
+      "description": "List of IPs usable by the Software Instance on the partition.",\n
+      "items": {\n
+        "type": "array",\n
+        "title": "Internet Protocol Address",\n
+        "description": "All elements to describe the interface",\n
+        "items": {\n
+          "type": "string"\n
+        }\n
+      }\n
+    },\n
+    "full_ip_list": {\n
+      "title": "Full IP List",\n
+      "type": "array",\n
+      "description": "List of IPs usable by the Software Instance on the partition.",\n
+      "items": {\n
+        "type": "array",\n
+        "title": "Internet Protocol Address",\n
+        "description": "All elements to describe the interface",\n
+        "items": {\n
+          "type": "string"\n
+        }\n
+      }\n
+    }\n
+  },\n
+  "required": [\n
+    "computer_guid",\n
+    "portal_type",\n
+    "instance_guid",\n
+    "root_instance_title",\n
+    "title",\n
+    "state",\n
+    "compute_partition_id",\n
+    "software_release_uri",\n
+    "software_type",\n
+    "shared",\n
+    "processing_timestamp",\n
+    "access_status_message",\n
+    "parameters",\n
+    "sla_parameters",\n
+    "connection_parameters",\n
+    "ip_list",\n
+    "full_ip_list"\n
+  ]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "Get Compute Partition informations",\n
+  "description": "Get Compute Partition informations",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+\n
+  "properties": {\n
+    "computer_guid": {\n
+      "title": "Compute Node Id",\n
+      "type": "string",\n
+      "description": "Id Of the Requesting Compute Node, used by Slap Client when an instance is requesting an instance"\n
+    },\n
+    "compute_partition_id": {\n
+      "title": "Compute Partition Id",\n
+      "type": "string",\n
+      "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance"\n
+    }\n
+\n
+  },\n
+  "required": ["computer_guid", "compute_partition_id"]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>version</string> </key>
+            <value> <string>01</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+</ZopeData>

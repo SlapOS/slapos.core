@@ -29,12 +29,6 @@
             <value> <string>JSONRPCService_getComputeNodeStatusFromJSON</string> </value>
         </item>
         <item>
-            <key> <string>output_schema</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>portal_type</string> </key>
             <value> <string>JSON Form</string> </value>
         </item>

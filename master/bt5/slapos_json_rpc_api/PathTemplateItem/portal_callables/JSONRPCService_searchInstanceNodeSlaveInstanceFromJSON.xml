@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<ZopeData>
+  <record id="1" aka="AAAAAAAAAAE=">
+    <pickle>
+      <global name="JSON Form" module="erp5.portal_type"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>after_method_id</string> </key>
+            <value> <string>JSONRPCService_searchInstanceNodeSlaveInstanceFromDict</string> </value>
+        </item>
+        <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>application/json</string> </value>
+        </item>
+        <item>
+            <key> <string>default_reference</string> </key>
+            <value> <string>JSONRPCService_searchInstanceNodeSlaveInstanceFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>id</string> </key>
+            <value> <string>JSONRPCService_searchInstanceNodeSlaveInstanceFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>output_schema</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>JSON Form</string> </value>
+        </item>
+        <item>
+            <key> <string>response_schema</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "allDocs: Response Payload",\n
+  "description": "Payload returned by allDocs method.",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+  "properties": {\n
+    "result_list": {\n
+      "title": "Result List",\n
+      "description": "Contains a representation of the items",\n
+      "type": "array",\n
+      "items": {\n
+        "type": "object",\n
+        "additionalProperties": false,\n
+        "title": "Shared Instance",\n
+        "properties": {\n
+          "instance_guid": {\n
+            "title": "Software Instance Reference",\n
+            "description": "Unique identifier of the Software Instance",\n
+            "type": "string"\n
+          },\n
+          "title": {\n
+            "title": "Unique Title of the Instance",\n
+            "type": "string"\n
+          },\n
+          "software_type": {\n
+            "title": "Software Type",\n
+            "type": "string"\n
+          },\n
+          "state": {\n
+            "title": "Requested State",\n
+            "type": "string",\n
+            "enum": ["started", "stopped", "destroyed"],\n
+            "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
+          },\n
+          "parameters": {\n
+            "title": "Parameters",\n
+            "type": "object"\n
+          },\n
+          "compute_partition_id": {\n
+            "title": "Compute Partition Id",\n
+            "type": "string",\n
+            "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance"\n
+          },\n
+          "software_release_uri": {\n
+            "title": "Software Release URI",\n
+            "type": "string",\n
+            "description": "URL of the software release used by the software instance"\n
+          },\n
+          "portal_type": {\n
+            "title": "Portal Type",\n
+            "enum": ["Slave Instance"],\n
+            "type": "string"\n
+          }\n
+        },\n
+        "required": [\n
+          "instance_guid",\n
+          "title",\n
+          "software_type",\n
+          "state",\n
+          "parameters",\n
+          "portal_type"\n
+        ]\n
+      }\n
+    }\n
+  },\n
+  "required": [\n
+    "result_list"\n
+  ]\n
+}</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "Slave Instance Search",\n
+  "description": "Slave Instance Search",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+\n
+  "properties": {\n
+    "instance_guid": {\n
+      "title": "Host Instance Reference",\n
+      "type": "string",\n
+      "description": "The unique reference of the Software Instance, example: SOFTINST-1234"\n
+    }\n
+  },\n
+  "required": [\n
+    "instance_guid"\n
+  ]\n
+\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>version</string> </key>
+            <value> <string>001</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+</ZopeData>

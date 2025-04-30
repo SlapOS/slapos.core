@@ -39,9 +39,6 @@ class SoftwareInstanceJsonTypeMixin:
   def getSlapTimestamp(self):
     return self._getSlapTimestamp()
 
-  def useRevision(self):
-    return getattr(self, "use_jio_api_revision", False)
-
   @UnrestrictedMethod
   def _getSlapTimestamp(self):
     compute_partition = self.getAggregateValue(portal_type="Compute Partition")
@@ -57,24 +54,12 @@ class SoftwareInstanceJsonTypeMixin:
     # XXX In the current what shared instances are processed, they cannot be reprocessed if the
     # host instance is not processed
     if (self.getPortalType() == "Software Instance"):
-      shared_instance_sql_list = []
-      if self.useRevision():
-        shared_instance_sql_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-          default_aggregate_uid=compute_partition.getUid(),
-          portal_type='Slave Instance',
-          validation_state="validated",
-          sort_on=(("jio_api_revision.revision", "DESC"),),
-          select_list=('jio_api_revision.revision',),
-          limit=1,
-          **{"slapos_item.slap_state": "start_requested"}
-        )
-      else:
-        shared_instance_sql_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-          default_aggregate_uid=compute_partition.getUid(),
-          portal_type='Slave Instance',
-          validation_state="validated",
-          **{"slapos_item.slap_state": "start_requested"}
-        )
+      shared_instance_sql_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
+        default_aggregate_uid=compute_partition.getUid(),
+        portal_type='Slave Instance',
+        validation_state="validated",
+        **{"slapos_item.slap_state": "start_requested"}
+      )
       for shared_instance in shared_instance_sql_list:
         shared_instance = _assertACI(shared_instance.getObject())
         # XXX Use catalog to filter more efficiently
@@ -136,13 +121,6 @@ class SoftwareInstanceJsonTypeMixin:
       "access_status_message": self.getTextAccessStatus(),
       "portal_type": "Software Instance"#self.getPortalType(),
     }
-    if self.useRevision():
-      web_section = self.getWebSectionValue()
-      web_section = web_section.getRelativeUrl() if web_section else self.REQUEST.get("web_section_relative_url", None)
-      if web_section:
-        revision = self.getJIOAPIRevision(web_section)
-        if revision:
-          result["api_revision"] = revision
 
     return result
 

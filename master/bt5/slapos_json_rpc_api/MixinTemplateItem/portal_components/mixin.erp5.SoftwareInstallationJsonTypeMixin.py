@@ -34,9 +34,6 @@ class SoftwareInstallationJsonTypeMixin:
   # Declarative security
   security = ClassSecurityInfo()
 
-  def useRevision(self):
-    return getattr(self, "use_jio_api_revision", False)
-
   security.declareProtected(Permissions.AccessContentsInformation,
     'asJSONText')
   def asJSONText(self):
@@ -60,14 +57,6 @@ class SoftwareInstallationJsonTypeMixin:
       "status_message": status_dict.get("text"),
       "portal_type": "Software Installation",
     }
-
-    if self.useRevision():
-      web_section = self.getWebSectionValue()
-      web_section = web_section.getRelativeUrl() if web_section else self.REQUEST.get("web_section_relative_url", None)
-      if web_section:
-        revision = self.getJIOAPIRevision(web_section)
-        if revision:
-          result["api_revision"] = revision
 
     return result
 

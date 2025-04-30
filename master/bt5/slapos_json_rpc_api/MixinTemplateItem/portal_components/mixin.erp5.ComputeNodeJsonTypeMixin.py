@@ -35,9 +35,6 @@ class ComputeNodeJsonTypeMixin:
   # Declarative security
   security = ClassSecurityInfo()
 
-  def useRevision(self):
-    return getattr(self, "use_jio_api_revision", False)
-
   security.declareProtected(Permissions.AccessContentsInformation,
     'asJSONText')
   def asJSONText(self):
@@ -54,13 +51,7 @@ class ComputeNodeJsonTypeMixin:
       "title": self.getTitle().decode("UTF-8"),
       "compute_partition_list": [],
       }
-    if self.useRevision():
-      web_section = self.getWebSectionValue()
-      web_section = web_section.getRelativeUrl() if web_section else self.REQUEST.get("web_section_relative_url", None)
-      if web_section:
-        revision = self.getJIOAPIRevision(web_section)
-        if revision:
-          compute_node_dict["api_revision"] = revision
+
     compute_partition_list = self.contentValues(
       portal_type="Compute Partition",
       checked_permission="View"

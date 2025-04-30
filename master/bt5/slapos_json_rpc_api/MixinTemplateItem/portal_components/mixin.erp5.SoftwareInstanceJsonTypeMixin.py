@@ -112,6 +112,3 @@ class SoftwareInstanceJsonTypeMixin:
 
     return result
 
-  security.declareProtected(Permissions.ModifyPortalContent, 'fromJSONText')
-  def fromJSONText(self, json_content):
-    return self.setJsonContent(json_content)

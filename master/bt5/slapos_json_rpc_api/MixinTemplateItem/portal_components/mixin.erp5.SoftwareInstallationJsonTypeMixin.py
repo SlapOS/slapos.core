@@ -49,7 +49,6 @@ class SoftwareInstallationJsonTypeMixin:
     # software instance has to define an xml parameter
     status_dict = self.getAccessStatus()
     result = {
-      # "$schema": self.getJSONSchemaUrl(),
       "software_release_uri": self.getUrlString(),
       "computer_guid": self.getAggregateReference(),
       "state": state,
@@ -62,14 +61,3 @@ class SoftwareInstallationJsonTypeMixin:
 
   def getSlapTimestamp(self):
     return int(self.getModificationDate())
-
-  security.declareProtected(Permissions.AccessContentsInformation,
-    'getJSONSchemaUrl')
-  def getJSONSchemaUrl(self):
-    """
-    This is an attempt to provide stability to the Schema URL and by extension to asJSONText
-    """
-    portal = self.getPortalObject()
-    portal_type_path = portal.portal_types.restrictedTraverse(self.getPortalType())
-    base_url = portal.portal_preferences.getPreferredSlaposWebSiteUrl().strip("/")
-    return "/".join([base_url, portal_type_path.getRelativeUrl(), "getTextContent"])

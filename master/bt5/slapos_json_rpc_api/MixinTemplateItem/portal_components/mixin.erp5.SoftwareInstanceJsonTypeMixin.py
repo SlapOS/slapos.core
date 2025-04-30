@@ -71,17 +71,6 @@ class SoftwareInstanceJsonTypeMixin:
     return timestamp
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'getJSONSchemaUrl')
-  def getJSONSchemaUrl(self):
-    """
-    This is an attempt to provide stability to the Schema URL and by extension to asJSONText
-    """
-    portal = self.getPortalObject()
-    portal_type_path = portal.portal_types.restrictedTraverse("Software Instance")
-    base_url = portal.portal_preferences.getPreferredSlaposWebSiteUrl().strip("/")
-    return "/".join([base_url, portal_type_path.getRelativeUrl(), "getTextContent"])
-
-  security.declareProtected(Permissions.AccessContentsInformation,
     'asJSONText')
   def asJSONText(self):
     try:
@@ -102,7 +91,6 @@ class SoftwareInstanceJsonTypeMixin:
       raise ValueError("Unknown slap state : %s" % requested_state)
     # software instance has to define an xml parameter
     result = {
-      #"$schema": self.getJSONSchemaUrl(),
       "title": self.getTitle().decode("UTF-8"),
       "instance_guid": self.getReference().decode("UTF-8"),
       "software_release_uri": self.getUrlString(),

@@ -175,7 +175,6 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       self.assertEqual(
         loadJson(response.getBody()),
         {
-          #"$schema": instance.getJSONSchemaUrl(),
           "title": instance.getTitle(),
           "instance_guid": instance.getReference(),
           "software_release_uri": instance.getUrlString(),
@@ -634,7 +633,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     # Check Data is correct
     partition = instance.getAggregateValue(portal_type="Compute Partition")
     self.assertEqual({
-      # "$schema": instance.getJSONSchemaUrl(),
       "title": instance.getTitle(),
       "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
@@ -674,7 +672,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     # Check Data is correct
     partition = instance.getAggregateValue(portal_type="Compute Partition")
     self.assertEqual({
-      # "$schema": instance.getJSONSchemaUrl(),
       "title": instance.getTitle(),
       "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
@@ -739,7 +736,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     # Check Data is correct
     partition = instance.getAggregateValue(portal_type="Compute Partition")
     self.assertEqual({
-      #"$schema": instance.getJSONSchemaUrl(),
       "title": shared_instance.getTitle(),
       "instance_guid": shared_instance.getReference(),
       "software_release_uri": shared_instance.getUrlString(),
@@ -868,7 +864,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
         instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
-      #"$schema": instance.getJSONSchemaUrl(),
       "title": instance.getTitle(),
       "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
@@ -927,7 +922,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
         instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
-      #"$schema": instance.getJSONSchemaUrl(),
       "title": instance.getTitle(),
       "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
@@ -981,7 +975,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
         instance.getUserId())
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual({
-      #"$schema": instance.getJSONSchemaUrl(),
       "title": instance.getTitle(),
       "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
@@ -1530,7 +1523,6 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     # Check Data is correct
     partition = instance.getAggregateValue(portal_type="Compute Partition")
     self.assertEqual({
-      #"$schema": instance.getJSONSchemaUrl(),
       "title": instance.getTitle(),
       "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
@@ -1760,7 +1752,6 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       # partition = instance.getAggregateValue(portal_type="Compute Partition")
       self.assertEqual('application/json', response.headers.get('content-type'))
       self.assertEqual({
-        #"$schema": instance.getJSONSchemaUrl(),
         "title": instance.getTitle(),
         "instance_guid": instance.getReference(),
         "software_release_uri": instance.getUrlString(),

@@ -228,8 +228,19 @@ def getUsageSignatureFromSoftwareAndSharedPart(
   already the parts that we are about to delete.
   """
   signatures = {}
-  for installed_cfg in glob.glob(os.path.join(software_root, '*',
-                                              '.installed.cfg')):
+  installed_cfg_set = set(glob.glob(os.path.join(software_root, '*',
+                                                 '.installed.cfg')))
+  for installed_cfg_link in glob.glob(shared_root,
+                                      '.installed_cfg_link', '*'):
+    installed_cfg = os.readlink(installed_cfg_link)
+    if os.path.exists(installed_cfg):
+      installed_cfg_set.add(installed_cfg)
+    else:
+      try:
+        os.remove(installed_cfg_link)
+      except OSError:
+        pass
+  for installed_cfg in installed_cfg_set:
     with open(installed_cfg) as f:
       signatures[installed_cfg] = f.read()
   for script in glob.glob(os.path.join(software_root, '*', 'bin', '*')):

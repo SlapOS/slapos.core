@@ -71,8 +71,8 @@ class SoftwareInstanceJsonTypeMixin:
     return timestamp
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'asJSONText')
-  def asJSONText(self):
+    'getSlapJSON')
+  def getSlapJSON(self):
     try:
       parameter_dict = self._asParameterDict()
     except ValueError:

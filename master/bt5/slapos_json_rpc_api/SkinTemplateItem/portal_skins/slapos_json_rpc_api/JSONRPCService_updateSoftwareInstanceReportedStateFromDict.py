@@ -17,10 +17,13 @@ elif (reported_state == "stopped"):
     'Instance correctly stopped', "stopped", reindex=1)
 elif (reported_state == "destroyed"):
   if software_instance.getSlapState() == 'destroy_requested':
+    # XXX Move this code to aanother bt5
     # remove certificate from SI
     software_instance.revokeCertificate()
     if software_instance.getValidationState() == 'validated':
       software_instance.invalidate()
+    software_instance.setAccessStatus(
+    'Instance correctly destroyed', "destroyed", reindex=1)
 else:
   raise WrongReportedStateError("Unexpected Reported State: %s" % reported_state)
 

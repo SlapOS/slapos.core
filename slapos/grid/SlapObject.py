@@ -353,20 +353,6 @@ class Software(object):
     with open(buildout_cfg, 'w') as fout:
       parser.write(fout)
     self._set_ownership(buildout_cfg)
-    if os.getuid():
-      uid = os.stat(buildout_cfg).st_uid
-      for shared_part in shared_part_list:
-        if os.stat(shared_part).st_uid == uid:
-          installed_cfg_link_dir = os.path.join(shared_part,
-                                                '.installed_cfg_link')
-          os.makedirs(installed_cfg_link_dir)
-          installed_cfg_path = os.path.join(os.path.dirname(buildout_cfg),
-                                            '.installed.cfg')
-          checksum = md5digest(installed_cfg_path)
-          installed_cfg_link_path = os.path.join(installed_cfg_link_dir,
-                                                 checksum)
-          if not os.path.exists(installed_cfg_link_path):
-            os.symlink(installed_cfg_path, installed_cfg_link_path)
 
   def _note_git_revision(self, buildout_cfg, url):
     """Add a comment with the revision if the profile is a git checkout.

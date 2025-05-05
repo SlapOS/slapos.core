@@ -58,8 +58,7 @@
             "title": "Requested State",\n
             "type": "string",\n
             "enum": ["available", "destroyed"],\n
-            "description": "State of the requested software",\n
-            "default": "available"\n
+            "description": "State of the requested software"\n
           }\n
         },\n
         "required": [\n

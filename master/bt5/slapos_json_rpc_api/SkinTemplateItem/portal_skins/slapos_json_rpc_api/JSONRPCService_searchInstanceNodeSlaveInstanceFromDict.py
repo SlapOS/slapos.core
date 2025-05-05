@@ -34,7 +34,6 @@ else:
 result_list = [{
   "title": x.title,
   "instance_guid": x.reference,
-  "portal_type": "Slave Instance",
   "software_type": x.source_reference,
   "state": slap_state_dict.get(x.slap_state, ""),
   "parameters": x.getInstanceXmlAsDict(),

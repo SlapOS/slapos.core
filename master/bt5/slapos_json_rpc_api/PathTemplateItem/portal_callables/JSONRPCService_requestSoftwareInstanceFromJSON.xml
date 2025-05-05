@@ -60,11 +60,6 @@
       "type": "string",\n
       "description": "Id Of the Requesting Compute Node, used by Slap Client when an instance is requesting an instance"\n
     },\n
-    "portal_type": {\n
-      "title": "Portal Type",\n
-      "const": "Software Instance",\n
-      "type": "string"\n
-    },\n
     "instance_guid": {\n
       "title": "Software Instance Reference",\n
       "description": "Unique identifier of the Software Instance",\n
@@ -154,7 +149,6 @@
   "oneOf": [{\n
     "required": [\n
       "computer_guid",\n
-      "portal_type",\n
       "instance_guid",\n
       "root_instance_title",\n
       "title",\n

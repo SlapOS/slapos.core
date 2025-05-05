@@ -27,7 +27,6 @@ if user_value is not None and user_value.getReference() == data_dict["computer_g
 result_list = [{
   "title": x.title,
   "instance_guid": x.reference,
-  "portal_type": x.portal_type,
   "state": slap_state_dict.get(x.slap_state, ""),
   "compute_partition_id": x.aggregate_reference,
   "software_release_uri": x.url_string,

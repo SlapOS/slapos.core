@@ -57,5 +57,3 @@ class SoftwareInstallationJsonTypeMixin:
       "portal_type": "Software Installation",
     }
 
-  def getSlapTimestamp(self):
-    return int(self.getModificationDate())

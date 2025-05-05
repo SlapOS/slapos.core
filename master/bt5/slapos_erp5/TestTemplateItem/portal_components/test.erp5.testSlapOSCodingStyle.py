@@ -117,7 +117,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_crm/RegularisationRequest_init',
         'slapos_erp5/CategoryTool_checkRegionMigrationConsistency',
         'slapos_erp5/Category_updateRelatedRegionAndExpire',
-        'slapos_json_rpc_api/JSONRPCService_asJSONText',
+        'slapos_json_rpc_api/JSONRPCService_asJSON',
         'slapos_json_rpc_api/JSONRPCService_bangComputeNodeFromAPIDict',
         'slapos_json_rpc_api/JSONRPCService_bangSoftwareInstanceFromDict',
         'slapos_json_rpc_api/JSONRPCService_createComputeNodeCertificateRecordFromDict',

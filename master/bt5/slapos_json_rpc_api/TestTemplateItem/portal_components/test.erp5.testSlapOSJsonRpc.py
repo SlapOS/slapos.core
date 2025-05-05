@@ -25,7 +25,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, PinnedDateTime
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, PinnedDateTime, PortalAlarmDisabled
 from erp5.component.module.JsonUtils import loadJson
 
 from DateTime import DateTime
@@ -33,25 +33,6 @@ from App.Common import rfc1123_date
 
 import json
 import io
-
-
-class PortalAlarmDisabled(object):
-  """
-  Context manager to disable portal alarm
-  """
-  def __init__(self, portal):
-    self.portal_alarms = portal.portal_alarms
-    self.was_subscribed = self.portal_alarms.isSubscribed()
-
-  def __enter__(self):
-    if self.was_subscribed:
-      self.portal_alarms.unsubscribe()
-      # transaction.commit()
-
-  def __exit__(self, exc_type, exc_value, traceback):
-    if self.was_subscribed:
-      self.portal_alarms.subscribe()
-      # transaction.commit()
 
 
 class TestSlapOSJsonRpcMixin(SlapOSTestCaseMixin):

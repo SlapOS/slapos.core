@@ -2,9 +2,6 @@
  <portal_type id="Slave Instance">
   <item>SoftwareInstanceJsonTypeMixin</item>
  </portal_type>
- <portal_type id="Software Installation">
-  <item>SoftwareInstallationJsonTypeMixin</item>
- </portal_type>
  <portal_type id="Software Instance">
   <item>SoftwareInstanceJsonTypeMixin</item>
  </portal_type>

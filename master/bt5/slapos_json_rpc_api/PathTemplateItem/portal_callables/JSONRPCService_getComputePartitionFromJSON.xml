@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>after_method_id</string> </key>
-            <value> <string>JSONRPCService_asJSONText</string> </value>
+            <value> <string>JSONRPCService_asJSON</string> </value>
         </item>
         <item>
             <key> <string>content_type</string> </key>

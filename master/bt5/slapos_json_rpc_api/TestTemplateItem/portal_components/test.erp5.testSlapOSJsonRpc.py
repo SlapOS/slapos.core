@@ -139,7 +139,6 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     for instance in instance_list:
       expected_instance_list.append({
         "compute_partition_id": instance.getAggregateReference(),
-        "portal_type": "Software Instance",
         "instance_guid": instance.getReference(),
         "software_release_uri": instance.getUrlString(),
         "state": self.getAPIStateFromSlapState(instance.getSlapState()),
@@ -197,7 +196,6 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
           "compute_partition_id": partition.getReference(),
           "processing_timestamp": instance.getSlapTimestamp(),
           "access_status_message": instance.getTextAccessStatus(),
-          "portal_type": instance.getPortalType(),
         })
       self.assertEqual(response.getStatus(), 200)
 
@@ -604,7 +602,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     # Check result_list match instance_list=
     expected_instance_list = [{
       "compute_partition_id": instance.getAggregateReference(),
-      "portal_type": "Software Instance",
       "instance_guid": instance.getReference(),
       "software_release_uri": instance.getUrlString(),
       "state": self.getAPIStateFromSlapState(instance.getSlapState()),
@@ -655,7 +652,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": instance.getTextAccessStatus(),
-      "portal_type": instance.getPortalType(),
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
 
@@ -694,7 +690,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": instance.getTextAccessStatus(),
-      "portal_type": instance.getPortalType(),
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
 
@@ -720,7 +715,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
                       'software_type': shared_instance.getSourceReference(),
                       'parameters': shared_instance.getInstanceXmlAsDict(),
                       'compute_partition_id': partition.getReference(),
-                      'portal_type': 'Slave Instance',
                       'instance_guid': shared_instance.getReference(),
                       'state': 'started',
                       'title': shared_instance.getTitle()}]
@@ -758,8 +752,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": shared_instance.getSlapTimestamp(),
       "access_status_message": shared_instance.getTextAccessStatus(),
-      #"api_revision": shared_instance_revision,
-      "portal_type": "Software Instance",
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
 
@@ -886,7 +878,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": '#error while instanciating: The error',
-      "portal_type": instance.getPortalType(),
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
 
@@ -944,7 +935,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": '#error while instanciating: The error',
-      "portal_type": instance.getPortalType(),
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
 
@@ -997,7 +987,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": '#error while instanciating: The error',
-      "portal_type": instance.getPortalType(),
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
 
@@ -1049,7 +1038,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       'full_ip_list': [],
       'ip_list': [],
-      'portal_type': 'Software Instance',
       'processing_timestamp': 1589846400000000,
       'instance_guid': instance.getReference(),
       'root_instance_title': instance.getSpecialiseTitle(),
@@ -1172,7 +1160,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
           'full_ip_list': [],
           'ip_list': [],
           'parameters': {},
-          'portal_type': 'Software Instance',
           'processing_timestamp': requested_instance.getSlapTimestamp(),
           'instance_guid': requested_instance.getReference(),
           'root_instance_title': '',
@@ -1226,7 +1213,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
           'full_ip_list': [],
           'ip_list': [],
           'parameters': {},
-          'portal_type': 'Software Instance',
           'processing_timestamp': requested_instance.getSlapTimestamp(),
           'instance_guid': requested_instance.getReference(),
           'root_instance_title': '',
@@ -1276,7 +1262,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
         'full_ip_list': [],
         'ip_list': [],
         'parameters': {},
-        'portal_type': 'Software Instance',
         'processing_timestamp': requested_instance.getSlapTimestamp(),
         'instance_guid': requested_instance.getReference(),
         'root_instance_title': '',
@@ -1332,7 +1317,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       'full_ip_list': [],
       'ip_list': [['', 'ip_address_1']],
-      'portal_type': 'Software Instance',
       'processing_timestamp': 1589846400000000,
       'instance_guid': instance.getReference(),
       'root_instance_title': instance.getSpecialiseTitle(),
@@ -1389,7 +1373,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       'full_ip_list': [],
       'ip_list': [['', 'ip_address_1']],
-      'portal_type': 'Software Instance',
       'processing_timestamp': 1589846400000000,
       'instance_guid': instance.getReference(),
       'root_instance_title': instance.getSpecialiseTitle(),
@@ -1447,7 +1430,6 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       'full_ip_list': [],
       'ip_list': [['', 'ip_address_1']],
-      'portal_type': 'Software Instance',
       'processing_timestamp': 1589846400000000,
       'instance_guid': instance.getReference(),
       'root_instance_title': instance.getSpecialiseTitle(),
@@ -1545,7 +1527,6 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       "processing_timestamp": instance.getSlapTimestamp(),
       "access_status_message": instance.getTextAccessStatus(),
-      "portal_type": "Software Instance",
     }, loadJson(response.getBody()))
     self.assertEqual(response.getStatus(), 200)
 
@@ -1605,7 +1586,6 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       "compute_partition_id": partition.getReference(),
       'full_ip_list': [],
       'ip_list': [['', 'ip_address_1']],
-      'portal_type': 'Software Instance',
       'processing_timestamp': 1589846400000000,
       'instance_guid': instance.getReference(),
       'root_instance_title': instance.getSpecialiseTitle(),
@@ -1773,7 +1753,6 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
         "compute_partition_id": partition.getReference(),
         "processing_timestamp": instance.getSlapTimestamp(),
         "access_status_message": instance.getTextAccessStatus(),
-        "portal_type": instance.getPortalType(),
       }, loadJson(response.getBody()))
       self.assertEqual(response.getStatus(), 200)
 

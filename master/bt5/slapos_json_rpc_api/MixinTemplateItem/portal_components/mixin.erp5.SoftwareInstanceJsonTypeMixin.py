@@ -106,8 +106,7 @@ class SoftwareInstanceJsonTypeMixin:
       "computer_guid": parameter_dict.get("slap_computer_id", ""),
       "compute_partition_id": parameter_dict.get("slap_computer_partition_id", ""),
       "processing_timestamp": self.getSlapTimestamp(),
-      "access_status_message": self.getTextAccessStatus(),
-      "portal_type": "Software Instance"#self.getPortalType(),
+      "access_status_message": self.getTextAccessStatus()
     }
 
     return result

@@ -74,18 +74,12 @@
             "title": "Software Release URI",\n
             "type": "string",\n
             "description": "URL of the software release used by the software instance"\n
-          },\n
-          "portal_type": {\n
-            "title": "Portal Type",\n
-            "enum": ["Software Instance"],\n
-            "type": "string"\n
           }\n
         },\n
         "required": [\n
           "instance_guid",\n
           "title",\n
-          "state",\n
-          "portal_type"\n
+          "state"\n
         ]\n
       }\n
     }\n

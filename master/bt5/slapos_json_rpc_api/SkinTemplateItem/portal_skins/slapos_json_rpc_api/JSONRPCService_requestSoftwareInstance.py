@@ -103,7 +103,7 @@ if last_data is None or not isinstance(last_data, type(value)) or \
     requester.setLastData(value, key=key)
 
 if requested_software_instance is not None:
-  return requested_software_instance.asJSONText()
+  return requested_software_instance.getSlapJSON()
 
 return {
   'message': 'Software Instance Not Ready',

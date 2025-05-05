@@ -91,10 +91,10 @@ class SoftwareInstanceJsonTypeMixin:
       raise ValueError("Unknown slap state : %s" % requested_state)
     # software instance has to define an xml parameter
     result = {
-      "title": self.getTitle().decode("UTF-8"),
-      "instance_guid": self.getReference().decode("UTF-8"),
+      "title": self.getTitle(),
+      "instance_guid": self.getReference(),
       "software_release_uri": self.getUrlString(),
-      "software_type": self.getSourceReference().decode("UTF-8"),
+      "software_type": self.getSourceReference(),
       "state": state,
       "connection_parameters": self.getConnectionXmlAsDict(),
       "parameters": self.getInstanceXmlAsDict(),

@@ -31,10 +31,8 @@ from erp5.component.module.JsonUtils import loadJson
 from DateTime import DateTime
 from App.Common import rfc1123_date
 
-import hashlib
 import json
 import io
-from binascii import hexlify
 
 
 class PortalAlarmDisabled(object):
@@ -54,41 +52,6 @@ class PortalAlarmDisabled(object):
     if self.was_subscribed:
       self.portal_alarms.subscribe()
       # transaction.commit()
-
-
-def hashData(data):
-  return hexlify(hashlib.sha1(json.dumps(data, sort_keys=True)).digest())
-
-# XXX Duplicated
-# https://stackoverflow.com/a/33571117
-def _byteify(data, ignore_dicts = False):
-  if isinstance(data, str):
-    return data
-
-  # if this is a list of values, return list of byteified values
-  if isinstance(data, list):
-    return [ _byteify(item, ignore_dicts=True) for item in data ]
-  # if this is a dictionary, return dictionary of byteified keys and values
-  # but only if we haven't already byteified it
-  if isinstance(data, dict) and not ignore_dicts:
-    return {
-      _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
-      for key, value in data.items() # changed to .items() for python 2.7/3
-    }
-
-  # python 3 compatible duck-typing
-  # if this is a unicode string, return its string representation
-  if str(type(data)) == "<type 'unicode'>":
-    return data.encode('utf-8')
-
-  # if it's anything else, return it in its original form
-  return data
-
-def json_loads_byteified(json_text):
-  return _byteify(
-    json.loads(json_text, object_hook=_byteify),
-    ignore_dicts=True
-  )
 
 
 class TestSlapOSJsonRpcMixin(SlapOSTestCaseMixin):

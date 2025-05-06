@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<ZopeData>
+  <record id="1" aka="AAAAAAAAAAE=">
+    <pickle>
+      <global name="JSON Form" module="erp5.portal_type"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>after_method_id</string> </key>
+            <value> <string>JSONRPCService_updateSoftwareInstanceTitleFromDict</string> </value>
+        </item>
+        <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>application/json</string> </value>
+        </item>
+        <item>
+            <key> <string>default_reference</string> </key>
+            <value> <string>JSONRPCService_updateSoftwareInstanceTitleFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>id</string> </key>
+            <value> <string>JSONRPCService_updateSoftwareInstanceTitleFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>JSON Form</string> </value>
+        </item>
+        <item>
+            <key> <string>response_schema</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "Instance title updated",\n
+  "description": "Response when the instance title change has been handled",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+  "properties": {\n
+    "title": {\n
+      "title": "Title",\n
+      "description": "Result message",\n
+      "type": "string"\n
+    },\n
+    "type": {\n
+      "title": "Type",\n
+      "const": "success",\n
+      "type": "string"\n
+    }\n
+  },\n
+  "required": [\n
+    "title",\n
+    "type"\n
+  ]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "Update the Instance title",\n
+  "description": "Update the Instance title",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+  "properties": {\n
+    "instance_guid": {\n
+      "title": "Software Instance Id/Reference",\n
+      "type": "string",\n
+      "description": "The unique reference of the Software Instance, example: SOFTINST-1234"\n
+    },\n
+    "title": {\n
+      "title": "New Title",\n
+      "type": "string",\n
+      "description": "Use this to change the name of your instance. Very dangerous. DO NOT USE IF YOU DO NOT KNOW WHAT YOU ARE DOING",\n
+      "maxLength": 200\n
+    }\n
+  },\n
+  "required": [\n
+    "instance_guid",\n
+    "title"\n
+  ]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>version</string> </key>
+            <value> <string>001</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+</ZopeData>

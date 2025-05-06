@@ -136,6 +136,25 @@ class PinnedDateTime(object):
     self.testinstance.unpinDateTime()
 
 
+class PortalAlarmDisabled(object):
+  """
+  Context manager to disable portal alarm
+  """
+  def __init__(self, portal):
+    self.portal_alarms = portal.portal_alarms
+    self.was_subscribed = self.portal_alarms.isSubscribed()
+
+  def __enter__(self):
+    if self.was_subscribed:
+      self.portal_alarms.unsubscribe()
+      # transaction.commit()
+
+  def __exit__(self, exc_type, exc_value, traceback):
+    if self.was_subscribed:
+      self.portal_alarms.subscribe()
+      # transaction.commit()
+
+
 class SlapOSTestCaseMixin(testSlapOSMixin):
 
   expected_html_payzen_redirect_page = None

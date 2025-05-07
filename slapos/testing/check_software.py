@@ -200,7 +200,7 @@ def checkSoftware(slap, software_url):
     valid_paths_for_libs = [os.path.realpath(x) for x in valid_paths_for_libs]
     executable_link_error_list = []
     for path in paths_to_check:
-      for root, dirs, files in os.walk(path, followlinks=True):
+      for root, dirs, files in os.walk(path):
         for f in files:
           f = os.path.join(root, f)
           if any(fnmatch.fnmatch(f, ignored_pattern)

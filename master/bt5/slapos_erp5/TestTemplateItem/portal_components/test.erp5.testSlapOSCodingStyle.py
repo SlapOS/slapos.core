@@ -314,6 +314,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_upgrader/Base_reportVirtualMasterMigration2',
         'slapos_upgrader/Base_reportVirtualMasterMigration3',
         'slapos_upgrader/Base_reportVirtualMasterMigration4',
+        'slapos_upgrader/Base_triggerComputerConsumptionTioXMLFileWorkflowMigration',
         'slapos_upgrader/Base_triggerFullSiteMigrationToVirtualMaster',
         'slapos_upgrader/Base_triggerFullSiteMigrationToVirtualMasterStep2',
         'slapos_upgrader/Base_triggerFullSiteMigrationToVirtualMasterStep3',

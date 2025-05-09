@@ -271,6 +271,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/Project_addSlapOSSoftwareProduct',
         'slapos_panel/Project_getComputeNodeTrackingList',
         'slapos_panel/Project_getPayableSoftwareProductPredicateList',
+        'slapos_panel/Project_getSoftwareProductPriceInformationText',
         'slapos_panel/Project_getSoftwareReleaseSchemaUrl',
         'slapos_panel/Project_redirectSlapOSComputeNodeCertificate',
         'slapos_panel/Project_selectRequestInstanceTree',

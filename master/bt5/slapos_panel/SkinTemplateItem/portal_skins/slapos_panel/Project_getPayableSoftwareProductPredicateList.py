@@ -45,8 +45,6 @@ for allocation_predicate in allocation_predicate_list:
   price = subscription_request.getPrice(None)
   if price is not None:
     title = '%s %s' % (software_product.getTitle(), allocation_predicate.getSoftwareReleaseTitle())
-    if (price != 0):
-      title = '%s (%s %s/%s)' % (title, price, subscription_request.getPriceCurrencyTitle(), subscription_request.getQuantityUnitTitle())
     result_list.append(allocation_predicate.asContext(
       title = title
     ))

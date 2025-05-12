@@ -599,6 +599,7 @@ class TestERP5Site_invalidate(TestSlapOSHalJsonStyleMixin):
 
 
 class TestComputeNode_get_revoke_Certificate(TestSlapOSHalJsonStyleMixin):
+  require_certificate = 1
   def test_ComputeNode_getCertificate(self):
     compute_node = self._makeComputeNode()
     self.assertEqual(0, len(compute_node.objectValues(portal_type=["ERP5 Login", "Certificate Login"])))
@@ -1443,6 +1444,8 @@ return []""")
     )
 
 class TestSoftwareInstance_getAllocationInformation(TestSlapOSHalJsonStyleMixin): 
+
+  require_certificate = 1
 
   def test_SoftwareInstance_getAllocationInformation_not_allocated(self):
     self._makeTree()

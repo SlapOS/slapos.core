@@ -27,6 +27,8 @@ import transaction
 class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
   """Tests instance.requestInstance"""
 
+  require_certificate = 1
+
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     portal = self.getPortalObject()
@@ -1050,6 +1052,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
 class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
   """Tests instance.requestTransfer"""
+  require_certificate = 1
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)

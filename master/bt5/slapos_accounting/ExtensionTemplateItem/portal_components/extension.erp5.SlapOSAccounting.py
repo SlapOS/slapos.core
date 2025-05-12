@@ -29,33 +29,10 @@ from lxml import etree
 from zExceptions import Unauthorized
 import pkg_resources
 from io import BytesIO
-import six
-from DateTime import DateTime
-from Products.ERP5Type.Utils import str2bytes, unicode2str
 
-if six.PY2:
-  def byteify(string):
-    if isinstance(string, dict):
-      return {
-        byteify(key): byteify(value)
-        for key, value in string.iteritems()
-      }
-    elif isinstance(string, list):
-      return [byteify(element) for element in string]
-    elif isinstance(string, tuple):
-      return tuple(byteify(element) for element in string)
-    elif isinstance(string, unicode):
-      return string.encode('utf-8')
-    elif isinstance(string, six.text_type):
-      return string.encode('utf-8')
-    else:
-      return string
-else:
-  def byteify(x):
-    # XXX RAFAEL Does this make sense?
-    if isinstance(x, unicode):
-      return str2bytes(unicode2str(x))
-    return x
+from DateTime import DateTime
+from Products.ERP5Type.Utils import str2bytes
+from erp5.component.module.JsonUtils import byteify
 
 def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
   """Call bang on self."""

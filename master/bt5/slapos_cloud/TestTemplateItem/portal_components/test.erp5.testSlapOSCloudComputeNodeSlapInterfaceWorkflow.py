@@ -24,6 +24,9 @@ from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
 
 
 class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
+
+  require_certificate = 1
+
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self.project = self.addProject()

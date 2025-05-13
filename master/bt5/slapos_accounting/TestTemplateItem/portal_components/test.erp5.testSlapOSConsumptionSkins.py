@@ -41,7 +41,7 @@ class TestSlapOSComputeNode_reportComputeNodeConsumption(SlapOSTestCaseMixinWith
 <movement>
 <resource>CPU Consumption</resource>
 <title>Title Consumption Delivery Line 1</title>
-<reference>slappart0</reference>
+<reference>FAKESOFTINST-0</reference>
 <quantity>42.42</quantity>
 <price>0.00</price>
 <VAT>None</VAT>
@@ -86,7 +86,7 @@ class TestSlapOSComputeNode_reportComputeNodeConsumption(SlapOSTestCaseMixinWith
 <movement>
 <resource>CPU Consumption</resource>
 <title>Title Consumption Delivery Line 1</title>
-<reference>slappart0</reference>
+<reference>FAKESOFTINST-0</reference>
 <quantity>42.42</quantity>
 <price>0.00</price>
 <VAT>None</VAT>
@@ -175,7 +175,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_parseXml(SlapOSTestCaseMixinWithAb
 <movement>
 <resource>CPU Consumptioné</resource>
 <title>Title Consumption Delivery Line 1</title>
-<reference>slappart0é</reference>
+<reference>FAKESOFTINST-0é</reference>
 <quantity>42.42</quantity>
 <price>0.00</price>
 <VAT>None</VAT>
@@ -191,7 +191,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_parseXml(SlapOSTestCaseMixinWithAb
       'stop_date': DateTime('1994/11/07 08:49:37 GMT'),
       'movement': [{
         'resource': 'CPU Consumptioné',
-        'reference': 'slappart0é',
+        'reference': 'FAKESOFTINST-0é',
         'quantity': 42.42,
         'category': "caté",
         'title': "Title Consumption Delivery Line 1",
@@ -217,7 +217,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_parseXml(SlapOSTestCaseMixinWithAb
 <movement>
 <resource>CPU Consumptioné</resource>
 <title>Title Consumption Delivery Line 1</title>
-<reference>slappart0é</reference>
+<reference>FAKESOFTINST-0é</reference>
 <quantity>42.42</quantity>
 <price>0.00</price>
 <VAT>None</VAT>
@@ -226,7 +226,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_parseXml(SlapOSTestCaseMixinWithAb
 <movement>
 <resource>CPU Consumptioné</resource>
 <title>Title Consumption Delivery Line 1</title>
-<reference>slappart0é</reference>
+<reference>FAKESOFTINST-0é</reference>
 <quantity>42.42</quantity>
 <price>0.00</price>
 <VAT>None</VAT>
@@ -242,13 +242,13 @@ class TestSlapOSComputerConsumptionTioXMLFile_parseXml(SlapOSTestCaseMixinWithAb
       'stop_date': DateTime('1994/11/07 08:49:37 GMT'),
       'movement': [{
         'resource': 'CPU Consumptioné',
-        'reference': 'slappart0é',
+        'reference': 'FAKESOFTINST-0é',
         'quantity': 42.42,
         'category': "caté",
         'title': "Title Consumption Delivery Line 1",
         },{
         'resource': 'CPU Consumptioné',
-        'reference': 'slappart0é',
+        'reference': 'FAKESOFTINST-0é',
         'quantity': 42.42,
         'category': "caté",
         'title': "Title Consumption Delivery Line 1",

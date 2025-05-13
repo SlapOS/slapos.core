@@ -179,7 +179,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     return delivery
 
 
-  def generateNewTioDict(self, service, partition, quantity):
+  def generateNewTioDict(self, service, instance, quantity):
     return {
       'title': 'Resource consumptionsé',
       'start_date': self._start_date,
@@ -187,7 +187,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
       'movement': [{
         'title': 'fooà',
         'resource': service,
-        'reference': partition.getReference(),
+        'reference': instance.getReference(),
         'quantity': quantity,
         'category': "caté",
       }],
@@ -401,160 +401,6 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
         instance.getRelativeUrl(),
         instance_tree.getRelativeUrl()
       ], person, service)
-
-  def test_generateConsumptionDelivery_valid_xml_one_movement(self):
-    person, compute_node, instance_tree, _, service = \
-      self.bootstrapGenerateConsumptionDeliveryTest()
-
-    instance = instance_tree.getSuccessorValue()
-    partition = instance.getAggregateValue()
-
-    self.logout()
-    self.login()
-    document = self.createTioXMLFile(compute_node)
-    self.tic()
-    self.assertEqual(document.getValidationState(), "submitted")
-
-    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), partition, 42.42)
-    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
-
-    delivery_line_list = delivery.contentValues(
-      portal_type="Consumption Delivery Line")
-    self.assertEqual(len(delivery_line_list), 1)
-    self.assertCreatedConsumptionDeliveryLine(
-      delivery_line_list[0], "fooà", 42.42, [
-        instance.getRelativeUrl(),
-        instance_tree.getRelativeUrl()
-      ], person, service)
-
-  def test_generateConsumptionDelivery_valid_xml_one_movement_partition2(self):
-    person, compute_node, _, instance_tree, service = \
-      self.bootstrapGenerateConsumptionDeliveryTest()
-
-    instance = instance_tree.getSuccessorValue()
-    partition = instance.getAggregateValue()
-
-    self.logout()
-    self.login()
-    document = self.createTioXMLFile(compute_node)
-    self.tic()
-    self.assertEqual(document.getValidationState(), "submitted")
-    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), partition, 43.43)
-    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
-
-    delivery_line_list = delivery.contentValues(
-      portal_type="Consumption Delivery Line")
-    self.assertEqual(len(delivery_line_list), 1)
-
-    self.assertCreatedConsumptionDeliveryLine(
-      delivery_line_list[0], "fooà", 43.43, [
-        instance.getRelativeUrl(),
-        instance_tree.getRelativeUrl()
-      ], person, service)
-
-  def test_generateConsumptionDelivery_valid_xml_two_movement(self):
-    person, compute_node, instance_tree, _ , service = \
-       self.bootstrapGenerateConsumptionDeliveryTest()
-
-    instance = instance_tree.getSuccessorValue()
-    partition = instance.getAggregateValue()
-
-    self.logout()
-    self.login()
-    document = self.createTioXMLFile(compute_node)
-    self.tic()
-    self.assertEqual(document.getValidationState(), "submitted")
-
-    tio_dict = {
-      'title': 'Resource consumptionsé',
-      'start_date': self._start_date,
-      'stop_date': self._stop_date,
-      'movement': [{
-        'title': 'fooà',
-        'resource': service.getRelativeUrl(),
-        'reference': partition.getReference(),
-        'quantity': 42.42,
-        'category': "caté",
-        },{
-        'title': 'foob',
-        'resource': service.getRelativeUrl(),
-        'reference': partition.getReference(),
-        'quantity': 24.24,
-        'category': "caté",
-      }],
-    }
-    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
-
-    delivery_line_list = delivery.contentValues(
-      portal_type="Consumption Delivery Line")
-    self.assertEqual(len(delivery_line_list), 2)
-
-    self.assertCreatedConsumptionDeliveryLine(
-      delivery_line_list[0], "fooà", 42.42, [
-        instance.getRelativeUrl(),
-        instance_tree.getRelativeUrl()
-      ], person, service)
-
-    self.assertCreatedConsumptionDeliveryLine(
-      delivery_line_list[1], "foob", 24.24, [
-        instance.getRelativeUrl(),
-        instance_tree.getRelativeUrl()
-      ], person, service)
-
-  def test_generateConsumptionDelivery_valid_xml_two_partitions(self):
-    person, compute_node, instance_tree, instance_tree2, service = \
-      self.bootstrapGenerateConsumptionDeliveryTest()
-
-    instance = instance_tree.getSuccessorValue()
-    partition = instance.getAggregateValue()
-
-    instance2 = instance_tree2.getSuccessorValue()
-    partition2 = instance2.getAggregateValue()
-
-    self.logout()
-    self.login()
-    document = self.createTioXMLFile(compute_node)
-    self.tic()
-    self.assertEqual(document.getValidationState(), "submitted")
-
-    tio_dict = {
-      'title': 'Resource consumptionsé',
-      'start_date': self._start_date,
-      'stop_date': self._stop_date,
-      'movement': [{
-        'title': 'fooà',
-        'resource': service.getRelativeUrl(),
-        'reference': partition.getReference(),
-        'quantity': 42.42,
-        'category': "caté",
-      },{
-        'title': 'foob',
-        'resource': service.getRelativeUrl(),
-        'reference': partition2.getReference(),
-        'quantity': 24.24,
-        'category': "caté",
-      }],
-    }
-    delivery = self.generateConsumptionDelivery(person, document, tio_dict)
-
-    delivery_line_list = delivery.contentValues(
-      portal_type="Consumption Delivery Line")
-    self.assertEqual(len(delivery_line_list), 2)
-
-    # Consumption Delivery Line 1
-    self.assertCreatedConsumptionDeliveryLine(
-      delivery_line_list[0], "fooà", 42.42, [
-        instance.getRelativeUrl(),
-        instance_tree.getRelativeUrl()
-      ], person, service)
-
-    # Consumption Delivery Line 2
-    self.assertCreatedConsumptionDeliveryLine(
-      delivery_line_list[1], "foob", 24.24, [
-        instance2.getRelativeUrl(),
-        instance_tree2.getRelativeUrl()
-      ], person, service)
-
 
   def test_generateConsumptionDelivery_valid_xml_slave_instance_reference(self):
     person, compute_node, instance_tree, instance_tree_slave, service = \

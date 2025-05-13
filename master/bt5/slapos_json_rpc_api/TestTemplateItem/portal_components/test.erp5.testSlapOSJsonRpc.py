@@ -62,6 +62,7 @@ class TestSlapOSJsonRpcMixin(SlapOSTestCaseMixin):
     self._cleaupREQUEST()
 
 class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
+  require_certificate = 1
   def test_ComputeNodeAccess_01_getFullComputerInformationInstanceList(self):
     with PortalAlarmDisabled(self.portal):
       project = self.addProject()
@@ -520,6 +521,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
 
 
 class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
+  require_certificate = 1
   def test_InstanceAccess_10_getComputerPartitionCertificate(self):
     _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
     instance = instance_tree.getSuccessorValue()
@@ -1390,6 +1392,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
 
 
 class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
+  require_certificate = 1
 
   def test_PersonAccess_30_computerBang(self):
     error_log = 'Please force slapos node rerun'

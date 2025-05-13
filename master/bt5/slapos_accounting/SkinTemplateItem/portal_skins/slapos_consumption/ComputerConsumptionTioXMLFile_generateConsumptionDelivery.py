@@ -56,56 +56,32 @@ for movement in tioxml_dict["movement"]:
     aggregate_value_list = [item]
   elif reporter.getPortalType() == 'Compute Node':
     # Otherwise it was an instance or slave instance
-    instance = None
     compute_node = reporter
 
-    # Backward compability while report, the computer
-    # uses slapuser while the partition reference is slappart.
-    if reference.startswith("slapuser"):
-      reference = reference.replace("slapuser", "slappart")
-
-    # Find the partition / software instance / user
-    partition = portal.portal_catalog.getResultValue(
+    # Use reference to search
+    instance_list = portal.portal_catalog(
       reference=reference,
-      parent_uid=compute_node.getUid(),
-      portal_type="Compute Partition")
+      portal_type=["Software Instance", "Slave Instance"],
+      validation_state="validated")
 
-    if partition is not None:
-      if partition.getSlapState() != 'busy':
-        # Instance was already detached
-        return rejectWithComment(
-          "Reported consumption for an unattach partition (%s)" % (reference))
+    if len(instance_list) == 0:
+      return rejectWithComment(
+        "Reported consumption for an unknown partition (%s)" % (reference))
 
-      instance = portal.portal_catalog.getResultValue(
-        default_aggregate_uid=partition.getUid(),
-        portal_type="Software Instance",
-        validation_state="validated")
+    if len(instance_list) > 1:
+      # The instance is too inconsistent to continue.
+      raise ValueError(
+        "Multiple instances found for %s (%s)" % (reference, len(instance_list)))
 
-    if instance is None:
-      # Use reference to search
-      instance_list = portal.portal_catalog(
-        reference=reference,
-        portal_type=["Software Instance", "Slave Instance"],
-        validation_state="validated")
+    instance = instance_list[0]
+    partition = instance.getAggregateValue(portal_type="Compute Partition")
+    if partition is None:
+      return rejectWithComment("Bad reference found (%s)." % (reference))
 
-      if len(instance_list) == 0:
-        return rejectWithComment(
-          "Reported consumption for an unknown partition (%s)" % (reference))
-
-      if len(instance_list) > 1:
-        # The instance is too inconsistent to continue.
-        raise ValueError(
-          "Multiple instances found for %s (%s)" % (reference, len(instance_list)))
-
-      instance = instance_list[0]
-      partition = instance.getAggregateValue(portal_type="Compute Partition")
-      if partition is None:
-        return rejectWithComment("Bad reference found (%s)." % (reference))
-
-      if partition.getParentValue() != compute_node:
-        # Probably not enough, we are trusting computer is providing proper values.
-        return rejectWithComment(
-          "You found an instance outside the compute node partitions (%s)." % (reference))
+    if partition.getParentValue() != compute_node:
+      # Probably not enough, we are trusting computer is providing proper values.
+      return rejectWithComment(
+        "You found an instance outside the compute node partitions (%s)." % (reference))
 
     if project_value.getUid() != instance.getFollowUpUid(portal_type='Project'):
       return rejectWithComment("Project configuration is inconsistent.")
@@ -157,7 +133,7 @@ for movement in tioxml_dict["movement"]:
     resource_value_list = portal.portal_catalog(
       portal_type='Service',
         reference=resource,
-        validation_state="Validated",
+        validation_state="validated",
         limit=2)
     if len(resource_value_list) > 1:
       return rejectWithComment(
@@ -166,19 +142,22 @@ for movement in tioxml_dict["movement"]:
     if len(resource_value_list) == 1:
       resource_value = resource_value_list[0]
 
-    if resource_value is None or resource_value.getPortalType() != "Service":
-      return rejectWithComment("%s service is not found or not configured." % resource)
+    if resource_value is None or resource_value.getPortalType() != "Service" or resource_value.getValidationState() != 'validated':
+      return rejectWithComment("%s service is not found or not configured or not validated." % resource)
 
   # Dummy index a while we dont use builder probably
   mindex = "%s-%s" % (project_value.getUid(), destination_decision_value.getUid())
   movement_dict.setdefault(mindex, [])
+  quantity = movement['quantity']
+  if not quantity:
+    return rejectWithComment("Invalid quantity (%s) for %s." % (quantity, movement['title']))
   movement_dict[mindex].append(dict(
                        open_sale_order_movement=open_sale_order_movement,
                        title=movement['title'],
                        project=project_value,
                        person=destination_decision_value,
-                       # Quantity is recorded here as negative
-                       quantity=movement['quantity'],
+                       # Quantity is recorded here as nqegative
+                       quantity=quantity,
                        # Should I aggregate instance?
                        aggregate_value_list=aggregate_value_list,
                        resource_value=resource_value))

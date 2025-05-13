@@ -364,7 +364,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     <movement>
       <resource>%(service_relative_url)s</resource>
       <title>%(service_title)s</title>
-      <reference>%(partition_reference)s</reference>
+      <reference>%(software_instance_reference)s</reference>
       <quantity>29</quantity>
       <price>0.0</price>
       <VAT/>
@@ -373,7 +373,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     <movement>
       <resource>%(service_relative_url)s</resource>
       <title>%(service_title)s</title>
-      <reference>%(partition_reference2)s</reference>
+      <reference>%(software_instance_reference2)s</reference>
       <quantity>29</quantity>
       <price>0.0</price>
       <VAT/>
@@ -381,8 +381,8 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     </movement>
   </transaction>
 </journal>""" % ({
-        'partition_reference': partition.getReference(),
-        'partition_reference2': partition2.getReference(),
+        'software_instance_reference': software_instance.getReference(),
+        'software_instance_reference2': software_instance2.getReference(),
         'compute_node_reference': public_server.getReference(),
         'service_relative_url': consumption_service.getRelativeUrl(),
         'service_title': consumption_service.getTitle()})
@@ -424,7 +424,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     <movement>
       <resource>%(service_relative_url)s</resource>
       <title>%(service_title)s</title>
-      <reference>%(partition_reference)s</reference>
+      <reference>%(software_instance_reference)s</reference>
       <quantity>23</quantity>
       <price>0.0</price>
       <VAT/>
@@ -433,7 +433,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     <movement>
       <resource>%(service_relative_url)s</resource>
       <title>%(service_title)s</title>
-      <reference>%(partition_reference2)s</reference>
+      <reference>%(software_instance_reference2)s</reference>
       <quantity>23</quantity>
       <price>0.0</price>
       <VAT/>
@@ -441,8 +441,8 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     </movement>
   </transaction>
 </journal>""" % ({
-        'partition_reference': partition.getReference(),
-        'partition_reference2': partition2.getReference(),
+        'software_instance_reference': software_instance.getReference(),
+        'software_instance_reference2': software_instance2.getReference(),
         'compute_node_reference': public_server.getReference(),
         'service_relative_url': consumption_service.getRelativeUrl(),
         'service_title': consumption_service.getTitle()})
@@ -621,7 +621,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     <movement>
       <resource>%(service_relative_url)s</resource>
       <title>%(service_title)s</title>
-      <reference>%(partition_reference)s</reference>
+      <reference>%(software_instance_reference)s</reference>
       <quantity>29.12</quantity>
       <price>0.0</price>
       <VAT/>
@@ -629,7 +629,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     </movement>
   </transaction>
 </journal>""" % ({
-        'partition_reference': partition.getReference(),
+        'software_instance_reference': software_instance.getReference(),
         'compute_node_reference': public_server.getReference(),
         'service_relative_url': consumption_service.getRelativeUrl(),
         'service_title': consumption_service.getTitle()})
@@ -683,7 +683,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     <movement>
       <resource>%(service_relative_url)s</resource>
       <title>%(service_title)s</title>
-      <reference>%(partition_reference2)s</reference>
+      <reference>%(software_instance_reference2)s</reference>
       <quantity>29.12</quantity>
       <price>0.0</price>
       <VAT/>
@@ -691,8 +691,8 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     </movement>
   </transaction>
 </journal>""" % ({
-        'partition_reference': partition.getReference(),
-        'partition_reference2': partition2.getReference(),
+        'software_instance_reference': software_instance.getReference(),
+        'software_instance_reference2': software_instance2.getReference(),
         'compute_node_reference': public_server.getReference(),
         'service_relative_url': consumption_service.getRelativeUrl(),
         'service_title': consumption_service.getTitle()})

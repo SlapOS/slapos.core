@@ -396,10 +396,10 @@ class ConsumptionReport(ConsumptionReportBase):
 
      transaction = journal.newTransaction()
 
-     journal.setProperty(transaction, "title", "Eco Information for %s " % self.computer_id)
+     journal.setProperty(transaction, "title", "Consumption Information for %s " % self.computer_id)
      journal.setProperty(transaction, "start_date", "%s 00:00:00" % date_scope)
      journal.setProperty(transaction, "stop_date", "%s 23:59:59" % date_scope)
-   
+
      journal.setProperty(transaction, "reference", "%s-global" % date_scope)
 
      journal.setProperty(transaction, "currency", "")

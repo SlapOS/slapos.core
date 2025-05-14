@@ -30,5 +30,3 @@ if monitor_enabled_category is not None:
     # Increase priority to not block other activities
     activate_kw={'tag': tag, 'priority': 2}
   )
-
-project.activate(after_tag=tag).getId()

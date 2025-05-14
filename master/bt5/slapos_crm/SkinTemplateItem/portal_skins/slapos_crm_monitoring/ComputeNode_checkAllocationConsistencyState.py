@@ -54,7 +54,8 @@ for non_consistent_node_relative_url in all_node_error_dict:
   """ % non_consistent_node.getPortalType()
 
   for sofware_release_url in compute_node_error_dict:
-    message += """   * Software Release: %s
+    message += """
+    * Software Release: %s
 """ % sofware_release_url
     for sofware_type, instance in six.iteritems(compute_node_error_dict[sofware_release_url]):
       message += """     * Software Type: %s (ie: %s)

@@ -409,16 +409,6 @@ class ConsumptionReport(ConsumptionReportBase):
      arrow = ElementTree.SubElement(transaction, "arrow")
      arrow.set("type", "Destination")
 
-     cpu_load_percent = self._getCpuLoadAverageConsumption(date_scope)
-
-     if cpu_load_percent is not None:
-       journal.newMovement(transaction, 
-                           resource="service_module/cpu_load_percent",
-                           title="CPU Load Percent Average",
-                           quantity=str(cpu_load_percent), 
-                           reference=self.computer_id,
-                           category="")
-
      memory_used = self._getMemoryAverageConsumption(date_scope)
 
      if memory_used is not None:
@@ -437,16 +427,6 @@ class ConsumptionReport(ConsumptionReportBase):
                            quantity=str(self._getZeroEmissionContribution()), 
                            reference=self.computer_id, 
                            category="")
-
-     for user in self.user_list:
-       partition_cpu_load_percent = self.getPartitionCPULoadAverage(user, date_scope)
-       if partition_cpu_load_percent is not None:
-         journal.newMovement(transaction,
-                             resource="service_module/cpu_load_percent",
-                             title="CPU Load Percent Average for %s" % (user),
-                             quantity=str(partition_cpu_load_percent),
-                             reference=user,
-                             category="")
 
      mb = float(2 ** 20)
      for user in self.user_list:
@@ -474,12 +454,6 @@ class ConsumptionReport(ConsumptionReportBase):
        f.close()
 
      return xml_report_path
-
-  @withDB
-  def _getCpuLoadAverageConsumption(self, date_scope):
-    (cpu_load_percent_list,), = self.db.select("system", date_scope,
-                       columns="SUM(cpu_percent)/COUNT(cpu_percent)")
-    return cpu_load_percent_list
 
   @withDB
   def _getMemoryAverageConsumption(self, date_scope):

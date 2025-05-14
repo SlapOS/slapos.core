@@ -43,6 +43,7 @@ config = getConfiguration()
 class testSlapOSMixin(ERP5TypeTestCase):
 
   abort_transaction = 0
+  require_certificate = 0
 
   def clearCache(self):
     self.portal.portal_caches.clearAllCache()
@@ -170,7 +171,9 @@ class testSlapOSMixin(ERP5TypeTestCase):
 
     if self.isLiveTest():
       return
-    self.createCertificateAuthorityFile() 
+    if self.require_certificate:
+      self.createCertificateAuthorityFile()
+
     self.commit()
     self.portal.portal_caches.updateCache()
 

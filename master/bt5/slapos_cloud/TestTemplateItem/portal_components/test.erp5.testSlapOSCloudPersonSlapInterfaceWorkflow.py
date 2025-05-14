@@ -25,6 +25,7 @@ from AccessControl.SecurityManagement import getSecurityManager, \
 
 class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
 
+  require_certificate = 1
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
 

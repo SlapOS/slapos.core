@@ -464,7 +464,7 @@ class ConsumptionReport(ConsumptionReportBase):
 
   @withDB
   def _getZeroEmissionContribution(self):
-    return self.db.getLastZeroEmissionRatio()  
+    return self.db.getLastZeroEmissionRatio()
 
 class Journal(object):
 

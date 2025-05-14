@@ -429,8 +429,8 @@ class ConsumptionReport(ConsumptionReportBase):
                            reference=self.computer_id,
                            category="")
 
-
-     if self._getZeroEmissionContribution() is not None:
+     zero_emission_contribution = self._getZeroEmissionContribution()
+     if zero_emission_contribition is not None and zero_emission_contribition > 0:
        journal.newMovement(transaction, 
                            resource="service_module/zero_emission_ratio",
                            title="Zero Emission Ratio",

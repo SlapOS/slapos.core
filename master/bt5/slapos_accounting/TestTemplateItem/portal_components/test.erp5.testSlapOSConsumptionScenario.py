@@ -205,7 +205,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     <category/>
     <arrow type="Destination"/>
     <movement>
-      <resource>%(service_relative_url)s</resource>
+      <resource>%(service_reference)s</resource>
       <title>%(service_title)s</title>
       <reference>%(compute_node_reference)s</reference>
       <quantity>27.266539196940727</quantity>
@@ -216,7 +216,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
   </transaction>
 </journal>""" % ({
         'compute_node_reference': public_server.getReference(),
-        'service_relative_url': consumption_service.getRelativeUrl(),
+        'service_reference': consumption_service.getReference(),
         'service_title': consumption_service.getTitle()})
 
       compute_node_consumption_model = \
@@ -362,7 +362,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     <category/>
     <arrow type="Destination"/>
     <movement>
-      <resource>%(service_relative_url)s</resource>
+      <resource>%(service_reference)s</resource>
       <title>%(service_title)s</title>
       <reference>%(software_instance_reference)s</reference>
       <quantity>29</quantity>
@@ -371,7 +371,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
       <category/>
     </movement>
     <movement>
-      <resource>%(service_relative_url)s</resource>
+      <resource>%(service_reference)s</resource>
       <title>%(service_title)s</title>
       <reference>%(software_instance_reference2)s</reference>
       <quantity>29</quantity>
@@ -384,7 +384,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
         'software_instance_reference': software_instance.getReference(),
         'software_instance_reference2': software_instance2.getReference(),
         'compute_node_reference': public_server.getReference(),
-        'service_relative_url': consumption_service.getRelativeUrl(),
+        'service_reference': consumption_service.getReference(),
         'service_title': consumption_service.getTitle()})
 
       compute_node_consumption_model = \
@@ -422,7 +422,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     <category/>
     <arrow type="Destination"/>
     <movement>
-      <resource>%(service_relative_url)s</resource>
+      <resource>%(service_reference)s</resource>
       <title>%(service_title)s</title>
       <reference>%(software_instance_reference)s</reference>
       <quantity>23</quantity>
@@ -431,7 +431,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
       <category/>
     </movement>
     <movement>
-      <resource>%(service_relative_url)s</resource>
+      <resource>%(service_reference)s</resource>
       <title>%(service_title)s</title>
       <reference>%(software_instance_reference2)s</reference>
       <quantity>23</quantity>
@@ -444,7 +444,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
         'software_instance_reference': software_instance.getReference(),
         'software_instance_reference2': software_instance2.getReference(),
         'compute_node_reference': public_server.getReference(),
-        'service_relative_url': consumption_service.getRelativeUrl(),
+        'service_reference': consumption_service.getReference(),
         'service_title': consumption_service.getTitle()})
 
       compute_node_consumption_model = \
@@ -619,7 +619,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     <category/>
     <arrow type="Destination"/>
     <movement>
-      <resource>%(service_relative_url)s</resource>
+      <resource>%(service_reference)s</resource>
       <title>%(service_title)s</title>
       <reference>%(software_instance_reference)s</reference>
       <quantity>29.12</quantity>
@@ -631,7 +631,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
 </journal>""" % ({
         'software_instance_reference': software_instance.getReference(),
         'compute_node_reference': public_server.getReference(),
-        'service_relative_url': consumption_service.getRelativeUrl(),
+        'service_reference': consumption_service.getReference(),
         'service_title': consumption_service.getTitle()})
 
       compute_node_consumption_model = \
@@ -681,7 +681,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     <category/>
     <arrow type="Destination"/>
     <movement>
-      <resource>%(service_relative_url)s</resource>
+      <resource>%(service_reference)s</resource>
       <title>%(service_title)s</title>
       <reference>%(software_instance_reference2)s</reference>
       <quantity>29.12</quantity>
@@ -694,7 +694,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
         'software_instance_reference': software_instance.getReference(),
         'software_instance_reference2': software_instance2.getReference(),
         'compute_node_reference': public_server.getReference(),
-        'service_relative_url': consumption_service.getRelativeUrl(),
+        'service_reference': consumption_service.getReference(),
         'service_title': consumption_service.getTitle()})
 
       # Ensure what is written above is valid

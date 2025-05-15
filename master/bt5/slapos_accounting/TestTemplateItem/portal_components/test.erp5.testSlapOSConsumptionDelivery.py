@@ -291,7 +291,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
       result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
     self.assertEqual(document.getValidationState(), "rejected")
     self.assertWorkflowComment(document,
-                    'Reported consumption for an unknown partition (RANDOMREF)')
+                    'Reported consumption for an unknown item (RANDOMREF)')
     self.assertEqual(result, [])
 
   def test_generateConsumptionDelivery_valid_xml_unknown_reference(self):
@@ -311,8 +311,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
       result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
     self.assertEqual(document.getValidationState(), "rejected")
     self.assertWorkflowComment(document,
-      '%s reported a consumption for RANDOMREF which is not supported.' % \
-      (instance.getRelativeUrl()))
+                     'Reported consumption for an unknown item (RANDOMREF)')
     self.assertEqual(result, [])
 
   def test_generateConsumptionDelivery_valid_xml_cross_report(self):
@@ -375,7 +374,6 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     self.assertEqual(len(delivery_line_list), 1)
     self.assertCreatedConsumptionDeliveryLine(
       delivery_line_list[0], "fooà", 42.42, [
-        instance.getRelativeUrl(),
         instance_tree.getRelativeUrl()
       ], person, service)
 
@@ -398,7 +396,6 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     self.assertEqual(len(delivery_line_list), 1)
     self.assertCreatedConsumptionDeliveryLine(
       delivery_line_list[0], "fooà", 42.42, [
-        instance.getRelativeUrl(),
         instance_tree.getRelativeUrl()
       ], person, service)
 
@@ -437,13 +434,11 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     self.assertEqual(len(delivery_line_list), 2)
     self.assertCreatedConsumptionDeliveryLine(
       delivery_line_list[0], "fooà", 42.42, [
-        instance.getRelativeUrl(),
         instance_tree.getRelativeUrl()
       ], person, service)
 
     self.assertCreatedConsumptionDeliveryLine(
       delivery_line_list[1], "barà", 10.10, [
-        slave_instance.getRelativeUrl(),
         instance_tree_slave.getRelativeUrl()
       ], person, service)
 
@@ -465,8 +460,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     self.assertEqual(len(delivery_line_list), 1)
     self.assertCreatedConsumptionDeliveryLine(
       delivery_line_list[0], "fooà", 10.10, [
-        instance_tree.getRelativeUrl(),
-        instance.getRelativeUrl()
+        instance_tree.getRelativeUrl()
       ], person, service)
 
   def test_generateConsumptionDelivery_valid_xml_instance_two_movement(self):
@@ -495,12 +489,10 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
 
     self.assertCreatedConsumptionDeliveryLine(
       delivery_line_list[0], "fooà", 42.42, [
-        instance.getRelativeUrl(),
         instance_tree.getRelativeUrl()
       ], person, service)
 
     self.assertCreatedConsumptionDeliveryLine(
       delivery_line_list[1], "foob", 24.24, [
-        instance.getRelativeUrl(),
         instance_tree.getRelativeUrl()
       ], person, service)

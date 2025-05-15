@@ -48,61 +48,52 @@ for movement in tioxml_dict["movement"]:
   if reference is None:
     return rejectWithComment("One of Movement has no reference.")
 
-  # Consumption was provided for the computer
-  if reporter.getPortalType() == 'Compute Node' and \
-                  reporter.getReference() == reference:
-    item = reporter
-    destination_decision_value = project_value.getDestinationValue(portal_type="Person")
-    aggregate_value_list = [item]
-  elif reporter.getPortalType() == 'Compute Node':
-    # Otherwise it was an instance or slave instance
-    compute_node = reporter
+  # Use reference to search
+  item_list = portal.portal_catalog(
+    reference=reference,
+    portal_type=["Software Instance", "Slave Instance", 'Compute Node'],
+    validation_state="validated",
+    limit=2)
 
-    # Use reference to search
-    instance_list = portal.portal_catalog(
-      reference=reference,
-      portal_type=["Software Instance", "Slave Instance"],
-      validation_state="validated")
+  if len(item_list) == 0:
+    return rejectWithComment(
+        "Reported consumption for an unknown item (%s)" % (reference))
 
-    if len(instance_list) == 0:
-      return rejectWithComment(
-        "Reported consumption for an unknown partition (%s)" % (reference))
+  if len(item_list) > 1:
+    # The items are too inconsistent to continue.
+    raise ValueError(
+        "Multiple items found for %s (%s)" % (reference, len(item_list)))
 
-    if len(instance_list) > 1:
-      # The instance is too inconsistent to continue.
-      raise ValueError(
-        "Multiple instances found for %s (%s)" % (reference, len(instance_list)))
+  item = item_list[0]
 
-    instance = instance_list[0]
-    partition = instance.getAggregateValue(portal_type="Compute Partition")
-    if partition is None:
-      return rejectWithComment("Bad reference found (%s)." % (reference))
-
-    if partition.getParentValue() != compute_node:
-      # Probably not enough, we are trusting computer is providing proper values.
-      return rejectWithComment(
-        "You found an instance outside the compute node partitions (%s)." % (reference))
-
-    if project_value.getUid() != instance.getFollowUpUid(portal_type='Project'):
-      return rejectWithComment("Project configuration is inconsistent.")
-
-    item = instance.getSpecialiseValue(portal_type="Instance Tree")
-    destination_decision_value = item.getDestinationSectionValue(portal_type="Person")
-    aggregate_value_list = [item, instance]
-    if item is None:
-      return rejectWithComment("Instance has no Instance Tree %s" % (instance.getReference()))
-
-  elif reporter.getPortalType() == "Software Instance" and \
-                        reporter.getReference() == reference:
-    item = reporter.getSpecialiseValue(portal_type="Instance Tree")
-    destination_decision_value = item.getDestinationSectionValue(portal_type="Person")
-    aggregate_value_list = [item, reporter]
-    if item is None:
-      return rejectWithComment("Instance has no Instance Tree %s" % (instance.getReference()))
-
-  else:
+  if (reporter.getReference() != reference and item.getPortalType() not in ['Software Instance', 'Slave Instance']) or \
+     (reporter.getPortalType() == "Software Instance" and reporter.getReference() != item.getReference()):
     return rejectWithComment("%s reported a consumption for %s which is not supported." % \
       (reporter.getRelativeUrl(), reference))
+
+  # Consumption was provided for the computer
+  if item.getPortalType() == 'Compute Node':
+    destination_decision_value = project_value.getDestinationValue(portal_type="Person")
+  else:
+    # Ensure that the report only contains its own instances
+    if reporter.getPortalType() == 'Compute Node':
+      partition = item.getAggregateValue(portal_type="Compute Partition")
+      if partition is None or partition.getParentValue() != reporter:
+        return rejectWithComment(
+           "You found an instance outside the compute node partitions (%s)." % (reference))
+
+    if project_value.getUid() != item.getFollowUpUid(portal_type='Project'):
+      # TODO: Is there a use case for this?
+      return rejectWithComment("Project configuration is inconsistent.")
+
+    instance_tree = item.getSpecialiseValue(portal_type="Instance Tree")
+    if instance_tree is None:
+      return rejectWithComment("Instance has no Instance Tree %s" % (item.getReference()))
+    destination_decision_value = instance_tree.getDestinationSectionValue(portal_type="Person")
+
+    # We use Instance tree rather them the instance
+    item = instance_tree
+
 
   # If no open order, subscription must be approved
   open_sale_order_movement_list = portal.portal_catalog(
@@ -129,10 +120,8 @@ for movement in tioxml_dict["movement"]:
   # Reference was used, rather them legacy path
   resource_value = None
   resource_value_list = portal.portal_catalog(
-      portal_type='Service',
-      reference=resource,
-      validation_state="validated",
-      limit=2)
+      portal_type='Service', reference=resource,
+      validation_state="validated", limit=2)
 
   if not len(resource_value_list):
     return rejectWithComment("%s service is not found" % resource)
@@ -155,8 +144,7 @@ for movement in tioxml_dict["movement"]:
                        person=destination_decision_value,
                        # Quantity is recorded here as nqegative
                        quantity=quantity,
-                       # Should I aggregate instance?
-                       aggregate_value_list=aggregate_value_list,
+                       aggregate_value=item,
                        resource_value=resource_value))
 
 module = portal.portal_trash
@@ -212,7 +200,7 @@ for movement_entry in six.itervalues(movement_dict):
       portal_type="Consumption Delivery Line",
       title=movement['title'],
       quantity=movement['quantity'],
-      aggregate_value_list=movement['aggregate_value_list'],
+      aggregate_value=movement['aggregate_value'],
       resource_value=resource_value,
       quantity_unit=resource_value.getQuantityUnit(),
       base_contribution_list=resource_value.getBaseContributionList(),

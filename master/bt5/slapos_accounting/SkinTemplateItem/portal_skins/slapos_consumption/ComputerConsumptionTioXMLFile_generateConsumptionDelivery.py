@@ -125,25 +125,22 @@ for movement in tioxml_dict["movement"]:
 
   if not resource:
     return rejectWithComment("Movement without resource (%s)" % movement['title'])
-  try:
-    resource_value = portal.restrictedTraverse(resource)
-  except KeyError:
-    # Reference was used, rather them legacy path
-    resource_value = None
-    resource_value_list = portal.portal_catalog(
+
+  # Reference was used, rather them legacy path
+  resource_value = None
+  resource_value_list = portal.portal_catalog(
       portal_type='Service',
-        reference=resource,
-        validation_state="validated",
-        limit=2)
-    if len(resource_value_list) > 1:
-      return rejectWithComment(
-          "%s too many services found for %s" % resource)
+      reference=resource,
+      validation_state="validated",
+      limit=2)
 
-    if len(resource_value_list) == 1:
-      resource_value = resource_value_list[0]
+  if not len(resource_value_list):
+    return rejectWithComment("%s service is not found" % resource)
 
-    if resource_value is None or resource_value.getPortalType() != "Service" or resource_value.getValidationState() != 'validated':
-      return rejectWithComment("%s service is not found or not configured or not validated." % resource)
+  if len(resource_value_list) > 1:
+    return rejectWithComment("%s too many services found for %s" % resource)
+
+  resource_value = resource_value_list[0]
 
   # Dummy index a while we dont use builder probably
   mindex = "%s-%s" % (project_value.getUid(), destination_decision_value.getUid())

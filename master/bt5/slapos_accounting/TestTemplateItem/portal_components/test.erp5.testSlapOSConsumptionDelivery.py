@@ -249,7 +249,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     document = self.createTioXMLFile(compute_node)
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
-    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), compute_node, 10.10)
+    tio_dict = self.generateNewTioDict(service.getReference(), compute_node, 10.10)
     with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
                               tio_dict, attribute='comment'):
       with PinnedDateTime(self, DateTime('2023/12/20')):
@@ -267,7 +267,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     document = self.createTioXMLFile(compute_node)
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
-    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), compute_node, 10.10)
+    tio_dict = self.generateNewTioDict(service.getReference(), compute_node, 10.10)
     del tio_dict['movement'][0]['reference']
     with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
                               tio_dict, attribute='comment'):
@@ -284,7 +284,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     document = self.createTioXMLFile(compute_node)
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
-    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), compute_node, 10.10)
+    tio_dict = self.generateNewTioDict(service.getReference(), compute_node, 10.10)
     tio_dict['movement'][0]['reference'] = 'RANDOMREF'
     with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
                               tio_dict, attribute='comment'):
@@ -304,7 +304,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     document = self.createTioXMLFile(instance)
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
-    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), compute_node, 10.10)
+    tio_dict = self.generateNewTioDict(service.getReference(), compute_node, 10.10)
     tio_dict['movement'][0]['reference'] = 'RANDOMREF'
     with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
                               tio_dict, attribute='comment'):
@@ -326,7 +326,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     document = self.createTioXMLFile(instance_a)
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
-    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), instance_b, 10.10)
+    tio_dict = self.generateNewTioDict(service.getReference(), instance_b, 10.10)
     with TemporaryAlarmScript(self.portal, 'ComputerConsumptionTioXMLFile_parseXml',
                               tio_dict, attribute='comment'):
       result = document.ComputerConsumptionTioXMLFile_generateConsumptionDelivery()
@@ -345,7 +345,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
 
-    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), compute_node, 10.10)
+    tio_dict = self.generateNewTioDict(service.getReference(), compute_node, 10.10)
     delivery = self.generateConsumptionDelivery(person, document, tio_dict)
 
     delivery_line_list = delivery.contentValues(
@@ -367,7 +367,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
 
-    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), instance, 42.42)
+    tio_dict = self.generateNewTioDict(service.getReference(), instance, 42.42)
     delivery = self.generateConsumptionDelivery(person, document, tio_dict)
 
     delivery_line_list = delivery.contentValues(
@@ -419,13 +419,13 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
       'stop_date': self._stop_date,
       'movement': [{
         'title': 'fooà',
-        'resource': service.getRelativeUrl(),
+        'resource': service.getReference(),
         'reference': instance.getReference(),
         'quantity': 42.42,
         'category': "caté",
       }, {
         'title': 'barà',
-        'resource': service.getRelativeUrl(),
+        'resource': service.getReference(),
         'reference': slave_instance.getReference(),
         'quantity': 10.10,
         'category': "caté",
@@ -457,7 +457,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     document = self.createTioXMLFile(instance)
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
-    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), instance, 10.10)
+    tio_dict = self.generateNewTioDict(service.getReference(), instance, 10.10)
     delivery = self.generateConsumptionDelivery(person, document, tio_dict)
 
     delivery_line_list = delivery.contentValues(
@@ -480,10 +480,10 @@ class TestSlapOSComputerConsumptionTioXMLFile_generateConsumptionDelivery(
     document = self.createTioXMLFile(instance)
     self.tic()
     self.assertEqual(document.getValidationState(), "submitted")
-    tio_dict = self.generateNewTioDict(service.getRelativeUrl(), instance, 42.42)
+    tio_dict = self.generateNewTioDict(service.getReference(), instance, 42.42)
     tio_dict['movement'].append({
       'title': 'foob',
-      'resource': service.getRelativeUrl(),
+      'resource': service.getReference(),
       'reference': instance.getReference(),
       'quantity': 24.24,
       'category': "caté",

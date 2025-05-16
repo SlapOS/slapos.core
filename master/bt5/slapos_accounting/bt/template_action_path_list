@@ -16,6 +16,12 @@ Consumption Delivery | profile_view
 Consumption Delivery | view
 Consumption Delivery | view_stock
 Consumption Document Module | view
+Consumption Supply Line | slapos_panel_view
+Consumption Supply Line | view
+Consumption Supply Module | slapos_panel_view
+Consumption Supply Module | view
+Consumption Supply | slapos_panel_view
+Consumption Supply | view
 Hosting Subscription | periodicity
 Instance Tree | jump_to_related_open_order_line
 Organisation | create_slapos_credit_note_sale_invoice_transaction

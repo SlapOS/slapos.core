@@ -82,7 +82,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
       return
 
     ca_path = os.path.join(os.environ['TEST_CA_PATH'],
-                           self.__class__.__name__)
+          self.__class__.__module__, self.__class__.__name__)
 
     if os.path.exists(ca_path):
       shutil.rmtree(ca_path)

@@ -14,7 +14,6 @@ def rejectWithComment(comment):
 if document.getValidationState() != 'submitted':
   return result
 
-# What happens if Contributor is Person?
 reporter = document.getContributorValue(
   portal_type=["Compute Node", "Software Instance"])
 
@@ -28,25 +27,17 @@ if project_value is None:
     "Unknown project for %s." % reporter.getReference())
 
 try:
-  tioxml_dict = document.ComputerConsumptionTioXMLFile_parseXml()
-except KeyError:
-  return rejectWithComment("Fail to parse the XML!")
-
-if tioxml_dict is None:
-  return rejectWithComment("Not usable TioXML data")
+  tioxml_dict = document.ComputerConsumptionTioXMLFile_getParsedXMLDict()
+except ValueError as v:
+  return rejectWithComment(str(v))
 
 # This is mandatory so we expect to fail if not set
 start_date = tioxml_dict['start_date']
 stop_date = tioxml_dict['stop_date']
 
-if stop_date > DateTime():
-  return rejectWithComment("You cannot invoice future consumption %s" % stop_date)
-
 movement_dict = {}
 for movement in tioxml_dict["movement"]:
-  reference = movement.get('reference', None)
-  if reference is None:
-    return rejectWithComment("One of Movement has no reference.")
+  reference = movement['reference']
 
   # Use reference to search
   item_list = portal.portal_catalog(
@@ -55,14 +46,9 @@ for movement in tioxml_dict["movement"]:
     validation_state="validated",
     limit=2)
 
-  if len(item_list) == 0:
+  if len(item_list) != 1:
     return rejectWithComment(
-        "Reported consumption for an unknown item (%s)" % (reference))
-
-  if len(item_list) > 1:
-    # The items are too inconsistent to continue.
-    raise ValueError(
-        "Multiple items found for %s (%s)" % (reference, len(item_list)))
+        "Reported consumption for an unknown item (%s, found: %s) " % (reference, len(item_list)))
 
   item = item_list[0]
 
@@ -73,14 +59,19 @@ for movement in tioxml_dict["movement"]:
 
   # Consumption was provided for the computer
   if item.getPortalType() == 'Compute Node':
-    destination_decision_value = project_value.getDestinationValue(portal_type="Person")
+    destination_value = project_value.getDestinationValue(portal_type="Person")
+    node = item
   else:
     # Ensure that the report only contains its own instances
-    if reporter.getPortalType() == 'Compute Node':
-      partition = item.getAggregateValue(portal_type="Compute Partition")
-      if partition is None or partition.getParentValue() != reporter:
-        return rejectWithComment(
-           "You found an instance outside the compute node partitions (%s)." % (reference))
+    partition = item.getAggregateValue(portal_type="Compute Partition")
+    if partition is None:
+      return rejectWithComment(
+           "Instance is not Allocated (%s)." % (reference))
+
+    node = partition.getParentValue()
+    if reporter.getPortalType() == 'Compute Node' and node != reporter:
+      return rejectWithComment(
+         "You found an instance outside the compute node partitions (%s)." % (reference))
 
     if project_value.getUid() != item.getFollowUpUid(portal_type='Project'):
       # TODO: Is there a use case for this?
@@ -89,17 +80,16 @@ for movement in tioxml_dict["movement"]:
     instance_tree = item.getSpecialiseValue(portal_type="Instance Tree")
     if instance_tree is None:
       return rejectWithComment("Instance has no Instance Tree %s" % (item.getReference()))
-    destination_decision_value = instance_tree.getDestinationSectionValue(portal_type="Person")
+    destination_value = instance_tree.getDestinationSectionValue(portal_type="Person")
 
     # We use Instance tree rather them the instance
     item = instance_tree
-
 
   # If no open order, subscription must be approved
   open_sale_order_movement_list = portal.portal_catalog(
     portal_type=['Open Sale Order Line', 'Open Sale Order Cell'],
     aggregate__uid=item.getUid(),
-    parent_destination__uid = destination_decision_value.getUid(),
+    parent_destination__uid = destination_value.getUid(),
     validation_state='validated',
     limit=1)
 
@@ -111,28 +101,26 @@ for movement in tioxml_dict["movement"]:
 
   open_sale_order_movement = open_sale_order_movement_list[0]
 
-  # Check if resource exists with the variation
   resource = movement['resource']
-
-  if not resource:
-    return rejectWithComment("Movement without resource (%s)" % movement['title'])
-
-  # Reference was used, rather them legacy path
-  resource_value = None
   resource_value_list = portal.portal_catalog(
       portal_type='Service', reference=resource,
       validation_state="validated", limit=2)
 
-  if not len(resource_value_list):
-    return rejectWithComment("%s service is not found" % resource)
-
-  if len(resource_value_list) > 1:
-    return rejectWithComment("%s too many services found for %s" % resource)
+  if len(resource_value_list) != 1:
+    return rejectWithComment("%s service properly configured (%s found)" % (resource, len(resource_value_list)))
 
   resource_value = resource_value_list[0]
 
+  consumption_supply_list = project_value.Project_getServiceConsumptionPredicateList(
+    service=resource_value,
+    destination_value=destination_value,
+    node_value=node)
+
+  if not len(consumption_supply_list):
+    return rejectWithComment('Missing Consumption supply list')
+
   # Dummy index a while we dont use builder probably
-  mindex = "%s-%s" % (project_value.getUid(), destination_decision_value.getUid())
+  mindex = "%s-%s" % (project_value.getUid(), destination_value.getUid())
   movement_dict.setdefault(mindex, [])
   quantity = movement['quantity']
   if not quantity:
@@ -141,7 +129,7 @@ for movement in tioxml_dict["movement"]:
                        open_sale_order_movement=open_sale_order_movement,
                        title=movement['title'],
                        project=project_value,
-                       person=destination_decision_value,
+                       person=destination_value,
                        # Quantity is recorded here as nqegative
                        quantity=quantity,
                        aggregate_value=item,
@@ -163,7 +151,7 @@ for movement_entry in six.itervalues(movement_dict):
     # calculate price based on stop date.
     start_date=stop_date,
     price_currency_value=open_sale_order_movement.getPriceCurrencyValue(),
-    destination_value=destination_decision_value,
+    destination_value=destination_value,
   )
   tmp_sale_order.SaleOrder_applySaleTradeCondition(batch_mode=1, force=1)
 

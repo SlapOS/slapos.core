@@ -3,6 +3,8 @@ Consumption Delivery Module | Consumption Delivery
 Consumption Delivery | Consumption Delivery Line
 Consumption Document Module | Computer Consumption TioXML File
 Consumption Document Module | User Consumption HTML File
+Consumption Supply Module | Consumption Supply
+Consumption Supply | Consumption Supply Line
 Delivery Builder | Root Applied Rule Causality Causality Movement Group
 Rule Tool | Subscription Item Root Simulation Rule
 Solver Process | Automatic Quantity Adopt Solver

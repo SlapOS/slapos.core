@@ -14,11 +14,17 @@ Consumption Delivery | delivery_causality_interaction_workflow
 Consumption Delivery | delivery_causality_workflow
 Consumption Delivery | edit_workflow
 Consumption Delivery | immobilisation_workflow
-Consumption Delivery | local_permission_slapos_interaction_workflow
 Consumption Delivery | packing_list_container_workflow
 Consumption Delivery | packing_list_workflow
 Consumption Delivery | slapos_accounting_interaction_workflow
 Consumption Delivery | slapos_simulation_interaction_workflow
+Consumption Supply Line | edit_workflow
+Consumption Supply Line | reindex_object_interaction_workflow
+Consumption Supply Line | supply_line_interaction_workflow
+Consumption Supply | edit_workflow
+Consumption Supply | slapos_cloud_interaction_workflow
+Consumption Supply | slapos_pdm_interaction_workflow
+Consumption Supply | validation_workflow
 Instance Tree | slapos_accounting_interaction_workflow
 Open Sale Order | slapos_accounting_interaction_workflow
 Open Sale Order | slapos_simulation_interaction_workflow

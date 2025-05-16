@@ -6,6 +6,12 @@
  <portal_type id="Consumption Subscription Module">
   <item>Consumption Subscription</item>
  </portal_type>
+ <portal_type id="Consumption Supply">
+  <item>Consumption Supply Line</item>
+ </portal_type>
+ <portal_type id="Consumption Supply Module">
+  <item>Consumption Supply</item>
+ </portal_type>
  <portal_type id="Delivery Builder">
   <item>Root Applied Rule Causality Causality Movement Group</item>
  </portal_type>

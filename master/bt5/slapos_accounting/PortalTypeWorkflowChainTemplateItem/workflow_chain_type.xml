@@ -20,6 +20,14 @@
   <workflow>edit_workflow, item_workflow</workflow>
  </chain>
  <chain>
+  <type>Consumption Supply</type>
+  <workflow>edit_workflow, validation_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Consumption Supply Line</type>
+  <workflow>edit_workflow, reindex_object_interaction_workflow, supply_line_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Instance Tree</type>
   <workflow>slapos_accounting_interaction_workflow</workflow>
  </chain>

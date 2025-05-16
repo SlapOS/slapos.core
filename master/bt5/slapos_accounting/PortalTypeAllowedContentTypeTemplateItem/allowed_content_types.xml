@@ -12,6 +12,12 @@
   <item>Computer Consumption TioXML File</item>
   <item>User Consumption HTML File</item>
  </portal_type>
+ <portal_type id="Consumption Supply">
+  <item>Consumption Supply Line</item>
+ </portal_type>
+ <portal_type id="Consumption Supply Module">
+  <item>Consumption Supply</item>
+ </portal_type>
  <portal_type id="Delivery Builder">
   <item>Root Applied Rule Causality Causality Movement Group</item>
  </portal_type>

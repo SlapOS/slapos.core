@@ -20,6 +20,10 @@
  <portal_type id="Consumption Subscription">
   <item>SlapOSLedgerConstraint</item>
  </portal_type>
+ <portal_type id="Consumption Supply">
+  <item>ConsumptionSupplyConstraint</item>
+  <item>SlapOSVirtualMasterSourceProjectConstraint</item>
+ </portal_type>
  <portal_type id="Hosting Subscription">
   <item>SlapOSAccountingHostingSubscriptionConstraint</item>
   <item>SlapOSLedgerConstraint</item>

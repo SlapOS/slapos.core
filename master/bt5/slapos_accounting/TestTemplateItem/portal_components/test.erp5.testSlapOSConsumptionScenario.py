@@ -6,7 +6,9 @@
 ##############################################################################
 
 from erp5.component.test.testSlapOSERP5VirtualMasterScenario import TestSlapOSVirtualMasterScenarioMixin
-from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
+from erp5.component.test.SlapOSTestCaseMixin import  TemporaryAlarmScript, \
+                                                     PinnedDateTime
+
 from DateTime import DateTime
 import pkg_resources
 
@@ -30,6 +32,30 @@ class TestSlapOSConsumptionScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
     consumption_service.validate()
     return consumption_service
 
+  def addConsumptionSupply(self, title, node, consumption_service,
+                          project_value=None, destination_value=None,
+                          disable_alarm=False):
+    consumption_supply = self.portal.consumption_supply_module.newContent(
+      portal_type="Consumption Supply",
+      title=title,
+      aggregate_value=node,
+      destination_value=destination_value,
+      destination_project_value=project_value,
+    )
+
+    consumption_supply.newContent(
+      portal_type="Consumption Supply Line",
+      resource_value=consumption_service,
+    )
+
+    if disable_alarm:
+      # disable generation of Upgrade Decision
+      with TemporaryAlarmScript(self.portal,
+               'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+        consumption_supply.validate()
+    else:
+      consumption_supply.validate()
+    return consumption_supply
 
   def bootstrapConsumptionScenarioTest(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
@@ -70,10 +96,12 @@ class TestSlapOSConsumptionScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
       "instance product", project, public_server_software, public_instance_type
     )
     consumption_service = self.addConsumptionService()
+
+    self.tic()
+
     self.logout()
     self.login(sale_person.getUserId())
 
-    self.tic()
     sale_supply = self.portal.portal_catalog.getResultValue(
       portal_type='Sale Supply',
       source_project__uid=project.getUid()
@@ -123,12 +151,14 @@ class TestSlapOSConsumptionScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
 
     self.addAllocationSupply("for compute node", public_server, software_product,
                                release_variation, type_variation)
-
+    self.addConsumptionSupply("For compute node", public_server, consumption_service,
+                          project_value=project)
     # and install some software on them
     self.supplySoftware(public_server, public_server_software)
 
     # format the compute_nodes
     self.formatComputeNode(public_server)
+
     self.logout()
 
     # Pay deposit to validate virtual master + one computer
@@ -275,7 +305,8 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     # 3 allocation supply / line / cell
     # 1 compute node
     # 1 consumption delivery
-    # 1 consumption deocument
+    # 1 consumption document
+    # 2 consumption supply
     # 1 credential request
     # 1 event
     # 3 open sale order / line
@@ -287,7 +318,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     # 1 software installation
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 45)
+    self.assertRelatedObjectCount(project, 47)
 
     self.checkERP5StateBeforeExit()
 
@@ -538,6 +569,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     # 1 compute node
     # 2 consumption delivery
     # 2 consumption document
+    # 2 consumption supply
     # 2 credential request
     # 3 event
     # 2 instance tree
@@ -551,7 +583,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     # 2 software instance
     # 1 software product
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 118)
+    self.assertRelatedObjectCount(project, 120)
 
     self.checkERP5StateBeforeExit()
 
@@ -782,6 +814,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     # 1 compute node
     # 2 consumption delivery
     # 2 consumption document
+    # 2 consumption supply
     # 2 credential request
     # 3 event
     # 2 instance tree
@@ -795,6 +828,6 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     # 2 software instance
     # 1 software product
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 104)
+    self.assertRelatedObjectCount(project, 106)
 
     self.checkERP5StateBeforeExit()

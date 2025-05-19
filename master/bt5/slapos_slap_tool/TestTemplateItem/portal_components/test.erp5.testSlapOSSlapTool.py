@@ -1022,9 +1022,9 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   def test_useComputer_wrong_xml(self):
     self.login(self.compute_node_user_id)
     response = self.portal_slap.useComputer(
-        self.compute_node_id, "foobar")
+        self.compute_node_id, str2bytes("foobar"))
     self.assertEqual(400, response.status)
-    self.assertEqual("", response.body)
+    self.assertEqual(str2bytes(""), response.body)
 
   def assertReportComputeNodeConsumption(self, args, kwargs):
     with open(self.compute_node_use_compute_node_simulator) as f:
@@ -1041,7 +1041,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
       self.compute_node.ComputeNode_reportComputeNodeConsumption = Simulator(
         self.compute_node_use_compute_node_simulator,
         'ComputeNode_reportComputeNodeConsumption')
-  
+
       consumption_xml = """<?xml version='1.0' encoding='utf-8'?>
 <journal>
 <transaction type="Sale Packing List">
@@ -1067,13 +1067,13 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
 </movement>
 </transaction>
 </journal>"""
-  
+
       response = self.portal_slap.useComputer(
-        self.compute_node_id, consumption_xml)
+        self.compute_node_id, str2bytes(consumption_xml))
       self.assertEqual(200, response.status)
-      self.assertEqual("OK", response.body)
+      self.assertEqual(str2bytes("OK"), response.body)
       self.assertReportComputeNodeConsumption(
-        ("testusagé", consumption_xml,), {})
+        (str2bytes("testusagé"), str2bytes(consumption_xml),), {})
     finally:
       if os.path.exists(self.compute_node_use_compute_node_simulator):
         os.unlink(self.compute_node_use_compute_node_simulator)
@@ -1085,7 +1085,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
       self.compute_node.ComputeNode_reportComputeNodeConsumption = Simulator(
         self.compute_node_use_compute_node_simulator,
         'ComputeNode_reportComputeNodeConsumption')
-  
+
       consumption_xml = """<?xml version='1.0' encoding='utf-8'?>
 <journal>
 <transaction type="Sale Packing List">
@@ -1111,13 +1111,13 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
 </movement>
 </transaction>
 </journal>"""
-  
+
       response = self.portal_slap.useComputer(
-        self.compute_node_id, consumption_xml)
+        self.compute_node_id, str2bytes(consumption_xml))
       self.assertEqual(200, response.status)
-      self.assertEqual("OK", response.body)
+      self.assertEqual(str2bytes("OK"), response.body)
       self.assertReportComputeNodeConsumption(
-        ("", consumption_xml,), {})
+        (str2bytes(""), str2bytes(consumption_xml),), {})
     finally:
       if os.path.exists(self.compute_node_use_compute_node_simulator):
         os.unlink(self.compute_node_use_compute_node_simulator)

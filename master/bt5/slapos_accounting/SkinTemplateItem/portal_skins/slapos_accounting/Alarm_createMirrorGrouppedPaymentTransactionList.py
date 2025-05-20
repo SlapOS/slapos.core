@@ -14,7 +14,7 @@ for sql_movement in portal.portal_simulation.getMovementHistoryList(
 ):
   movement = sql_movement.getObject()
   payment_transaction = movement.getParentValue()
-  if payment_transaction not in payment_transaction_set:
+  if (payment_transaction not in payment_transaction_set) and (not movement.hasDestination(portal_type='Account')):
     # Prevent generating conflicts on transaction with multiple lines
     movement.activate(**activate_kw).AccountingTransactionLine_createMirrorPaymentTransactionToGroupSaleInvoice(activate_kw=activate_kw)
     payment_transaction_set.add(payment_transaction)

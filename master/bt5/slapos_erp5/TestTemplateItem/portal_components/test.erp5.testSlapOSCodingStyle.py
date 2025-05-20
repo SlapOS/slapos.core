@@ -158,6 +158,8 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_simulation/SimulationMovement_testInvoiceTransactionSimulationRule',
         'slapos_simulation/SimulationMovement_testPaymentSimulationRule',
         'slapos_simulation/SimulationMovement_testTradeModelSimulationRule',
+        'slapos_accounting/Base_getDepositReceivedAccountList',
+        'slapos_accounting/Entity_getNonGroupedDepositAmountList',
         'slapos_accounting/AccountingTransactionLine_createMirrorPaymentTransactionToGroupSaleInvoice',
         'slapos_accounting/AccountingTransactionLine_getGroupingExtraParameterList',
         'slapos_accounting/OpenSaleOrder_archiveIfUnusedItem',

@@ -43,6 +43,7 @@ config = getConfiguration()
 class testSlapOSMixin(ERP5TypeTestCase):
 
   abort_transaction = 0
+  require_certificate = 0
 
   def clearCache(self):
     self.portal.portal_caches.clearAllCache()
@@ -81,12 +82,12 @@ class testSlapOSMixin(ERP5TypeTestCase):
       return
 
     ca_path = os.path.join(os.environ['TEST_CA_PATH'],
-                           self.__class__.__name__)
+          self.__class__.__module__, self.__class__.__name__)
 
     if os.path.exists(ca_path):
       shutil.rmtree(ca_path)
 
-    os.mkdir(ca_path)
+    os.makedirs(ca_path, 0o700)
     os.mkdir(os.path.join(ca_path, 'private'))
     os.mkdir(os.path.join(ca_path, 'crl'))
     os.mkdir(os.path.join(ca_path, 'certs'))
@@ -170,7 +171,9 @@ class testSlapOSMixin(ERP5TypeTestCase):
 
     if self.isLiveTest():
       return
-    self.createCertificateAuthorityFile() 
+    if self.require_certificate:
+      self.createCertificateAuthorityFile()
+
     self.commit()
     self.portal.portal_caches.updateCache()
 

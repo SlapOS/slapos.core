@@ -149,6 +149,7 @@ class TestSlapOSCrmCheckProjectAllocationConsistencyState(TestSlapOSCrmMonitorin
 
 class TestSlapOSCrmMonitoringCheckAllocationConsistencyState(TestSlapOSCrmMonitoringMixin):
 
+  require_certificate = 1
   def assertAllocationErrorDict(self, error_dict, allocation_node,
                                       release_variation, type_variation):
     self.assertNotEqual({}, error_dict)
@@ -603,6 +604,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeProjectState(TestSlapOSCrmMonitorin
 
 class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin):
 
+  require_certificate = 1
   ##########################################################################
   # ComputeNode_checkProjectMontoringState > ComputeNode_checkMonitoringState
   ##########################################################################
@@ -1161,6 +1163,7 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(TestSlapOSCrmMonitoringMixin)
     self.assertEventTicket(event, ticket, compute_node)
 
 class TestSlapOSCrmSoftwareInstance_checkInstanceTreeMonitoringState(TestSlapOSCrmMonitoringMixin):
+  require_certificate = 1
 
   @simulate('Project_isSupportRequestCreationClosed', '*args, **kwargs', 'return 0')
   def test_SoftwareInstance_checkInstanceTreeMonitoringState_alarm_not_called(self):

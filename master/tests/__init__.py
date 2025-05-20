@@ -64,13 +64,6 @@ class SlapOSCloud(SavedTestSuite, ProjectTestSuite):
       return self.runUnitTest('--with_wendelin_core', '--activity_node=1', full_test)
     elif test.startswith('testFunctional'):
       return self._updateFunctionalTestResponse(self.runUnitTest(full_test))
-    elif test == 'testSlapOSUpgradeInstanceWithOldDataFs':
-      old_data_path = None
-      return dict(
-         status_code=-1,
-         test_count=1,
-         skip_count=1,
-         stderr='testSlapOSUpgradeInstanceWithOldDataFs is skiped for now.')
 
 #      for path in sys.path:
 #        if path.endswith('/slapos-bin'):

@@ -1,6 +1,10 @@
 Changes
 =======
 
+X.XX.X (XXXX-XX-XX)
+-------------------
+ * dropped slapos/manager/devperm
+
 1.16.2 (2025-03-14)
 -------------------
  * testing/e2e: fixup recent e2e_regression

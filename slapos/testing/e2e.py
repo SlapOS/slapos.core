@@ -29,7 +29,6 @@ class EndToEndTestCase(unittest.TestCase):
     cls.slap = local['slap']
     cls.supply = staticmethod(local['supply'])
     cls._request = staticmethod(local['request'])
-    cls.product = staticmethod(local['product'])
     cls._requested = {}
     cls._supplied = {}
 

@@ -37,6 +37,10 @@ for line in reversal_transaction.getMovementList():
 reversal_transaction.confirm(comment="Automatic because of reversal creation")
 reversal_transaction.stop(comment="Automatic because of reversal creation")
 
+# Invoice must lettered now
+assert context.SaleInvoiceTransaction_isLettered()
+assert reversal_transaction.SaleInvoiceTransaction_isLettered()
+
 if batch_mode:
   return reversal_transaction
 

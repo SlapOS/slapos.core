@@ -26,7 +26,6 @@
 #
 ##############################################################################
 
-import random
 import transaction
 import unittest
 from Products.ERP5Type.tests.ERP5TypeTestCase import ERP5TypeTestCase
@@ -78,9 +77,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
   def createCertificateAuthorityFile(self):
     """Sets up portal_certificate_authority"""
 
-    if 'TEST_CA_PATH' not in os.environ:
-      return
-
     ca_path = os.path.join(os.environ['TEST_CA_PATH'],
           self.__class__.__module__, self.__class__.__name__)
 
@@ -121,28 +117,10 @@ class testSlapOSMixin(ERP5TypeTestCase):
     with open(os.path.join(ca_path, 'crlnumber'), "w") as f:
       f.write('')
 
-    private_list = glob.glob('%s/*.key' % os.path.join(ca_path, 'private'))
-    for private in private_list:
-      os.remove(private)
-
-    crl_list = glob.glob('%s/*' % os.path.join(ca_path, 'crl'))
-    for crl in crl_list:
-      os.remove(crl)
-
-    certs_list = glob.glob('%s/*' % os.path.join(ca_path, 'certs'))
-    for cert in certs_list:
-      os.remove(cert)
-
-    newcerts_list = glob.glob('%s/*' % os.path.join(ca_path, 'newcerts'))
-    for newcert in newcerts_list:
-      os.remove(newcert)
-
     self.portal.portal_certificate_authority.manage_editCertificateAuthorityTool(
       certificate_authority_path=ca_path)
 
   def isLiveTest(self):
-    #return 'ERP5TypeLiveTestCase' in [q.__name__ for q in self.__class__.mro()]
-    # XXX - What is the better way to know if we are in live test mode ?
     return 'TEST_CA_PATH' not in os.environ
 
   def beforeTearDown(self):
@@ -162,15 +140,9 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.portal.email_from_address = 'romain@nexedi.com'
     self.portal.email_to_address = 'romain@nexedi.com'
 
-
-    if getattr(self.portal.portal_caches, 'erp5_site_global_id', None):
-      # we are not on live test so multiple tests can run in parallel
-      # so ensure that each start tests from scratch
-      self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
-      self.portal.portal_caches._p_changed = 1
-
     if self.isLiveTest():
       return
+
     if self.require_certificate:
       self.createCertificateAuthorityFile()
 

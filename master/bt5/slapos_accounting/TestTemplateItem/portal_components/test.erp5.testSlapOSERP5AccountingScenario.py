@@ -8,6 +8,7 @@
 from erp5.component.test.testSlapOSERP5VirtualMasterScenario import TestSlapOSVirtualMasterScenarioMixin
 from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
 from DateTime import DateTime
+from erp5.component.module.DateUtils import addToDate
 
 
 class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
@@ -379,4 +380,272 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       # 1 subscription requests
       self.assertRelatedObjectCount(project, 16)
 
+      self.checkERP5StateBeforeExit()
+
+  def test_depositUsageScenario(self):
+    """
+    User does not pay the invoice.
+    Accountant totally pays it with part of the deposit
+    """
+    creation_date = DateTime('2024/03/19')
+    with PinnedDateTime(self, creation_date):
+      owner_person, _, project = self.bootstrapAccountingTest()
+    # Ensure no unexpected object has been created
+    # 2 assignment
+    # 2 sale supply + line
+    # 2 sale trade condition
+    # 1 subscription requests
+    self.assertRelatedObjectCount(project, 7)
+
+    self.assertFalse(owner_person.Entity_hasOutstandingAmount(include_planned=True))
+    self.assertFalse(owner_person.Entity_hasOutstandingAmount())
+    self.assertEqual(project.getValidationState(), "validated")
+    subscription_request = self.portal.portal_catalog.getResultValue(
+      portal_type="Subscription Request",
+      aggregate__uid=project.getUid()
+    )
+    self.assertEqual(subscription_request.getSimulationState(), "submitted")
+    deposit_outstanding_amount_list = owner_person.Entity_getOutstandingDepositAmountList()
+    self.assertEqual(len(deposit_outstanding_amount_list), 1)
+    self.assertEqual(subscription_request.getUid(),
+     deposit_outstanding_amount_list[0].getUid())
+
+    with PinnedDateTime(self, addToDate(creation_date, to_add={'day': 16})):
+      payment_transaction = owner_person.Entity_createDepositPaymentTransaction(
+        deposit_outstanding_amount_list)
+      # payzen interface will only stop the payment
+      payment_transaction.stop()
+      self.tic()
+
+    self.assertTrue(owner_person.Entity_hasOutstandingAmount(include_planned=True))
+    amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=True)
+    self.assertEqual(len(amount_list), 1)
+    self.assertAlmostEqual(amount_list[0].total_price, 24.192)
+    self.assertFalse(owner_person.Entity_hasOutstandingAmount())
+    self.assertEqual(subscription_request.getSimulationState(), "invalidated")
+    open_sale_order = self.portal.portal_catalog.getResultValue(
+      portal_type="Open Sale Order Line",
+      aggregate__uid=project.getUid()
+    ).getParentValue()
+    self.assertEqual(open_sale_order.getValidationState(), "validated")
+    # invoice is the same month's day of the person creation
+    # So, the open order period before '2025/04/03' starts on '2025/03/19'
+    self.assertEqual(open_sale_order.getStartDate(), creation_date)
+    self.assertEqual(open_sale_order.getStartDate(),
+                     open_sale_order.getStopDate())
+    first_invoice = self.portal.portal_catalog.getResultValue(
+      portal_type="Invoice Line",
+      aggregate__uid=project.getUid()
+    ).getParentValue()
+    self.assertEqual(first_invoice.getUid(), amount_list[0].payment_request_uid)
+    self.assertEqual(first_invoice.getSimulationState(), "confirmed")
+    self.assertEqual(first_invoice.getStartDate(), creation_date)
+    self.assertEqual(first_invoice.getStopDate(),
+                     addToDate(creation_date, to_add={'month': 1}))
+    # Discount and first subscription
+    self.assertAlmostEqual(first_invoice.getTotalPrice(), 24.192)
+    # Ensure no unexpected object has been created
+    # 1 accounting transaction
+    # 1 open order
+    # 2 assignment
+    # 2 simulation movements
+    # 2 sale supply + line
+    # 1 sale packing list
+    # 2 sale trade condition
+    # 1 subscription requests
+    self.assertRelatedObjectCount(project, 12)
+
+    with PinnedDateTime(self, addToDate(creation_date, to_add={'day': 17})):
+      # invalidate the product, in order to stop the subscription
+      project.invalidate()
+      self.tic()
+
+    self.portal.portal_alarms.slapos_stop_confirmed_aggregated_sale_invoice_transaction.activeSense()
+    self.tic()
+
+    self.assertTrue(owner_person.Entity_hasOutstandingAmount(include_planned=True))
+    amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=True)
+    self.assertEqual(len(amount_list), 1)
+    self.assertAlmostEqual(amount_list[0].total_price, 24.192)
+    self.assertTrue(owner_person.Entity_hasOutstandingAmount())
+    amount_list = owner_person.Entity_getOutstandingAmountList()
+    self.assertEqual(len(amount_list), 1)
+    self.assertAlmostEqual(amount_list[0].total_price, 24.192)
+    self.assertEqual(first_invoice.getSimulationState(), "stopped")
+    # Ensure no unexpected object has been created
+    # 1 accounting transactions
+    # 1 open order
+    # 2 assignment
+    # 2 simulation movements
+    # 2 sale supply + line
+    # 1 sale packing list
+    # 2 sale trade condition
+    # 1 subscription requests
+    self.assertRelatedObjectCount(project, 12)
+
+    # Use the deposit to pay the invoice
+    accounting_transaction = owner_person.Entity_createAccountingTransactionToConsumeDeposit(
+      owner_person.Entity_getOutstandingAmountList(
+        #at_date=DateTime('2024/05/06'),
+        section_uid=first_invoice.getSourceSectionUid(),
+        resource_uid=first_invoice.getPriceCurrencyUid(),
+        ledger_uid=first_invoice.getLedgerUid(),
+        group_by_node=False
+      )
+    )
+    self.assertAlmostEqual(accounting_transaction.AccountingTransaction_getTotalCredit(), 42)
+    self.tic()
+
+    self.assertFalse(owner_person.Entity_hasOutstandingAmount(include_planned=True))
+    amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=True)
+    self.assertEqual(len(amount_list), 0)
+    self.assertFalse(owner_person.Entity_hasOutstandingAmount())
+    amount_list = owner_person.Entity_getOutstandingAmountList()
+    self.assertEqual(len(amount_list), 0)
+    self.assertTrue(first_invoice.SaleInvoiceTransaction_isLettered())
+    # deposit has been consumed
+    for line in payment_transaction.getCausalityValue(portal_type='Sale Invoice Transaction')\
+                                   .contentValues(portal_type='Accounting Transaction Line'):
+      self.assertTrue(line.hasGroupingReference(), line.getRelativeUrl())
+    # Ensure no unexpected object has been created
+    self.assertRelatedObjectCount(project, 12)
+    # Check remaining deposit (42 - 24.192)
+    self.assertAlmostEqual(owner_person.Entity_getDepositBalanceAmount([subscription_request]), 17.808)
+
+    with PinnedDateTime(self, addToDate(creation_date, to_add={'day': 17})):
+      self.checkERP5StateBeforeExit()
+
+  def test_creditNoteScenario(self):
+    """
+    User does not pay the invoice.
+    Accountant partially pay it with the deposit, and generate the credit note
+    to cancel the remaining part of the invoice
+    """
+    creation_date = DateTime('2024/03/19')
+    with PinnedDateTime(self, creation_date):
+      owner_person, _, project = self.bootstrapAccountingTest()
+    # Ensure no unexpected object has been created
+    # 2 assignment
+    # 2 sale supply + line
+    # 2 sale trade condition
+    # 1 subscription requests
+    self.assertRelatedObjectCount(project, 7)
+
+    self.assertFalse(owner_person.Entity_hasOutstandingAmount(include_planned=True))
+    self.assertFalse(owner_person.Entity_hasOutstandingAmount())
+    self.assertEqual(project.getValidationState(), "validated")
+    subscription_request = self.portal.portal_catalog.getResultValue(
+      portal_type="Subscription Request",
+      aggregate__uid=project.getUid()
+    )
+    self.assertEqual(subscription_request.getSimulationState(), "submitted")
+    deposit_outstanding_amount_list = owner_person.Entity_getOutstandingDepositAmountList()
+    self.assertEqual(len(deposit_outstanding_amount_list), 1)
+    self.assertEqual(subscription_request.getUid(),
+     deposit_outstanding_amount_list[0].getUid())
+
+    with PinnedDateTime(self, creation_date + 1):
+      payment_transaction = owner_person.Entity_createDepositPaymentTransaction(
+        deposit_outstanding_amount_list)
+      # payzen interface will only stop the payment
+      payment_transaction.stop()
+      self.tic()
+
+    self.assertTrue(owner_person.Entity_hasOutstandingAmount(include_planned=True))
+    amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=True)
+    self.assertEqual(len(amount_list), 1)
+    self.assertAlmostEqual(amount_list[0].total_price, 48.888)
+    self.assertFalse(owner_person.Entity_hasOutstandingAmount())
+    self.assertEqual(subscription_request.getSimulationState(), "invalidated")
+    open_sale_order = self.portal.portal_catalog.getResultValue(
+      portal_type="Open Sale Order Line",
+      aggregate__uid=project.getUid()
+    ).getParentValue()
+    self.assertEqual(open_sale_order.getValidationState(), "validated")
+    # invoice is the same month's day of the person creation
+    # So, the open order period before '2025/04/03' starts on '2025/03/19'
+    self.assertEqual(open_sale_order.getStartDate(), creation_date)
+    self.assertEqual(open_sale_order.getStartDate(),
+                     open_sale_order.getStopDate())
+    first_invoice = self.portal.portal_catalog.getResultValue(
+      portal_type="Invoice Line",
+      aggregate__uid=project.getUid()
+    ).getParentValue()
+    self.assertEqual(first_invoice.getUid(), amount_list[0].payment_request_uid)
+    self.assertEqual(first_invoice.getSimulationState(), "confirmed")
+    self.assertEqual(first_invoice.getStartDate(), creation_date)
+    self.assertEqual(first_invoice.getStopDate(),
+                     addToDate(creation_date, to_add={'month': 1}))
+    # Discount and first subscription
+    self.assertAlmostEqual(first_invoice.getTotalPrice(), 48.888)
+    # Ensure no unexpected object has been created
+    # 1 accounting transaction
+    # 1 open order
+    # 2 assignment
+    # 2 simulation movements
+    # 2 sale supply + line
+    # 1 sale packing list
+    # 2 sale trade condition
+    # 1 subscription requests
+    self.assertRelatedObjectCount(project, 12)
+
+    with PinnedDateTime(self, addToDate(creation_date, to_add={'day': 16})):
+      # invalidate the product, in order to stop the subscription
+      project.invalidate()
+      self.tic()
+
+    self.portal.portal_alarms.slapos_stop_confirmed_aggregated_sale_invoice_transaction.activeSense()
+    self.tic()
+
+    self.assertTrue(owner_person.Entity_hasOutstandingAmount(include_planned=True))
+    amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=True)
+    self.assertEqual(len(amount_list), 1)
+    self.assertAlmostEqual(amount_list[0].total_price, 48.888)
+    self.assertTrue(owner_person.Entity_hasOutstandingAmount())
+    amount_list = owner_person.Entity_getOutstandingAmountList()
+    self.assertEqual(len(amount_list), 1)
+    self.assertAlmostEqual(amount_list[0].total_price, 48.888)
+    self.assertEqual(first_invoice.getSimulationState(), "stopped")
+    # Ensure no unexpected object has been created
+    # 1 accounting transactions
+    # 1 open order
+    # 2 assignment
+    # 2 simulation movements
+    # 2 sale supply + line
+    # 1 sale packing list
+    # 2 sale trade condition
+    # 1 subscription requests
+    self.assertRelatedObjectCount(project, 12)
+
+    # Use the deposit to pay the invoice
+    payment_transaction = owner_person.Entity_createAccountingTransactionToConsumeDeposit(
+      owner_person.Entity_getOutstandingAmountList(
+        #at_date=DateTime('2024/05/06'),
+        section_uid=first_invoice.getSourceSectionUid(),
+        resource_uid=first_invoice.getPriceCurrencyUid(),
+        ledger_uid=first_invoice.getLedgerUid(),
+        group_by_node=False,
+      ),
+      create_credit_note=True
+    )
+    self.assertAlmostEqual(payment_transaction.AccountingTransaction_getTotalCredit(), 42)
+    self.tic()
+
+    self.assertFalse(owner_person.Entity_hasOutstandingAmount(include_planned=True))
+    amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=True)
+    self.assertEqual(len(amount_list), 0)
+    self.assertFalse(owner_person.Entity_hasOutstandingAmount())
+    amount_list = owner_person.Entity_getOutstandingAmountList()
+    self.assertEqual(len(amount_list), 0)
+    self.assertTrue(first_invoice.SaleInvoiceTransaction_isLettered())
+    # deposit has been consumed
+    for line in payment_transaction.getCausalityValue(portal_type='Sale Invoice Transaction')\
+                                   .contentValues(portal_type='Accounting Transaction Line'):
+      self.assertTrue(line.hasGroupingReference(), line.getRelativeUrl())
+    # One partial mirror transaction has been created
+    self.assertRelatedObjectCount(project, 13)
+    # Check remaining deposit
+    self.assertAlmostEqual(owner_person.Entity_getDepositBalanceAmount([subscription_request]), 0)
+
+    with PinnedDateTime(self, addToDate(creation_date, to_add={'day': 16})):
       self.checkERP5StateBeforeExit()

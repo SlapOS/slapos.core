@@ -970,6 +970,68 @@ class TestComputerPartition(SlapMixin):
       # XXX: Interface does not define return value
       computer_partition.error('some error')
 
+  def _test_getInstanceParameterDict_cache(self, cache_headers):
+    if not PY3:
+      return
+    from slapos.testing.utils import ManagedHTTPServer
+    from http.server import BaseHTTPRequestHandler
+    self.logger = logging.getLogger(self.id())
+    self.logger.propagate = True
+
+    class CachedServer(ManagedHTTPServer):
+      hostname = os.environ['SLAPOS_TEST_IPV4']
+      class RequestHandler(BaseHTTPRequestHandler):
+        log_message = self.logger.info
+        def do_GET(self) -> None:
+          if self.path != '/registerComputerPartition?computer_reference=COMP123&computer_partition_reference=slappart456':
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b"Not Found")
+            return
+
+          self.send_response(200)
+          for k, v in cache_headers:
+            self.send_header(k, v)
+          response = '''
+            <marshal>
+              <object id="i2" module="slapos.slap.slap" class="ComputerPartition">
+                <tuple>
+                  <string>COMP123</string>
+                  <string>slappart345</string>
+                  <none/>
+                </tuple>
+                <dictionary id="i3">
+                  <string>_computer_id</string>
+                  <string>COMP123</string>
+                  <string>_parameter_dict</string>
+                  <dictionary id="i5">
+                    <string>foo</string>
+                    <string>bar</string>
+                  </dictionary>
+                </dictionary>
+              </object>
+            </marshal>
+          '''.encode('utf-8')
+          self.end_headers()
+          self.wfile.write(response)
+
+    server = CachedServer(self, 'server')
+    server.open()
+    self.addCleanup(server.close)
+
+    slap = self.slap
+    slap.initializeConnection(server.url)
+
+    computer_partition = self.slap.registerComputerPartition('COMP123', 'slappart456')
+    parameter_dict = computer_partition.getInstanceParameterDict()
+    self.assertEqual(parameter_dict, {'foo': 'bar'})
+
+  def test_getInstanceParameterDict_cache(self):
+    self._test_getInstanceParameterDict_cache((('Cache-Control', 'public, max-age=3600'),))
+
+  def test_getInstanceParameterDict_no_cache(self):
+    self._test_getInstanceParameterDict_cache((('Cache-Control', 'no-store, no-cache, must-revalidate'),))
+
   def _test_setConnectionDict(
     self, connection_dict, slave_reference=None, connection_xml=None,
     getConnectionParameterDict=None):

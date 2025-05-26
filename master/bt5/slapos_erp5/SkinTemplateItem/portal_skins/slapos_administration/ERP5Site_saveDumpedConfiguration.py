@@ -1,4 +1,5 @@
 portal = context.getPortalObject()
+from Products.ERP5Type.Utils import str2bytes
 msg = ""
 
 def render(title, body):
@@ -66,6 +67,6 @@ if save:
       portal_type='File')
     backup_file.setData(save_file.getData())
 
-  save_file.setData(msg)
+  save_file.setData(str2bytes(msg))
 
 return msg

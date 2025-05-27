@@ -7,6 +7,8 @@ Compute Node | local_permission_slapos_interaction_workflow
 Compute Node | slapos_erp5_interaction_workflow
 Computer Model | local_permission_slapos_interaction_workflow
 Computer Network | local_permission_slapos_interaction_workflow
+Consumption Delivery | local_permission_slapos_interaction_workflow
+Consumption Supply | local_permission_slapos_interaction_workflow
 Contract Invitation Token | edit_workflow
 Contract Invitation Token | validation_workflow
 Credential Request | slapos_erp5_interaction_workflow

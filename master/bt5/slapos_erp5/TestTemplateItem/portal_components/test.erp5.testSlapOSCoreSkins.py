@@ -29,31 +29,11 @@ class TestSlapOSCoreMixin(SlapOSTestCaseMixinWithAbort):
     SlapOSTestCaseMixinWithAbort.afterSetUp(self)
     self.user_id = getSecurityManager().getUser().getId()
 
-  def changeOwnership(self, document):
-    """ Change the ownership of the document to the right and
-        expected user. Normally the user which setups the site.
-    """
-    document.changeOwnership(getSecurityManager().getUser(), False)
-
   def createPerson(self):
     return self.portal.person_module.newContent(portal_type="Person")
 
   def createOrganisation(self):
     return self.portal.organisation_module.newContent(portal_type="Organisation")
-
-  def createComputeNode(self, person):
-    return self.portal.compute_node_module.newContent(
-      portal_type='Compute Node',
-      title=self.generateNewId(),
-      reference="TESTNODE-%s" % self.generateNewId(),
-      source_administration=person.getRelativeUrl())
-
-  def createInstanceTree(self, person):
-    return self.portal.instance_tree_module.newContent(
-      portal_type='Instance Tree',
-      title=self.generateNewId(),
-      reference="TESTTREE-%s" % self.generateNewId(),
-      destination_section=person.getRelativeUrl())
 
 class TestPerson_getSecurityCategoryFromSelfShadow(TestSlapOSCoreMixin):
   def test(self):

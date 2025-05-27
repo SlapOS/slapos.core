@@ -6,6 +6,8 @@ Compute Node | local_permission_slapos_interaction_workflow
 Compute Node | slapos_erp5_interaction_workflow
 Computer Model | local_permission_slapos_interaction_workflow
 Computer Network | local_permission_slapos_interaction_workflow
+Consumption Delivery | local_permission_slapos_interaction_workflow
+Consumption Supply | local_permission_slapos_interaction_workflow
 Credential Request | slapos_erp5_interaction_workflow
 Delivery Cell | -immobilisation_movement_interaction_workflow
 Hosting Subscription | local_permission_slapos_interaction_workflow

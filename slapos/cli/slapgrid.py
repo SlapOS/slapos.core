@@ -120,10 +120,13 @@ class SlapgridCommand(ConfigCommand):
         slapgrid_object = create_slapgrid_object(options, logger=self.app.log)
 
         try:
-            return getattr(slapgrid_object, self.method_name)()
+            return self._execute_slapgrid_method(slapgrid_object, args)
         finally:
             if pidfile:
                 setFinished(pidfile)
+
+    def _execute_slapgrid_method(self, slapgrid_object, args):
+        return getattr(slapgrid_object, self.method_name)()
 
 
 class SoftwareCommand(SlapgridCommand):
@@ -139,6 +142,10 @@ class SoftwareCommand(SlapgridCommand):
         ap.add_argument('--buildout-debug',
                         action='store_true',
                         help='Run buildout in debug mode (with -D command line switch)')
+        ap.add_argument('--garbage-collect',
+                        action='store_true',
+                        help='Destroy software folders that are not supplied on this computer, '
+                             'but still present on disk.')
         only = ap.add_mutually_exclusive_group()
         only.add_argument('--all', action='store_true',
                           help='Process all Software Releases, even if already installed.')
@@ -147,6 +154,10 @@ class SoftwareCommand(SlapgridCommand):
                                'even if is already installed. This option will make all other '
                                'sofware releases be ignored.')
         return ap
+
+    def _execute_slapgrid_method(self, slapgrid_object, args):
+        return slapgrid_object.processSoftwareReleaseList(
+            garbage_collection=args.garbage_collect)
 
 
 class InstanceCommand(SlapgridCommand):

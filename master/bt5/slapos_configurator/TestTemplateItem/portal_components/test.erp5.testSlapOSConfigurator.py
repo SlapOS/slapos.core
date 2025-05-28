@@ -171,7 +171,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'credential_request_module',
        'credential_update_module',
        'currency_module',
-       'cloud_contract_module',
        'data_set_module',
        'delivery_node_module',
        'document_ingestion_module',

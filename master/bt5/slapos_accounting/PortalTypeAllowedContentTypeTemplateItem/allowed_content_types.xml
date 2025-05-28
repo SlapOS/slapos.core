@@ -1,10 +1,4 @@
 <allowed_content_type_list>
- <portal_type id="Cloud Contract">
-  <item>Cloud Contract Line</item>
- </portal_type>
- <portal_type id="Cloud Contract Module">
-  <item>Cloud Contract</item>
- </portal_type>
  <portal_type id="Consumption Document Module">
   <item>Computer Consumption TioXML File</item>
   <item>User Consumption HTML File</item>

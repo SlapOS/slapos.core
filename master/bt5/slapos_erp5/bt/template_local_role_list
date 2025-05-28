@@ -23,6 +23,7 @@ computer_model_module
 computer_network_module
 consumption_delivery_module
 consumption_document_module
+consumption_supply_module
 credential_update_module
 currency_module
 currency_module/CNY

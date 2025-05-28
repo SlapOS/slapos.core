@@ -27,7 +27,6 @@ slapos_upgrader
 slapos_abyss
 slapos_base
 slapos_json_rpc_api
-slapos_contract
 slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting

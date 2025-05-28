@@ -28,7 +28,7 @@ class SlapOSCloud(SavedTestSuite, ProjectTestSuite):
   _product_list = ['SlapOS']
   _saved_test_id = 'Products.SlapOS.tests.testSlapOSMixin.testSlapOSMixin'
   _bt_list = slapos_bt_list
-  
+
   def getTestList(self):
     test_list = []
     path = sys.path[0]
@@ -64,42 +64,11 @@ class SlapOSCloud(SavedTestSuite, ProjectTestSuite):
       return self.runUnitTest('--with_wendelin_core', '--activity_node=1', full_test)
     elif test.startswith('testFunctional'):
       return self._updateFunctionalTestResponse(self.runUnitTest(full_test))
-
-#      for path in sys.path:
-#        if path.endswith('/slapos-bin'):
-#          old_data_path = os.path.join(path, 'test_data', test)
-#          if not os.path.isdir(old_data_path):
-#            return dict(
-#              status_code=-1,
-#              test_count=1,
-#              failure_count=1,
-#              stderr='%s does not exist or is not a directory' % old_data_path)
-#
-#          break
-#      else:
-#        return dict(
-#          status_code=-1,
-#          test_count=1,
-#          failure_count=1,
-#          stderr='slapos-bin repository not found in %s' % '\n'.join(sys.path))
-#
-#      instance_home = (self.instance and 'unit_test.%u' % self.instance
-#                                           or 'unit_test')
-#      import shutil
-#      shutil.rmtree(instance_home, ignore_errors=True)
-#
-#      os.makedirs(os.path.join(instance_home, 'var'))
-#      shutil.copyfile(os.path.join(old_data_path, 'Data.fs'),
-#                      os.path.join(instance_home, 'var', 'Data.fs'))
-#      shutil.copyfile(os.path.join(old_data_path, 'dump.sql'),
-#                      os.path.join(instance_home, 'dump.sql'))
-#
-#      return ProjectTestSuite.runUnitTest(self,
-#        '--load',
-#        '--portal_id=erp5',
-#        '--enable_full_indexing=portal_types,portal_property_sheets',
-#        full_test)
-#    
+    elif test.startswith('testSlapOSMixin'):
+      return ProjectTestSuite.runUnitTest(self,
+         '--portal_id=erp5',
+         '--enable_full_indexing=portal_types,portal_property_sheets',
+         full_test)
     return super(SlapOSCloud, self).run(full_test)
 
   def _updateFunctionalTestResponse(self, status_dict):

@@ -29,6 +29,7 @@
 ##############################################################################
 
 import os
+import glob
 import pkg_resources
 import random
 import socket
@@ -44,6 +45,7 @@ import shutil
 import six
 import errno
 import pwd
+from six.moves.configparser import ConfigParser
 
 if six.PY3:
   import subprocess
@@ -590,20 +592,11 @@ stderr_logfile_backups=1
       return [cp for cp in busy_cp_list if cp.getId() in required_cp_id_set]
     return busy_cp_list
 
-  def processSoftwareReleaseList(self):
-    """Will process each Software Release.
+  def _make_software(self, software_release_uri):
+    # type: (str) -> Software
+    """Utility method to construct a Software for this slapgrid environment
     """
-    self.checkEnvironmentAndCreateStructure()
-    self.logger.info('Processing software releases...')
-    # Boolean to know if every instance has correctly been deployed
-    clean_run = True
-    for software_release in self.computer.getSoftwareReleaseList():
-      state = software_release.getState()
-      try:
-        software_release_uri = software_release.getURI()
-        url_hash = md5digest(software_release_uri)
-        software_path = os.path.join(self.software_root, url_hash)
-        software = Software(url=software_release_uri,
+    return Software(url=software_release_uri,
             software_root=self.software_root,
             buildout=self.buildout,
             buildout_debug=self.buildout_debug,
@@ -631,11 +624,29 @@ stderr_logfile_backups=1
             software_min_free_space=self.software_min_free_space,
             shared_part_list=self.shared_part_list)
 
+  def processSoftwareReleaseList(self):
+    """Will process each Software Release.
+    """
+    self.checkEnvironmentAndCreateStructure()
+    self.logger.info('Processing software releases...')
+    # Boolean to know if every instance has correctly been deployed
+    clean_run = True
+    available_software_hash_set = set()
+
+    for software_release in self.computer.getSoftwareReleaseList():
+      state = software_release.getState()
+      try:
+        software_release_uri = software_release.getURI()
+        url_hash = md5digest(software_release_uri)
+        software_path = os.path.join(self.software_root, url_hash)
+        software = self._make_software(software_release_uri)
+
         # call manager for every software release
         for manager in self._manager_list:
           manager.software(software)
 
         if state == 'available':
+          available_software_hash_set.append(url_hash)
           completed_tag = os.path.join(software_path, '.completed')
           if (self.develop or (not os.path.exists(completed_tag) and
                  len(self.software_release_filter_list) == 0) or
@@ -657,9 +668,9 @@ stderr_logfile_backups=1
               fout.write(time.asctime())
         elif state == 'destroyed':
           if os.path.exists(software_path):
-            self.logger.info('Destroying %r...' % software_release_uri)
+            self.logger.info('Destroying %r ...' % software_release_uri)
             software.destroy()
-            self.logger.info('Destroyed %r.' % software_release_uri)
+            self.logger.info('Destroyed %r .' % software_release_uri)
           software_release.destroyed()
 
         # call manager for every software release
@@ -685,6 +696,31 @@ stderr_logfile_backups=1
         self.logger.exception('')
         software_release.error(traceback.format_exc(), logger=self.logger)
         clean_run = False
+  
+    if "new option":
+      for buildout_cfg in glob.glob(os.path.join(self.software_root, "*", "buildout.cfg")):
+        software_directory = os.path.dirname(buildout_cfg)
+        url_hash = os.path.basename(software_directory)
+        if url_hash in available_software_hash_set:
+          continue
+
+        try:
+          buildout_config = ConfigParser()
+          with open(buildout_cfg) as f:
+            if six.PY2:
+              buildout_config.readfp(f)
+            else:
+              buildout_config.read_file(f)
+          software_release_uri = buildout_config.get('buildout', 'extends')
+        except Exception:
+          self.logger.exception("Ignoring unknown software directory %s", software_directory)
+
+        software = self._make_software(software_release_uri)
+        self.logger.info('Destroying garbage collected software %r from %s ...' % (
+          software_release_uri, software_directory))
+        software.destroy()
+        self.logger.info('Destroyed %r .' % software_release_uri)
+
     self.logger.info('Finished software releases.')
 
     # Return success value

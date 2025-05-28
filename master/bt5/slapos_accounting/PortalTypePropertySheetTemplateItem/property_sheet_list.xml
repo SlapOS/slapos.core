@@ -11,12 +11,6 @@
   <item>SlapOSLedgerAccountingConstraint</item>
   <item>SlapOSVirtualMasterSourceProjectAccountingConstraint</item>
  </portal_type>
- <portal_type id="Cloud Contract">
-  <item>SlapOSCloudContractAccounting</item>
- </portal_type>
- <portal_type id="Cloud Contract Line">
-  <item>SlapOSCloudContractLineAccounting</item>
- </portal_type>
  <portal_type id="Computer Consumption TioXML File">
   <item>SortIndex</item>
  </portal_type>

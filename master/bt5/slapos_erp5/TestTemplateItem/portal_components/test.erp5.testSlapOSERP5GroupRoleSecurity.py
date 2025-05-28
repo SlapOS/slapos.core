@@ -1516,6 +1516,82 @@ class TestConsumptionDelivery(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
 
+class TestConsumptionSupplyModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_ConsumptionSupplyModule(self):
+    module = self.portal.consumption_supply_module
+    self.assertSecurityGroup(module,
+        ['F-PRODUCTION*', 'F-CUSTOMER', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-PRODUCTION*', ['Auditor', 'Author'])
+    self.assertRoles(module, 'F-CUSTOMER', ['Auditor'])
+    self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
+
+
+class TestConsumptionSupply(TestSlapOSGroupRoleSecurityMixin):
+  def test_ConsumptionSupply_default(self):
+    supply = self.portal.consumption_supply_module.newContent(
+        portal_type='Consumption Supply')
+    self.assertSecurityGroup(supply,
+        [self.user_id], False)
+    self.assertRoles(supply, self.user_id, ['Owner'])
+
+  def test_ConsumptionSupply_DestinationCustomer(self):
+    reference = 'TESTPERSON-%s' % self.generateNewId()
+    person = self.portal.person_module.newContent(portal_type='Person',
+        reference=reference)
+
+    supply = self.portal.consumption_supply_module.newContent(
+        portal_type='Consumption Supply')
+    supply.edit(
+        destination_value=person,
+        )
+    self.assertSecurityGroup(supply,
+        [self.user_id], False)
+    self.assertRoles(supply, self.user_id, ['Owner'])
+
+    supply.validate()
+    self.assertSecurityGroup(supply,
+        [person.getUserId(), self.user_id], False)
+    self.assertRoles(supply, person.getUserId(), ['Auditor'])
+    self.assertRoles(supply, self.user_id, ['Owner'])
+
+    supply.invalidate()
+    self.assertSecurityGroup(supply,
+        [self.user_id], False)
+    self.assertRoles(supply, self.user_id, ['Owner'])
+
+  def test_ConsumptionSupply_DestinationProject(self):
+    project = self.addProject()
+    supply = self.portal.consumption_supply_module.newContent(
+        portal_type='Consumption Supply')
+    supply.edit(
+        destination_project_value=project,
+        )
+
+    self.assertSecurityGroup(supply, [self.user_id,
+        '%s_F-PRODAGNT' % project.getReference(),
+        '%s_F-PRODMAN' % project.getReference()], False)
+    self.assertRoles(supply, self.user_id, ['Owner'])
+    self.assertRoles(supply, '%s_F-PRODMAN' % project.getReference(), ['Assignor'])
+    self.assertRoles(supply, '%s_F-PRODAGNT' % project.getReference(), ['Assignee'])
+
+    supply.validate()
+    self.assertSecurityGroup(supply, [self.user_id,
+        '%s_F-CUSTOMER' % project.getReference(),
+        '%s_F-PRODAGNT' % project.getReference(),
+        '%s_F-PRODMAN' % project.getReference()], False)
+    self.assertRoles(supply, self.user_id, ['Owner'])
+    self.assertRoles(supply, '%s_F-CUSTOMER' % project.getReference(), ['Auditor'])
+    self.assertRoles(supply, '%s_F-PRODMAN' % project.getReference(), ['Assignor'])
+    self.assertRoles(supply, '%s_F-PRODAGNT' % project.getReference(), ['Assignee'])
+
+    supply.invalidate()
+    self.assertSecurityGroup(supply, [self.user_id,
+        '%s_F-PRODAGNT' % project.getReference(),
+        '%s_F-PRODMAN' % project.getReference()], False)
+    self.assertRoles(supply, self.user_id, ['Owner'])
+    self.assertRoles(supply, '%s_F-PRODMAN' % project.getReference(), ['Assignor'])
+    self.assertRoles(supply, '%s_F-PRODAGNT' % project.getReference(), ['Assignee'])
+
 class TestOpenSaleOrderModule(TestSlapOSGroupRoleSecurityMixin):
   def test_OpenSaleOrderModule(self):
     module = self.portal.open_sale_order_module

@@ -26,7 +26,6 @@ for business_application_id, module_name_list in [
       ]],
       ["slapos", [  # SlapOS
           "allocation_supply_module",
-          "cloud_contract_module",
           "compute_node_module",
           "computer_module",
           "computer_model_module",

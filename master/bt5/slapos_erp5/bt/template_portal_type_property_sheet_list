@@ -1,8 +1,5 @@
-Certificate Authority Tool | CertificateAuthorityToolConsistencyConstraint
 Category Tool | CategoryToolUpgraderRegionConstraint
-Contract Invitation Token | Reference
-Contract Invitation Token | SlapOSCloudContractAccounting
-Contract Invitation Token | Url
+Certificate Authority Tool | CertificateAuthorityToolConsistencyConstraint
 Id Tool | SlapOSModuleIdGeneratorConstraint
 Invitation Token | Reference
 Invitation Token | Url

@@ -29,6 +29,7 @@
 ##############################################################################
 
 import os
+import glob
 import pkg_resources
 import random
 import socket
@@ -40,7 +41,6 @@ import traceback
 import warnings
 import logging
 import json
-import shutil
 import six
 import errno
 import pwd
@@ -67,6 +67,7 @@ from slapos.util import (mkdir_p,
                         chownDirectory,
                         string_to_boolean,
                         listifdir,
+                        rmtree,
                         unicode2str)
 from slapos.grid.exception import BuildoutFailedError
 from slapos.grid.SlapObject import Software, Partition
@@ -590,13 +591,19 @@ stderr_logfile_backups=1
       return [cp for cp in busy_cp_list if cp.getId() in required_cp_id_set]
     return busy_cp_list
 
-  def processSoftwareReleaseList(self):
+  def processSoftwareReleaseList(self, garbage_collection=False):
     """Will process each Software Release.
+
+    If garbage_collection is True, it will also remove old software
+    folder that are no longer referenced by in the computer software
+    release list. This is useful when replicating proxy database.
     """
     self.checkEnvironmentAndCreateStructure()
     self.logger.info('Processing software releases...')
     # Boolean to know if every instance has correctly been deployed
     clean_run = True
+    available_software_path_set = set()
+
     for software_release in self.computer.getSoftwareReleaseList():
       state = software_release.getState()
       try:
@@ -636,6 +643,7 @@ stderr_logfile_backups=1
           manager.software(software)
 
         if state == 'available':
+          available_software_path_set.add(software_path)
           completed_tag = os.path.join(software_path, '.completed')
           if (self.develop or (not os.path.exists(completed_tag) and
                  len(self.software_release_filter_list) == 0) or
@@ -657,9 +665,9 @@ stderr_logfile_backups=1
               fout.write(time.asctime())
         elif state == 'destroyed':
           if os.path.exists(software_path):
-            self.logger.info('Destroying %r...' % software_release_uri)
+            self.logger.info('Destroying %r ...', software_release_uri)
             software.destroy()
-            self.logger.info('Destroyed %r.' % software_release_uri)
+            self.logger.info('Destroyed %r .', software_release_uri)
           software_release.destroyed()
 
         # call manager for every software release
@@ -685,6 +693,21 @@ stderr_logfile_backups=1
         self.logger.exception('')
         software_release.error(traceback.format_exc(), logger=self.logger)
         clean_run = False
+  
+    if garbage_collection:
+      for buildout_cfg in glob.glob(
+          os.path.join(self.software_root, "[0-9a-f]" * 32, "buildout.cfg")):
+        software_path = os.path.dirname(buildout_cfg)
+        if software_path in available_software_path_set:
+          continue
+        self.logger.info('Destroying garbage collected software folder %s ...', software_path)
+        try:
+          rmtree(software_path)
+        except Exception:
+          self.logger.exception('Problem while destroying garbage collected software folder')
+        else:
+          self.logger.info('Destroyed %s .', software_path)
+
     self.logger.info('Finished software releases.')
 
     # Return success value
@@ -1388,7 +1411,7 @@ stderr_logfile_backups=1
               if os.path.isfile(garbage_path):
                 os.unlink(garbage_path)
               else:
-                shutil.rmtree(garbage_path)
+                rmtree(garbage_path)
 
           # Ignore .slapos-resource file dumped by slapformat.
           if os.listdir(computer_partition_path) not in empty_partition_listdir:

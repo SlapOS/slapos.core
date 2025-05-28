@@ -235,9 +235,9 @@ class BasicMixin(object):
     self.setSlapgrid(develop=develop, force_stop=force_stop)
     return self.grid.processComputerPartitionList()
 
-  def launchSlapgridSoftware(self, develop=False):
+  def launchSlapgridSoftware(self, develop=False, garbage_collection=False):
     self.setSlapgrid(develop=develop)
-    return self.grid.processSoftwareReleaseList()
+    return self.grid.processSoftwareReleaseList(garbage_collection=garbage_collection)
 
   def assertLogContent(self, log_path, expected, tries=600):
     for i in range(tries):
@@ -2309,6 +2309,31 @@ chmod a-rxw directory
       software.requested_state = 'destroyed'
       self.launchSlapgridSoftware()
       self.assertEqual(os.listdir(self.software_root), [])
+
+  def test_garbage_collect_software(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
+    with httmock.HTTMock(computer.request_handler):
+      software = computer.software_list[0]
+
+      self.launchSlapgridSoftware()
+      self.assertEqual(os.listdir(self.software_root), [software.software_hash])
+
+      old_software_hash = '00000000000000000000000000000123'
+      os.makedirs(os.path.join(self.software_root, old_software_hash))
+      with open(os.path.join(self.software_root, old_software_hash, 'buildout.cfg'), 'w') as f:
+        f.write('buildout configuration for old software')
+
+      os.makedirs(os.path.join(self.software_root, 'not_a_software'))
+
+      self.launchSlapgridSoftware()
+      self.assertEqual(
+        sorted(os.listdir(self.software_root)),
+        sorted([software.software_hash, 'not_a_software', old_software_hash]))
+
+      self.launchSlapgridSoftware(garbage_collection=True)
+      self.assertEqual(
+        sorted(os.listdir(self.software_root)),
+        sorted([software.software_hash, 'not_a_software']))
 
   def test_build_software_with_netrc(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)

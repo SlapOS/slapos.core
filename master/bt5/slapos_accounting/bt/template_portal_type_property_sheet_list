@@ -4,8 +4,6 @@ Amortisation Transaction | SlapOSLedgerAccountingConstraint
 Amortisation Transaction | SlapOSVirtualMasterSourceProjectAccountingConstraint
 Balance Transaction | SlapOSLedgerAccountingConstraint
 Balance Transaction | SlapOSVirtualMasterSourceProjectAccountingConstraint
-Cloud Contract Line | SlapOSCloudContractLineAccounting
-Cloud Contract | SlapOSCloudContractAccounting
 Computer Consumption TioXML File | SortIndex
 Hosting Subscription | SlapOSAccountingHostingSubscriptionConstraint
 Hosting Subscription | SlapOSLedgerConstraint

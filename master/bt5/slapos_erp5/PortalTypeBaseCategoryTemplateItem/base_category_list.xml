@@ -1,8 +1,4 @@
 <base_category_list>
- <portal_type id="Contract Invitation Token">
-  <item>destination</item>
-  <item>source</item>
- </portal_type>
  <portal_type id="Invitation Token">
   <item>destination</item>
   <item>source</item>

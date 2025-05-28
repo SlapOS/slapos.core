@@ -316,7 +316,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     return person_user
 
   def addInstanceTree(self, project=None, person=None, shared=False):
-    # XXX supposed to replace _makeTree
     if project is None:
       project = self.addProject()
       self.tic()
@@ -344,77 +343,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
       person_user.requestSoftwareInstance(**request_kw)
     return person_user.REQUEST.get('request_instance_tree')
-
-  def _makeTree(self, project):
-    new_id = self.generateNewId()
-
-    self.request_kw = dict(
-        software_release=self.generateNewSoftwareReleaseUrl(),
-        software_title=self.generateNewSoftwareTitle(),
-        software_type=self.generateNewSoftwareType(),
-        instance_xml=self.generateSafeXml(),
-        sla_xml=self.generateEmptyXml(),
-        shared=False,
-        state="started",
-        project_reference=project.getReference()
-    )
-
-    self.person_user = self.makePerson(project, new_id=new_id, index=False)
-    self.commit()
-    # prepare part of tree
-    self.instance_tree = self.portal.instance_tree_module\
-        .newContent(portal_type="Instance Tree")
-    self.software_instance = self.portal.software_instance_module\
-        .newContent(portal_type="Software Instance")
-
-    self.instance_tree.edit(
-        title=self.request_kw['software_title'],
-        reference="TESTHS-%s" % new_id,
-        url_string=self.request_kw['software_release'],
-        source_reference=self.request_kw['software_type'],
-        text_content=self.request_kw['instance_xml'],
-        sla_xml=self.request_kw['sla_xml'],
-        root_slave=self.request_kw['shared'],
-        successor=self.software_instance.getRelativeUrl(),
-        destination_section_value=self.person_user,
-        follow_up_value=project
-    )
-    self.instance_tree.validate()
-    self.portal.portal_workflow._jumpToStateFor(self.instance_tree, 'start_requested')
-
-    self.requested_software_instance = self.portal.software_instance_module\
-        .newContent(portal_type="Software Instance")
-    self.software_instance.edit(
-        title=self.request_kw['software_title'],
-        reference="TESTSI-%s" % new_id,
-        url_string=self.request_kw['software_release'],
-        source_reference=self.request_kw['software_type'],
-        text_content=self.request_kw['instance_xml'],
-        sla_xml=self.request_kw['sla_xml'],
-        specialise=self.instance_tree.getRelativeUrl(),
-        successor=self.requested_software_instance.getRelativeUrl(),
-        follow_up_value=project,
-        ssl_key='foo',
-        ssl_certificate='bar'
-    )
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance, 'start_requested')
-    self.software_instance.validate()
-
-    self.requested_software_instance.edit(
-        title=self.generateNewSoftwareTitle(),
-        reference="TESTSI-%s" % self.generateNewId(),
-        url_string=self.request_kw['software_release'],
-        source_reference=self.request_kw['software_type'],
-        text_content=self.request_kw['instance_xml'],
-        sla_xml=self.request_kw['sla_xml'],
-        specialise=self.instance_tree.getRelativeUrl(),
-        follow_up_value=project,
-        ssl_key='foo',
-        ssl_certificate='bar'
-    )
-    self.portal.portal_workflow._jumpToStateFor(self.requested_software_instance, 'start_requested')
-    self.requested_software_instance.validate()
-    self.tic()
 
   def addComputeNodeAndPartition(self, project=None,
                                  portal_type='Compute Node'):

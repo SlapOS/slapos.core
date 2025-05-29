@@ -61,7 +61,7 @@
         </item>
         <item>
             <key> <string>enctype</string> </key>
-            <value> <string></string> </value>
+            <value> <string>multipart/form-data</string> </value>
         </item>
         <item>
             <key> <string>group_list</string> </key>
@@ -101,8 +101,7 @@
                     <key> <string>left</string> </key>
                     <value>
                       <list>
-                        <string>my_first_name</string>
-                        <string>my_last_name</string>
+                        <string>my_resource_title</string>
                       </list>
                     </value>
                 </item>
@@ -110,8 +109,7 @@
                     <key> <string>right</string> </key>
                     <value>
                       <list>
-                        <string>my_default_email_coordinate_text</string>
-                        <string>my_default_email_url_string</string>
+                        <string>my_resource_reference</string>
                       </list>
                     </value>
                 </item>
@@ -120,7 +118,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_viewOnSlaposPanel</string> </value>
+            <value> <string>ConsumptionSupplyLine_viewOnSlaposPanel</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -128,7 +126,7 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>Person_viewOnSlaposPanel</string> </value>
+            <value> <string>ConsumptionSupplyLine_view</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
@@ -144,7 +142,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Person</string> </value>
+            <value> <string>View</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

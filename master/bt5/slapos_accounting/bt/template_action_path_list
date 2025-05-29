@@ -1,4 +1,3 @@
-Compute Node | jump_to_consumption_report_view
 Computer Consumption TioXML File | download
 Computer Consumption TioXML File | view
 Computer Consumption TioXML File | view_edit
@@ -16,11 +15,8 @@ Consumption Delivery | profile_view
 Consumption Delivery | view
 Consumption Delivery | view_stock
 Consumption Document Module | view
-Consumption Supply Line | slapos_panel_view
 Consumption Supply Line | view
-Consumption Supply Module | slapos_panel_view
 Consumption Supply Module | view
-Consumption Supply | slapos_panel_view
 Consumption Supply | view
 Hosting Subscription | periodicity
 Instance Tree | jump_to_related_open_order_line

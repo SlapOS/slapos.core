@@ -264,6 +264,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/Project_addSlapOSComputeNode',
         'slapos_panel/Project_addSlapOSComputeNodeToken',
         'slapos_panel/Project_addSlapOSComputerNetwork',
+        'slapos_panel/Project_addSlapOSConsumptionSupply',
         'slapos_panel/Project_addSlapOSRemoteNode',
         'slapos_panel/Project_addSlapOSSaleSupply',
         'slapos_panel/Project_addSlapOSSoftwareProduct',

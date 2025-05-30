@@ -351,6 +351,9 @@ def Base_updateRelatedContentWithoutReindextion(self, previous_category_url, new
 def isValidXml(self, value, REQUEST=None):
   if REQUEST is not None:
     raise Unauthorized
+  if value is None:
+    # Backward compatibility with previous implementation.
+    raise ValueError("value is None")
   # No better way them this for now
   etree.fromstring(str2bytes(value))
   return True

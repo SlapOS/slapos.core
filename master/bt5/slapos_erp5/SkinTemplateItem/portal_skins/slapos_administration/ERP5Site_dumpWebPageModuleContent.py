@@ -1,4 +1,5 @@
 import hashlib
+from Products.ERP5Type.Utils import str2bytes
 portal = context.getPortalObject()
 
 if not ignore_string_on_reference_list:
@@ -7,7 +8,7 @@ if not ignore_string_on_reference_list:
 def getWebContentHash(document):
   content = document.getTextContent("ignore")
   m = hashlib.md5()
-  m.update(content)
+  m.update(str2bytes(content))
   content_hash = m.hexdigest()
   return ";".join((document.getReference(), content_hash))
 

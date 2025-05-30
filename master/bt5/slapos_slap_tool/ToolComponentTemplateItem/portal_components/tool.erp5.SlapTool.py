@@ -677,7 +677,7 @@ class SlapTool(BaseTool):
     """
     Fire up bung on Compute Node
     """
-    compute_node = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id) 
+    compute_node = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id)
     return compute_node.reportComputeNodeBang(comment=message)
 
   security.declareProtected(Permissions.AccessContentsInformation,
@@ -773,16 +773,16 @@ class SlapTool(BaseTool):
   def _validateXML(self, to_be_validated, xsd_model):
     """Will validate the xml file"""
     #We parse the XSD model
-    xsd_model = six.StringIO(xsd_model)
+    xsd_model = six.BytesIO(xsd_model)
     xmlschema_doc = etree.parse(xsd_model)
     xmlschema = etree.XMLSchema(xmlschema_doc)
 
-    string_to_validate = six.StringIO(to_be_validated)
+    string_to_validate = six.BytesIO(to_be_validated)
 
     try:
       document = etree.parse(string_to_validate)
     except (etree.XMLSyntaxError, etree.DocumentInvalid) as e: # pylint: disable=catching-non-exception
-      LOG('SlapTool::_validateXML', INFO, 
+      LOG('SlapTool::_validateXML', INFO,
         'Failed to parse this XML reports : %s\n%s' % \
           (to_be_validated, e))
       return False

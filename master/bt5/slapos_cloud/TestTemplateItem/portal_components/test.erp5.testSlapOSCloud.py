@@ -27,7 +27,7 @@
 ##############################################################################
 
 from Products.ERP5Type.Core.Workflow import ValidationFailed
-from Products.ERP5Type.Utils import str2bytes
+from Products.ERP5Type.Utils import str2bytes, str2unicode
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
                                                     TemporaryAlarmScript, \
                                                     SlapOSTestCaseMixinWithAbort
@@ -621,9 +621,9 @@ class TestSlapOSCloudSoftwareInstance(
       'ip_list', 'full_ip_list', 'timestamp'])
 
     self.assertEqual(as_parameter_dict["instance_guid"],
-      self.start_requested_software_instance.getReference().decode("UTF-8") )
+      str2unicode(self.start_requested_software_instance.getReference()) )
     self.assertEqual(as_parameter_dict["instance_title"],
-      self.start_requested_software_instance.getTitle().decode("UTF-8") )
+      str2unicode(self.start_requested_software_instance.getTitle()) )
     self.assertEqual(as_parameter_dict["xml"],
       self.start_requested_software_instance.getTextContent() )
     self.assertEqual(as_parameter_dict["connection_xml"],
@@ -631,11 +631,11 @@ class TestSlapOSCloudSoftwareInstance(
     self.assertEqual(as_parameter_dict["filter_xml"],
       self.start_requested_software_instance.getSlaXml() )
     self.assertEqual(as_parameter_dict["root_instance_title"],
-      self.start_requested_software_instance.getSpecialiseTitle().decode("UTF-8"))
+      str2unicode(self.start_requested_software_instance.getSpecialiseTitle()))
     self.assertEqual(as_parameter_dict["root_instance_short_title"],
-      self.start_requested_software_instance.getSpecialiseShortTitle().decode("UTF-8"))
+      str2unicode(self.start_requested_software_instance.getSpecialiseShortTitle()))
     self.assertEqual(as_parameter_dict["slap_computer_id"],
-      self.compute_node.getReference().decode("UTF-8"))
+      str2unicode(self.compute_node.getReference()))
     self.assertEqual(as_parameter_dict["slap_computer_partition_id"],
       "partition1")
 
@@ -645,7 +645,7 @@ class TestSlapOSCloudSoftwareInstance(
        'timestamp', 'xml', 'connection_xml'])
 
     self.assertEqual(
-      self.start_requested_slave_instance.getTitle().decode("UTF-8"),
+      str2unicode(self.start_requested_slave_instance.getTitle()),
       as_parameter_dict["slave_instance_list"][0]["slave_title"]
     )
 

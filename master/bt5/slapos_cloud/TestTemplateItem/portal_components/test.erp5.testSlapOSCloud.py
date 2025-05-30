@@ -27,6 +27,7 @@
 ##############################################################################
 
 from Products.ERP5Type.Core.Workflow import ValidationFailed
+from Products.ERP5Type.Utils import str2bytes
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
                                                     TemporaryAlarmScript, \
                                                     SlapOSTestCaseMixinWithAbort
@@ -43,7 +44,7 @@ BELL_CHAR = "\x07"
 HORIZONTAL_TAB_CHAR = "\x09"
 
 def hashData(data):
-  return hexlify(hashlib.sha1(json.dumps(data, sort_keys=True)).digest())
+  return hexlify(hashlib.sha1(str2bytes(json.dumps(data, sort_keys=True))).digest())
 
 def _decode_with_json(value):
   # Ensure value is serisalisable as json

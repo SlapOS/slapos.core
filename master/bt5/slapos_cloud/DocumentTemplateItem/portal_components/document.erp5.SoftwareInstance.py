@@ -30,7 +30,7 @@ from Products.ERP5Type import Permissions
 from erp5.component.document.Item import Item
 from lxml import etree
 import collections
-from Products.ERP5Type.Utils import str2bytes, str2unicode
+from Products.ERP5Type.Utils import str2bytes, str2unicode, unicode2str
 
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 from erp5.component.module.SlapOSCloud import _assertACI
@@ -68,14 +68,14 @@ class SoftwareInstance(Item):
     if xml:
       tree = etree.fromstring(str2bytes(xml))
       for element in tree.iterfind('parameter'):
-        key = element.get('id').encode("UTF-8")
+        key = unicode2str(element.get('id'))
         value = result_dict.get(key, None)
         if value is not None:
           value = (value + ' ' + element.text)
         else:
           value = element.text
         if value is not None:
-          value = value.encode("UTF-8")
+          value = unicode2str(value)
         result_dict[key] = value
     return result_dict
 

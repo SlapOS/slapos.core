@@ -34,6 +34,7 @@ import transaction
 import functools
 from functools import wraps
 from zLOG import LOG, INFO
+import six
 
 def changeSkin(skin_name):
   def decorator(func):
@@ -154,6 +155,14 @@ class PortalAlarmDisabled(object):
       self.portal_alarms.subscribe()
       # transaction.commit()
 
+def string_escape(value):
+  """ Simplified function to handle certificate use case only"""
+  if six.PY3:
+    return (value.encode('latin1')     # To bytes, required by 'unicode-escape'
+             .decode('unicode-escape') # Perform the actual octal-escaping decode
+             .encode('latin1')         # 1:1 mapping back to bytes
+             .decode('utf-8'))
+  return value.decode('string_escape')
 
 class SlapOSTestCaseMixin(testSlapOSMixin):
 

@@ -201,6 +201,8 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_deploy_theme/WebPage_viewAsWeb',
         'slapos_deploy_theme/WebSection_getDocumentValue',
         'slapos_deploy_theme/WebSection_renderDefaultPageAsDeployScript',
+        'slapos_upgrader/AlarmTool_checkCloudContractDeletionConsistency',
+        'slapos_upgrader/AlarmTool_checkContractInvitationTokenDeletionConsistency',
         'slapos_upgrader/Base_getUpgradeBusinessTemplateList',
         'slapos_upgrader/ERP5Site_upgradeERP5CoreBusinessTemplate',
         'slapos_upgrader/ERP5Site_upgradeUpgraderBusinessTemplate',

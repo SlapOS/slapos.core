@@ -562,16 +562,16 @@ class TestRequest(MasterMixin):
 
   def test_two_request_one_partition_free(self):
     """
-    Since slapproxy does not implement scope, providing two partition_id
-    values will still succeed, even if only one partition is available.
+    Since slapproxy implements scope, providing two partition_id
+    values will fail when only one partition is available.
     """
     self.format_for_number_of_partitions(1)
     self.assertIsInstance(self.request('http://sr//', None,
                                        'MyFirstInstance', 'slappart2'),
                           slapos.slap.ComputerPartition)
-    self.assertIsInstance(self.request('http://sr//', None,
-                                       'MyFirstInstance', 'slappart3'),
-                          slapos.slap.ComputerPartition)
+    rv = self._requestComputerPartition('http://sr//', None,
+                                       'MyFirstInstance', 'slappart3')
+    self.assertEqual(rv._status_code, 404)
 
   def test_two_request_two_partition_free(self):
     """
@@ -753,13 +753,29 @@ class TestRequest(MasterMixin):
 
   def test_two_different_request_from_two_partition(self):
     """
-    Since slapproxy does not implement scope, two request with
-    different partition_id will still return the same partition.
+    Since slapproxy implement scope, two request with
+    different partition_id will return different partitions.
     """
     self.format_for_number_of_partitions(2)
+    self.assertNotEqual(
+        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').getId(),
+        self.request('http://sr//', None, 'MyFirstInstance', 'slappart3').getId())
+
+  def test_diamond_instance_tree(self):
+    """
+    Two requests with same reference in the same
+    instance tree will return the same partition.
+    A --------> B    #
+     \           \   #
+      \--> C ---> D  #
+    """
+    self.format_for_number_of_partitions(4)
+    a = self.request('http://sr//', None, 'A', None)
+    b = self.request('http://sr//', None, 'B', a.getId())
+    c = self.request('http://sr//', None, 'C', a.getId())
     self.assertEqual(
-        dict(self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__, _connection_helper=None),
-        dict(self.request('http://sr//', None, 'MyFirstInstance', 'slappart3').__dict__, _connection_helper=None))
+        self.request('http://sr//', None, 'D', b.getId()).getId(),
+        self.request('http://sr//', None, 'D', c.getId()).getId())
 
   def test_two_different_request_from_one_partition(self):
     """
@@ -768,8 +784,8 @@ class TestRequest(MasterMixin):
     """
     self.format_for_number_of_partitions(2)
     self.assertNotEqual(
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__,
-        self.request('http://sr//', None, 'frontend', 'slappart2').__dict__)
+        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').getId(),
+        self.request('http://sr//', None, 'frontend', 'slappart2').getId())
 
   def test_request_with_nonascii_parameters(self):
     """
@@ -2349,7 +2365,7 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
   """
   dump_filename = NotImplemented
   initial_table_list = NotImplemented
-  current_version = '16'
+  current_version = '17'
 
   def setUp(self):
     TestInformation.setUp(self)
@@ -2405,17 +2421,18 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
     )
 
     partition_list = self.db.execute("select * from partition{}".format(self.current_version)).fetchall()
+    self.maxDiff = None
     self.assertEqual(partition_list, [
-      ('slappart0', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="json">{\n  "site-id": "erp5"\n  }\n}</parameter>\n</instance>\n', None, None, 'production', 'slapos', None, 'started', None),
-      ('slappart1', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">mysql://127.0.0.1:45678/erp5</parameter>\n</instance>\n', None, 'mariadb', 'MariaDB DataBase', 'slappart0', 'started', None),
-      ('slappart2', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="cloudooo-json"></parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', None, 'cloudooo', 'Cloudooo', 'slappart0', 'started', None),
-      ('slappart3', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:11000/</parameter>\n</instance>\n', None, 'memcached', 'Memcached', 'slappart0', 'started', None),
-      ('slappart4', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:13301/</parameter>\n</instance>\n', None, 'kumofs', 'KumoFS', 'slappart0', 'started', None),
-      ('slappart5', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="kumofs-url">memcached://127.0.0.1:13301/</parameter>\n  <parameter id="memcached-url">memcached://127.0.0.1:11000/</parameter>\n  <parameter id="cloudooo-url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">https://[fc00::1]:10001</parameter>\n</instance>\n', None, 'tidstorage', 'TidStorage', 'slappart0', 'started', None),
-      ('slappart6', 'computer', 'free', None, None, None, None, None, None, None, 'started', None),
-      ('slappart7', 'computer', 'free', None, None, None, None, None, None, None, 'started', None),
-      ('slappart8', 'computer', 'free', None, None, None, None, None, None, None, 'started', None),
-      ('slappart9', 'computer', 'free', None, None, None, None, None, None, None, 'started', None),
+      ('slappart0', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="json">{\n  "site-id": "erp5"\n  }\n}</parameter>\n</instance>\n', None, None, 'production', 'slapos', None, None, 'started', None),
+      ('slappart1', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">mysql://127.0.0.1:45678/erp5</parameter>\n</instance>\n', None, 'mariadb', 'MariaDB DataBase', 'slappart0', 'slappart0', 'started', None),
+      ('slappart2', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="cloudooo-json"></parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', None, 'cloudooo', 'Cloudooo', 'slappart0', 'slappart0', 'started', None),
+      ('slappart3', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:11000/</parameter>\n</instance>\n', None, 'memcached', 'Memcached', 'slappart0', 'slappart0', 'started', None),
+      ('slappart4', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:13301/</parameter>\n</instance>\n', None, 'kumofs', 'KumoFS', 'slappart0', 'slappart0', 'started', None),
+      ('slappart5', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="kumofs-url">memcached://127.0.0.1:13301/</parameter>\n  <parameter id="memcached-url">memcached://127.0.0.1:11000/</parameter>\n  <parameter id="cloudooo-url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">https://[fc00::1]:10001</parameter>\n</instance>\n', None, 'tidstorage', 'TidStorage', 'slappart0', 'slappart0', 'started', None),
+      ('slappart6', 'computer', 'free', None, None, None, None, None, None, None, None, 'started', None),
+      ('slappart7', 'computer', 'free', None, None, None, None, None, None, None, None, 'started', None),
+      ('slappart8', 'computer', 'free', None, None, None, None, None, None, None, None, 'started', None),
+      ('slappart9', 'computer', 'free', None, None, None, None, None, None, None, None, 'started', None),
       ])
 
     slave_list = self.db.execute("select * from slave{}".format(self.current_version)).fetchall()
@@ -2437,6 +2454,22 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
           forwarded_request_list,
           [('forwarded_instance', 'https://bogus/master/url')]
       )
+
+    # Check that partition_root field is correctly filled
+    if self.initial_version <= 16:
+      self.db.row_factory = sqlite3.Row
+      rows = self.db.execute("select * from partition{}".format(self.current_version)).fetchall()
+      self.db.row_factory = None
+      partitions = {row['reference'] : row for row in rows}
+      for row in rows:
+        requested_by = row['requested_by']
+        if requested_by:
+          root_id = row['root_partition']
+          self.assertTrue(root_id)
+          parent = partitions.get(requested_by)
+          # Note: sub-sub-instances case not covered in the test database
+          if parent and parent['requested_by']:
+            self.assertEqual(root_id, parent['root_partition'])
 
     # Check that we only have new tables
     table_list = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
@@ -2473,34 +2506,47 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
 
 
 class TestMigrateVersion10ToLatest(_MigrationTestCase):
+  initial_version = 10
   dump_filename = 'database_dump_version_10.sql'
   initial_table_list = ['computer10', 'partition10', 'partition_network10', 'slave10', 'software10', ]
 
 
 class TestMigrateVersion11ToLatest(_MigrationTestCase):
+  initial_version = 11
   dump_filename = 'database_dump_version_11.sql'
   initial_table_list = ['computer11', 'forwarded_partition_request11', 'partition11', 'partition_network11', 'slave11', 'software11', ]
 
 
 class TestMigrateVersion12ToLatest(_MigrationTestCase):
+  initial_version = 12
   dump_filename = 'database_dump_version_12.sql'
   initial_table_list = ['computer12', 'forwarded_partition_request12', 'partition12', 'partition_network12', 'slave12', 'software12', ]
 
 
 class TestMigrateVersion13ToLatest(_MigrationTestCase):
+  initial_version = 13
   dump_filename = 'database_dump_version_13.sql'
   initial_table_list = ['computer13', 'forwarded_partition_request13', 'partition13', 'partition_network13', 'slave13', 'software13', ]
 
 
 class TestMigrateVersion14ToLatest(_MigrationTestCase):
+  initial_version = 14
   dump_filename = 'database_dump_version_14.sql'
   initial_table_list = ['computer14', 'forwarded_partition_request14', 'partition14', 'partition_network14', 'slave14', 'software14', ]
 
 
 class TestMigrateVersion15ToLatest(_MigrationTestCase):
+  initial_version = 15
   dump_filename = 'database_dump_version_15.sql'
   initial_table_list = ['computer15', 'forwarded_partition_request15', 'local_software_release_root15', 'partition15',
                         'partition_network15', 'slave15', 'software15', ]
+
+class TestMigrateVersion16ToLatest(_MigrationTestCase):
+  initial_version = 16
+  dump_filename = 'database_dump_version_16.sql'
+  initial_table_list = ['computer16', 'forwarded_partition_request16', 'local_software_release_root16', 'partition16',
+                        'partition_network16', 'slave16', 'software16', ]
+
 
 
 del _MigrationTestCase

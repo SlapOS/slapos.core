@@ -50,19 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>cloud_invitation, REQUEST=None</string> </value>
-        </item>
-        <item>
-            <key> <string>_proxy_roles</string> </key>
-            <value>
-              <tuple>
-                <string>Manager</string>
-              </tuple>
-            </value>
+            <value> <string>fixit=False</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_applyContractInvitation</string> </value>
+            <value> <string>AlarmTool_checkContractInvitationTokenDeletionConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

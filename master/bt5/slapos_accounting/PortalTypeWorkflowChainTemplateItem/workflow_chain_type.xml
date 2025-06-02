@@ -4,14 +4,6 @@
   <workflow>slapos_simulation_interaction_workflow</workflow>
  </chain>
  <chain>
-  <type>Cloud Contract</type>
-  <workflow>edit_workflow, item_workflow</workflow>
- </chain>
- <chain>
-  <type>Cloud Contract Line</type>
-  <workflow>edit_workflow</workflow>
- </chain>
- <chain>
   <type>Compute Node</type>
   <workflow>slapos_accounting_interaction_workflow</workflow>
  </chain>

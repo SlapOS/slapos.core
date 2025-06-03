@@ -1,6 +1,14 @@
 Changes
 =======
 
+1.16.3 (2025-06-03)
+-------------------
+ * slapgrid: new ``--garbage-collect`` option for ``slapos node software``, to garbage collect installed softwares that are no longer supplied.
+ * standalone: Explictly autostart instance supervisord.
+ * testing/e2e: Cleanup unused call for compatibility with recent slapos server.
+ * tests: more test coverage and compabitility with python 3.12
+
+
 1.16.2 (2025-03-14)
 -------------------
  * testing/e2e: fixup recent e2e_regression

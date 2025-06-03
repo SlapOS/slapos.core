@@ -2,13 +2,10 @@ Accounting Transaction | local_permission_slapos_interaction_workflow
 Acknowledgement | local_permission_slapos_interaction_workflow
 Allocation Supply | local_permission_slapos_interaction_workflow
 Balance Transaction | local_permission_slapos_interaction_workflow
-Cloud Contract | local_permission_slapos_interaction_workflow
 Compute Node | local_permission_slapos_interaction_workflow
 Compute Node | slapos_erp5_interaction_workflow
 Computer Model | local_permission_slapos_interaction_workflow
 Computer Network | local_permission_slapos_interaction_workflow
-Contract Invitation Token | edit_workflow
-Contract Invitation Token | validation_workflow
 Credential Request | slapos_erp5_interaction_workflow
 Delivery Cell | -immobilisation_movement_interaction_workflow
 Hosting Subscription | local_permission_slapos_interaction_workflow

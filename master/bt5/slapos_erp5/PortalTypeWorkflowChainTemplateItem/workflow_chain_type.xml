@@ -16,10 +16,6 @@
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
  <chain>
-  <type>Cloud Contract</type>
-  <workflow>local_permission_slapos_interaction_workflow</workflow>
- </chain>
- <chain>
   <type>Compute Node</type>
   <workflow>local_permission_slapos_interaction_workflow, slapos_erp5_interaction_workflow</workflow>
  </chain>
@@ -30,10 +26,6 @@
  <chain>
   <type>Computer Network</type>
   <workflow>local_permission_slapos_interaction_workflow</workflow>
- </chain>
- <chain>
-  <type>Contract Invitation Token</type>
-  <workflow>edit_workflow, validation_workflow</workflow>
  </chain>
  <chain>
   <type>Credential Request</type>

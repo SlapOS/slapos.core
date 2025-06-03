@@ -94,9 +94,9 @@ class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(SlapOSTestCaseMixin):
 
     assignment.Assignment_createPersonMissingSubscriptionAssignment(subscription_category_list)
 
-    self.assertEquals(2, len(person.contentValues(portal_type='Assignment')))
+    self.assertEqual(2, len(person.contentValues(portal_type='Assignment')))
     subscription_assignment = [x for x in person.contentValues(portal_type='Assignment') if x.getId() != assignment.getId()][0]
-    self.assertEquals('open', subscription_assignment.getValidationState())
+    self.assertEqual('open', subscription_assignment.getValidationState())
     self.assertSameSet(subscription_category_list, subscription_assignment.getCategoryList())
 
   def test_Assignment_createPersonMissingSubscriptionAssignment_script_withOpenSubscriptionAssignment(self):
@@ -112,7 +112,7 @@ class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(SlapOSTestCaseMixin):
 
     assignment.Assignment_createPersonMissingSubscriptionAssignment(subscription_category_list)
 
-    self.assertEquals(1, len(person.contentValues(portal_type='Assignment')))
+    self.assertEqual(1, len(person.contentValues(portal_type='Assignment')))
 
   def test_Assignment_createPersonMissingSubscriptionAssignment_script_withDraftSubscriptionAssignment(self):
     subscription_category_list = ['activity/research', 'role/member']
@@ -131,9 +131,9 @@ class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(SlapOSTestCaseMixin):
 
     assignment2.Assignment_createPersonMissingSubscriptionAssignment(subscription_category_list)
 
-    self.assertEquals(3, len(person.contentValues(portal_type='Assignment')))
+    self.assertEqual(3, len(person.contentValues(portal_type='Assignment')))
     subscription_assignment = [x for x in person.contentValues(portal_type='Assignment') if (x.getId() != assignment1.getId()) and (x.getId() != assignment2.getId())][0]
-    self.assertEquals('open', subscription_assignment.getValidationState())
+    self.assertEqual('open', subscription_assignment.getValidationState())
     self.assertSameSet(subscription_category_list, subscription_assignment.getCategoryList())
 
   #################################################################

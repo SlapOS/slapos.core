@@ -118,19 +118,6 @@ def convertToREST(function):
   wrapper.__doc__ = function.__doc__
   return wrapper
 
-def castToStr(dict_kw):
-  instance = etree.Element('instance')
-  for _id, _value in six.iteritems(dict_kw):
-    # cast everything to string.
-    text = _value
-    if not isinstance(_value, str):
-      text = str(_value)
-    etree.SubElement(instance, "parameter",
-                    attrib={'id': _id}).text = str2unicode(text)
-  return etree.tostring(instance, pretty_print=True,
-                                  xml_declaration=True, encoding='utf-8')
-
-
 _MARKER = object()
 
 class SlapTool(BaseTool):
@@ -975,9 +962,9 @@ class SlapTool(BaseTool):
     kw = dict(software_release=software_release,
               software_type=software_type,
               software_title=partition_reference,
-              instance_xml=castToStr(partition_parameter_kw),
+              instance_xml=dict2xml(partition_parameter_kw),
               shared=shared,
-              sla_xml=castToStr(filter_kw),
+              sla_xml=dict2xml(filter_kw),
               state=state,
               project_reference=project_reference)
 

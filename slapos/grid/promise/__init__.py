@@ -45,7 +45,11 @@ import errno
 from datetime import datetime
 from multiprocessing import Process, Queue as MQueue
 from six.moves import queue, reload_module
-from slapos.util import str2bytes, mkdir_p, chownDirectory, listifdir
+from slapos.util import (str2bytes,
+                         mkdir_p,
+                         chownDirectory,
+                         listifdir,
+                         string_to_boolean)
 from slapos.grid.utils import dropPrivileges, killProcessTree
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import (GenericPromise, PromiseQueueResult,
@@ -239,6 +243,12 @@ class PromiseProcess(Process):
       extra_dict = getattr(promise_module, PROMISE_PARAMETER_NAME)
       if not isinstance(extra_dict, dict):
         raise ValueError("Extra parameter is not a dict")
+      allow_bang = extra_dict.pop('allow-bang', 'true')
+      try:
+        allow_bang = string_to_boolean(allow_bang)
+      except ValueError:
+        allow_bang = True # default
+      self.allow_bang = self.allow_bang and allow_bang
       for key in extra_dict:
         if key in self.argument_dict:
           raise ValueError("Extra parameter name %r cannot be used.\n%s" % (
@@ -551,13 +561,19 @@ class PromiseLauncher(object):
       return
     elif result_item.item.hasFailed():
       self.logger.error(result_item.item.message)
-      if result_item.execution_time != -1 and \
-          isinstance(result_item.item, AnomalyResult) and self.check_anomaly:
-        # stop to bang as it was called
-        self.bang_called = True
     # Send result
     self._savePromiseResult(result_item)
     self._savePromiseHistoryResult(result_item)
+
+  def _hasBanged(self, result_item, promise_process):
+    item = result_item.item
+    return all((
+      promise_process.allow_bang, # affected by promise extra config
+      item.hasFailed(),
+      result_item.execution_time != -1,
+      isinstance(item, AnomalyResult),
+      self.check_anomaly,
+    ))
 
   def _emptyQueue(self):
     """Remove all entries from queue until it's empty"""
@@ -699,6 +715,10 @@ class PromiseLauncher(object):
         message="Error: No output returned by the promise",
         execution_time=execution_time
       )
+
+    if self._hasBanged(queue_item, promise_process):
+      # stop allowing bang as it was already called once
+      self.bang_called = True
 
     self._writePromiseResult(queue_item)
     if self.debug:

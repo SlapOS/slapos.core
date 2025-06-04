@@ -2025,3 +2025,63 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
     self.assertEqual(software_instance.getConnectionXml(), None)
     self.assertEqual(software_instance.getAccessStatus()['text'], "#error Can not propagate from inconsistent Remote Node")
 
+
+class TestERP5InvitationTokenAlarm(SlapOSTestCaseMixin):
+
+  def test_alarm_old_validated_invitation_token(self):
+    invitation_token = self.portal.invitation_token_module.newContent(
+      portal_type="Invitation Token",
+    )
+    invitation_token.workflow_history['edit_workflow'] = [{
+        'comment':'Fake history',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'state': 'current',
+        'time': DateTime('2012/11/15 11:11'),
+        'action': 'foo_action'
+        }]
+    self.portal.portal_workflow._jumpToStateFor(invitation_token, 'validated')
+    self.tic()
+
+    self.portal.portal_alarms.\
+      erp5_garbage_collect_invitation_token.activeSense()
+    self.tic()
+
+    self.assertEqual('invalidated', invitation_token.getValidationState())
+    self.assertEqual(
+        'Unused for 1 day.',
+        invitation_token.workflow_history['validation_workflow'][-1]['comment'])
+
+  def test_alarm_recent_validated_invitation_token(self):
+    invitation_token = self.portal.invitation_token_module.newContent(
+      portal_type="Invitation Token",
+    )
+    self.portal.portal_workflow._jumpToStateFor(invitation_token, 'validated')
+    self.tic()
+
+    self.portal.portal_alarms.\
+      erp5_garbage_collect_invitation_token.activeSense()
+    self.tic()
+
+    self.assertEqual('validated', invitation_token.getValidationState())
+
+  def test_alarm_old_non_validated_invitation_token(self):
+    invitation_token = self.portal.invitation_token_module.newContent(
+      portal_type="Invitation Token",
+    )
+    invitation_token.workflow_history['edit_workflow'] = [{
+        'comment':'Fake history',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'state': 'current',
+        'time': DateTime('2012/11/15 11:11'),
+        'action': 'foo_action'
+        }]
+    self.tic()
+
+    self.portal.portal_alarms.\
+      erp5_garbage_collect_invitation_token.activeSense()
+    self.tic()
+
+    self.assertEqual('draft', invitation_token.getValidationState())
+

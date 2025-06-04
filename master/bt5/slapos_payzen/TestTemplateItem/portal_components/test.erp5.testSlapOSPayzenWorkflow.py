@@ -20,6 +20,7 @@
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import simulate
 from erp5.component.test.testSlapOSPayzenSkins import TestSlapOSPayzenMixin
+from Products.ERP5Type.Utils import bytes2str
 
 import lxml.html
 from DateTime import DateTime
@@ -304,8 +305,8 @@ class TestSlapOSPayzenInterfaceWorkflow(TestSlapOSPayzenMixin):
     else:
       slapos_payzen_html = self.slapos_payzen_html
 
-    expected_html_page = lxml.html.tostring(
-      lxml.html.fromstring(slapos_payzen_html % data_dict), method='c14n')
+    expected_html_page = bytes2str(lxml.html.tostring(
+      lxml.html.fromstring(slapos_payzen_html % data_dict), method='c14n'))
 
     # Event message state
     event_message_list = event.contentValues(portal_type="Payzen Event Message")
@@ -313,8 +314,8 @@ class TestSlapOSPayzenInterfaceWorkflow(TestSlapOSPayzenMixin):
     message = event_message_list[0]
     self.assertEqual(message.getTitle(), 'Shown Page')
 
-    message_text_content = lxml.html.tostring(
-      lxml.html.fromstring(message.getTextContent()), method='c14n')
+    message_text_content = bytes2str(lxml.html.tostring(
+      lxml.html.fromstring(message.getTextContent()), method='c14n'))
     self.assertEqual(message_text_content, expected_html_page,
                      '\n'.join([q for q in difflib.unified_diff(
                        message_text_content.split('\n'),

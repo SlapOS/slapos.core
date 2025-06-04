@@ -5,6 +5,7 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, Tempora
 from DateTime import DateTime
 from App.Common import rfc1123_date
 
+import six
 import os
 import tempfile
 import time
@@ -637,8 +638,11 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     self.assertXMLEqual(str2bytes(expected_xml), got_xml)
 
   def test_getComputeNodeInformation(self):
-    self.assertEqual('getFullComputerInformation',
-      self.portal_slap.getComputerInformation.im_func.func_name)
+    if six.PY2:
+      func_name = self.portal_slap.getComputerInformation.im_func.func_name
+    else:
+      func_name = self.portal_slap.getComputerInformation.__func__.__name__
+    self.assertEqual('getFullComputerInformation', func_name)
 
   def test_not_accessed_getComputerStatus(self):
     self.login(self.compute_node_user_id)
@@ -3369,4 +3373,4 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     self.login(self.person_user_id)
     response = self.portal_slap.getHateoasUrl()
     self.assertEqual(200, response.status)
-    self.assertEqual('foo', response.body)
+    self.assertEqual(str2bytes('foo'), response.body)

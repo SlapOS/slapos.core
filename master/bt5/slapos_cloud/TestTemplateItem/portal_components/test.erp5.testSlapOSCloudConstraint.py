@@ -7,6 +7,7 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
 import transaction
+import six
 
 class TestSlapOSConstraintMixin(SlapOSTestCaseMixin):
   @staticmethod
@@ -148,13 +149,15 @@ class TestSlapOSSoftwareInstanceConstraint(TestSlapOSConstraintMixin):
   def test_connection_xml(self):
     # fetch basic list of consistency messages
     current_message_list = self.getMessageList(self.software_instance)
+    py3_extra = "<string>, "
+    if six.PY2:
+      py3_extra = ""
 
     consistency_message = "Connection XML is invalid: Start tag expected, '<' not "\
-        "found, line 1, column 1 (line 1)"
+        "found, line 1, column 1 (%sline 1)" % py3_extra
 
     # test the test: no expected message found
     self.assertNotIn(consistency_message, current_message_list)
-
 
     # connection_xml is optional
     self.software_instance.edit(connection_xml=None)
@@ -266,13 +269,15 @@ class TestSlapOSSoftwareInstanceConstraint(TestSlapOSConstraintMixin):
   def test_sla_xml(self):
     # fetch basic list of consistency messages
     current_message_list = self.getMessageList(self.software_instance)
+    py3_extra = "<string>, "
+    if six.PY2:
+      py3_extra = ""
 
     consistency_message = "Sla XML is invalid: Start tag expected, '<' not "\
-        "found, line 1, column 1 (line 1)"
+        "found, line 1, column 1 (%sline 1)" % py3_extra
 
     # test the test: no expected message found
     self.assertNotIn(consistency_message, current_message_list)
-
 
     # sla_xml is optional
     self.software_instance.edit(sla_xml=None)
@@ -296,13 +301,15 @@ class TestSlapOSSoftwareInstanceConstraint(TestSlapOSConstraintMixin):
   def test_text_content(self):
     # fetch basic list of consistency messages
     current_message_list = self.getMessageList(self.software_instance)
+    py3_extra = "<string>, "
+    if six.PY2:
+      py3_extra = ""
 
     consistency_message = "Instance XML is invalid: Start tag expected, '<' not "\
-        "found, line 1, column 1 (line 1)"
+        "found, line 1, column 1 (%sline 1)" % py3_extra
 
     # test the test: no expected message found
     self.assertNotIn(consistency_message, current_message_list)
-
 
     # text_content is optional
     self.software_instance.edit(text_content=None)

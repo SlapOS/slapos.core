@@ -4,6 +4,7 @@ Allocation Supply Line | AllocationSupplyPath
 Allocation Supply | AllocationSupply
 Allocation Supply | AllocationSupplyConstraint
 Allocation Supply | SlapOSVirtualMasterSourceProjectConstraint
+Assignment Request | SlapOSAssignmentRequestConstraint
 Assignment | SlaposAssignmentConstraint
 Compute Node | ComputeNodeSlapOSMetadata
 Compute Node | ComputerUpgradeConstraint

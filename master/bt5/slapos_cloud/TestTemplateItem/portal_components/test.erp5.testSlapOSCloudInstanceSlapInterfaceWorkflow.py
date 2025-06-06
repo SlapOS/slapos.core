@@ -18,7 +18,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
+  string_escape
 from erp5.component.document.SoftwareInstance import SoftwareInstance, \
   DisconnectedSoftwareTree, CyclicSoftwareTree
 import transaction
@@ -1157,7 +1158,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
     serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
     self.assertIn(serial, self.software_instance.getSslCertificate())
     self.assertIn(certificate_login.getReference(), \
-       self.software_instance.getSslCertificate().decode('string_escape'))
+       string_escape(self.software_instance.getSslCertificate()))
     self.assertRaises(ValueError, self.software_instance.generateCertificate)
 
   def test_revokeCertificate(self):

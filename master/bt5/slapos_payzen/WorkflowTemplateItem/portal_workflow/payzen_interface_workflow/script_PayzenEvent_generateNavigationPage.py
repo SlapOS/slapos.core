@@ -41,7 +41,7 @@ payzen_dict = {
   'vads_url_return': vads_url_return,
 }
 
-html_document = context.PayzenEvent_callPayzenServiceNavigation(state_change, payzen_dict)
+html_document = context.script_PayzenEvent_callPayzenServiceNavigation(state_change, payzen_dict)
 payzen_event.newContent(
   title='Shown Page',
   portal_type='Payzen Event Message',

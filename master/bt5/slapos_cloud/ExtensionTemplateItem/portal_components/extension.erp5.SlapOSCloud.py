@@ -36,6 +36,7 @@ from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 from Acquisition import aq_base, aq_inner
 from slapos.util import dumps, dict2xml
 from lxml import etree
+from Products.ERP5Type.Utils import str2bytes
 
 def cloneDocumentWithANewPortalType(obj, portal_type):
   import erp5.portal_type
@@ -350,8 +351,11 @@ def Base_updateRelatedContentWithoutReindextion(self, previous_category_url, new
 def isValidXml(self, value, REQUEST=None):
   if REQUEST is not None:
     raise Unauthorized
+  if value is None:
+    # Backward compatibility with previous implementation.
+    raise ValueError("value is None")
   # No better way them this for now
-  etree.fromstring(value)
+  etree.fromstring(str2bytes(value))
   return True
 
 def isValidXmlMarshaller(self, value, REQUEST=None):

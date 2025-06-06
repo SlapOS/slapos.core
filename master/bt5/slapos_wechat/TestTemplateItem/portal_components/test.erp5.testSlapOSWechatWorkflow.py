@@ -84,7 +84,7 @@ class TestSlapOSWechatInterfaceWorkflow(TestSlapOSWechatMixin):
       source=self.wechat_secure_payment.getRelativeUrl(),
     )
 
-    payment_transaction_id = payment.getId().encode('utf-8')
+    payment_transaction_id = payment.getId()
     total_fee = int(HARDCODED_PRICE * 100)
     before_date = DateTime()
     self._simulatePaymentTransaction_getTotalPayablePrice()
@@ -129,7 +129,7 @@ class TestSlapOSWechatInterfaceWorkflow(TestSlapOSWechatMixin):
     self.assertEqual(len(event_message_list), 1)
     message = event_message_list[0]
     self.assertEqual(message.getTitle(), 'Shown Page')
-    self.assertTrue(expected_url in message.getTextContent(), 
+    self.assertTrue(expected_url in message.getTextContent(),
       "%s not in %s" % (expected_url, message.getTextContent()))
 
     transaction.abort()

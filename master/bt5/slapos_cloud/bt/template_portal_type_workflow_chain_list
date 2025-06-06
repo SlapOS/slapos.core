@@ -23,7 +23,6 @@ Instance Tree | slapos_cloud_interaction_workflow
 One Time Virtual Master Access Token | edit_workflow
 One Time Virtual Master Access Token | validation_workflow
 Person | person_slap_interface_workflow
-Project | project_slap_interface_workflow
 Remote Node | compute_node_slap_interface_workflow
 Remote Node | edit_workflow
 Remote Node | slapos_cloud_interaction_workflow

@@ -1,6 +1,5 @@
 <allowed_content_type_list>
  <portal_type id="Invitation Token Module">
-  <item>Contract Invitation Token</item>
   <item>Invitation Token</item>
  </portal_type>
  <portal_type id="Organisation">

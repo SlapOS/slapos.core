@@ -44,10 +44,6 @@
   <workflow>person_slap_interface_workflow</workflow>
  </chain>
  <chain>
-  <type>Project</type>
-  <workflow>project_slap_interface_workflow</workflow>
- </chain>
- <chain>
   <type>Remote Node</type>
   <workflow>compute_node_slap_interface_workflow, edit_workflow, slapos_cloud_interaction_workflow, validation_workflow</workflow>
  </chain>

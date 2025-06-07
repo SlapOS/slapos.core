@@ -26,6 +26,7 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, PinnedDateTime, PortalAlarmDisabled
+from Products.ERP5Type.Utils import str2bytes
 from erp5.component.module.JsonUtils import loadJson
 
 from DateTime import DateTime
@@ -53,7 +54,7 @@ class TestSlapOSJsonRpcMixin(SlapOSTestCaseMixin):
       self.portal.portal_web_services.slapos_master_api.getPath() + '/' + entry_point,
       user=user,
       request_method='POST',
-      stdin=io.BytesIO(json.dumps(data_dict)),
+      stdin=io.BytesIO(str2bytes(json.dumps(data_dict))),
       env={'CONTENT_TYPE': 'application/json'})
     return response
 

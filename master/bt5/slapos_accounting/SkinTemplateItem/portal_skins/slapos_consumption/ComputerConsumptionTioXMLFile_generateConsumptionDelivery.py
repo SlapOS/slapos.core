@@ -184,7 +184,7 @@ for movement_entry in six.itervalues(movement_dict):
 
   for movement in movement_entry:
     resource_value = movement['resource_value']
-    consumption_delivery.newContent(
+    line = consumption_delivery.newContent(
       portal_type="Consumption Delivery Line",
       title=movement['title'],
       quantity=movement['quantity'],
@@ -194,6 +194,7 @@ for movement_entry in six.itervalues(movement_dict):
       base_contribution_list=resource_value.getBaseContributionList(),
       use_list=resource_value.getUseList()
     )
+    line.setPrice(line.getPrice())
   consumption_delivery.Delivery_fixBaseContributionTaxableRate()
   consumption_delivery.Base_checkConsistency()
   consumption_delivery.confirm(comment="Created from %s" % document.getRelativeUrl())

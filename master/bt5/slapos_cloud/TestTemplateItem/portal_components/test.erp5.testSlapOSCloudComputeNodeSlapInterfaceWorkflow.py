@@ -18,7 +18,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
+  string_escape
 import transaction
 from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
 
@@ -62,7 +63,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertNotEqual(certificate_login.getDestinationReference(), None)
     serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
     self.assertIn(serial, compute_node_certificate)
-    self.assertIn(certificate_login.getReference(), compute_node_certificate.decode('string_escape'))
+    self.assertIn(certificate_login.getReference(), string_escape(compute_node_certificate))
 
   def test_generateCertificate_twice(self):
     self.login(self.compute_node.getUserId())
@@ -81,7 +82,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertNotEqual(certificate_login.getDestinationReference(), None)
     serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
     self.assertIn(serial, compute_node_certificate)
-    self.assertIn(certificate_login.getReference(), compute_node_certificate.decode('string_escape'))
+    self.assertIn(certificate_login.getReference(), string_escape(compute_node_certificate))
 
     self.assertRaises(ValueError, self.compute_node.generateCertificate)
     self.assertEqual(None, self.portal.REQUEST.get('compute_node_key'))
@@ -276,7 +277,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertNotEqual(certificate_login.getDestinationReference(), None)
     serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
     self.assertIn(serial, compute_node_certificate)
-    self.assertIn(certificate_login.getReference(), compute_node_certificate.decode('string_escape'))
+    self.assertIn(certificate_login.getReference(), string_escape(compute_node_certificate))
     self.assertNotEqual(certificate_login.getReference(),
                         self.compute_node.getReference())
 
@@ -310,7 +311,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertNotEqual(certificate_login.getDestinationReference(), None)
     serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
     self.assertIn(serial, compute_node_certificate)
-    self.assertIn(certificate_login.getReference(), compute_node_certificate.decode('string_escape'))
+    self.assertIn(certificate_login.getReference(), string_escape(compute_node_certificate))
     self.assertNotEqual(certificate_login.getReference(),
                         self.compute_node.getReference())
 
@@ -345,7 +346,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertNotEqual(certificate_login.getDestinationReference(), None)
     serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
     self.assertIn(serial, compute_node_certificate)
-    self.assertIn(certificate_login.getReference(), compute_node_certificate.decode('string_escape'))
+    self.assertIn(certificate_login.getReference(), string_escape(compute_node_certificate))
     self.assertNotEqual(certificate_login.getReference(),
                         self.compute_node.getReference())
     self.assertNotEqual(None, destination_reference)
@@ -380,8 +381,8 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
     compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
     self.assertIn(serial, compute_node_certificate)
-    self.assertIn(new_certificate_login.getReference(), compute_node_certificate.decode('string_escape'))
-    self.assertNotIn(certificate_login.getReference(), compute_node_certificate.decode('string_escape'))
+    self.assertIn(new_certificate_login.getReference(), string_escape(compute_node_certificate))
+    self.assertNotIn(certificate_login.getReference(), string_escape(compute_node_certificate))
     
     self.assertNotEqual(certificate_login.getReference(),
                         self.compute_node.getReference())
@@ -404,7 +405,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertNotEqual(certificate_login.getDestinationReference(), None)
     serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
     self.assertIn(serial, compute_node_certificate)
-    self.assertIn(certificate_login.getReference(), compute_node_certificate.decode('string_escape'))
+    self.assertIn(certificate_login.getReference(), string_escape(compute_node_certificate))
     self.assertNotEqual(certificate_login.getReference(),
                         self.compute_node.getReference())
     self.assertNotEqual(None, destination_reference)
@@ -439,8 +440,8 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
     compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
     self.assertIn(serial, compute_node_certificate)
-    self.assertIn(new_certificate_login.getReference(), compute_node_certificate.decode('string_escape'))
-    self.assertNotIn(certificate_login.getReference(), compute_node_certificate.decode('string_escape'))
+    self.assertIn(new_certificate_login.getReference(), string_escape(compute_node_certificate))
+    self.assertNotIn(certificate_login.getReference(), string_escape(compute_node_certificate))
     
     self.assertNotEqual(certificate_login.getReference(),
                         self.compute_node.getReference())
@@ -476,8 +477,8 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
     compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
     self.assertIn(serial, compute_node_certificate)
-    self.assertIn(third_certificate_login.getReference(), compute_node_certificate.decode('string_escape'))
-    self.assertNotIn(new_certificate_login.getReference(), compute_node_certificate.decode('string_escape'))
+    self.assertIn(third_certificate_login.getReference(), string_escape(compute_node_certificate))
+    self.assertNotIn(new_certificate_login.getReference(), string_escape(compute_node_certificate))
     
     self.assertNotEqual(third_certificate_login.getReference(),
                         self.compute_node.getReference())

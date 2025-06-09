@@ -1,5 +1,5 @@
 if not trade_no:
-  raise Exception("You need to provide a trade number")
+  raise ValueError("You need to provide a trade number")
 
 portal = context.getPortalObject()
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()

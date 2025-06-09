@@ -81,8 +81,8 @@ if not_existing_security_uid_set:
     assert security_uid not in reverse_groupless_security_uid_dict
     portal.z_delete_security_uid_set_from_roles_and_users(security_uid=security_uid)
 
-if 0:
+if dry:
   print('DRY')
   context.REQUEST.RESPONSE.write(printed)
-  raise Exception('dry')
+  raise ValueError('dry')
 return printed

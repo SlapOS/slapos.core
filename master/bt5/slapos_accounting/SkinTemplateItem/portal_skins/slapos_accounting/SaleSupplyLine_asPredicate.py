@@ -2,6 +2,7 @@ if (not context.hasBasePrice()) or (not context.getPriceCurrency()) or (not cont
   # Meaningless path if no resource/price_currency/base_price/quantity_unit
   return None
 
+portal = context.getPortalObject()
 supply = context.getParentValue()
 
 base_category_tuple = ['resource', 'price_currency', 'quantity_unit']
@@ -9,8 +10,12 @@ if context.getPortalType() == 'Sale Supply Cell':
   base_category_tuple.extend(supply.getVariationRangeBaseCategoryList())
   supply = supply.getParentValue()
 
-if (supply.getPortalType() != 'Sale Supply') or (supply.getValidationState() != 'validated'):
-  # If this supply line is not in a validated Sale Supply, it does not apply.
+consumption_use_uid = portal.portal_categories.use.trade.consumption.getUid()
+is_consumption = consumption_use_uid in context.getResourceValue().getUseUidList()
+if supply.getValidationState() != 'validated' or \
+    (supply.getPortalType() != 'Sale Supply' and not is_consumption) or \
+    (is_consumption and supply.getPortalType() != 'Sale Trade Condition'):
+  # Service can only use Sale Trade Condition for pricing definition, never sale supply.
   return None
 
 if context.getSourceSection():

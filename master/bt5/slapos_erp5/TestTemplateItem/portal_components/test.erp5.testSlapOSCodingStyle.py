@@ -183,6 +183,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_consumption/ConsumptionDelivery_getRuleReference',
         'slapos_consumption/Project_getServiceConsumptionPredicateList',
         'slapos_consumption/DeliveryBuilder_selectConsumptionMovementSlapOSMovement',
+        'slapos_accounting/ConsumptionSupplyLine_asPredicate',
         'slapos_wechat/Base_queryWechatOrderStatusByTradeNo',
         'slapos_wechat/ERP5Site_receiveWechatPaymentCallback',
         'slapos_payzen/PayzenEvent_isPaymentExpired',

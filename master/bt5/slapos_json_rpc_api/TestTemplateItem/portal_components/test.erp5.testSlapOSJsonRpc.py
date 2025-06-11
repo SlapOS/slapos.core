@@ -26,7 +26,7 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, PinnedDateTime, PortalAlarmDisabled
-from Products.ERP5Type.Utils import str2bytes
+from Products.ERP5Type.Utils import str2bytes, bytes2str
 from erp5.component.module.JsonUtils import loadJson
 
 from DateTime import DateTime
@@ -427,7 +427,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       portal_type='Computer Consumption TioXML File'
     )
     self.assertEqual(tioxml_file.getValidationState(), 'submitted')
-    self.assertEqual(tioxml_file.getData(), consumption_xml)
+    self.assertEqual(bytes2str(tioxml_file.getData()), consumption_xml)
     self.assertEqual(tioxml_file.getSourceReference(), 'testusagé')
     self.assertEqual(tioxml_file.getReference(), "TIOCONS-%s-%s" % (self.compute_node.getReference(),
                                                                     tioxml_file.getSourceReference()))
@@ -486,7 +486,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       portal_type='Computer Consumption TioXML File'
     )
     self.assertEqual(tioxml_file.getValidationState(), 'submitted')
-    self.assertEqual(tioxml_file.getData(), consumption_xml)
+    self.assertEqual(bytes2str(tioxml_file.getData()), consumption_xml)
     self.assertEqual(tioxml_file.getSourceReference(), None)
     self.assertEqual(tioxml_file.getReference(), "TIOCONS-%s-" % (self.compute_node.getReference(),))
 

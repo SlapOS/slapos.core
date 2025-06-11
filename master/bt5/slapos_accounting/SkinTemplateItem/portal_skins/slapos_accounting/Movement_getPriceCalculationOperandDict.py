@@ -14,21 +14,15 @@ def sort_key_method(e):
     minus = 0
   return 0 - 1 * int(parent.hasDestination()) - minus
 
-portal = context.getPortalObject()
-
 def filter_method(currency, destination_project):
   def filter_by_source_function_and_group(l):
     ret = []
-    consumption_use_uid = portal.portal_categories.use.trade.consumption.getUid()
     for i in l:
       parent = i.getParentValue()
       if parent.getPortalType().endswith('Line'):
         parent = parent.getParentValue()
-      is_consumption = consumption_use_uid in i.getResourceValue().getUseUidList()
       # Price should be set in Sale Supply only.
-      if parent.getPortalType() != 'Sale Supply' and parent.getParentValue().getPortalType() != 'Sale Supply' and not is_consumption:
-        continue
-      if parent.getPortalType() != 'Sale Trade Condition' and parent.getParentValue().getPortalType() != 'Sale Trade Condition' and is_consumption:
+      if parent.getPortalType() != 'Sale Supply' and parent.getParentValue().getPortalType() != 'Sale Supply':
         continue
       date = context.getStartDate()
       # Check if effective

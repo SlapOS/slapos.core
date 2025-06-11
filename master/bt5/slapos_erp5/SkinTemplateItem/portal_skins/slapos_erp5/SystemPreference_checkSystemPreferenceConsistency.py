@@ -10,7 +10,7 @@ error_list = []
 
 if context.getId() == "slapos_default_system_preference" and context.getPreferenceState() != "global":
   error_list.append(
-    "The Default System preference globally enabled shouldn't be slapos_default_system_preference" % context.getId())
+    "The Default System preference globally enabled shouldn't be slapos_default_system_preference (%s)" % context.getId())
   if fixit:
     context.globalEnable(comment="Enabled by PreferenceTool_checkSystemPreferenceConsistency")
 

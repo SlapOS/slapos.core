@@ -6,18 +6,13 @@ kwargs = state_change.kwargs
 context.REQUEST.set('request_instance', None)
 
 # Required args
-# Raise TypeError if all parameters are not provided
-try:
-  software_release_url_string = kwargs['software_release']
-  software_title = kwargs["software_title"]
-  software_type = kwargs["software_type"]
-  instance_xml = kwargs["instance_xml"]
-  sla_xml = kwargs["sla_xml"]
-  is_slave = kwargs["shared"]
-  root_state = kwargs["state"]
-except KeyError:
-  raise
-  #raise TypeError, "RequesterInstance_request takes exactly 7 arguments"
+software_release_url_string = kwargs['software_release']
+software_title = kwargs["software_title"]
+software_type = kwargs["software_type"]
+instance_xml = kwargs["instance_xml"]
+sla_xml = kwargs["sla_xml"]
+is_slave = kwargs["shared"]
+root_state = kwargs["state"]
 
 if is_slave not in [True, False]:
   raise ValueError("shared should be a boolean")

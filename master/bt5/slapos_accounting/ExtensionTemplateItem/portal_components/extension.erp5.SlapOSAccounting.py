@@ -29,7 +29,7 @@ from lxml import etree
 from zExceptions import Unauthorized
 import pkg_resources
 from io import BytesIO
-from Products.ERP5Type.Utils import str2bytes
+from Products.ERP5Type.Utils import str2bytes, unicode2str
 
 def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
   """Call bang on self."""
@@ -59,16 +59,16 @@ def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
   # Get the title
   title = \
       tree.find('transaction').find('title').text or ""
-  title = title.encode("UTF-8")
+  title = unicode2str(title)
 
   movement_list = []
   for movement in tree.find('transaction').findall('movement'):
     movement_list.append({
-      'resource': (movement.find('resource').text or "").encode("UTF-8"),
-      'title': (movement.find('title').text or "").encode("UTF-8"),
-      'reference': (movement.find('reference').text or "").encode("UTF-8"),
+      'resource': unicode2str(movement.find('resource').text or ""),
+      'title': unicode2str(movement.find('title').text or ""),
+      'reference': unicode2str(movement.find('reference').text or ""),
       'quantity': float(movement.find('quantity').text or "0"),
-      'category': (movement.find('category').text or "").encode("UTF-8"),
+      'category': unicode2str(movement.find('category').text or ""),
     })
 
   return {

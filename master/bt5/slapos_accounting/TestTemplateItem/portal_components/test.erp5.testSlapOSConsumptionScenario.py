@@ -102,34 +102,6 @@ class TestSlapOSConsumptionScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
     self.logout()
     self.login(sale_person.getUserId())
 
-    instance_trade_condition = self.portal.portal_catalog.getResultValue(
-        portal_type='Sale Trade Condition',
-        source_project__relative_url=project_relative_url,
-        trade_condition_type__uid=self.portal.portal_categories.trade_condition_type.instance_tree.getUid(),
-        validation_state='validated'
-      )
-    instance_trade_condition.invalidate()
-    instance_trade_condition.newContent(
-      portal_type="Sale Supply Line",
-      base_price=7,
-      resource_value=consumption_service
-    )
-    instance_trade_condition.validate()
-
-    compute_node_condition = self.portal.portal_catalog.getResultValue(
-        portal_type='Sale Trade Condition',
-        source_project__relative_url=project_relative_url,
-        trade_condition_type__uid=self.portal.portal_categories.trade_condition_type.compute_node.getUid(),
-        validation_state='validated'
-      )
-    compute_node_condition.invalidate()
-    compute_node_condition.newContent(
-      portal_type="Sale Supply Line",
-      base_price=7,
-      resource_value=consumption_service
-    )
-    compute_node_condition.validate()
-
     sale_supply = self.portal.portal_catalog.getResultValue(
       portal_type='Sale Supply',
       source_project__uid=project.getUid()
@@ -142,6 +114,11 @@ class TestSlapOSConsumptionScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
       portal_type="Sale Supply Line",
       base_price=9,
       resource_value=software_product
+    )
+    sale_supply.newContent(
+      portal_type="Sale Supply Line",
+      base_price=7,
+      resource_value=consumption_service
     )
     sale_supply.validate()
 
@@ -336,12 +313,12 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     # 4 assignment
     # 16 simulation mvt
     # 2 packing list / line
-    # 5 sale supply / line
+    # 4 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 48)
+    self.assertRelatedObjectCount(project, 47)
 
     self.checkERP5StateBeforeExit()
 
@@ -600,13 +577,13 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     # 5 (can reduce to 2) assignment
     # 65 simulation mvt
     # 6 packing list / line
-    # 5 sale supply / line
+    # 4 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 2 software instance
     # 1 software product
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 121)
+    self.assertRelatedObjectCount(project, 120)
 
     self.checkERP5StateBeforeExit()
 
@@ -845,12 +822,12 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     # 5 (can reduce to 2) assignment
     # 51 simulation mvt
     # 6 packing list / line
-    # 5 sale supply / line
+    # 4 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 2 software instance
     # 1 software product
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 107)
+    self.assertRelatedObjectCount(project, 106)
 
     self.checkERP5StateBeforeExit()

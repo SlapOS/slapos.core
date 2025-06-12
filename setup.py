@@ -76,7 +76,6 @@ setup(name=name,
           'cliff',
           'requests>=2.4.3',
           'six',
-          'cachecontrol[filecache]',
           'jsonschema',
           'PyYAML',
           'uritemplate', # used by hateoas navigator

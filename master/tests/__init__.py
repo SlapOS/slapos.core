@@ -17,6 +17,7 @@ slapos_bt_list = [
     'slapos_wechat',
     'slapos_configurator',
     'slapos_mysql_innodb_catalog',
+    'slapos_panel',
     'slapos_panel_ui_test',
     'slapos_parameter_editor_ui_test',
     'slapos_abyss',

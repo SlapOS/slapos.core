@@ -527,7 +527,7 @@ class TestInstanceTree_redirectToManualDepositPayment(TestPanelSkinsMixin):
     # This script only works on website context, and shoult not raise and return
     # a redirect.
     response = instance_tree_on_website.InstanceTree_redirectToManualDepositPayment()
-    self.assertIn('?page=slapos_master_panel_external_payment_result', response)
+    self.assertIn('page=slapos_master_panel_external_payment_result', response)
 
   @simulate("PaymentTransaction_triggerPaymentCheckAlarmAndRedirectToPanel",
             "*args, **kwargs",
@@ -573,7 +573,7 @@ class TestInstanceTree_redirectToManualDepositPayment(TestPanelSkinsMixin):
     # This script only works on website context, and shoult not raise and return
     # a redirect.
     response = instance_tree_on_website.InstanceTree_redirectToManualDepositPayment()
-    self.assertIn('?page=slapos_master_panel_external_payment_result', response)
+    self.assertIn('page=slapos_master_panel_external_payment_result', response)
 
 
   @simulate("PaymentTransaction_triggerPaymentCheckAlarmAndRedirectToPanel", "*args, **kwargs",

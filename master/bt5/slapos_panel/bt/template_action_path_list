@@ -5,6 +5,8 @@ Allocation Supply Module | slapos_panel_view
 Allocation Supply | slapos_fast_invalidate
 Allocation Supply | slapos_panel_view
 Allocation Supply | validate_and_slapos_supply
+Assignment Request Module | slapos_panel_view
+Assignment Request | slapos_panel_view
 Certificate Login | slapos_fast_invalidate
 Certificate Login | slapos_panel_view
 Compute Node Module | slapos_panel_view

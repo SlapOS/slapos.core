@@ -203,6 +203,8 @@ class TestBase_hasSlapOSProjectUserGroup(TestPanelSkinsMixin):
 
 class TestPerson_getCertificate(TestPanelSkinsMixin):
 
+  require_certificate = 1
+
   def test_Person_getCertificate_unauthorized(self):
     person = self.makePerson(self.project, user=1)
     self.assertEqual(1 , len(person.objectValues(portal_type="ERP5 Login")))
@@ -471,6 +473,8 @@ class TestTicket_closeSlapOS(TestPanelSkinsMixin):
     self.assertEqual(ticket.getSimulationState(), 'invalidated')
 
 class TestInstanceTree_redirectToManualDepositPayment(TestPanelSkinsMixin):
+
+  require_certificate = 1
 
   def addNonSubscribedInstanceTree(self, project, person,
                                    software_release, software_type,

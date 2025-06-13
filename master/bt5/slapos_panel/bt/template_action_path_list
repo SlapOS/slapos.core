@@ -44,6 +44,7 @@ Instance Tree | slaposjs_view
 Instance Tree | update_slapos_parameter
 Mail Message | slapos_panel_view
 Organisation | claim_slapos_subscription_request
+Person | accept_slapos_invitation_token
 Person | claim_slapos_item_subscription
 Person | create_slapos_project
 Person | request_slapos_credential_token_action
@@ -60,6 +61,7 @@ Project | add_slapos_remote_node
 Project | add_slapos_sale_supply
 Project | add_slapos_software_product
 Project | add_slapos_support_request
+Project | invite_slapos_person
 Project | jump_to_slapos_allocation_supply
 Project | jump_to_slapos_compute_node
 Project | jump_to_slapos_computer_network

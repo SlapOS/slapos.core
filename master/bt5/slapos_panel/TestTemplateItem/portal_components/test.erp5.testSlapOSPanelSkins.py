@@ -203,6 +203,8 @@ class TestBase_hasSlapOSProjectUserGroup(TestPanelSkinsMixin):
 
 class TestPerson_getCertificate(TestPanelSkinsMixin):
 
+  require_certificate = 1
+
   def test_Person_getCertificate_unauthorized(self):
     person = self.makePerson(self.project, user=1)
     self.assertEqual(1 , len(person.objectValues(portal_type="ERP5 Login")))
@@ -472,6 +474,8 @@ class TestTicket_closeSlapOS(TestPanelSkinsMixin):
 
 class TestInstanceTree_redirectToManualDepositPayment(TestPanelSkinsMixin):
 
+  require_certificate = 1
+
   def addNonSubscribedInstanceTree(self, project, person,
                                    software_release, software_type,
                                    shared=False):
@@ -523,7 +527,7 @@ class TestInstanceTree_redirectToManualDepositPayment(TestPanelSkinsMixin):
     # This script only works on website context, and shoult not raise and return
     # a redirect.
     response = instance_tree_on_website.InstanceTree_redirectToManualDepositPayment()
-    self.assertIn('?page=slapos_master_panel_external_payment_result', response)
+    self.assertIn('page=slapos_master_panel_external_payment_result', response)
 
   @simulate("PaymentTransaction_triggerPaymentCheckAlarmAndRedirectToPanel",
             "*args, **kwargs",
@@ -569,7 +573,7 @@ class TestInstanceTree_redirectToManualDepositPayment(TestPanelSkinsMixin):
     # This script only works on website context, and shoult not raise and return
     # a redirect.
     response = instance_tree_on_website.InstanceTree_redirectToManualDepositPayment()
-    self.assertIn('?page=slapos_master_panel_external_payment_result', response)
+    self.assertIn('page=slapos_master_panel_external_payment_result', response)
 
 
   @simulate("PaymentTransaction_triggerPaymentCheckAlarmAndRedirectToPanel", "*args, **kwargs",

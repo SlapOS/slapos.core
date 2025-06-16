@@ -60,12 +60,12 @@ def _removeTimestamp(instancehome, partition_base_name):
        os.remove(timestamp_path)
 
 
-def _runBang(app):
+def _runBang(app, cfg_path):
     """
     Launch slapos node bang.
     """
     logger.info("[BOOT] Invoking slapos node bang...")
-    return app.run(['node', 'bang', '-m', 'Reboot'])
+    return app.run(['node', 'bang', '-m', 'Reboot', '--cfg', cfg_path])
 
 
 def _runFormat(app, cfg_path):
@@ -224,7 +224,7 @@ class BootCommand(ConfigCommand):
             break
 
         # Make sure slapos node bang returns ok
-        while _runBang(app):
+        while _runBang(app, cfg_path):
             logger.error("[BOOT] Fail to bang, try again in 15 seconds...")
             sleep(15)
 

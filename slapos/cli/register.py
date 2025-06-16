@@ -39,9 +39,10 @@ import json
 from six.moves import input
 
 from slapos.cli.command import Command, must_be_root
+from slapos.cli.config import ConfigCommand
 
 
-class RegisterCommand(Command):
+class RegisterCommand(ConfigCommand):
     """
     Register a new computer on SlapOS Master.
 
@@ -360,7 +361,8 @@ def do_register(conf):
     COMP = get_computer_name(certificate)
 
     # Getting configuration parameters
-    conf.COMPConfig(slapos_configuration='/etc/opt/slapos/',
+    conf.COMPConfig(slapos_configuration=os.path.dirname(
+        self.config_path(self.args)),
                     computer_id=COMP,
                     certificate=certificate,
                     key=key)

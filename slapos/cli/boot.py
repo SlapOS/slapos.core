@@ -60,20 +60,20 @@ def _removeTimestamp(instancehome, partition_base_name):
        os.remove(timestamp_path)
 
 
-def _runBang(app):
+def _runBang(app, cfg_path):
     """
-    Launch slapos node format.
+    Launch slapos node bang.
     """
     logger.info("[BOOT] Invoking slapos node bang...")
-    return app.run(['node', 'bang', '-m', 'Reboot'])
+    return app.run(['node', 'bang', '--cfg', cfg_path, '-m', 'Reboot'])
 
 
-def _runFormat(app):
+def _runFormat(app, cfg_path):
     """
     Launch slapos node format.
     """
     logger.info("[BOOT] Invoking slapos node format...")
-    return app.run(['node', 'format', '--now', '--verbose'])
+    return app.run(['node', 'format', '--cfg', cfg_path, '--now', '--verbose'])
 
 
 def _ping(hostname):
@@ -173,6 +173,7 @@ class BootCommand(ConfigCommand):
         return ap
 
     def take_action(self, args):
+        cfg_path = self.config_path(args)
         configp = self.fetch_config(args)
         instance_root = configp.get('slapos','instance_root')
         partition_base_name = "slappart"
@@ -204,7 +205,7 @@ class BootCommand(ConfigCommand):
         app = SlapOSApp()
         while True:
             # Make sure slapos node format returns ok
-            result = _runFormat(app)
+            result = _runFormat(app, cfg_path)
 
             if result == FormatReturn.FAILURE:
                 logger.error("[BOOT] Fail to format, try again in 15 seconds...")
@@ -223,7 +224,7 @@ class BootCommand(ConfigCommand):
             break
 
         # Make sure slapos node bang returns ok
-        while _runBang(app):
+        while _runBang(app, cfg_path):
             logger.error("[BOOT] Fail to bang, try again in 15 seconds...")
             sleep(15)
 

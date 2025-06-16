@@ -86,6 +86,7 @@ class TestRegister(unittest.TestCase):
     parsed_args = cmd_parser.parse_args(args)
     conf = RegisterConfig(logger=self.app.log)
     conf.setConfig(parsed_args)
+    conf.slapos_configuration = self.temp_dir
     return conf
 
   def test_fetch_configuration(self):
@@ -117,9 +118,6 @@ class TestRegister(unittest.TestCase):
     """ Simple test to see if we can write the configuration file
     """
     conf = self.getConf(self.default_args)
-    # we manually set the parameters below because we mock the function COMPConfig
-    # indeed, we don't want to put the config file in '/etc/opt/slapos'
-    conf.slapos_configuration = self.temp_dir
     conf.computer_id = self.computer_id
     conf.certificate = self.certificate
     conf.key = self.key
@@ -128,7 +126,7 @@ class TestRegister(unittest.TestCase):
          mock.patch('slapos.cli.register.save_former_config') as save_former_config_mock:
       return_code = do_register(conf)
       COMPConfigMock.assert_called_with(
-              slapos_configuration = '/etc/opt/slapos/',
+              slapos_configuration = self.temp_dir,
               computer_id = self.computer_id,
               certificate = self.certificate,
               key = self.key)

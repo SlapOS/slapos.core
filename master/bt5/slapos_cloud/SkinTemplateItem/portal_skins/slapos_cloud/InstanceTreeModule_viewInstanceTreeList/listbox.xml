@@ -91,6 +91,10 @@
                           <string>Software Release</string>
                         </tuple>
                         <tuple>
+                          <string>source_reference</string>
+                          <string>Software Type</string>
+                        </tuple>
+                        <tuple>
                           <string>list_image</string>
                           <string>Software Logo</string>
                         </tuple>

@@ -2,7 +2,6 @@ from zExceptions import Unauthorized
 from DateTime import DateTime
 from Products.ZSQLCatalog.SQLCatalog import Query, ComplexQuery
 
-
 if REQUEST is not None:
   raise Unauthorized
 
@@ -63,8 +62,8 @@ else:
   storeWorkflowComment(instance, 'Can not find a matching Service to generate the Consumption Delivery')
   return
 
-destination_decision_value = project.getDestinationSectionValue(portal_type="Person")
-if destination_decision_value is None:
+destination_value = project.getDestinationValue(portal_type="Person")
+if destination_value is None:
   storeWorkflowComment(instance, 'Can not find the person to contact to generate the Consumption Delivery')
   return
 
@@ -88,7 +87,7 @@ tmp_sale_order = portal.portal_trash.newContent(
   trade_condition_type='virtual_master',
   start_date=start_date,
   stop_date = stop_date,
-  destination_value=destination_decision_value,
+  destination_value=destination_value,
   source_project_value=project,
   #price_currency_value=currency_value  XXX
   ledger_value=portal.portal_categories.ledger.automated

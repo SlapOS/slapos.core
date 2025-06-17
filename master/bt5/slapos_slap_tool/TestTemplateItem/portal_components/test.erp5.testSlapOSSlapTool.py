@@ -569,8 +569,6 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
           <dictionary id="i43">
             <string>_computer_guid</string>
             <string>%(compute_node_id)s</string>
-            <string>_known_state</string>
-            <string>error</string>
             <string>_requested_state</string>
             <string>destroyed</string>
             <string>_software_instance_list</string>
@@ -587,8 +585,6 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
           <dictionary id="i46">
             <string>_computer_guid</string>
             <string>%(compute_node_id)s</string>
-            <string>_known_state</string>
-            <string>error</string>
             <string>_requested_state</string>
             <string>available</string>
             <string>_software_instance_list</string>

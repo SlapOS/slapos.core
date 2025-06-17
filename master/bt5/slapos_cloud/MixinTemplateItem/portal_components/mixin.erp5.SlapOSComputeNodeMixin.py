@@ -74,14 +74,6 @@ class SlapOSComputeNodeMixin(object):
       else:
         software_release_dict["_requested_state"] = 'available'
 
-      known_state = software_installation.getTextAccessStatus()
-      if known_state.startswith("#access"):
-        software_release_dict["_known_state"] = 'available'
-      elif known_state.startswith("#building"):
-        software_release_dict["_known_state"] = 'building'
-      else:
-        software_release_dict["_known_state"] = 'error'
-
       software_release_list.append(software_release_dict)
     return software_release_list
 

@@ -42,7 +42,7 @@ except ImportError:
   ConfigParser.read_file = ConfigParser.readfp
 
 # Disable any command to launch slapformat and supervisor
-slapos.cli.configure_local._runFormat = lambda x: "Do nothing"
+slapos.cli.configure_local._runFormat = lambda x, y: "Do nothing"
 slapos.cli.configure_local.launchSupervisord = lambda instance_root, logger: "Do nothing"
 
 class TestConfigureLocal(unittest.TestCase):

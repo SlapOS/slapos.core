@@ -246,25 +246,27 @@ def checkSoftware(slap, software_url):
           tuple(paths_to_check) + tuple(slap._shared_part_list),
       ))
 
-  # check this software is not referenced in any shared parts.
-  config_parser = ConfigParser()
-  config_parser.read(os.path.join(software_directory, 'buildout.cfg'))
-  for shared_directory in config_parser['buildout'].get('shared-part-list', '').splitlines():
-    if not shared_directory:
-      continue
-    for signature_file in glob.glob(
-      os.path.join(
-        shared_directory,
-        '*',
-        '*',
-        '.buildout-shared.json',
+  # check this software is not referenced in any shared part.
+  buildout_cfg_path = os.path.join(software_directory, 'buildout.cfg')
+  if os.path.exists(buildout_cfg_path):
+    config_parser = ConfigParser()
+    config_parser.read(buildout_cfg_path)
+    for shared_directory in config_parser['buildout'].get('shared-part-list', '').splitlines():
+      if not shared_directory:
+        continue
+      for signature_file in glob.glob(
+        os.path.join(
+          shared_directory,
+          '*',
+          '*',
+          '.buildout-shared.json',
       )):
-      with open(signature_file) as f:
-        signature_content = f.read()
-      if software_hash in signature_content:
-        error_list.append(
-          "Shared part is referencing non shared part or software {}\n{}\n".format(
-          signature_file, signature_content))
+        with open(signature_file) as f:
+          signature_content = f.read()
+        if software_hash in signature_content:
+          error_list.append(
+            "Shared part is referencing non shared part or software {}\n{}\n".format(
+            signature_file, signature_content))
 
   def checkEggsVersionsKnownVulnerabilities(
       egg_directories,

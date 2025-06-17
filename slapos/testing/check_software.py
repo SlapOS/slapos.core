@@ -247,19 +247,24 @@ def checkSoftware(slap, software_url):
       ))
 
   # check this software is not referenced in any shared parts.
-  for signature_file in glob.glob(
+  config_parser = ConfigParser()
+  config_parser.read(os.path.join(software_directory, 'buildout.cfg'))
+  for shared_directory in config_parser['buildout'].get('shared-part-list', '').splitlines():
+    if not shared_directory:
+      continue
+    for signature_file in glob.glob(
       os.path.join(
-          slap.shared_directory,
-          '*',
-          '*',
-          '.buildout-shared.json',
+        shared_directory,
+        '*',
+        '*',
+        '.buildout-shared.json',
       )):
-    with open(signature_file) as f:
-      signature_content = f.read()
-    if software_hash in signature_content:
-      error_list.append(
+      with open(signature_file) as f:
+        signature_content = f.read()
+      if software_hash in signature_content:
+        error_list.append(
           "Shared part is referencing non shared part or software {}\n{}\n".format(
-              signature_file, signature_content))
+          signature_file, signature_content))
 
   def checkEggsVersionsKnownVulnerabilities(
       egg_directories,

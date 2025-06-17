@@ -45,9 +45,6 @@ import requests
 urllib3_logger = logging.getLogger('requests.packages.urllib3')
 urllib3_logger.setLevel(logging.WARNING)
 
-from cachecontrol import CacheControl
-from cachecontrol.caches.file_cache import FileCache
-
 # XXX fallback_logger to be deprecated together with the old CLI entry points.
 fallback_logger = logging.getLogger(__name__)
 fallback_handler = logging.StreamHandler()
@@ -81,11 +78,6 @@ class ConnectionHelper:
     self.cert_file = cert_file
     self.master_ca_file = master_ca_file
     self.timeout = timeout
-
-    # self.session will handle requests using HTTP Cache Control rules.
-    self.uncached_session = requests.Session()
-    self.session = CacheControl(self.uncached_session,
-      cache=FileCache(os.path.expanduser("~/.slapos_cached_get")))
 
   def do_request(self, method, path, params=None, data=None, headers=None):
     url = parse.urljoin(self.slapgrid_uri, path)
@@ -159,7 +151,7 @@ class ConnectionHelper:
     return req
 
   def GET(self, path, params=None, headers=None):
-    req = self.do_request(self.session.get,
+    req = self.do_request(requests.get,
                           path=path,
                           params=params,
                           headers=headers)

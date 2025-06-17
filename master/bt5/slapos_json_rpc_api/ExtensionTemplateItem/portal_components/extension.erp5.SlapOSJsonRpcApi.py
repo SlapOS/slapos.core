@@ -29,16 +29,17 @@ import six
 import pkg_resources
 from lxml import etree
 from zLOG import LOG, INFO
+from Products.ERP5Type.Utils import str2bytes
 
 
 def _validateXML(to_be_validated, xsd_model):
   """Will validate the xml file"""
   #We parse the XSD model
-  xsd_model = six.StringIO(xsd_model)
+  xsd_model = six.BytesIO(xsd_model)
   xmlschema_doc = etree.parse(xsd_model)
   xmlschema = etree.XMLSchema(xmlschema_doc)
 
-  string_to_validate = six.StringIO(to_be_validated)
+  string_to_validate = six.BytesIO(to_be_validated)
 
   try:
     document = etree.parse(string_to_validate)
@@ -59,9 +60,10 @@ def validateTioXMLAndExtractReference(tioxml):
     'doc/computer_consumption.xsd'
   )
 
-  if _validateXML(tioxml, compute_node_consumption_model):
-    tree = etree.fromstring(tioxml)
+  _tioxml = str2bytes(tioxml)
+  if _validateXML(_tioxml, compute_node_consumption_model):
+    tree = etree.fromstring(_tioxml)
     source_reference = tree.find('transaction').find('reference').text or ""
-    return source_reference.encode("UTF-8")
+    return source_reference
   return None
 

@@ -398,21 +398,22 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
 <movement>
 <resource>CPU Consumption</resource>
 <title>Title Sale Packing List Line 1</title>
-<reference>slappart0</reference>
+<reference>%s</reference>
 <quantity>42.42</quantity>
 <price>0.00</price>
 <VAT>None</VAT>
 <category>None</category>
 </movement>
 </transaction>
-</journal>"""
+</journal>""" % (self.start_requested_software_instance.getReference())
 
     with PinnedDateTime(self, DateTime('2020/05/19')):
-      response = self.callJsonRpcWebService("slapos.post.v0.compute_node_usage", {
-        "tioxml": consumption_xml,
-        "computer_guid": compute_node_reference
-      },
-          compute_node_user_id)
+      with PortalAlarmDisabled(self.portal):
+        response = self.callJsonRpcWebService("slapos.post.v0.compute_node_usage", {
+          "tioxml": consumption_xml,
+          "computer_guid": compute_node_reference
+        }, compute_node_user_id)
+
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
       loadJson(response.getBody()),
@@ -457,24 +458,24 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
 <movement>
 <resource>CPU Consumption</resource>
 <title>Title Sale Packing List Line 1</title>
-<reference>slappart0</reference>
+<reference>%s</reference>
 <quantity>42.42</quantity>
 <price>0.00</price>
 <VAT>None</VAT>
 <category>None</category>
 </movement>
 </transaction>
-</journal>"""
+</journal>""" % (self.start_requested_software_instance.getReference())
 
     with PinnedDateTime(self, DateTime('2020/05/19')):
-      response = self.callJsonRpcWebService("slapos.post.v0.compute_node_usage", {
-        "tioxml": consumption_xml,
-        "computer_guid": compute_node_reference
-      },
-          compute_node_user_id)
+      with PortalAlarmDisabled(self.portal):
+        response = self.callJsonRpcWebService("slapos.post.v0.compute_node_usage", {
+          "tioxml": consumption_xml,
+          "computer_guid": compute_node_reference
+        }, compute_node_user_id)
     self.assertEqual('application/json', response.headers.get('content-type'))
     self.assertEqual(
-      loadJson(response.getBody()),
+        loadJson(response.getBody()),
       {
         'title': 'Usage reported',
         'type': 'success'

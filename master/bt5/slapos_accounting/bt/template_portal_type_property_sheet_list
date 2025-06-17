@@ -5,6 +5,15 @@ Amortisation Transaction | SlapOSVirtualMasterSourceProjectAccountingConstraint
 Balance Transaction | SlapOSLedgerAccountingConstraint
 Balance Transaction | SlapOSVirtualMasterSourceProjectAccountingConstraint
 Computer Consumption TioXML File | SortIndex
+Consumption Delivery Line | OutcomeDescription
+Consumption Delivery Line | SlapOSAccountingSalePackingListLineConstraint
+Consumption Delivery Line | SlapOSMovementConstraint
+Consumption Delivery | DeliveryCausalityStateConstraint
+Consumption Delivery | SlapOSAccountingSalePackingListConstraint
+Consumption Delivery | SlapOSLedgerConstraint
+Consumption Delivery | SlapOSSaleProfileConstraint
+Consumption Supply | ConsumptionSupplyConstraint
+Consumption Supply | SlapOSVirtualMasterSourceProjectConstraint
 Hosting Subscription | SlapOSAccountingHostingSubscriptionConstraint
 Hosting Subscription | SlapOSLedgerConstraint
 Internal Invoice Transaction | SlapOSLedgerAccountingConstraint

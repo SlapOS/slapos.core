@@ -148,8 +148,8 @@ for movement_entry in six.itervalues(movement_dict):
     source_project_value=open_sale_order_movement.getSourceProjectValue(),
     #destination_project_value=open_sale_order_movement.getDestinationProjectValue(),
     ledger_value=open_sale_order_movement.getLedgerValue(),
-    # calculate price based on stop date.
-    start_date=stop_date,
+    # calculate price based on Open Order start date.
+    start_date=open_sale_order_movement.getStartDate(),
     price_currency_value=open_sale_order_movement.getPriceCurrencyValue(),
     destination_value=destination_value,
   )
@@ -184,8 +184,7 @@ for movement_entry in six.itervalues(movement_dict):
 
   for movement in movement_entry:
     resource_value = movement['resource_value']
-    line = consumption_delivery.newContent(
-      portal_type="Consumption Delivery Line",
+    prop_dict = dict(
       title=movement['title'],
       quantity=movement['quantity'],
       aggregate_value=movement['aggregate_value'],
@@ -194,7 +193,16 @@ for movement_entry in six.itervalues(movement_dict):
       base_contribution_list=resource_value.getBaseContributionList(),
       use_list=resource_value.getUseList()
     )
-    line.setPrice(line.getPrice())
+    # Create a temporary line to calculate price based on the sale open order date
+    price_line = tmp_sale_order.newContent(
+      temp_object=True,
+      portal_type="Sale Order Line",
+      **prop_dict)
+    line = consumption_delivery.newContent(
+      portal_type="Consumption Delivery Line",
+      **prop_dict
+    )
+    line.setPrice(price_line.getPrice(None))
   consumption_delivery.Delivery_fixBaseContributionTaxableRate()
   consumption_delivery.Base_checkConsistency()
   consumption_delivery.confirm(comment="Created from %s" % document.getRelativeUrl())
@@ -208,3 +216,4 @@ for movement_entry in six.itervalues(movement_dict):
 document.setFollowUpValue(project_value)
 document.accept(comment="Created Delivery: %s" % result)
 return result
+

@@ -340,9 +340,9 @@ class TestTicket_createProjectEvent(TestCRMSkinsMixin):
     for information in event.getAttachmentInformationList():
       if information['uid'] != information['filename']:
         event_information_dict_list.append({
-          'title': information['filename'],
+          'index': information['index'],
           'content_type': information['content_type'],
-          'index': information['index']
+          'title': information['filename']
         })
 
     import json

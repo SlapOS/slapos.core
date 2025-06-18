@@ -21,6 +21,9 @@ Computer Network Module | slapos_panel_view
 Computer Network | jump_to_slapos_compute_node
 Computer Network | slapos_fast_invalidate
 Computer Network | slapos_panel_view
+Consumption Supply Line | slapos_panel_view
+Consumption Supply Module | slapos_panel_view
+Consumption Supply | slapos_panel_view
 ERP5 Login | slapos_panel_view
 Event Module | slapos_panel_view
 Instance Node | add_slapos_allocation_supply
@@ -54,6 +57,7 @@ Project | add_slapos_allocation_supply
 Project | add_slapos_compute_node
 Project | add_slapos_compute_node_token
 Project | add_slapos_computer_network
+Project | add_slapos_consumption_supply
 Project | add_slapos_remote_node
 Project | add_slapos_sale_supply
 Project | add_slapos_software_product
@@ -61,6 +65,7 @@ Project | add_slapos_support_request
 Project | jump_to_slapos_allocation_supply
 Project | jump_to_slapos_compute_node
 Project | jump_to_slapos_computer_network
+Project | jump_to_slapos_consumption_supply
 Project | jump_to_slapos_instance_node
 Project | jump_to_slapos_instance_tree
 Project | jump_to_slapos_remote_node

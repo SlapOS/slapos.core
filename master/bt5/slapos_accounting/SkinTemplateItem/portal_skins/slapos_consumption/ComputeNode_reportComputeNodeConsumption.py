@@ -2,8 +2,6 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
-from Products.ERP5Type.Utils import str2bytes
-
 portal = context.getPortalObject()
 compute_node = context
 
@@ -17,7 +15,7 @@ document = portal.consumption_document_module.newContent(
   title="%s consumption (%s)" % (compute_node.getReference(), source_reference),
   reference=reference,
   version=version,
-  data=str2bytes(consumption_xml),
+  data=consumption_xml,
   classification="personal",
   publication_section="other",
   contributor_value=compute_node,

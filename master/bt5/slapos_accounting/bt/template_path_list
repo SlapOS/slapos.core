@@ -81,4 +81,6 @@ service_module/slapos_reservation_fee/**
 service_module/slapos_reservation_refund
 service_module/slapos_tax
 service_module/slapos_virtual_master_subscription
+service_module/slave_instance_consumption
+service_module/software_instance_consumption
 service_module/zero_emission_ratio

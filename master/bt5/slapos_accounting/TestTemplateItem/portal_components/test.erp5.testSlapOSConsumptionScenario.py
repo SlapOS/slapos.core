@@ -59,7 +59,7 @@ class TestSlapOSConsumptionScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
 
   def bootstrapConsumptionScenarioTest(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
-
+    self.sale_person = sale_person
     self.logout()
     # lets join as slapos administrator, which will manager the project
     project_owner_reference = 'project-%s' % self.generateNewId()
@@ -106,6 +106,7 @@ class TestSlapOSConsumptionScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
       portal_type='Sale Supply',
       source_project__uid=project.getUid()
     )
+    sale_supply.edit(start_date_range_min=DateTime()-0.5)
     sale_supply.searchFolder(
       portal_type='Sale Supply Line',
       resource__relative_url="service_module/slapos_compute_node_subscription"
@@ -337,7 +338,6 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
 
       self.login()
 
-
     with PinnedDateTime(self, DateTime('2024/12/17 01:01')):
       # Simulate access from compute_node, to open the capacity scope
       self.login()
@@ -438,16 +438,35 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
                 'TIOCONS-%s-2025-01-17-global' % public_server.getReference())
       self.assertEqual(consumption_report.getValidationState(), "accepted")
 
-    with PinnedDateTime(self, DateTime('2025/01/19 01:00')):
+    with PinnedDateTime(self, DateTime('2025/01/21 01:00')):
+      self.logout()
+      self.login(self.sale_person.getUserId())
+      original_sale_supply = self.portal.portal_catalog.getResultValue(
+        portal_type='Sale Supply',
+        source_project__uid=project.getUid()
+      )
+      sale_supply = original_sale_supply.Base_createCloneDocument(batch_mode=1)
+      sale_supply.edit(start_date_range_min=DateTime())
+      self.tic()
+      sale_supply.searchFolder(
+        portal_type='Sale Supply Line',
+        resource__relative_url=consumption_service.getRelativeUrl()
+      )[0].edit(base_price=1000)
+
+      sale_supply.validate()
+      self.tic()
+      self.logout()
+
+    with PinnedDateTime(self, DateTime('2025/01/22 01:00')):
       self.login()
       # Next day remote more consumption
       consumption_xml_report = """<?xml version="1.0" encoding="utf-8"?>
 <journal>
   <transaction type="Sale Packing List">
     <title>Eco Information for %(compute_node_reference)s </title>
-    <start_date>2025-01-18 00:00:00</start_date>
-    <stop_date>2025-01-18 23:59:59</stop_date>
-    <reference>2025-01-18-global</reference>
+    <start_date>2025-01-21 00:00:00</start_date>
+    <stop_date>2025-01-21 23:59:59</stop_date>
+    <reference>2025-01-21-global</reference>
     <currency/>
     <payment_mode/>
     <category/>
@@ -494,10 +513,10 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
       consumption_report_list = public_server.getContributorRelatedValueList()
       self.assertEqual(len(consumption_report_list), 2)
       consumption_report = [i for i in consumption_report_list \
-          if "2025-01-18" in i.getReference()][0]
+          if "2025-01-21" in i.getReference()][0]
 
       self.assertEqual(consumption_report.getReference(),
-                'TIOCONS-%s-2025-01-18-global' % public_server.getReference())
+                'TIOCONS-%s-2025-01-21-global' % public_server.getReference())
 
       self.assertEqual(consumption_report.getValidationState(), "accepted")
 
@@ -577,13 +596,13 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     # 5 (can reduce to 2) assignment
     # 65 simulation mvt
     # 6 packing list / line
-    # 4 sale supply / line
+    # 8 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 2 software instance
     # 1 software product
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 120)
+    self.assertRelatedObjectCount(project, 124)
 
     self.checkERP5StateBeforeExit()
 

@@ -44,6 +44,7 @@ project = instance.getFollowUpValue(portal_type='Project')
 # XX do we have multi open sale order line ??
 open_sale_order_line = project.getAggregateRelatedValue(portal_type='Open Sale Order Line')
 open_sale_order = open_sale_order_line.getParentValue()
+currency_value = open_sale_order.getPriceCurrencyValue()
 
 project_stop_date = open_sale_order.getStopDate()
 project_start_date = open_sale_order.getStartDate()
@@ -51,19 +52,11 @@ project_start_date = open_sale_order.getStartDate()
 if (project_stop_date > project_start_date) and project_stop_date < now:
   return
 
+consumption_service, consumption_service_type_list = instance.Instance_getConsumptionService()
 
-software_product, _, software_type = instance.InstanceTree_getSoftwareProduct()
-resource_vcl = []
-if software_product is not None:
-  resource_vcl = [
-    'software_type/%s' % software_type.getRelativeUrl()
-  ]
-else:
-  storeWorkflowComment(instance, 'Can not find a matching Service to generate the Consumption Delivery')
-  return
 
-destination_value = project.getDestinationValue(portal_type="Person")
-if destination_value is None:
+subscriber_person_value = project.getDestinationValue(portal_type="Person")
+if subscriber_person_value is None:
   storeWorkflowComment(instance, 'Can not find the person to contact to generate the Consumption Delivery')
   return
 
@@ -85,14 +78,15 @@ tmp_sale_order = portal.portal_trash.newContent(
   portal_type='Sale Order',
   temp_object=True,
   trade_condition_type='virtual_master',
-  start_date=start_date,
+  start_date= project_start_date,
   stop_date = stop_date,
-  destination_value=destination_value,
-  source_project_value=project,
-  #price_currency_value=currency_value  XXX
+  destination_value=subscriber_person_value,
+  price_currency_value=currency_value,
   ledger_value=portal.portal_categories.ledger.automated
 )
-tmp_sale_order.SaleOrder_applySaleTradeCondition(batch_mode=1, force=1)
+#tmp_sale_order.SaleOrder_applySaleTradeCondition(batch_mode=1, force=1)
+trade_condition = open_sale_order.getSpecialiseValue(portal_type='Sale Trade Condition')
+tmp_sale_order.Order_applyTradeCondition(trade_condition, force=1)
 
 
 if tmp_sale_order.getSpecialise(None) is None:
@@ -113,15 +107,14 @@ else:
   tmp_order_line = tmp_sale_order.newContent(
     portal_type='Sale Order Line',
     temp_object=True,
-    resource_value=software_product,
-    variation_category_list=resource_vcl,
-    quantity_unit=software_product.getQuantityUnit(),
-    base_contribution_list=software_product.getBaseContributionList(),
-    use=software_product.getUse(),
+    resource_value=consumption_service,
+    variation_category_list=consumption_service_type_list,
+    quantity_unit=consumption_service.getQuantityUnit(),
+    base_contribution_list=consumption_service.getBaseContributionList(),
+    use=consumption_service.getUse(),
     quantity=1
   )
-
-  if resource_vcl:
+  if consumption_service_type_list:
     base_id = 'movement'
     cell_key = list(tmp_order_line.getCellKeyList(base_id=base_id))[0]
     tmp_order_cell = tmp_order_line.newCell(
@@ -158,22 +151,22 @@ consumption_delivery = portal.consumption_delivery_module.newContent(
   source_project_value=tmp_sale_order.getSourceProjectValue(),
   destination_project_value=tmp_sale_order.getDestinationProjectValue(),
   ledger_value=tmp_sale_order.getLedgerValue(),
-  start_date = tmp_sale_order.getStartDate(),
+  start_date = start_date,
   stop_date = tmp_sale_order.getStopDate(),
   price_currency_value=tmp_sale_order.getPriceCurrencyValue(),
 )
 
 consumption_deliery_line = consumption_delivery.newContent(
   portal_type='Consumption Delivery Line',
-  resource_value=software_product,
-  variation_category_list=resource_vcl,
-  quantity_unit=software_product.getQuantityUnit(),
-  base_contribution_list=software_product.getBaseContributionList(),
-  use=software_product.getUse(),
+  resource_value=consumption_service,
+  variation_category_list=consumption_service_type_list,
+  quantity_unit=consumption_service.getQuantityUnit(),
+  base_contribution_list=consumption_service.getBaseContributionList(),
+  use=consumption_service.getUse(),
   quantity=1
 )
 
-if resource_vcl:
+if consumption_service_type_list:
   base_id = 'movement'
   cell_key = list(consumption_deliery_line.getCellKeyList(base_id=base_id))[0]
   consumption_deliery_cell = consumption_deliery_line.newCell(

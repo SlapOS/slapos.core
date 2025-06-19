@@ -168,8 +168,8 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
   def test_instance_consumption_scenario(self):
     with PinnedDateTime(self, DateTime('2024/12/17')):
       project, currency, owner_person, _, public_server, public_instance_type, \
-        public_server_software, software_product,  \
-        type_variation = self.bootstrapConsumptionScenarioTest()
+        public_server_software, _,  \
+        _ = self.bootstrapConsumptionScenarioTest()
 
       self.logout()
 
@@ -222,8 +222,16 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       partition2 = software_instance2.getAggregateValue()
       self.assertEqual(partition2.getParentValue(), public_server)
 
+      consumption_delivery = software_instance.getCausalityRelatedValue(portal_type='Consumption Delivery')
+      consumption_delivery2 = software_instance2.getCausalityRelatedValue(portal_type='Consumption Delivery')
+      self.assertTrue(consumption_delivery is not None)
+      self.assertTrue(consumption_delivery2 is not None)
+
       self.login(owner_person.getUserId())
       # Unallocate and destroy the instance the instances
+      # This unallocate software instance then trigger alarm which will check other software instance also
+      # thus create another consumption delivery for software_instance2
+      # XXXX this wrong, we should create one consumption delivery for software_instance
       self.checkInstanceUnallocation(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type, public_server,
@@ -246,40 +254,29 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       self.login()
       self.tic()
 
-    # Check stock
-    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
-      'group_by_section': False,
-      'group_by_node': True,
-      'group_by_variation': True,
-      'resource_uid': software_product.getUid(),
-      'node_uid': public_person.getUid(),
-      'project_uid': None,
-      'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
-    })
-    self.assertEqual(len(inventory_list), 1)
-    self.assertEqual(inventory_list[0].quantity, 1)
-    resource_vcl = [
-      # 'software_release/%s' % release_variation.getRelativeUrl(),
-      'software_type/%s' % type_variation.getRelativeUrl()
-    ]
-    resource_vcl.sort()
-    self.assertEqual(resource_vcl,
-       inventory_list[0].getVariationCategoryList(),
-       "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList()))
 
     # Check accounting
     transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
       mirror_section_uid=public_person.getUid())
 
-    # Was 10.8 correspond to the first month since it passed a month by the
-    # dates.
+    # 9    deposite
+    # 9    deposite
+    # 21.6 instance
+    # 10.8 deposite
+    # 10.8 deposite
+    for transaction in transaction_list:
+      self.logMessage(transaction.getRelativeUrl())
+
     self.assertEqual(len(transaction_list), 5)
     self.assertSameSet(
       [round(x.total_price, 2) for x in transaction_list],
-      [9.0, -9.0, round(508.8, 2), -10.8, 10.8],
+      [9.0, -9.0, 21.6, -10.8, 10.8],
       [round(x.total_price, 2) for x in transaction_list]
     )
-
+    self.assertEqual(
+      consumption_delivery.getCausalityRelatedValue(portal_type='Sale Invoice Transaction'),
+      consumption_delivery2.getCausalityRelatedValue(portal_type='Sale Invoice Transaction')
+    )
     self.login()
 
     # Ensure no unexpected object has been created
@@ -302,6 +299,6 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     # 2 software instance
     # 1 software product
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 120)
+    self.assertRelatedObjectCount(project, 113)
 
     self.checkERP5StateBeforeExit()

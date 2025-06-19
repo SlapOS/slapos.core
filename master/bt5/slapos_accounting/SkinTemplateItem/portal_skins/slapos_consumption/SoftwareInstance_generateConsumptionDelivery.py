@@ -80,6 +80,7 @@ tmp_sale_order = portal.portal_trash.newContent(
   trade_condition_type='virtual_master',
   start_date= project_start_date,
   stop_date = stop_date,
+  source_project_value=project,
   destination_value=subscriber_person_value,
   price_currency_value=currency_value,
   ledger_value=portal.portal_categories.ledger.automated
@@ -137,7 +138,7 @@ else:
 
   # but if accounting is needed, we expect a price
   if not price:
-    raise AssertionError('Can not find a price to generate the Consumption Delivery (%s)' % tmp_sale_order.getSpecialiseValue())
+    raise AssertionError('Can not find a price to generate the Consumption Delivery (%s)' % tmp_sale_order.getSpecialise())
 
 consumption_delivery = portal.consumption_delivery_module.newContent(
   portal_type="Consumption Delivery",
@@ -145,8 +146,8 @@ consumption_delivery = portal.consumption_delivery_module.newContent(
   source_section_value=tmp_sale_order.getSourceSectionValue(),
   source_decision_value=tmp_sale_order.getSourceDecisionValue(),
   destination_value=tmp_sale_order.getDestinationValue(),
-  destination_section_value=tmp_sale_order.getDestinationSectionValue(),
-  destination_decision_value=tmp_sale_order.getDestinationDecisionValue(),
+  destination_section_value=subscriber_person_value,
+  destination_decision_value=subscriber_person_value,
   specialise_value=tmp_sale_order.getSpecialiseValue(),
   source_project_value=tmp_sale_order.getSourceProjectValue(),
   destination_project_value=tmp_sale_order.getDestinationProjectValue(),

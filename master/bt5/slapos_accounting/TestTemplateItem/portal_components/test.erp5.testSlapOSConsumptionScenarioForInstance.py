@@ -71,6 +71,17 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       resource_value=software_product
     )
 
+    # Do like this for now, change later
+    sale_supply.newContent(
+      portal_type='Sale Supply Line',
+      base_price = 5,
+      resource_value = self.portal.service_module.software_instance_consumption
+    )
+    sale_supply.newContent(
+      portal_type='Sale Supply Line',
+      base_price = 4,
+      resource_value = self.portal.service_module.slave_instance_consumption
+    )
     sale_supply.validate()
 
     self.tic()
@@ -151,6 +162,8 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
              public_instance_type, public_server_software, software_product, \
              type_variation
 
+  def addConsumptionServiceForInstance(self):# No extra parameter for now
+    pass
 
   def test_instance_consumption_scenario(self):
     with PinnedDateTime(self, DateTime('2024/12/17')):
@@ -208,7 +221,6 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       software_instance2 = instance_tree2.getSuccessorValue()
       partition2 = software_instance2.getAggregateValue()
       self.assertEqual(partition2.getParentValue(), public_server)
-
 
       self.login(owner_person.getUserId())
       # Unallocate and destroy the instance the instances

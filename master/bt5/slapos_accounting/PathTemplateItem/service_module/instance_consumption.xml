@@ -90,9 +90,9 @@
               <tuple>
                 <string>base_contribution/base_amount/invoicing/discounted</string>
                 <string>base_contribution/base_amount/invoicing/taxable</string>
-                <string>use/trade/sale</string>
                 <string>quantity_unit/time/month</string>
                 <string>product_line/cloud/usage</string>
+                <string>use/trade/consumption</string>
               </tuple>
             </value>
         </item>

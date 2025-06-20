@@ -63,7 +63,7 @@ class RegisterCommand(ConfigCommand):
                         help='Chosen title for the node')
 
         ap.add_argument('--interface-name',
-                        default='eth0',
+                        default='lo',
                         help='Primary network interface. IP of Partitions '
                              'will be added to it'
                              ' (default: %(default)s)')
@@ -89,9 +89,6 @@ class RegisterCommand(ConfigCommand):
                         help='Subnetwork used to assign local IPv4 addresses. '
                              'It should be a not used network in order to avoid conflicts'
                              ' (default: %(default)s)')
-
-        ap.add_argument('--ipv6-interface',
-                        help='Interface name to get ipv6')
 
         ap.add_argument('--login-auth',
                         action='store_true',
@@ -277,8 +274,6 @@ def slapconfig(conf):
         ('partition_amount', conf.partition_number),
         ('create_tap', conf.create_tap)
     ]
-    if conf.ipv6_interface:
-        to_replace.append(('ipv6_interface', conf.ipv6_interface))
 
     for key, value in to_replace:
         cfg = re.sub('\n\\s*%s\\s*=.*' % key, '\n%s = %s' % (key, value), cfg)

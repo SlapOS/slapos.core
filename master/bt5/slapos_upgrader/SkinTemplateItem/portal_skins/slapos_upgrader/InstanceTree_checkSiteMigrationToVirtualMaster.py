@@ -40,7 +40,7 @@ for sql_instance in portal.portal_catalog(specialise__uid=instance_tree.getUid()
 # and so, it must be kept on the project with the payable trade condition
 # Update: in reality, those instances are not hosted on nodes from this project
 #         so drop this condition
-if 0:#(software_instance is not None) and (sla_xml_dict.get('project_guid', None) is not None):
+if 0: #(software_instance is not None) and (sla_xml_dict.get('project_guid', None) is not None): # pylint: disable=using-constant-test
   project_reference = sla_xml_dict.get('project_guid', None)
   project = portal.portal_catalog.getResultValue(portal_type='Project', reference=project_reference)
   if project is not None:

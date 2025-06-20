@@ -66,7 +66,7 @@ class TestSlapOSCrmMonitoringMixin(SlapOSTestCaseMixinWithAbort):
     support_request.submit()
     new_id = self.generateNewId()
     support_request.edit(
-        title="Support Request éçà %s" % new_id, #pylint: disable=invalid-encoded-data
+        title="Support Request éçà %s" % new_id,
         reference="TESTSRQ-%s" % new_id,
         destination_decision_value=person
     )

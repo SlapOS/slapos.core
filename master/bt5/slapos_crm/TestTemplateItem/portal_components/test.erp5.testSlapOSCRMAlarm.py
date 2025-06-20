@@ -1396,7 +1396,7 @@ class TestSlaposCrmCheckStoppedEventFromRegularisationRequestToDeliver(SlapOSTes
     ticket.submit()
     new_id = self.generateNewId()
     ticket.edit(
-        title= "%s éçà %s" % (self.ticket_portal_type, new_id), #pylint: disable=invalid-encoded-data
+        title= "%s éçà %s" % (self.ticket_portal_type, new_id),
         reference="TESTTCK-%s" % new_id
     )
     return ticket

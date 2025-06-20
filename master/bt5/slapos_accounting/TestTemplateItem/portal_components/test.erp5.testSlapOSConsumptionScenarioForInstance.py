@@ -75,12 +75,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     sale_supply.newContent(
       portal_type='Sale Supply Line',
       base_price = 5,
-      resource_value = self.portal.service_module.software_instance_consumption
-    )
-    sale_supply.newContent(
-      portal_type='Sale Supply Line',
-      base_price = 4,
-      resource_value = self.portal.service_module.slave_instance_consumption
+      resource_value = self.portal.service_module.instance_consumption
     )
     sale_supply.validate()
 

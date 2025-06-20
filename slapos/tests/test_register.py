@@ -86,6 +86,7 @@ class TestRegister(unittest.TestCase):
     parsed_args = cmd_parser.parse_args(args)
     conf = RegisterConfig(logger=self.app.log)
     conf.setConfig(parsed_args)
+    conf.slapos_configuration = self.temp_dir
     return conf
 
   def test_fetch_configuration(self):
@@ -117,9 +118,6 @@ class TestRegister(unittest.TestCase):
     """ Simple test to see if we can write the configuration file
     """
     conf = self.getConf(self.default_args)
-    # we manually set the parameters below because we mock the function COMPConfig
-    # indeed, we don't want to put the config file in '/etc/opt/slapos'
-    conf.slapos_configuration = self.temp_dir
     conf.computer_id = self.computer_id
     conf.certificate = self.certificate
     conf.key = self.key
@@ -128,7 +126,7 @@ class TestRegister(unittest.TestCase):
          mock.patch('slapos.cli.register.save_former_config') as save_former_config_mock:
       return_code = do_register(conf)
       COMPConfigMock.assert_called_with(
-              slapos_configuration = '/etc/opt/slapos/',
+              slapos_configuration = self.temp_dir,
               computer_id = self.computer_id,
               certificate = self.certificate,
               key = self.key)
@@ -138,3 +136,45 @@ class TestRegister(unittest.TestCase):
       os.path.exists('%s/slapos.cfg' % self.temp_dir))
     config_content = open('%s/slapos.cfg' % self.temp_dir).read()
     self.assertIn('computer_id = %s' % self.computer_id, config_content)
+    self.assertIn('software_root = /opt/slapgrid', config_content)
+    self.assertIn('instance_root = /srv/slapgrid', config_content)
+    self.assertIn('interface_name = lo', config_content)
+    self.assertIn('partition_amount = 10', config_content)
+    self.assertIn('create_tap = False', config_content)
+
+  def test_write_configuration_all_options(self):
+    """ Simple test to see if we can write the configuration file
+    """
+    conf = self.getConf([
+        '--software-root', '/SOFTWARE/ROOT',
+        '--instance-root', '/INSTANCE/ROOT',
+        '--interface-name', 'SOME-INTERFACE',
+        '--partition-number', '50',
+        '--create-tap',
+        '--token', 'token-test',
+        'test-computer'
+        ])
+    conf.computer_id = self.computer_id
+    conf.certificate = self.certificate
+    conf.key = self.key
+    with httmock.HTTMock(self.request_handler), \
+         mock.patch.object(RegisterConfig, 'COMPConfig') as COMPConfigMock, \
+         mock.patch('slapos.cli.register.save_former_config') as save_former_config_mock:
+      return_code = do_register(conf)
+      COMPConfigMock.assert_called_with(
+              slapos_configuration = self.temp_dir,
+              computer_id = self.computer_id,
+              certificate = self.certificate,
+              key = self.key)
+      save_former_config_mock.assert_called()
+    self.assertEqual(0, return_code)
+    self.assertTrue(
+      os.path.exists('%s/slapos.cfg' % self.temp_dir))
+    config_content = open('%s/slapos.cfg' % self.temp_dir).read()
+    self.assertIn('computer_id = %s' % self.computer_id, config_content)
+    self.assertIn('software_root = /SOFTWARE/ROOT', config_content)
+    self.assertIn('instance_root = /INSTANCE/ROOT', config_content)
+    self.assertIn('interface_name = SOME-INTERFACE', config_content)
+    self.assertIn('partition_amount = 50', config_content)
+    self.assertIn('create_tap = True', config_content)
+

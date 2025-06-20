@@ -104,7 +104,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>SLAVEINSTANCECONSUMPTION</string> </value>
+            <value> <string>INSTANCECONSUMPTION</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -114,7 +114,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slave_instance_consumption</string> </value>
+            <value> <string>instance_consumption</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -134,7 +134,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Slave Instance Consumption</string> </value>
+            <value> <string>Instance Consumption</string> </value>
         </item>
       </dictionary>
     </pickle>

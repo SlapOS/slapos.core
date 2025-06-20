@@ -22,7 +22,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>interaction_SoftwareInstance_setAggregateList</string> </value>
+            <value> <string>interaction_SoftwareInstance_validate</string> </value>
         </item>
         <item>
             <key> <string>portal_type_filter</string> </key>
@@ -39,13 +39,13 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>SoftwareInstance_setAggregateList</string> </value>
+            <value> <string>SoftwareInstance_validate</string> </value>
         </item>
         <item>
             <key> <string>trigger_method_id</string> </key>
             <value>
               <tuple>
-                <string>_setAggregate.*</string>
+                <string>validate</string>
               </tuple>
             </value>
         </item>

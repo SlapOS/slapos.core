@@ -1,11 +1,9 @@
 portal = context.getPortalObject()
 portal_type=context.getPortalType()
-# Do simple now, need to define properly which service used
-if portal_type == 'Software Instance':
-  service = portal.service_module.software_instance_consumption
-elif portal_type == 'Slave Instance':
-  service = portal.service_module.slave_instance_consumption
+# Do simple now
+if portal_type in ('Software Instance', 'Slave Instance'):
+  service = portal.service_module.instance_consumption
 else:
   raise ValueError('unknown instance type: %s' % portal_type)
 
-return service, []
+return service

@@ -90,6 +90,14 @@ class RegisterCommand(ConfigCommand):
                              'It should be a not used network in order to avoid conflicts'
                              ' (default: %(default)s)')
 
+        ap.add_argument('--software-root',
+                        default='/opt/slapgrid',
+                        help='Path of the software directory')
+
+        ap.add_argument('--instance-root',
+                        default='/srv/slapgrid',
+                        help='Path of the instance directory')
+
         ap.add_argument('--login-auth',
                         action='store_true',
                         help='Force login and password authentication')
@@ -272,7 +280,9 @@ def slapconfig(conf):
         ('interface_name', conf.interface_name),
         ('ipv4_local_network', conf.ipv4_local_network),
         ('partition_amount', conf.partition_number),
-        ('create_tap', conf.create_tap)
+        ('create_tap', conf.create_tap),
+        ('software_root', conf.software_root),
+        ('instance_root', conf.instance_root)
     ]
 
     for key, value in to_replace:

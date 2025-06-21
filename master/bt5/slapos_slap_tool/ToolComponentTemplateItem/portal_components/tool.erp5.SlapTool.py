@@ -1095,7 +1095,6 @@ class SlapTool(BaseTool):
         software_release=software_release_dict["software_release"],
         computer_guid=software_release_dict['computer_guid'])
       slap_software_release._requested_state = software_release_dict['_requested_state']
-      slap_software_release._known_state = software_release_dict['_known_state']
       slap_compute_node._software_release_list.append(slap_software_release)
 
     return bytes2str(dumps(slap_compute_node))

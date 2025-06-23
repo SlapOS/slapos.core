@@ -41,6 +41,6 @@ elif portal_type == 'Software Instance':
 
 else:
   raise NotImplementedError(
-    'Unsupported portal type as user:' % portal_type)
+    'Unsupported portal type as user: %s' % portal_type)
 
 return category_list

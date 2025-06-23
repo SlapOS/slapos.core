@@ -3,11 +3,13 @@ import re
 import json
 import os.path
 from DateTime import DateTime
+from Products.ERP5Type.Utils import bytes2str
+
 def getEndAndJsonList(start, in_data_stream, chunk_size = 4 * 1024 * 1024):
 
   end = min(start + chunk_size, in_data_stream.getSize())
   unpacked = in_data_stream.readChunkList(start, end)
-  unpacked_string = "".join(unpacked)
+  unpacked_string = "".join([bytes2str(i) for i in unpacked])
 
   if end < in_data_stream.getSize():
     raw_data_string = '\n'.join(unpacked_string.splitlines()[:-1])

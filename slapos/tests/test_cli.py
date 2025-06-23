@@ -461,19 +461,18 @@ class TestCliBoot(CliMixin):
       fake = mock.Mock(return_value=mock.Mock(**{'run.return_value': 0}))
       with patch('slapos.cli.boot.check_root_user', return_value=True) as check_root_user,\
           patch('slapos.cli.boot.SlapOSApp', new=fake) as SlapOSApp,\
-          patch('slapos.cli.boot.ConfigCommand.config_path', return_value=slapos_conf.name), \
           patch(
               'slapos.cli.boot.netifaces.ifaddresses',
               return_value={socket.AF_INET6: ({'addr': '2000::1'},),},) as ifaddresses:
-        app.run(('node', 'boot'))
+        app.run(('node', 'boot', '--cfg', slapos_conf.name))
 
       # boot command runs as root
       check_root_user.assert_called_once()
       # it waits for interface to have an IPv6 address
       ifaddresses.assert_called_once_with('interface_name_from_config')
       # then format and bang
-      SlapOSApp().run.assert_any_call(['node', 'format', '--now', '--verbose'])
-      SlapOSApp().run.assert_any_call(['node', 'bang', '-m', 'Reboot'])
+      SlapOSApp().run.assert_any_call(['node', 'format', '--cfg', slapos_conf.name, '--now', '--verbose'])
+      SlapOSApp().run.assert_any_call(['node', 'bang', '--cfg', slapos_conf.name, '-m', 'Reboot'])
 
       # timestamp files have been removed
       self.assertFalse(os.path.exists(timestamp),

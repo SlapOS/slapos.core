@@ -193,10 +193,13 @@ for movement_entry in six.itervalues(movement_dict):
       base_contribution_list=resource_value.getBaseContributionList(),
       use_list=resource_value.getUseList()
     )
+    start_date = movement['open_sale_order_movement'].getStartDate()
+    tmp_sale_order.edit(start_date=start_date, stop_date=start_date)
     # Create a temporary line to calculate price based on the sale open order date
     price_line = tmp_sale_order.newContent(
       temp_object=True,
       portal_type="Sale Order Line",
+      # Ensure it respect the data properly to calculate the pricing
       **prop_dict)
     line = consumption_delivery.newContent(
       portal_type="Consumption Delivery Line",
@@ -216,4 +219,3 @@ for movement_entry in six.itervalues(movement_dict):
 document.setFollowUpValue(project_value)
 document.accept(comment="Created Delivery: %s" % result)
 return result
-

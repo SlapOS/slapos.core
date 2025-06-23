@@ -17,7 +17,7 @@ if not url:
     # Set some value if no value is set.
     context.setPreferredDocumentConversionServerUrlList(['https://cloudooo1.erp5.net/', 'https://cloudooo.erp5.net/'])
     fixing = ' (fixed, set https://cloudooo1.erp5.net/ and https://cloudooo.erp5.net/)'
-  
-  error_log.append("Conversion Server is not configured. " % fixing)
+
+  error_log.append("Conversion Server is not configured. %s" % fixing)
 
 return error_log

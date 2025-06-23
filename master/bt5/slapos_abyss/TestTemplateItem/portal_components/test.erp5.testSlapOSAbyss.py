@@ -27,6 +27,7 @@
 
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
+from Products.ERP5Type.Utils import str2bytes
 import json
 
 class testSlapOSAbyss(SlapOSTestCaseMixin):
@@ -140,7 +141,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     for reference in request_dict:
       request.environ["REQUEST_METHOD"] = 'POST'
       request.set('reference', reference)
-      request.set('data_chunk', request_dict[reference])
+      request.set('data_chunk', str2bytes(request_dict[reference]))
       request.set('QUERY_STRING', 'ingestion_policy=metadata_upload')
       self.portal.portal_slap.ingestData()
     self.tic()
@@ -151,7 +152,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     self.tic()
     for compute_node in self.compute_node_list:
       data_stream = self._getRelatedDataStream(compute_node)
-      self.assertEqual(request_dict[compute_node.getReference()], data_stream.getData())
+      self.assertEqual(str2bytes(request_dict[compute_node.getReference()]), data_stream.getData())
 
   def test_data_ingestion_create_only_one_data_stream_per_compute_node(self):
     self._ingestData()
@@ -236,7 +237,7 @@ class testSlapOSAbyss(SlapOSTestCaseMixin):
     request = self.portal.REQUEST
     request.environ["REQUEST_METHOD"] = 'POST'
     request.set('reference', 'database_debian11')
-    request.set('data_chunk', request_dict['database_debian11'])
+    request.set('data_chunk', str2bytes(request_dict['database_debian11']))
     request.set('QUERY_STRING', 'ingestion_policy=metadata_upload')
     self.portal.portal_slap.ingestData()
     self.tic()

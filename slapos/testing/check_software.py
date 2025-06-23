@@ -34,7 +34,7 @@ import warnings
 
 import pkg_resources
 import requests
-from six.moves.configparser import ConfigParser
+from six.moves.configparser import ConfigParser, NoOptionError, NoSectionError
 import six
 
 try:
@@ -251,7 +251,11 @@ def checkSoftware(slap, software_url):
   if os.path.exists(buildout_cfg_path):
     config_parser = ConfigParser()
     config_parser.read(buildout_cfg_path)
-    for shared_directory in config_parser['buildout'].get('shared-part-list', '').splitlines():
+    try:
+      shared_part_list = config_parser.get('buildout', 'shared-part-list').splitlines()
+    except (NoOptionError, NoSectionError):
+      shared_part_list = []
+    for shared_directory in shared_part_list:
       if not shared_directory:
         continue
       for signature_file in glob.glob(

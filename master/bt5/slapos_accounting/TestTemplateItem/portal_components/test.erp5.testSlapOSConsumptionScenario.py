@@ -288,8 +288,22 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
       self.simulateSlapgridSR(public_server)
       self.tic()
 
+    # Check stock for consumption service
+    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
+      'group_by_section': False,
+      'group_by_node': True,
+      'group_by_variation': True,
+      'resource_uid': consumption_service.getUid(),
+      'node_uid': project_owner_person.getUid(),
+      'project_uid': None,
+      'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
+    })
+    self.assertEqual(len(inventory_list), 1)
+    self.assertEqual(inventory_list[0].total_quantity, 27.266539196940727)
+
     # Recheck for computer owner if he has consumption invoices
-    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
+    receivable = self.portal.account_module.receivable
+    transaction_list = receivable.Account_getAccountingTransactionList(
       mirror_section_uid=project_owner_person.getUid())
 
     self.assertEqual(len(transaction_list),  4)
@@ -446,6 +460,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
         source_project__uid=project.getUid()
       )
       sale_supply = original_sale_supply.Base_createCloneDocument(batch_mode=1)
+      original_sale_supply.edit(start_date_range_max=DateTime())
       sale_supply.edit(start_date_range_min=DateTime())
       self.tic()
       sale_supply.searchFolder(
@@ -546,7 +561,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
 
       self.tic()
 
-    # Check stock
+    # Check stock for sofware product
     inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
       'group_by_section': False,
       'group_by_node': True,
@@ -567,8 +582,22 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
        inventory_list[0].getVariationCategoryList(),
        "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList()))
 
+    # Check stock for consumption service
+    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
+      'group_by_section': False,
+      'group_by_node': True,
+      'group_by_variation': True,
+      'resource_uid': consumption_service.getUid(),
+      'node_uid': public_person.getUid(),
+      'project_uid': None,
+      'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
+    })
+    self.assertEqual(len(inventory_list), 1)
+    self.assertEqual(inventory_list[0].total_quantity, 104)
+
     # Check accounting
-    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
+    receivable = self.portal.account_module.receivable
+    transaction_list = receivable.Account_getAccountingTransactionList(
       mirror_section_uid=public_person.getUid())
 
     # Was 10.8 correspond to the first month since it passed a month by the
@@ -606,6 +635,307 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
 
     self.checkERP5StateBeforeExit()
 
+
+  def test_instance_tree_consumption_scenario_with_different_price(self):
+    compute_node_consumption_model = \
+        pkg_resources.resource_string(
+          'slapos.slap',
+          'doc/computer_consumption.xsd')
+
+    with PinnedDateTime(self, DateTime('2024/12/17')):
+      project, currency, owner_person, _, public_server, public_instance_type, \
+        public_server_software, software_product, consumption_service, \
+        type_variation = self.bootstrapConsumptionScenarioTest()
+
+      self.logout()
+
+      # join as the another visitor and request software instance on public
+      # compute_node
+      public_reference = 'public-%s' % self.generateNewId()
+      public_person = self.joinSlapOS(self.web_site, public_reference)
+
+      self.login()
+
+    self.tic()
+    with PinnedDateTime(self, DateTime('2024/12/17 1:01')):
+      # Simulate access from compute_node, to open the capacity scope
+      self.login()
+      self.simulateSlapgridSR(public_server)
+      public_instance_title = 'Public title %s' % self.generateNewId()
+      self.checkInstanceAllocationWithDeposit(public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type,
+          public_server, project.getReference(),
+          9.0, currency)
+      self.tic()
+
+    with PinnedDateTime(self, DateTime('2024/12/20')):
+      self.logout()
+      self.login(self.sale_person.getUserId())
+      original_sale_supply = self.portal.portal_catalog.getResultValue(
+        portal_type='Sale Supply',
+        source_project__uid=project.getUid()
+      )
+      sale_supply = original_sale_supply.Base_createCloneDocument(batch_mode=1)
+      sale_supply.edit(start_date_range_min=DateTime())
+      original_sale_supply.edit(start_date_range_max=DateTime())
+      self.tic()
+      sale_supply.searchFolder(
+        portal_type='Sale Supply Line',
+        resource__relative_url=consumption_service.getRelativeUrl()
+      )[0].edit(base_price=10)
+
+      sale_supply.validate()
+      self.tic()
+      self.logout()
+
+    self.tic()
+    with PinnedDateTime(self, DateTime('2025/01/17 1:03')):
+      self.login()
+      self.simulateSlapgridSR(public_server)
+      public_instance_title2 = 'Public title %s 2' % self.generateNewId()
+      self.checkInstanceAllocationWithDeposit(public_person.getUserId(),
+          public_reference, public_instance_title2,
+          public_server_software, public_instance_type,
+          public_server, project.getReference(),
+          10.8, currency)
+      self.tic()
+
+    with PinnedDateTime(self, DateTime('2025/01/24')):
+      self.login()
+
+      # Search used partition
+      instance_tree = self.portal.portal_catalog.getResultValue(
+        title=public_instance_title, portal_type='Instance Tree',
+        default_destination_section_uid=public_person.getUid())
+
+      instance_tree2 = self.portal.portal_catalog.getResultValue(
+        title=public_instance_title2, portal_type='Instance Tree',
+        default_destination_section_uid=public_person.getUid())
+
+      self.assertNotEqual(None, instance_tree)
+      software_instance = instance_tree.getSuccessorValue()
+      partition = software_instance.getAggregateValue()
+      self.assertEqual(partition.getParentValue(), public_server)
+
+      self.assertNotEqual(None, instance_tree2)
+      software_instance2 = instance_tree2.getSuccessorValue()
+      partition2 = software_instance2.getAggregateValue()
+      self.assertEqual(partition2.getParentValue(), public_server)
+
+      # Minimazed version of the original file, only with a sub-set of values
+      # that matter
+      consumption_xml_report = """<?xml version="1.0" encoding="utf-8"?>
+<journal>
+  <transaction type="Sale Packing List">
+    <title>Eco Information for %(compute_node_reference)s </title>
+    <start_date>2025-01-23 00:00:00</start_date>
+    <stop_date>2025-01-23 23:59:59</stop_date>
+    <reference>2025-01-23-global</reference>
+    <currency/>
+    <payment_mode/>
+    <category/>
+    <arrow type="Destination"/>
+    <movement>
+      <resource>%(service_reference)s</resource>
+      <title>%(service_title)s</title>
+      <reference>%(software_instance_reference)s</reference>
+      <quantity>29</quantity>
+      <price>0.0</price>
+      <VAT/>
+      <category/>
+    </movement>
+    <movement>
+      <resource>%(service_reference)s</resource>
+      <title>%(service_title)s</title>
+      <reference>%(software_instance_reference2)s</reference>
+      <quantity>29</quantity>
+      <price>0.0</price>
+      <VAT/>
+      <category/>
+    </movement>
+  </transaction>
+</journal>""" % ({
+        'software_instance_reference': software_instance.getReference(),
+        'software_instance_reference2': software_instance2.getReference(),
+        'compute_node_reference': public_server.getReference(),
+        'service_reference': consumption_service.getReference(),
+        'service_title': consumption_service.getTitle()})
+
+      # Ensure what is written above is valid
+      self.assertTrue(self.portal.portal_slap._validateXML(
+        consumption_xml_report, compute_node_consumption_model))
+
+      # Simulate computer upload
+      self.simulateSlapgridUR(public_server, consumption_xml_report)
+      self.tic()
+
+      consumption_report_list = public_server.getContributorRelatedValueList()
+      self.assertEqual(len(consumption_report_list), 1)
+      consumption_report = consumption_report_list[0]
+      self.assertEqual(consumption_report.getReference(),
+                'TIOCONS-%s-2025-01-23-global' % public_server.getReference())
+      self.assertEqual(consumption_report.getValidationState(), "accepted")
+
+
+    with PinnedDateTime(self, DateTime('2025/02/24')):
+      self.login()
+      # Next day remote more consumption
+      consumption_xml_report = """<?xml version="1.0" encoding="utf-8"?>
+<journal>
+  <transaction type="Sale Packing List">
+    <title>Eco Information for %(compute_node_reference)s </title>
+    <start_date>2025-02-23 00:00:00</start_date>
+    <stop_date>2025-02-23 23:59:59</stop_date>
+    <reference>2025-02-23-global</reference>
+    <currency/>
+    <payment_mode/>
+    <category/>
+    <arrow type="Destination"/>
+    <movement>
+      <resource>%(service_reference)s</resource>
+      <title>%(service_title)s</title>
+      <reference>%(software_instance_reference)s</reference>
+      <quantity>23</quantity>
+      <price>0.0</price>
+      <VAT/>
+      <category/>
+    </movement>
+    <movement>
+      <resource>%(service_reference)s</resource>
+      <title>%(service_title)s</title>
+      <reference>%(software_instance_reference2)s</reference>
+      <quantity>23</quantity>
+      <price>0.0</price>
+      <VAT/>
+      <category/>
+    </movement>
+  </transaction>
+</journal>""" % ({
+        'software_instance_reference': software_instance.getReference(),
+        'software_instance_reference2': software_instance2.getReference(),
+        'compute_node_reference': public_server.getReference(),
+        'service_reference': consumption_service.getReference(),
+        'service_title': consumption_service.getTitle()})
+
+      # Ensure what is written above is valid
+      self.assertTrue(self.portal.portal_slap._validateXML(
+        consumption_xml_report, compute_node_consumption_model))
+
+      # Simulate computer upload
+      self.simulateSlapgridUR(public_server, consumption_xml_report)
+      self.tic()
+
+      consumption_report_list = public_server.getContributorRelatedValueList()
+      self.assertEqual(len(consumption_report_list), 2)
+      consumption_report = [i for i in consumption_report_list \
+          if "2025-02-23" in i.getReference()][0]
+
+      self.assertEqual(consumption_report.getReference(),
+                'TIOCONS-%s-2025-02-23-global' % public_server.getReference())
+
+      self.assertEqual(consumption_report.getValidationState(), "accepted")
+
+      self.login(owner_person.getUserId())
+      # Unallocate and destroy the instance the instances
+      self.checkInstanceUnallocation(public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type, public_server,
+          project.getReference())
+
+      self.checkInstanceUnallocation(public_person.getUserId(),
+          public_reference, public_instance_title2,
+          public_server_software, public_instance_type, public_server,
+          project.getReference())
+
+      # and uninstall some software on them
+      self.logout()
+      self.login(owner_person.getUserId())
+      self.supplySoftware(public_server,
+                          public_server_software,
+                          state='destroyed')
+
+      self.logout()
+      # Uninstall from compute_node
+      self.login()
+      self.simulateSlapgridSR(public_server)
+
+      self.tic()
+
+    # Check stock for sofware product
+    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
+      'group_by_section': False,
+      'group_by_node': True,
+      'group_by_variation': True,
+      'resource_uid': software_product.getUid(),
+      'node_uid': public_person.getUid(),
+      'project_uid': None,
+      'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
+    })
+    self.assertEqual(len(inventory_list), 1)
+    self.assertEqual(inventory_list[0].quantity, 1)
+    resource_vcl = [
+      # 'software_release/%s' % release_variation.getRelativeUrl(),
+      'software_type/%s' % type_variation.getRelativeUrl()
+    ]
+    resource_vcl.sort()
+    self.assertEqual(resource_vcl,
+       inventory_list[0].getVariationCategoryList(),
+       "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList()))
+
+    # Check stock for consumption service
+    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
+      'group_by_section': False,
+      'group_by_node': True,
+      'group_by_variation': True,
+      'resource_uid': consumption_service.getUid(),
+      'node_uid': public_person.getUid(),
+      'project_uid': None,
+      'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
+    })
+    self.assertEqual(len(inventory_list), 1)
+    self.assertEqual(inventory_list[0].total_quantity, 104)
+
+    # Check accounting
+    receivable = self.portal.account_module.receivable
+    transaction_list = receivable.Account_getAccountingTransactionList(
+      mirror_section_uid=public_person.getUid())
+
+    # Was 10.8 correspond to the first month since it passed a month by the
+    # dates.
+    self.assertEqual(len(transaction_list), 7)
+    self.assertSameSet(
+      [round(x.total_price, 2) for x in transaction_list],
+      [10.8, round(1071.6, 2), 10.8, -10.8, 10.8, 9.0, -9.0],
+      [round(x.total_price, 2) for x in transaction_list]
+    )
+
+    self.login()
+
+    # Ensure no unexpected object has been created
+    # 6 accounting transaction / line
+    # 3 allocation supply / line / cell
+    # 1 compute node
+    # 2 consumption delivery
+    # 2 consumption document
+    # 2 consumption supply
+    # 2 credential request
+    # 3 event
+    # 2 instance tree
+    # 9 open sale order / line
+    # 5 (can reduce to 2) assignment
+    # 72 simulation mvt
+    # 7 packing list / line
+    # 8 sale supply / line
+    # 2 sale trade condition
+    # 1 software installation
+    # 2 software instance
+    # 1 software product
+    # 4 subscription requests
+    self.assertRelatedObjectCount(project, 134)
+
+    self.checkERP5StateBeforeExit()
+
   def test_sparse_instance_tree_consumption_scenario(self):
     """ Split into multiple reports """
     with PinnedDateTime(self, DateTime('2024/12/17')):
@@ -621,7 +951,6 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
       public_person = self.joinSlapOS(self.web_site, public_reference)
 
       self.login()
-
 
     with PinnedDateTime(self, DateTime('2024/12/17 01:01')):
       # Simulate access from compute_node, to open the capacity scope
@@ -791,7 +1120,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
 
       self.tic()
 
-    # Check stock
+    # Check stock for sofware product
     inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
       'group_by_section': False,
       'group_by_node': True,
@@ -812,8 +1141,22 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
        inventory_list[0].getVariationCategoryList(),
        "%s %s" % (resource_vcl, inventory_list[0].getVariationCategoryList()))
 
+    # Check stock for consumption service
+    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
+      'group_by_section': False,
+      'group_by_node': True,
+      'group_by_variation': True,
+      'resource_uid': consumption_service.getUid(),
+      'node_uid': public_person.getUid(),
+      'project_uid': None,
+      'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
+    })
+    self.assertEqual(len(inventory_list), 1)
+    self.assertEqual(inventory_list[0].total_quantity, 29.12*2)
+
     # Check accounting
-    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
+    receivable = self.portal.account_module.receivable
+    transaction_list = receivable.Account_getAccountingTransactionList(
       mirror_section_uid=public_person.getUid())
 
     # Was 10.8 correspond to the first month since it passed a month by the

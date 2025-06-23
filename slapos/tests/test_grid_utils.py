@@ -310,9 +310,9 @@ class SlapPopenTestCase(unittest.TestCase):
     self.assertLess(elapsed, 10)
     self.assertGreaterEqual(elapsed, 5)
 
-    # the output before timeout is captured
-    self.assertEqual(cm.exception.output, '.' * 10)
-    self.assertEqual(cm.exception.stderr, '-' * 10)
+    # the output before timeout is captured (it can be 9 or 10 dots depending on the test)
+    self.assertTrue(cm.exception.output in ['.' * 10, '.' * 9], "%s should be 9 or 10 dots" % cm.exception.output)
+    self.assertTrue(cm.exception.stderr in ['-' * 10, '-' * 9], "%s should be 9 or 10 dashes" % cm.exception.stderr)
 
     # endline is never reached, so nothing is logged "live"
     self.assertFalse(logger.info.called)

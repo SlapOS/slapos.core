@@ -198,7 +198,7 @@ def get_computer_name(certificate):
 
 def save_former_config(conf):
     """Save former configuration if found"""
-    former = '/etc/opt/slapos'
+    former = conf.slapos_configuration
     if not os.path.exists(os.path.join(former, 'slapos.cfg')):
         return
 

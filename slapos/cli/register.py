@@ -39,9 +39,10 @@ import json
 from six.moves import input
 
 from slapos.cli.command import Command, must_be_root
+from slapos.cli.config import ConfigCommand
 
 
-class RegisterCommand(Command):
+class RegisterCommand(ConfigCommand):
     """
     Register a new computer on SlapOS Master.
 
@@ -62,7 +63,7 @@ class RegisterCommand(Command):
                         help='Chosen title for the node')
 
         ap.add_argument('--interface-name',
-                        default='eth0',
+                        default='lo',
                         help='Primary network interface. IP of Partitions '
                              'will be added to it'
                              ' (default: %(default)s)')
@@ -89,8 +90,13 @@ class RegisterCommand(Command):
                              'It should be a not used network in order to avoid conflicts'
                              ' (default: %(default)s)')
 
-        ap.add_argument('--ipv6-interface',
-                        help='Interface name to get ipv6')
+        ap.add_argument('--software-root',
+                        default='/opt/slapgrid',
+                        help='Path of the software directory')
+
+        ap.add_argument('--instance-root',
+                        default='/srv/slapgrid',
+                        help='Path of the instance directory')
 
         ap.add_argument('--login-auth',
                         action='store_true',
@@ -128,6 +134,7 @@ class RegisterCommand(Command):
         try:
             conf = RegisterConfig(logger=self.app.log)
             conf.setConfig(args)
+            conf.slapos_configuration = os.path.dirname(self.config_path(args))
             return_code = do_register(conf)
         except SystemExit as err:
             return_code = err
@@ -273,10 +280,10 @@ def slapconfig(conf):
         ('interface_name', conf.interface_name),
         ('ipv4_local_network', conf.ipv4_local_network),
         ('partition_amount', conf.partition_number),
-        ('create_tap', conf.create_tap)
+        ('create_tap', conf.create_tap),
+        ('software_root', conf.software_root),
+        ('instance_root', conf.instance_root)
     ]
-    if conf.ipv6_interface:
-        to_replace.append(('ipv6_interface', conf.ipv6_interface))
 
     for key, value in to_replace:
         cfg = re.sub('\n\\s*%s\\s*=.*' % key, '\n%s = %s' % (key, value), cfg)
@@ -360,7 +367,7 @@ def do_register(conf):
     COMP = get_computer_name(certificate)
 
     # Getting configuration parameters
-    conf.COMPConfig(slapos_configuration='/etc/opt/slapos/',
+    conf.COMPConfig(slapos_configuration=conf.slapos_configuration,
                     computer_id=COMP,
                     certificate=certificate,
                     key=key)

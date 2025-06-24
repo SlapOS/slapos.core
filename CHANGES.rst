@@ -1,6 +1,13 @@
 Changes
 =======
 
+1.17.0 (2025-06-24)
+-------------------
+ * cli/register: add options to change instance and software dirs
+ * cli/register: remove non working option --ipv6_interface
+ * cli/register: make RegisterConfig inherit from ConfigCommand
+ * boot: Fix configuration path transmission during slapos node boot invocations
+
 1.16.3 (2025-06-03)
 -------------------
  * slapgrid: new ``--garbage-collect`` option for ``slapos node software``, to garbage collect installed softwares that are no longer supplied.

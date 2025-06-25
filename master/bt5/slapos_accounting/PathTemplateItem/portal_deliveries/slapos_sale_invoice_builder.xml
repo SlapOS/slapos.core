@@ -153,7 +153,7 @@
         </item>
         <item>
             <key> <string>simulation_select_method_id</string> </key>
-            <value> <string>DeliveryBuilder_selectSlapOSMovement</string> </value>
+            <value> <string>DeliveryBuilder_selectNonConsumptionUseSlapOSMovement</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

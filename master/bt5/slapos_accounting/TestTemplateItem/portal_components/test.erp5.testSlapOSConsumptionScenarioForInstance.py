@@ -155,16 +155,14 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
 
     return project, currency, owner_person, project_owner_person, public_server, \
              public_instance_type, public_server_software, software_product, \
-             type_variation
+             type_variation, sale_supply
 
-  def addConsumptionServiceForInstance(self):# No extra parameter for now
-    pass
 
   def test_instance_consumption_scenario(self):
     with PinnedDateTime(self, DateTime('2024/12/17')):
       project, currency, owner_person, _, public_server, public_instance_type, \
         public_server_software, _,  \
-        _ = self.bootstrapConsumptionScenarioTest()
+        _, _ = self.bootstrapConsumptionScenarioTest()
 
       self.logout()
 
@@ -175,18 +173,17 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
 
       self.login()
 
-
     with PinnedDateTime(self, DateTime('2024/12/17 01:01')):
       # Simulate access from compute_node, to open the capacity scope
       self.login()
       self.simulateSlapgridSR(public_server)
+
       public_instance_title = 'Public title %s' % self.generateNewId()
       self.checkInstanceAllocationWithDeposit(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type,
           public_server, project.getReference(),
           9.0, currency)
-
     with PinnedDateTime(self, DateTime('2024/12/17 01:02')):
       public_instance_title2 = 'Public title %s 2' % self.generateNewId()
       self.checkInstanceAllocationWithDeposit(public_person.getUserId(),
@@ -224,9 +221,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
 
       self.login(owner_person.getUserId())
       # Unallocate and destroy the instance the instances
-      # This unallocate software instance then trigger alarm which will check other software instance also
-      # thus create another consumption delivery for software_instance2
-      # XXXX this wrong, we should create one consumption delivery for software_instance
+      #XXXXXXXXXXXXXXXX how can we assume that when unallocated, the related consumption delivery is already created
       self.checkInstanceUnallocation(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type, public_server,
@@ -273,7 +268,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       consumption_delivery2.getCausalityRelatedValue(portal_type='Sale Invoice Transaction')
     )
     self.login()
-
+    #XXXXXXXXXXX wrong
     # Ensure no unexpected object has been created
     # 4 accounting transaction / line
     # 3 allocation supply / line / cell
@@ -295,5 +290,89 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     # 1 software product
     # 4 subscription requests
     self.assertRelatedObjectCount(project, 113)
+
+    self.checkERP5StateBeforeExit()
+
+  def test_slave_instance_consumption_scenario(self):
+    with PinnedDateTime(self, DateTime('2024/12/17')):
+      project, currency, owner_person, _, public_server, public_instance_type, \
+        public_server_software, _,  \
+        _, sale_supply = self.bootstrapConsumptionScenarioTest()
+
+
+      self.logout()
+      public_reference = 'public-%s' % self.generateNewId()
+      public_person = self.joinSlapOS(self.web_site, public_reference)
+
+      self.logout()
+      shared_public_reference = 'shared_public-%s' % self.generateNewId()
+      shared_public_person = self.joinSlapOS(self.web_site, shared_public_reference)
+
+      self.login()
+
+    with PinnedDateTime(self, DateTime('2024/02/17 00:05')):
+      public_instance_title = 'Public title %s' % self.generateNewId()
+      self.checkInstanceAllocationWithDeposit(public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type,
+          public_server, project.getReference(),
+          9.0, currency)
+
+      # hooray, now it is time to create compute_nodes
+      self.login(owner_person.getUserId())
+      instance_node_title = 'Shared Instance for %s' % owner_person.getTitle()
+      # Convert the Software Instance into an Instance Node
+      # to explicitely mark it as accepting Slave Instance
+      software_instance = self.portal.portal_catalog.getResultValue(
+          portal_type='Software Instance', title=public_instance_title)
+      instance_node = self.addInstanceNode(instance_node_title, software_instance)
+
+      slave_server_software = self.generateNewSoftwareReleaseUrl()
+      slave_instance_type = 'slave type'
+      software_product, software_release, software_type = self.addSoftwareProduct(
+        'share product', project, slave_server_software, slave_instance_type
+      )
+      self.addAllocationSupply("for instance node", instance_node, software_product,
+                               software_release, software_type)
+
+
+
+      self.login()
+      #XXXXXXXXX
+      sale_supply.newContent(
+        portal_type="Sale Supply Line",
+        base_price=9,
+        resource_value=software_product
+      )
+      self.tic()
+      slave_instance_title = 'Slave title %s' % self.generateNewId()
+      self.checkSlaveInstanceAllocationWithDeposit(shared_public_person.getUserId(),
+          shared_public_reference, slave_instance_title,
+          slave_server_software, slave_instance_type,
+          public_server, project.getReference(),
+          9.0, currency)
+
+      self.login(owner_person.getUserId())
+
+      # and the instances
+      self.checkSlaveInstanceUnallocation(shared_public_person.getUserId(),
+          shared_public_reference, slave_instance_title,
+          slave_server_software, slave_instance_type, public_server,
+          project.getReference())
+
+      # and uninstall some software on them
+      self.logout()
+      self.login(owner_person.getUserId())
+      self.supplySoftware(public_server, public_server_software,
+                          state='destroyed')
+
+      self.logout()
+      # Uninstall from compute_node
+      self.login()
+      self.simulateSlapgridSR(public_server)
+
+    self.tic()
+
+    self.login()
 
     self.checkERP5StateBeforeExit()

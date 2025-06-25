@@ -124,7 +124,6 @@ consumption_delivery = portal.consumption_delivery_module.newContent(
   destination_section_value=subscriber_person_value,
   destination_decision_value=subscriber_person_value,
   specialise_value=tmp_sale_order.getSpecialiseValue(),
-  source_project_value=tmp_sale_order.getSourceProjectValue(),
   destination_project_value=tmp_sale_order.getDestinationProjectValue(),
   ledger_value=tmp_sale_order.getLedgerValue(),
   start_date = start_date,
@@ -138,6 +137,7 @@ consumption_deliery_line = consumption_delivery.newContent(
   quantity_unit=consumption_service.getQuantityUnit(),
   base_contribution_list=consumption_service.getBaseContributionList(),
   use=consumption_service.getUse(),
+  aggregate_value = tmp_sale_order.getSourceProjectValue(),
   quantity=1
 )
 

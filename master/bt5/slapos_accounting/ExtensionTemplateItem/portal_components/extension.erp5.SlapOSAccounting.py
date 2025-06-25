@@ -29,7 +29,10 @@ from lxml import etree
 from zExceptions import Unauthorized
 import pkg_resources
 from io import BytesIO
+
+from DateTime import DateTime
 from Products.ERP5Type.Utils import str2bytes
+from erp5.component.module.JsonUtils import byteify
 
 def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
   """Call bang on self."""
@@ -58,20 +61,23 @@ def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
 
   # Get the title
   title = \
-      tree.find('transaction').find('title').text or ""
-  title = title.encode("UTF-8")
+      byteify(tree.find('transaction').find('title').text or "")
 
+  start_date = DateTime(tree.find('transaction').find('start_date').text)
+  stop_date = DateTime(tree.find('transaction').find('stop_date').text)
   movement_list = []
   for movement in tree.find('transaction').findall('movement'):
     movement_list.append({
-      'resource': (movement.find('resource').text or "").encode("UTF-8"),
-      'title': (movement.find('title').text or "").encode("UTF-8"),
-      'reference': (movement.find('reference').text or "").encode("UTF-8"),
+      'resource': byteify((movement.find('resource').text or "")),
+      'title': byteify((movement.find('title').text or "")),
+      'reference': byteify((movement.find('reference').text or "")),
       'quantity': float(movement.find('quantity').text or "0"),
-      'category': (movement.find('category').text or "").encode("UTF-8"),
+      'category': byteify((movement.find('category').text or "")),
     })
 
   return {
     'title': title,
+    'start_date': start_date,
+    'stop_date': stop_date,
     'movement': movement_list,
   }

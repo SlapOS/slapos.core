@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.17.1 (2025-06-26)
+-------------------
+ * cli/register: fix save_former_config
+ * slap: "slapos node software" always post the result of compilation
+ * slap: revert use cachecontrol on client side to respect HTTP (was introduced in version 1.4.24)
+
 1.17.0 (2025-06-24)
 -------------------
  * cli/register: add options to change instance and software dirs

@@ -75,6 +75,7 @@ if (current_trade_condition.getDestination() is None):
     source_project=current_trade_condition.getSourceProject(),
     price_currency=current_trade_condition.getPriceCurrency(),
     trade_condition_type=current_trade_condition.getTradeConditionType(),
+    effective_date=current_trade_condition.getEffectiveDate(),
     activate_kw=activate_kw
   )
   new_sale_trade_condition.validate()

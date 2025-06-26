@@ -307,7 +307,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_web_renderjs_ui/PasswordTool_changeUserPassword',
         'slapos_web_renderjs_ui/WebSection_getDocumentValue',
         'slapos_web_renderjs_ui/WebSection_getLoginWarningMessage',
-        'slapos_subscription_request/SubscriptionRequest_createOpenSaleOrder',
         'slapos_subscription_request/SubscriptionRequest_init',
         'slapos_subscription_request/OpenSaleOrderCell_createDiscountSalePackingList',
         'slapos_subscription_request/SubscriptionChangeRequest_init',

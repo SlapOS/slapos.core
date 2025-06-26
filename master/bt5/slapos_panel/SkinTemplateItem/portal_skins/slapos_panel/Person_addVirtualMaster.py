@@ -1,5 +1,11 @@
 portal = context.getPortalObject()
 
+# Normalise with SubscriptionRequest_createOpenSaleOrder
+from erp5.component.module.DateUtils import getClosestDate, addToDate
+effective_date = getClosestDate(target_date=DateTime(), precision='day')
+while effective_date.day() >= 29:
+  effective_date = addToDate(effective_date, to_add={'day': -1})
+
 resource = portal.restrictedTraverse("service_module/slapos_virtual_master_subscription")
 customer = context
 
@@ -82,6 +88,7 @@ sale_trade_condition = portal.sale_trade_condition_module.newContent(
   # The person will pay for all compute node
   destination_section_value=destination_section_value,
   price_currency_value=currency_value,
+  effective_date=effective_date,
   activate_kw=activate_kw
 )
 sale_trade_condition.validate()
@@ -106,6 +113,7 @@ sale_trade_condition = portal.sale_trade_condition_module.newContent(
   source_section_value=source_section_value,
   #source_payment_value=seller_bank_account,
   price_currency_value=currency_value,
+  effective_date=effective_date,
   activate_kw=activate_kw
 )
 sale_trade_condition.validate()
@@ -117,7 +125,8 @@ if is_compute_node_payable or is_instance_tree_payable:
     portal_type="Sale Supply",
     title="Project Prices for %s" % project.getReference(),
     source_project_value=project,
-    price_currency_value=currency_value
+    price_currency_value=currency_value,
+    start_date_range_min=sale_trade_condition.getEffectiveDate()
   )
   if is_compute_node_payable:
     sale_supply.newContent(

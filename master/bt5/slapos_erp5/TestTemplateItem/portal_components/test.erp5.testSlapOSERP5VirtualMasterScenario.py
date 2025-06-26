@@ -8,6 +8,7 @@
 from erp5.component.test.SlapOSTestCaseDefaultScenarioMixin import DefaultScenarioMixin
 from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, NegatedQuery
 from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
+from erp5.component.module.DateUtils import getClosestDate, addToDate
 from DateTime import DateTime
 
 
@@ -225,6 +226,11 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       source_section_value = None
       title = "Free Virtual Master (%s)" % seller_organisation.getTitle()
 
+    # Normalise with SubscriptionRequest_createOpenSaleOrder
+    effective_date = getClosestDate(target_date=DateTime(), precision='day')
+    while effective_date.day() >= 29:
+      effective_date = addToDate(effective_date, to_add={'day': -1})
+
     sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
       portal_type="Sale Trade Condition",
       reference=title,
@@ -233,12 +239,15 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       source_value=seller_organisation,
       source_section_value=source_section_value,
       price_currency_value=currency,
+      effective_date=effective_date
     )
+    self.assertEqual([], sale_trade_condition.checkConsistency())
     sale_trade_condition.validate()
 
     sale_supply = self.portal.sale_supply_module.newContent(
       portal_type="Sale Supply",
-      price_currency_value=currency
+      price_currency_value=currency,
+      start_date_range_min=sale_trade_condition.getEffectiveDate()-1
     )
     # XXX Put price in sale supply module
     sale_supply.newContent(
@@ -293,13 +302,12 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     self.logout()
 
     self.login(sale_person.getUserId())
-    with PinnedDateTime(self, DateTime('2020/01/01')):
-      project_relative_url = self.addProject(
-        is_accountable=True,
-        person=owner_person,
-        currency=currency
-      )
-      self.tic()
+    project_relative_url = self.addProject(
+      is_accountable=True,
+      person=owner_person,
+      currency=currency
+    )
+    self.tic()
     self.logout()
 
     self.login()
@@ -557,12 +565,15 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         destination_section_value=customer_section_organisation,
         specialise_value=virtual_master_trade_condition,
         price_currency=virtual_master_trade_condition.getPriceCurrency(),
-        trade_condition_type=virtual_master_trade_condition.getTradeConditionType()
+        trade_condition_type=virtual_master_trade_condition.getTradeConditionType(),
+        effective_date=virtual_master_trade_condition.getEffectiveDate()
       )
+      self.assertEqual([], dedicated_trade_condition.checkConsistency())
       dedicated_trade_condition.validate()
       self.tic()
 
-      project_relative_url = self.addProject(is_accountable=True, person=owner_person, currency=currency)
+      project_relative_url = self.addProject(
+        is_accountable=True, person=owner_person, currency=currency)
 
       self.logout()
 
@@ -663,8 +674,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         destination_section_value=customer_section_organisation,
         specialise_value=instance_trade_condition,
         price_currency=instance_trade_condition.getPriceCurrency(),
-        trade_condition_type=instance_trade_condition.getTradeConditionType()
+        trade_condition_type=instance_trade_condition.getTradeConditionType(),
+        effective_date=instance_trade_condition.getEffectiveDate()
       )
+      self.assertEqual([], dedicated_trade_condition.checkConsistency())
       dedicated_trade_condition.validate()
       self.tic()
 

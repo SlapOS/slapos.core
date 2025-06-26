@@ -17,11 +17,10 @@ class TestSlapOSSubscriptionChangeRequestScenarioMixin(TestSlapOSVirtualMasterSc
 class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRequestScenarioMixin):
 
   def test_subscription_change_request_change_instance_destination_without_accounting_scenario(self):
-    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-
-    self.tic()
-
-    self.logout()
+    with PinnedDateTime(self, DateTime('2023/10/25')):
+      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+      self.tic()
+      self.logout()
 
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
@@ -174,11 +173,10 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.checkERP5StateBeforeExit()
 
   def test_subscription_change_request_change_project_destination_section_scenario(self):
-    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
-
-    self.tic()
-
-    self.logout()
+    with PinnedDateTime(self, DateTime('2023/10/25')):
+      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
+      self.tic()
+      self.logout()
 
     with PinnedDateTime(self, DateTime('2024/01/25')):
       # lets join as slapos administrator, which will own few compute_nodes
@@ -272,11 +270,10 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
 
   def test_subscription_change_request_change_instance_destination_section_scenario(self):
-    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-
-    self.tic()
-
-    self.logout()
+    with PinnedDateTime(self, DateTime('2023/10/25')):
+      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+      self.tic()
+      self.logout()
 
     with PinnedDateTime(self, DateTime('2024/01/25')):
       # lets join as slapos administrator, which will own few compute_nodes

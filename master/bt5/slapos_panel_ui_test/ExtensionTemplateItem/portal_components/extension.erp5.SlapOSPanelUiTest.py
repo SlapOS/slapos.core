@@ -1,8 +1,8 @@
 from Products.ERP5Security import SUPER_USER
-from AccessControl.SecurityManagement import getSecurityManager
-from AccessControl.SecurityManagement import setSecurityManager
-from AccessControl.SecurityManagement import newSecurityManager
-
+from AccessControl.SecurityManagement import getSecurityManager, \
+                                        setSecurityManager,  newSecurityManager
+from erp5.component.module.DateUtils import getClosestDate, addToDate
+from DateTime import DateTime
 
 def ERP5Site_activateAlarmSlapOSPanelTest(self):
   portal = self.getPortalObject()
@@ -94,6 +94,11 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
       )
       sale_trade_condition.validate()
 
+      # Normalise with SubscriptionRequest_createOpenSaleOrder
+      effective_date = getClosestDate(target_date=DateTime(), precision='day')
+      while effective_date.day() >= 29:
+        effective_date = addToDate(effective_date, to_add={'day': -1})
+
       # Sale trade condition for project
       trade_condition = portal.sale_trade_condition_module.newContent(
         portal_type="Sale Trade Condition",
@@ -103,6 +108,7 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
         source_value=organisation,
         source_section_value=organisation if (scenario == 'accounting') else None,
         price_currency_value=currency,
+        effective_date=effective_date
       )
       trade_condition.validate()
 

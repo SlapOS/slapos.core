@@ -155,14 +155,14 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
 
     return project, currency, owner_person, project_owner_person, public_server, \
              public_instance_type, public_server_software, software_product, \
-             type_variation, sale_supply
+             type_variation, sale_supply, sale_person
 
 
   def test_instance_consumption_scenario(self):
     with PinnedDateTime(self, DateTime('2024/12/17')):
       project, currency, owner_person, _, public_server, public_instance_type, \
         public_server_software, _,  \
-        _, _ = self.bootstrapConsumptionScenarioTest()
+        _, _, _ = self.bootstrapConsumptionScenarioTest()
 
       self.logout()
 
@@ -297,7 +297,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     with PinnedDateTime(self, DateTime('2024/12/17')):
       project, currency, owner_person, _, public_server, public_instance_type, \
         public_server_software, _,  \
-        _, sale_supply = self.bootstrapConsumptionScenarioTest()
+        _, sale_supply, _ = self.bootstrapConsumptionScenarioTest()
 
 
       self.logout()
@@ -374,5 +374,209 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     self.tic()
 
     self.login()
+
+    self.checkERP5StateBeforeExit()
+
+
+
+  def test_remote_instance_consumption_scenario(self):
+
+    with PinnedDateTime(self, DateTime('2024/02/17')):
+      remote_project, currency, owner_person, _, remote_server, remote_instance_type, \
+        remote_server_software, _,  \
+        _, sale_supply, sale_person = self.bootstrapConsumptionScenarioTest()
+
+      # some preparation
+      self.logout()
+      remote_public_reference = 'remote-public-%s' % self.generateNewId()
+      remote_public_person = self.joinSlapOS(self.web_site, remote_public_reference)
+
+      self.login()
+
+      ####################################
+      # Create a local project
+      ####################################
+      self.logout()
+      self.login(sale_person.getUserId())
+      # create a default project
+      project_relative_url = self.addProject(person=remote_public_person, currency=currency)
+
+      self.logout()
+      self.login()
+      project = self.portal.restrictedTraverse(project_relative_url)
+      preference = self.portal.portal_preferences.slapos_default_system_preference
+      preference.edit(
+        preferred_subscription_assignment_category_list=[
+          'function/customer',
+          'role/client',
+          'destination_project/%s' % project.getRelativeUrl()
+        ]
+      )
+      self.tic()
+
+      owner_person = remote_public_person
+      self.logout()
+
+      # hooray, now it is time to create compute_nodes
+      self.login(owner_person.getUserId())
+
+      # Pay deposit to validate virtual master + one computer
+      deposit_amount = 42.0
+      ledger = self.portal.portal_categories.ledger.automated
+
+      outstanding_amount_list = owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())
+      amount = sum([i.total_price for i in outstanding_amount_list])
+      self.assertEqual(amount, deposit_amount)
+
+      # Ensure to pay from the website
+      outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
+      outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
+
+      self.tic()
+      self.login()
+      payment_transaction = self.portal.portal_catalog.getResultValue(
+        portal_type="Payment Transaction",
+        destination_section_uid=owner_person.getUid(),
+        simulation_state="started"
+      )
+      self.assertEqual("deposit",
+        payment_transaction.getSpecialiseValue().getTradeConditionType())
+      # payzen/wechat or accountant will only stop the payment
+      payment_transaction.stop()
+      self.login(owner_person.getUserId())
+
+      remote_compute_node = self.requestRemoteNode(project, remote_project,
+                                             remote_public_person)
+
+      # and install some software on them
+      public_server_software = remote_server_software
+
+      #software_product, release_variation, type_variation = self.addSoftwareProduct(
+      public_instance_type = remote_instance_type
+      software_product, software_release, software_type = self.addSoftwareProduct(
+        "instance product", project, public_server_software, public_instance_type
+      )
+
+      self.addAllocationSupply("for remote node", remote_compute_node, software_product,
+                               software_release, software_type)
+      self.tic()
+
+      # join as the another visitor and request software instance on public
+      # compute_node
+      self.logout()
+      public_reference = 'public-%s' % self.generateNewId()
+      public_person = self.joinSlapOS(self.web_site, public_reference)
+
+      self.login()
+      #XXXXXXXXX
+      sale_supply.newContent(
+        portal_type="Sale Supply Line",
+        base_price=9,
+        resource_value=software_product
+      )
+      sale_supply.setSourceProjectValueList(sale_supply.getSourceProjectValueList() + [project])
+      self.tic()
+
+      self.login()
+
+    with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
+      public_instance_title = 'Public title %s' % self.generateNewId()
+      self.checkRemoteInstanceAllocation(public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type,
+          remote_compute_node, project.getReference())
+
+      # XXX Do this for every scenario tests
+      self.logout()
+      self.tic()
+      # now instantiate it on compute_node and set some nice connection dict
+      self.simulateSlapgridCP(remote_server)
+      self.tic()
+      self.login()
+
+      # owner_person should have one Instance Tree created by alarm
+      owner_instance_tree_list = self.portal.portal_catalog(
+        portal_type='Instance Tree',
+        destination_section__uid=owner_person.getUid()
+      )
+      self.assertEqual(1, len(owner_instance_tree_list))
+      owner_software_instance = owner_instance_tree_list[0].getSuccessorValue()
+      self.assertEqual('Software Instance', owner_software_instance.getPortalType())
+      self.assertEqual(
+        remote_server.getRelativeUrl(),
+        owner_software_instance.getAggregateValue().getParentValue().getRelativeUrl()
+      )
+
+      # public_person should have one Instance Tree
+      public_instance_tree_list = self.portal.portal_catalog(
+        portal_type='Instance Tree',
+        destination_section__uid=public_person.getUid()
+      )
+      self.assertEqual(1, len(public_instance_tree_list))
+
+      self.assertEqual(
+        '_remote_%s_%s' % (project.getReference(),
+                           public_instance_tree_list[0].getSuccessorReference()),
+        owner_software_instance.getTitle()
+      )
+      connection_dict = owner_software_instance.getConnectionXmlAsDict()
+      self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
+      self.assertSameSet(
+          ['http://%s/' % q.getIpAddress() for q in
+              owner_software_instance.getAggregateValue().contentValues(portal_type='Internet Protocol Address')],
+          connection_dict.values())
+
+      self.checkRemoteInstanceAllocation(public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type,
+          remote_compute_node, project.getReference(),
+          connection_dict_to_check=owner_software_instance.getConnectionXmlAsDict())
+
+      # Destroy the instance, and ensure the remote one is destroyed too
+      self.checkRemoteInstanceUnallocation(public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type,
+          remote_compute_node, project.getReference())
+
+      self.login()
+
+      # Report destruction from compute_node
+      self.simulateSlapgridUR(remote_server)
+      self.assertEqual(
+        "",
+        owner_software_instance.getAggregate("")
+      )
+
+    # Ensure no unexpected object has been created
+    # 3 allocation supply/line/cell
+    # 2 compute/remote node
+    # 1 credential request
+    # 1 instance tree
+    # 6 open sale order / line
+    # 3 assignment
+    # 3 simulation movements
+    # 3 sale packing list / line
+    # 2 sale trade condition
+    # 1 software installation
+    # 1 software instance
+    # 1 software product
+    # 3 subscription requests
+    self.assertRelatedObjectCount(remote_project, 'XXXX')
+
+    # Ensure no unexpected object has been created
+    # 3 allocation supply/line/cell
+    # 1 compute node
+    # 1 credential request
+    # 1 instance tree
+    # 4 open sale order / line
+    # 3 assignment
+    # 2 simulation movements
+    # 2 sale packing list / line
+    # 2 sale trade condition
+    # 1 software instance
+    # 1 software product
+    # 2 subscription requests
+    self.assertRelatedObjectCount(project, 'XXX')
 
     self.checkERP5StateBeforeExit()

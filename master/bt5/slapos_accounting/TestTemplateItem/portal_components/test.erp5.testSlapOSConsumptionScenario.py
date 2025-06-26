@@ -106,7 +106,6 @@ class TestSlapOSConsumptionScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
       portal_type='Sale Supply',
       source_project__uid=project.getUid()
     )
-    sale_supply.edit(start_date_range_min=DateTime()-0.5)
     sale_supply.searchFolder(
       portal_type='Sale Supply Line',
       resource__relative_url="service_module/slapos_compute_node_subscription"
@@ -453,6 +452,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
       self.assertEqual(consumption_report.getValidationState(), "accepted")
 
     with PinnedDateTime(self, DateTime('2025/01/21 01:00')):
+      # Include new Sale Supply here must not not influentiate the pricing
       self.logout()
       self.login(self.sale_person.getUserId())
       original_sale_supply = self.portal.portal_catalog.getResultValue(
@@ -636,7 +636,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     self.checkERP5StateBeforeExit()
 
 
-  def test_instance_tree_consumption_scenario_with_different_price(self):
+  def test_instance_tree_consumption_scenario_with_price_update(self):
     compute_node_consumption_model = \
         pkg_resources.resource_string(
           'slapos.slap',
@@ -671,6 +671,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
 
     with PinnedDateTime(self, DateTime('2024/12/20')):
       self.logout()
+      # Include new Sale Supply here must not not influentiate the pricing
       self.login(self.sale_person.getUserId())
       original_sale_supply = self.portal.portal_catalog.getResultValue(
         portal_type='Sale Supply',
@@ -689,7 +690,6 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
       self.tic()
       self.logout()
 
-    self.tic()
     with PinnedDateTime(self, DateTime('2025/01/17 1:03')):
       self.login()
       self.simulateSlapgridSR(public_server)
@@ -906,7 +906,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     self.assertEqual(len(transaction_list), 7)
     self.assertSameSet(
       [round(x.total_price, 2) for x in transaction_list],
-      [10.8, round(1071.6, 2), 10.8, -10.8, 10.8, 9.0, -9.0],
+      [10.8, round(884.4, 2), 10.8, -10.8, 10.8, 9.0, -9.0],
       [round(x.total_price, 2) for x in transaction_list]
     )
 

@@ -120,7 +120,9 @@ for movement in tioxml_dict["movement"]:
     return rejectWithComment('Missing Consumption supply list')
 
   # Dummy index a while we dont use builder probably
-  mindex = "%s-%s" % (project_value.getUid(), destination_value.getUid())
+  mindex = "%s-%s-%s" % (project_value.getUid(),
+                         destination_value.getUid(),
+                         open_sale_order_movement.getSpecialiseUid())
   movement_dict.setdefault(mindex, [])
   quantity = movement['quantity']
   if not quantity:
@@ -141,15 +143,16 @@ module = portal.portal_trash
 for movement_entry in six.itervalues(movement_dict):
   open_sale_order_movement = movement_entry[0]['open_sale_order_movement']
 
+  trade_condition = open_sale_order_movement.getSpecialiseValue()
   tmp_sale_order = module.newContent(
     portal_type='Sale Order',
     temp_object=True,
-    specialise=open_sale_order_movement.getSpecialise(),
+    specialise_value=trade_condition,
     source_project_value=open_sale_order_movement.getSourceProjectValue(),
     #destination_project_value=open_sale_order_movement.getDestinationProjectValue(),
     ledger_value=open_sale_order_movement.getLedgerValue(),
     # calculate price based on Open Order start date.
-    start_date=open_sale_order_movement.getStartDate(),
+    start_date=trade_condition.getEffectiveDate(),
     price_currency_value=open_sale_order_movement.getPriceCurrencyValue(),
     destination_value=destination_value,
   )
@@ -193,8 +196,6 @@ for movement_entry in six.itervalues(movement_dict):
       base_contribution_list=resource_value.getBaseContributionList(),
       use_list=resource_value.getUseList()
     )
-    start_date = movement['open_sale_order_movement'].getStartDate()
-    tmp_sale_order.edit(start_date=start_date, stop_date=start_date)
     # Create a temporary line to calculate price based on the sale open order date
     price_line = tmp_sale_order.newContent(
       temp_object=True,

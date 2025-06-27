@@ -37,5 +37,5 @@ class TestSlapOSHalRestrictedCompatibility(ERP5HALJSONStyleSkinsMixin):
       "application/hal+json"
     )
     result_dict = json.loads(result)
-    self.assertEqual(result_dict['_query'].encode(),
+    self.assertEqual(result_dict['_query'],
                      'portal_type: "Instance Tree"')

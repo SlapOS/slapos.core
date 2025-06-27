@@ -86,6 +86,11 @@ if (tmp_sale_order.getSourceSection(None) == tmp_sale_order.getDestinationSectio
     raise AssertionError('Unexpected price %s found to generate the Subscription Request (%s)' % (price, tmp_sale_order.getSpecialise()))
 else:
 
+  # Price is calculated from the begin of trade condition period,
+  # and not based on "now", so furthers Sale Supply won't affect
+  # pricing.
+  tmp_sale_order.edit(
+    start_date=tmp_sale_order.getSpecialiseValue().getEffectiveDate())
   # Add line
   tmp_order_line = tmp_sale_order.newContent(
     portal_type='Sale Order Line',
@@ -117,7 +122,6 @@ else:
     price = tmp_order_cell.getPrice() or default_price or 0
   else:
     price = tmp_order_line.getPrice() or default_price or 0
-
 
   # but if accounting is needed, we expect a price
   if not price:

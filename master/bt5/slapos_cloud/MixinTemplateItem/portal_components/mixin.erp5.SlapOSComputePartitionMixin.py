@@ -62,6 +62,7 @@ class SlapOSComputePartitionMixin(object):
   def _registerComputePartition(self):
     portal = self.getPortalObject()
     compute_node = self
+    software_instance = None
     while compute_node.getPortalType() != 'Compute Node':
       compute_node = compute_node.getParentValue()
     compute_node_id = str2unicode(compute_node.getReference())

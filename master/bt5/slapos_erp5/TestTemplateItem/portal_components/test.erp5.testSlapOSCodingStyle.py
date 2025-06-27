@@ -318,6 +318,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_subscription_request/SubscriptionRequest_init',
         'slapos_subscription_request/OpenSaleOrderCell_createDiscountSalePackingList',
         'slapos_subscription_request/SubscriptionChangeRequest_init',
+        'slapos_subscription_request/Resource_createSubscriptionRequest',
         'slapos_upgrader/Base_activateObjectMigrationToRemoteVirtualMaster',
         'slapos_upgrader/Base_activateObjectMigrationToVirtualMaster',
         'slapos_upgrader/Base_deleteProcessedDocumentDuringPurge',

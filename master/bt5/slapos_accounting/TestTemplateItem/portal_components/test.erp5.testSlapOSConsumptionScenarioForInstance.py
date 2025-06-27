@@ -192,8 +192,16 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
           public_server, project.getReference(),
           10.8, currency)
 
+
     with PinnedDateTime(self, DateTime('2025/01/18 01:00')):
       self.login()
+      # update open sale order of project
+      self.portal.portal_alarms.update_open_order_simulation.activeSense()
+      self.tic()
+      #XXXX we should not reply to this
+      #XXXX we need something when invalidate instance, the correct consumption delivery can be create
+      self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_from_software_slave_instance.activeSense()
+      self.tic()
 
       # Search used partition
       instance_tree = self.portal.portal_catalog.getResultValue(

@@ -25,12 +25,22 @@
             <value> <string>interaction_SoftwareInstance_validate</string> </value>
         </item>
         <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>Interaction Workflow Interaction</string> </value>
+        </item>
+        <item>
             <key> <string>portal_type_filter</string> </key>
             <value>
               <tuple>
                 <string>Software Instance</string>
                 <string>Slave Instance</string>
               </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>portal_type_group_filter</string> </key>
+            <value>
+              <tuple/>
             </value>
         </item>
         <item>
@@ -52,6 +62,10 @@
         <item>
             <key> <string>trigger_once_per_transaction</string> </key>
             <value> <int>1</int> </value>
+        </item>
+        <item>
+            <key> <string>trigger_type</string> </key>
+            <value> <int>2</int> </value>
         </item>
       </dictionary>
     </pickle>

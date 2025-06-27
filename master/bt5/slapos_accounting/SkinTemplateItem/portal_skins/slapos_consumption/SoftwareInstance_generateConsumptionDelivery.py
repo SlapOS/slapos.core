@@ -7,7 +7,8 @@ if REQUEST is not None:
 portal = context.getPortalObject()
 instance = context
 
-assert instance.getValidationState() == 'validated'
+if instance.getValidationState() != 'validated':
+  return
 
 
 def storeWorkflowComment(document, comment):

@@ -197,6 +197,16 @@ def _upgradeDatabaseIfNeeded():
       placeholders = ':'+', :'.join(row.keys())
       query = 'INSERT OR REPLACE INTO %s (%s) VALUES (%s)' % ('%s', columns, placeholders)
       execute_db(table, query, row)
+
+  if int(current_schema_version) <= 16:
+    # Fill partition_root field in partition table
+    for row in execute_db('partition', 'SELECT * from %s'):
+      row['root_partition'] = getRootPartitionId(row['requested_by'])
+      columns = ', '.join(row.keys())
+      placeholders = ':'+', :'.join(row.keys())
+      query = 'INSERT OR REPLACE INTO %s (%s) VALUES (%s)' % ('%s', columns, placeholders)
+      execute_db('partition', query, row)
+
   # then drop old tables
   for previous_table in previous_table_list:
     g.db.execute("DROP table %s" % previous_table)
@@ -397,6 +407,7 @@ def destroyedComputerPartition():
     '  software_type=NULL,'
     '  partition_reference=NULL,'
     '  requested_by=NULL,'
+    '  root_partition=NULL,'
     '  requested_state="started"'
     'WHERE reference=? AND computer_reference=? ',
     [request.form['computer_partition_id'], request.form['computer_id']])
@@ -526,7 +537,9 @@ def requestComputerPartition():
     requested_computer_id = parsed_request_dict['filter_kw'].get('computer_guid', app.config['computer_id'])
     matching_partition = getAllocatedSlaveInstance(slave_reference, requested_computer_id)
   else:
-    matching_partition = getAllocatedInstance(parsed_request_dict['partition_reference'])
+    matching_partition = getAllocatedInstance(
+      parsed_request_dict['partition_reference'],
+      getRootPartitionId(parsed_request_dict['partition_id']))
 
   if matching_partition:
     # Then the instance is already allocated, just update it
@@ -722,39 +735,36 @@ def forwardRequestToExternalMaster(master_url, request_form):
 
   return dumps(partition)
 
-def getAllocatedInstance(partition_reference):
+def getAllocatedInstance(partition_reference, root_id):
   """
   Look for existence of instance, if so return the
   corresponding partition dict, else return None
   """
-  args = []
-  a = args.append
-  table = 'partition'
-  q = 'SELECT * FROM %s WHERE partition_reference=?'
-  a(partition_reference)
-  return execute_db(table, q, args, one=True)
+  return execute_db('partition',
+    'SELECT * FROM %s WHERE partition_reference is ? AND root_partition is ?',
+    (partition_reference, root_id), one=True)
 
 def getAllocatedSlaveInstance(slave_reference, requested_computer_id):
   """
   Look for existence of instance, if so return the
   corresponding partition dict, else return None
-  """
-  args = []
-  a = args.append
+
   # XXX: Scope currently depends on instance which requests slave.
   # Meaning that two different instances requesting the same slave will
   # result in two different allocated slaves.
-  table = 'slave'
-  q = 'SELECT * FROM %s WHERE reference=? and computer_reference=?'
-  a(slave_reference)
-  a(requested_computer_id)
-  # XXX: check there is only one result
-  return execute_db(table, q, args, one=True)
+  """
+  return execute_db('slave',
+    'SELECT * FROM %s WHERE reference is ? AND computer_reference is ?',
+    (slave_reference, requested_computer_id), one=True)
+
+def getPartition(reference):
+  """Fetch the partition wth the given reference"""
+  p = 'SELECT * FROM %s WHERE reference=?'
+  return execute_db('partition', p, [reference], one=True)
 
 def getRootPartition(reference):
   """Climb the partitions tree up by 'requested_by' link to get the root partition."""
-  p = 'SELECT * FROM %s WHERE reference=?'
-  partition = execute_db('partition', p, [reference], one=True)
+  partition = getPartition(reference)
   if partition is None:
     app.logger.warning("Nonexisting partition \"{}\". Known are\n{!s}".format(
       reference, execute_db("partition", "select reference, requested_by from %s")))
@@ -764,19 +774,26 @@ def getRootPartition(reference):
     requested_by = partition['requested_by']
     if requested_by is None or requested_by == reference:
       return partition
-    parent_partition = execute_db('partition', p, (requested_by,), one=True)
+    parent_partition = getPartition(requested_by)
     if parent_partition is None:
       return partition
     partition = parent_partition
     reference = requested_by
 
+def getRootPartitionId(requested_by):
+  if requested_by:
+    root = getRootPartition(requested_by)
+    if root:
+      return root['reference']
+    return requested_by
+
 def requestNotSlave(software_release, software_type, partition_reference, partition_id, partition_parameter_kw, filter_kw, requested_state):
   instance_xml = dict2xml(partition_parameter_kw)
   requested_computer_id = filter_kw['computer_guid']
 
-  partition = execute_db('partition',
-    'SELECT * FROM %s WHERE partition_reference=?',
-    (partition_reference,), one=True)
+  root_id = getRootPartitionId(partition_id)
+
+  partition = getAllocatedInstance(partition_reference, root_id)
 
   args = []
   a = args.append
@@ -795,11 +812,13 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
     if partition_id:
       q += ' ,requested_by=?'
       a(partition_id)
+      q += ' ,root_partition=?'
+      a(root_id)
     if not software_type:
       software_type = DEFAULT_SOFTWARE_TYPE
   else:
     if partition['requested_by']:
-      root_partition = getRootPartition(partition['requested_by'])
+      root_partition = getPartition(root_id)
       if root_partition and root_partition['requested_state'] != "started":
         # propagate parent state to child
         # child can be stopped or destroyed while parent is started

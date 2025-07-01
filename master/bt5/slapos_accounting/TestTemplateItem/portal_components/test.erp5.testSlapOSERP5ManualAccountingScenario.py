@@ -5,6 +5,7 @@
 #
 ##############################################################################
 
+from Products.ERP5Type.Utils import str2bytes
 from erp5.component.test.testSlapOSERP5VirtualMasterScenario import TestSlapOSVirtualMasterScenarioMixin
 from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
 from DateTime import DateTime
@@ -584,20 +585,20 @@ class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin
       owner_person.getPath() + '/Base_callDialogMethod',
       user=accountant_person.getUserId(),
       request_method='POST',
-      stdin=io.BytesIO(
-        b'field_your_section_category=group/company&' +
-        b'field_your_grouping=grouping&' +
-        b'field_your_node=account_module/payment_to_encash&' +
-        b'field_your_mirror_section=%s&' % owner_person.getRelativeUrl() +
-        b'listbox_uid:list=%s&' % payment_transaction.bank.getUid() +
-        b'uids:list=%s&' % payment_transaction.bank.getUid() +
-        b'listbox_uid:list=%s&' % encash_line.getUid() +
-        b'uids:list=%s&' % encash_line.getUid() +
-        b'list_selection_name=accounting_transaction_module_grouping_reference_fast_input&' +
-        b'form_id=Person_view&' +
-        b'dialog_id=AccountingTransactionModule_viewGroupingFastInputDialog&' +
-        b'dialog_method=AccountingTransactionModule_setGroupingReference'
-      ),
+      stdin=io.BytesIO(str2bytes(
+        'field_your_section_category=group/company&' +
+        'field_your_grouping=grouping&' +
+        'field_your_node=account_module/payment_to_encash&' +
+        'field_your_mirror_section=%s&' % owner_person.getRelativeUrl() +
+        'listbox_uid:list=%s&' % payment_transaction.bank.getUid() +
+        'uids:list=%s&' % payment_transaction.bank.getUid() +
+        'listbox_uid:list=%s&' % encash_line.getUid() +
+        'uids:list=%s&' % encash_line.getUid() +
+        'list_selection_name=accounting_transaction_module_grouping_reference_fast_input&' +
+        'form_id=Person_view&' +
+        'dialog_id=AccountingTransactionModule_viewGroupingFastInputDialog&' +
+        'dialog_method=AccountingTransactionModule_setGroupingReference'
+      )),
       env={'CONTENT_TYPE': 'application/x-www-form-urlencoded'}
     )
     self.assertEqual(response.getStatus(), 200)

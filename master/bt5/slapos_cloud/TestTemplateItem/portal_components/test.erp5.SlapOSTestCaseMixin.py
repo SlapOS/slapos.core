@@ -167,7 +167,7 @@ def string_escape(value):
 class SlapOSTestCaseMixin(testSlapOSMixin):
 
   expected_html_payzen_redirect_page = None
-  
+
   # Define few expected defaults
   expected_invoice_en_notification_message = 'A new invoice has been generated'
 
@@ -190,7 +190,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
   def beforeDumpExpectedConfiguration(self):
     """Overwrite this function on project context to tweak production focus tests"""
-    pass
+    pass # pylint: disable=unnecessary-pass
 
   def cleanUpRequest(self):
     """ set None some values that can cause problems in tests
@@ -256,14 +256,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       is_accountable,
       currency_relative_url,
       batch=1).getRelativeUrl()
-    """
-    service = self.portal.restrictedTraverse('service_module/slapos_virtual_master_subscription')
-    subscription_request = service.Resource_createSubscriptionRequest(person, None, None)
-    self.tic()
-
-    self.logout()
-
-    return subscription_request.getAggregate()"""
 
   @ensureConsistency
   def _addERP5Login(self, document, **kw):

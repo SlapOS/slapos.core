@@ -8,7 +8,7 @@
 from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixinWithAbort, SlapOSTestCaseMixin, simulate
 
-from Products.ERP5Type.Utils import str2bytes
+from Products.ERP5Type.Utils import str2bytes, bytes2str
 from zExceptions import Unauthorized
 from unittest import expectedFailure
 
@@ -69,7 +69,7 @@ class TestSlapOSComputeNode_reportComputeNodeConsumption(SlapOSTestCaseMixinWith
                       "%s consumption (%s)" % (compute_node.getReference(), new_id))
     self.assertNotEqual(document.getReference(), "")
     self.assertEqual(document.getVersion(), "1")
-    self.assertEqual(document.getData(), consumption_xml)
+    self.assertEqual(bytes2str(document.getData()), consumption_xml)
     self.assertEqual(document.getClassification(), "personal")
     self.assertEqual(document.getPublicationSection(), "other")
     self.assertEqual(document.getValidationState(), "submitted")
@@ -120,7 +120,7 @@ class TestSlapOSComputeNode_reportComputeNodeConsumption(SlapOSTestCaseMixinWith
     self.assertEqual(document2.getReference(), document1.getReference())
     self.assertEqual(document1.getVersion(), "1")
     self.assertEqual(document2.getVersion(), "2")
-    self.assertEqual(document2.getData(), consumption_xml)
+    self.assertEqual(bytes2str(document2.getData()), consumption_xml)
     self.assertEqual(document2.getClassification(), "personal")
     self.assertEqual(document2.getPublicationSection(), "other")
     self.assertEqual(document1.getValidationState(), "submitted")

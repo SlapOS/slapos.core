@@ -13,8 +13,8 @@ amount = sum([delivery.getTotalPrice(use=use_list) for delivery in delivery_list
 
 currency = invoice.getPriceCurrencyValue()
 if currency is None:
-  # completely random...
-  precision = 100
+  # completely random... on python3 it breaks if precision is > 27.
+  precision = 25
 else:
   precision = currency.getQuantityPrecision()
 return round(amount, precision) == round(context.getTotalPrice(use=use_list), precision)

@@ -55,12 +55,13 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       sale_supply.validate()
       self.tic()
     # Ensure no unexpected object has been created
+    # 2 assignment request
     # 2 assignment
     # 2 sale trade condition
     # 1 subscription requests
     # 1 software product
     # 3 sale supply + lines
-    self.assertRelatedObjectCount(project, 9)
+    self.assertRelatedObjectCount(project, 11)
 
     ##################################################
     # Add deposit

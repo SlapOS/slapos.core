@@ -426,6 +426,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.login()
     # Ensure no unexpected object has been created
     # 3 allocation supply, line, cell
+    # 3 assignment request
     # 1 compute node
     # 1 credential request
     # 1 instance tree
@@ -438,7 +439,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software instance
     # 1 software product
     # 3 subscription request
-    self.assertRelatedObjectCount(project, 29)
+    self.assertRelatedObjectCount(project, 32)
 
     self.checkERP5StateBeforeExit()
 
@@ -759,6 +760,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Ensure no unexpected object has been created
     # 3 accounting transaction / line
     # 3 allocation supply / line / cell
+    # 5 assignment request
     # 1 compute node
     # 2 credential request
     # 1 event
@@ -773,7 +775,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software instance
     # 1 software product
     # 3 subscription requests
-    self.assertRelatedObjectCount(project, 53)
+    self.assertRelatedObjectCount(project, 58)
 
     self.checkERP5StateBeforeExit()
 
@@ -998,6 +1000,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Ensure no unexpected object has been created
     # 3 accounting transaction / line
     # 3 allocation supply / line / cell
+    # 5 assignment request
     # 1 compute node
     # 2 credential request
     # 3 event
@@ -1012,7 +1015,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 2 software instance
     # 1 software product
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 68)
+    self.assertRelatedObjectCount(project, 73)
 
     self.checkERP5StateBeforeExit()
 
@@ -1147,6 +1150,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.login()
     # Ensure no unexpected object has been created
     # 6 allocation supply/line/cell
+    # 4 assignment request
     # 2 compute/instance node
     # 2 credential request
     # 2 instance tree
@@ -1159,7 +1163,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 2 software instance
     # 2 software product
     # 4 subscription request
-    self.assertRelatedObjectCount(project, 44)
+    self.assertRelatedObjectCount(project, 48)
 
     self.checkERP5StateBeforeExit()
 
@@ -1257,6 +1261,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.login()
     # Ensure no unexpected object has been created
     # 3 allocation supply/line/cell
+    # 3 assignment request
     # 1 compute node
     # 1 credential request
     # 1 instance tree
@@ -1269,7 +1274,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 2 software instance
     # 1 software product
     # 3 subscription request
-    self.assertRelatedObjectCount(project, 30)
+    self.assertRelatedObjectCount(project, 33)
 
     self.checkERP5StateBeforeExit()
 
@@ -1465,6 +1470,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     # Ensure no unexpected object has been created
     # 3 allocation supply/line/cell
+    # 3 assignment request
     # 2 compute/remote node
     # 1 credential request
     # 1 instance tree
@@ -1477,10 +1483,11 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software instance
     # 1 software product
     # 3 subscription requests
-    self.assertRelatedObjectCount(remote_project, 30)
+    self.assertRelatedObjectCount(remote_project, 33)
 
     # Ensure no unexpected object has been created
     # 3 allocation supply/line/cell
+    # 3 assignment request
     # 1 compute node
     # 1 credential request
     # 1 instance tree
@@ -1492,7 +1499,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software instance
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 23)
+    self.assertRelatedObjectCount(project, 26)
 
     self.checkERP5StateBeforeExit()
 
@@ -1693,6 +1700,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # Ensure no unexpected object has been created
       # 6 allocation supply/line/cell
+      # 3 assignment request
       # 3 compute/remote/instance node
       # 1 credential request
       # 2 instance tree
@@ -1705,10 +1713,11 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # 2 software instance
       # 1 software product
       # 4 subscription requests
-      self.assertRelatedObjectCount(remote_project, 42)
+      self.assertRelatedObjectCount(remote_project, 45)
 
       # Ensure no unexpected object has been created
       # 3 allocation supply/line/cell
+      # 3 assignment request
       # 1 compute node
       # 1 credential request
       # 1 instance tree
@@ -1720,7 +1729,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # 1 software instance
       # 1 software product
       # 2 subscription requests
-      self.assertRelatedObjectCount(project, 23)
+      self.assertRelatedObjectCount(project, 26)
 
       self.checkERP5StateBeforeExit()
 

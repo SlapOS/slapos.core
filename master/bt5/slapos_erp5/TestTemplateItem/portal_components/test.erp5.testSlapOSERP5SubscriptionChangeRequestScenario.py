@@ -157,6 +157,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # XXX TODO self.assertEqual(None, self.portal.portal_simulation.getInventoryList())
 
     # Ensure no unexpected object has been created
+    # 4 assignment request
     # 2 credential request
     # 1 instance tree
     # 7 open sale order
@@ -168,7 +169,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 1 software product
     # 1 subscription change request
     # 3 subscription request
-    self.assertRelatedObjectCount(project, 33)
+    self.assertRelatedObjectCount(project, 37)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
@@ -261,11 +262,12 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
                         new_subscription_request_2.getRelativeUrl())
 
     # Ensure no unexpected object has been created
+    # 2 assignment request
     # 2 assignment
     # 2 sale trade condition
     # 1 subscription change request
     # 2 subscription request
-    self.assertRelatedObjectCount(project, 7)
+    self.assertRelatedObjectCount(project, 9)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
@@ -373,6 +375,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
                         new_subscription_request_2.getRelativeUrl())
 
     # Ensure no unexpected object has been created
+    # 2 assignment requests
     # 1 compute node
     # 1 open sale order
     # 2 assignment
@@ -381,7 +384,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 3 sale trade conditions
     # 1 subscription change request
     # 3 subscription request
-    self.assertRelatedObjectCount(project, 13)
+    self.assertRelatedObjectCount(project, 15)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()

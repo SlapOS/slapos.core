@@ -230,6 +230,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     self.login()
 
     # Ensure no unexpected object has been created
+    # 5 assignment request
     # 1 accounting transaction / line
     # 2 credential request
     # 1 event
@@ -243,7 +244,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 1 software installation
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 22)
+    self.assertRelatedObjectCount(project, 27)
 
     self.checkERP5StateBeforeExit()
 
@@ -330,12 +331,13 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     self.assertEqual(len(transaction_list),  0)
 
     # Ensure no unexpected object has been created
+    # 4 assignment request
     # 1 credential request
     # 4 assignment
     # 2 Sale Supply + Line
     # 2 Sale Trade condition
     # 1 subscription request
-    self.assertRelatedObjectCount(project, 10)
+    self.assertRelatedObjectCount(project, 14)
     self.checkERP5StateBeforeExit()
 
   def test_subscription_request_cancel_after_compute_node_is_invalidated(self):
@@ -508,6 +510,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # Ensure no unexpected object has been created
     # 1 accounting transaction / line
     # 3 allocation supply / Line / Cell
+    # 4 assignment request
     # 1 compute node
     # 1 credential request
     # 1 event
@@ -520,7 +523,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 1 software installation
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 24)
+    self.assertRelatedObjectCount(project, 28)
     self.checkERP5StateBeforeExit()
 
   def checkInstanceAllocationFromPayableToFree(self,
@@ -819,6 +822,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # Ensure no unexpected object has been created
     # 2 accounting transaction / line
     # 3 allocation supply / line / cell
+    # 5 assignment request
     # 1 compute node
     # 2 credential request
     # 2 event
@@ -834,6 +838,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 1 software product
     # 1 subscription change request
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 49)
+    self.assertRelatedObjectCount(project, 54)
 
     self.checkERP5StateBeforeExit()

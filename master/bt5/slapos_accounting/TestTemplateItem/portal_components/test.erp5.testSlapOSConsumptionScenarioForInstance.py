@@ -6,7 +6,8 @@
 ##############################################################################
 
 from erp5.component.test.testSlapOSERP5VirtualMasterScenario import TestSlapOSVirtualMasterScenarioMixin
-from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
+from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime, TemporaryAlarmScript
+
 
 from DateTime import DateTime
 
@@ -300,6 +301,55 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     self.assertRelatedObjectCount(project, 113)
 
     self.checkERP5StateBeforeExit()
+
+
+
+
+  def test_software_instance_validate(self):
+    instance = self.portal.software_instance_module.newContent(portal_type='Software Instance')
+    self.tic()
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_from_software_slave_instance,
+      instance,
+      'SoftwareInstance_generateConsumptionDelivery'
+    )
+
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_generateConsumptionDelivery'):
+      instance.validate()
+      self.tic()
+
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_from_software_slave_instance,
+      instance,
+      'SoftwareInstance_generateConsumptionDelivery'
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   def test_slave_instance_consumption_scenario(self):
     with PinnedDateTime(self, DateTime('2024/12/17')):

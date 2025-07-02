@@ -193,7 +193,7 @@ for movement_entry in six.itervalues(movement_dict):
       base_contribution_list=resource_value.getBaseContributionList(),
       use_list=resource_value.getUseList()
     )
-    start_date = movement['open_sale_order_movement'].getStartDate()
+    start_date = movement['open_sale_order_movement'].getEffectiveDate()
     tmp_sale_order.edit(start_date=start_date, stop_date=start_date)
     # Create a temporary line to calculate price based on the sale open order date
     price_line = tmp_sale_order.newContent(

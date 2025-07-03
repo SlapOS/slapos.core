@@ -14,6 +14,7 @@ SlapOSReferenceConstraint
 SlapOSVirtualMasterConstraint
 SlapOSVirtualMasterSourceProjectConstraint
 SlaposAssignmentConstraint
+SlaposAssignmentLikeConstraint
 SlaposCapacity
 SlaposComputeNodeConstraint
 SlaposComputePartitionConstraint

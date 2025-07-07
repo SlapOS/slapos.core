@@ -1,3 +1,5 @@
+person_module/template_member
+person_module/template_member/**
 portal_catalog/**
 portal_preferences/slapos_default_site_preference
 portal_preferences/slapos_default_system_preference

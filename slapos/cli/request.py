@@ -66,7 +66,7 @@ def getParametersFromFile(file, serialisation):
         params = json.load(file)
 
     if serialisation == SoftwareReleaseSerialisation.JsonInXml and list(params.keys()) != ['_']:
-        params = {'_': json.dumps(params)}
+        params = {'_': json.dumps(params, indent=2)}
     return params
 
 

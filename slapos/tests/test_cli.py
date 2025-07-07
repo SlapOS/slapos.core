@@ -1316,6 +1316,7 @@ class TestCliRequestParametersFileJsonJsonInXMLSerialisation(
   serialised with {'_': json.dumps(params)}
   """
   expected_partition_parameter_kw = {"_": "{\"foo\": [\"bar\"]}"}
+  expected_partition_parameter_kw = {"_": json.dumps({"foo": ["bar"]}, indent=2)}
   serialization = 'json-in-xml'
 
 
@@ -1365,7 +1366,7 @@ class TestCliRequestForceSerialisation(TestCliRequestParameterFile):
     "foo": ["bar"]
   }
   '''
-  expected_partition_parameter_kw = {"_": "{\"foo\": [\"bar\"]}"}
+  expected_partition_parameter_kw = {"_": json.dumps({"foo": ["bar"]}, indent=2)}
 
   def test_request_parameters_file(self):
     self._request_parameters_file_setup()

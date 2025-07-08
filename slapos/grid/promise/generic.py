@@ -35,7 +35,7 @@ import time
 import random
 import traceback
 import slapos.slap
-from slapos.util import bytes2str, mkdir_p
+from slapos.util import bytes2str, mkdir_p, string_to_boolean
 from abc import ABCMeta, abstractmethod
 import six
 from six import PY3, with_metaclass
@@ -161,7 +161,11 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
     self.__queue = self.__config.pop('queue', None)
     self.__logger_buffer = None
     self.setPeriodicity(self.__config.pop('periodicity', 2))
-
+    bang_on_failure = self.__config.pop('bang-on-failure', None)
+    if bang_on_failure:
+      self.__allow_bang = string_to_boolean(bang_on_failure)
+    else:
+      self.__allow_bang = getattr(self, '__allow_bang', True)
     self.__transaction_id = '%s-%s' % (int(time.time()), random.randint(100, 999))
     self.__is_tested = True
     # XXX - JP asked to use __is_anomaly_detected = True, but __is_anomaly_less seems more convenient
@@ -255,14 +259,17 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
   def isAnomalyDetected(self):
     return self.__is_anomaly_detected
 
+  def allowBang(self, allow=True):
+    self.__allow_bang = allow
+
   def __bang(self, message):
     """
       Call bang if requested
     """
-    if 'master-url' in self.__config and \
-       'partition-id' in self.__config and \
-       'computer-id' in self.__config:
-
+    if self.__allow_bang and all(
+          k in self.__config
+          for k in ('master-url', 'computer-id', 'partition-id')
+        ):
       slap = slapos.slap.slap()
       slap.initializeConnection(
           self.__config['master-url'],

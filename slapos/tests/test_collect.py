@@ -957,7 +957,7 @@ class TestPartitionReport(TestConsumptionReportBase):
     self.assertEqual(["data", "date"], sorted(_json))
 
   def test_buildJSONMonitorReport(self):
-    with mock.patch('time.time', return_value=1570495649.5):
+    with mock.patch('time.time', return_value=1570495649.5), mock.patch('psutil.Process', side_effect=psutil.NoSuchProcess(1)):
       self.report.buildJSONMonitorReport()
       
       for user in self.report.user_list.values():

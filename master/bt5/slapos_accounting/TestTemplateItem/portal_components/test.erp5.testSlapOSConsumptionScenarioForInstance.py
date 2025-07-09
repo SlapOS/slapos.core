@@ -6,7 +6,8 @@
 ##############################################################################
 
 from erp5.component.test.testSlapOSERP5VirtualMasterScenario import TestSlapOSVirtualMasterScenarioMixin
-from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime, TemporaryAlarmScript
+from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
+from erp5.component.module.DateUtils import addToDate
 
 
 from DateTime import DateTime
@@ -314,9 +315,9 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       'Base_generateConsumptionDeliveryForValidatedInstance'
     )
 
-    with TemporaryAlarmScript(self.portal, 'Base_generateConsumptionDeliveryForValidatedInstance'):
-      instance.validate()
-      self.tic()
+    self.portal.portal_workflow._jumpToStateFor(instance, 'validated')
+    instance.reindexObject()
+    self.tic()
 
     self._test_alarm(
       self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
@@ -325,46 +326,30 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     )
 
 
-
-
-
   def test_software_instance_invalidate(self):
-    instance = self.portal.software_instance_module.newContent(portal_type='Software Instance')
-    self.tic()
+    now = DateTime()
 
-    with TemporaryAlarmScript(self.portal, 'Base_generateConsumptionDeliveryForValidatedInstance'):
-      instance.validate()
+    with PinnedDateTime(self, now):
+      instance = self.portal.software_instance_module.newContent(portal_type='Software Instance')
+      self.portal.portal_workflow._jumpToStateFor(instance, 'invalidated')
       self.tic()
 
-
-    with TemporaryAlarmScript(self.portal, 'Base_generateConsumptionDeliveryForValidatedInstance'):
-      instance.invalidate()
+    with PinnedDateTime(self, addToDate(now, minute=1)):
+      self._test_alarm(
+        self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance,
+        instance,
+        'Base_generateConsumptionDeliveryForInvalidatedInstance'
+      )
+      # To clean last edit comment
+      instance.edit()
       self.tic()
 
-    self._test_alarm_not_visited(
-      self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance,
-      instance,
-      'Base_generateConsumptionDeliveryForInvalidatedInstance'
-    )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    with PinnedDateTime(self, addToDate(now, minute=2)):
+      self._test_alarm_not_visited(
+        self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance,
+        instance,
+        'Base_generateConsumptionDeliveryForInvalidatedInstance'
+      )
 
 
 

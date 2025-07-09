@@ -3,7 +3,7 @@ tag = script.id
 
 ### Create the bootstrap Trade Condition
 currency = portal.restrictedTraverse('currency_module/EUR')
-seller_organisation = portal.restrictedTraverse('organisation_module/rapidspace')
+seller_organisation = portal.restrictedTraverse('organisation_module/slapos')
 business_process = portal.restrictedTraverse('business_process_module/slapos_sale_subscription_business_process')
 
 if portal.portal_catalog.getResultValue(

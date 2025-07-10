@@ -59,6 +59,7 @@ else:
 open_order_edit_kw = dict(
   title=hosting_subscription.getTitle(),
   start_date=start_date,
+  effective_date=subscription_request.getEffectiveDate(),
   specialise_value=subscription_request.getSpecialiseValue(),
   source_value=subscription_request.getSourceValue(),
   source_section_value=subscription_request.getSourceSectionValue(),

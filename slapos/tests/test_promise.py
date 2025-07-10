@@ -33,6 +33,7 @@ import time
 import json
 import random
 import logging
+import mock
 from datetime import datetime, timedelta
 import six
 from six.moves import queue
@@ -1571,11 +1572,18 @@ exit 1
 
 class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
 
-  def initialisePromise(self, promise_content="", success=True, timeout=60):
-    self.promise_name = 'my_promise.py'
-    self.promise_path = os.path.join(self.plugin_dir, self.promise_name)
+  def initialisePromise(self, promise=None, timeout=60, **promisekwargs):
+    self.promise_name = name = 'my_promise.py'
+    self.promise_path = os.path.join(self.plugin_dir, name)
     self.configureLauncher()
-    self.generatePromiseScript(self.promise_name, periodicity=1, content=promise_content, success=success)
+    if promise:
+      self.writeFile(os.path.join(self.plugin_dir, name), promise)
+    else:
+      self.generatePromiseScript(
+        name,
+        periodicity=1,
+        **promisekwargs
+      )
     self.writeInit()
     self.queue = queue.Queue()
     self.promise_config = {
@@ -1591,7 +1599,7 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
       'computer-id': self.computer_id,
       'queue': self.queue,
       'path': self.promise_path,
-      'name': self.promise_name
+      'name': name,
     }
 
   def createPromiseProcess(self, check_anomaly=False, wrap=False):
@@ -1605,11 +1613,17 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
       wrap=wrap,
     )
 
+  def loadPromise(self, promise_process):
+    promise_module = promise_process._loadPromiseModule()
+    # self.promise_config is promise_process.argument_dict
+    return promise_module.RunPromise(self.promise_config)
+
+  def runPromise(self, promise_process, check_anomaly=False, can_bang=True):
+    self.loadPromise(promise_process).run(check_anomaly, can_bang)
+
   def test_create_simple_promise(self):
     self.initialisePromise()
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    promise = self.loadPromise(self.createPromiseProcess())
     self.assertEqual(promise.getPeriodicity(), 1)
     self.assertEqual(promise.getName(), self.promise_name)
     self.assertEqual(promise.getTitle(), 'my_promise')
@@ -1726,10 +1740,7 @@ class RunPromise(GenericPromise):
 
   def test_promise_anomaly_disabled(self):
     self.initialisePromise()
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
-
+    promise = self.loadPromise(self.createPromiseProcess())
     promise.run()
     result = self.queue.get(True, 1)
     self.assertTrue(isinstance(result, PromiseQueueResult))
@@ -1743,10 +1754,8 @@ class RunPromise(GenericPromise):
 
   def test_promise_with_raise(self):
     promise_content = "raise ValueError('Bad Promise raised')"
-    self.initialisePromise(promise_content)
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    self.initialisePromise(content=promise_content)
+    promise = self.loadPromise(self.createPromiseProcess())
 
     # no raise
     promise.run()
@@ -1758,10 +1767,8 @@ class RunPromise(GenericPromise):
 
   def test_promise_no_return(self):
     promise_content = "return"
-    self.initialisePromise(promise_content)
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    self.initialisePromise(content=promise_content)
+    promise = self.loadPromise(self.createPromiseProcess())
 
     # no raise
     promise.run()
@@ -1773,10 +1780,8 @@ class RunPromise(GenericPromise):
 
   def test_promise_resultfromlog(self):
     promise_content = "self.logger.info('Promise is running...')"
-    self.initialisePromise(promise_content)
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    self.initialisePromise(content=promise_content)
+    promise = self.loadPromise(self.createPromiseProcess())
 
     date = datetime.now()
     promise.sense()
@@ -1793,10 +1798,8 @@ class RunPromise(GenericPromise):
 
   def test_promise_resultfromlog_error(self):
     promise_content = 'self.logger.error("Promise is running...\\nmessage in new line")'
-    self.initialisePromise(promise_content)
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    self.initialisePromise(content=promise_content)
+    promise = self.loadPromise(self.createPromiseProcess())
 
     date = datetime.now()
     promise.sense()
@@ -1815,10 +1818,8 @@ class RunPromise(GenericPromise):
   def test_promise_resultfromlog_no_logfolder(self):
     self.log_dir = None
     promise_content = "self.logger.info('Promise is running...')"
-    self.initialisePromise(promise_content)
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    self.initialisePromise(content=promise_content)
+    promise = self.loadPromise(self.createPromiseProcess())
 
     date = datetime.now()
     promise.sense()
@@ -1838,9 +1839,7 @@ class RunPromise(GenericPromise):
 
   def test_promise_resultfromlog_latest_minutes(self):
     self.initialisePromise(timeout=60)
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    promise = self.loadPromise(self.createPromiseProcess())
 
     # write some random logs
     start_date = datetime.now()
@@ -1871,9 +1870,7 @@ class RunPromise(GenericPromise):
 
   def test_promise_resultfromlog_latest_minutes_multilog(self):
     self.initialisePromise(timeout=60)
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    promise = self.loadPromise(self.createPromiseProcess())
 
     # write some random logs
     start_date = datetime.now()
@@ -1916,9 +1913,7 @@ class RunPromise(GenericPromise):
 
   def test_promise_resultfromlog_result_count(self):
     self.initialisePromise()
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    promise = self.loadPromise(self.createPromiseProcess())
 
     # write some random logs
     start_date = datetime.now()
@@ -1958,9 +1953,7 @@ class RunPromise(GenericPromise):
 
   def test_promise_resultfromlog_result_count_many(self):
     self.initialisePromise()
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    promise = self.loadPromise(self.createPromiseProcess())
 
     # write some random logs
     start_date = datetime.now()
@@ -2006,10 +1999,8 @@ class RunPromise(GenericPromise):
 
   def test_promise_defaulttest(self):
     promise_content = 'self.logger.info("Promise is running...\\nmessage in new line")'
-    self.initialisePromise(promise_content)
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    self.initialisePromise(content=promise_content)
+    promise = self.loadPromise(self.createPromiseProcess())
 
     promise.sense()
 
@@ -2020,9 +2011,7 @@ class RunPromise(GenericPromise):
 
   def test_promise_defaulttest_failure(self):
     self.initialisePromise(success=False)
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    promise = self.loadPromise(self.createPromiseProcess())
 
     promise.sense()
 
@@ -2033,9 +2022,7 @@ class RunPromise(GenericPromise):
 
   def test_promise_defaulttest_error_if_two_fail(self):
     self.initialisePromise(success=False, timeout=1)
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    promise = self.loadPromise(self.createPromiseProcess())
 
     promise.sense()
 
@@ -2046,9 +2033,7 @@ class RunPromise(GenericPromise):
     self.assertEqual(result.hasFailed(), False)
 
     self.initialisePromise(success=False, timeout=1)
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    promise = self.loadPromise(self.createPromiseProcess())
     promise.sense()
     result = promise._test(result_count=2, failure_amount=2)
     self.assertEqual(result.message, 'failed')
@@ -2056,9 +2041,7 @@ class RunPromise(GenericPromise):
 
     # will continue to fail
     self.initialisePromise(success=False, timeout=1)
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    promise = self.loadPromise(self.createPromiseProcess())
     promise.sense()
     result = promise._test(result_count=2, failure_amount=2)
     self.assertEqual(result.message, 'failed')
@@ -2066,10 +2049,8 @@ class RunPromise(GenericPromise):
 
   def test_promise_defaulttest_anomaly(self):
     promise_content = 'self.logger.info("Promise is running...\\nmessage in new line")'
-    self.initialisePromise(promise_content)
-    promise_process = self.createPromiseProcess()
-    promise_module = promise_process._loadPromiseModule()
-    promise = promise_module.RunPromise(self.promise_config)
+    self.initialisePromise(content=promise_content)
+    promise = self.loadPromise(self.createPromiseProcess())
 
     promise.sense()
 
@@ -2077,6 +2058,93 @@ class RunPromise(GenericPromise):
     self.assertTrue(isinstance(result, AnomalyResult))
     self.assertEqual(result.message, 'Promise is running...\nmessage in new line\nsuccess')
     self.assertEqual(result.hasFailed(), False)
+
+  BANG = 'slapos.slap.ComputerPartition.bang'
+  def test_promise_default_failure_bang(self):
+    self.initialisePromise(success=False)
+    promise_process = self.createPromiseProcess(check_anomaly=True)
+    with mock.patch(self.BANG) as mock_bang:
+      self.runPromise(promise_process, check_anomaly=True)
+      mock_bang.assert_called_once()
+
+  def test_promise_default_failure_no_bang(self):
+    self.initialisePromise(promise="""
+      from zope.interface import implementer
+      from slapos.grid.promise import interface, GenericPromise
+      @implementer(interface.IPromise)
+      class RunPromise(GenericPromise):
+        def __init__(self, config):
+          GenericPromise.__init__(self, config)
+          self.setPeriodicity(minute=1)
+          self.allowBang(False)
+
+        def sense(self):
+          self.logger.error("failed")
+    """.replace('\n      ', '\n'))
+    promise_process = self.createPromiseProcess(check_anomaly=True)
+    with mock.patch(self.BANG) as mock_bang:
+      self.runPromise(promise_process, check_anomaly=True)
+      mock_bang.assert_not_called()
+
+  def test_promise_default_failure_config_no_bang(self):
+    self.initialisePromise(promise="""
+      from zope.interface import implementer
+      from slapos.grid.promise import interface, GenericPromise
+      @implementer(interface.IPromise)
+      class RunPromise(GenericPromise):
+        def __init__(self, config):
+          GenericPromise.__init__(self, config)
+          self.setPeriodicity(minute=1)
+
+        def sense(self):
+          self.logger.error("failed")
+
+      %s = {'bang-on-failure': 'false'}
+    """.replace('\n      ', '\n') % PROMISE_PARAMETER_NAME)
+    promise_process = self.createPromiseProcess(check_anomaly=True)
+    with mock.patch(self.BANG) as mock_bang:
+      self.runPromise(promise_process, check_anomaly=True)
+      mock_bang.assert_not_called()
+
+  def test_promise_default_failure_no_bang_overridable(self):
+    self.initialisePromise(promise="""
+      from zope.interface import implementer
+      from slapos.grid.promise import interface, GenericPromise
+      @implementer(interface.IPromise)
+      class RunPromise(GenericPromise):
+        def __init__(self, config):
+          self.allowBang(False)
+          GenericPromise.__init__(self, config)
+          self.setPeriodicity(minute=1)
+
+        def sense(self):
+          self.logger.error("failed")
+    """.replace('\n      ', '\n'))
+    promise_process = self.createPromiseProcess(check_anomaly=True)
+    with mock.patch(self.BANG) as mock_bang:
+      self.runPromise(promise_process, check_anomaly=True)
+      mock_bang.assert_not_called()
+
+  def test_promise_default_failure_config_bang_overrides_no_bang(self):
+    self.initialisePromise(promise="""
+      from zope.interface import implementer
+      from slapos.grid.promise import interface, GenericPromise
+      @implementer(interface.IPromise)
+      class RunPromise(GenericPromise):
+        def __init__(self, config):
+          self.allowBang(False)
+          GenericPromise.__init__(self, config)
+          self.setPeriodicity(minute=1)
+
+        def sense(self):
+          self.logger.error("failed")
+
+      %s = {'bang-on-failure': 'true'}
+    """.replace('\n      ', '\n') % PROMISE_PARAMETER_NAME)
+    promise_process = self.createPromiseProcess(check_anomaly=True)
+    with mock.patch(self.BANG) as mock_bang:
+      self.runPromise(promise_process, check_anomaly=True)
+      mock_bang.assert_called_once()
 
 
 if __name__ == '__main__':

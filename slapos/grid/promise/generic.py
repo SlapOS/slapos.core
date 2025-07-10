@@ -177,6 +177,7 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
   def _configureLogger(self):
     self.logger = logging.getLogger(self.__name)
     for handler in self.logger.handlers:
+      handler.close()
       self.logger.removeHandler(handler)
     if self.__log_folder is None:
       self.__logger_buffer = six.StringIO()

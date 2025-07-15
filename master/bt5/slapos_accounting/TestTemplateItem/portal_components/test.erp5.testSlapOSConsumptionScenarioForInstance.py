@@ -231,6 +231,8 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       # update open sale order of project
       self.portal.portal_alarms.update_open_order_simulation.activeSense()
       self.tic()
+      self.portal.portal_alarms.slapos_stop_confirmed_aggregated_sale_invoice_transaction.activeSense()
+      self.tic()
       self.login(owner_person.getUserId())
       self.checkInstanceUnallocation(public_person.getUserId(),
           public_reference, public_instance_title,
@@ -239,10 +241,6 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
 
 
     with PinnedDateTime(self, DateTime('2025/02/23 01:01')):
-      self.login()
-      # update open sale order of project
-      self.portal.portal_alarms.update_open_order_simulation.activeSense()
-      self.tic()
       self.login(owner_person.getUserId())
       # Unallocate and destroy the instance the instances
       self.checkInstanceUnallocation(public_person.getUserId(),
@@ -266,28 +264,27 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       consumption_delivery_list = instance.getCausalityRelatedValueList(portal_type='Consumption Delivery')
       self.assertEqual(len(consumption_delivery_list), 3)
 
+
     self.login()
     # Ensure no unexpected object has been created
-    # 4 accounting transaction / line
+    # 11 accounting transaction / line
     # 3 allocation supply / line / cell
     # 1 compute node
-    # 2 consumption delivery
-    # 2 consumption document
-    # 2 consumption supply
+    # 6 consumption delivery
     # 2 credential request
     # 3 event
     # 2 instance tree
     # 9 open sale order / line
     # 5 (can reduce to 2) assignment
-    # 65 simulation mvt
-    # 6 packing list / line
+    # 81 simulation mvt
+    # 12 packing list / line
     # 4 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 2 software instance
     # 1 software product
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 113)
+    self.assertRelatedObjectCount(project, 149)
 
     self.checkERP5StateBeforeExit()
 
@@ -312,7 +309,14 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       instance,
       'Base_generateConsumptionDeliveryForValidatedInstance'
     )
-
+    """
+    # ideally, if it's already visited, we should not visite again
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
+      instance,
+      'Base_generateConsumptionDeliveryForValidatedInstance'
+    )
+    """
 
   def test_software_instance_invalidate(self):
     now = DateTime()

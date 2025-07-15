@@ -6,10 +6,7 @@
 ##############################################################################
 
 from erp5.component.test.testSlapOSERP5VirtualMasterScenario import TestSlapOSVirtualMasterScenarioMixin
-from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
-from erp5.component.module.DateUtils import addToDate
-
-
+from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime, TemporaryAlarmScript
 from DateTime import DateTime
 
 class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMixin):
@@ -165,8 +162,6 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     return sm.getDeliveryValue()
 
   def test_instance_consumption_scenario(self):
-    self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance.setEffectiveDate(None)
-    self.tic()
     with PinnedDateTime(self, DateTime('2024/12/17')):
       project, currency, owner_person, _, public_server, public_instance_type, \
         public_server_software, _,  \
@@ -181,7 +176,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
 
       self.login()
 
-    with PinnedDateTime(self, DateTime('2024/12/17 01:01')):
+    with PinnedDateTime(self, DateTime('2025/01/17 01:01')):
       # Simulate access from compute_node, to open the capacity scope
       self.login()
       self.simulateSlapgridSR(public_server)
@@ -200,7 +195,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       self.assertTrue(consumption_delivery is not None)
 
 
-    with PinnedDateTime(self, DateTime('2024/12/17 01:02')):
+    with PinnedDateTime(self, DateTime('2025/01/17 01:02')):
       public_instance_title2 = 'Public title %s 2' % self.generateNewId()
       self.checkInstanceAllocationWithDeposit(public_person.getUserId(),
           public_reference, public_instance_title2,
@@ -226,10 +221,12 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     self.assertEqual(invoice_line.getQuantity(), 2)
     self.assertEqual(invoice_line.getPrice(), 5)
 
-    with PinnedDateTime(self, DateTime('2025/02/23 01:00')):
+    with PinnedDateTime(self, DateTime('2025/03/23 01:00')):
       self.login()
       # update open sale order of project
       self.portal.portal_alarms.update_open_order_simulation.activeSense()
+      self.tic()
+      self.portal.portal_alarms.slapos_stop_confirmed_aggregated_sale_invoice_transaction.activeSense()
       self.tic()
       self.login(owner_person.getUserId())
       self.checkInstanceUnallocation(public_person.getUserId(),
@@ -238,11 +235,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
           project.getReference())
 
 
-    with PinnedDateTime(self, DateTime('2025/02/23 01:01')):
-      self.login()
-      # update open sale order of project
-      self.portal.portal_alarms.update_open_order_simulation.activeSense()
-      self.tic()
+    with PinnedDateTime(self, DateTime('2025/03/23 01:01')):
       self.login(owner_person.getUserId())
       # Unallocate and destroy the instance the instances
       self.checkInstanceUnallocation(public_person.getUserId(),
@@ -266,63 +259,185 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       consumption_delivery_list = instance.getCausalityRelatedValueList(portal_type='Consumption Delivery')
       self.assertEqual(len(consumption_delivery_list), 3)
 
+
     self.login()
     # Ensure no unexpected object has been created
-    # 4 accounting transaction / line
+    # 13 accounting transaction / line
     # 3 allocation supply / line / cell
     # 1 compute node
-    # 2 consumption delivery
-    # 2 consumption document
-    # 2 consumption supply
+    # 6 consumption delivery
     # 2 credential request
     # 3 event
     # 2 instance tree
     # 9 open sale order / line
     # 5 (can reduce to 2) assignment
-    # 65 simulation mvt
-    # 6 packing list / line
+    # 90 simulation mvt
+    # 14 packing list / line
     # 4 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 2 software instance
     # 1 software product
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 113)
-
+    self.assertRelatedObjectCount(project, 162)
     self.checkERP5StateBeforeExit()
 
 
+  def test_instance_consumption_scenario_with_date(self):
+    with PinnedDateTime(self, DateTime('2024/12/17')):
+      project, currency, owner_person, _, public_server, public_instance_type, \
+        public_server_software, _,  \
+        _, _, _ = self.bootstrapConsumptionScenarioTest()
+
+      self.logout()
+
+      # join as the another visitor and request software instance on public
+      # compute_node
+      public_reference = 'public-%s' % self.generateNewId()
+      public_person = self.joinSlapOS(self.web_site, public_reference)
+
+      self.login()
+
+    with PinnedDateTime(self, DateTime('2025/01/17 01:01')):
+      # Simulate access from compute_node, to open the capacity scope
+      self.login()
+      self.simulateSlapgridSR(public_server)
+
+      public_instance_title = 'Public title %s' % self.generateNewId()
+      self.checkInstanceAllocationWithDeposit(public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type,
+          public_server, project.getReference(),
+          9.0, currency)
+      instance_tree = self.portal.portal_catalog.getResultValue(
+        title=public_instance_title, portal_type='Instance Tree',
+        default_destination_section_uid=public_person.getUid())
+      software_instance = instance_tree.getSuccessorValue()
+      consumption_delivery = software_instance.getCausalityRelatedValue(portal_type='Consumption Delivery')
+      self.assertTrue(consumption_delivery is not None)
 
 
-  def test_software_instance_validate(self):
-    instance = self.portal.software_instance_module.newContent(portal_type='Software Instance')
-    self.tic()
-    self._test_alarm_not_visited(
-      self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
-      instance,
-      'Base_generateConsumptionDeliveryForValidatedInstance'
-    )
+    with PinnedDateTime(self, DateTime('2025/05/23 01:00')):
+      self.login()
+      # update open sale order of project
+      self.portal.portal_alarms.update_open_order_simulation.activeSense()
+      self.tic()
+      self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance.activeSense()
+      self.tic()
+      consumption_delivery_list = software_instance.getCausalityRelatedValueList(portal_type='Consumption Delivery')
+      self.assertEqual(len(consumption_delivery_list), 5)
 
-    self.portal.portal_workflow._jumpToStateFor(instance, 'validated')
-    instance.reindexObject()
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_generateConsumptionDeliveryForInvalidatedInstance'):
+      with PinnedDateTime(self, DateTime('2025/07/23 01:00')):
+        self.login(owner_person.getUserId())
+        self.checkInstanceUnallocation(
+          public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type, public_server,
+          project.getReference()
+        )
 
-    self._test_alarm(
-      self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
-      instance,
-      'Base_generateConsumptionDeliveryForValidatedInstance'
-    )
+    with PinnedDateTime(self, DateTime('2025/09/23 01:00')):
+      self.login()
+      self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance.activeSense()
+      self.tic()
+      #here we need to check consumption deliveries datas
+      consumption_delivery_list = software_instance.getCausalityRelatedValueList(portal_type='Consumption Delivery')
+      self.assertEqual(len(consumption_delivery_list), 9)
+      # and uninstall some software on them
+      self.logout()
+      self.login(owner_person.getUserId())
+      self.supplySoftware(public_server,
+                          public_server_software,
+                          state='destroyed')
+
+      self.logout()
+      # Uninstall from compute_node
+      self.login()
+      self.tic()
+
+    self.login()
+    # Ensure no unexpected object has been created
+    # 21 accounting transaction / line
+    # 3 allocation supply / line / cell
+    # 1 compute node
+    # 9 consumption delivery
+    # 2 credential request
+    # 3 event
+    # 2 instance tree
+    # 6 open sale order / line
+    # 5 (can reduce to 2) assignment
+    # 121 simulation mvt
+    # 19 packing list / line
+    # 4 sale supply / line
+    # 2 sale trade condition
+    # 1 software installation
+    # 2 software instance
+    # 1 software product
+    # 4 subscription requests
+    self.assertRelatedObjectCount(project, 202)
+    self.checkERP5StateBeforeExit()
+
+  def test_validate_software_instance(self):
+    with PinnedDateTime(self,  DateTime('2024/12/17')):
+      instance = self.portal.software_instance_module.newContent(portal_type='Software Instance')
+      self._test_alarm_not_visited(
+        self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
+        instance,
+        'Base_generateConsumptionDeliveryForValidatedInstance'
+      )
+
+    with PinnedDateTime(self,  DateTime('2024/12/17 01:00')):
+      with TemporaryAlarmScript(self.portal, 'Base_generateConsumptionDeliveryForValidatedInstance'):
+        instance.validate()
+        self.tic()
+
+    self.assertEqual(instance.getExpirationDate(), None)
+
+    with PinnedDateTime(self,  DateTime('2024/12/17 01:01')):
+      self._test_alarm(
+        self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
+        instance,
+        'Base_generateConsumptionDeliveryForValidatedInstance'
+      )
+      instance.edit()
+      self.tic()
 
 
-  def test_software_instance_invalidate(self):
-    now = DateTime()
+    with PinnedDateTime(self,  DateTime('2024/12/17 02:01')):
+      self._test_alarm(
+        self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
+        instance,
+        'Base_generateConsumptionDeliveryForValidatedInstance'
+      )
+      instance.edit()
+      self.tic()
 
-    with PinnedDateTime(self, now):
+    self.assertEqual(instance.getExpirationDate(), None)
+    with PinnedDateTime(self,  DateTime('2024/12/17 03:01')):
+      instance.setExpirationDate(DateTime() + 1)
+      self._test_alarm_not_visited(
+        self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
+        instance,
+        'Base_generateConsumptionDeliveryForValidatedInstance'
+      )
+    self.assertNotEqual(instance.getExpirationDate(), None)
+
+    with PinnedDateTime(self,  DateTime('2024/12/17 03:01') + 1):
+      self._test_alarm(
+        self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
+        instance,
+        'Base_generateConsumptionDeliveryForValidatedInstance'
+      )
+
+  def test_invalidated_software_instance(self):
+
+    with PinnedDateTime(self,  DateTime('2024/12/17')):
       instance = self.portal.software_instance_module.newContent(portal_type='Software Instance')
       self.portal.portal_workflow._jumpToStateFor(instance, 'invalidated')
       self.tic()
 
-    with PinnedDateTime(self, addToDate(now, minute=1)):
+    with PinnedDateTime(self, DateTime('2024/12/17 01:00')):
       self._test_alarm(
         self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance,
         instance,
@@ -332,12 +447,29 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       instance.edit()
       self.tic()
 
-    with PinnedDateTime(self, addToDate(now, minute=2)):
+    self.assertEqual(instance.getExpirationDate(), None)
+
+    with PinnedDateTime(self, DateTime('2024/12/17 02:00')):
+      self._test_alarm(
+        self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance,
+        instance,
+        'Base_generateConsumptionDeliveryForInvalidatedInstance'
+      )
+      instance.edit(expiration_date = DateTime())
+      self.tic()
+
+    with PinnedDateTime(self, DateTime('2024/12/17 03:00')):
       self._test_alarm_not_visited(
         self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance,
         instance,
         'Base_generateConsumptionDeliveryForInvalidatedInstance'
       )
+      instance.edit()
+      self.tic()
 
-
-
+    with PinnedDateTime(self, DateTime('2024/12/17 04:00')):
+      self._test_alarm_not_visited(
+        self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance,
+        instance,
+        'Base_generateConsumptionDeliveryForInvalidatedInstance'
+      )

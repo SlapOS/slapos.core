@@ -38,7 +38,7 @@ project_stop_date = open_sale_order.getStopDate()
 project_start_date = open_sale_order.getStartDate()
 # we set a valide stop date, but it's already expired
 if (project_stop_date > project_start_date) and project_stop_date < now:
-  return
+  return now
 
 consumption_service = instance.Instance_getConsumptionService()
 
@@ -54,12 +54,12 @@ if line.getVariationCategoryList():
 else:
   hosting_subscription = line.getAggregateValue(portal_type='Hosting Subscription')
 
-stop_date = project_start_date
+stop_date = context.getCreationDate()
 
 
 price = None
 
-while stop_date < now:
+while stop_date <= now:
   start_date = stop_date
   stop_date = hosting_subscription.getNextPeriodicalDate(stop_date)
   query_list = default_query_list[:]
@@ -145,3 +145,5 @@ while stop_date < now:
   consumption_delivery.stop()
   consumption_delivery.deliver()
   consumption_delivery.startBuilding()
+
+return stop_date

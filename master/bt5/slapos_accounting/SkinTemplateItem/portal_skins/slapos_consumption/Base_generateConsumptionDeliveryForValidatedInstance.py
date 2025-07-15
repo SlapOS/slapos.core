@@ -7,4 +7,5 @@ instance = context
 if instance.getValidationState() != 'validated':
   return
 
-instance.Base_generateConsumptionDeliveryForInstance()
+expiration_date = instance.Base_generateConsumptionDeliveryForInstance()
+instance.setExpirationDate(expiration_date)

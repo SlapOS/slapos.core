@@ -6,10 +6,7 @@
 ##############################################################################
 
 from erp5.component.test.testSlapOSERP5VirtualMasterScenario import TestSlapOSVirtualMasterScenarioMixin
-from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
-from erp5.component.module.DateUtils import addToDate
-
-
+from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime, TemporaryAlarmScript
 from DateTime import DateTime
 
 class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMixin):
@@ -165,8 +162,6 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     return sm.getDeliveryValue()
 
   def test_instance_consumption_scenario(self):
-    self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance.setEffectiveDate(None)
-    self.tic()
     with PinnedDateTime(self, DateTime('2024/12/17')):
       project, currency, owner_person, _, public_server, public_instance_type, \
         public_server_software, _,  \
@@ -293,41 +288,41 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
 
 
   def test_software_instance_validate(self):
-    instance = self.portal.software_instance_module.newContent(portal_type='Software Instance')
-    self.tic()
-    self._test_alarm_not_visited(
-      self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
-      instance,
-      'Base_generateConsumptionDeliveryForValidatedInstance'
-    )
+    with PinnedDateTime(self,  DateTime('2024/12/17')):
+      instance = self.portal.software_instance_module.newContent(portal_type='Software Instance')
+      self._test_alarm_not_visited(
+        self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
+        instance,
+        'Base_generateConsumptionDeliveryForValidatedInstance'
+      )
 
-    self.portal.portal_workflow._jumpToStateFor(instance, 'validated')
-    instance.reindexObject()
-    self.tic()
+    with PinnedDateTime(self,  DateTime('2024/12/17 01:00')):
+      with TemporaryAlarmScript(self.portal, 'Base_generateConsumptionDeliveryForValidatedInstance'):
+        instance.validate()
+        self.tic()
 
-    self._test_alarm(
-      self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
-      instance,
-      'Base_generateConsumptionDeliveryForValidatedInstance'
-    )
-    """
-    # ideally, if it's already visited, we should not visite again
-    self._test_alarm_not_visited(
-      self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
-      instance,
-      'Base_generateConsumptionDeliveryForValidatedInstance'
-    )
-    """
+    with PinnedDateTime(self,  DateTime('2024/12/17 01:01')):
+      self._test_alarm(
+        self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
+        instance,
+        'Base_generateConsumptionDeliveryForValidatedInstance'
+      )
+
+    with PinnedDateTime(self,  DateTime('2024/12/17 01:02')):
+      self._test_alarm_not_visited(
+        self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance,
+        instance,
+        'Base_generateConsumptionDeliveryForValidatedInstance'
+      )
 
   def test_software_instance_invalidate(self):
-    now = DateTime()
 
-    with PinnedDateTime(self, now):
+    with PinnedDateTime(self,  DateTime('2024/12/17')):
       instance = self.portal.software_instance_module.newContent(portal_type='Software Instance')
       self.portal.portal_workflow._jumpToStateFor(instance, 'invalidated')
       self.tic()
 
-    with PinnedDateTime(self, addToDate(now, minute=1)):
+    with PinnedDateTime(self, DateTime('2024/12/17 01:00')):
       self._test_alarm(
         self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance,
         instance,
@@ -337,7 +332,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       instance.edit()
       self.tic()
 
-    with PinnedDateTime(self, addToDate(now, minute=2)):
+    with PinnedDateTime(self, DateTime('2024/12/17 02:00')):
       self._test_alarm_not_visited(
         self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance,
         instance,

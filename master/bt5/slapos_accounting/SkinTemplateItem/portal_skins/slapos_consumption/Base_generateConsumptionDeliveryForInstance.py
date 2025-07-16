@@ -145,3 +145,5 @@ while stop_date <= now:
   consumption_delivery.stop()
   consumption_delivery.deliver()
   consumption_delivery.startBuilding()
+
+context.setExpirationDate(stop_date)

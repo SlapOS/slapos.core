@@ -181,7 +181,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
 
       self.login()
 
-    with PinnedDateTime(self, DateTime('2024/12/17 01:01')):
+    with PinnedDateTime(self, DateTime('2025/01/17 01:01')):
       # Simulate access from compute_node, to open the capacity scope
       self.login()
       self.simulateSlapgridSR(public_server)
@@ -200,7 +200,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       self.assertTrue(consumption_delivery is not None)
 
 
-    with PinnedDateTime(self, DateTime('2024/12/17 01:02')):
+    with PinnedDateTime(self, DateTime('2025/01/17 01:02')):
       public_instance_title2 = 'Public title %s 2' % self.generateNewId()
       self.checkInstanceAllocationWithDeposit(public_person.getUserId(),
           public_reference, public_instance_title2,
@@ -226,7 +226,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     self.assertEqual(invoice_line.getQuantity(), 2)
     self.assertEqual(invoice_line.getPrice(), 5)
 
-    with PinnedDateTime(self, DateTime('2025/02/23 01:00')):
+    with PinnedDateTime(self, DateTime('2025/03/23 01:00')):
       self.login()
       # update open sale order of project
       self.portal.portal_alarms.update_open_order_simulation.activeSense()
@@ -240,7 +240,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
           project.getReference())
 
 
-    with PinnedDateTime(self, DateTime('2025/02/23 01:01')):
+    with PinnedDateTime(self, DateTime('2025/03/23 01:01')):
       self.login(owner_person.getUserId())
       # Unallocate and destroy the instance the instances
       self.checkInstanceUnallocation(public_person.getUserId(),
@@ -267,7 +267,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
 
     self.login()
     # Ensure no unexpected object has been created
-    # 11 accounting transaction / line
+    # 13 accounting transaction / line
     # 3 allocation supply / line / cell
     # 1 compute node
     # 6 consumption delivery
@@ -276,15 +276,16 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     # 2 instance tree
     # 9 open sale order / line
     # 5 (can reduce to 2) assignment
-    # 81 simulation mvt
-    # 12 packing list / line
+    # 90 simulation mvt
+    # 14 packing list / line
     # 4 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 2 software instance
     # 1 software product
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 149)
+    self.assertRelatedObjectCount(project, 162)
+
 
     self.checkERP5StateBeforeExit()
 

@@ -54,12 +54,12 @@ if line.getVariationCategoryList():
 else:
   hosting_subscription = line.getAggregateValue(portal_type='Hosting Subscription')
 
-stop_date = project_start_date
+stop_date = context.getCreationDate()
 
 
 price = None
 
-while stop_date < now:
+while stop_date <= now:
   start_date = stop_date
   stop_date = hosting_subscription.getNextPeriodicalDate(stop_date)
   query_list = default_query_list[:]

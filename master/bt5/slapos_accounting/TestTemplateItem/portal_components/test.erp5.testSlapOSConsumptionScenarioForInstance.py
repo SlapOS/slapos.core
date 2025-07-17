@@ -367,7 +367,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       self._test_alarm_not_visited(
         self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance,
         instance,
-        'Base_generateConsumptionDeliveryForInstance'
+        'Base_generateConsumptionDeliveryForInvalidatedInstance'
       )
       instance.edit()
       self.tic()
@@ -376,5 +376,5 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       self._test_alarm_not_visited(
         self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance,
         instance,
-        'Base_generateConsumptionDeliveryForInstance'
+        'Base_generateConsumptionDeliveryForInvalidatedInstance'
       )

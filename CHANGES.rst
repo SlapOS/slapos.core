@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.18.0 (2025-07-18)
+-------------------
+ * cli/request: Indent json-in-xml parameters
+ * promise: Introduce ``GenericPromise.allowBang()``
+
 1.17.1 (2025-06-26)
 -------------------
  * cli/register: fix save_former_config

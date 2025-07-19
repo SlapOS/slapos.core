@@ -1,0 +1,14 @@
+<type_roles>
+  <role id='Auditor'>
+   <property id='title'>Accountant</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/accounting*</multi_property>
+   <multi_property id='base_category'>function</multi_property>
+  </role>
+  <role id='Auditor'>
+   <property id='title'>Sale</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/sale*</multi_property>
+   <multi_property id='base_category'>function</multi_property>
+  </role>
+</type_roles>

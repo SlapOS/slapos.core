@@ -751,7 +751,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <unicode>zope</unicode> </value>
+                      <value> <string>ERP5TypeTestCase</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -765,7 +765,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1020.19478.47544.40584</string> </value>
+                      <value> <string>1026.19906.14153.56593</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -785,7 +785,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1730148383.59</float>
+                              <float>1753248596.05</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

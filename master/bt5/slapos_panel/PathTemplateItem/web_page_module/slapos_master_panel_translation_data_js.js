@@ -91,6 +91,8 @@
       "Reports": "Reports",
       "Request": "Request",
       "Reset": "Reset",
+      "Rotate Left": "Rotate Left",
+      "Rotate Right": "Rotate Right",
       "Save": "Save",
       "Search": "Search",
       "Search Expression": "Search Expression",
@@ -119,6 +121,8 @@
       "You are offline": "You are offline",
       "You are offline.": "You are offline.",
       "You do not have the permissions to edit the object.": "You do not have the permissions to edit the object.",
+      "Zoom in": "Zoom in",
+      "Zoom out": "Zoom out",
       "ascending": "ascending",
       "descending": "descending",
       "sample of": "sample of"

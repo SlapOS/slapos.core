@@ -47,6 +47,7 @@ if [[ "$os_VENDOR" =~ (Debian) && "$os_RELEASE" > 11 ]] || [[ "$os_VENDOR" =~ (U
   export PIP_BREAK_SYSTEM_PACKAGES=1
 fi
 
+is_package_installed curl || install_package curl
 is_package_installed unzip || install_package unzip
 is_package_installed openssl || install_package openssl
 

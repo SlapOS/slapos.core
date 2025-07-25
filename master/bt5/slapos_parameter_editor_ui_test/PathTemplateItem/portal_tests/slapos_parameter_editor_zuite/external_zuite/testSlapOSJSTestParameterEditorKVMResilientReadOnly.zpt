@@ -14,7 +14,7 @@
     </thead>
     <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
                        software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/raw/%s/software/kvm/software.cfg' % context.ERP5Site_getSoftwareReleaseTagVersion()">
-                             
+
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init_readonly" />
       <tr>
         <td>type</td>
@@ -27,7 +27,7 @@
         <td tal:content="python: 'kvm-resilient'"></td>
       </tr>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
-      <tal:block define="software_type string:Resilient">
+      <tal:block define="software_type string:Resilient VM">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_custom" />
       </tal:block>
 

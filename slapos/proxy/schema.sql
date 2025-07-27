@@ -1,4 +1,4 @@
---version:16
+--version:17
 CREATE TABLE IF NOT EXISTS local_software_release_root%(version)s (
   path VARCHAR(255)
 );
@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS partition%(version)s (
   slave_instance_list TEXT,
   software_type VARCHAR(255),
   partition_reference VARCHAR(255), -- name of the instance
-  requested_by VARCHAR(255), -- only used for debugging,
-                             -- slapproxy does not support proper scope
+  requested_by VARCHAR(255),
+  root_partition VARCHAR(255), -- root partition of the instance tree
   requested_state VARCHAR(255) NOT NULL DEFAULT 'started',
   timestamp REAL,
   CONSTRAINT uniq PRIMARY KEY (reference, computer_reference)

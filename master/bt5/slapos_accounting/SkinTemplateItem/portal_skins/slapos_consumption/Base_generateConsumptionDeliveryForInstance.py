@@ -33,6 +33,9 @@ project = instance.getFollowUpValue(portal_type='Project')
 open_sale_order_line = project.getAggregateRelatedValue(portal_type='Open Sale Order Line')
 if not open_sale_order_line:
   return
+
+if not open_sale_order_line.getPrice():
+  return now
 open_sale_order = open_sale_order_line.getParentValue()
 currency_value = open_sale_order.getPriceCurrencyValue()
 

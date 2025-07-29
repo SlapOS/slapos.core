@@ -118,6 +118,7 @@ Support Request | suspend_slapos_support_request
 Upgrade Decision Module | slapos_panel_view
 Upgrade Decision | add_slapos_event
 Upgrade Decision | slapos_accept
+Upgrade Decision | slapos_cancel
 Upgrade Decision | slapos_panel_view
 Upgrade Decision | slapos_reject
 Web Message | slapos_panel_view

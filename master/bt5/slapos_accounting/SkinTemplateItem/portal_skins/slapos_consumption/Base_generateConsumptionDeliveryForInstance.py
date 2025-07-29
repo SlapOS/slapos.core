@@ -27,12 +27,13 @@ default_query_list = [
 
 # check accounting period of project
 project = instance.getFollowUpValue(portal_type='Project')
-
+if not project:
+  return now
 
 # XX do we have multi open sale order line ??
 open_sale_order_line = project.getAggregateRelatedValue(portal_type='Open Sale Order Line')
 if not open_sale_order_line:
-  return
+  return now
 
 if not open_sale_order_line.getPrice():
   return now

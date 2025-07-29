@@ -144,75 +144,50 @@ for movement_entry in six.itervalues(movement_dict):
   tmp_sale_order = module.newContent(
     portal_type='Sale Order',
     temp_object=True,
+    destination_value=open_sale_order_movement.getDestination(),
     specialise=open_sale_order_movement.getSpecialise(),
     source_project_value=open_sale_order_movement.getSourceProjectValue(),
-    #destination_project_value=open_sale_order_movement.getDestinationProjectValue(),
+    destination_project_value=open_sale_order_movement.getDestinationProjectValue(),
     ledger_value=open_sale_order_movement.getLedgerValue(),
     # calculate price based on Open Order start date.
     start_date=open_sale_order_movement.getStartDate(),
-    price_currency_value=open_sale_order_movement.getPriceCurrencyValue(),
-    destination_value=destination_value,
+    source_value=open_sale_order_movement.getSourceValue(),
+    source_section_value=open_sale_order_movement.getSourceSectionValue(),
+    source_decision_value=open_sale_order_movement.getSourceDecisionValue(),
+    destination_section_value=open_sale_order_movement.getDestinationSectionValue(),
+    destination_decision_value=open_sale_order_movement.getDestinationDecisionValue(),
+    price_currency_value=open_sale_order_movement.getPriceCurrencyValue()
   )
   tmp_sale_order.SaleOrder_applySaleTradeCondition(batch_mode=1, force=1)
 
   if tmp_sale_order.getSpecialise(None) is None:
     raise AssertionError('Can not find a trade condition to generate the Subscription Request')
 
-  specialise_value = tmp_sale_order.getSpecialiseValue()
-
-  # Time to create the PL
-  consumption_delivery = portal.consumption_delivery_module.newContent(
-    portal_type="Consumption Delivery",
-    title=tioxml_dict['title'],
-
-    source_value=open_sale_order_movement.getSourceValue(),
-    source_section_value=open_sale_order_movement.getSourceSectionValue(),
-    source_decision_value=open_sale_order_movement.getSourceDecisionValue(),
-    destination_value=open_sale_order_movement.getDestinationValue(),
-    destination_section_value=open_sale_order_movement.getDestinationSectionValue(),
-    destination_decision_value=open_sale_order_movement.getDestinationDecisionValue(),
-
-    specialise_value=specialise_value,
-    source_project_value=tmp_sale_order.getSourceProjectValue(),
-    destination_project_value=tmp_sale_order.getDestinationProjectValue(),
-    ledger_value=tmp_sale_order.getLedgerValue(),
-    causality_value=document,
-    start_date=start_date,
-    stop_date=stop_date,
-    price_currency_value=tmp_sale_order.getPriceCurrencyValue(),
-  )
-
   for movement in movement_entry:
     resource_value = movement['resource_value']
-    prop_dict = dict(
+    start_date = movement['open_sale_order_movement'].getEffectiveDate()
+    # Create a temporary line to calculate price based on the sale open order date
+    tmp_sale_order.newContent(
+      temp_object=True,
+      portal_type="Sale Order Line",
       title=movement['title'],
       quantity=movement['quantity'],
       aggregate_value=movement['aggregate_value'],
       resource_value=resource_value,
       quantity_unit=resource_value.getQuantityUnit(),
       base_contribution_list=resource_value.getBaseContributionList(),
-      use_list=resource_value.getUseList()
-    )
-    start_date = movement['open_sale_order_movement'].getEffectiveDate()
-    tmp_sale_order.edit(start_date=start_date, stop_date=start_date)
-    # Create a temporary line to calculate price based on the sale open order date
-    price_line = tmp_sale_order.newContent(
-      temp_object=True,
-      portal_type="Sale Order Line",
-      # Ensure it respect the data properly to calculate the pricing
-      **prop_dict)
-    line = consumption_delivery.newContent(
-      portal_type="Consumption Delivery Line",
-      **prop_dict
-    )
-    line.setPrice(price_line.getPrice(None))
-  consumption_delivery.Delivery_fixBaseContributionTaxableRate()
-  consumption_delivery.Base_checkConsistency()
-  consumption_delivery.confirm(comment="Created from %s" % document.getRelativeUrl())
-  consumption_delivery.start()
-  consumption_delivery.stop()
-  consumption_delivery.deliver()
-  consumption_delivery.startBuilding()
+      use_list=resource_value.getUseList(),
+      start_date=start_date,
+      stop_date=start_date)
+
+
+  # Time to create the PL
+  consumption_delivery = document.Base_newConsumptionDelivery(
+    title=tioxml_dict['title'],
+    order_movement=tmp_sale_order,
+    start_date=start_date,
+    stop_date=stop_date,
+  )
 
   result.append(consumption_delivery.getRelativeUrl())
 

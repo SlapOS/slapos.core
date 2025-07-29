@@ -204,6 +204,134 @@ class TestSlapOSConsumptionScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
 
 class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
 
+  def test_project_consumption_scenario(self):
+    with PinnedDateTime(self, DateTime('2024/12/17')):
+      project, _, _, project_owner_person, _, _, \
+        _, _, consumption_service, \
+        _ = self.bootstrapConsumptionScenarioTest()
+
+      self.login()
+      self.tic()
+
+    with PinnedDateTime(self, DateTime('2024/12/18')):
+      # This alarms is called every day, so it is ok to invoke this here.
+      # and not for via interaction workflows
+      self.stepCallSlaposAccountingCreateHostingSubscriptionSimulationAlarm()
+      self.tic()
+
+    # Project do not load XML Reports but build specific consumption via
+    # custom/specific implementation (or manually perhaps).
+    with PinnedDateTime(self, DateTime('2025/01/18  01:00')):
+
+      # Search open order movement
+      open_sale_order_movement_list = self.portal.portal_catalog(
+        portal_type=['Open Sale Order Line', 'Open Sale Order Cell'],
+        aggregate__uid=project.getUid(), validation_state='validated',
+        limit=1)
+
+      self.assertEqual(len(open_sale_order_movement_list), 1)
+      open_sale_order_movement = open_sale_order_movement_list[0]
+
+      # Create temporary sale order to build consumption delivery
+      tmp_sale_order = self.portal.portal_trash.newContent(
+        portal_type='Sale Order',
+        temp_object=True,
+        destination_value=open_sale_order_movement.getDestination(),
+        specialise=open_sale_order_movement.getSpecialise(),
+        # XXX Resource_createSubscriptionRequest do not set source_project on the
+        # subscription request, neither the open_sale_order so, we cannot fetch
+        # this information from the open_sale_order like on other locations.
+        source_project_value=project,
+        #source_project_value=open_sale_order_movement.getSourceProjectValue(),
+        #destination_project_value=open_sale_order_movement.getDestinationProjectValue(),
+        ledger_value=open_sale_order_movement.getLedgerValue(),
+
+        # calculate price based on Open Order start date.
+        start_date=open_sale_order_movement.getStartDate(),
+        source_value=open_sale_order_movement.getSourceValue(),
+        source_section_value=open_sale_order_movement.getSourceSectionValue(),
+        source_decision_value=open_sale_order_movement.getSourceDecisionValue(),
+        destination_section_value=open_sale_order_movement.getDestinationSectionValue(),
+        destination_decision_value=open_sale_order_movement.getDestinationDecisionValue(),
+        price_currency_value=open_sale_order_movement.getPriceCurrencyValue())
+
+      tmp_sale_order.SaleOrder_applySaleTradeCondition(batch_mode=1, force=1)
+      self.assertNotEqual(None, tmp_sale_order.getSpecialise(None))
+
+      start_date = open_sale_order_movement.getEffectiveDate()
+      tmp_sale_order.newContent(
+        temp_object=True,
+        portal_type="Sale Order Line",
+        title="Test Line",
+        quantity=1,
+        aggregate_value=project,
+        resource_value=consumption_service,
+        quantity_unit=consumption_service.getQuantityUnit(),
+        base_contribution_list=consumption_service.getBaseContributionList(),
+        use_list=consumption_service.getUseList(),
+        start_date=start_date,
+        stop_date=start_date)
+
+      # Time to create the PL
+      delivery = project.Base_newConsumptionDelivery(
+        title="%s consumption" % project.getTitle(),
+        order_movement=tmp_sale_order,
+        start_date=DateTime(),
+        stop_date=DateTime(),
+      )
+      self.assertEqual(delivery.getTotalPrice(), 7)
+      self.tic()
+
+    # Check stock for consumption service
+    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
+      'group_by_section': False,
+      'group_by_node': True,
+      'group_by_variation': True,
+      'resource_uid': consumption_service.getUid(),
+      'node_uid': project_owner_person.getUid(),
+      'project_uid': None,
+      'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
+    })
+    self.assertEqual(len(inventory_list), 1)
+    self.assertEqual(inventory_list[0].total_quantity, 1)
+
+    # Recheck for computer owner if he has consumption invoices
+    receivable = self.portal.account_module.receivable
+    transaction_list = receivable.Account_getAccountingTransactionList(
+      mirror_section_uid=project_owner_person.getUid())
+
+    self.assertEqual(len(transaction_list),  4)
+    self.assertSameSet(
+      [round(x.total_price, 2) for x in transaction_list],
+      [58.8, 118.8, 141.0, -141.0],
+      [round(x.total_price, 2) for x in transaction_list],
+    )
+
+    self.login()
+
+    # Ensure no unexpected object has been created
+    # 3 accounting transaction / line
+    # 3 allocation supply / line / cell
+    # 1 compute node
+    # 2 consumption delivery
+    # 2 consumption supply
+    # 1 credential request
+    # 1 event
+    # 3 open sale order / line
+    # 4 assignment
+    # 16 simulation mvt
+    # 2 packing list / line
+    # 4 sale supply / line
+    # 2 sale trade condition
+    # 1 software installation
+    # 1 software product
+    # 2 subscription requests
+    self.assertRelatedObjectCount(project, 43)
+
+    self.checkERP5StateBeforeExit()
+
+
+
   def test_compute_node_consumption_scenario(self):
     with PinnedDateTime(self, DateTime('2024/12/17')):
       project, _, owner_person, project_owner_person, public_server, _, \

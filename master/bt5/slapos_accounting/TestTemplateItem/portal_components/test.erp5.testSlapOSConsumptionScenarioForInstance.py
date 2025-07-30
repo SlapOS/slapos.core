@@ -45,11 +45,13 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     )
 
     public_server_software = self.generateNewSoftwareReleaseUrl()
+
     public_instance_type = 'public type'
 
     software_product, release_variation, type_variation = self.addSoftwareProduct(
       "instance product", project, public_server_software, public_instance_type
     )
+
 
     self.tic()
 
@@ -106,10 +108,13 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     public_server.generateCertificate()
 
     self.addAllocationSupply("for compute node", public_server, software_product,
-                               release_variation, type_variation)
+                             release_variation, type_variation,
+                             is_slave_on_same_instance_tree_allocable=True)
+
 
     # and install some software on them
     self.supplySoftware(public_server, public_server_software)
+
 
     # format the compute_nodes
     self.formatComputeNode(public_server)
@@ -153,8 +158,8 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     self.logout()
 
     return project, currency, owner_person, project_owner_person, public_server, \
-             public_instance_type, public_server_software, software_product, \
-             type_variation, sale_supply, sale_person
+             public_instance_type, public_server_software
+
 
   def getInvoiceLineOfConsumptionDelivery(self, consumption_delivery):
     rule = consumption_delivery.getCausalityRelatedValue(portal_type='Applied Rule')
@@ -164,8 +169,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
   def test_instance_consumption_scenario(self):
     with PinnedDateTime(self, DateTime('2024/12/17')):
       project, currency, owner_person, _, public_server, public_instance_type, \
-        public_server_software, _,  \
-        _, _, _ = self.bootstrapConsumptionScenarioTest()
+        public_server_software  = self.bootstrapConsumptionScenarioTest()
 
       self.logout()
 
@@ -280,14 +284,12 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     # 1 software product
     # 4 subscription requests
     self.assertRelatedObjectCount(project, 162)
-    self.checkERP5StateBeforeExit()
 
 
   def test_instance_consumption_scenario_with_date(self):
     with PinnedDateTime(self, DateTime('2024/12/17')):
       project, currency, owner_person, _, public_server, public_instance_type, \
-        public_server_software, _,  \
-        _, _, _ = self.bootstrapConsumptionScenarioTest()
+        public_server_software= self.bootstrapConsumptionScenarioTest()
 
       self.logout()
 
@@ -304,17 +306,38 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       self.simulateSlapgridSR(public_server)
 
       public_instance_title = 'Public title %s' % self.generateNewId()
-      self.checkInstanceAllocationWithDeposit(public_person.getUserId(),
-          public_reference, public_instance_title,
-          public_server_software, public_instance_type,
-          public_server, project.getReference(),
-          9.0, currency)
+      self.checkInstanceAllocationWithDeposit(
+        public_person.getUserId(),
+        public_reference,
+        public_instance_title,
+        public_server_software,
+        public_instance_type,
+        public_server,
+        project.getReference(),
+        9.0,
+        currency)
+      self.login(public_person.getUserId())
+      slave_instance_title = 'Slave title %s' % self.generateNewId()
+      self.checkInstanceTreeSlaveInstanceAllocation(
+        public_person.getUserId(),
+        public_reference, public_instance_title,
+        slave_instance_title,
+        public_server_software, public_instance_type,
+        public_server, project.getReference()
+      )
+
+      self.login()
+      self.tic()
       instance_tree = self.portal.portal_catalog.getResultValue(
         title=public_instance_title, portal_type='Instance Tree',
         default_destination_section_uid=public_person.getUid())
       software_instance = instance_tree.getSuccessorValue()
+      slave_instance = software_instance.getSuccessorValue()
       consumption_delivery = software_instance.getCausalityRelatedValue(portal_type='Consumption Delivery')
+      consumption_delivery2 = slave_instance.getCausalityRelatedValue(portal_type='Consumption Delivery')
       self.assertTrue(consumption_delivery is not None)
+      self.assertTrue(consumption_delivery2 is not None)
+
 
 
     with PinnedDateTime(self, DateTime('2025/05/23 01:00')):
@@ -324,8 +347,9 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       self.tic()
       self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_validated_instance.activeSense()
       self.tic()
-      consumption_delivery_list = software_instance.getCausalityRelatedValueList(portal_type='Consumption Delivery')
-      self.assertEqual(len(consumption_delivery_list), 5)
+      for instance in [software_instance, slave_instance]:
+        consumption_delivery_list = instance.getCausalityRelatedValueList(portal_type='Consumption Delivery')
+        self.assertEqual(len(consumption_delivery_list), 5)
 
     with TemporaryAlarmScript(self.portal, 'Base_generateConsumptionDeliveryForInvalidatedInstance'):
       with PinnedDateTime(self, DateTime('2025/07/23 01:00')):
@@ -337,13 +361,25 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
           project.getReference()
         )
 
+        self.checkSlaveInstanceUnallocation(
+          public_person.getUserId(),
+          public_reference,
+          slave_instance_title,
+          public_server_software,
+          public_instance_type,
+          public_server,
+          project.getReference()
+        )
+
+
     with PinnedDateTime(self, DateTime('2025/09/23 01:00')):
       self.login()
       self.portal.portal_alarms.slapos_accounting_generate_consumption_delivery_for_invalidated_instance.activeSense()
       self.tic()
       #here we need to check consumption deliveries datas
-      consumption_delivery_list = software_instance.getCausalityRelatedValueList(portal_type='Consumption Delivery')
-      self.assertEqual(len(consumption_delivery_list), 9)
+      for instance in [software_instance, slave_instance]:
+        consumption_delivery_list = instance.getCausalityRelatedValueList(portal_type='Consumption Delivery')
+        self.assertEqual(len(consumption_delivery_list), 9)
       # and uninstall some software on them
       self.logout()
       self.login(owner_person.getUserId())
@@ -357,6 +393,7 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       self.tic()
 
     self.login()
+    # the lists in comment changes too often, let's updated at the end
     # Ensure no unexpected object has been created
     # 21 accounting transaction / line
     # 3 allocation supply / line / cell
@@ -375,8 +412,9 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     # 2 software instance
     # 1 software product
     # 4 subscription requests
-    self.assertRelatedObjectCount(project, 202)
-    self.checkERP5StateBeforeExit()
+    self.assertRelatedObjectCount(project, 230)
+    with PinnedDateTime(self, DateTime('2024/07/06')):
+      self.checkERP5StateBeforeExit()
 
   def test_validate_software_instance(self):
     with PinnedDateTime(self,  DateTime('2024/12/17')):

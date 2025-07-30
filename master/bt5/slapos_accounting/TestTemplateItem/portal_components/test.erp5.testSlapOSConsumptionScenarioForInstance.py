@@ -166,9 +166,9 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
     sm = rule.objectValues(portal_type='Simulation Movement')[0].objectValues(portal_type='Applied Rule')[0].objectValues(porta_type='Simulation Movement')[0]
     return sm.getDeliveryValue()
 
-  def test_instance_consumption_scenario(self):
+  def test_instance_consumption_scenario_with_different_instance_tree(self):
     with PinnedDateTime(self, DateTime('2024/12/17')):
-      project, currency, owner_person, _, public_server, public_instance_type, \
+      project, currency, owner_person, project_owner_person, public_server, public_instance_type, \
         public_server_software  = self.bootstrapConsumptionScenarioTest()
 
       self.logout()
@@ -214,38 +214,36 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       consumption_delivery2 = software_instance2.getCausalityRelatedValue(portal_type='Consumption Delivery')
       self.assertTrue(consumption_delivery2 is not None)
 
+    self.tic()
+    # generate only one invoice line
     invoice_line = self.getInvoiceLineOfConsumptionDelivery(consumption_delivery)
 
     self.assertEqual(
       invoice_line,
       self.getInvoiceLineOfConsumptionDelivery(consumption_delivery2)
     )
+    invoice = invoice_line.getParentValue()
+    self.assertEqual(invoice.getSimulationState(), "confirmed")
+    self.assertEqual(invoice.getStartDate(), DateTime('2025/01/17'))
+    self.assertEqual(invoice.getStopDate(), DateTime('2025/02/17'))
+    self.assertEqual(invoice.getTotalPrice(), 62.4)
+
 
     self.assertEqual(invoice_line.getResource(), 'service_module/instance_consumption')
     self.assertEqual(invoice_line.getQuantity(), 2)
     self.assertEqual(invoice_line.getPrice(), 5)
-
-    with PinnedDateTime(self, DateTime('2025/03/23 01:00')):
-      self.login()
-      # update open sale order of project
-      self.portal.portal_alarms.update_open_order_simulation.activeSense()
-      self.tic()
-      self.portal.portal_alarms.slapos_stop_confirmed_aggregated_sale_invoice_transaction.activeSense()
-      self.tic()
-      self.login(owner_person.getUserId())
-      self.checkInstanceUnallocation(public_person.getUserId(),
-          public_reference, public_instance_title,
-          public_server_software, public_instance_type, public_server,
-          project.getReference())
+    self.logMessage(project_owner_person.getRelativeUrl())
+    amount_list = project_owner_person.Entity_getOutstandingAmountList(include_planned=True)
+    self.assertEqual(len(amount_list), 1)
+    amount = amount_list[0]
+    self.assertEqual(amount.total_price, 350.4)
 
 
-    with PinnedDateTime(self, DateTime('2025/03/23 01:01')):
-      self.login(owner_person.getUserId())
-      # Unallocate and destroy the instance the instances
-      self.checkInstanceUnallocation(public_person.getUserId(),
-          public_reference, public_instance_title2,
-          public_server_software, public_instance_type, public_server,
-          project.getReference())
+    payment_transaction = project_owner_person.Entity_createPaymentTransaction(amount_list)
+    self.assertAlmostEqual(payment_transaction.AccountingTransaction_getTotalCredit(), 350.4)
+    self.tic()
+
+    with PinnedDateTime(self, DateTime('2025/01/17 01:03')):
 
       # and uninstall some software on them
       self.logout()
@@ -258,35 +256,31 @@ class testSlapOSConsumptionScenarioForInstance(TestSlapOSVirtualMasterScenarioMi
       # Uninstall from compute_node
       self.login()
       self.tic()
-    # 3 months , so 3 consumption deliveries per instance
-    for instance in [software_instance, software_instance2]:
-      consumption_delivery_list = instance.getCausalityRelatedValueList(portal_type='Consumption Delivery')
-      self.assertEqual(len(consumption_delivery_list), 3)
+      # Ensure no unexpected object has been created
+      # 13 accounting transaction / line
+      # 3 allocation supply / line / cell
+      # 1 compute node
+      # 6 consumption delivery
+      # 2 credential request
+      # 3 event
+      # 2 instance tree
+      # 9 open sale order / line
+      # 5 (can reduce to 2) assignment
+      # 90 simulation mvt
+      # 14 packing list / line
+      # 4 sale supply / line
+      # 2 sale trade condition
+      # 1 software installation
+      # 2 software instance
+      # 1 software product
+      # 4 subscription requests
+      self.assertRelatedObjectCount(project, 89)
+
+    with PinnedDateTime(self, DateTime('2025/01/17 01:04')):
+      self.checkERP5StateBeforeExit()
 
 
-    self.login()
-    # Ensure no unexpected object has been created
-    # 13 accounting transaction / line
-    # 3 allocation supply / line / cell
-    # 1 compute node
-    # 6 consumption delivery
-    # 2 credential request
-    # 3 event
-    # 2 instance tree
-    # 9 open sale order / line
-    # 5 (can reduce to 2) assignment
-    # 90 simulation mvt
-    # 14 packing list / line
-    # 4 sale supply / line
-    # 2 sale trade condition
-    # 1 software installation
-    # 2 software instance
-    # 1 software product
-    # 4 subscription requests
-    self.assertRelatedObjectCount(project, 162)
-
-
-  def test_instance_consumption_scenario_with_date(self):
+  def test_instance_consumption_scenario_with_multi_instance_in_one_instance_tree(self):
     with PinnedDateTime(self, DateTime('2024/12/17')):
       project, currency, owner_person, _, public_server, public_instance_type, \
         public_server_software= self.bootstrapConsumptionScenarioTest()

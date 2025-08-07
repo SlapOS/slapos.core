@@ -170,8 +170,15 @@ def checkSoftware(slap, software_url):
       warning_execution_permission_match = warning_execution_permission_re.match(line)
       not_found_match = ldd_not_found_re.match(line)
       if resolved_so_match:
-        libraries[resolved_so_match.group(
-            'library_name')] = resolved_so_match.group('library_path')
+        library_name = resolved_so_match.group('library_name')
+        if os.path.basename(library_name) == library_name:
+            libraries[library_name] = resolved_so_match.group('library_path')
+        elif os.path.basename(library_name).split('.')[0] == 'ld-linux-x86-64':
+          pass
+        else:
+          raise RuntimeError(
+              'Unexpected full path {library_name} => {library_path} instead of library => path.'.format(
+                **locals()))
       elif ldd_already_loaded_match:
         # VDSO or ELF, ignore . See https://stackoverflow.com/a/35805410/7294664 for more about this
         pass

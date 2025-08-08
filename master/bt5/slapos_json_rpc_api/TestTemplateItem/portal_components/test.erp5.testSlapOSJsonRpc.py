@@ -25,7 +25,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, PinnedDateTime, PortalAlarmDisabled
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, PinnedDateTime
 from Products.ERP5Type.Utils import str2bytes, bytes2str
 from erp5.component.module.JsonUtils import loadJson
 
@@ -65,7 +65,7 @@ class TestSlapOSJsonRpcMixin(SlapOSTestCaseMixin):
 class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
   require_certificate = 1
   def test_ComputeNodeAccess_01_getFullComputerInformationInstanceList(self):
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       self.compute_node, _ = self.addComputeNodeAndPartition(project)
       self._makeComplexComputeNode(project, with_slave=True)
@@ -146,7 +146,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       self.assertEqual(response.getStatus(), 200)
 
   def test_ComputeNodeAccess_01_bis_getFullComputerInformationSoftwareList(self):
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       self.compute_node, _ = self.addComputeNodeAndPartition(project)
       self._makeComplexComputeNode(project, with_slave=True)
@@ -176,7 +176,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(response.getStatus(), 200)
 
   def test_ComputeNodeAccess_02_computerBang(self):
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       self.compute_node, _ = self.addComputeNodeAndPartition(project)
       self._makeComplexComputeNode(project)
@@ -210,7 +210,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(action_id, 'report_compute_node_bang')
 
   def test_ComputeNodeAccess_04_destroyedSoftwareRelease_noSoftwareInstallation(self):
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       self.compute_node, _ = self.addComputeNodeAndPartition(project)
       self._makeComplexComputeNode(project)
@@ -235,7 +235,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(response.getStatus(), 403)
 
   def test_ComputeNodeAccess_05_destroyedSoftwareRelease_noDestroyRequested(self):
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       self.compute_node, _ = self.addComputeNodeAndPartition(project)
       self._makeComplexComputeNode(project)
@@ -261,7 +261,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(response.getStatus(), 403)
 
   def test_ComputeNodeAccess_06_destroyedSoftwareRelease_destroyRequested(self):
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       self.compute_node, _ = self.addComputeNodeAndPartition(project)
       self._makeComplexComputeNode(project)
@@ -289,7 +289,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(software_installation.getValidationState(), "invalidated")
 
   def test_ComputeNodeAccess_07_availableSoftwareRelease(self):
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       self.compute_node, _ = self.addComputeNodeAndPartition(project)
       self._makeComplexComputeNode(project)
@@ -317,7 +317,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(software_installation.getAccessStatus()['text'], "#access software release %s available" % software_release_uri)
 
   def test_ComputeNodeAccess_08_buildingSoftwareRelease(self):
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       self.compute_node, _ = self.addComputeNodeAndPartition(project)
       self._makeComplexComputeNode(project)
@@ -345,7 +345,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(software_installation.getAccessStatus()['text'], '#building software release %s' % software_release_uri)
 
   def test_ComputeNodeAccess_09_softwareReleaseError(self):
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       self.compute_node, _ = self.addComputeNodeAndPartition(project)
       self._makeComplexComputeNode(project)
@@ -374,7 +374,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(software_installation.getAccessStatus()['text'], '#error while installing: error log')
 
   def test_ComputeNodeAccess_10_reportUsageWithReference(self):
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       self.compute_node, _ = self.addComputeNodeAndPartition(project)
       self._makeComplexComputeNode(project)
@@ -433,7 +433,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
                                                                     tioxml_file.getSourceReference()))
 
   def test_ComputeNodeAccess_11_reportUsageWithEmptyReference(self):
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       self.compute_node, _ = self.addComputeNodeAndPartition(project)
       self._makeComplexComputeNode(project)
@@ -491,7 +491,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(tioxml_file.getReference(), "TIOCONS-%s-" % (self.compute_node.getReference(),))
 
   def test_ComputeNodeAccess_12_reportUsageWithWrongXml(self):
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       self.compute_node, _ = self.addComputeNodeAndPartition(project)
       self._makeComplexComputeNode(project)
@@ -539,7 +539,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual(response.getStatus(), 200)
 
   def test_InstanceAccess_11_getFullComputerInformationWithSharedInstance(self, with_slave=True):
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       self.compute_node, _ = self.addComputeNodeAndPartition(project)
       self._makeComplexComputeNode(project, with_slave=with_slave)
@@ -1398,7 +1398,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
   def test_PersonAccess_30_computerBang(self):
     error_log = 'Please force slapos node rerun'
     # disable alarms to speed up the test
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       person = self.makePerson(project)
       self.addProjectProductionManagerAssignment(person, project)
@@ -1584,7 +1584,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
 
   def test_PersonAccess_34_request_withSlave(self):
     # disable alarms to speed up the test
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       person = self.makePerson(project)
       person_user_id = person.getUserId()
@@ -1625,7 +1625,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
 
   def test_PersonAccess_35_request(self):
     # disable alarms to speed up the test
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       person = self.makePerson(project)
       person_user_id = person.getUserId()
@@ -1706,7 +1706,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
 
   def test_PersonAccess_37_ComputeNodeSupply(self):
     # disable alarms to speed up the test
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       person = self.makePerson(project)
       self.addProjectProductionManagerAssignment(person, project)
@@ -1744,7 +1744,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
 
   def test_PersonAccess_38_ComputeNodeRemoveCertificate(self):
     # disable alarms to speed up the test
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       person = self.makePerson(project)
       self.addProjectProductionManagerAssignment(person, project)
@@ -1780,7 +1780,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
 
   def test_PersonAccess_38_ComputeNodeCreateCertificate(self):
     # disable alarms to speed up the test
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       person = self.makePerson(project)
       self.addProjectProductionManagerAssignment(person, project)
@@ -1815,7 +1815,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
         preference.setPreferredHateoasUrl('foo')
 
     # disable alarms to speed up the test
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       person = self.makePerson(project)
       person_user_id = person.getUserId()
@@ -1843,7 +1843,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
         preference.setPreferredHateoasUrl('')
 
     # disable alarms to speed up the test
-    with PortalAlarmDisabled(self.portal):
+    with self.changeContextByDisablingPortalAlarm():
       project = self.addProject()
       person = self.makePerson(project)
       person_user_id = person.getUserId()
@@ -1867,7 +1867,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     now = DateTime()
     with PinnedDateTime(self, now):
       # disable alarms to speed up the test
-      with PortalAlarmDisabled(self.portal):
+      with self.changeContextByDisablingPortalAlarm():
         project = self.addProject()
         person = self.makePerson(project)
         self.addProjectProductionManagerAssignment(person, project)
@@ -1901,7 +1901,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     now = DateTime()
     with PinnedDateTime(self, now):
       # disable alarms to speed up the test
-      with PortalAlarmDisabled(self.portal):
+      with self.changeContextByDisablingPortalAlarm():
         project = self.addProject()
         person = self.makePerson(project)
         self.addProjectProductionManagerAssignment(person, project)

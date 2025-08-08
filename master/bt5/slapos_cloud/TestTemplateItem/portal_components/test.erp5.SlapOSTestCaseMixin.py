@@ -30,6 +30,7 @@ from Products.SlapOS.tests.testSlapOSMixin import \
 
 from DateTime import DateTime
 from Products.ERP5Type.tests.utils import createZODBPythonScript
+from Products.ERP5Type.tests.ERP5TypeTestCase import TemporaryAlarmScript
 import transaction
 import functools
 from functools import wraps
@@ -89,38 +90,6 @@ def ensureConsistency(func):
 
   return wrapped
 
-class TemporaryAlarmScript(object):
-  """
-  Context manager for temporary alarm python scripts
-  """
-  def __init__(self, portal, script_name, fake_return="", attribute=None):
-    self.script_name = script_name
-    self.portal = portal
-    self.fake_return = fake_return
-    self.attribute = attribute
-
-  def __enter__(self):
-    if self.script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % self.script_name)
-    if self.attribute is None:
-      content = """portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by %s')
-return %s""" % (self.script_name, self.fake_return)
-    else:
-      content = """portal_workflow = context.portal_workflow
-context.edit(%s='Visited by %s')
-return %s""" % (self.attribute, self.script_name, self.fake_return)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        self.script_name,
-                        '*args, **kwargs',
-                        '# Script body\n' + content)
-    transaction.commit()
-
-  def __exit__(self, exc_type, exc_value, traceback):
-    if self.script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(self.script_name)
-    transaction.commit()
-
 
 class PinnedDateTime(object):
   """
@@ -136,24 +105,6 @@ class PinnedDateTime(object):
   def __exit__(self, *args, **kw):
     self.testinstance.unpinDateTime()
 
-
-class PortalAlarmDisabled(object):
-  """
-  Context manager to disable portal alarm
-  """
-  def __init__(self, portal):
-    self.portal_alarms = portal.portal_alarms
-    self.was_subscribed = self.portal_alarms.isSubscribed()
-
-  def __enter__(self):
-    if self.was_subscribed:
-      self.portal_alarms.unsubscribe()
-      # transaction.commit()
-
-  def __exit__(self, exc_type, exc_value, traceback):
-    if self.was_subscribed:
-      self.portal_alarms.subscribe()
-      # transaction.commit()
 
 def string_escape(value):
   """ Simplified function to handle certificate use case only"""
@@ -1082,31 +1033,11 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       resource='foo/bar',
       )
 
-  def _test_alarm(self, alarm, document, script_name, attribute=None):
-    self.tic()
-    with TemporaryAlarmScript(self.portal, script_name, attribute=attribute):
-      alarm.activeSense()
-      self.tic()
-    if attribute is None:
-      content = document.workflow_history['edit_workflow'][-1]['comment']
-    else:
-      content = document.getProperty(attribute)
-    self.assertEqual(
-        'Visited by %s' % script_name,
-        content)
+  def _test_alarm(self, *args, **kw):
+    return self.assertAlarmVisitingDocument(*args, **kw)
 
-  def _test_alarm_not_visited(self, alarm, document, script_name, attribute=None):
-    self.tic()
-    with TemporaryAlarmScript(self.portal, script_name, attribute=attribute):
-      alarm.activeSense()
-      self.tic()
-    if attribute is None:
-      content = document.workflow_history['edit_workflow'][-1]['comment']
-    else:
-      content = document.getProperty(attribute)
-    self.assertNotEqual(
-        'Visited by %s' % script_name,
-        content)
+  def _test_alarm_not_visited(self, *args, **kw):
+    return self.assertAlarmNotVisitingDocument(*args, **kw)
 
 
 class SlapOSTestCaseMixinWithAbort(SlapOSTestCaseMixin):

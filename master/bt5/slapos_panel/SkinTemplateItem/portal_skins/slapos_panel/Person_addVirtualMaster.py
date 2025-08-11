@@ -41,20 +41,22 @@ if ((specialise_value is None) or
 
 # and create default assignments for the user
 # who can manage compute nodes and create instances
-customer.newContent(
-  portal_type='Assignment',
+portal.assignment_request_module.newContent(
+  portal_type='Assignment Request',
+  destination_value=customer,
   title="Manager for %s" % project.getReference(),
   destination_project_value=project,
   function='production/manager',
   activate_kw=activate_kw
-).open()
-customer.newContent(
-  portal_type='Assignment',
+).submit()
+portal.assignment_request_module.newContent(
+  portal_type='Assignment Request',
+  destination_value=customer,
   title="Client for %s" % project.getReference(),
   destination_project_value=project,
   function='customer',
   activate_kw=activate_kw
-).open()
+).submit()
 
 # Compute Node trade condition
 if is_compute_node_payable:

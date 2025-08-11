@@ -35,6 +35,7 @@
                 <string>Support Request</string>
                 <string>Upgrade Decision</string>
                 <string>Regularisation Request</string>
+                <string>Invitation Token</string>
               </tuple>
             </value>
         </item>

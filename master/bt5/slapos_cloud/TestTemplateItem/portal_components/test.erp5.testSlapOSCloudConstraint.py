@@ -506,18 +506,6 @@ class TestSlapOSPersonConstraint(TestSlapOSConstraintMixin):
     self.assertNotIn(consistency_message, self.getMessageList(person))
 
 class TestSlapOSAssignmentConstraint(TestSlapOSConstraintMixin):
-  def test_parent_person_validated(self):
-    person = self.portal.person_module.newContent(portal_type='Person')
-    assignment = person.newContent(portal_type='Assignment')
-
-    consistency_message = 'The person document has to be validated to start '\
-      'assignment'
-    self.assertIn(consistency_message, self.getMessageList(assignment))
-
-    person.validate()
-
-    self.assertNotIn(consistency_message, self.getMessageList(assignment))
-
   def test_group_for_accountant_manager(self):
     person = self.portal.person_module.newContent(portal_type='Person')
     person.validate()

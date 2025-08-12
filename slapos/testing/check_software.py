@@ -176,6 +176,8 @@ def checkSoftware(slap, software_url):
             libraries[library_name] = library_path
         elif os.path.basename(library_name).split('.')[0] == 'ld-linux-x86-64':
           pass
+        elif library_path.startswith('/nix/store')
+          pass
         else:
           raise RuntimeError(
               'Unexpected full path {library_name} => {library_path} instead of library => path.'.format(

@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Workflow" module="erp5.portal_type"/>
+      <global name="Property Sheet" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -25,18 +25,6 @@
             </value>
         </item>
         <item>
-            <key> <string>categories</string> </key>
-            <value>
-              <tuple>
-                <string>source/portal_workflow/project_slap_interface_workflow/state_draft</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
-            <key> <string>default_reference</string> </key>
-            <value> <string>person_slap_interface_workflow</string> </value>
-        </item>
-        <item>
             <key> <string>description</string> </key>
             <value>
               <none/>
@@ -44,35 +32,11 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>project_slap_interface_workflow</string> </value>
-        </item>
-        <item>
-            <key> <string>language</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
-            <key> <string>manager_bypass</string> </key>
-            <value> <int>0</int> </value>
+            <value> <string>SlapOSAssignmentRequestConstraint</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Workflow</string> </value>
-        </item>
-        <item>
-            <key> <string>state_variable</string> </key>
-            <value> <string>slap_state</string> </value>
-        </item>
-        <item>
-            <key> <string>title</string> </key>
-            <value> <string>Project Slap Interface Workflow</string> </value>
-        </item>
-        <item>
-            <key> <string>workflow_managed_permission</string> </key>
-            <value>
-              <tuple/>
-            </value>
+            <value> <string>Property Sheet</string> </value>
         </item>
       </dictionary>
     </pickle>

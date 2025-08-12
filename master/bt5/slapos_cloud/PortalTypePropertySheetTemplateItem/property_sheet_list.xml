@@ -15,6 +15,11 @@
  </portal_type>
  <portal_type id="Assignment">
   <item>SlaposAssignmentConstraint</item>
+  <item>SlaposAssignmentLikeConstraint</item>
+ </portal_type>
+ <portal_type id="Assignment Request">
+  <item>SlapOSAssignmentRequestConstraint</item>
+  <item>SlaposAssignmentLikeConstraint</item>
  </portal_type>
  <portal_type id="Compute Node">
   <item>ComputeNodeSlapOSMetadata</item>

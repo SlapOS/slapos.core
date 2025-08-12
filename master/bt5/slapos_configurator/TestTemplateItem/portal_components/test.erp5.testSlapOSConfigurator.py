@@ -157,6 +157,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'account_module',
        'accounting_module',
        'allocation_supply_module',
+       'assignment_request_module',
        'business_configuration_module',
        'business_process_module',
        'campaign_module',

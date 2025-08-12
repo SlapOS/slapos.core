@@ -5,6 +5,8 @@ Allocation Supply Module | slapos_panel_view
 Allocation Supply | slapos_fast_invalidate
 Allocation Supply | slapos_panel_view
 Allocation Supply | validate_and_slapos_supply
+Assignment Request Module | slapos_panel_view
+Assignment Request | slapos_panel_view
 Certificate Login | slapos_fast_invalidate
 Certificate Login | slapos_panel_view
 Compute Node Module | slapos_panel_view
@@ -43,6 +45,7 @@ Instance Tree | slaposjs_view
 Instance Tree | update_slapos_parameter
 Mail Message | slapos_panel_view
 Organisation | claim_slapos_subscription_request
+Person | accept_slapos_invitation_token
 Person | claim_slapos_item_subscription
 Person | create_slapos_project
 Person | request_slapos_credential_token_action
@@ -59,7 +62,9 @@ Project | add_slapos_remote_node
 Project | add_slapos_sale_supply
 Project | add_slapos_software_product
 Project | add_slapos_support_request
+Project | invite_slapos_person
 Project | jump_to_slapos_allocation_supply
+Project | jump_to_slapos_assignment_request
 Project | jump_to_slapos_compute_node
 Project | jump_to_slapos_computer_network
 Project | jump_to_slapos_instance_node

@@ -1,6 +1,7 @@
 acl_users/slapos_access_token_extraction
 acl_users/slapos_machine
 acl_users/slapos_shadow
+portal_alarms/erp5_garbage_collect_invitation_token
 portal_alarms/slapos_allocate_instance
 portal_alarms/slapos_assert_instance_tree_successor
 portal_alarms/slapos_cloud_create_missing_subscription_assignment

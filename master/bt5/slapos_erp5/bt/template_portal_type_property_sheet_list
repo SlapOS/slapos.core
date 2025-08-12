@@ -2,7 +2,6 @@ Category Tool | CategoryToolUpgraderRegionConstraint
 Certificate Authority Tool | CertificateAuthorityToolConsistencyConstraint
 Id Tool | SlapOSModuleIdGeneratorConstraint
 Invitation Token | Reference
-Invitation Token | Url
 Organisation | GeographicOrganisation
 Template Tool | TemplateToolBusinessApplicationModuleCategoryConstraint
 Template Tool | TemplateToolPASConsistencyConstraint

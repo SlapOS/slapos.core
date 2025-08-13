@@ -125,15 +125,15 @@ else:
       if request_software_instance.getUid() not in graph:
         graph[request_software_instance.getUid()] = request_software_instance.getSuccessorUidList()
 
-  successor_uid_list = successor.getSuccessorUidList()  
+  successor_list = successor.getSuccessorList()
   if successor != requester_instance:
-    if request_software_instance.getUid() in successor_uid_list:
-      successor_uid_list.remove(request_software_instance.getUid())
+    if request_software_instance.getRelativeUrl() in successor_list:
+      successor_list.remove(request_software_instance.getRelativeUrl())
       successor.edit(
-        successor_uid_list=successor_uid_list,
+        successor_list=successor_list,
         activate_kw={'tag': tag}
       )
-  graph[successor.getUid()] = successor_uid_list
+  graph[successor.getUid()] = successor.getSuccessorUidList()
 
 if instance_found:
 

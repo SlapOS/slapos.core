@@ -7,7 +7,7 @@ portal.portal_catalog.searchAndActivate(
   # This alarm bruteforce checking all documents,
   # without changing them directly.
   # Increase priority to not block other activities
-  activate_kw={'tag':tag, 'priority': 2}
+  activate_kw={'tag':tag, 'priority': 5}
   )
 
 # make alarm run once at time

@@ -29,7 +29,7 @@ import six
 import pkg_resources
 from lxml import etree
 from zLOG import LOG, INFO
-from Products.ERP5Type.Utils import str2bytes
+from Products.ERP5Type.Utils import str2bytes, unicode2str
 
 
 def _validateXML(to_be_validated, xsd_model):
@@ -63,7 +63,7 @@ def validateTioXMLAndExtractReference(tioxml):
   _tioxml = str2bytes(tioxml)
   if _validateXML(_tioxml, compute_node_consumption_model):
     tree = etree.fromstring(_tioxml)
-    source_reference = tree.find('transaction').find('reference').text or ""
-    return source_reference
+    source_reference = tree.find('transaction').find('reference').text or u""
+    return unicode2str(source_reference)
   return None
 

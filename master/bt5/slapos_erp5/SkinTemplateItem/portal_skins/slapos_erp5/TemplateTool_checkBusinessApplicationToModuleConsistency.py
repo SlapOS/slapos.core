@@ -19,6 +19,7 @@ for business_application_id, module_name_list in [
       ]],
       ["login", [  # Login
           "access_token_module",
+          "assignment_request_module",
           "credential_request_module",
           "credential_recovery_module",
           "credential_update_module",

@@ -85,6 +85,10 @@ if (request_software_instance is None):
     # First time that the software instance is requested
     successor = None
 
+    # One last assert, as it seems there is an issue somewhere
+    # allowing the creation of 2 instances with the same title
+    assert software_title not in requester_instance.getSuccessorTitleList()
+
     # Create a new one
     reference = "SOFTINST-%s" % portal.portal_ids.generateNewId(
       id_group='slap_software_instance_reference',

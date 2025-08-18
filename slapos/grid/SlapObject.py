@@ -254,6 +254,9 @@ class Software(object):
     yield 'buildout:extends-cache=%s' % extends_cache
     yield 'buildout:directory=%s' % self.software_path
 
+    # Force buildout to install zc.buildout and its dependencies in eggs/ and to not use system's packages
+    yield 'buildout:extra-paths='
+
     if (self.signature_private_key_file or
           self.upload_cache_url or
           self.upload_dir_url):
@@ -272,7 +275,6 @@ class Software(object):
     ]:
       if value:
         yield 'networkcache:%s=%s' % (networkcache_option, value)
-
   def _copy_netrc_file(self, dest_path):
     home_netrc = os.path.join(
       pwd.getpwuid(os.stat(self.software_root).st_uid).pw_dir,

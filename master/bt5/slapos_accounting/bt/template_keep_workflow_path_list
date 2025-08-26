@@ -37,5 +37,6 @@ service_module/slapos_netdrive_consumption
 service_module/slapos_reservation_fee
 service_module/slapos_reservation_fee/**
 service_module/slapos_reservation_refund
+service_module/slapos_software_instance_subscription
 service_module/slapos_tax
 service_module/slapos_virtual_master_subscription

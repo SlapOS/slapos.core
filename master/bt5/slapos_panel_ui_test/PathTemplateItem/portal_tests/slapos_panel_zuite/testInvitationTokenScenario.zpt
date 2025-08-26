@@ -1,0 +1,199 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test SlapOS Panel</title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test SlapOS Panel</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration()">
+
+      <tal:block tal:define="init_configuration python: {'scenario': 'customer_remote'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/slapos_init" />
+      </tal:block>
+
+      <tr>
+        <td>open</td>
+        <td>${base_url}/web_site_module/slapos_master_panel/#?editable=1</td>
+        <td></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_app_loaded" />
+
+
+
+      <tal:block tal:define="login_configuration python: {'user': user_configuration['manager_login'], 'password': user_configuration['passwd']}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/login" />
+      </tal:block>
+
+
+
+      <tr>
+        <td colspan="3"><b>Go to the project page</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Projects'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
+      <tal:block tal:define="click_configuration python: {'text': user_configuration['project_title']}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_page_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+      <tr>
+        <td colspan="3"><b>Invite Person</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Invite Person'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tr>
+        <td>click</td>
+        <td>//input[@name='field_your_function' and @value='customer']</td>
+        <td></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'New Invitation Token created.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+
+      <tr>
+        <td>storeText</td>
+        <td>//p[@id='field_your_invitation_token']</td>
+        <td>stored_invitation_token</td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/wait_for_activities" />
+
+
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/logout" />
+      <tal:block tal:define="login_configuration python: {'user': user_configuration['remote_customer_login'], 'password': user_configuration['passwd']}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/login" />
+      </tal:block>
+
+      <tr>
+        <td colspan="3"><b>Go to the project page</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Projects'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
+      <tr>
+        <td>assertTextNotPresent</td>
+        <td  tal:content="python: user_configuration['project_title']"></td>
+        <td></td>
+      </tr>
+
+
+      <tr>
+        <td colspan="3"><b>Go to the profile</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'My Account'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block tal:define="click_configuration python: {'text': 'Profile'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_page_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+      <tr>
+        <td colspan="3"><b>Enter Invitation Token</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Enter Invitation Token'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tr>
+        <td>type</td>
+        <td>//input[@name='field_your_invitation_token']</td>
+        <td>${stored_invitation_token}</td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'The invitation token has been activated'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/wait_for_activities" />
+
+      <tr>
+        <td colspan="3"><b>Go to the start page</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Home'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
+
+      <tr>
+        <td colspan="3"><b>Go to the project page</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Projects'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
+      <tal:block tal:define="click_configuration python: {'text': user_configuration['project_title']}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_page_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/logout" />
+      <tal:block tal:define="login_configuration python: {'user': user_configuration['manager_login'], 'password': user_configuration['passwd']}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/login" />
+      </tal:block>
+
+      <tr>
+        <td colspan="3"><b>Go to the start page</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Home'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
+
+      <tr>
+        <td colspan="3"><b>Go to the project page</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Projects'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
+      <tal:block tal:define="click_configuration python: {'text': user_configuration['project_title']}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_page_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+      <tr>
+        <td colspan="3"><b>Check Assignment Request is visible</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Assignment Requests'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
+      <tal:block tal:define="click_configuration python: {'text': 'Customer: Manual test Remote Project Customer'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_page_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/check_consistency" />
+
+    </tbody>
+  </table>
+</body>
+
+</html>

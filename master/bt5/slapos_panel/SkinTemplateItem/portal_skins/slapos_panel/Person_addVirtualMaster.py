@@ -110,7 +110,31 @@ sale_trade_condition = portal.sale_trade_condition_module.newContent(
 )
 sale_trade_condition.validate()
 
-if is_compute_node_payable or is_instance_tree_payable:
+# Software Instance trade condition
+if is_software_instance_payable:
+  source_section_value = subscription_request.getSourceSectionValue(
+    default=subscription_request.getSourceValue(default=None, portal_type='Organisation'),
+    portal_type='Organisation'
+  )
+  if source_section_value is None:
+    raise AssertionError('No source section found to generate the invoices')
+else:
+  source_section_value = None
+sale_trade_condition = portal.sale_trade_condition_module.newContent(
+  portal_type="Sale Trade Condition",
+  reference='%s-SoftwareInstance' % project.getReference(),
+  trade_condition_type="software_instance",
+  specialise_value=specialise_value,
+  source_project_value=project,
+  source_value=subscription_request.getSourceValue(),
+  source_section_value=source_section_value,
+  #source_payment_value=seller_bank_account,
+  price_currency_value=currency_value,
+  activate_kw=activate_kw
+)
+sale_trade_condition.validate()
+
+if is_compute_node_payable or is_instance_tree_payable or is_software_instance_payable:
   # Create a draft sale supply to buy nodes / instances
   # Sale Manager must manually enter the prices on it and validate
   sale_supply = portal.sale_supply_module.newContent(
@@ -123,6 +147,11 @@ if is_compute_node_payable or is_instance_tree_payable:
     sale_supply.newContent(
       portal_type="Sale Supply Line",
       resource="service_module/slapos_compute_node_subscription"
+    )
+  if is_software_instance_payable:
+    sale_supply.newContent(
+      portal_type="Sale Supply Line",
+      resource="service_module/slapos_software_instance_subscription"
     )
 
 if batch:

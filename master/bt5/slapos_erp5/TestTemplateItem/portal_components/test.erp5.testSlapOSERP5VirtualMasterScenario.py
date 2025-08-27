@@ -603,6 +603,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         portal_type='Sale Supply Line',
         resource__relative_url="service_module/slapos_compute_node_subscription"
       )[0].edit(base_price=99)
+      sale_supply.searchFolder(
+        portal_type='Sale Supply Line',
+        resource__relative_url="service_module/slapos_software_instance_subscription"
+      )[0].edit(base_price=5)
       sale_supply.newContent(
         portal_type="Sale Supply Line",
         base_price=9,
@@ -835,6 +839,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         portal_type='Sale Supply Line',
         resource__relative_url="service_module/slapos_compute_node_subscription"
       )[0].edit(base_price=99)
+      sale_supply.searchFolder(
+        portal_type='Sale Supply Line',
+        resource__relative_url="service_module/slapos_software_instance_subscription"
+      )[0].edit(base_price=5)
       sale_supply.newContent(
         portal_type="Sale Supply Line",
         base_price=9,

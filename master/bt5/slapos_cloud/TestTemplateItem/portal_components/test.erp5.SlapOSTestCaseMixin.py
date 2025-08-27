@@ -204,6 +204,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       'project-%s' % self.generateNewId(),
       is_accountable,
       is_accountable,
+      is_accountable,
       currency_relative_url,
       batch=1).getRelativeUrl()
 

@@ -35,6 +35,8 @@
                 <string>Instance Tree</string>
                 <string>Compute Node</string>
                 <string>Project</string>
+                <string>Software Instance</string>
+                <string>Slave Instance</string>
               </tuple>
             </value>
         </item>

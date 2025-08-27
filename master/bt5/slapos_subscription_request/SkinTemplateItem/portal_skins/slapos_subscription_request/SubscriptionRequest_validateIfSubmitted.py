@@ -44,7 +44,8 @@ if (((subscription_request.getSourceProjectValue() is not None) and
 
 # Accept the subscription only if user paid the security payment
 total_price = subscription_request.getTotalPrice()
-if 0 < total_price:
+if (0 < total_price) and (subscription_request.getResource() != 'service_module/slapos_software_instance_subscription'):
+  # XXX instead of checking resource, check if this can be a resource category
 
   customer = subscription_request.getDestinationSectionValue()
   balance = customer.Entity_getDepositBalanceAmount([subscription_request])

@@ -36,7 +36,7 @@ elif resource.getPortalType() == "Service":
       raise AssertionError('A project is required for %s %s' % (resource.getRelativeUrl(), project_value))
     source_project_value = project_value
 
-    trade_condition_type = "virtual_master"
+    trade_condition_type = "software_instance"
     if not temp_object:
       assert item_value is not None
       assert item_value.getPortalType() in ['Software Instance', 'Slave Instance']

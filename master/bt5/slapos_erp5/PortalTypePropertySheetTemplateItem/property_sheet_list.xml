@@ -10,7 +10,6 @@
  </portal_type>
  <portal_type id="Invitation Token">
   <item>Reference</item>
-  <item>Url</item>
  </portal_type>
  <portal_type id="Organisation">
   <item>GeographicOrganisation</item>

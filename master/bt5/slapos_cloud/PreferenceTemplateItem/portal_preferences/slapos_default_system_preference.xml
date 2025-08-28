@@ -82,6 +82,10 @@
             <value> <string>System Preference</string> </value>
         </item>
         <item>
+            <key> <string>preferred_assignment_request_alarm_automatic_call</string> </key>
+            <value> <int>1</int> </value>
+        </item>
+        <item>
             <key> <string>preferred_authentication_failure_block_duration</string> </key>
             <value> <int>1800</int> </value>
         </item>

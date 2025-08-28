@@ -13,7 +13,7 @@ for open_order_line in open_sale_order.contentValues(
   if len(content_list) == 0:
     content_list = [open_order_line]
   for open_order_cell in content_list:
-    item = open_order_cell.getAggregateValue(portal_type=['Instance Tree', 'Compute Node', 'Project'])
+    item = open_order_cell.getAggregateValue(portal_type=['Instance Tree', 'Compute Node', 'Project', 'Software Instance', 'Slave Instance'])
     hosting_subscription = open_order_cell.getAggregateValue(portal_type='Hosting Subscription')
 
     if item is None:

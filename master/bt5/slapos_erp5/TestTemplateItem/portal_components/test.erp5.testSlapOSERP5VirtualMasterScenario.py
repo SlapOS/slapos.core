@@ -246,6 +246,11 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       base_price=42,
       resource="service_module/slapos_virtual_master_subscription"
     )
+    sale_supply.newContent(
+      portal_type='Sale Supply Line',
+      base_price = 5,
+      resource_value = self.portal.service_module.instance_consumption
+    )
     sale_supply.validate()
 
     return currency, seller_organisation, seller_bank_account, sale_person, accountant_person

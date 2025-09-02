@@ -1,9 +1,9 @@
 from DateTime import DateTime
 portal = context.getPortalObject()
 
-if context.getMonitorScope() == "disabled":
+if (context.getPortalType() == "Compute Node") and (context.getMonitorScope() == "disabled"):
   return
-  
+
 project = context.getFollowUpValue()
 if project.Project_isSupportRequestCreationClosed():
   return

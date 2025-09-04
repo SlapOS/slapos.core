@@ -21,6 +21,7 @@ if source_section_country == 'europe/west/france':
     return
 
   destination_section_country = destination_section_value.getDefaultAddressRegion('')
+  # https://entreprendre.service-public.fr/vosdroits/F37527
   if destination_section_country == 'europe/west/france':
     if (destination_section_value.getPortalType() == 'Person'):
       taxable_suffix = 'vat/normal_rate'
@@ -28,7 +29,34 @@ if source_section_country == 'europe/west/france':
       taxable_suffix = 'vat/normal_rate'
     else:
       return
-  elif destination_section_country.startswith('europe'):
+  elif destination_section_country in [
+    'europe/west/germany',
+    'europe/west/austria',
+    'europe/west/belgium',
+    'europe/east/bulgariya',
+    'asia/west/cyprus',
+    'europe/south/croatia',
+    'europe/north/denmark',
+    'europe/south/spain',
+    'europe/north/estonia'
+    'europe/north/finland',
+    'europe/south/greece',
+    'europe/east/hungary',
+    'europe/north/ireland',
+    'europe/south/italy',
+    'europe/north/lithuania',
+    'europe/north/latvia',
+    'europe/west/luxembourg',
+    'europe/south/malta',
+    'europe/west/netherlands',
+    'europe/east/poland',
+    'europe/south/portugal',
+    'europe/east/czech_republic',
+    'europe/east/romania',
+    'europe/east/slovakia',
+    'europe/south/slovenia',
+    'europe/north/sweden',
+  ]:
     if (destination_section_value.getPortalType() == 'Person'):
       taxable_suffix = 'vat/normal_rate'
     elif (destination_section_value.getVatCode('') != ''):

@@ -3,7 +3,7 @@ portal = context.getPortalObject()
 
 if context.getMonitorScope() == "disabled":
   return
-  
+
 project = context.getFollowUpValue()
 if project.Project_isSupportRequestCreationClosed():
   return

@@ -18,4 +18,15 @@ portal.portal_catalog.searchAndActivate(
   activate_kw=activate_kw
 )
 
+# Close all Assignment Requests related to closed projects
+portal.portal_catalog.searchAndActivate(
+  portal_type='Assignment Request',
+  simulation_state='validated',
+  destination_project__validation_state='invalidated',
+
+  method_id='AssignmentRequest_checkForGarbageCollect',
+  method_kw={'activate_kw': activate_kw},
+  activate_kw=activate_kw
+)
+
 context.activate(after_tag=tag).getId()

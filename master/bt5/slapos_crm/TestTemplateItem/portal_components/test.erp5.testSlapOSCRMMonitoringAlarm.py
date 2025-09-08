@@ -2311,3 +2311,66 @@ class TestSlapOSCrmGarbageCollectProject(TestSlapOSCrmMonitoringMixin):
 
     self.assertIn('It only contains instances to destroy.', event.getTextContent())
     self.assertEqual(ticket.getSimulationState(), "submitted")
+
+
+  ##########################################################################
+  # slapos_crm_garbage_collect_project > AssignmentRequest_checkForGarbageCollect
+  ##########################################################################
+  def addAssignmentRequest(self, project):
+    person = self.portal.person_module.newContent(portal_type="Person")
+    assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_project_value=project,
+      destination_value=person
+    )
+    assignment_request.submit()
+    assignment_request.validate()
+    return assignment_request
+
+  def test_AssignmentRequest_checkForGarbageCollect_alarm_stoppedProject(self):
+    project = self.addProject()
+    assignment_request = self.addAssignmentRequest(project)
+    project.invalidate()
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm(alarm, assignment_request, "AssignmentRequest_checkForGarbageCollect")
+
+  def test_AssignmentRequest_checkForGarbageCollect_alarm_startedProject(self):
+    project = self.addProject()
+    assignment_request = self.addAssignmentRequest(project)
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, assignment_request, "AssignmentRequest_checkForGarbageCollect")
+
+  def test_AssignmentRequest_checkForGarbageCollect_alarm_suspendedAssignmentRequest(self):
+    project = self.addProject()
+    assignment_request = self.addAssignmentRequest(project)
+    self.portal.portal_workflow._jumpToStateFor(assignment_request, "suspended")
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, assignment_request, "AssignmentRequest_checkForGarbageCollect")
+
+  def test_AssignmentRequest_checkForGarbageCollect_script_stoppedProject(self):
+    project = self.addProject()
+    assignment_request = self.addAssignmentRequest(project)
+    project.invalidate()
+    assignment_request.AssignmentRequest_checkForGarbageCollect()
+    self.assertEqual(assignment_request.getSimulationState(), 'suspended')
+
+  def test_AssignmentRequest_checkForGarbageCollect_script_startedProject(self):
+    project = self.addProject()
+    assignment_request = self.addAssignmentRequest(project)
+    assignment_request.AssignmentRequest_checkForGarbageCollect()
+    self.assertEqual(assignment_request.getSimulationState(), 'validated')
+
+  def test_AssignmentRequest_checkForGarbageCollect_script_noProject(self):
+    assignment_request = self.addAssignmentRequest(None)
+    assignment_request.AssignmentRequest_checkForGarbageCollect()
+    self.assertEqual(assignment_request.getSimulationState(), 'validated')
+
+  def test_AssignmentRequest_checkForGarbageCollect_script_suspendedAssignmentRequest(self):
+    project = self.addProject()
+    assignment_request = self.addAssignmentRequest(project)
+    self.portal.portal_workflow._jumpToStateFor(assignment_request, "suspended")
+    assignment_request.AssignmentRequest_checkForGarbageCollect()
+    self.assertEqual(assignment_request.getSimulationState(), 'suspended')

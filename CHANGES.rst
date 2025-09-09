@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.18.1 (2025-09-09)
+-------------------
+ * slapproxy: allow several instances with subpartitions having same reference
+
 1.18.0 (2025-07-18)
 -------------------
  * cli/request: Indent json-in-xml parameters

@@ -47,6 +47,7 @@ else:
 ###############################################################################################
 ### Check the supported scenario:
 ### - change instance tree owner
+### - change project owner
 ### - change paying organisation (switch b2b)
 ### - change payable to free
 ### - change payable price
@@ -151,6 +152,26 @@ if is_owner_change_needed:
 
     subscribed_item.edit(destination_section=subscription_change_request.getDestination())
   elif subscribed_item.getPortalType() == 'Project':
+    # Search the manager Assignment Request from previous manager to disable it
+    existing_assignment_request = portal.portal_catalog.getResultValue(
+      portal_type='Assignment Request',
+      simulation_state='validated',
+      destination_project__uid=subscribed_item.getUid(),
+      destination__uid=subscribed_item.getDestinationUid(),
+      function__uid=portal.portal_categories.function.production.manager.getUid()
+    )
+    if existing_assignment_request is not None:
+      existing_assignment_request.suspend(comment='Disabled by the Subscription Change Request %s' % subscription_change_request.getRelativeUrl())
+
+    # And create a new one
+    assignment_request = portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_project_value=subscribed_item,
+      destination_value=subscription_change_request.getDestinationValue(),
+      function_value=portal.portal_categories.function.production.manager
+    )
+    assignment_request.submit(comment='Created by the Subscription Change Request %s' % subscription_change_request.getRelativeUrl())
+
     subscribed_item.edit(destination=subscription_change_request.getDestination())
   else:
     raise NotImplementedError('Not implemented subscribed item')

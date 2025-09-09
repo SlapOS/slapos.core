@@ -2188,3 +2188,126 @@ class TestSlaposCrmCheckSuspendedSupportRequestToReopen(TestSlapOSCrmMonitoringM
     support_request.SupportRequest_checkSuspendedToReopen()
     self.assertEqual(support_request.getSimulationState(), "suspended")
 
+
+class TestSlapOSCrmGarbageCollectProject(TestSlapOSCrmMonitoringMixin):
+
+  ##########################################################################
+  # slapos_crm_garbage_collect_project > Project_checkForGarbageCollect
+  ##########################################################################
+  def test_Project_checkForGarbageCollect_alarm_newProject(self):
+    project = self.addProject()
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, project, "Project_checkForGarbageCollect")
+
+  def test_Project_checkForGarbageCollect_alarm_oldProject(self):
+    with PinnedDateTime(self, DateTime() - 31):
+      project = self.addProject()
+      self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm(alarm, project, "Project_checkForGarbageCollect")
+
+  def test_Project_checkForGarbageCollect_script_emptyProject(self):
+    project = self.addProject()
+    ticket = project.Project_checkForGarbageCollect()
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), 'project %s seems outdated' % project.getReference())
+    self.assertEqual(ticket.getCausality(), project.getRelativeUrl())
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('This empty Project seems not used anymore.', event.getTextContent())
+    self.assertEqual(ticket.getSimulationState(), "submitted")
+
+  def test_Project_checkForGarbageCollect_script_nonEmptyProject(self):
+    project = self.addProject()
+    self._makeComputeNode(project)
+    self.tic()
+    ticket = project.Project_checkForGarbageCollect()
+    self.assertEqual(ticket, None)
+
+  ##########################################################################
+  # slapos_crm_garbage_collect_project > ComputeNode_checkForGarbageCollect
+  ##########################################################################
+  def test_ComputeNode_checkForGarbageCollect_alarm_newComputeNode(self):
+    compute_node, _ = self._makeComputeNode(self.addProject())
+    compute_node.setCapacityScope('close')
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, compute_node, "ComputeNode_checkForGarbageCollect")
+
+  def test_ComputeNode_checkForGarbageCollect_alarm_oldClosedComputeNode(self):
+    with PinnedDateTime(self, DateTime() - 91):
+      compute_node, _ = self._makeComputeNode(self.addProject())
+      compute_node.setCapacityScope('close')
+      self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm(alarm, compute_node, "ComputeNode_checkForGarbageCollect")
+
+  def test_ComputeNode_checkForGarbageCollect_alarm_oldOpenComputeNode(self):
+    with PinnedDateTime(self, DateTime() - 91):
+      compute_node, _ = self._makeComputeNode(self.addProject())
+      self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, compute_node, "ComputeNode_checkForGarbageCollect")
+
+  def test_ComputeNode_checkForGarbageCollect_script_closedComputeNode(self):
+    compute_node, _ = self._makeComputeNode(self.addProject())
+    compute_node.setCapacityScope('close')
+    ticket = compute_node.ComputeNode_checkForGarbageCollect()
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), 'Compute Node %s seems outdated' % compute_node.getReference())
+    self.assertEqual(ticket.getCausality(), compute_node.getRelativeUrl())
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('This empty Compute Node is not contacting the SlapOS master.', event.getTextContent())
+    self.assertEqual(ticket.getSimulationState(), "submitted")
+
+  def test_ComputeNode_checkForGarbageCollect_script_nonClosedComputeNode(self):
+    compute_node, _ = self._makeComputeNode(self.addProject())
+    ticket = compute_node.ComputeNode_checkForGarbageCollect()
+    self.assertEqual(ticket, None)
+
+  def test_ComputeNode_checkForGarbageCollect_script_contactingComputeNode(self):
+    compute_node, _ = self._makeComputeNode(self.addProject())
+    compute_node.setCapacityScope('close')
+    compute_node.setAccessStatus('foo')
+    ticket = compute_node.ComputeNode_checkForGarbageCollect()
+    self.assertEqual(ticket, None)
+
+  def test_ComputeNode_checkForGarbageCollect_script_busyComputeNode(self):
+    compute_node, partition = self._makeComputeNode(self.addProject())
+    compute_node.setCapacityScope('close')
+    partition.markBusy()
+    ticket = compute_node.ComputeNode_checkForGarbageCollect()
+    self.assertEqual(ticket, None)
+
+  def test_ComputeNode_checkForGarbageCollect_script_busyComputeNodeToDestroy(self):
+    with PinnedDateTime(self, DateTime() - 1.1):
+      project = self.addProject()
+      compute_node, _ = self._makeComputeNode(project)
+      self._makeComplexComputeNode(project)
+      self.portal.portal_workflow._jumpToStateFor(self.start_requested_software_instance, "destroy_requested")
+      self.portal.portal_workflow._jumpToStateFor(self.stop_requested_software_instance, "destroy_requested")
+      compute_node.setCapacityScope('close')
+      self.tic()
+
+    ticket = compute_node.ComputeNode_checkForGarbageCollect()
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), 'Compute Node %s seems outdated' % compute_node.getReference())
+    self.assertEqual(ticket.getCausality(), compute_node.getRelativeUrl())
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('It only contains instances to destroy.', event.getTextContent())
+    self.assertEqual(ticket.getSimulationState(), "submitted")

@@ -12,6 +12,7 @@ Certificate Login | slapos_panel_view
 Compute Node Module | slapos_panel_view
 Compute Node Module | slapos_panel_view_my_compute_node_list
 Compute Node | add_slapos_support_request
+Compute Node | confirm_slapos_compute_node_manual_destruction
 Compute Node | jump_to_slapos_allocation_supply
 Compute Node | request_slapos_certificate_action
 Compute Node | revoke_slapos_certificate

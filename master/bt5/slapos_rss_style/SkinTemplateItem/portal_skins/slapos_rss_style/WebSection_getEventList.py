@@ -43,6 +43,8 @@ for brain in portal.portal_simulation.getMovementHistoryList(
     security_query=portal.portal_catalog.getSecurityQuery(),
     # Limit only to listable portal types
     portal_type=['Web Message', 'Mail Message'],
+    # Prevent getting the same event twice in the result
+    group_by_list=['uid'],
     only_accountable=False,
     simulation_state=('started', 'stopped', 'delivered'),
     limit=list_lines,

@@ -174,6 +174,118 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
 
+  def test_subscription_change_request_change_project_destination_without_accounting_scenario(self):
+    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+
+    self.tic()
+
+    self.logout()
+
+    with PinnedDateTime(self, DateTime('2023/12/25')):
+      # lets join as slapos administrator, which will own few compute_nodes
+      owner_reference = 'owner-%s' % self.generateNewId()
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+
+      self.login()
+      self.tic()
+      # hooray, now it is time to create compute_nodes
+      self.logout()
+      self.login(sale_person.getUserId())
+
+      # create a default project
+      project_relative_url = self.addProject(person=owner_person, currency=currency)
+
+      self.logout()
+      self.login()
+      project = self.portal.restrictedTraverse(project_relative_url)
+      preference = self.portal.portal_preferences.slapos_default_system_preference
+      preference.edit(
+        preferred_subscription_assignment_category_list=[
+          'function/customer',
+          'role/client',
+          'destination_project/%s' % project.getRelativeUrl()
+        ]
+      )
+
+      self.tic()
+
+      self.logout()
+      self.login(owner_person.getUserId())
+      public_server_title = 'Public Server for %s' % owner_reference
+      compute_node_id = self.requestComputeNode(public_server_title, project.getReference())
+      print(compute_node_id)
+      self.tic()
+      self.logout()
+
+    with PinnedDateTime(self, DateTime('2024/01/01')):
+      public_reference2 = 'public2-%s' % self.generateNewId()
+      public_person2 = self.joinSlapOS(self.web_site, public_reference2)
+      self.logout()
+
+    self.login()
+    person_user_id = owner_person.getUserId()
+
+    self.login(person_user_id)
+
+    with PinnedDateTime(self, DateTime('2024/01/10')):
+      self.checkServiceSubscriptionRequest(project)
+      self.tic()
+
+    with PinnedDateTime(self, DateTime('2024/02/25')):
+      self.login(sale_person.getUserId())
+      subscription_change_request = public_person2.Person_claimSlaposItemSubscription(
+        project.getReference(),
+        None
+      )
+
+      self.tic()
+      self.logout()
+      self.login()
+      self.assertEqual(project.getDestination(),
+                       public_person2.getRelativeUrl())
+      self.assertEqual(len([x for x in public_person2.contentValues(portal_type='Assignment') if (x.getValidationState()=='open') and (x.getFunctionId() == 'manager')]), 1)
+
+    # Total of quantity should be zero
+    inventory_list_kw = {
+        'group_by_section': False,
+        'group_by_node': False,
+        'group_by_variation': False,
+        'group_by_resource': True,
+        'resource_uid': subscription_change_request.getResourceUid(),
+    }
+    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**inventory_list_kw)
+    self.assertEqual(1, len(inventory_list))
+    self.assertAlmostEqual(0, inventory_list[0].total_quantity)
+
+    # Seller only sold 1 month
+    inventory_list_kw = {
+        'node_uid': subscription_change_request.getSourceUid(),
+        'group_by_section': False,
+        'group_by_node': False,
+        'group_by_variation': False,
+        'group_by_resource': True,
+        'resource_uid': subscription_change_request.getResourceUid(),
+    }
+    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**inventory_list_kw)
+    self.assertEqual(1, len(inventory_list))
+    self.assertAlmostEqual(-1.17, inventory_list[0].total_quantity)
+
+    # Ensure no unexpected object has been created
+    # 4 assignment request
+    # 1 compute node
+    # 1 credential request
+    # 6 open sale order
+    # 4 assignment
+    # 6 simulation movement
+    # 8 sale packing list / line
+    # 2 sale trade condition
+    # 2 subscription change request
+    # 4 subscription request
+    self.assertRelatedObjectCount(project, 38)
+
+    with PinnedDateTime(self, DateTime('2024/02/15')):
+      self.checkERP5StateBeforeExit()
+
   def test_subscription_change_request_change_project_destination_section_scenario(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
 

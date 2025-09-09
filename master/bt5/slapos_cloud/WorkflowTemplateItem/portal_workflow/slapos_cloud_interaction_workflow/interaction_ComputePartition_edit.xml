@@ -11,6 +11,7 @@
             <value>
               <tuple>
                 <string>after_script/portal_workflow/slapos_cloud_interaction_workflow/script_Base_triggerAllocationAlarm</string>
+                <string>after_script/portal_workflow/slapos_cloud_interaction_workflow/script_Base_triggerComputeNodeInvalidationAlarm</string>
               </tuple>
             </value>
         </item>

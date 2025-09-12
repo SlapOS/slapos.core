@@ -1,0 +1,1 @@
+return state_change['object'].Base_reindexAndSenseAlarm(['slapos_subscription_generate_change_request_for_project_related_item'])

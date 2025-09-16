@@ -27,7 +27,7 @@ if item_portal_type == 'Instance Tree':
   entity_uid = item.getDestinationSectionUid()
 elif item_portal_type == 'Project':
   entity_uid = item.getDestinationUid()
-elif item_portal_type == 'Compute Node':
+elif item_portal_type in ['Compute Node', 'Software Instance', 'Slave Instance']:
   project = item.getFollowUpValue()
   if project is not None:
     entity_uid = project.getDestinationUid()

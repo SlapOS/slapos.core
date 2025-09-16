@@ -49,7 +49,8 @@ import requests
 from six.moves.urllib.parse import urljoin
 
 import slapos.proxy
-import slapos.proxy.views as views
+from slapos.proxy import views
+from slapos.proxy.db_version import DB_VERSION
 import slapos.slap
 import slapos.slap.slap
 from slapos.util import loads, dumps, sqlite_connect, bytes2str, dict2xml
@@ -177,6 +178,37 @@ database_uri = %(rootdir)s/lib/proxy.db
     shutil.rmtree(self._tempdir, True)
     views.is_schema_already_executed = False
 
+  def _requestComputerPartition(self, software_release, software_type, partition_reference,
+              partition_id=None,
+              shared=False, partition_parameter_kw=None, filter_kw=None,
+              state=None, computer_id=None):
+    """
+    Check parameters, call requestComputerPartition server method and return result
+    """
+    if partition_parameter_kw is None:
+      partition_parameter_kw = {}
+    if filter_kw is None:
+      filter_kw = {}
+  # Let's enforce a default software type
+    if software_type is None:
+      software_type = 'default'
+
+    request_dict = {
+        'software_release': software_release,
+        'software_type': software_type,
+        'partition_reference': partition_reference,
+        'shared_xml': dumps(shared),
+        'partition_parameter_xml': dumps(partition_parameter_kw),
+        'filter_xml': dumps(filter_kw),
+        'state': dumps(state),
+    }
+    if partition_id is not None:
+      request_dict.update(
+        computer_id=computer_id or self.computer_id,
+        computer_partition_id=partition_id,
+      )
+    return self.app.post('/requestComputerPartition', data=request_dict)
+
 
 class TestLoadComputerConfiguration(BasicMixin, unittest.TestCase):
   """tests /loadComputerConfigurationFromXML the endpoint for format
@@ -212,42 +244,26 @@ class TestLoadComputerConfiguration(BasicMixin, unittest.TestCase):
     }
 
   def test_loadComputerConfigurationFromXML_keep_partitions(self):
-    rv = self.app.post('/loadComputerConfigurationFromXML', data={
+    def load():
+      rv = self.app.post('/loadComputerConfigurationFromXML', data={
         'computer_id': self.computer_id,
         'xml': dumps(self.computer_dict),
-    })
-    self.assertEqual(rv._status_code, 200)
+      })
+      self.assertEqual(rv._status_code, 200)
 
-    self.app.post('/requestComputerPartition', data={
-      'computer_id': self.computer_id,
-      'software_release': 'https://example.com/software.cfg',
-      'software_type': 'default',
-      'computer_partition_id': 'slappart1',
-      'state': dumps('started'),
-      'partition_parameter_xml': dumps({'foo': 'bar'}),
-      'filter_xml': dumps({}),
-      'shared_xml': dumps({})
-    })
-
-    computer = loads(
+    def check():
+      computer = loads(
         self.app.get('/getFullComputerInformation', query_string={'computer_id': self.computer_id}).data)
-    self.assertEqual(
+      self.assertEqual(
         ['https://example.com/software.cfg'],
         [p.getSoftwareRelease().getURI() for p in computer._computer_partition_list if p.getId() == 'slappart1'])
 
-    # load configuration from XML again
-    rv = self.app.post('/loadComputerConfigurationFromXML', data={
-        'computer_id': self.computer_id,
-        'xml': dumps(self.computer_dict),
-    })
-    self.assertEqual(rv._status_code, 200)
-
-    # partition is kept
-    computer = loads(
-        self.app.get('/getFullComputerInformation', query_string={'computer_id': self.computer_id}).data)
-    self.assertEqual(
-        ['https://example.com/software.cfg'],
-        [p.getSoftwareRelease().getURI() for p in computer._computer_partition_list if p.getId() == 'slappart1'])
+    load()
+    self._requestComputerPartition('https://example.com/software.cfg',
+      None, 'MyInstance', None, {}, {'foo': 'bar'}, state='started')
+    check()
+    load() # load configuration from XML again
+    check() # partition is kept
 
   def test_loadComputerConfigurationFromXML_remove_partitions(self):
     rv = self.app.post('/loadComputerConfigurationFromXML', data={
@@ -397,34 +413,6 @@ class MasterMixin(BasicMixin, unittest.TestCase):
   """
   Define advanced tool for test proxy simulating behavior slap library tools
   """
-  def _requestComputerPartition(self, software_release, software_type, partition_reference,
-              partition_id=None,
-              shared=False, partition_parameter_kw=None, filter_kw=None,
-              state=None):
-    """
-    Check parameters, call requestComputerPartition server method and return result
-    """
-    if partition_parameter_kw is None:
-      partition_parameter_kw = {}
-    if filter_kw is None:
-      filter_kw = {}
-  # Let's enforce a default software type
-    if software_type is None:
-      software_type = 'default'
-
-    request_dict = {
-        'computer_id': self.computer_id,
-        'computer_partition_id': partition_id,
-        'software_release': software_release,
-        'software_type': software_type,
-        'partition_reference': partition_reference,
-        'shared_xml': dumps(shared),
-        'partition_parameter_xml': dumps(partition_parameter_kw),
-        'filter_xml': dumps(filter_kw),
-        'state': dumps(state),
-    }
-    return self.app.post('/requestComputerPartition', data=request_dict)
-
   def request(self, *args, **kw):
     """
     Simulate a request with above parameters
@@ -565,12 +553,14 @@ class TestRequest(MasterMixin):
     Since slapproxy implements scope, providing two partition_id
     values will fail when only one partition is available.
     """
-    self.format_for_number_of_partitions(1)
+    self.format_for_number_of_partitions(3)
+    parent = (self.request('http://sr//', None, 'MyFirstInstance'),
+              self.request('http://sr//', None, 'MySecondInstance'))
     self.assertIsInstance(self.request('http://sr//', None,
-                                       'MyFirstInstance', 'slappart2'),
+                                       'foo', parent[0].getId()),
                           slapos.slap.ComputerPartition)
     rv = self._requestComputerPartition('http://sr//', None,
-                                       'MyFirstInstance', 'slappart3')
+                                       'foo', parent[1].getId())
     self.assertEqual(rv._status_code, 404)
 
   def test_two_request_two_partition_free(self):
@@ -751,26 +741,6 @@ class TestRequest(MasterMixin):
     self.assertEqual(wanted_domain2,
                      requested_result2._parameter_dict['domain'])
 
-  def test_two_different_request_from_two_partition(self):
-    """
-    Since slapproxy implement scope, two request with
-    different partition_id will return different partitions.
-    """
-    self.format_for_number_of_partitions(2)
-    self.assertNotEqual(
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').getId(),
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart3').getId())
-
-  def test_two_different_request_from_one_partition(self):
-    """
-    Two different request from same partition
-    will return two different partitions
-    """
-    self.format_for_number_of_partitions(2)
-    self.assertNotEqual(
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').getId(),
-        self.request('http://sr//', None, 'frontend', 'slappart2').getId())
-
   def test_request_with_nonascii_parameters(self):
     """
     Verify that request with non-ascii parameters is correctly accepted
@@ -794,7 +764,7 @@ class TestRequest(MasterMixin):
     Verify that request int works in connection parameters
     """
     self.format_for_number_of_partitions(1)
-    partition_id = self.request('http://sr//', None, 'myinstance', 'slappart0')._partition_id
+    partition_id = self.request('http://sr//', None, 'myinstance').getId()
     # Set connection parameter
     partition = self.getPartitionInformation(partition_id)
 
@@ -802,7 +772,7 @@ class TestRequest(MasterMixin):
                            connection_dict={'foo': 1})
 
     # Get updated information for the partition
-    partition_new = self.request('http://sr//', None, 'myinstance', 'slappart0')
+    partition_new = self.request('http://sr//', None, 'myinstance')
     self.assertEqual(partition_new.getConnectionParameter('foo'), '1')
 
   def test_request_frontend(self):
@@ -900,7 +870,7 @@ class TestRequest(MasterMixin):
             {
                 'reference': partition_child.getId(),
                 'slap_state': 'busy',
-                'requested_by': partition_parent.getId(),
+                'requested_by': 'MyFirstInstance',
                 'requested_state': 'started',
             },
         ])
@@ -922,7 +892,7 @@ class TestRequest(MasterMixin):
             {
                 'reference': partition_child.getId(),
                 'slap_state': 'busy',
-                'requested_by': partition_parent.getId(),
+                'requested_by': 'MyFirstInstance',
                 'requested_state': 'destroyed',
             },
         ])
@@ -1290,9 +1260,9 @@ class TestCliInformation(CliMasterMixin):
 
   def test_service_list_with_shared(self):
     self.format_for_number_of_partitions(1)
-    self.request('http://sr0//', None, 'MyHostInstance0', None)
-    self.request('http://sr0//', None, 'MySharedInstance1', None, shared=True)
-    self.request('http://sr0//', None, 'MySharedInstance2', None, shared=True)
+    self.request('http://sr0//', None, 'MyHostInstance0')
+    self.request('http://sr0//', None, 'MySharedInstance1', shared=True)
+    self.request('http://sr0//', None, 'MySharedInstance2', shared=True)
     output = self.cliDoSlapos(('service', 'list'), stderr=subprocess.DEVNULL)
     self.assertEqual(
       json.loads(output),
@@ -1570,6 +1540,73 @@ class TestMultiNodeSupport(MasterMixin):
     self.assertEqual(computer_1._computer_partition_list[0]._software_release_document._software_release, software_release_2)
     self.assertTrue(computer_1._computer_partition_list[1]._software_release_document == None)
 
+  def test_multiple_instance_trees(self):
+    """
+    Root instances can have subpartitions with same reference, on several
+    computers, without conflicts.
+    """
+    comp0_id = 'COMP-0'
+    comp1_id = 'COMP-1'
+    sr1 = 'http://sr//'
+    sr2 = 'http://othersr//'
+
+    self.format_for_number_of_partitions(4, computer_id=comp0_id)
+    self.format_for_number_of_partitions(4, computer_id=comp1_id)
+
+    # We'll start with all 'foo' subpartitions on first computer,
+    # 'bar' on the other.
+    kw0 = dict(filter_kw={'computer_guid': comp0_id})
+    kw1 = dict(filter_kw={'computer_guid': comp1_id})
+
+    name1 = ['MyFirstInstance', 'foo', 'bar']
+    root1 = self.request(sr1, None, name1[0], **kw0)
+    sub1 = (root1.request(sr1, None, name1[1], **kw0),
+            root1.request(sr1, None, name1[2], **kw1))
+
+    name2 = name1[:]  # another instance with same references for subpartitions
+    name2[0] = 'MySecondInstance'
+    root2 = self.request(sr2, None, name2[0], **kw1)
+    sub2 = (root2.request(sr2, None, name2[1], **kw0),
+            root2.request(sr2, None, name2[2], **kw1))
+
+    def partitions(computer_id):
+      return {
+        p.getId(): None if p.getState() == 'destroyed' else
+                   (p.getInstanceParameter('root_instance_title'),
+                    p.getInstanceParameter('instance_title'),
+                    p.getInstanceParameter('slap_software_release_url'))
+        for p in loads(self.app.get(
+        '/getFullComputerInformation?computer_id=' + computer_id
+        ).data)._computer_partition_list
+      }
+
+    def check():
+      self.assertEqual({
+        'slappart0': (name1[0], name1[0], sr1),
+        'slappart1': (name1[0], name1[1], sr1),
+        'slappart2': (name2[0], name2[1], sr2),
+        'slappart3': None,
+      }, partitions(comp0_id))
+      self.assertEqual({
+        'slappart0': (name1[0], name1[2], sr1),
+        'slappart1': (name2[0], name2[0], sr2),
+        'slappart2': (name2[0], name2[2], sr2),
+        'slappart3': None,
+      }, partitions(comp1_id))
+
+    check()
+
+    # Check some renaming.
+    # Start swapping names of subpartitions in the first instance.
+    name1[1] = 'tmp';    sub1[0].rename(name1[1])
+    name1[2] = name2[1]; sub1[1].rename(name1[2])
+    name1[1] = name2[2]; sub1[0].rename(name1[1])
+    # Rename the whole second instance.
+    name2[0] = 'MyOtherInstance'
+    root2.rename(name2[0])
+
+    check()
+
   def test_multi_node_support_change_instance_state(self):
     """
     Test that destroying an instance (i.e change state) from a Computer doesn't
@@ -1684,6 +1721,7 @@ class TestMultiMasterSupport(MasterMixin):
   """
   Test multimaster support in slapproxy.
   """
+  forwarded_software_release = 'https://example.com/request/from/partition/software.cfg'
   external_software_release = 'http://slapos.example/external_software_release.cfg'
   software_release_not_in_list = 'http://slapos.example/external_software_release_not_listed.cfg'
 
@@ -1763,7 +1801,8 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     )) % {
         'rootdir': self._rootdir, 'proxyaddr': self.proxyaddr,
         'external_proxy_host': self.external_proxy_host,
-        'external_proxy_port': self.external_proxy_port
+        'external_proxy_port': self.external_proxy_port,
+        'forwarded_software_release': self.forwarded_software_release,
     }
     with open(self.slapos_cfg, 'w') as f:
       f.write(configuration)
@@ -1815,7 +1854,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
         'instance',
     )
     # XXX this has to match what is set in slapos_multimaster.cfg.in
-    self.assertEqual('external_computer', partition.slap_computer_id)
+    self.assertEqual(self.external_computer_id, partition.slap_computer_id)
     self.assertEqual('slappart0', partition.slap_computer_partition_id)
 
   def _checkInstanceIsForwarded(self, name, requester, partition_parameter_kw, software_release):
@@ -2002,15 +2041,14 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     Test that instance request is forwarded and requested from computer partition.
     """
     dummy_parameter_dict = {'foo': 'bar'}
-    instance_reference = 'MyFirstInstance'
     self.format_for_number_of_partitions(1)
     self.external_proxy_format_for_number_of_partitions(2)
     self.external_proxy_create_requested_partition()
 
     partition = self.request(
-        'https://example.com/request/from/partition/software.cfg',
+        self.forwarded_software_release,
         None,
-        instance_reference,
+        'MySubInstance',
         'slappart0',
         partition_parameter_kw=dummy_parameter_dict,
     )
@@ -2018,7 +2056,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     instance_parameter_dict = partition.getInstanceParameterDict()
     instance_parameter_dict.pop('timestamp')
     self.assertEqual(dummy_parameter_dict, instance_parameter_dict)
-    self.assertEqual('https://example.com/request/from/partition/software.cfg', partition.getSoftwareRelease())
+    self.assertEqual(self.forwarded_software_release, partition.getSoftwareRelease())
     self.assertEqual({}, partition.getConnectionParameterDict())
 
     with sqlite3.connect(os.path.join(
@@ -2027,13 +2065,17 @@ database_uri = %(rootdir)s/lib/external_proxy.db
         'external_proxy.db',
     )) as db:
       requested_by = slapos.proxy.views.execute_db(
-          "partition", "select reference, requested_by from %s", db=db)
+        "partition",
+        "select reference, computer_reference, requested_by from %s",
+        db=db)
     self.assertEqual([{
+        'computer_reference': self.external_computer_id,
         'reference': 'slappart0',
-        'requested_by': None
+        'requested_by': None,
     }, {
+        'computer_reference': self.external_computer_id,
         'reference': 'slappart1',
-        'requested_by': 'slappart0'
+        'requested_by': 'instance',
     }], requested_by)
 
   def testForwardToMasterAndDestroy(self):
@@ -2117,7 +2159,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     for i, requester_id in enumerate(('slappart0', 'slappart1', None)):
       dummy_parameter_dict = {'foo': str(i)}
       partition = self.request(
-          'https://example.com/request/from/partition/software.cfg',
+          self.forwarded_software_release,
           None,
           instance_reference,
           requester_id,
@@ -2127,7 +2169,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
       instance_parameter_dict = partition.getInstanceParameterDict()
       instance_parameter_dict.pop('timestamp')
       self.assertEqual(dummy_parameter_dict, instance_parameter_dict)
-      self.assertEqual('https://example.com/request/from/partition/software.cfg', partition.getSoftwareRelease())
+      self.assertEqual(self.forwarded_software_release, partition.getSoftwareRelease())
       self.assertEqual({}, partition.getConnectionParameterDict())
 
     with sqlite3.connect(os.path.join(
@@ -2141,22 +2183,22 @@ database_uri = %(rootdir)s/lib/external_proxy.db
         'reference': 'slappart0',
         'partition_reference': 'instance',
         'xml': dict2xml({}),
-        'requested_by': None
+        'requested_by': None,
     }, {
         'reference': 'slappart1',
         'partition_reference': 'slappart0_%s' % instance_reference,
         'xml': dict2xml({'foo': '0'}),
-        'requested_by': 'slappart0'
+        'requested_by': 'instance',
     }, {
         'reference': 'slappart2',
         'partition_reference': 'slappart1_%s' % instance_reference,
         'xml': dict2xml({'foo': '1'}),
-        'requested_by': 'slappart0'
+        'requested_by': 'instance',
     }, {
         'reference': 'slappart3',
         'partition_reference': 'user_%s' % instance_reference,
         'xml': dict2xml({'foo': '2'}),
-        'requested_by': 'slappart0'
+        'requested_by': 'instance',
     }], requested_by)
 
 
@@ -2347,29 +2389,19 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
   """
   Test that old database version are automatically migrated without failure
   """
-  dump_filename = NotImplemented
-  initial_table_list = NotImplemented
-  current_version = '16'
 
   def setUp(self):
     TestInformation.setUp(self)
     schema = bytes2str(pkg_resources.resource_string(
       'slapos.tests',
-      os.path.join('test_slapproxy', self.dump_filename)
+      os.path.join('test_slapproxy',
+                   'database_dump_version_%s.sql' % self.version)
     ))
     self.db = sqlite_connect(self.proxy_db)
     self.db.cursor().executescript(schema)
     self.db.commit()
 
   def test_automatic_migration(self):
-    # Make sure that in the initial state we only have current version of the tables.
-    table_list = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
-    self.assertEqual([x[0] for x in table_list], self.initial_table_list)
-
-    # create an old table, to assert it is also properly removed.
-    self.db.execute("create table software9 (int a)")
-    self.db.commit()
-
     # Run a dummy request to cause migration
     from slapos.proxy.views import app
     with mock.patch.object(app.logger, 'info') as logger:
@@ -2392,47 +2424,47 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
     )
 
     # Lower level tests
-    computer_list = self.db.execute("SELECT * FROM computer{}".format(self.current_version)).fetchall()
+    computer_list = self.db.execute("SELECT * FROM computer" + DB_VERSION).fetchall()
     self.assertEqual(
         computer_list,
         [(u'computer', u'127.0.0.1', u'255.255.255.255')]
     )
 
-    software_list = self.db.execute("SELECT * FROM software{}".format(self.current_version)).fetchall()
+    software_list = self.db.execute("SELECT * FROM software" + DB_VERSION).fetchall()
     self.assertEqual(
         software_list,
         [(u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u'computer', u'available')]
     )
 
-    partition_list = self.db.execute("select * from partition{}".format(self.current_version)).fetchall()
+    partition_list = self.db.execute("select * from partition" + DB_VERSION).fetchall()
     self.assertEqual(partition_list, [
       ('slappart0', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="json">{\n  "site-id": "erp5"\n  }\n}</parameter>\n</instance>\n', None, None, 'production', 'slapos', None, 'started', None),
-      ('slappart1', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">mysql://127.0.0.1:45678/erp5</parameter>\n</instance>\n', None, 'mariadb', 'MariaDB DataBase', 'slappart0', 'started', None),
-      ('slappart2', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="cloudooo-json"></parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', None, 'cloudooo', 'Cloudooo', 'slappart0', 'started', None),
-      ('slappart3', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:11000/</parameter>\n</instance>\n', None, 'memcached', 'Memcached', 'slappart0', 'started', None),
-      ('slappart4', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:13301/</parameter>\n</instance>\n', None, 'kumofs', 'KumoFS', 'slappart0', 'started', None),
-      ('slappart5', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="kumofs-url">memcached://127.0.0.1:13301/</parameter>\n  <parameter id="memcached-url">memcached://127.0.0.1:11000/</parameter>\n  <parameter id="cloudooo-url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">https://[fc00::1]:10001</parameter>\n</instance>\n', None, 'tidstorage', 'TidStorage', 'slappart0', 'started', None),
+      ('slappart1', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">mysql://127.0.0.1:45678/erp5</parameter>\n</instance>\n', None, 'mariadb', 'MariaDB DataBase', 'slapos', 'started', None),
+      ('slappart2', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="cloudooo-json"></parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', None, 'cloudooo', 'Cloudooo', 'slapos', 'started', None),
+      ('slappart3', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:11000/</parameter>\n</instance>\n', None, 'memcached', 'Memcached', 'slapos', 'started', None),
+      ('slappart4', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:13301/</parameter>\n</instance>\n', None, 'kumofs', 'KumoFS', 'slapos', 'started', None),
+      ('slappart5', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="kumofs-url">memcached://127.0.0.1:13301/</parameter>\n  <parameter id="memcached-url">memcached://127.0.0.1:11000/</parameter>\n  <parameter id="cloudooo-url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">https://[fc00::1]:10001</parameter>\n</instance>\n', None, 'tidstorage', 'TidStorage', 'slapos', 'started', None),
       ('slappart6', 'computer', 'free', None, None, None, None, None, None, None, 'started', None),
       ('slappart7', 'computer', 'free', None, None, None, None, None, None, None, 'started', None),
       ('slappart8', 'computer', 'free', None, None, None, None, None, None, None, 'started', None),
       ('slappart9', 'computer', 'free', None, None, None, None, None, None, None, 'started', None),
       ])
 
-    slave_list = self.db.execute("select * from slave{}".format(self.current_version)).fetchall()
+    slave_list = self.db.execute("select * from slave" + DB_VERSION).fetchall()
     self.assertEqual(
         slave_list,
         []
     )
 
-    partition_network_list = self.db.execute("select * from partition_network{}".format(self.current_version)).fetchall()
+    partition_network_list = self.db.execute("select * from partition_network{}".format(DB_VERSION)).fetchall()
     self.assertEqual(
         partition_network_list,
         [(u'slappart0', u'computer', u'slappart0', u'127.0.0.1', u'255.255.255.255'), (u'slappart0', u'computer', u'slappart0', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart1', u'computer', u'slappart1', u'127.0.0.1', u'255.255.255.255'), (u'slappart1', u'computer', u'slappart1', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart2', u'computer', u'slappart2', u'127.0.0.1', u'255.255.255.255'), (u'slappart2', u'computer', u'slappart2', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart3', u'computer', u'slappart3', u'127.0.0.1', u'255.255.255.255'), (u'slappart3', u'computer', u'slappart3', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart4', u'computer', u'slappart4', u'127.0.0.1', u'255.255.255.255'), (u'slappart4', u'computer', u'slappart4', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart5', u'computer', u'slappart5', u'127.0.0.1', u'255.255.255.255'), (u'slappart5', u'computer', u'slappart5', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart6', u'computer', u'slappart6', u'127.0.0.1', u'255.255.255.255'), (u'slappart6', u'computer', u'slappart6', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart7', u'computer', u'slappart7', u'127.0.0.1', u'255.255.255.255'), (u'slappart7', u'computer', u'slappart7', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart8', u'computer', u'slappart8', u'127.0.0.1', u'255.255.255.255'), (u'slappart8', u'computer', u'slappart8', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart9', u'computer', u'slappart9', u'127.0.0.1', u'255.255.255.255'), (u'slappart9', u'computer', u'slappart9', u'fc00::1', u'ffff:ffff:ffff::')]
     )
 
     # Check that duplicate forwarded requests in the initial table result in a single entry in the new table
-    if any(t.startswith('forwarded_partition_request') for t in self.initial_table_list):
-      forwarded_request_list = self.db.execute("select * from forwarded_partition_request{}".format(self.current_version)).fetchall()
+    if self.version >= 11:
+      forwarded_request_list = self.db.execute("select * from forwarded_partition_request" + DB_VERSION).fetchall()
       self.assertEqual(
           forwarded_request_list,
           [('forwarded_instance', 'https://bogus/master/url')]
@@ -2441,13 +2473,13 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
     # Check that we only have new tables
     table_list = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
     self.assertEqual([x[0] for x in table_list],
-       ['computer{}'.format(self.current_version),
-        'forwarded_partition_request{}'.format(self.current_version),
-        'local_software_release_root{}'.format(self.current_version),
-        'partition{}'.format(self.current_version),
-        'partition_network{}'.format(self.current_version),
-        'slave{}'.format(self.current_version),
-        'software{}'.format(self.current_version),
+       ['computer' + DB_VERSION,
+        'config' + DB_VERSION,
+        'forwarded_partition_request' + DB_VERSION,
+        'partition' + DB_VERSION,
+        'partition_network' + DB_VERSION,
+        'slave' + DB_VERSION,
+        'software' + DB_VERSION,
       ])
 
   # Override several tests that needs an empty database
@@ -2468,39 +2500,30 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
     pass
 
   @unittest.skip("Not implemented")
-  def test_request_consistent_parameters(self):
+  def test_request_coTestMigrateVersion10ToLatestnsistent_parameters(self):
     pass
 
 
 class TestMigrateVersion10ToLatest(_MigrationTestCase):
-  dump_filename = 'database_dump_version_10.sql'
-  initial_table_list = ['computer10', 'partition10', 'partition_network10', 'slave10', 'software10', ]
-
+  version = 10
 
 class TestMigrateVersion11ToLatest(_MigrationTestCase):
-  dump_filename = 'database_dump_version_11.sql'
-  initial_table_list = ['computer11', 'forwarded_partition_request11', 'partition11', 'partition_network11', 'slave11', 'software11', ]
-
+  version = 11
 
 class TestMigrateVersion12ToLatest(_MigrationTestCase):
-  dump_filename = 'database_dump_version_12.sql'
-  initial_table_list = ['computer12', 'forwarded_partition_request12', 'partition12', 'partition_network12', 'slave12', 'software12', ]
-
+  version = 12
 
 class TestMigrateVersion13ToLatest(_MigrationTestCase):
-  dump_filename = 'database_dump_version_13.sql'
-  initial_table_list = ['computer13', 'forwarded_partition_request13', 'partition13', 'partition_network13', 'slave13', 'software13', ]
-
+  version = 13
 
 class TestMigrateVersion14ToLatest(_MigrationTestCase):
-  dump_filename = 'database_dump_version_14.sql'
-  initial_table_list = ['computer14', 'forwarded_partition_request14', 'partition14', 'partition_network14', 'slave14', 'software14', ]
-
+  version = 14
 
 class TestMigrateVersion15ToLatest(_MigrationTestCase):
-  dump_filename = 'database_dump_version_15.sql'
-  initial_table_list = ['computer15', 'forwarded_partition_request15', 'local_software_release_root15', 'partition15',
-                        'partition_network15', 'slave15', 'software15', ]
+  version = 15
+
+class TestMigrateVersion16ToLatest(_MigrationTestCase):
+  version = 16
 
 
 del _MigrationTestCase

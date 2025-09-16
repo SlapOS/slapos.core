@@ -42,4 +42,4 @@ software_release_list =
 computer = external_computer
 partition = slappart0
 software_release_list =
-  https://example.com/request/from/partition/software.cfg
+  %(forwarded_software_release)s

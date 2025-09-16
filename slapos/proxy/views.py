@@ -58,15 +58,14 @@ class UnauthorizedError(Exception):
 
 
 def partitiondict2partition(partition):
-  slap_partition = ComputerPartition(partition['computer_reference'],
-      partition['reference'])
+  computer_id = partition['computer_reference']
+  partition_id = partition['reference']
+  slap_partition = ComputerPartition(computer_id, partition_id)
   slap_partition._software_release_document = None
   slap_partition._requested_state = 'destroyed'
   slap_partition._need_modification = 0
   slap_partition._instance_guid = '%(computer_reference)s-%(reference)s' \
     % partition
-
-  root_partition = getRootPartition(partition['reference'])
 
   if partition['software_release']:
     slap_partition._need_modification = 1
@@ -76,7 +75,7 @@ def partitiondict2partition(partition):
     full_address_list = []
     for address in execute_db('partition_network',
                               'SELECT * FROM %s WHERE partition_reference=? AND computer_reference=?',
-                              [partition['reference'], partition['computer_reference']]):
+                              (partition_id, computer_id)):
       address_list.append((address['reference'], address['address']))
     slap_partition._parameter_dict['ip_list'] = address_list
     slap_partition._parameter_dict['full_address_list'] = full_address_list
@@ -85,11 +84,11 @@ def partitiondict2partition(partition):
     slap_partition._parameter_dict['instance_title'] = \
         partition['partition_reference']
     slap_partition._parameter_dict['root_instance_title'] = \
-        root_partition['partition_reference']
+        partition['requested_by'] or partition['partition_reference']
     slap_partition._parameter_dict['slap_computer_id'] = \
-        partition['computer_reference']
+        computer_id
     slap_partition._parameter_dict['slap_computer_partition_id'] = \
-        partition['reference']
+        partition_id
     slap_partition._parameter_dict['slap_software_release_url'] = \
         partition['software_release']
 
@@ -104,65 +103,48 @@ def partitiondict2partition(partition):
     slap_partition._connection_dict = xml2dict(partition['connection_xml'])
     slap_partition._software_release_document = SoftwareRelease(
       software_release=partition['software_release'],
-      computer_guid=partition['computer_reference'])
+      computer_guid=computer_id)
 
   return slap_partition
 
 
-def execute_db(table, query, args=(), one=False, db_version=None, db=None):
+def execute_db(table, query, args=(), one=False, db_version=DB_VERSION, db=None):
   if not db:
     db = g.db
-  if not db_version:
-    db_version = DB_VERSION
   query = query % (table + db_version,)
   app.logger.debug(query)
   try:
     cur = db.execute(query, args)
-  except:
-    app.logger.error('There was some issue during processing query %r on table %r with args %r' % (query, table, args))
+  except Exception:
+    app.logger.error(
+      'There was some issue during processing query %r on table %r with args %r',
+      query, table, args)
     raise
-  rv = [dict((cur.description[idx][0], value)
-    for idx, value in enumerate(row)) for row in cur.fetchall()]
-  return (rv[0] if rv else None) if one else rv
+  rv = ({cur.description[idx][0]: value
+    for idx, value in enumerate(row)} for row in cur)
+  return next(rv, None) if one else list(rv)
 
 
 def connect_db():
   return sqlite_connect(app.config['DATABASE_URI'])
-
-def _getTableList():
-  return g.db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY Name").fetchall()
-
-def _getCurrentDatabaseSchemaVersion():
-  """
-  Return version of database schema.
-  As there is no actual definition of version, analyse
-  name of all tables (containing version) and take the
-  highest version (as several versions can live in the db).
-  """
-  # XXX: define an actual version and proper migration/repair procedure.
-  version = -1
-  for table_name in _getTableList():
-    try:
-      table_version = int(table_name[0][-2:])
-    except ValueError:
-      table_version = int(table_name[0][-1:])
-    if table_version > version:
-      version = table_version
-  return str(version)
 
 def _upgradeDatabaseIfNeeded():
   """
   Analyses current database compared to defined schema,
   and adapt tables/data it if needed.
   """
-  current_schema_version = _getCurrentDatabaseSchemaVersion()
-  # If version of current database is not old, do nothing
-  if current_schema_version == DB_VERSION:
-    return
+  previous_table_list = g.db.execute(
+    "SELECT name FROM sqlite_master WHERE type='table' ORDER BY Name"
+  ).fetchall()
+  if previous_table_list:
+    search = re.compile(r'\d+$').search
+    current_schema_version, = {search(table).group(0)
+                               for table, in previous_table_list}
+    # If version of current database is not old, do nothing
+    if current_schema_version == DB_VERSION:
+      return
 
-  previous_table_list = _getTableList()
-  # first, make a backup of current database
-  if current_schema_version != '-1':
+    # first, make a backup of current database
     backup_file_name = "{}-backup-{}to{}-{}.sql".format(
         app.config['DATABASE_URI'],
         current_schema_version,
@@ -178,28 +160,41 @@ def _upgradeDatabaseIfNeeded():
 
   with app.open_resource('schema.sql', 'r') as f:
     schema = f.read() % dict(version=DB_VERSION, computer=app.config['computer_id'])
-  g.db.cursor().executescript(schema)
-  g.db.commit()
+  g.db.execute('BEGIN')
+  try:
+    g.db.executescript(schema)
 
-  if current_schema_version == '-1':
-    return
-
-  # Migrate all data to new tables
-  app.logger.info('Old schema detected: Migrating old tables...')
-  table_list = ('software', 'computer', 'partition', 'slave', 'partition_network')
-  if int(current_schema_version) >= 11:
-    table_list += ('forwarded_partition_request',)
-  if int(current_schema_version) >= 15:
-    table_list += ('local_software_release_root',)
-  for table in table_list:
-    for row in execute_db(table, 'SELECT * from %s', db_version=current_schema_version):
-      columns = ', '.join(row.keys())
-      placeholders = ':'+', :'.join(row.keys())
-      query = 'INSERT OR REPLACE INTO %s (%s) VALUES (%s)' % ('%s', columns, placeholders)
-      execute_db(table, query, row)
-  # then drop old tables
-  for previous_table in previous_table_list:
-    g.db.execute("DROP table %s" % previous_table)
+    if previous_table_list:
+      app.logger.info('Old schema detected: Migrating old tables...')
+      n = len(current_schema_version)
+      current_schema_version = int(current_schema_version)
+      for old_table, in previous_table_list:
+        rv = execute_db(old_table, 'SELECT * from %s', db_version='')
+        if rv:
+          table = old_table[:-n]
+          if current_schema_version < 17:
+            if table == 'local_software_release_root':
+              path, = {row['path'] for row in rv}
+              rv = {'name': table, 'value': path},
+              table = 'config'
+            elif table == 'partition':
+              request_dict = {row['reference']: (i, row['requested_by'])
+                              for i, row in enumerate(rv)}
+              for i, requested_by in request_dict.values():
+                if requested_by:
+                  while True:
+                    j, requested_by = request_dict[requested_by]
+                    if not requested_by:
+                      break
+                  rv[i]['requested_by'] = rv[j]['partition_reference']
+          for row in rv:
+            query = 'INSERT OR REPLACE INTO %%s (%s) VALUES (:%s)' % (
+              ', '.join(row), ', :'.join(row))
+            execute_db(table, query, row)
+        g.db.execute("DROP table " + old_table)
+  except:
+    g.db.rollback()
+    raise
   g.db.commit()
 
 def _updateLocalSoftwareReleaseRootPathIfNeeded():
@@ -208,12 +203,16 @@ def _updateLocalSoftwareReleaseRootPathIfNeeded():
   and rebase all URLs in the database relatively to the new path.
   """
   # Retrieve the current root path and replace it with the new one
-  current_root_path = execute_db('local_software_release_root', 'SELECT * from %s', one=True)['path'] or os.sep
+  current_root_path = (execute_db('config',
+    "SELECT value FROM %s WHERE name='local_software_release_root'",
+    one=True) or {}).get('value', os.sep)
   new_root_path = app.config['local_software_release_root'] or os.sep
-  execute_db('local_software_release_root', 'UPDATE %s SET path=?', [new_root_path])
   # Check whether one is the same as or a subpath of the other
   if current_root_path == new_root_path:
     return
+  execute_db('config',
+    "INSERT OR REPLACE INTO %s VALUES('local_software_release_root',?)",
+    [new_root_path])
   relpath = os.path.relpath(new_root_path, current_root_path)
   if not relpath.startswith(os.pardir + os.sep):
     app.logger.info('Do not rebase any URLs because %s is a subpath of %s', new_root_path, current_root_path)
@@ -305,10 +304,6 @@ def setComputerPartitionConnectionXml():
     query = 'UPDATE %s SET connection_xml=? WHERE reference=? AND computer_reference=?'
     argument_list = [connection_xml, computer_partition_id, computer_id]
     execute_db('partition', query, argument_list)
-    # Update timestamp of parent partition.
-    requested_by = execute_db('partition',
-      'SELECT requested_by FROM %s WHERE reference=? AND computer_reference=?',
-      (computer_partition_id, computer_id), one=True)['requested_by']
   else:
     query = 'UPDATE %s SET connection_xml=? , hosted_by=? WHERE reference=?'
     argument_list = [connection_xml, computer_partition_id, slave_reference]
@@ -341,21 +336,12 @@ def softwareInstanceError():
 
 @app.route('/softwareInstanceBang', methods=['POST'])
 def softwareInstanceBang():
-  partition_list = [getRootPartition(
-    unicode2str(request.form['computer_partition_id']))['reference']]
-  # Now that we have the root partition, browse recursively
-  # to update the timestamp of all partitions in the instance.
-  now = time.time()
-  while True:
-    try:
-      partition_id = partition_list.pop()
-    except IndexError:
-      return 'OK'
-    execute_db('partition',
-      "UPDATE %s SET timestamp=? WHERE reference=?", (now, partition_id))
-    partition_list += (partition['reference'] for partition in execute_db(
-      'partition', "SELECT reference FROM %s WHERE requested_by=?",
-      (partition_id,)))
+  requested_by = getRequesterFromForm(request.form, True)
+  execute_db('partition',
+    "UPDATE %s SET timestamp=?"
+    " WHERE (partition_reference=? AND requested_by='') OR requested_by=?",
+    (time.time(), requested_by, requested_by))
+  return 'OK'
 
 @app.route('/startedComputerPartition', methods=['POST'])
 def startedComputerPartition():
@@ -367,39 +353,44 @@ def stoppedComputerPartition():
 
 @app.route('/destroyedComputerPartition', methods=['POST'])
 def destroyedComputerPartition():
-  if not (request.form['computer_partition_id'] and request.form['computer_id']):
-    raise ValueError("computer_partition_id and computer_id are required")
+  key = (unicode2str(request.form['computer_partition_id']),
+         unicode2str(request.form['computer_id']))
+  partition = getPartition(*key)
+  if not partition:
+    return "Unknown partition %r on %r" % key
 
   # Implement something similar to Alarm_garbageCollectDestroyUnlinkedInstance, if root instance
   # is destroyed, we request child instances in deleted state
-  execute_db(
+  if not partition['requested_by']:
+    args = partition['partition_reference'],
+    child_partitions = execute_db(
       'partition',
-      'UPDATE %s SET requested_state="destroyed" where requested_by=? and computer_reference=?',
-      [request.form['computer_partition_id'], request.form['computer_id']])
-
-  non_destroyed_child_partitions = [
-    p['reference'] for p in execute_db(
-      'partition',
-      'SELECT reference FROM %s WHERE requested_by=? AND computer_reference=?',
-      [request.form['computer_partition_id'], request.form['computer_id']])]
-  if non_destroyed_child_partitions:
-    return "Not destroying yet because this partition has child partitions: %s" % (
-        ', '.join(non_destroyed_child_partitions))
+      'SELECT partition_reference'
+      ' FROM %s WHERE requested_by=?'
+      ' ORDER BY partition_reference',
+      args)
+    if child_partitions:
+      execute_db(
+        'partition',
+        "UPDATE %s SET requested_state='destroyed' WHERE requested_by=?",
+        args)
+      return ("Not destroying yet because this partition has child partitions: "
+              + ', '.join(p['partition_reference'] for p in child_partitions))
 
   execute_db(
-    'partition',
-    'UPDATE %s SET '
-    '  slap_state="free",'
-    '  software_release=NULL,'
-    '  xml=NULL,'
-    '  connection_xml=NULL,'
-    '  slave_instance_list=NULL,'
-    '  software_type=NULL,'
-    '  partition_reference=NULL,'
-    '  requested_by=NULL,'
-    '  requested_state="started"'
-    'WHERE reference=? AND computer_reference=? ',
-    [request.form['computer_partition_id'], request.form['computer_id']])
+    "partition",
+    "UPDATE %s SET"
+      " slap_state='free',"
+      " software_release=NULL,"
+      " xml=NULL,"
+      " connection_xml=NULL,"
+      " slave_instance_list=NULL,"
+      " software_type=NULL,"
+      " partition_reference=NULL,"
+      " requested_by='',"
+      " requested_state='started'"
+    " WHERE reference=? AND computer_reference=?",
+    key)
   return 'OK'
 
 @app.route('/useComputer', methods=['POST'])
@@ -438,10 +429,9 @@ def loadComputerConfigurationFromXML():
 
 @app.route('/registerComputerPartition', methods=['GET'])
 def registerComputerPartition():
-  computer_reference = unicode2str(request.args['computer_reference'])
-  computer_partition_reference = unicode2str(request.args['computer_partition_reference'])
-  partition = execute_db('partition', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
-      [computer_partition_reference, computer_reference], one=True)
+  args = request.args
+  partition = getPartition(unicode2str(args['computer_partition_reference']),
+                           unicode2str(args['computer_reference']))
   if partition is None:
     raise UnauthorizedError
   return dumps(partitiondict2partition(partition))
@@ -464,9 +454,20 @@ def supplySupply():
 
 @app.route('/requestComputerPartition', methods=['POST'])
 def requestComputerPartition():
-  parsed_request_dict = parseRequestComputerPartitionForm(request.form)
+  form = request.form
+  parsed_request_dict = {
+    'requested_by': getRequesterFromForm(form) or '',
+    'software_release': unicode2str(form['software_release']),
+    'software_type': unicode2str(form['software_type']),
+    'partition_reference': unicode2str(form['partition_reference']),
+    'partition_parameter_kw': loads(form.get('partition_parameter_xml', EMPTY_DICT_XML).encode('utf-8')),
+    'filter_kw': loads(form.get('filter_xml', EMPTY_DICT_XML).encode('utf-8')),
+    # Note: currently ignored for slave instance (slave instances
+    # are always started).
+    'requested_state': loads(form['state'].encode('utf-8')),
+  }
   # Is it a slave instance?
-  slave = loads(request.form.get('shared_xml', EMPTY_DICT_XML).encode('utf-8'))
+  slave = loads(form.get('shared_xml', EMPTY_DICT_XML).encode('utf-8'))
 
   # Check first if instance is already allocated
   if slave:
@@ -520,60 +521,45 @@ def requestComputerPartition():
           }
           return dumps(partition)
 
-    # XXX: change schema to include a simple "partition_reference" which
-    # is name of the instance. Then, no need to do complex search here.
-    slave_reference = parsed_request_dict['partition_id'] + '_' + parsed_request_dict['partition_reference']
+    # XXX: concat is unreliable
+    slave_reference = parsed_request_dict['requested_by'] + '_' \
+                    + parsed_request_dict['partition_reference']
     requested_computer_id = parsed_request_dict['filter_kw'].get('computer_guid', app.config['computer_id'])
     matching_partition = getAllocatedSlaveInstance(slave_reference, requested_computer_id)
   else:
     matching_partition = getAllocatedInstance(
       parsed_request_dict['partition_reference'],
-      parsed_request_dict['partition_id'])
+      parsed_request_dict['requested_by'])
 
-  if matching_partition:
-    # Then the instance is already allocated, just update it
-    # XXX: split request and request slave into different update/allocate functions and simplify.
-    # By default, ALWAYS request instance on default computer
-    parsed_request_dict['filter_kw'].setdefault('computer_guid', app.config['computer_id'])
-    if slave:
-      software_instance = requestSlave(**parsed_request_dict)
-    else:
-      software_instance = requestNotSlave(**parsed_request_dict)
-  else:
+  if not matching_partition:
     # Instance is not yet allocated: try to do it.
     external_master_url = isRequestToBeForwardedToExternalMaster(parsed_request_dict)
     if external_master_url:
-      return forwardRequestToExternalMaster(external_master_url, request.form)
+      return forwardRequestToExternalMaster(external_master_url, form)
     # XXX add support for automatic deployment on specific node depending on available SR and partitions on each Node.
     # Note: It only deploys on default node if SLA not specified
     # XXX: split request and request slave into different update/allocate functions and simplify.
 
-    # By default, ALWAYS request instance on default computer
-    parsed_request_dict['filter_kw'].setdefault('computer_guid', app.config['computer_id'])
-    if slave:
-      software_instance = requestSlave(**parsed_request_dict)
-    else:
-      software_instance = requestNotSlave(**parsed_request_dict)
+  # By default, ALWAYS request instance on default computer
+  parsed_request_dict['filter_kw'].setdefault('computer_guid', app.config['computer_id'])
+  if slave:
+    software_instance = requestSlave(**parsed_request_dict)
+  else:
+    software_instance = requestNotSlave(**parsed_request_dict)
 
   return dumps(software_instance)
 
-def parseRequestComputerPartitionForm(form):
-  """
-  Parse without intelligence a form from a request(), return it.
-  """
-  parsed_dict = {
-    'software_release': unicode2str(form['software_release']),
-    'software_type': unicode2str(form.get('software_type')),
-    'partition_reference': unicode2str(form.get('partition_reference', '')),
-    'partition_id': unicode2str(form.get('computer_partition_id', '')),
-    'partition_parameter_kw': loads(form.get('partition_parameter_xml', EMPTY_DICT_XML).encode('utf-8')),
-    'filter_kw': loads(form.get('filter_xml', EMPTY_DICT_XML).encode('utf-8')),
-    # Note: currently ignored for slave instance (slave instances
-    # are always started).
-    'requested_state': loads(form.get('state').encode('utf-8')),
-  }
-
-  return parsed_dict
+def getRequesterFromForm(form, required=False):
+  try:
+    computer_id = form['computer_id']
+    partition_id = form['computer_partition_id']
+  except KeyError:
+    if required:
+      raise
+    return
+  partition = getPartition(unicode2str(partition_id), unicode2str(computer_id))
+  return partition and (partition['requested_by'] or
+                        partition['partition_reference'])
 
 run_id = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
 def checkIfMasterIsCurrentMaster(master_url):
@@ -593,7 +579,7 @@ def checkIfMasterIsCurrentMaster(master_url):
   slap.initializeConnection(master_url)
   try:
     return run_id == bytes2str(slap._connection_helper.GET('/getRunId'))
-  except:
+  except Exception:
     return False
 
 @app.route('/getRunId', methods=['GET'])
@@ -724,14 +710,14 @@ def forwardRequestToExternalMaster(master_url, request_form):
 
   return dumps(partition)
 
-def getAllocatedInstance(partition_reference, requested_by):
+def getAllocatedInstance(partition_reference, requested_by=''):
   """
   Look for existence of instance, if so return the
   corresponding partition dict, else return None
   """
   return execute_db('partition',
-    'SELECT * FROM %s WHERE partition_reference is ? AND requested_by is ?',
-    (partition_reference, requested_by or None), one=True)
+    'SELECT * FROM %s WHERE partition_reference=? AND requested_by=?',
+    (partition_reference, requested_by), one=True)
 
 def getAllocatedSlaveInstance(slave_reference, requested_computer_id):
   """
@@ -743,34 +729,26 @@ def getAllocatedSlaveInstance(slave_reference, requested_computer_id):
   # result in two different allocated slaves.
   """
   return execute_db('slave',
-    'SELECT * FROM %s WHERE reference is ? AND computer_reference is ?',
+    'SELECT * FROM %s WHERE reference=? AND computer_reference=?',
     (slave_reference, requested_computer_id), one=True)
 
-def getRootPartition(reference):
-  """Climb the partitions tree up by 'requested_by' link to get the root partition."""
-  p = 'SELECT * FROM %s WHERE reference=?'
-  partition = execute_db('partition', p, [reference], one=True)
-  if partition is None:
-    app.logger.warning("Nonexisting partition \"{}\". Known are\n{!s}".format(
-      reference, execute_db("partition", "select reference, requested_by from %s")))
-    return None
+def getPartition(reference, computer_reference):
+  partition = execute_db('partition',
+    'SELECT * FROM %s WHERE reference=? AND computer_reference=?',
+    (reference, computer_reference), one=True)
+  if partition:
+    return partition
+  app.logger.warning("Nonexisting partition %r on %r. Known are %s",
+    reference, computer_reference,
+    execute_db("partition", "select reference, requested_by from %s"))
 
-  while True:
-    requested_by = partition['requested_by']
-    if requested_by is None or requested_by == reference:
-      return partition
-    parent_partition = execute_db('partition', p, (requested_by,), one=True)
-    if parent_partition is None:
-      return partition
-    partition = parent_partition
-    reference = requested_by
-
-def requestNotSlave(software_release, software_type, partition_reference, partition_id, partition_parameter_kw, filter_kw, requested_state):
+def requestNotSlave(software_release, software_type, partition_reference,
+                    requested_by, partition_parameter_kw, filter_kw,
+                    requested_state):
   instance_xml = dict2xml(partition_parameter_kw)
   requested_computer_id = filter_kw['computer_guid']
 
-  partition = getAllocatedInstance(partition_reference, partition_id)
-
+  partition = getAllocatedInstance(partition_reference, requested_by)
   args = []
   a = args.append
   q = 'UPDATE %s SET slap_state="busy"'
@@ -785,14 +763,14 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
     if partition_reference:
       q += ' ,partition_reference=?'
       a(partition_reference)
-    if partition_id:
+    if requested_by:
       q += ' ,requested_by=?'
-      a(partition_id)
+      a(requested_by)
     if not software_type:
       software_type = DEFAULT_SOFTWARE_TYPE
   else:
-    if partition['requested_by']:
-      root_partition = getRootPartition(partition['requested_by'])
+    if requested_by:
+      root_partition = getAllocatedInstance(requested_by)
       if root_partition and root_partition['requested_state'] != "started":
         # propagate parent state to child
         # child can be stopped or destroyed while parent is started
@@ -820,8 +798,8 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
   a(partition['computer_reference'])
 
   execute_db('partition', q, args)
-  partition = execute_db('partition', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
-      [partition['reference'], partition['computer_reference']], one=True)
+  partition = getPartition(partition['reference'],
+                           partition['computer_reference'])
   address_list = []
   for address in execute_db('partition_network', 'SELECT * FROM %s WHERE partition_reference=?', [partition['reference']]):
     address_list.append((address['reference'], address['address']))
@@ -842,7 +820,7 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
     _requested_state=requested_state or 'started',
     ip_list=address_list)
 
-def requestSlave(software_release, software_type, partition_reference, partition_id, partition_parameter_kw, filter_kw, requested_state):
+def requestSlave(software_release, software_type, partition_reference, requested_by, partition_parameter_kw, filter_kw, requested_state):
   """
   Function to organise link between slave and master.
   Slave information are stored in places:
@@ -882,7 +860,7 @@ def requestSlave(software_release, software_type, partition_reference, partition
 
   # We set slave dictionary as described in docstring
   new_slave = {}
-  slave_reference = partition_id + '_' + partition_reference
+  slave_reference = requested_by + '_' + partition_reference
   new_slave['slave_title'] = slave_reference
   new_slave['slap_software_type'] = software_type
   new_slave['slave_reference'] = slave_reference
@@ -932,16 +910,15 @@ def requestSlave(software_release, software_type, partition_reference, partition
   a(partition['reference'])
   a(requested_computer_id)
   execute_db('partition', q, args)
-  partition = execute_db('partition', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
-      [partition['reference'], requested_computer_id], one=True)
+  partition = getPartition(partition['reference'], requested_computer_id)
 
   # Add slave to slave table if not there
   slave = execute_db('slave', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
                      [slave_reference, requested_computer_id], one=True)
   if slave is None:
     execute_db('slave',
-               'INSERT OR IGNORE INTO %s (reference,computer_reference,asked_by,hosted_by) values(:reference,:computer_reference,:asked_by,:hosted_by)',
-               [slave_reference, requested_computer_id, partition_id, partition['reference']])
+               'INSERT INTO %s (reference,computer_reference,asked_by,hosted_by) values(?,?,?,?)',
+               (slave_reference, requested_computer_id, requested_by, partition['reference']))
     slave = execute_db('slave', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
                        [slave_reference, requested_computer_id], one=True)
 
@@ -965,11 +942,23 @@ def requestSlave(software_release, software_type, partition_reference, partition
 @app.route('/softwareInstanceRename', methods=['POST'])
 def softwareInstanceRename():
   new_name = unicode2str(request.form['new_name'])
-  computer_partition_id = unicode2str(request.form['computer_partition_id'])
-  computer_id = unicode2str(request.form['computer_id'])
+  key = (unicode2str(request.form['computer_partition_id']),
+         unicode2str(request.form['computer_id']))
+  partition = getPartition(*key)
+  if not partition:
+    return "Unknown partition %r on %r" % key
 
-  q = 'UPDATE %s SET partition_reference = ? WHERE reference = ? AND computer_reference = ?'
-  execute_db('partition', q, [new_name, computer_partition_id, computer_id])
+  if not partition['requested_by']:
+    execute_db(
+      'partition',
+      'UPDATE %s SET requested_by=? WHERE requested_by=?',
+      (new_name, partition['partition_reference']))
+
+  execute_db(
+    'partition',
+    'UPDATE %s SET partition_reference=?'
+    ' WHERE reference=? AND computer_reference=?',
+    (new_name,) + key)
   return 'done'
 
 @app.route('/getComputerPartitionStatus', methods=['GET'])
@@ -1018,7 +1007,7 @@ def unquoted_url_for(method, **kwargs):
 
 def busy_root_partitions_list(title=None):
   partitions = []
-  query = 'SELECT * FROM %s WHERE slap_state<>"free" AND requested_by IS NULL'
+  query = "SELECT * FROM %s WHERE slap_state!='free' AND requested_by=''"
   args = []
   if title:
     query += ' AND partition_reference=?'
@@ -1033,7 +1022,7 @@ def busy_root_partitions_list(title=None):
 
 def busy_root_shared_list(title=None):
   shared = []
-  query = 'SELECT * FROM %s WHERE asked_by==""'
+  query = "SELECT * FROM %s WHERE asked_by=''"
   args = []
   if title:
     query += ' AND reference=?'

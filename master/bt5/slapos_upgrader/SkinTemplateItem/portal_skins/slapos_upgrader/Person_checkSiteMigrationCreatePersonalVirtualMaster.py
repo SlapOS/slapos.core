@@ -40,6 +40,7 @@ if project is None:
     title=virtual_master_title,
     is_compute_node_payable=False,
     is_instance_tree_payable=False,
+    is_software_instance_payable=False,
     # Hardcoded
     price_currency='currency_module/EUR',
     batch=1,

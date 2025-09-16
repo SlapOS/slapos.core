@@ -123,7 +123,7 @@ for identical_order_base_category in identical_order_base_category_list:
 
 # Ensure the subscribed item is the same
 # (done separatly, because open order cell have multiple aggregated items
-subscribed_item = previous_causality_to_compare.getAggregateValue(portal_type=['Instance Tree', 'Compute Node', 'Project'])
+subscribed_item = previous_causality_to_compare.getAggregateValue(portal_type=['Instance Tree', 'Compute Node', 'Project', 'Slave Instance', 'Software Instance'])
 if subscription_change_request.getAggregateUid() == subscribed_item.getUid():
   edit_kw['aggregate'] = subscription_change_request.getAggregate()
 else:
@@ -135,7 +135,7 @@ else:
 if is_owner_change_needed:
   if subscribed_item is None:
     raise NotImplementedError('Unsupported subscribed item')
-  elif subscribed_item.getPortalType() == 'Compute Node':
+  elif subscribed_item.getPortalType() in ['Compute Node', 'Slave Instance', 'Software Instance']:
     # No user is set on Compute Node
     pass
   elif subscribed_item.getPortalType() == 'Instance Tree':

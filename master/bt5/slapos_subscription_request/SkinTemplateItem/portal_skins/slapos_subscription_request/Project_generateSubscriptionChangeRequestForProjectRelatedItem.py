@@ -11,7 +11,7 @@ portal = context.getPortalObject()
 
 portal.portal_catalog.searchAndActivate(
   portal_type=['Open Sale Order Line', 'Open Sale Order Cell'],
-  aggregate__portal_type=['Compute Node'],
+  aggregate__portal_type=['Compute Node', 'Slave Instance', 'Software Instance'],
   source_project__uid=project.getUid(),
   destination__uid=NegatedQuery(SimpleQuery(destination__uid=project.getDestinationUid())),
   validation_state='validated',

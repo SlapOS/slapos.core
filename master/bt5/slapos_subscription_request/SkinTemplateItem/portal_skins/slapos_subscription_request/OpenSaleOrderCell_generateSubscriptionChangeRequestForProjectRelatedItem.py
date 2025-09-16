@@ -10,7 +10,7 @@ open_sale_order = open_sale_order_cell.getParentValue()
 while open_sale_order.getPortalType() != 'Open Sale Order':
   open_sale_order = open_sale_order.getParentValue()
 
-compute_node = open_sale_order_cell.getAggregateValue(portal_type='Compute Node')
+compute_node = open_sale_order_cell.getAggregateValue(portal_type=['Compute Node', 'Slave Instance', 'Software Instance'])
 assert compute_node is not None
 
 project = open_sale_order.getSourceProjectValue()

@@ -31,8 +31,10 @@ import argparse
 import os.path
 import sys
 import six
+import json
 
 import slapos.slap.slap
+from slapos.util import mkdir_p, chownDirectory
 from slapos.grid.slapgrid import COMPUTER_PARTITION_TIMESTAMP_FILENAME, \
     COMPUTER_PARTITION_LATEST_BANG_TIMESTAMP_FILENAME
 
@@ -66,6 +68,7 @@ def parseArgumentTuple():
 class Watchdog(object):
 
   process_state_events = ['PROCESS_STATE_EXITED', 'PROCESS_STATE_FATAL']
+  process_state_folder_name = '.slapgrid/state'
 
   def __init__(self, master_url, computer_id,
                certificate_repository_path=None, instance_root_path=None):
@@ -113,6 +116,27 @@ class Watchdog(object):
       if WATCHDOG_MARK in payload_dict['processname'] and \
          not self.has_bang_already_been_called(payload_dict['groupname']):
         self.handle_process_state_change_event(headers, payload_dict)
+
+      # check exit code of the process
+      self.save_process_state(payload_dict)
+
+  def save_process_state(self, payload_dict):
+    instance_path = os.path.join(self.instance_root_path, payload_dict['groupname'])
+    stat_info = os.stat(instance_path)
+
+    state_folder_path = os.path.join(
+      instance_path,
+      self.process_state_folder_name
+    )
+    process_state_path = os.path.join(
+      state_folder_path,
+      '%s.json' % payload_dict['processname']
+    )
+
+    mkdir_p(state_folder_path)
+    chownDirectory(state_folder_path, stat_info.st_uid, stat_info.st_gid)
+    with open(process_state_path, 'w') as f:
+      json.dump(payload_dict, f)
 
   def has_bang_already_been_called(self, partition_name):
     """

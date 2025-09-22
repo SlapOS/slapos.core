@@ -1525,6 +1525,73 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       watchdog.handle_event(headers, payload)
       self.assertEqual(instance.sequence, [])
 
+  def test_watchdog_on_exited_process_script(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    instance = computer.instance_list[0]
+    partition_root = os.path.join(self.instance_root, '0')
+
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      certificate_repository_path = os.path.join(self._tempdir, 'partition_pki')
+      instance.setCertificate(certificate_repository_path)
+
+      watchdog = Watchdog(
+          master_url='https://127.0.0.1/',
+          computer_id=self.computer_id,
+          certificate_repository_path=certificate_repository_path,
+          instance_root_path=self.instance_root
+      )
+      script_name = 'test-script'
+      payload = 'processname:%s groupname:%s from_state:RUNNING expected:0 pid:1234' % (
+            script_name, instance.name)
+      for event in watchdog.process_state_events:
+        headers = {'eventname': event}
+        watchdog.handle_event(headers, payload)
+
+      state_dir = os.path.join(partition_root, '.slapgrid/state')
+      script_state_file = os.path.join(state_dir, '%s.json' % script_name)
+      self.assertTrue(os.path.exists(script_state_file))
+
+      with open(script_state_file) as f:
+        state_dict = json.load(f)
+        self.assertEqual(
+          payload,
+          ' '.join([':'.join(l) for l in state_dict.items()])
+        )
+
+      # if payload changed state is updated
+      payload = 'processname:%s groupname:%s from_state:RUNNING expected:1 pid:1234' % (
+            script_name, instance.name)
+      for event in watchdog.process_state_events:
+        headers = {'eventname': event}
+        watchdog.handle_event(headers, payload)
+
+      with open(script_state_file) as f:
+        state_dict = json.load(f)
+        self.assertEqual(
+          payload,
+          ' '.join([':'.join(l) for l in state_dict.items()])
+        )
+        self.assertEqual(state_dict['expected'], '1')
+
+      # process with WATCHDOG_MARK also save state
+      service_name = 'service' + WATCHDOG_MARK
+      service_state_file = os.path.join(state_dir, '%s.json' % service_name)
+      payload = 'processname:%s groupname:%s from_state:RUNNING expected:1 pid:1234' % (
+            service_name, instance.name)
+
+      for event in watchdog.process_state_events:
+        headers = {'eventname': event}
+        watchdog.handle_event(headers, payload)
+
+      self.assertTrue(os.path.exists(service_state_file))
+      with open(service_state_file) as f:
+        state_dict = json.load(f)
+        self.assertEqual(
+          payload,
+          ' '.join([':'.join(l) for l in state_dict.items()])
+        )
+        self.assertEqual(state_dict['processname'], service_name)
 
 class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
 

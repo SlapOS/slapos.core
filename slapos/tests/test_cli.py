@@ -39,7 +39,7 @@ import os
 import pkg_resources
 import warnings
 
-from contextlib import contextmanager
+from contextlib import contextmanager, closing
 from mock import patch, create_autospec
 import mock
 from slapos.util import sqlite_connect, bytes2str, dict2xml
@@ -343,9 +343,9 @@ class TestCliProxyShow(CliMixin):
     schema = bytes2str(pkg_resources.resource_string(
         'slapos.tests',
         os.path.join('test_slapproxy', 'database_dump_version_current.sql')))
-    db = sqlite_connect(self.db_file.name)
-    db.cursor().executescript(schema)
-    db.commit()
+    with closing(sqlite_connect(self.db_file.name)) as db:
+      db.cursor().executescript(schema)
+      db.commit()
 
     # by default we simulate being invoked with "show all" arguments
     self.conf.computers = True

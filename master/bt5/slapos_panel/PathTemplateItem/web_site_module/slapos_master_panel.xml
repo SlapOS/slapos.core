@@ -433,7 +433,9 @@
         </item>
         <item>
             <key> <string>configuration_header_gadget_url</string> </key>
-            <value> <string>slapos_master_panel_header.html</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>configuration_icon_url</string> </key>
@@ -757,7 +759,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1030.31604.33994.9335</string> </value>
+                      <value> <string>1030.31611.30220.47650</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -773,7 +775,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                           <tuple/>
                           <state>
                             <tuple>
-                              <float>1769506287.66</float>
+                              <float>1769506392.62</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

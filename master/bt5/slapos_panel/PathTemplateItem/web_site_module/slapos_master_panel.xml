@@ -425,7 +425,7 @@
         </item>
         <item>
             <key> <string>configuration_default_view_action_reference</string> </key>
-            <value> <string>view</string> </value>
+            <value> <string>slapos_panel_view</string> </value>
         </item>
         <item>
             <key> <string>configuration_frontpage_gadget_url</string> </key>
@@ -767,7 +767,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1027.43850.59474.18244</string> </value>
+                      <value> <string>1021.58354.4516.21589</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -787,7 +787,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1758617644.48</float>
+                              <float>1736327305.36</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

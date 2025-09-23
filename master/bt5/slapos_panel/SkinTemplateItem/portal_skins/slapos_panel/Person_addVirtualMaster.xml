@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>title, is_compute_node_payable , is_instance_tree_payable, price_currency, batch=0, activate_kw=None, **kw</string> </value>
+            <value> <string>title, is_compute_node_payable, is_instance_tree_payable, is_software_instance_payable, price_currency, batch=0, activate_kw=None, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

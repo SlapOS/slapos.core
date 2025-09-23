@@ -1525,6 +1525,48 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       watchdog.handle_event(headers, payload)
       self.assertEqual(instance.sequence, [])
 
+  def test_watchdog_on_exited_process_script(self):
+    """
+    Test that a process in script directory (without watchdog mark) with unexpected exit code
+    will report error and not bang
+    """
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    instance = computer.instance_list[0]
+    partition_root = os.path.join(self.instance_root, '0')
+
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      certificate_repository_path = os.path.join(self._tempdir, 'partition_pki')
+      instance.setCertificate(certificate_repository_path)
+
+      watchdog = Watchdog(
+          master_url='https://127.0.0.1/',
+          computer_id=self.computer_id,
+          certificate_repository_path=certificate_repository_path,
+          instance_root_path=self.instance_root
+      )
+      script_name = 'test-script'
+      payload = 'processname:%s groupname:%s from_state:RUNNING expected:0 pid:1234' % (
+            script_name, instance.name)
+      instance.sequence = []
+      instance.header_list = []
+      for event in watchdog.process_state_events:
+        headers = {'eventname': event}
+        watchdog.handle_event(headers, payload)
+
+      # expected is 0, instance report error
+      self.assertEqual(instance.sequence, ['/softwareInstanceError'])
+
+      # if payload changed to expected code, no error
+      instance.sequence = []
+      instance.header_list = []
+      payload = 'processname:%s groupname:%s from_state:RUNNING expected:1 pid:1234' % (
+            script_name, instance.name)
+      for event in watchdog.process_state_events:
+        headers = {'eventname': event}
+        watchdog.handle_event(headers, payload)
+
+      self.assertEqual(instance.sequence, [])
 
 class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
 

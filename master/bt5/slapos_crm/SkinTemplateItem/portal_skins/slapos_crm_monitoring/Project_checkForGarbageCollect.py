@@ -66,6 +66,7 @@ portal.portal_catalog.searchAndActivate(
   validation_state='validated',
   capacity_scope__id='close',
 
+  follow_up__uid=project.getUid(),
   method_id='ComputeNode_checkForGarbageCollect',
   method_kw={'activate_kw': activate_kw},
   activate_kw=activate_kw

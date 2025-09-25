@@ -2465,3 +2465,51 @@ class TestSlapOSCrmGarbageCollectProject(TestSlapOSCrmMonitoringMixin):
     self.assertIn('- %s %s' % (child_instance.getReference(), child_instance.getTitle()), event.getTextContent())
     self.assertEqual(ticket.getSimulationState(), "submitted")
 
+  ##########################################################################
+  # slapos_crm_garbage_collect_project > InstanceNode_checkForGarbageCollect
+  ##########################################################################
+  def addInstanceNode(self):
+    with PinnedDateTime(self, DateTime() - 91):
+      project = self.addProject()
+      software_instance = self.portal.software_instance_module.newContent(
+        portal_type='Software Instance',
+        follow_up_value=project
+      )
+      software_instance.validate()
+      # person = self.portal.person_module.newContent(portal_type="Person")
+      instance_node = self.portal.compute_node_module.newContent(
+        portal_type='Instance Node',
+        specialise_value=software_instance,
+        follow_up_value=project
+      )
+      instance_node.validate()
+    return instance_node
+
+  def test_InstanceNode_checkForGarbageCollect_alarm_invalidatedInstance(self):
+    instance_node = self.addInstanceNode()
+    instance_node.getSpecialiseValue().invalidate()
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm(alarm, instance_node, "InstanceNode_checkForGarbageCollect")
+
+  def test_InstanceNode_checkForGarbageCollect_alarm_validatedInstance(self):
+    instance_node = self.addInstanceNode()
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, instance_node, "InstanceNode_checkForGarbageCollect")
+
+  def test_InstanceNode_checkForGarbageCollect_alarm_invalidatedNode(self):
+    instance_node = self.addInstanceNode()
+    instance_node.getSpecialiseValue().invalidate()
+    instance_node.invalidate()
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, instance_node, "InstanceNode_checkForGarbageCollect")
+
+  def test_InstanceNode_checkForGarbageCollect_script_invalidatedInstance(self):
+    instance_node = self.addInstanceNode()
+    instance_node.getSpecialiseValue().invalidate()
+    self.tic()
+    instance_node.InstanceNode_checkForGarbageCollect()
+    self.assertEqual(instance_node.getValidationState(), 'invalidated')
+

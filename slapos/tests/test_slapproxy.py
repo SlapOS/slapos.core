@@ -2483,25 +2483,12 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
       ])
 
   # Override several tests that needs an empty database
-  @unittest.skip("Not implemented")
-  def test_multi_node_support_different_software_release_list(self):
-    pass
-
-  @unittest.skip("Not implemented")
-  def test_multi_node_support_instance_default_computer(self):
-    pass
-
-  @unittest.skip("Not implemented")
-  def test_multi_node_support_instance_guid(self):
-    pass
-
-  @unittest.skip("Not implemented")
-  def test_partition_are_empty(self):
-    pass
-
-  @unittest.skip("Not implemented")
-  def test_request_coTestMigrateVersion10ToLatestnsistent_parameters(self):
-    pass
+  test_multi_node_support_different_software_release_list = \
+  test_multi_node_support_instance_default_computer = \
+  test_multi_node_support_instance_guid = \
+  test_partition_are_empty = \
+  test_request_coTestMigrateVersion10ToLatestnsistent_parameters = \
+    None
 
 
 class TestMigrateVersion10ToLatest(_MigrationTestCase):

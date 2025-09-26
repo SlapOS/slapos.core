@@ -66,7 +66,6 @@ def parseArgumentTuple():
 class Watchdog(object):
 
   process_state_events = ['PROCESS_STATE_EXITED', 'PROCESS_STATE_FATAL']
-  process_state_event_exited = 'PROCESS_STATE_EXITED'
 
   def __init__(self, master_url, computer_id,
                certificate_repository_path=None, instance_root_path=None):
@@ -111,7 +110,9 @@ class Watchdog(object):
   def handle_event(self, headers, payload):
     if headers['eventname'] in self.process_state_events:
       payload_dict = dict([x.split(':') for x in payload.split()])
-      self.handle_process_state_change_event(headers, payload_dict)
+      if WATCHDOG_MARK in payload_dict['processname'] and \
+         not self.has_bang_already_been_called(payload_dict['groupname']):
+        self.handle_process_state_change_event(headers, payload_dict)
 
   def has_bang_already_been_called(self, partition_name):
     """
@@ -190,22 +191,9 @@ class Watchdog(object):
       computer_id=self.computer_id,
       connection_helper=self.slap._connection_helper,
       partition_id=partition_id)
-
-    if WATCHDOG_MARK in payload_dict['processname']:
-      if not self.has_bang_already_been_called(payload_dict['groupname']):
-        # report "on-watch" processes (in etc/services) exited
-        partition.bang("%s process in partition %s encountered a problem"
-                       % (payload_dict['processname'], partition_id))
-        self.create_partition_bang_timestamp_file(payload_dict['groupname'])
-    elif headers['eventname'] == self.process_state_event_exited:
-      # report others processes (in etc/run) if have failed
-      # 'expected' says whether the process exit code was expected or not.
-      # it's 0 if the exit code was unexpected, or 1 if it was expected.
-      if payload_dict.get('expected', '1') != '1':
-        partition.error(
-          "%s process in partition %s exited with unexepected exit code"
-            % (payload_dict['processname'], partition_id)
-        )
+    partition.bang("%s process in partition %s encountered a problem"
+                   % (payload_dict['processname'], partition_id))
+    self.create_partition_bang_timestamp_file(payload_dict['groupname'])
 
 
 def main():

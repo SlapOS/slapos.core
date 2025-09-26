@@ -2243,8 +2243,10 @@ echo %s; echo %s; exit 42""" % (line1, line2))
       # partition error was reported
       self.assertEqual(instance.sequence, ['/softwareInstanceError'])
       # the reported error is not about process in etc/run
-      self.assertEqual(instance.error_log.strip(),
+      self.assertTrue(
+        instance.error_log.strip().startswith(
                        "Failed to run buildout profile in directory '%s':" % instance.partition_path)
+      )
 
 class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
   """

@@ -73,6 +73,7 @@ from slapos.grid.exception import BuildoutFailedError
 from slapos.grid.SlapObject import Software, Partition
 from slapos.grid.svcbackend import (launchSupervisord,
                                     createSupervisordConfiguration,
+                                    _checkProcessExitStatusList,
                                     _getSupervisordConfigurationDirectory,
                                     _getSupervisordSocketPath,
                                     getSupervisorRPC)
@@ -1217,7 +1218,10 @@ stderr_logfile_backups=1
     )
 
     # Check if a process in run_dir has failed
-    failed_script_list = self._checkProcessStateList(local_partition)
+    failed_script_list = _checkProcessExitStatusList(
+      self.supervisord_socket,
+      local_partition
+    )
 
     # let managers modify current partition
     for manager in self._manager_list:
@@ -1392,26 +1396,6 @@ stderr_logfile_backups=1
     if timestamp:
       with open(timestamp_path, 'w') as f:
         f.write(str(timestamp))
-
-  def _checkProcessStateList(self, local_partition):
-    """
-    Check process exit status and report error if the status is unexpected
-    """
-    failed_script_list = []
-    if os.path.exists(local_partition.run_path):
-      supervisor_rpc = getSupervisorRPC(
-        _getSupervisordSocketPath(self.instance_root, self.logger)
-      )
-      with supervisor_rpc as supervisor:
-        for script_name in os.listdir(local_partition.run_path):
-          # for each script, check process info
-          state = supervisor.getProcessInfo(
-            '%s:%s' % (local_partition.partition_id, script_name)
-          )
-          if state['exitstatus'] != 0:
-            # process failed
-            failed_script_list.append(script_name)
-    return failed_script_list
 
   def FilterComputerPartitionList(self, computer_partition_list):
     """

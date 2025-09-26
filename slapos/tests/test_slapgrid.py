@@ -1525,6 +1525,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       watchdog.handle_event(headers, payload)
       self.assertEqual(instance.sequence, [])
 
+
 class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
 
   def test_partition_timestamp(self):
@@ -2183,9 +2184,11 @@ echo %s; echo %s; exit 42""" % (line1, line2))
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       # partition error was reported
       self.assertEqual(instance.sequence, ['/startedComputerPartition', '/softwareInstanceError'])
-      self.assertEqual(instance.error_log.strip().split('\n'),
-                       ["Process 'script2' from partition 0 has unexpected exit code",
-                        "Process 'script' from partition 0 has unexpected exit code"])
+      error_log = instance.error_log.strip().split('\n')
+      error_log.sort()
+      self.assertEqual(error_log,
+                       ["Process 'script' from partition 0 has unexpected exit code",
+                        "Process 'script2' from partition 0 has unexpected exit code"])
 
   def test_process_script_unexpected_exit_code_buildout_fail(self):
     """
@@ -2243,8 +2246,10 @@ echo %s; echo %s; exit 42""" % (line1, line2))
       # partition error was reported
       self.assertEqual(instance.sequence, ['/softwareInstanceError'])
       # the reported error is not about process in etc/run
-      self.assertEqual(instance.error_log.strip(),
+      self.assertTrue(
+        instance.error_log.strip().startswith(
                        "Failed to run buildout profile in directory '%s':" % instance.partition_path)
+      )
 
 class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
   """

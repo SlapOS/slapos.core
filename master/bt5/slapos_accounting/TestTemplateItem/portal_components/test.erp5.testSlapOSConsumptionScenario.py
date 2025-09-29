@@ -300,7 +300,7 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     transaction_list = receivable.Account_getAccountingTransactionList(
       mirror_section_uid=project_owner_person.getUid())
 
-    self.assertEqual(len(transaction_list),  4)
+    self.assertEqual(len(transaction_list),  5)
     self.assertSameSet(
       [round(x.total_price, 2) for x in transaction_list],
       [58.8, 118.8, 141.0, -141.0],
@@ -434,10 +434,10 @@ class TestSlapOSConsumptionScenario(TestSlapOSConsumptionScenarioMixin):
     transaction_list = receivable.Account_getAccountingTransactionList(
       mirror_section_uid=project_owner_person.getUid())
 
-    self.assertEqual(len(transaction_list),  4)
+    self.assertEqual(len(transaction_list),  5)
     self.assertSameSet(
       [round(x.total_price, 2) for x in transaction_list],
-      [50.4, 347.84, 141.0, -141.0],
+      [50.4, 229.04, 118.8, 141.0, -141.0],
       [round(x.total_price, 2) for x in transaction_list],
     )
 

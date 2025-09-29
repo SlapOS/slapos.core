@@ -22,6 +22,10 @@ consumption_delivery = portal.consumption_delivery_module.newContent(
   causality_value=document,
   start_date=start_date,
   stop_date=stop_date,
+
+  # Copy original dates here
+  effective_date=start_date,
+  expiration_date=stop_date
 )
 
 if context.getPortalType() != 'Project':

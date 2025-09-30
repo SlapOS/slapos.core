@@ -34,6 +34,7 @@ from Products.ERP5Type.tests.utils import DummyMailHostMixin
 from OFS.Traversable import NotFound
 from erp5.component.module.SlapOSCloud import _assertACI
 from Products.ERP5Type.Utils import str2unicode
+from Products.Formulator.Widget import convert_to_xml_compatible_string
 
 import time
 from lxml import etree
@@ -279,7 +280,8 @@ class SlapOSComputeNodeMixin(object):
         partition_dict['_requested_state'] = 'stopped'
       if state == "start_requested":
         partition_dict['_requested_state'] = 'started'
-      partition_dict['_access_status'] = software_instance.getTextAccessStatus()
+      partition_dict['_access_status'] = 
+        convert_to_xml_compatible_string(str2unicode(software_instance.getTextAccessStatus()))
 
       partition_dict['_software_release_document'] = {
             "software_release": str2unicode(software_instance.getUrlString()),

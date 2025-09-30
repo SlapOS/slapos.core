@@ -40,8 +40,8 @@ whenever the virtual environment is activated.
 
 - In `_MigrationTestCase`, update `current_version` from `XX` to `YY`.
 
-- Add a `TestMigrateVersionXXToLatest` test case (see the existing ones).
-  - If tables were added in version `XX`, adjust the `initial_table_list`.
+- Add a `TestMigrateVersionXXToLatest` test case (see the existing ones),
+  and adjust `test_automatic_migration` is necessary.
 
 
 ## In `test_slapproxy/`

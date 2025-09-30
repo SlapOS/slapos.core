@@ -46,7 +46,7 @@ SLAPOS_PROXY_PID=$!
 
 curl --silent --retry-connrefused --retry 3 http://127.0.0.1:${PORT}/getComputerInformation?computer_id=$COMPUTER_ID
 
-sqlite3 ${TMPD}/proxy.db .dump > $DUMP_AFTER
+sqlite3 ${TMPD}/proxy.db '.dump --newlines' > $DUMP_AFTER
 
 kill $SLAPOS_PROXY_PID
 wait

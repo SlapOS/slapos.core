@@ -279,7 +279,7 @@ class SlapOSComputeNodeMixin(object):
         partition_dict['_requested_state'] = 'stopped'
       if state == "start_requested":
         partition_dict['_requested_state'] = 'started'
-      partition_dict['_access_status'] = software_instance.getTextAccessStatus()
+      partition_dict['_access_status'] = str2unicode(software_instance.getTextAccessStatus())
 
       partition_dict['_software_release_document'] = {
             "software_release": str2unicode(software_instance.getUrlString()),

@@ -102,7 +102,7 @@ class SlapOSComputePartitionMixin(object):
             "software_release": str2unicode(software_instance.getUrlString()),
             "computer_guid": compute_node_id
       }
-      partition_dict['_access_status'] = software_instance.getTextAccessStatus()
+      partition_dict['_access_status'] = str2unicode(software_instance.getTextAccessStatus())
       partition_dict["_need_modification"] = 1
       # trick client side, that data has been synchronised already for given
       # document

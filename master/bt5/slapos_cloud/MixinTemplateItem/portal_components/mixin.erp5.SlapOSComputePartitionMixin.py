@@ -28,6 +28,7 @@
 from erp5.component.module.SlapOSCloud import _assertACI
 from zLOG import LOG, INFO
 from OFS.Traversable import NotFound
+from Products.Formulator.Widget import convert_to_xml_compatible_string
 from Products.ERP5Type.Utils import str2unicode
 
 
@@ -102,7 +103,8 @@ class SlapOSComputePartitionMixin(object):
             "software_release": str2unicode(software_instance.getUrlString()),
             "computer_guid": compute_node_id
       }
-      partition_dict['_access_status'] = software_instance.getTextAccessStatus()
+      partition_dict['_access_status'] = convert_to_xml_compatible_string(
+          str2unicode(software_instance.getTextAccessStatus()))
       partition_dict["_need_modification"] = 1
       # trick client side, that data has been synchronised already for given
       # document

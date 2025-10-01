@@ -9,7 +9,12 @@ portal.portal_catalog.searchAndActivate(
   validation_state="validated",
   specialise_validation_state="validated",
   method_id='SoftwareInstance_tryToStopCollect',
-  activate_kw={'tag': tag},
+  # This alarm bruteforce checking all documents,
+  # without changing them directly.
+  # Increase priority to not block other activities
+  # Put a really high value, as this alarm is not critical
+  # And should not slow down others
+  activate_kw = {'tag':tag, 'priority': 5},
   **{"slapos_item.slap_state": "start_requested"}
 )
 

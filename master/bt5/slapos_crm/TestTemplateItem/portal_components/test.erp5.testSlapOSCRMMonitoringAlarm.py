@@ -2374,3 +2374,142 @@ class TestSlapOSCrmGarbageCollectProject(TestSlapOSCrmMonitoringMixin):
     self.portal.portal_workflow._jumpToStateFor(assignment_request, "suspended")
     assignment_request.AssignmentRequest_checkForGarbageCollect()
     self.assertEqual(assignment_request.getSimulationState(), 'suspended')
+
+  ##########################################################################
+  # slapos_crm_garbage_collect_project > SoftwareInstance_checkForGarbageCollect
+  ##########################################################################
+  def addSoftwareInstanceToGarbageCollect(self):
+    with PinnedDateTime(self, DateTime() - 91):
+      project = self.addProject()
+      # create a empty node, to not close the project
+      compute_node = self.portal.compute_node_module.newContent(
+        portal_type='Compute Node',
+        follow_up_value=project
+      )
+      compute_node.validate()
+
+      instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree',
+        reference=self.generateNewId(),
+        follow_up_value=project
+      )
+      instance_tree.validate()
+
+      software_instance = self.portal.software_instance_module.newContent(
+        portal_type='Software Instance',
+        reference=self.generateNewId(),
+        title=self.generateNewId(),
+        follow_up_value=project,
+        specialise_value=instance_tree
+      )
+      software_instance.validate()
+      software_instance.invalidate()
+      instance_tree.setSuccessorValue(software_instance)
+
+      child_instance = self.portal.software_instance_module.newContent(
+        portal_type='Software Instance',
+        reference=self.generateNewId(),
+        title=self.generateNewId(),
+        follow_up_value=project,
+        specialise_value=instance_tree
+      )
+      child_instance.validate()
+      software_instance.setSuccessorValue(child_instance)
+
+    return software_instance
+
+  def test_SoftwareInstance_checkForGarbageCollect_alarm_invalidatedInstance(self):
+    software_instance = self.addSoftwareInstanceToGarbageCollect()
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm(alarm, software_instance, "SoftwareInstance_checkForGarbageCollect")
+
+  def test_SoftwareInstance_checkForGarbageCollect_alarm_invalidatedInstanceWithoutSuccessor(self):
+    software_instance = self.addSoftwareInstanceToGarbageCollect()
+    software_instance.setSuccessorValue(None)
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, software_instance, "SoftwareInstance_checkForGarbageCollect")
+
+  def test_SoftwareInstance_checkForGarbageCollect_alarm_invalidatedInstanceInvalidatedSuccessor(self):
+    software_instance = self.addSoftwareInstanceToGarbageCollect()
+    software_instance.getSuccessorValue().invalidate()
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, software_instance, "SoftwareInstance_checkForGarbageCollect")
+
+  def test_SoftwareInstance_checkForGarbageCollect_alarm_invalidatedInstanceInvalidatedTree(self):
+    software_instance = self.addSoftwareInstanceToGarbageCollect()
+    software_instance.getSpecialiseValue().archive()
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, software_instance, "SoftwareInstance_checkForGarbageCollect")
+
+  def test_SoftwareInstance_checkForGarbageCollect_script_invalidatedInstance(self):
+    software_instance = self.addSoftwareInstanceToGarbageCollect()
+    self.tic()
+    ticket = software_instance.SoftwareInstance_checkForGarbageCollect()
+    instance_tree = software_instance.getSpecialiseValue()
+    child_instance = software_instance.getSuccessorValue()
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), 'Instance tree %s contains instances to garbage collect' % instance_tree.getReference())
+    self.assertEqual(ticket.getCausality(), instance_tree.getRelativeUrl())
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('This instance tree contains instances which seem not used anymore.', event.getTextContent())
+    self.assertIn('- %s %s' % (child_instance.getReference(), child_instance.getTitle()), event.getTextContent())
+    self.assertEqual(ticket.getSimulationState(), "submitted")
+
+  ##########################################################################
+  # slapos_crm_garbage_collect_project > InstanceNode_checkForGarbageCollect
+  ##########################################################################
+  def addInstanceNode(self):
+    with PinnedDateTime(self, DateTime() - 91):
+      project = self.addProject()
+      software_instance = self.portal.software_instance_module.newContent(
+        portal_type='Software Instance',
+        follow_up_value=project
+      )
+      software_instance.validate()
+      # person = self.portal.person_module.newContent(portal_type="Person")
+      instance_node = self.portal.compute_node_module.newContent(
+        portal_type='Instance Node',
+        specialise_value=software_instance,
+        follow_up_value=project
+      )
+      instance_node.validate()
+    return instance_node
+
+  def test_InstanceNode_checkForGarbageCollect_alarm_invalidatedInstance(self):
+    instance_node = self.addInstanceNode()
+    instance_node.getSpecialiseValue().invalidate()
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm(alarm, instance_node, "InstanceNode_checkForGarbageCollect")
+
+  def test_InstanceNode_checkForGarbageCollect_alarm_validatedInstance(self):
+    instance_node = self.addInstanceNode()
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, instance_node, "InstanceNode_checkForGarbageCollect")
+
+  def test_InstanceNode_checkForGarbageCollect_alarm_invalidatedNode(self):
+    instance_node = self.addInstanceNode()
+    instance_node.getSpecialiseValue().invalidate()
+    instance_node.invalidate()
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, instance_node, "InstanceNode_checkForGarbageCollect")
+
+  def test_InstanceNode_checkForGarbageCollect_script_invalidatedInstance(self):
+    instance_node = self.addInstanceNode()
+    instance_node.getSpecialiseValue().invalidate()
+    self.tic()
+    instance_node.InstanceNode_checkForGarbageCollect()
+    self.assertEqual(instance_node.getValidationState(), 'invalidated')
+

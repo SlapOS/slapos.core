@@ -37,9 +37,6 @@ for sql_result in portal.portal_catalog(
   assert instance.getSlapState() == 'destroy_requested', instance.getSlapState()
   # Manually confirm the instance destruction
   if instance.getPortalType() == 'Software Instance':
-    # XXX Move this code to aanother bt5
-    # remove certificate from SI
-    instance.revokeCertificate()
     instance.invalidate()
     instance.setAccessStatus('Instance manually destroyed', "destroyed", reindex=1)
 

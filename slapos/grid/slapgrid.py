@@ -1446,8 +1446,10 @@ stderr_logfile_backups=1
   def processComputerPartitionList(self):
     try:
       return self.processComputerPartitionListOnline()
-    except (RequestException, ConnectionError):
-      return self.processComputerPartitionListOffline()
+    except Exception: # General Fallback
+      # Log
+      traceback.print_exc()
+    return self.processComputerPartitionListOffline()
 
   def processComputerPartitionListOnline(self):
     """

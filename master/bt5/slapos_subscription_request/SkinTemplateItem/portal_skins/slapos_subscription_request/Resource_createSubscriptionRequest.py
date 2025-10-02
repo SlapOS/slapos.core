@@ -151,7 +151,7 @@ subscription_request = portal.getDefaultModuleValue(portal_type).newContent(
   source_project_value=source_project_value,
   price_currency=tmp_sale_order.getPriceCurrency(),
   price=price,
-  # XXX activate_kw=activate_kw
+  activate_kw=activate_kw,
   causality_value=causality_value,
 )
 if temp_object:

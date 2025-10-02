@@ -2049,7 +2049,7 @@ class TestERP5InvitationTokenAlarm(SlapOSTestCaseMixin):
 
     self.assertEqual('invalidated', invitation_token.getValidationState())
     self.assertEqual(
-        'Unused for 1 day.',
+        'Unused for 7 days.',
         invitation_token.workflow_history['validation_workflow'][-1]['comment'])
 
   def test_alarm_recent_validated_invitation_token(self):

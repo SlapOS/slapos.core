@@ -13,7 +13,7 @@ if activate_kw is None:
 # Check if the project is empty
 ####################################
 content_list = portal.portal_catalog(
-  portal_type=['Compute Node', 'Instance Tree'],
+  portal_type=['Compute Node', 'Instance Tree', 'Instance Node'],
   validation_state='validated',
   follow_up__uid=project.getUid(),
   limit=1
@@ -68,6 +68,45 @@ portal.portal_catalog.searchAndActivate(
 
   follow_up__uid=project.getUid(),
   method_id='ComputeNode_checkForGarbageCollect',
+  method_kw={'activate_kw': activate_kw},
+  activate_kw=activate_kw
+)
+
+
+####################################
+# Check outdated instance node
+####################################
+# Search Instance Node related to destroyed Software Instance
+portal.portal_catalog.searchAndActivate(
+  portal_type='Instance Node',
+  validation_state='validated',
+  specialise__validation_state='invalidated',
+  follow_up__uid=project.getUid(),
+
+  method_id='InstanceNode_checkForGarbageCollect',
+  method_kw={'activate_kw': activate_kw},
+  activate_kw=activate_kw
+)
+
+
+####################################
+# Check software instances to garbage collect
+####################################
+portal.portal_catalog.searchAndActivate(
+  portal_type=['Software Instance'],
+  # check instance not touched for some times, to give slapgrid some time to handle it
+  modification_date=SimpleQuery(
+    modification_date=addToDate(DateTime(), to_add={'day': -1}),
+    comparison_operator="<",
+  ),
+  # Search correctly destroyed instances (and not instance tree)...
+  validation_state='invalidated',
+  # ...with not destroyed sub instances...
+  successor__validation_state="validated",
+  # ... and with a validated instance tree
+  specialise__validation_state='validated',
+
+  method_id='SoftwareInstance_checkForGarbageCollect',
   method_kw={'activate_kw': activate_kw},
   activate_kw=activate_kw
 )

@@ -1375,8 +1375,11 @@ stderr_logfile_backups=1
       if len(failed_script_list) > 0:
         # remove timestamp file so next slapgrid process the partition
         timestamp = None
-        if os.path.exists(timestamp_path):
+        try:
           os.remove(timestamp_path)
+        except FileNotFoundError:
+          # no timestamp file
+          pass
         message = "Process '%s' from partition %s has unexpected exit code"
         message_list = [message % (script, computer_partition_id) for
                         script in failed_script_list]

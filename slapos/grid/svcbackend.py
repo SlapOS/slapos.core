@@ -96,6 +96,12 @@ def _getSupervisordConfigurationFilePath(instance_root):
 def _getSupervisordConfigurationDirectory(instance_root):
   return os.path.join(instance_root, 'etc', 'supervisord.conf.d')
 
+def getSupervisorProcessName(process_name, group_name):
+  """
+  Return supervisord process name
+  """
+  return "{}:{}".format(group_name, process_name)
+
 def createSupervisordConfiguration(instance_root, logger, watchdog_command=''):
   """
   Create supervisord related files and directories.
@@ -172,7 +178,7 @@ def _checkProcessExitStatusList(supervisor_socket, local_partition):
         try:
           # for each script, check process info
           state = supervisor.getProcessInfo(
-            '%s:%s' % (local_partition.partition_id, script_name)
+            getSupervisorProcessName(script_name, local_partition.partition_id)
           )
           if state['exitstatus'] != 0:
             # process failed

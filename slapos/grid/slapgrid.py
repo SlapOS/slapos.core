@@ -276,6 +276,7 @@ def create_slapgrid_object(options, logger):
   return Slapgrid(software_root=op['software_root'],
                   instance_root=op['instance_root'],
                   shared_part_list=op.get('shared_part_list', ''),
+                  build_time_part_list=op.get('build_time_part_list', ''),
                   master_url=op['master_url'],
                   computer_id=op['computer_id'],
                   buildout=op.get('buildout'),
@@ -383,6 +384,7 @@ class Slapgrid(object):
                config=None,
                buildout_debug=False,
                shared_part_list='',
+               build_time_part_list='',
                force_stop=False,
                partition_timeout=None,
                ):
@@ -454,6 +456,7 @@ class Slapgrid(object):
     self.config = config
     self._manager_list = slapmanager.from_config(config)
     self.shared_part_list = shared_part_list
+    self.build_time_part_list = build_time_part_list
     self.force_stop = force_stop
 
   def _getWatchdogLine(self):
@@ -636,7 +639,9 @@ stderr_logfile_backups=1
             shadir_cert_file=self.shadir_cert_file,
             shadir_key_file=self.shadir_key_file,
             software_min_free_space=self.software_min_free_space,
-            shared_part_list=self.shared_part_list)
+            shared_part_list=self.shared_part_list,
+            build_time_part_list=self.build_time_part_list,
+        )
 
         # call manager for every software release
         for manager in self._manager_list:
@@ -1105,6 +1110,7 @@ stderr_logfile_backups=1
       software_path=software_path,
       instance_path=instance_path,
       shared_part_list=self.shared_part_list,
+      build_time_part_list=self.build_time_part_list,
       supervisord_partition_configuration_dir=(
         _getSupervisordConfigurationDirectory(self.instance_root)),
       supervisord_socket=self.supervisord_socket,
@@ -1197,6 +1203,7 @@ stderr_logfile_backups=1
       software_path=software_path,
       instance_path=instance_path,
       shared_part_list=self.shared_part_list,
+      build_time_part_list=self.build_time_part_list,
       supervisord_partition_configuration_dir=(
         _getSupervisordConfigurationDirectory(self.instance_root)),
       supervisord_socket=self.supervisord_socket,
@@ -1555,6 +1562,7 @@ stderr_logfile_backups=1
           software_path=None,
           instance_path=instance_path,
           shared_part_list='',
+          build_time_part_list='',
           supervisord_partition_configuration_dir=(
             _getSupervisordConfigurationDirectory(self.instance_root)),
           supervisord_socket=self.supervisord_socket,
@@ -1914,6 +1922,7 @@ stderr_logfile_backups=1
             instance_path=os.path.join(self.instance_root,
                 computer_partition.getId()),
             shared_part_list=self.shared_part_list,
+            build_time_part_list=self.build_time_part_list,
             supervisord_partition_configuration_dir=(
               _getSupervisordConfigurationDirectory(self.instance_root)),
             supervisord_socket=self.supervisord_socket,

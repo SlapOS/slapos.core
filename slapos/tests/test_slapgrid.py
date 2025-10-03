@@ -161,6 +161,7 @@ class BasicMixin(object):
     self.manager_list = []
     self.software_root = os.path.join(self._tempdir, 'software')
     self.shared_parts_root = os.path.join(self._tempdir, 'shared')
+    self.build_time_parts_root = os.path.join(self._tempdir, 'build-time')
     self.instance_root = os.path.join(self._tempdir, 'instance')
     if 'SLAPGRID_INSTANCE_ROOT' in os.environ:
       del os.environ['SLAPGRID_INSTANCE_ROOT']
@@ -198,6 +199,7 @@ class BasicMixin(object):
                                   develop=develop,
                                   logger=logging.getLogger(),
                                   shared_part_list=self.shared_parts_root,
+                                  build_time_part_list=self.build_time_parts_root,
                                   force_stop=force_stop,
                                   certificate_repository_path=self.certificate_repository_path)
     self.grid._manager_list = self.manager_list
@@ -2269,11 +2271,21 @@ echo %s; echo %s; exit 42""" % (line1, line2))
     computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       software = computer.software_list[0]
-      # examine the genrated buildout
+      # examine the generated buildout
       software.setBuildout("""#!/bin/sh
         cat buildout.cfg; exit 1""")
       self.launchSlapgridSoftware()
     self.assertIn('shared-part-list = %s' % self.shared_parts_root, software.error_log)
+
+  def test_software_install_generate_buildout_cfg_with_build_time_part_list(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
+    with httmock.HTTMock(computer.request_handler):
+      software = computer.software_list[0]
+      # examine the generated buildout
+      software.setBuildout("""#!/bin/sh
+        cat buildout.cfg; exit 1""")
+      self.launchSlapgridSoftware()
+    self.assertIn('build-time-part-list = %s' % self.build_time_parts_root, software.error_log)
 
   def test_remove_software(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)

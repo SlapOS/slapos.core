@@ -1081,6 +1081,9 @@ exit 1
     computer.status_code = 503 # connection loss
     os.unlink(runner_worked_file)
 
+    # 'uncache' /getFullComputerInformation
+    del self.grid.computer._synced
+
     with httmock.HTTMock(computer.request_handler):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_OFFLINE_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
@@ -1092,7 +1095,7 @@ exit 1
         '/getFullComputerInformation',
         '/getComputerPartitionCertificate',
         '/startedComputerPartition',
-        '/getComputerPartitionCertificate' # /getFullComputerInformation is cached
+        '/getFullComputerInformation'
       ])
 
   def test_stopped_partition_remains_stopped_after_master_connection_loss(self):
@@ -1146,6 +1149,9 @@ exit 1
     os.unlink(control_file)
     os.unlink(test_file)
 
+    # 'uncache' /getFullComputerInformation
+    del self.grid.computer._synced
+
     with httmock.HTTMock(computer.request_handler):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_OFFLINE_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0', '1'])
@@ -1157,7 +1163,7 @@ exit 1
         '/startedComputerPartition',
         '/getComputerPartitionCertificate',
         '/startedComputerPartition',
-        '/getComputerPartitionCertificate' # /getFullComputerInformation is cached
+        '/getFullComputerInformation',
       ])
 
 class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):

@@ -1,6 +1,6 @@
 instance_tree = context
 
-instance = ([x for x in instance_tree.getSuccessorValueList() if (x.getTitle() == instance_tree.getTitle()) and (x.getSlapState() != 'destroy_requested')] + [None])[0]
+instance = instance_tree.InstanceTree_getRootInstance()
 if (instance is None) or (instance.getSlapState() == 'destroy_requested'):
   return context.Base_redirect('view', keep_items={'portal_status_message':context.Base_translateString('No root instance to process.')})
 

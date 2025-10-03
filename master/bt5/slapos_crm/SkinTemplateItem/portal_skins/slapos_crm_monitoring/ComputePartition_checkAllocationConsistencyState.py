@@ -32,6 +32,7 @@ for instance in instance_list:
   # Create a temporary instance tree as the instance would be the root
   # Instance.
   instance_tree_context = instance_tree.asContext(
+    title=instance.getTitle(),
     default_source_reference=instance_software_type,
     url_string=instance_software_release_url)
 

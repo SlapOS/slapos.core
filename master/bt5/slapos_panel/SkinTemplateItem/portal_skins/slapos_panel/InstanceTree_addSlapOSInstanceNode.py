@@ -2,7 +2,14 @@ from Products.ERP5Type.Message import translateString
 
 portal = context.getPortalObject()
 instance_tree = context
-software_instance = instance_tree.getSuccessorValue(portal_type='Software Instance')
+software_instance = instance_tree.InstanceTree_getRootInstance(portal_type='Software Instance')
+
+if (software_instance is None):
+  return instance_tree.Base_redirect(
+    keep_items={
+      'portal_status_message': translateString('There is no root instance found.')
+    }
+  )
 
 # If an Instance Node already exist, do nothing
 instance_node = portal.portal_catalog.getResultValue(

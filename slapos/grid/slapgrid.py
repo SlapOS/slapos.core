@@ -1444,26 +1444,32 @@ stderr_logfile_backups=1
     return filtered_computer_partition_list
 
   def processComputerPartitionList(self):
-    try:
-      return self.processComputerPartitionListOnline()
-    except (RequestException, ConnectionError):
-      return self.processComputerPartitionListOffline()
-
-  def processComputerPartitionListOnline(self):
     """
     Will start supervisord and process each Computer Partition.
     """
     self.logger.info('Processing computer partitions...')
-    # Prepares environment
+    # Prepare environment
     self.checkEnvironmentAndCreateStructure()
+    # Launch supervisord if needed
     self._launchSupervisord()
+    # Fetch instance list from master
+    try:
+      computer_partition_list = self.getRequiredComputerPartitionList()
+    except Exception:
+      # Log and fallback
+      traceback.print_exc()
+    else:
+      # Instance list fetched from master OK, process instances
+      return self.processComputerPartitionListOnline(computer_partition_list)
+    # Failed to fetch instance list, fallback
+    self.logger.info('Fallback: Starting partition services...')
+    return self.processComputerPartitionListOffline()
 
+  def processComputerPartitionListOnline(self, computer_partition_list):
     # Boolean to know if every instance has correctly been deployed
     clean_run = True
     # Boolean to know if every promises correctly passed
     clean_run_promise = True
-
-    computer_partition_list = self.getRequiredComputerPartitionList()
 
     process_error_partition_list = []
     promise_error_partition_list = []
@@ -1475,10 +1481,6 @@ stderr_logfile_backups=1
       try:
         # Process the partition itself
         self.processComputerPartition(computer_partition)
-
-      # Handle connection loss at the next level
-      except (RequestException, ConnectionError):
-        raise
 
       # Send log before exiting
       except (SystemExit, KeyboardInterrupt):
@@ -1537,7 +1539,6 @@ stderr_logfile_backups=1
     return SLAPGRID_SUCCESS
 
   def processComputerPartitionListOffline(self):
-    self.logger.info('Processing computer partitions offline...')
     # Backwards compatibility: remove stopped services
     for name in os.listdir(self.instance_root):
       instance_path = os.path.join(self.instance_root, name)

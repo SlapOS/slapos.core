@@ -254,6 +254,9 @@ class Software(object):
     yield 'buildout:extends-cache=%s' % extends_cache
     yield 'buildout:directory=%s' % self.software_path
 
+    # Force buildout to install zc.buildout and its dependencies in eggs/ and to not use system's packages
+    yield 'buildout:extra-paths='
+
     if (self.signature_private_key_file or
           self.upload_cache_url or
           self.upload_dir_url):

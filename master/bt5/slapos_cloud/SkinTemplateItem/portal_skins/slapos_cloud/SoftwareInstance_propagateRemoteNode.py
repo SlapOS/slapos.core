@@ -33,7 +33,7 @@ remote_instance_tree = portal.portal_catalog.getResultValue(
 )
 
 if remote_instance_tree is not None:
-  requested_software_instance = remote_instance_tree.getSuccessorValue(title=remote_instance_tree.getTitle())
+  requested_software_instance = remote_instance_tree.InstanceTree_getRootInstance()
 
 if (local_instance.getSlapState() == 'destroy_requested'):
   if (remote_instance_tree is not None) and \

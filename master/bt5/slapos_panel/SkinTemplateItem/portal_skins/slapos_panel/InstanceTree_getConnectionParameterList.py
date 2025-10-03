@@ -1,12 +1,7 @@
-title = context.getTitle()
 result = []
-found = False
-for instance in context.getSuccessorValueList(checked_permission='View'):
-  if (instance.getTitle() == title) and (instance.getSlapState() != 'destroy_requested'):
-    found = True
-    break
+instance = context.InstanceTree_getRootInstance()
 
-if found:
+if instance is not None:
   result = instance.SoftwareInstance_getConnectionParameterList(
                relative_url=context.getRelativeUrl(), raw=raw)
 

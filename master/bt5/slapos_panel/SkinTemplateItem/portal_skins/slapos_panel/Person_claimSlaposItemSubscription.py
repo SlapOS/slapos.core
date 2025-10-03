@@ -11,7 +11,7 @@ batch = (dialog_id is None)
 sql_instance_list = portal.portal_catalog(
   reference=reference,
   # Project are not handled yet, as it must also move all compute node subscription at the same time
-  portal_type=['Instance Tree'],
+  portal_type=['Instance Tree', 'Project'],
   validation_state='validated',
   limit=2
 )
@@ -57,12 +57,17 @@ open_sale_order = open_sale_order_cell.getParentValue()
 while open_sale_order.getPortalType() != 'Open Sale Order':
   open_sale_order = open_sale_order.getParentValue()
 
+if item.getPortalType() == 'Project':
+  project_value = item
+else:
+  project_value = open_sale_order.getSourceProjectValue()
+
 # Create the Subscription Change Request
 subscription_change_request = open_sale_order_cell.getResourceValue().Resource_createSubscriptionRequest(
   context,
   # [software_type, software_release],
   open_sale_order_cell.getVariationCategoryList(),
-  open_sale_order.getSourceProjectValue(),
+  project_value,
   currency_value=open_sale_order.getPriceCurrencyValue(),
   portal_type='Subscription Change Request',
   item_value=item,

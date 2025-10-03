@@ -57,7 +57,9 @@
                 <item>
                     <key> <string>bottom</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>discussion_thread</string>
+                      </list>
                     </value>
                 </item>
                 <item>
@@ -81,7 +83,6 @@
                         <string>my_resource_title</string>
                         <string>my_variation_category_list</string>
                         <string>my_aggregate_title</string>
-                        <string>discussion_thread</string>
                       </list>
                     </value>
                 </item>

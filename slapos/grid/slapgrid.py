@@ -73,6 +73,7 @@ from slapos.grid.exception import BuildoutFailedError
 from slapos.grid.SlapObject import Software, Partition
 from slapos.grid.svcbackend import (launchSupervisord,
                                     createSupervisordConfiguration,
+                                    _checkProcessExitStatusList,
                                     _getSupervisordConfigurationDirectory,
                                     _getSupervisordSocketPath,
                                     getSupervisorRPC)
@@ -1216,6 +1217,12 @@ stderr_logfile_backups=1
       partition_timeout=self.partition_timeout
     )
 
+    # Check if a process in run_dir has failed
+    failed_script_list = _checkProcessExitStatusList(
+      self.supervisord_socket,
+      local_partition
+    )
+
     # let managers modify current partition
     for manager in self._manager_list:
       manager.instance(local_partition)
@@ -1363,6 +1370,23 @@ stderr_logfile_backups=1
             # updating promises state, no need to raise here
             pass
       raise e
+    else:
+      # if a script in etc/run failed, report the error to master
+      if len(failed_script_list) > 0:
+        # remove timestamp file so next slapgrid process the partition
+        timestamp = None
+        try:
+          os.remove(timestamp_path)
+        except FileNotFoundError:
+          # no timestamp file
+          pass
+        message = "Process '%s' from partition %s has unexpected exit code"
+        message_list = [message % (script, computer_partition_id) for
+                        script in failed_script_list]
+        computer_partition.error(
+          "\n".join(message_list),
+          logger=self.logger
+        )
     finally:
       self.logger.removeHandler(partition_file_handler)
       partition_file_handler.close()

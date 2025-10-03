@@ -15,6 +15,8 @@ key-file = %(key_file)s
 cert-file = %(cert_file)s
 shared-part-list =
   %(shared_part_list)s
+build-time-part-list =
+  %(build_time_part_list)s
 
 [slap_connection]
 # Kept for backward compatiblity

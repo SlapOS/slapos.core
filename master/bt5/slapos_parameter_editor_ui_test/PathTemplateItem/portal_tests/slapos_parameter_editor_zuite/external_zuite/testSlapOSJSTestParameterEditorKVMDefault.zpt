@@ -15,10 +15,24 @@
 
     <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
                        software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/raw/%s/software/kvm/software.cfg' % context.ERP5Site_getSoftwareReleaseTagVersion()">
-                             
+
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
-      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="VM without backup (dangerous, only for experts)"]
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="VM without backup (dangerous, only for experts)"]
+        </td>
+        <td></td>
+      </tr>
 
       <tal:block tal:define="name python:'root[ram-size]'; value python: 4097">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />

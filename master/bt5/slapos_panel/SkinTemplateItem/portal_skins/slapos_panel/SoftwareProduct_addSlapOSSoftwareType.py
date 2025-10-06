@@ -12,6 +12,7 @@ software_type_variation = portal.portal_catalog.getResultValue(
 if software_type_variation is not None:
   return software_product.Base_redirect(
     keep_items={
+      'portal_status_level': 'warning',
       'portal_status_message': translateString('Software Type already exist.')
     }
   )

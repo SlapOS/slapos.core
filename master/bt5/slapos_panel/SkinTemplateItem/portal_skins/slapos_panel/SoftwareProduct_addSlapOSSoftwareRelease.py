@@ -13,6 +13,7 @@ software_release_variation = portal.portal_catalog.getResultValue(
 if software_release_variation is not None:
   return software_release_variation.Base_redirect(
     keep_items={
+      'portal_status_level': 'warning',
       'portal_status_message': translateString('Software Release already exist.')
     }
   )

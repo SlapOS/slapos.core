@@ -53,6 +53,7 @@ else:
 ### - change payable to free
 ### - change free to payable
 ### - change payable price
+### - change trade condition version
 
 identical_order_base_category_list = [
   # 'destination',
@@ -100,6 +101,15 @@ elif ((previous_causality_to_compare.getSourceSection(None) != subscription_chan
   if subscription_change_request.getSourceSection(None):
     # Source section can be removed when changing to free
     edit_kw['source_section'] = subscription_change_request.getSourceSection()
+
+elif ((previous_causality_to_compare.getSpecialise() != subscription_change_request.getSpecialise()) and
+      (previous_causality_to_compare.getSpecialiseTitle() == subscription_change_request.getSpecialiseTitle())):
+  # change the sale trade condition version only (nothing else change. Used when updating vat for example)
+  # 'specialise'
+  edit_kw['specialise'] = subscription_change_request.getSpecialise(None)
+  identical_order_base_category_list.extend(['destination', 'destination_section', 'destination_decision',
+                                             'source_section', 'price'])
+
 
 else:
   return subscription_change_request.cancel(comment='Unsupported changes')

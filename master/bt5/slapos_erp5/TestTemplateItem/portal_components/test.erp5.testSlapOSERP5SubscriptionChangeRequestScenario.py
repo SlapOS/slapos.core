@@ -616,3 +616,141 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     with PinnedDateTime(self, DateTime('2024/06/01')):
       self.checkERP5StateBeforeExit()
+
+
+  def test_subscription_change_request_change_vat_scenario(self):
+    currency, _, _, sale_person, accountant_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
+
+    self.tic()
+
+    self.logout()
+
+    with PinnedDateTime(self, DateTime('2023/12/25')):
+      # lets join as slapos administrator, which will own few compute_nodes
+      owner_reference = 'owner-%s' % self.generateNewId()
+      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+
+      self.login()
+      self.tic()
+      # hooray, now it is time to create compute_nodes
+      self.logout()
+      self.login(sale_person.getUserId())
+
+      # create a default project
+      project_relative_url = self.addProject(person=owner_person, currency=currency)
+
+      self.logout()
+      self.login()
+      project = self.portal.restrictedTraverse(project_relative_url)
+      preference = self.portal.portal_preferences.slapos_default_system_preference
+      preference.edit(
+        preferred_subscription_assignment_category_list=[
+          'function/customer',
+          'role/client',
+          'destination_project/%s' % project.getRelativeUrl()
+        ]
+      )
+
+      self.tic()
+
+      #############################
+      # Set a custom price, to ensure changing later the vat will keep the price
+      subscription_request = self.portal.portal_catalog.getResultValue(
+        portal_type='Subscription Request',
+        aggregate__uid=project.getUid(),
+        simulation_state='submitted'
+      )
+      subscription_request.edit(price=subscription_request.getPrice() * 100)
+      self.tic()
+
+    with PinnedDateTime(self, DateTime('2024/03/01')):
+      self.logout()
+      self.login(accountant_person.getUserId())
+      ledger = self.portal.portal_categories.ledger.automated
+      outstanding_amount_list = owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())
+      owner_person.Entity_createDepositAction(
+        'wire_transfer', outstanding_amount_list[0].getRelativeUrl(), subscription_request.getPrice(), None)
+      self.tic()
+
+    # XXX XXX XXX XXX '2024/02/25'
+    with PinnedDateTime(self, DateTime('2024/04/01')):
+      self.logout()
+      self.login(sale_person.getUserId())
+
+      vat_trade_condition = self.portal.portal_catalog.getResultValue(
+        portal_type='Sale Trade Condition',
+        price_currency__uid=currency.getUid(),
+        trade_condition_type__uid=self.portal.portal_categories.trade_condition_type.default.getUid()
+      )
+
+      clipboard = vat_trade_condition.getParentValue().manage_copyObjects(ids=[vat_trade_condition.getId()])
+      vat_trade_condition.getParentValue().manage_pasteObjects(clipboard)
+      self.tic()
+      new_vat_trade_condition = self.portal.portal_catalog.getResultValue(
+        uid='!=%s' % vat_trade_condition.getUid(),
+        portal_type='Sale Trade Condition',
+        price_currency__uid=currency.getUid(),
+        trade_condition_type__uid=self.portal.portal_categories.trade_condition_type.default.getUid()
+      )
+      trade_model_line = new_vat_trade_condition.searchFolder(
+        portal_type='Trade Model Line',
+        base_application__uid=self.portal.portal_categories.base_application.base_amount.invoicing.taxable.vat.normal_rate.getUid()
+      )[0].getObject()
+      trade_model_line.edit(price=trade_model_line.getPrice() * 2)
+      new_vat_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
+      self.tic()
+
+    self.logout()
+    self.login()
+    with PinnedDateTime(self, DateTime('2024/05/01')):
+      # Trigger alarm
+      self.tic()
+
+    subscription_change_request = self.portal.portal_catalog.getResultValue(
+      portal_type='Subscription Change Request',
+      destination__uid=owner_person.getUid()
+    )
+    self.assertEqual(subscription_change_request.getPrice(), subscription_request.getPrice())
+    self.assertNotEqual(subscription_change_request.getSpecialise(), subscription_request.getSpecialise())
+
+    # XXX TODO TODO TODO
+
+    inventory_list_kw = {
+        'node_uid': subscription_change_request.getSourceUid(),
+        'group_by_section': False,
+        'group_by_node': False,
+        'group_by_variation': False,
+        'group_by_resource': True,
+        'resource_uid': subscription_change_request.getResourceUid(),
+    }
+    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**inventory_list_kw)
+    self.assertEqual(1, len(inventory_list))
+    self.assertAlmostEqual(-1.83, inventory_list[0].total_quantity)
+
+    inventory_list_kw = {
+        'node_uid': subscription_change_request.getDestinationUid(),
+        'group_by_section': False,
+        'group_by_node': False,
+        'group_by_variation': False,
+        'group_by_resource': True,
+        'resource_uid': subscription_change_request.getResourceUid(),
+    }
+    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**inventory_list_kw)
+    self.assertEqual(1, len(inventory_list))
+    self.assertAlmostEqual(1.83, inventory_list[0].total_quantity)
+
+    # Ensure no unexpected object has been created
+    # 6 accounting transaction lines
+    # 2 assignment request
+    # 2 open sale order
+    # 2 assignment
+    # 12 simulation movement
+    # 6 sale packing list / line
+    # 4 sale trade condition
+    # 1 subscription change request
+    # 2 subscription request
+    self.assertRelatedObjectCount(project, 37)
+
+    with PinnedDateTime(self, DateTime('2024/06/01')):
+      self.checkERP5StateBeforeExit()

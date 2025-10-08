@@ -74,16 +74,16 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Discount and first subscription
     self.assertAlmostEqual(first_invoice.getTotalPrice(), 24.192)
     # Ensure no unexpected object has been created
-    # 1 accounting transaction
+    # 2 accounting transaction
     # 2 assignment request
     # 1 open order
     # 2 assignment
-    # 2 simulation movements
+    # 4 simulation movements
     # 2 sale supply + line
-    # 1 sale packing list
+    # 2 sale packing list
     # 2 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 14)
+    self.assertRelatedObjectCount(project, 18)
 
     with PinnedDateTime(self, DateTime('2024/07/05')):
       self.portal.portal_alarms.update_open_order_simulation.activeSense()
@@ -99,16 +99,16 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.assertAlmostEqual(amount_list[0].total_price, 124.992)
     self.assertEqual(first_invoice.getSimulationState(), "stopped")
     # Ensure no unexpected object has been created
-    # 4 accounting transactions
+    # 5 accounting transactions
     # 2 assignment request
     # 1 open order
     # 2 assignment
-    # 8 simulation movements
+    # 10 simulation movements
     # 2 sale supply + line
-    # 4 sale packing list
+    # 5 sale packing list
     # 2 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 26)
+    self.assertRelatedObjectCount(project, 30)
 
     # Try to pay previous period
     with PinnedDateTime(self, DateTime('2024/07/06')):
@@ -135,7 +135,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertEqual(amount_list[0].total_price, 50.4)
       self.assertTrue(first_invoice.SaleInvoiceTransaction_isLettered())
       # Ensure no unexpected object has been created
-      self.assertRelatedObjectCount(project, 26)
+      self.assertRelatedObjectCount(project, 30)
 
       payment_tag = "Entity_createPaymentTransaction_%s" % owner_person.getUid()
       owner_person.REQUEST.set(payment_tag, None)
@@ -159,7 +159,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       amount_list = owner_person.Entity_getOutstandingAmountList()
       self.assertEqual(len(amount_list), 0)
       # Ensure no unexpected object has been created
-      self.assertRelatedObjectCount(project, 26)
+      self.assertRelatedObjectCount(project, 30)
 
     with PinnedDateTime(self, DateTime('2024/07/06')):
       self.checkERP5StateBeforeExit()
@@ -452,16 +452,16 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Discount and first subscription
     self.assertAlmostEqual(first_invoice.getTotalPrice(), 24.192)
     # Ensure no unexpected object has been created
-    # 1 accounting transaction
+    # 2 accounting transaction
     # 2 assignment request
     # 1 open order
-    # 2 assignment
+    # 4 assignment
     # 2 simulation movements
     # 2 sale supply + line
-    # 1 sale packing list
+    # 2 sale packing list
     # 2 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 14)
+    self.assertRelatedObjectCount(project, 18)
 
     with PinnedDateTime(self, addToDate(creation_date, to_add={'day': 17})):
       # invalidate the product, in order to stop the subscription
@@ -481,16 +481,16 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.assertAlmostEqual(amount_list[0].total_price, 24.192)
     self.assertEqual(first_invoice.getSimulationState(), "stopped")
     # Ensure no unexpected object has been created
-    # 1 accounting transactions
+    # 2 accounting transactions
     # 2 assignment request
     # 1 open order
-    # 2 assignment
+    # 4 assignment
     # 2 simulation movements
     # 2 sale supply + line
-    # 1 sale packing list
+    # 2 sale packing list
     # 2 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 14)
+    self.assertRelatedObjectCount(project, 18)
 
     # Use the deposit to pay the invoice
     accounting_transaction = owner_person.Entity_createAccountingTransactionToConsumeDeposit(
@@ -517,7 +517,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
                                    .contentValues(portal_type='Accounting Transaction Line'):
       self.assertTrue(line.hasGroupingReference(), line.getRelativeUrl())
     # Ensure no unexpected object has been created
-    self.assertRelatedObjectCount(project, 14)
+    self.assertRelatedObjectCount(project, 18)
     # Check remaining deposit (42 - 24.192)
     self.assertAlmostEqual(owner_person.Entity_getDepositBalanceAmount([subscription_request]), 17.808)
 
@@ -589,16 +589,16 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Discount and first subscription
     self.assertAlmostEqual(first_invoice.getTotalPrice(), 48.888)
     # Ensure no unexpected object has been created
-    # 1 accounting transaction
+    # 2 accounting transaction
     # 2 assignment request
     # 1 open order
     # 2 assignment
-    # 2 simulation movements
+    # 4 simulation movements
     # 2 sale supply + line
     # 1 sale packing list
     # 2 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 14)
+    self.assertRelatedObjectCount(project, 18)
 
     with PinnedDateTime(self, addToDate(creation_date, to_add={'day': 16})):
       # invalidate the product, in order to stop the subscription
@@ -618,16 +618,16 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.assertAlmostEqual(amount_list[0].total_price, 48.888)
     self.assertEqual(first_invoice.getSimulationState(), "stopped")
     # Ensure no unexpected object has been created
-    # 1 accounting transactions
+    # 2 accounting transactions
     # 2 assignment request
     # 1 open order
     # 2 assignment
-    # 2 simulation movements
+    # 4 simulation movements
     # 2 sale supply + line
-    # 1 sale packing list
+    # 2 sale packing list
     # 2 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 14)
+    self.assertRelatedObjectCount(project, 18)
 
     # Use the deposit to pay the invoice
     payment_transaction = owner_person.Entity_createAccountingTransactionToConsumeDeposit(
@@ -654,8 +654,8 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     for line in payment_transaction.getCausalityValue(portal_type='Sale Invoice Transaction')\
                                    .contentValues(portal_type='Accounting Transaction Line'):
       self.assertTrue(line.hasGroupingReference(), line.getRelativeUrl())
-    # One partial mirror transaction has been created
-    self.assertRelatedObjectCount(project, 15)
+    # 2 partial mirror transaction have been created
+    self.assertRelatedObjectCount(project, 20)
     # Check remaining deposit
     self.assertAlmostEqual(owner_person.Entity_getDepositBalanceAmount([subscription_request]), 0)
 

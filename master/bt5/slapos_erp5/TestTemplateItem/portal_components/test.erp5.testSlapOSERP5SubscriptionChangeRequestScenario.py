@@ -277,11 +277,11 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 6 open sale order
     # 4 assignment
     # 6 simulation movement
-    # 8 sale packing list / line
+    # 10 sale packing list / line
     # 2 sale trade condition
     # 2 subscription change request
     # 4 subscription request
-    self.assertRelatedObjectCount(project, 38)
+    self.assertRelatedObjectCount(project, 40)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()

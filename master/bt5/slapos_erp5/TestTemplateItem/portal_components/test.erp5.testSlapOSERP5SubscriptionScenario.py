@@ -230,23 +230,23 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     self.login()
 
     # Ensure no unexpected object has been created
+    # 2 accounting transaction / line
     # 5 assignment request
-    # 1 accounting transaction / line
     # 2 credential request
     # 1 event
     # 1 instance tree
     # 1 open sale order / line
     # 5 (can reduce to 2) assignment
-    # 2 simulation mvt
-    # 1 packing list / line
+    # 4 simulation mvt
+    # 2 packing list / line
     # 3 sale supply / line
     # 2 sale trade condition
-    # 1 software installation
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 27)
+    self.assertRelatedObjectCount(project, 31)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
+      self.checkERP5StateBeforeExit()
 
   def test_subscription_request_cancel_after_project_is_invalidated(self):
     """ It is only tested with is_virtual_master_accountable enabled since the
@@ -508,7 +508,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     self.assertEqual(len(transaction_list),  2)
 
     # Ensure no unexpected object has been created
-    # 1 accounting transaction / line
+    # 2 accounting transaction / line
     # 3 allocation supply / Line / Cell
     # 4 assignment request
     # 1 compute node
@@ -516,15 +516,17 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 1 event
     # 1 open sale order / line
     # 4  assignment
-    # 2 simulation mvt
-    # 1 packing list / line
+    # 4 simulation mvt
+    # 2 packing list / line
     # 3 sale supply / line
     # 2 sale trade condition
     # 1 software installation
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 28)
-    self.checkERP5StateBeforeExit()
+    self.assertRelatedObjectCount(project, 32)
+
+    with PinnedDateTime(self, DateTime('2024/02/01')):
+      self.checkERP5StateBeforeExit()
 
   def checkInstanceAllocationFromPayableToFree(self,
       person_user_id, person_reference,

@@ -1,8 +1,14 @@
 Changes
 =======
 
-1.18.1 (2025-09-09)
+1.19.0 (2025-10-09)
 -------------------
+ * slapproxy: allow several instances with subpartitions having same reference (fix implementation of 1.18.1)
+ * slapgrid: Provide requested state in buildout
+ * slapgrid: Introduce build-time parts
+
+1.18.1 (2025-09-09) DO NOT USE
+------------------------------
  * slapproxy: allow several instances with subpartitions having same reference
 
 1.18.0 (2025-07-18)

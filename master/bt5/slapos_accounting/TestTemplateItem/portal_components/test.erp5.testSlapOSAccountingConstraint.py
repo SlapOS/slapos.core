@@ -193,7 +193,7 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
     currency = self.portal.currency_module.EUR
     sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
       portal_type="Sale Trade Condition",
-      reference="Tax/payment for: %s" % currency.getRelativeUrl(),
+      title="Tax/payment for: %s" % currency.getRelativeUrl(),
       trade_condition_type="default",
       # XXX hardcoded
       specialise="business_process_module/slapos_sale_subscription_business_process",
@@ -239,7 +239,7 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
     currency = self.portal.currency_module.EUR
     sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
       portal_type="Sale Trade Condition",
-      reference="Tax/payment for: %s" % currency.getRelativeUrl(),
+      title="Tax/payment for: %s" % currency.getRelativeUrl(),
       trade_condition_type="default",
       # XXX hardcoded
       specialise="business_process_module/slapos_sale_subscription_business_process",
@@ -502,3 +502,38 @@ class TestSalePackingListAggregated(TestSlapOSConstraintMixin):
   @skip('Not critical')
   def test(self):
     raise NotImplementedError
+
+
+class TestSaleTradeConditionConsumption(TestSlapOSConstraintMixin):
+  @withAbort
+  def test_sale_trade_condition_non_empty_reference(self):
+    # Testing: SaleTradeCondition_checkEmptyReferenceMigrationConsistency
+    trade_condition = self.portal.sale_trade_condition_module.newContent(
+      portal_type='Sale Trade Condition',
+      title='bar'
+    )
+    message = 'Error: Sale Trade Condition has both title and reference'
+
+    self.assertNotIn(message, self.getMessageList(trade_condition))
+
+    trade_condition.edit(reference='foo')
+    self.assertIn(message, self.getMessageList(trade_condition))
+
+  @withAbort
+  def test_sale_trade_condition_non_empty_reference_migration(self):
+    # Testing: SaleTradeCondition_checkEmptyReferenceMigrationConsistency
+    trade_condition = self.portal.sale_trade_condition_module.newContent(
+      portal_type='Sale Trade Condition'
+    )
+    message = 'Sale Trade Condition reference has not yet been migrated'
+
+    self.assertNotIn(message, self.getMessageList(trade_condition))
+
+    trade_condition.edit(reference='foo')
+    self.assertIn(message, self.getMessageList(trade_condition))
+
+    trade_condition.fixConsistency()
+    self.assertNotIn(message, self.getMessageList(trade_condition))
+    self.assertEqual(trade_condition.getReference(), None)
+    self.assertEqual(trade_condition.getTitle(), 'foo')
+

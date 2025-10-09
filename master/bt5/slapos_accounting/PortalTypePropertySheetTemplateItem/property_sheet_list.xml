@@ -59,6 +59,7 @@
   <item>SlapOSMovementConstraint</item>
  </portal_type>
  <portal_type id="Sale Trade Condition">
+  <item>SaleTradeConditionUpgradeConstraint</item>
   <item>SlapOSAccountingSaleTradeConditionConstraint</item>
   <item>SlapOSSaleProfileConstraint</item>
  </portal_type>

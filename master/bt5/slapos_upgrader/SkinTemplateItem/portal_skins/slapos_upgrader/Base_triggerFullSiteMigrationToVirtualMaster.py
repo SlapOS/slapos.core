@@ -13,7 +13,7 @@ if portal.portal_catalog.getResultValue(
   # Sale Trade Condition for Tax
   sale_trade_condition = portal.sale_trade_condition_module.newContent(
     portal_type="Sale Trade Condition",
-    reference="Tax/payment for: %s" % currency.getTitle(),
+    title="Tax/payment for: %s" % currency.getTitle(),
     trade_condition_type="default",
     # XXX hardcoded
     specialise_value=business_process,
@@ -36,7 +36,7 @@ if portal.portal_catalog.getResultValue(
   # Create Trade Condition to create Project
   sale_trade_condition = portal.sale_trade_condition_module.newContent(
     portal_type="Sale Trade Condition",
-    reference="%s-VirtualMaster" % seller_organisation.getTitle(),
+    title="%s-VirtualMaster" % seller_organisation.getTitle(),
     trade_condition_type="virtual_master",
     specialise_value=sale_trade_condition,
     source_value=seller_organisation,

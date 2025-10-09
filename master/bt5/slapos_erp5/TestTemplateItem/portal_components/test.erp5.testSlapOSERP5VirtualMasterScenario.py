@@ -171,7 +171,7 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     # Sale Trade Condition for Tax
     sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
       portal_type="Sale Trade Condition",
-      reference="Tax/payment for: %s" % currency.getRelativeUrl(),
+      title="Tax/payment for: %s" % currency.getRelativeUrl(),
       trade_condition_type="default",
       # XXX hardcoded
       specialise="business_process_module/slapos_sale_subscription_business_process",
@@ -180,7 +180,7 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     )
     sale_trade_condition.newContent(
       portal_type="Trade Model Line",
-      reference="Normal Rate VAT",
+      title="Normal Rate VAT",
       resource="service_module/slapos_tax",
       base_application="base_amount/invoicing/taxable/vat/normal_rate",
       trade_phase="slapos/tax",
@@ -211,7 +211,7 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     # Create Trade Condition to create Deposit
     self.portal.sale_trade_condition_module.newContent(
       portal_type="Sale Trade Condition",
-      reference="For deposit",
+      title="For deposit",
       trade_condition_type="deposit",
       specialise_value=sale_trade_condition,
       source_value=seller_organisation,
@@ -229,7 +229,7 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
 
     sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
       portal_type="Sale Trade Condition",
-      reference=title,
+      title=title,
       trade_condition_type="virtual_master",
       specialise_value=sale_trade_condition,
       source_value=seller_organisation,

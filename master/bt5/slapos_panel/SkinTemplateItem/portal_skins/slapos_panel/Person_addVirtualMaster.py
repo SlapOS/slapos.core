@@ -74,7 +74,7 @@ if subscription_request.getDestinationSectionUid() != customer.getUid():
   destination_section_value = subscription_request.getDestinationSectionValue()
 sale_trade_condition = portal.sale_trade_condition_module.newContent(
   portal_type="Sale Trade Condition",
-  reference='%s-ComputeNode' % project.getReference(),
+  title='%s-ComputeNode' % project.getReference(),
   trade_condition_type="compute_node",
   specialise_value=specialise_value,
   source_project_value=project,
@@ -100,7 +100,7 @@ else:
   source_section_value = None
 sale_trade_condition = portal.sale_trade_condition_module.newContent(
   portal_type="Sale Trade Condition",
-  reference='%s-InstanceTree' % project.getReference(),
+  title='%s-InstanceTree' % project.getReference(),
   trade_condition_type="instance_tree",
   specialise_value=specialise_value,
   source_project_value=project,

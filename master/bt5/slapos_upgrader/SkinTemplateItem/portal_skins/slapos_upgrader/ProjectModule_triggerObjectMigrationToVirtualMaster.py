@@ -110,7 +110,7 @@ for sql_result in portal.portal_catalog(
 
       sale_trade_condition = portal.sale_trade_condition_module.newContent(
         portal_type="Sale Trade Condition",
-        reference='%s-%s' % (project.getReference(), portal_type),
+        title='%s-%s' % (project.getReference(), portal_type),
         trade_condition_type=trade_condition_type,
         specialise_value=specialise_value,
         source_project_value=project,

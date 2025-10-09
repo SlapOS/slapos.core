@@ -125,7 +125,9 @@ class Software(object):
                download_from_binary_cache_force_url_list=None,
                software_min_free_space=None,
                buildout_debug=False,
-               shared_part_list=''):
+               shared_part_list='',
+               build_time_part_list='',
+              ):
     """Initialisation of class parameters
     """
 
@@ -144,6 +146,7 @@ class Software(object):
     self.software_path = os.path.join(self.software_root,
                                       self.software_url_hash)
     self.shared_part_list = shared_part_list
+    self.build_time_part_list = build_time_part_list
     self.buildout = buildout
     self.buildout_debug = buildout_debug
     self.logger = logger
@@ -309,7 +312,12 @@ class Software(object):
 
       buildout_cfg = os.path.join(self.software_path, 'buildout.cfg')
       if not os.path.exists(buildout_cfg):
-        self._create_buildout_profile(buildout_cfg, self.url, self.shared_part_list)
+        self._create_buildout_profile(
+          buildout_cfg,
+          self.url,
+          self.shared_part_list,
+          self.build_time_part_list,
+        )
       self._note_git_revision(buildout_cfg, self.url)
 
       additional_parameters = list(self._additional_buildout_parameters(extends_cache))
@@ -342,7 +350,8 @@ class Software(object):
       if f is not None:
         f.close()
 
-  def _create_buildout_profile(self, buildout_cfg, url, shared_part_list):
+  def _create_buildout_profile(self, buildout_cfg, url,
+                               shared_part_list, build_time_part_list):
     parser = ConfigParser()
     parser.add_section('buildout')
     parser.set('buildout', 'extends', url)
@@ -350,6 +359,7 @@ class Software(object):
     # slapos.recipe.cmmi was using shared-parts and expecting a single path.
     # This is not supported.
     parser.set('buildout', 'shared-part-list', shared_part_list)
+    parser.set('buildout', 'build-time-part-list', build_time_part_list)
     with open(buildout_cfg, 'w') as fout:
       parser.write(fout)
     self._set_ownership(buildout_cfg)
@@ -436,6 +446,7 @@ class Partition(object):
                software_path,
                instance_path,
                shared_part_list,
+               build_time_part_list,
                supervisord_partition_configuration_dir,
                supervisord_socket,
                computer_partition,
@@ -460,6 +471,7 @@ class Partition(object):
     self.software_path = software_path
     self.instance_path = instance_path
     self.shared_part_list = shared_part_list
+    self.build_time_part_list = build_time_part_list
     self.run_path = os.path.join(self.instance_path, 'etc', 'run')
     self.service_path = os.path.join(self.instance_path, 'etc', 'service')
     self.prerm_path = os.path.join(self.instance_path, 'etc', 'prerm')
@@ -641,7 +653,8 @@ class Partition(object):
             'requested_state': self.computer_partition.getState(),
             'storage_home': self.instance_storage_home,
             'global_ipv4_network_prefix': self.ipv4_global_network,
-            'shared_part_list': '  '.join(self.shared_part_list.strip().splitlines(True))
+            'shared_part_list': '  '.join(self.shared_part_list.strip().splitlines(True)),
+            'build_time_part_list': '  '.join(self.build_time_part_list.strip().splitlines(True)),
         }
     with open(config_location, 'w') as f:
       f.write(buildout_text)

@@ -261,6 +261,8 @@ class CrontabMixin(object):
       crontab_output = subprocess.check_output(
         ("faketime", date, '/bin/sh', '-c', crontab_command),
         stderr=subprocess.STDOUT,
+        # BBB faketime 9.12 hangs on debian 11 unless SHM is disabled
+        env=dict(os.environ, FAKETIME_DISABLE_SHM='1'),
       )
     except subprocess.CalledProcessError as e:
       self.logger.debug('error executing crontab %s output: %s',

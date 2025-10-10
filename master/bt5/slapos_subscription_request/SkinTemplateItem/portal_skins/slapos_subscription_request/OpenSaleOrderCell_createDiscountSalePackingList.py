@@ -93,7 +93,7 @@ if (0 < unused_day_count):
   # Use currency precision to reduce the float length
   quantity = float(('%%0.%sf' % precision) % quantity)
 
-  aggregate_value_list = [x for x in open_sale_order_cell.getAggregateValue() if (x.getPortalType() != 'Hosting Subscription')]
+  aggregate_value_list = [x for x in open_sale_order_cell.getAggregateValueList() if (x.getPortalType() != 'Hosting Subscription')]
   sale_packing_list_cell.edit(
     # Quantity is negative, to reduce the stock of the consumed product
     quantity=-quantity,

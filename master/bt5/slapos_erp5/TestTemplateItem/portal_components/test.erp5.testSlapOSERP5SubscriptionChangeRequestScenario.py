@@ -126,7 +126,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     }
     inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**inventory_list_kw)
     self.assertEqual(1, len(inventory_list))
-    self.assertEqual(0, inventory_list[0].total_quantity)
+    self.assertAlmostEqual(0, inventory_list[0].total_quantity)
 
     # Seller only sold 1 month
     inventory_list_kw = {

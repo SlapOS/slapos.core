@@ -211,9 +211,27 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
       self.logout()
       self.login(owner_person.getUserId())
+      # and install some software on them
+      public_server_software = self.generateNewSoftwareReleaseUrl()
+      public_instance_type = 'public type'
+
+      self.addSoftwareProduct(
+        "instance product", project, public_server_software, public_instance_type
+      )
+
+      project_reference = project.getReference()
+
+      public_instance_title = 'Public title %s' % self.generateNewId()
+      self.personRequestInstanceNotReady(
+        software_release=public_server_software,
+        software_type=public_instance_type,
+        partition_reference=public_instance_title,
+        project_reference=project_reference
+      )
+      self.tic()
+
       public_server_title = 'Public Server for %s' % owner_reference
-      compute_node_id = self.requestComputeNode(public_server_title, project.getReference())
-      print(compute_node_id)
+      self.requestComputeNode(public_server_title, project_reference)
       self.tic()
       self.logout()
 
@@ -274,14 +292,17 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 4 assignment request
     # 1 compute node
     # 1 credential request
-    # 6 open sale order
+    # 1 instance tree
+    # 13 open sale order
     # 4 assignment
-    # 6 simulation movement
-    # 8 sale packing list / line
-    # 2 sale trade condition
-    # 2 subscription change request
-    # 4 subscription request
-    self.assertRelatedObjectCount(project, 38)
+    # 11 simulation movement
+    # 15 sale packing list / line
+    # 3 sale trade condition
+    # 1 software instance
+    # 1 software product
+    # 3 subscription change request
+    # 7 subscription request
+    self.assertRelatedObjectCount(project, 65)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()

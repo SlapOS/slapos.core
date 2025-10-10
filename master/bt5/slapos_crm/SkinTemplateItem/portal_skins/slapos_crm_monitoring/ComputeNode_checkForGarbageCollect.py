@@ -11,6 +11,8 @@ if compute_node.getCapacityScope() != 'close':
   return
 if compute_node.getValidationState() != 'validated':
   return
+if compute_node.getAllocationScope() == 'close/maintenance':
+  return
 
 project = compute_node.getFollowUpValue()
 if project.Project_isSupportRequestCreationClosed():

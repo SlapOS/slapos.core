@@ -6,4 +6,5 @@ quantity_unit_conversion_module/slapos_time_month
 quantity_unit_conversion_module/slapos_time_month/**
 service_module/slapos_compute_node_subscription
 service_module/slapos_deposit
+service_module/slapos_software_instance_subscription
 service_module/slapos_virtual_master_subscription

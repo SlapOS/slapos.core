@@ -153,6 +153,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
       retention_delay=None,
       partition_timeout=None,
       shared_part_list='',
+      build_time_part_list='',
   ):
     """
     Create a partition, and return a Partition object created
@@ -187,6 +188,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
       software_path=software_path,
       instance_path=instance_path,
       shared_part_list=shared_part_list,
+      build_time_part_list=build_time_part_list,
       supervisord_partition_configuration_dir=supervisor_configuration_path,
       supervisord_socket=svcbackend._getSupervisordSocketPath(
         self.instance_root, logging.getLogger(self.id())),
@@ -494,6 +496,28 @@ class TestPartitionSlapObject(MasterMixin, unittest.TestCase):
     self.assertEqual(
       config.get('slap-connection', 'shared-part-list').strip(),
       'bogus/shared/part'
+    )
+
+  def test_buildout_tail_contains_build_time_parts(self):
+    """
+    Check that build-time-part-list in included in buildout tail.
+    """
+    software = self.createSoftware()
+
+    partition = self.createPartition(
+      software.url,
+      build_time_part_list='bogus/build-time/part')
+    partition.install()
+
+    buildout_cfg = os.path.join(partition.instance_path, 'buildout.cfg')
+
+    config = ConfigParser()
+    config.read(buildout_cfg)
+
+    self.assertTrue(config.has_option('slap-connection', 'build-time-part-list'))
+    self.assertEqual(
+      config.get('slap-connection', 'build-time-part-list').strip(),
+      'bogus/build-time/part'
     )
 
 

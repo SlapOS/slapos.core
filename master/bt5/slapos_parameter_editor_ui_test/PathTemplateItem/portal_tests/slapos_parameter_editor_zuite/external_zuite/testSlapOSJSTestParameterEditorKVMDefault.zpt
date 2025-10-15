@@ -15,10 +15,13 @@
 
     <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
                        software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/raw/%s/software/kvm/software.cfg' % context.ERP5Site_getSoftwareReleaseTagVersion()">
-                             
+
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
-      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
+
+      <tal:block define="software_type string:VM without backup (dangerous, only for experts)">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/select_software_type_custom" />
+      </tal:block>
 
       <tal:block tal:define="name python:'root[ram-size]'; value python: 4097">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
@@ -48,7 +51,11 @@
       <tal:block tal:define="name python:'root[cpu-count]'; value python: -1">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
       </tal:block>
-
+      <tr>
+        <td>fireEvent</td>
+        <td>//input[@name="root[cpu-count]" and @type="text"]</td>
+        <td>change</td>
+      </tr>
       <tal:block tal:define="name python:'root.cpu-count'; value python: 'Value must be at least 1.'">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_invalid_feedback" />
       </tal:block>
@@ -69,6 +76,11 @@
       <tal:block tal:define="parameter_hash string:9a7701651962ad865ccd257d77da2192">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
       </tal:block>
+
+      <tal:block tal:define="software_type string:default">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_software_type_on_test_form" />
+      </tal:block>
+
     </tbody>
   </table>
 </body>

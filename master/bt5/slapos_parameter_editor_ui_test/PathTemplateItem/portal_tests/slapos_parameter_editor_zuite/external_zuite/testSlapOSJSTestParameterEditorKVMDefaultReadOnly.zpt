@@ -14,15 +14,35 @@
     </thead>
     <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
                        software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/raw/%s/software/kvm/software.cfg' % context.ERP5Site_getSoftwareReleaseTagVersion()">
-                             
+
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init_readonly" />
       <tr>
         <td>type</td>
         <td>//textarea[@name='field_your_text_content']</td>
         <td tal:content="python: '<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><instance><parameter id=&quot;_&quot;>{&quot;ram-size&quot;: 4096,&quot;cpu-count&quot;: 3}</parameter></instance>'"></td>
       </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@name='field_your_softwaretype']</td>
+        <td tal:content="python: 'default'"></td>
+      </tr>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
-      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection_default" />
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="VM without backup (dangerous, only for experts)"]
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="VM without backup (dangerous, only for experts)"]
+        </td>
+        <td></td>
+      </tr>
 
       <tal:block tal:define="name python:'root[ram-size]'; value python: 4096">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_readonly_input_text" />

@@ -44,6 +44,30 @@
       <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
       <td tal:content='python: software_type'></td>
     </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-form") and contains(@class, "ui-icon-spinner")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-form") and contains(@class, "ui-icon-spinner")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-form") and not(contains(@class, "ui-icon-spinner"))]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[contains(@data-gadget-url,
+        'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-form")  and not(contains(@class, "ui-icon-spinner"))]</td>
+      <td></td>
+    </tr>
   </tal:block>
 
   <tal:block metal:define-macro="wait_software_type_selection_default">
@@ -165,7 +189,29 @@
       <td tal:content='python: parameter_hash'></td>
       <td></td>
     </tr>
-    
+  </tal:block>
+
+  <tal:block metal:define-macro="assert_software_type_on_test_form">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//p[@id="field_your_software_type"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//p[@id="field_your_software_type"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//p[@id=\'field_your_software_type\' and text() = \'%s\']' % software_type"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//p[@id=\'field_your_software_type\' and text() = \'%s\']' % software_type"></td>
+      <td></td>
+    </tr>
   </tal:block>
 
   <tal:block metal:define-macro="show_raw_parameter">
@@ -207,7 +253,7 @@
       <td></td>
     </tr>
     <tr>
-      <td>waitForElementPresent</td>
+      <td>assertElementPresent</td>
       <td>//div[contains(@data-gadget-url,
         'gadget_erp5_page_slap_parameter_form.html')]//button[contains(@class, "slapos-show-form")]</td>
       <td></td>

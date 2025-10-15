@@ -14,11 +14,11 @@
     </thead>
     <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
                        software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/raw/%s/software/theia/software.cfg' % context.ERP5Site_getSoftwareReleaseTagVersion()">
-                             
+
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
 
-      <tal:block define="software_type string:Resilient">
+      <tal:block define="software_type string:Resilient Theia">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/select_software_type_custom" />
       </tal:block>
 
@@ -37,6 +37,11 @@
       <tal:block tal:define="parameter_hash string:b27596cc3e0370feccf2c40ff3dd6092">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
       </tal:block>
+
+      <tal:block tal:define="software_type string:resilient">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_software_type_on_test_form" />
+      </tal:block>
+
     </tbody>
   </table>
 </body>

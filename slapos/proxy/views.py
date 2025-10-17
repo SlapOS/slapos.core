@@ -263,8 +263,10 @@ def before_request():
 
 @app.after_request
 def after_request(response):
-  g.db.commit()
-  g.db.close()
+  if getattr(g, "db", None) is not None:
+    # Only close the DB if it has been connected before
+    g.db.commit()
+    g.db.close()
   return response
 
 @app.route('/getComputerInformation', methods=['GET'])

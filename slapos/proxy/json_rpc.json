@@ -1,0 +1,1947 @@
+{
+  "info": {
+    "version": "0.0.2", 
+    "description": "", 
+    "title": "slapos master api"
+  }, 
+  "paths": {
+    "/slapos.put.v0.software_installation_reported_state": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Report the Software Installation state", 
+                "title": "Report the Software Installation state", 
+                "required": [
+                  "software_release_uri", 
+                  "computer_guid", 
+                  "reported_state"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "software_release_uri": {
+                    "type": "string", 
+                    "title": "Software Release URI"
+                  }, 
+                  "computer_guid": {
+                    "type": "string", 
+                    "description": "The Id of the compute node, example: COMP-1234", 
+                    "title": "Compute Node ID"
+                  }, 
+                  "reported_state": {
+                    "enum": [
+                      "available", 
+                      "destroyed", 
+                      "building"
+                    ], 
+                    "type": "string", 
+                    "description": "State reported by the node installing the Software Installation", 
+                    "title": "Reported State"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Report the Software Installation state"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response when the installation reported state has been handled", 
+                  "title": "Instance State reported", 
+                  "required": [
+                    "title", 
+                    "type"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "type": {
+                      "const": "success", 
+                      "type": "string", 
+                      "title": "Type"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "description": "Result message", 
+                      "title": "Title"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Response when the installation reported state has been handled"
+          }
+        }
+      }
+    }, 
+    "/slapos.get.v0.software_instance_certificate": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Data necessary to get Software Instance Certificates", 
+                "title": "Get Software Instance Certificate", 
+                "required": [
+                  "instance_guid"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "instance_guid": {
+                    "type": "string", 
+                    "description": "The unique reference of the Software Instance, example: SOFTINST-1234", 
+                    "title": "Software Instance Id/Reference"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Data necessary to get Software Instance Certificates"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "X509 Certificates used by the instance to authentify itself on master", 
+                  "title": "X509 Certificates", 
+                  "required": [
+                    "key", 
+                    "certificate"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "key": {
+                      "type": "string", 
+                      "description": "X509 Key used by the instance to authentify itself on master", 
+                      "title": "X509 Key"
+                    }, 
+                    "certificate": {
+                      "type": "string", 
+                      "description": "X509 Certificate used by the instance to authentify itself on master", 
+                      "title": "X509 Certificate"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "X509 Certificates used by the instance to authentify itself on master"
+          }
+        }
+      }
+    }, 
+    "/slapos.put.v0.software_instance_title": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Update the Instance title", 
+                "title": "Update the Instance title", 
+                "required": [
+                  "instance_guid", 
+                  "title"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "instance_guid": {
+                    "type": "string", 
+                    "description": "The unique reference of the Software Instance, example: SOFTINST-1234", 
+                    "title": "Software Instance Id/Reference"
+                  }, 
+                  "title": {
+                    "title": "New Title", 
+                    "type": "string", 
+                    "description": "Use this to change the name of your instance. Very dangerous. DO NOT USE IF YOU DO NOT KNOW WHAT YOU ARE DOING", 
+                    "maxLength": 200
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Update the Instance title"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response when the instance title change has been handled", 
+                  "title": "Instance title updated", 
+                  "required": [
+                    "title", 
+                    "type"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "type": {
+                      "const": "success", 
+                      "type": "string", 
+                      "title": "Type"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "description": "Result message", 
+                      "title": "Title"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Response when the instance title change has been handled"
+          }
+        }
+      }
+    }, 
+    "/slapos.put.v0.software_installation_error": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Update the Installation error state", 
+                "title": "Update the Installation error state", 
+                "required": [
+                  "software_release_uri", 
+                  "computer_guid", 
+                  "message"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "software_release_uri": {
+                    "type": "string", 
+                    "title": "Software Release URI"
+                  }, 
+                  "computer_guid": {
+                    "type": "string", 
+                    "description": "The Id of the compute node, example: COMP-1234", 
+                    "title": "Compute Node ID"
+                  }, 
+                  "message": {
+                    "type": "string", 
+                    "description": "Message Used to inform master with readable text. Use to justify an error", 
+                    "title": "Message"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Update the Installation error state"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response when the installation error state has been handled", 
+                  "title": "Installation Error State reported", 
+                  "required": [
+                    "title", 
+                    "type"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "type": {
+                      "const": "success", 
+                      "type": "string", 
+                      "title": "Type"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "description": "Result message", 
+                      "title": "Title"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Response when the installation error state has been handled"
+          }
+        }
+      }
+    }, 
+    "/slapos.get.v0.hateoas_url": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "description": "Get Hateoas URL", 
+                "title": "Get Hateoas URL"
+              }
+            }
+          }, 
+          "description": "Get Hateoas URL"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Hateoas URL", 
+                  "title": "Hateoas URL", 
+                  "required": [
+                    "hateoas_url"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "hateoas_url": {
+                      "type": "string", 
+                      "title": "Hateoas URL"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Hateoas URL"
+          }
+        }
+      }
+    }, 
+    "/slapos.put.v0.software_instance_connection_parameter": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Update the Instance connection parameters", 
+                "title": "Update the Instance connection parameters", 
+                "required": [
+                  "instance_guid", 
+                  "connection_parameter_dict"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "connection_parameter_dict": {
+                    "type": "object", 
+                    "description": "Dict of parameters provided by the instance to access it.", 
+                    "title": "Connections Parameters"
+                  }, 
+                  "instance_guid": {
+                    "type": "string", 
+                    "description": "The unique reference of the Software Instance, example: SOFTINST-1234", 
+                    "title": "Instance's Reference"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Update the Instance connection parameters"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response when the instance is updated", 
+                  "title": "Instance Updated", 
+                  "required": [
+                    "title", 
+                    "type"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "type": {
+                      "const": "success", 
+                      "type": "string", 
+                      "title": "Type"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "description": "Result message", 
+                      "title": "Title"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Response when the instance is updated"
+          }
+        }
+      }
+    }, 
+    "/slapos.get.v0.compute_node_status": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Get the Compute Node status", 
+                "title": "Get the Compute Node status", 
+                "required": [
+                  "computer_guid"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "computer_guid": {
+                    "type": "string", 
+                    "description": "Unique Id of the object.", 
+                    "title": "Compute Node ID"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Get the Compute Node status"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Compute Node Status", 
+                  "title": "Compute Node Status", 
+                  "required": [
+                    "text"
+                  ], 
+                  "additionalProperties": true, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "text": {
+                      "type": "string", 
+                      "description": "Status Message", 
+                      "title": "Status Message"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Compute Node Status"
+          }
+        }
+      }
+    }, 
+    "/slapos.allDocs.v0.compute_node_instance_list": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Software Instance Search", 
+                "title": "Software Instance Search", 
+                "required": [
+                  "computer_guid"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "computer_guid": {
+                    "type": "string", 
+                    "description": "Compute Node Reference hosting the instances, like COMP-1234", 
+                    "title": "Compute Node Reference"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Software Instance Search"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Payload returned by allDocs method.", 
+                  "title": "allDocs: Response Payload", 
+                  "required": [
+                    "result_list"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "result_list": {
+                      "items": {
+                        "additionalProperties": false, 
+                        "required": [
+                          "instance_guid", 
+                          "title", 
+                          "state"
+                        ], 
+                        "type": "object", 
+                        "properties": {
+                          "state": {
+                            "enum": [
+                              "started", 
+                              "stopped", 
+                              "destroyed"
+                            ], 
+                            "type": "string", 
+                            "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance.", 
+                            "title": "Requested State"
+                          }, 
+                          "compute_partition_id": {
+                            "type": "string", 
+                            "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance", 
+                            "title": "Compute Partition Id"
+                          }, 
+                          "software_release_uri": {
+                            "type": "string", 
+                            "description": "URL of the software release used by the software instance", 
+                            "title": "Software Release URI"
+                          }, 
+                          "instance_guid": {
+                            "type": "string", 
+                            "description": "Unique identifier of the Software Instance", 
+                            "title": "Software Instance Reference"
+                          }, 
+                          "title": {
+                            "type": "string", 
+                            "title": "Unique Title of the Instance"
+                          }
+                        }, 
+                        "title": "Software Instance"
+                      }, 
+                      "type": "array", 
+                      "description": "Contains a representation of the items", 
+                      "title": "Result List"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Payload returned by allDocs method."
+          }
+        }
+      }
+    }, 
+    "/slapos.get.v0.compute_partition": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Get Compute Partition informations", 
+                "title": "Get Compute Partition informations", 
+                "required": [
+                  "computer_guid", 
+                  "compute_partition_id"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "computer_guid": {
+                    "type": "string", 
+                    "description": "Id Of the Requesting Compute Node, used by Slap Client when an instance is requesting an instance", 
+                    "title": "Compute Node Id"
+                  }, 
+                  "compute_partition_id": {
+                    "type": "string", 
+                    "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance", 
+                    "title": "Compute Partition Id"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Get Compute Partition informations"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Instance informations", 
+                  "title": "Instance informations", 
+                  "required": [
+                    "computer_guid", 
+                    "instance_guid", 
+                    "root_instance_title", 
+                    "title", 
+                    "state", 
+                    "compute_partition_id", 
+                    "software_release_uri", 
+                    "software_type", 
+                    "shared", 
+                    "processing_timestamp", 
+                    "access_status_message", 
+                    "parameters", 
+                    "sla_parameters", 
+                    "connection_parameters", 
+                    "ip_list", 
+                    "full_ip_list"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "software_release_uri": {
+                      "type": "string", 
+                      "description": "URL of the software release used by the software instance", 
+                      "title": "Software Release URI"
+                    }, 
+                    "full_ip_list": {
+                      "items": {
+                        "items": {
+                          "type": "string"
+                        }, 
+                        "type": "array", 
+                        "description": "All elements to describe the interface", 
+                        "title": "Internet Protocol Address"
+                      }, 
+                      "type": "array", 
+                      "description": "List of IPs usable by the Software Instance on the partition.", 
+                      "title": "Full IP List"
+                    }, 
+                    "instance_guid": {
+                      "type": "string", 
+                      "description": "Unique identifier of the Software Instance", 
+                      "title": "Software Instance Reference"
+                    }, 
+                    "root_instance_title": {
+                      "type": "string", 
+                      "title": "Title of the Roor Instance"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "title": "Unique Title of the Instance"
+                    }, 
+                    "compute_partition_id": {
+                      "type": "string", 
+                      "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance", 
+                      "title": "Compute Partition Id"
+                    }, 
+                    "access_status_message": {
+                      "type": "string", 
+                      "title": "Access Status Message"
+                    }, 
+                    "state": {
+                      "enum": [
+                        "started", 
+                        "stopped", 
+                        "destroyed"
+                      ], 
+                      "type": "string", 
+                      "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance.", 
+                      "title": "Requested State"
+                    }, 
+                    "sla_parameters": {
+                      "type": "object", 
+                      "title": "SLA Parameters"
+                    }, 
+                    "computer_guid": {
+                      "type": "string", 
+                      "description": "Id Of the Requesting Compute Node, used by Slap Client when an instance is requesting an instance", 
+                      "title": "Compute Node Id"
+                    }, 
+                    "connection_parameters": {
+                      "type": "object", 
+                      "title": "Connection Parameters"
+                    }, 
+                    "software_type": {
+                      "type": "string", 
+                      "title": "Software Type"
+                    }, 
+                    "processing_timestamp": {
+                      "type": "integer", 
+                      "title": "Processing Timestamp"
+                    }, 
+                    "shared": {
+                      "type": "boolean", 
+                      "description": "Is it a shared instance", 
+                      "title": "Shared"
+                    }, 
+                    "parameters": {
+                      "type": "object", 
+                      "title": "Parameters"
+                    }, 
+                    "ip_list": {
+                      "items": {
+                        "items": {
+                          "type": "string"
+                        }, 
+                        "type": "array", 
+                        "description": "All elements to describe the interface", 
+                        "title": "Internet Protocol Address"
+                      }, 
+                      "type": "array", 
+                      "description": "List of IPs usable by the Software Instance on the partition.", 
+                      "title": "IP List"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Instance informations"
+          }
+        }
+      }
+    }, 
+    "/slapos.allDocs.v0.compute_node_software_installation_list": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "return the list Software Installation of a Compute Node", 
+                "title": "return the list Software Installation of a Compute Node", 
+                "required": [
+                  "computer_guid"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "computer_guid": {
+                    "type": "string", 
+                    "description": "The reference of the compute node, example: COMP-1234", 
+                    "title": "Compute Node ID"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "return the list Software Installation of a Compute Node"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Payload returned by allDocs method.", 
+                  "title": "allDocs: Response Payload", 
+                  "required": [
+                    "result_list"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "result_list": {
+                      "items": {
+                        "additionalProperties": false, 
+                        "required": [
+                          "software_release_uri", 
+                          "state"
+                        ], 
+                        "type": "object", 
+                        "properties": {
+                          "software_release_uri": {
+                            "type": "string", 
+                            "title": "Software Release URI"
+                          }, 
+                          "state": {
+                            "enum": [
+                              "available", 
+                              "destroyed"
+                            ], 
+                            "type": "string", 
+                            "description": "State of the requested software", 
+                            "title": "Requested State"
+                          }
+                        }, 
+                        "title": "Item"
+                      }, 
+                      "type": "array", 
+                      "description": "Contains a representation of the items", 
+                      "title": "Result List"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Payload returned by allDocs method."
+          }
+        }
+      }
+    }, 
+    "/slapos.put.v0.software_instance_error": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Update the Instance error state", 
+                "title": "Update the Instance error state", 
+                "required": [
+                  "instance_guid", 
+                  "message"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "message": {
+                    "type": "string", 
+                    "description": "Message Used to inform master with readable text. Use to justify an error", 
+                    "title": "Message"
+                  }, 
+                  "instance_guid": {
+                    "type": "string", 
+                    "description": "The unique reference of the Software Instance, example: SOFTINST-1234", 
+                    "title": "Instance's Reference"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Update the Instance error state"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response when the instance error state has been handled", 
+                  "title": "Instance Error State reported", 
+                  "required": [
+                    "title", 
+                    "type"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "type": {
+                      "const": "success", 
+                      "type": "string", 
+                      "title": "Type"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "description": "Result message", 
+                      "title": "Title"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Response when the instance error state has been handled"
+          }
+        }
+      }
+    }, 
+    "/slapos.post.v0.software_instance": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Software Instance", 
+                "title": "Software Instance", 
+                "$id": "software-instance-base-schema.json", 
+                "required": [
+                  "title", 
+                  "software_release_uri", 
+                  "software_type"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "software_release_uri": {
+                    "type": "string", 
+                    "description": "URI of the Software Release to be used by the instance", 
+                    "title": "Software Release URI"
+                  }, 
+                  "parameters": {
+                    "type": "object", 
+                    "description": "Instance parameters.", 
+                    "title": "Instance Parameters"
+                  }, 
+                  "title": {
+                    "title": "Title", 
+                    "type": "string", 
+                    "description": "Unique Name of the Software Instance", 
+                    "maxLength": 200
+                  }, 
+                  "state": {
+                    "default": "started", 
+                    "enum": [
+                      "started", 
+                      "stopped", 
+                      "destroyed"
+                    ], 
+                    "type": "string", 
+                    "description": "State of the requested instance", 
+                    "title": "Requested State"
+                  }, 
+                  "sla_parameters": {
+                    "additionalProperties": {
+                      "type": "string"
+                    }, 
+                    "title": "Target Node Selection Parameters", 
+                    "type": "object", 
+                    "properties": {
+                      "project_guid": {
+                        "type": "string", 
+                        "description": "Requested Project Reference", 
+                        "title": "Requested Project"
+                      }, 
+                      "computer_guid": {
+                        "type": "string", 
+                        "description": "Requested Compute Node Reference, like COMP-1234", 
+                        "title": "Requested Compute Node"
+                      }, 
+                      "instance_guid": {
+                        "type": "string", 
+                        "description": "Only applicable to shared instance. Requested Host Instance Reference, like SOFTINST-1234", 
+                        "title": "Requested Host Instance"
+                      }, 
+                      "network_guid": {
+                        "type": "string", 
+                        "description": "Requested Network Reference", 
+                        "title": "Requested Network"
+                      }, 
+                      "retention_delay": {
+                        "type": "number", 
+                        "description": "Number of days during the data is preserved after the instance is destroyed", 
+                        "title": "Retention Delay"
+                      }
+                    }, 
+                    "description": "Also known as SLA parameters. Used to pick where an how the instance is to be deployed"
+                  }, 
+                  "software_type": {
+                    "type": "string", 
+                    "description": "Software type to be requested", 
+                    "title": "Software Type"
+                  }, 
+                  "shared": {
+                    "default": false, 
+                    "type": "boolean", 
+                    "description": "Ask for a Shared Instance", 
+                    "title": "Shared Instance"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Software Instance"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "required": [
+                        "computer_guid", 
+                        "instance_guid", 
+                        "root_instance_title", 
+                        "title", 
+                        "state", 
+                        "compute_partition_id", 
+                        "software_release_uri", 
+                        "software_type", 
+                        "shared", 
+                        "processing_timestamp", 
+                        "access_status_message", 
+                        "parameters", 
+                        "sla_parameters", 
+                        "connection_parameters", 
+                        "ip_list", 
+                        "full_ip_list"
+                      ]
+                    }, 
+                    {
+                      "required": [
+                        "message", 
+                        "name", 
+                        "status"
+                      ]
+                    }
+                  ], 
+                  "description": "Response when the software instance is requested", 
+                  "title": "Software Instance Requested", 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "status": {
+                      "type": "integer", 
+                      "title": "Status"
+                    }, 
+                    "software_release_uri": {
+                      "type": "string", 
+                      "description": "URL of the software release used by the software instance", 
+                      "title": "Software Release URI"
+                    }, 
+                    "full_ip_list": {
+                      "items": {
+                        "items": {
+                          "type": "string"
+                        }, 
+                        "type": "array", 
+                        "description": "All elements to describe the interface", 
+                        "title": "Internet Protocol Address"
+                      }, 
+                      "type": "array", 
+                      "description": "List of IPs usable by the Software Instance on the partition.", 
+                      "title": "Full IP List"
+                    }, 
+                    "name": {
+                      "type": "string", 
+                      "title": "Name"
+                    }, 
+                    "root_instance_title": {
+                      "type": "string", 
+                      "title": "Title of the Roor Instance"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "title": "Unique Title of the Instance"
+                    }, 
+                    "instance_guid": {
+                      "type": "string", 
+                      "description": "Unique identifier of the Software Instance", 
+                      "title": "Software Instance Reference"
+                    }, 
+                    "compute_partition_id": {
+                      "type": "string", 
+                      "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance", 
+                      "title": "Compute Partition Id"
+                    }, 
+                    "access_status_message": {
+                      "type": "string", 
+                      "title": "Access Status Message"
+                    }, 
+                    "state": {
+                      "enum": [
+                        "started", 
+                        "stopped", 
+                        "destroyed"
+                      ], 
+                      "type": "string", 
+                      "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance.", 
+                      "title": "Requested State"
+                    }, 
+                    "sla_parameters": {
+                      "type": "object", 
+                      "title": "SLA Parameters"
+                    }, 
+                    "computer_guid": {
+                      "type": "string", 
+                      "description": "Id Of the Requesting Compute Node, used by Slap Client when an instance is requesting an instance", 
+                      "title": "Compute Node Id"
+                    }, 
+                    "connection_parameters": {
+                      "type": "object", 
+                      "title": "Connection Parameters"
+                    }, 
+                    "software_type": {
+                      "type": "string", 
+                      "title": "Software Type"
+                    }, 
+                    "processing_timestamp": {
+                      "type": "integer", 
+                      "title": "Processing Timestamp"
+                    }, 
+                    "shared": {
+                      "type": "boolean", 
+                      "description": "Is it a shared instance", 
+                      "title": "Shared"
+                    }, 
+                    "message": {
+                      "type": "string", 
+                      "title": "Message"
+                    }, 
+                    "parameters": {
+                      "type": "object", 
+                      "title": "Parameters"
+                    }, 
+                    "ip_list": {
+                      "items": {
+                        "items": {
+                          "type": "string"
+                        }, 
+                        "type": "array", 
+                        "description": "All elements to describe the interface", 
+                        "title": "Internet Protocol Address"
+                      }, 
+                      "type": "array", 
+                      "description": "List of IPs usable by the Software Instance on the partition.", 
+                      "title": "IP List"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Response when the software instance is requested"
+          }
+        }
+      }
+    }, 
+    "/slapos.post.v0.compute_node_certificate": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Data necessary to create Compute Node Certificates", 
+                "title": "Create Compute Node Certificate", 
+                "required": [
+                  "computer_guid"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "computer_guid": {
+                    "type": "string", 
+                    "description": "Unique Id of the object.", 
+                    "title": "Compute Node ID"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Data necessary to create Compute Node Certificates"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "X509 Certificates used by the compute node to authentify itself on master", 
+                  "title": "X509 Certificates", 
+                  "required": [
+                    "key", 
+                    "certificate"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "key": {
+                      "type": "string", 
+                      "description": "X509 Key used by the compute node to authentify itself on master", 
+                      "title": "X509 Key"
+                    }, 
+                    "certificate": {
+                      "type": "string", 
+                      "description": "X509 Certificate used by the compute node to authentify itself on master", 
+                      "title": "X509 Certificate"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "X509 Certificates used by the compute node to authentify itself on master"
+          }
+        }
+      }
+    }, 
+    "/slapos.allDocs.v0.instance_node_instance_list": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Slave Instance Search", 
+                "title": "Slave Instance Search", 
+                "required": [
+                  "instance_guid"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "instance_guid": {
+                    "type": "string", 
+                    "description": "The unique reference of the Software Instance, example: SOFTINST-1234", 
+                    "title": "Host Instance Reference"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Slave Instance Search"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Payload returned by allDocs method.", 
+                  "title": "allDocs: Response Payload", 
+                  "required": [
+                    "result_list"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "result_list": {
+                      "items": {
+                        "additionalProperties": false, 
+                        "required": [
+                          "instance_guid", 
+                          "title", 
+                          "software_type", 
+                          "state", 
+                          "parameters"
+                        ], 
+                        "type": "object", 
+                        "properties": {
+                          "software_release_uri": {
+                            "type": "string", 
+                            "description": "URL of the software release used by the software instance", 
+                            "title": "Software Release URI"
+                          }, 
+                          "instance_guid": {
+                            "type": "string", 
+                            "description": "Unique identifier of the Software Instance", 
+                            "title": "Software Instance Reference"
+                          }, 
+                          "parameters": {
+                            "type": "object", 
+                            "title": "Parameters"
+                          }, 
+                          "title": {
+                            "type": "string", 
+                            "title": "Unique Title of the Instance"
+                          }, 
+                          "compute_partition_id": {
+                            "type": "string", 
+                            "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance", 
+                            "title": "Compute Partition Id"
+                          }, 
+                          "state": {
+                            "enum": [
+                              "started", 
+                              "stopped", 
+                              "destroyed"
+                            ], 
+                            "type": "string", 
+                            "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance.", 
+                            "title": "Requested State"
+                          }, 
+                          "software_type": {
+                            "type": "string", 
+                            "title": "Software Type"
+                          }
+                        }, 
+                        "title": "Shared Instance"
+                      }, 
+                      "type": "array", 
+                      "description": "Contains a representation of the items", 
+                      "title": "Result List"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Payload returned by allDocs method."
+          }
+        }
+      }
+    }, 
+    "/slapos.get.v0.software_instance": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Get Instance informations", 
+                "title": "Get Instance informations", 
+                "required": [
+                  "instance_guid"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "instance_guid": {
+                    "type": "string", 
+                    "description": "The unique reference of the Software Instance, example: SOFTINST-1234", 
+                    "title": "Software Instance Id/Reference"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Get Instance informations"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Instance informations", 
+                  "title": "Instance informations", 
+                  "required": [
+                    "computer_guid", 
+                    "instance_guid", 
+                    "root_instance_title", 
+                    "title", 
+                    "state", 
+                    "compute_partition_id", 
+                    "software_release_uri", 
+                    "software_type", 
+                    "shared", 
+                    "processing_timestamp", 
+                    "access_status_message", 
+                    "parameters", 
+                    "sla_parameters", 
+                    "connection_parameters", 
+                    "ip_list", 
+                    "full_ip_list"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "software_release_uri": {
+                      "type": "string", 
+                      "description": "URL of the software release used by the software instance", 
+                      "title": "Software Release URI"
+                    }, 
+                    "full_ip_list": {
+                      "items": {
+                        "items": {
+                          "type": "string"
+                        }, 
+                        "type": "array", 
+                        "description": "All elements to describe the interface", 
+                        "title": "Internet Protocol Address"
+                      }, 
+                      "type": "array", 
+                      "description": "List of IPs usable by the Software Instance on the partition.", 
+                      "title": "Full IP List"
+                    }, 
+                    "instance_guid": {
+                      "type": "string", 
+                      "description": "Unique identifier of the Software Instance", 
+                      "title": "Software Instance Reference"
+                    }, 
+                    "root_instance_title": {
+                      "type": "string", 
+                      "title": "Title of the Roor Instance"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "title": "Unique Title of the Instance"
+                    }, 
+                    "compute_partition_id": {
+                      "type": "string", 
+                      "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance", 
+                      "title": "Compute Partition Id"
+                    }, 
+                    "access_status_message": {
+                      "type": "string", 
+                      "title": "Access Status Message"
+                    }, 
+                    "state": {
+                      "enum": [
+                        "started", 
+                        "stopped", 
+                        "destroyed"
+                      ], 
+                      "type": "string", 
+                      "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance.", 
+                      "title": "Requested State"
+                    }, 
+                    "sla_parameters": {
+                      "type": "object", 
+                      "title": "SLA Parameters"
+                    }, 
+                    "computer_guid": {
+                      "type": "string", 
+                      "description": "Id Of the Requesting Compute Node, used by Slap Client when an instance is requesting an instance", 
+                      "title": "Compute Node Id"
+                    }, 
+                    "connection_parameters": {
+                      "type": "object", 
+                      "title": "Connection Parameters"
+                    }, 
+                    "software_type": {
+                      "type": "string", 
+                      "title": "Software Type"
+                    }, 
+                    "processing_timestamp": {
+                      "type": "integer", 
+                      "title": "Processing Timestamp"
+                    }, 
+                    "shared": {
+                      "type": "boolean", 
+                      "description": "Is it a shared instance", 
+                      "title": "Shared"
+                    }, 
+                    "parameters": {
+                      "type": "object", 
+                      "title": "Parameters"
+                    }, 
+                    "ip_list": {
+                      "items": {
+                        "items": {
+                          "type": "string"
+                        }, 
+                        "type": "array", 
+                        "description": "All elements to describe the interface", 
+                        "title": "Internet Protocol Address"
+                      }, 
+                      "type": "array", 
+                      "description": "List of IPs usable by the Software Instance on the partition.", 
+                      "title": "IP List"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Instance informations"
+          }
+        }
+      }
+    }, 
+    "/slapos.post.v0.compute_node_usage": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Report the Compute Node Usage", 
+                "title": "Report the Compute Node Usage", 
+                "required": [
+                  "computer_guid", 
+                  "tioxml"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "computer_guid": {
+                    "type": "string", 
+                    "description": "Unique Id of the object.", 
+                    "title": "Compute Node ID"
+                  }, 
+                  "tioxml": {
+                    "type": "string", 
+                    "description": "The TioXML text describing the node consumption.", 
+                    "title": "TioXML"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Report the Compute Node Usage"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response when the compute node usage has been handled", 
+                  "title": "Compute Node Usage reported", 
+                  "required": [
+                    "title", 
+                    "type"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "type": {
+                      "const": "success", 
+                      "type": "string", 
+                      "title": "Type"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "description": "Result message", 
+                      "title": "Title"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Response when the compute node usage has been handled"
+          }
+        }
+      }
+    }, 
+    "/slapos.put.v0.software_instance_bang": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Force reprocessing the full instance tree", 
+                "title": "Force reprocessing the full instance tree", 
+                "required": [
+                  "instance_guid", 
+                  "message"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "message": {
+                    "type": "string", 
+                    "description": "Message used to inform master with readable text. Use to justify a bang", 
+                    "title": "Message"
+                  }, 
+                  "instance_guid": {
+                    "type": "string", 
+                    "description": "The unique reference of the Software Instance, example: SOFTINST-1234", 
+                    "title": "Software Instance Id/Reference"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Force reprocessing the full instance tree"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response when the instance bang has been handled", 
+                  "title": "Instance bang requested", 
+                  "required": [
+                    "title", 
+                    "type"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "type": {
+                      "const": "success", 
+                      "type": "string", 
+                      "title": "Type"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "description": "Result message", 
+                      "title": "Title"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Response when the instance bang has been handled"
+          }
+        }
+      }
+    }, 
+    "/slapos.put.v0.compute_node_format": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Update Compute Node Information. Send the list of partition and their ip addresses.", 
+                "title": "Format Compute Node", 
+                "required": [
+                  "compute_partition_list", 
+                  "computer_guid"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "computer_guid": {
+                    "type": "string", 
+                    "description": "Unique Id of the object. It is not editable.", 
+                    "title": "Compute Node ID"
+                  }, 
+                  "compute_partition_list": {
+                    "items": {
+                      "title": "Compute Node Partition", 
+                      "required": [
+                        "partition_id"
+                      ], 
+                      "type": "object", 
+                      "properties": {
+                        "ip_list": {
+                          "items": {
+                            "title": "Internet Protocol Address", 
+                            "required": [
+                              "ip-address"
+                            ], 
+                            "type": "object", 
+                            "properties": {
+                              "gateway-ip-address": {
+                                "type": "string", 
+                                "title": "Gateway Ip Address"
+                              }, 
+                              "network-address": {
+                                "type": "string", 
+                                "title": "Network Address"
+                              }, 
+                              "netmask": {
+                                "type": "string", 
+                                "title": "Netmask"
+                              }, 
+                              "ip-address": {
+                                "type": "string", 
+                                "title": "IP Address"
+                              }, 
+                              "network-interface": {
+                                "type": "string", 
+                                "title": "Network Interface"
+                              }
+                            }, 
+                            "description": "All element to describe the interface"
+                          }, 
+                          "type": "array", 
+                          "description": "List of IPs usable by the Software Instance on the partition. Used to configure firewall when necessary and allow only related instances to access it.", 
+                          "title": "IP List"
+                        }, 
+                        "partition_id": {
+                          "type": "string", 
+                          "description": "Unique ID of the Compute Node Partition", 
+                          "title": "Partition ID"
+                        }
+                      }, 
+                      "description": "Compute Node Partitions host Software Instances"
+                    }, 
+                    "type": "array", 
+                    "description": "List Compute Node Partitions hosted on the computer", 
+                    "title": "Compute Partition List"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Update Compute Node Information. Send the list of partition and their ip addresses."
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response when the compute node format has been handled", 
+                  "title": "Compute node format requested", 
+                  "required": [
+                    "title", 
+                    "type"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "type": {
+                      "const": "success", 
+                      "type": "string", 
+                      "title": "Type"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "description": "Result message", 
+                      "title": "Title"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Response when the compute node format has been handled"
+          }
+        }
+      }
+    }, 
+    "/slapos.put.v0.software_instance_reported_state": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Report the Instance state", 
+                "title": "Report the Instance state", 
+                "required": [
+                  "instance_guid", 
+                  "reported_state"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "reported_state": {
+                    "enum": [
+                      "started", 
+                      "destroyed", 
+                      "stopped"
+                    ], 
+                    "type": "string", 
+                    "description": "State reported by the node", 
+                    "title": "Reported State"
+                  }, 
+                  "instance_guid": {
+                    "type": "string", 
+                    "description": "The unique reference of the Software Instance, example: SOFTINST-1234", 
+                    "title": "Instance's Reference"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Report the Instance state"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response when the instance reported state has been handled", 
+                  "title": "Instance State reported", 
+                  "required": [
+                    "title", 
+                    "type"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "type": {
+                      "const": "success", 
+                      "type": "string", 
+                      "title": "Type"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "description": "Result message", 
+                      "title": "Title"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Response when the instance reported state has been handled"
+          }
+        }
+      }
+    }, 
+    "/slapos.remove.v0.compute_node_certificate": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Remove the Compute Node certificate", 
+                "title": "Remove the Compute Node certificate", 
+                "required": [
+                  "computer_guid"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "computer_guid": {
+                    "type": "string", 
+                    "description": "Unique Id of the object.", 
+                    "title": "Compute Node ID"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Remove the Compute Node certificate"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response when the compute node certificate has been removed", 
+                  "title": "Compute node certificate removed", 
+                  "required": [
+                    "title", 
+                    "type"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "type": {
+                      "const": "success", 
+                      "type": "string", 
+                      "title": "Type"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "description": "Result message", 
+                      "title": "Title"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Response when the compute node certificate has been removed"
+          }
+        }
+      }
+    }, 
+    "/slapos.put.v0.compute_node_bang": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Force reprocessing the full Compute Node", 
+                "title": "Force reprocessing the full Compute Node", 
+                "required": [
+                  "computer_guid", 
+                  "message"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "message": {
+                    "type": "string", 
+                    "description": "Message used to inform master with readable text. Use to justify a bang", 
+                    "title": "Message"
+                  }, 
+                  "computer_guid": {
+                    "type": "string", 
+                    "description": "Unique Id of the object. It is not editable.", 
+                    "title": "Compute Node ID"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Force reprocessing the full Compute Node"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response when the compute node bang has been handled", 
+                  "title": "Compute node bang requested", 
+                  "required": [
+                    "title", 
+                    "type"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "type": {
+                      "const": "success", 
+                      "type": "string", 
+                      "title": "Type"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "description": "Result message", 
+                      "title": "Title"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Response when the compute node bang has been handled"
+          }
+        }
+      }
+    }, 
+    "/slapos.post.v0.software_installation": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Change the Software Installation expected state", 
+                "title": "Change the Software Installation expected state", 
+                "required": [
+                  "software_release_uri", 
+                  "computer_guid"
+                ], 
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "properties": {
+                  "software_release_uri": {
+                    "type": "string", 
+                    "title": "Software Release URI"
+                  }, 
+                  "computer_guid": {
+                    "type": "string", 
+                    "description": "The unique reference of the compute node, example: COMP-1234", 
+                    "title": "Compute Node Id/Reference"
+                  }, 
+                  "state": {
+                    "default": "available", 
+                    "enum": [
+                      "available", 
+                      "destroyed"
+                    ], 
+                    "type": "string", 
+                    "description": "State of the requested software", 
+                    "title": "Requested State"
+                  }
+                }
+              }
+            }
+          }, 
+          "description": "Change the Software Installation expected state"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response when the installation state has been handled", 
+                  "title": "Installation state updated", 
+                  "required": [
+                    "title", 
+                    "type"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "type": {
+                      "const": "success", 
+                      "type": "string", 
+                      "title": "Type"
+                    }, 
+                    "title": {
+                      "type": "string", 
+                      "description": "Result message", 
+                      "title": "Title"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Response when the installation state has been handled"
+          }
+        }
+      }
+    }
+  }, 
+  "servers": [
+    {
+      "url": "."
+    }
+  ], 
+  "openapi": "3.0.0"
+}

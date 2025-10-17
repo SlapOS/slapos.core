@@ -44,12 +44,14 @@ from slapos.util import bytes2str, unicode2str, sqlite_connect, \
 
 from flask import g, Flask, request, abort, redirect, url_for
 from slapos.util import loads, dumps
+from .json_rpc import JsonRpcManager
 
 import six
 from six.moves import range
 from six.moves.urllib.parse import urlparse, unquote, urljoin
 
 app = Flask(__name__)
+JsonRpcManager().init_app(app)
 
 EMPTY_DICT_XML = dumps({})
 

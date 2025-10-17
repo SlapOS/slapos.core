@@ -45,6 +45,7 @@ from slapos.util import bytes2str, unicode2str, sqlite_connect, \
 from flask import g, Flask, request, abort, redirect, url_for
 from slapos.util import loads, dumps
 from .json_rpc import JsonRpcManager
+from .panel import panel_blueprint
 
 import six
 from six.moves import range
@@ -52,6 +53,7 @@ from six.moves.urllib.parse import urlparse, unquote, urljoin
 
 app = Flask(__name__)
 JsonRpcManager().init_app(app)
+app.register_blueprint(panel_blueprint, url_prefix="/panel")
 
 EMPTY_DICT_XML = dumps({})
 
@@ -1248,3 +1250,7 @@ def hateoas():
   handler = mode_handlers.get(mode, lambda: abort(400))
   resp = handler()
   return resp
+
+@app.route('/', methods=['GET'])
+def index():
+  return redirect(url_for('panel.index'))

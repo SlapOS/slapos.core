@@ -39,6 +39,7 @@ from .hateoas import hateoas_blueprint
 from .slap_tool import slap_tool_blueprint
 from .http_proxy import http_proxy_blueprint
 from .db import execute_db
+from .json_rpc import JsonRpcManager
 
 from six.moves.urllib.parse import urlparse
 
@@ -46,6 +47,7 @@ app = Flask(__name__)
 app.register_blueprint(hateoas_blueprint, url_prefix="/hateoas")
 app.register_blueprint(slap_tool_blueprint)
 app.register_blueprint(http_proxy_blueprint, url_prefix="/http_proxy")
+JsonRpcManager().init_app(app)
 
 def connect_db():
   return sqlite_connect(current_app.config['DATABASE_URI'])

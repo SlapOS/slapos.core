@@ -175,7 +175,26 @@ def useComputer():
 def loadComputerConfigurationFromXML():
   xml = request.form['xml']
   computer_dict = loads(xml.encode('utf-8'))
-  formatFromDB(computer_dict)
+  partition_list = []
+  for input_partition in computer_dict['partition_list']:
+    ip_list = []
+    for input_address in input_partition['address_list']:
+      ip_list.append({
+        'ip-address': input_address['addr'],
+        'netmask': input_address['netmask'],
+        # keep "or input_partition['reference']" for backward compatibility in webrunner
+        'network-interface': input_partition['tap']['name'] or input_partition['reference']
+      })
+    partition_list.append({
+      'partition_id': input_partition['reference'],
+      'ip_list': ip_list
+    })
+  formatFromDB(
+    computer_dict['reference'],
+    partition_list,
+    computer_address=computer_dict['address'],
+    computer_netmask=computer_dict['netmask']
+  )
   return 'done'
 
 

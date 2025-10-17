@@ -26,6 +26,7 @@
 ##############################################################################
 
 from __future__ import absolute_import
+import functools
 import unittest
 import mock
 import os
@@ -60,7 +61,7 @@ class TestCheckSoftwareLDD(SlapOSStandaloneTestCase):
                     **locals())
     }
 
-  def _install_software(self, environment, shared=True):
+  def _install_software(self, environment, shared=True, software_url=None, install_all=False):
     environment_option = ''
     for k, v in environment.items():
       environment_option += '  {k}={v}\n'.format(k=k, v=v)
@@ -68,10 +69,14 @@ class TestCheckSoftwareLDD(SlapOSStandaloneTestCase):
     shared_option = 'true' if shared else 'false'
     test_software_archive_url = os.path.join(
         os.path.dirname(__file__), 'data', 'cmmi', 'dist.tar.gz')
-    with tempfile.NamedTemporaryFile(
+    if software_url:
+      software_file = open(software_url, 'w')
+    else:
+      software_file = tempfile.NamedTemporaryFile(
         suffix="-%s.cfg" % self.id(),
         mode='w',
-    ) as f:
+      )
+    with software_file as f:
       f.write(
           textwrap.dedent('''
               [buildout]
@@ -90,7 +95,7 @@ class TestCheckSoftwareLDD(SlapOSStandaloneTestCase):
       ''').format(os=os, **locals()))
       f.flush()
       self.standalone.supply(f.name)
-      self.standalone.waitForSoftware()
+      self.standalone.waitForSoftware(install_all=install_all)
       return f.name
 
   def test_software_using_system_libraries(self):
@@ -129,8 +134,17 @@ class TestCheckSoftwareLDD(SlapOSStandaloneTestCase):
   def test_software_check_isolated(self):
     # if a software populated shared parts with wrong parts, this does not
     # impact checking other softwares, as long as they don't use the problematic
-    # parts
+    # parts.
+    # For this test, we reuse the tests installing problematic software and
+    # then the test installing a correct software, using the same software URL.
+    # This way, we cover testing the case where a software is updated in place.
+    software_url = self.enterContext(
+      tempfile.NamedTemporaryFile(suffix="-%s.cfg" % self.id()))
+    self._install_software = functools.partial(
+      self._install_software, software_url=software_url.name, install_all=True)
+
     self.test_shared_part_using_system_libraries()
+    self.test_shared_part_referencing_software()
     self.test_ok()
 
 

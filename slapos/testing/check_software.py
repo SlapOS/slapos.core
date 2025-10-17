@@ -265,6 +265,8 @@ def checkSoftware(slap, software_url):
           '*',
           '.buildout-shared.json',
       )):
+        if not any(signature_file.startswith(path_to_check) for path_to_check in paths_to_check):
+          continue
         with open(signature_file) as f:
           signature_content = f.read()
         if software_hash in signature_content:

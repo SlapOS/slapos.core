@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+  <!--meta http-equiv="Content-Security-Policy" content="default-src 'self'" /-->
+  <meta name="referrer" content="same-origin">
+  <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1" />
+  <title>SlapProxy Panel</title>
+  
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, nocache" />
+
+  <link rel="stylesheet" href="external/gadget_erp5_nojqm.css">
+  <link rel="stylesheet" href="panel.css">
+  <script src="external/rsvp.js"></script>
+  <script src="external/renderjs.js"></script>
+  <script src="external/jiodev.js"></script>
+  <script src="external/domsugar.js"></script>
+  <script src="panel.js"></script>
+
+  </head>
+  <body>
+    <div data-role="page">
+      <!--div data-gadget-async-url="gadget_erp5_notification.html" data-gadget-scope="notification" data-gadget-sandbox="public"></div-->
+      <!--div data-gadget-scope="translation_gadget" data-gadget-url="https://panel.rapid.space/slapos_master_panel_translation.html" data-gadget-sandbox="public"-->
+
+      <div data-gadget-scope="header" data-gadget-urlX="https://panel.rapid.space/slapos_master_panel_header.html" data-gadget-sandbox="public">
+        <div data-role="header" class="ui-header">
+          <div class="ui-btn-left">
+            <div class="ui-controlgroup-controls">
+              <form>
+                <button type="button" name="panel" data-i18n="Menu" classXXX="ui-icon-bars ui-btn-icon-left"></button>
+              </form>
+            </div>
+          </div>
+          <h1>
+            <a id="slapproxy_header_title" class="ui-btn-icon-left ui-icon-spinner'">Panel</a>
+          </h1>
+          <div class="ui-btn-right">
+            <div class="ui-controlgroup-controls"></div>
+          </div>
+          <div class="ui-subheader">
+            <ul></ul>
+          </div>
+        </div>
+      </div>
+
+      <div data-gadget-scope="editor_panel"></div>
+
+      <!--div data-role="header">
+        <div class="ui-btn-left">
+          <div class="ui-controlgroup-controls">
+            <button data-i18n="Close" class="ui-btn-icon-notext ui-icon-delete">Close</button>
+          </div>
+        </div>
+        <div class="panel_img">
+        <img alt="ERP5" src="https://panel.rapid.space/rapidspace-Website.Logo">
+        </div>
+      </div-->
+
+      <div data-gadget-scope="panel">
+        <div>
+          <div data-role="header">
+            <div class="ui-btn-left">
+              <div class="ui-controlgroup-controls">
+                <!--button data-i18n="Close" class="ui-btn-icon-notext ui-icon-delete">Close</button-->
+              </div>
+            </div>
+            <div class="panel_img">
+              <!--img alt="ERP5" src="external/rapidspace-Website.Logo"-->
+            </div>
+          </div>
+          <div>
+          </div>
+        </div>
+
+    </div>
+
+      <div role="main" class="ui-content gadget-content">
+        <div data-gadget-scope="m" id="slapproxy_page" >
+          <div class="ui-icon-spinner ui-btn-icon-notext first-loader"></div>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

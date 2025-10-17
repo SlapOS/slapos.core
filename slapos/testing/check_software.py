@@ -255,22 +255,19 @@ def checkSoftware(slap, software_url):
       shared_part_list = config_parser.get('buildout', 'shared-part-list').splitlines()
     except (NoOptionError, NoSectionError):
       shared_part_list = []
-    for shared_directory in shared_part_list:
-      if not shared_directory:
+    shared_part_set = {path for path in shared_part_list if path}
+    for path_to_check in paths_to_check:
+      if not any(path_to_check.startswith(shared_part) for shared_part in shared_part_set):
         continue
-      for signature_file in glob.glob(
-        os.path.join(
-          shared_directory,
-          '*',
-          '*',
-          '.buildout-shared.json',
-      )):
-        with open(signature_file) as f:
-          signature_content = f.read()
-        if software_hash in signature_content:
-          error_list.append(
-            "Shared part is referencing non shared part or software {}\n{}\n".format(
-            signature_file, signature_content))
+      signature_file = os.path.join(path_to_check, '.buildout-shared.json')
+      if not os.path.exists(signature_file):
+        continue
+      with open(signature_file) as f:
+        signature_content = f.read()
+      if software_hash in signature_content:
+        error_list.append(
+          "Shared part is referencing non shared part or software {}\n{}\n".format(
+          signature_file, signature_content))
 
   def checkEggsVersionsKnownVulnerabilities(
       egg_directories,

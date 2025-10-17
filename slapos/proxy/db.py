@@ -63,39 +63,42 @@ def checkIfMasterIsCurrentMaster(master_url):
     return False
 
 
-def formatFromDB(computer_dict):
-  execute_db('computer', 'INSERT OR REPLACE INTO %s values(:reference, :address, :netmask)',
-             computer_dict)
+def formatFromDB(computer_reference, partition_list,
+                 computer_address=None,
+                 computer_netmask=None):
+  execute_db('computer', 'INSERT OR REPLACE INTO %s values(?, ?, ?)',
+             (computer_reference, computer_address, computer_netmask))
 
   # remove references to old partitions.
   execute_db(
     'partition',
     'DELETE FROM %s WHERE computer_reference = ? and reference not in ({})'.format(
-      ','.join('?' * len(computer_dict['partition_list'])) # Create as many placeholder as partitions requested
+      ','.join('?' * len(partition_list)) # Create as many placeholder as partitions requested
     ),
     # Prepare arguments : first is for computer_reference, followed by the same of the partitions
-    [computer_dict['reference']] + [x['reference'] for x in computer_dict['partition_list']]
+    [computer_reference] + [x['partition_id'] for x in partition_list]
   )
 
   execute_db(
     'slave',
     'DELETE FROM %s WHERE computer_reference = ? and hosted_by not in ({})'.format(
-      ','.join('?' * len(computer_dict['partition_list'])) # Create as many placeholder as partitions requested
+      ','.join('?' * len(partition_list)) # Create as many placeholder as partitions requested
     ),
     # Prepare arguments : first is for computer_reference, followed by the same of the partitions
-    [computer_dict['reference']] + [x['reference'] for x in computer_dict['partition_list']]
+    [computer_reference] + [x['partition_id'] for x in partition_list]
   )
-  execute_db('partition_network', 'DELETE FROM %s WHERE computer_reference = :reference', computer_dict)
+  execute_db('partition_network', 'DELETE FROM %s WHERE computer_reference = ?', (computer_reference,))
 
-  for partition in computer_dict['partition_list']:
-    partition['computer_reference'] = computer_dict['reference']
-    execute_db('partition', 'INSERT OR IGNORE INTO %s (reference, computer_reference) values(:reference, :computer_reference)', partition)
-    for address in partition['address_list']:
-      # keep "or partition['reference']" for backward compatibility in webrunner
-      address['reference'] = partition['tap']['name'] or partition['reference']
-      address['partition_reference'] = partition['reference']
-      address['computer_reference'] = partition['computer_reference']
-      execute_db('partition_network', 'INSERT OR REPLACE INTO %s (reference, partition_reference, computer_reference, address, netmask) values(:reference, :partition_reference, :computer_reference, :addr, :netmask)', address)
+  for partition in partition_list:
+    partition['computer_reference'] = computer_reference
+    execute_db('partition', 'INSERT OR IGNORE INTO %s (reference, computer_reference) values(:partition_id, :computer_reference)', partition)
+    for ip in partition['ip_list']:
+      execute_db(
+        'partition_network',
+        'INSERT OR REPLACE INTO %s (reference, partition_reference, computer_reference, address, netmask) values(?, ?, ?, ?, ?)',
+        (ip['network-interface'], partition['partition_id'], computer_reference,
+         ip['ip-address'], ip['netmask'])
+      )
 
 
 def supplyFromDB(computer_reference, software_release_url, state):

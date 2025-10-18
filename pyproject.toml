@@ -1,3 +1,124 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "slapos.core"
+dynamic = ["version"]
+description = "SlapOS core."
+readme = "README.rst"
+license = "GPL-3.0-only"
+authors = [
+  { name = "VIFIB" }
+]
+keywords = ["slapos", "core"]
+classifiers = [
+  "Programming Language :: Python",
+]
+
+dependencies = [
+  "Flask>=1.1.2",           # used by proxy
+  "lxml",                   # needed to play with XML trees
+  "netaddr>=0.7.5",         # to play safely with IPv6 prefixes
+  "netifaces",              # to fetch information about network devices
+  "setuptools",             # namespaces
+  "supervisor",             # slapgrid uses supervisor to manage processes
+  "psutil>=2.0.0",
+  "xml_marshaller>=0.9.3",  # to unmarshall/marshall python objects to/from XML
+  "zope.interface",         # slap library implements interfaces
+  "zc.buildout",
+  "cliff",
+  "requests>=2.4.3",
+  "six",
+  "jsonschema",
+  "PyYAML",
+  "uritemplate",            # used by hateoas navigator
+  "distro",
+  # Python 2 backports
+  "subprocess32; python_version<'3'",
+  "enum34; python_version<'3'",
+  "selectors34; python_version<'3'",  # used by SlapPopen (grid/utils)
+  "ipaddress; python_version<'3'",    # used by whitelistfirewall
+]
+
+[project.optional-dependencies]
+docs = [
+  "Sphinx",
+  "repoze.sphinx.autointerface",
+  "sphinxcontrib.programoutput",
+]
+ipython_console = ["ipython"]
+bpython_console = ["bpython"]
+test = [
+  "pyflakes",
+  "mock",
+  "httmock",
+]
+testing = [
+  "caucase",
+  "cryptography",
+]
+
+[project.urls]
+Homepage = "https://slapos.nexedi.com/"
+
+[project.scripts]
+slapos-watchdog = "slapos.grid.watchdog:main"
+slapos = "slapos.cli.entry:main"
+
+[project.entry-points."cliff.formatter.completion"]
+fish = "slapos.cli.complete:CompleteFish"
+
+[project.entry-points."slapos.cli"]
+# Utilities
+"cachelookup binary-sr" = "slapos.cli.cache_binarysr:CacheLookupCommand"
+"cachelookup url" = "slapos.cli.cache_url:CacheLookupCommand"
+"cachelookup pypi" = "slapos.cli.cache_pypi:CacheLookupCommand"
+complete = "slapos.cli.complete:CompleteCommand"
+# SlapOS Node commands
+"node bang" = "slapos.cli.bang:BangCommand"
+"node format" = "slapos.cli.format:FormatCommand"
+"node register" = "slapos.cli.register:RegisterCommand"
+"node supervisord" = "slapos.cli.supervisord:SupervisordCommand"
+"node supervisorctl" = "slapos.cli.supervisorctl:SupervisorctlCommand"
+"node status" = "slapos.cli.supervisorctl:SupervisorctlStatusCommand"
+"node start" = "slapos.cli.supervisorctl:SupervisorctlStartCommand"
+"node stop" = "slapos.cli.supervisorctl:SupervisorctlStopCommand"
+"node restart" = "slapos.cli.supervisorctl:SupervisorctlRestartCommand"
+"node tail" = "slapos.cli.supervisorctl:SupervisorctlTailCommand"
+"node report" = "slapos.cli.slapgrid:ReportCommand"
+"node software" = "slapos.cli.slapgrid:SoftwareCommand"
+"node instance" = "slapos.cli.slapgrid:InstanceCommand"
+"node promise" = "slapos.cli.slapgrid:PromiseCommand"
+"node boot" = "slapos.cli.boot:BootCommand"
+"node collect" = "slapos.cli.collect:CollectCommand"
+"node prune" = "slapos.cli.prune:PruneCommand"
+# SlapOS client commands
+console = "slapos.cli.console:ConsoleCommand"
+"configure local" = "slapos.cli.configure_local:ConfigureLocalCommand"
+"configure client" = "slapos.cli.configure_client:ConfigureClientCommand"
+"service info" = "slapos.cli.info:InfoCommand"
+"service list" = "slapos.cli.list:ListCommand"
+"computer list" = "slapos.cli.computer_list:ListCommand"
+"computer info" = "slapos.cli.computer_info:InfoCommand"
+"computer token" = "slapos.cli.computer_token:TokenCommand"
+supply = "slapos.cli.supply:SupplyCommand"
+remove = "slapos.cli.remove:RemoveCommand"
+request = "slapos.cli.request:RequestCommand"
+# SlapOS Proxy commands
+"proxy start" = "slapos.cli.proxy_start:ProxyStartCommand"
+"proxy show" = "slapos.cli.proxy_show:ProxyShowCommand"
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = { attr = "slapos.version.version" }
+
+[tool.setuptools.packages.find]
+include = ["slapos*"]
+
 [tool.ruff]
 line-length = 80
 indent-width = 2

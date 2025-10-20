@@ -155,7 +155,7 @@ def compute_node_software_installation_list():
   })
 
 def generateInstanceGuid(sql_partition):
-  return '%s___%s' % (partition.reference, partition.computer_reference)
+  return '%s___%s' % (sql_partition['reference'], sql_partition['computer_reference'])
 
 @json_rpc_blueprint.route('/slapos.allDocs.v0.compute_node_instance_list', methods=['POST'])
 def compute_node_instance_list():
@@ -164,13 +164,13 @@ def compute_node_instance_list():
   if len(computer_list) != 1:
     return abort(403, '%s is not registered.' % computer_id)
   instance_list = []
-  for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=?', [computer_id]):
+  for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=? AND slap_state="busy"', [computer_id]):
     instance_list.append({
-      "title": partition.partition_reference,
+      "title": partition['partition_reference'],
       "instance_guid": generateInstanceGuid(partition),
-      "state": partition.slap_state,
-      "compute_partition_id": partition.reference,
-      "software_release_uri": partition.url_string,
+      "state": partition['requested_state'],
+      "compute_partition_id": partition['reference'],
+      "software_release_uri": partition['software_release'],
     })
   return validate_and_send_json_rpc_document({
     'result_list': instance_list

@@ -1,6 +1,6 @@
 from werkzeug.http import HTTP_STATUS_CODES
 from werkzeug.exceptions import NotAcceptable
-from flask import current_app, request, abort, Blueprint, make_response, g
+from flask import current_app, request, abort, Blueprint, make_response, g, url_for
 from .db import execute_db
 import json
 import jsonschema
@@ -119,7 +119,6 @@ class JsonRpcManager(object):
 @json_rpc_blueprint.route('/slapos.allDocs.v0.instance_node_instance_list', methods=['POST'])
 @json_rpc_blueprint.route('/slapos.get.v0.compute_node_status', methods=['POST'])
 @json_rpc_blueprint.route('/slapos.get.v0.compute_partition', methods=['POST'])
-@json_rpc_blueprint.route('/slapos.get.v0.hateoas_url', methods=['POST'])
 @json_rpc_blueprint.route('/slapos.get.v0.software_instance', methods=['POST'])
 @json_rpc_blueprint.route('/slapos.get.v0.software_instance_certificate', methods=['POST'])
 @json_rpc_blueprint.route('/slapos.post.v0.compute_node_certificate', methods=['POST'])
@@ -175,4 +174,10 @@ def compute_node_instance_list():
     })
   return validate_and_send_json_rpc_document({
     'result_list': instance_list
+  })
+
+@json_rpc_blueprint.route('/slapos.get.v0.hateoas_url', methods=['POST'])
+def get_hateoas_url():
+  return validate_and_send_json_rpc_document({
+    'hateoas_url': url_for('hateoas', _external=True)
   })

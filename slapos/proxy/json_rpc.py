@@ -114,3 +114,29 @@ class JsonRpcManager(object):
         'title': 'Internal server error'
       }, status_code=500)
     return exception
+
+
+@json_rpc_blueprint.route('/slapos.allDocs.v0.compute_node_instance_list', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.allDocs.v0.compute_node_software_installation_list', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.allDocs.v0.instance_node_instance_list', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.get.v0.compute_node_status', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.get.v0.compute_partition', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.get.v0.hateoas_url', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.get.v0.software_instance', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.get.v0.software_instance_certificate', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.post.v0.compute_node_certificate', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.post.v0.compute_node_usage', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.post.v0.software_installation', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.post.v0.software_instance', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.put.v0.compute_node_bang', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.put.v0.compute_node_format', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.put.v0.software_installation_error', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.put.v0.software_installation_reported_state', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.put.v0.software_instance_bang', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.put.v0.software_instance_connection_parameter', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.put.v0.software_instance_error', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.put.v0.software_instance_reported_state', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.put.v0.software_instance_title', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.remove.v0.compute_node_certificate', methods=['POST'])
+def not_implemented():
+  return abort(500, 'Sorry, %s it is not yet implemented in slapproxy' % request.path)

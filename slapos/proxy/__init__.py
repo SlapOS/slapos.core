@@ -28,8 +28,6 @@
 #
 ##############################################################################
 
-import logging
-
 from slapos.proxy.views import app
 from slapos.util import sqlite_connect
 

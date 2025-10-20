@@ -44,6 +44,7 @@ from slapos.util import bytes2str, unicode2str, sqlite_connect, \
 
 from flask import g, Flask, request, abort, redirect, url_for
 from slapos.util import loads, dumps
+from .db import execute_db
 
 import six
 from six.moves import range
@@ -106,24 +107,6 @@ def partitiondict2partition(partition):
       computer_guid=computer_id)
 
   return slap_partition
-
-
-def execute_db(table, query, args=(), one=False, db_version=DB_VERSION, db=None):
-  if not db:
-    db = g.db
-  query = query % (table + db_version,)
-  app.logger.debug(query)
-  try:
-    cur = db.execute(query, args)
-  except Exception:
-    app.logger.error(
-      'There was some issue during processing query %r on table %r with args %r',
-      query, table, args)
-    raise
-  rv = ({cur.description[idx][0]: value
-    for idx, value in enumerate(row)} for row in cur)
-  return next(rv, None) if one else list(rv)
-
 
 def connect_db():
   return sqlite_connect(app.config['DATABASE_URI'])

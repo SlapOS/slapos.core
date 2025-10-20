@@ -117,7 +117,6 @@ class JsonRpcManager(object):
 
 
 @json_rpc_blueprint.route('/slapos.allDocs.v0.compute_node_instance_list', methods=['POST'])
-@json_rpc_blueprint.route('/slapos.allDocs.v0.compute_node_software_installation_list', methods=['POST'])
 @json_rpc_blueprint.route('/slapos.allDocs.v0.instance_node_instance_list', methods=['POST'])
 @json_rpc_blueprint.route('/slapos.get.v0.compute_node_status', methods=['POST'])
 @json_rpc_blueprint.route('/slapos.get.v0.compute_partition', methods=['POST'])
@@ -140,3 +139,19 @@ class JsonRpcManager(object):
 @json_rpc_blueprint.route('/slapos.remove.v0.compute_node_certificate', methods=['POST'])
 def not_implemented():
   return abort(500, 'Sorry, %s it is not yet implemented in slapproxy' % request.path)
+
+@json_rpc_blueprint.route('/slapos.allDocs.v0.compute_node_software_installation_list', methods=['POST'])
+def compute_node_software_installation_list():
+  computer_id = request.json["computer_guid"]
+  computer_list = execute_db('computer', 'SELECT * FROM %s WHERE reference=?', [computer_id])
+  if len(computer_list) != 1:
+    return abort(403, '%s is not registered.' % computer_id)
+  software_release_list = []
+  for sr in execute_db('software', 'select * from %s WHERE computer_reference=?', [computer_id]):
+    software_release_list.append({
+      'software_release_uri': sr['url'],
+      'state': sr['requested_state']
+    })
+  return validate_and_send_json_rpc_document({
+    'result_list': software_release_list
+  })

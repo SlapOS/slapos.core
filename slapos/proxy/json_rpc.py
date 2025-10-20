@@ -1,11 +1,10 @@
 from werkzeug.http import HTTP_STATUS_CODES
 from werkzeug.exceptions import NotAcceptable
-from flask import current_app, request, abort, Blueprint, make_response
+from flask import current_app, request, abort, Blueprint, make_response, g
+from .db import execute_db
 import json
+import jsonschema
 import sys
-
-
-json_rpc_blueprint = Blueprint('json_rpc', __name__)
 
 
 def find_best_match(status_code=None):
@@ -36,20 +35,61 @@ def send_json_rpc_document(json_rpc_dict, status_code=None, mime=None):
   return rv
 
 
+def validate_and_send_json_rpc_document(json_rpc_dict, **kw):
+  output_schema_text = g.output_schema_text
+  # validate output
+  try:
+    jsonschema.validate(
+      json_rpc_dict,
+      output_schema_text,
+      format_checker=jsonschema.FormatChecker()
+    )
+  except jsonschema.exceptions.ValidationError as err:
+    return abort(500, err.message)
+
+  return send_json_rpc_document(json_rpc_dict, **kw)
+
+
+def before_request():
+  if (request.method != "POST"):
+    return abort(405)
+
+  # Validate the input json
+  with current_app.open_resource('json_rpc.json', 'r') as json_rpc_open_api_file:
+    config_filejson_rpc_parsed_json = json.loads(json_rpc_open_api_file.read())
+
+  try:
+    method = config_filejson_rpc_parsed_json['paths'][request.path]['post']
+  except KeyError:
+    return abort(500, '%s is not part of the open api definition' % request.path)
+
+  input_schema_text = method['requestBody']['content']['application/json']['schema']
+  g.output_schema_text = method['responses']['200']['content']['application/json']['schema']
+
+  # Validate the input body
+  body_json = request.json
+  try:
+    jsonschema.validate(
+      body_json,
+      input_schema_text,
+      format_checker=jsonschema.FormatChecker()
+    )
+  except jsonschema.exceptions.ValidationError as err:
+    return abort(400, err.message)
+
+
+json_rpc_blueprint = Blueprint('json_rpc', __name__)
+json_rpc_blueprint.before_request(before_request)
+
+
 class JsonRpcManager(object):
   '''
   This object is used to replicate the slapos master json rpc api
   '''
   def init_app(self, app, **kw):
     app.register_blueprint(json_rpc_blueprint, **kw)
-    app.before_request(self._before_request)
     app.handle_exception = self._custom_handle_exception
     app.handle_http_exception = self._custom_handle_http_exception
-
-  def _before_request(self):
-    if request.blueprint == 'json_rpc':
-      if (request.method != "POST"):
-        return abort(405)
 
   # Redefine http exception handling to return JSON
   def _custom_handle_http_exception(self, exception):

@@ -1,58 +1,97 @@
 import json
 import os
 
+import slapos.slap.slap
 from slapos.util import dumps
 from slapos.format import Partition
 
 
-COMPUTER_ID = 'COMP-4545'
-INSTANCE_ROOT = '/srv/slapgrid'
-RESOURCE = Partition.resource_file
-BOUTURE = 'bouture.json'
-SLAPPART_BASE = 'slappart'
+RESOURCE_FILE = Partition.resource_file
+BOUTURE_FILE = 'bouture.json'
 
 
-candidates = []
-for p in os.listdir(INSTANCE_ROOT):
-    if p.startswith(SLAPPART_BASE):
-        try:
-            int(p[len(SLAPPART_BASE):])
-        except ValueError:
-            continue
-        # p is a partition :)
-        if os.path.exists(os.path.join(INSTANCE_ROOT, p, BOUTURE)):
-            candidates.append(p)
-
-partition_id, = candidates
-assert partition_id == 'slappart5'
-# XXX: bouturing multiple partitions will require partition capabilities
+def find_bouture_partitions(instance_root, slappart_base):
+    bouture_partitions = []
+    for p in os.listdir(instance_root):
+        if p.startswith(slappart_base) and p[len(slappart_base):].isdigit():
+            # p is a partition :)
+            if os.path.exists(os.path.join(instance_root, p, BOUTURE_FILE)):
+                bouture_partitions.append(p)
+    return bouture_partitions
 
 
-with open(os.path.join(INSTANCE_ROOT, partition_id, BOUTURE)) as f:
-    bouture = json.load(f)
+def bouture(bouture_conf, node_conf):
+    # Node configuration
+    computer_id = node_conf.computer_id
+    instance_root = node_conf.instance_root
+    slappart_base = node_conf.partition_base_name
 
-software_url = bouture['software-url']
-software_type = bouture['software-type']
-instance_name = bouture['instance-title']
-parameter_dict = bouture['config']
-state = bouture['instance-state']
+    # Bouture configuration
+    new_master_url = bouture_conf.new_master_url
 
+    # Find bouture partition
+    partitions = find_bouture_partitions(instance_root, slappart_base)
+    if not partitions:
+        return
+    try:
+        partition_id, = partitions
+    except ValueError: # len(partitions) > 1
+        # Note: bouturing multiple instances will require requesting each
+        # instance into the correct partition in the new master: this can
+        # be achieved with partition capabilities.
+        raise Exception(
+            "Only one bouture partition is currently supported;"
+            "\nfound %r" % partitions
+        )
+    assert partition_id == 'slappart5' # tmp
 
-with open(os.path.join(INSTANCE_ROOT, partition_id, RESOURCE)) as f:
-    resource = json.load(f)
+    # Load instance information for bouture
+    with open(os.path.join(instance_root, partition_id, BOUTURE_FILE)) as f:
+        bouture = json.load(f)
 
-address_list = resource['address_list']
-tap = resource['tap']
-partition_list = [
-    {'reference': partition_id, 'address_list': address_list, 'tap': tap}
-]
-computer_dict = dict(reference=COMPUTER_ID, address=None, netmask=None)
-computer_dict['partition_list'] = partition_list
-slap.registerComputer(COMPUTER_ID).updateConfiguration(dumps(computer_dict))
+    software_url = bouture['software-url']
+    software_type = bouture['software-type']
+    instance_name = bouture['instance-title']
+    parameter_dict = bouture['config']
+    state = bouture['instance-state']
 
-supply(software_url, COMPUTER_ID)
+    # Load partition IPs information
+    with open(os.path.join(instance_root, partition_id, RESOURCE_FILE)) as f:
+        resource = json.load(f)
 
-request(software_url, instance_name, parameter_dict, software_type, state=state)
+    partition_list = [{
+        'reference': partition_id,
+        'address_list': resource['address_list'],
+        'tap': resource['tap'],
+    }]
+    computer_dict = dict(
+        reference=computer_id,
+        address=None,
+        netmask=None,
+        partition_list=partition_list,
+    )
+
+    # Connect to new master
+    slap = slapos.slap.slap()
+    slap.initializeConnection(
+        new_master_url,
+        key_file=None, # for now
+        cert_file=None, # for now
+        slapgrid_rest_uri=None, # for now
+    )
+    # Register bouture partition
+    slap.registerComputer(computer_id).updateConfiguration(dumps(computer_dict))
+    # Supply bouture SR
+    slap.registerSupply().supply(software_url, computer_id)
+    # Request bouture instance
+    slap.registerOpenOrder().request(
+        software_url,
+        instance_name,
+        parameter_dict,
+        software_type,
+        state=state,
+    )
+
 
 # /etc/opt/slapos/slapos.cfg
 """

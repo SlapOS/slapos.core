@@ -107,7 +107,7 @@ def bouture(bouture_conf, node_conf):
     # It must be reprocessed because the master changed, so the promises need
     # to be reconfigured to bang the new master, and possibly some parameters
     # changed as well, depending on the bouture file.
-    cp.bang()
+    cp.bang("Bouture")
 
 
 def parse_conf(cfg):

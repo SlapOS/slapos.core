@@ -45,6 +45,9 @@ def bouture(bouture_conf, node_conf):
     # Find bouture partition
     partitions = find_bouture_partitions(instance_root, slappart_base)
     if not partitions:
+        logger.info(
+            "No bouture partitions found on this node"
+        )
         return
     try:
         partition_id, = partitions
@@ -81,6 +84,11 @@ def bouture(bouture_conf, node_conf):
         address=None,
         netmask=None,
         partition_list=partition_list,
+    )
+
+    logger.info(
+        "Bouturing partition %s",
+        partition_id,
     )
 
     # Connect to new master

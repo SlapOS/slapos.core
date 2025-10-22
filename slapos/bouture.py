@@ -56,7 +56,6 @@ def bouture(bouture_conf, node_conf):
             "Only one bouture partition is currently supported;"
             "\nfound %r" % partitions
         )
-    assert partition_id == 'slappart5' # tmp
 
     # Load instance information for bouture
     with open(os.path.join(instance_root, partition_id, BOUTURE_FILE)) as f:

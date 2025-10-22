@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 
@@ -5,6 +6,7 @@ import slapos.slap.slap
 from slapos.util import dumps
 from slapos.format import Partition
 
+from six.moves import configparser
 
 RESOURCE_FILE = Partition.resource_file
 BOUTURE_FILE = 'bouture.json'
@@ -91,6 +93,28 @@ def bouture(bouture_conf, node_conf):
         software_type,
         state=state,
     )
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--node-cfg', required=True)
+    parser.add_argument('--new-master-url', required=True)
+    args = parser.parse_args()
+
+    configp = configparser.ConfigParser()
+    if configp.read(args.node_cfg) != [args.node_cfg]:
+       raise Exception("Could not read %s" % args.node_cfg)
+
+    node_conf = {}
+    for section in ("slapformat", "slapos"):
+      node_conf.update(configp.items(section))
+    node_conf = argparse.Namespace(**node_conf)
+
+    bouture(args, node_conf)
+
+
+if __name__ == '__main__':
+    main()
 
 
 # /etc/opt/slapos/slapos.cfg

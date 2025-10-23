@@ -2,10 +2,11 @@ from werkzeug.http import HTTP_STATUS_CODES
 from werkzeug.exceptions import NotAcceptable
 from flask import current_app, request, abort, Blueprint, make_response, g, url_for
 from .db import execute_db
-from slapos.util import xml2dict
+from slapos.util import xml2dict, dict2xml
 import json
 import jsonschema
 import sys
+import time
 
 
 def find_best_match(status_code=None):
@@ -124,7 +125,6 @@ class JsonRpcManager(object):
 @json_rpc_blueprint.route('/slapos.post.v0.compute_node_certificate', methods=['POST'])
 @json_rpc_blueprint.route('/slapos.post.v0.compute_node_usage', methods=['POST'])
 @json_rpc_blueprint.route('/slapos.post.v0.software_installation', methods=['POST'])
-@json_rpc_blueprint.route('/slapos.post.v0.software_instance', methods=['POST'])
 @json_rpc_blueprint.route('/slapos.put.v0.compute_node_bang', methods=['POST'])
 @json_rpc_blueprint.route('/slapos.put.v0.compute_node_format', methods=['POST'])
 @json_rpc_blueprint.route('/slapos.put.v0.software_installation_error', methods=['POST'])
@@ -155,7 +155,9 @@ def compute_node_software_installation_list():
   })
 
 def generateInstanceGuid(sql_partition):
-  return '%s___%s' % (sql_partition['reference'], sql_partition['computer_reference'])
+  # We expect slapproxy to only a uniq partition_reference/requested_by
+  # TODO add a constraint in the SQL table
+  return '%s___%s' % (sql_partition['partition_reference'], sql_partition['requested_by'])
 
 def extractInstanceGuid(instance_guid):
   return instance_guid.split('___', 1)
@@ -185,29 +187,16 @@ def get_hateoas_url():
     'hateoas_url': url_for('hateoas', _external=True)
   })
 
-@json_rpc_blueprint.route('/slapos.get.v0.software_instance', methods=['POST'])
-def get_software_instance():
-  try:
-    compute_partition_id, computer_guid = extractInstanceGuid(request.json["instance_guid"])
-  except ValueError:
-    return abort(403, 'instance_guid %s not handled.' % request.json["instance_guid"])
-
-  partition = execute_db('partition',
-    'SELECT * FROM %s WHERE reference=? AND computer_reference=?',
-    (compute_partition_id, computer_guid), one=True)
-
-  if not partition:
-    return abort(403, 'No software instance %s found.' % request.json["instance_guid"])
-
+def send_json_rpc_sql_partition(partition):
   address_list = []
   for address in execute_db('partition_network',
                             'SELECT * FROM %s WHERE partition_reference=? AND computer_reference=?',
-                            (compute_partition_id, computer_guid)):
+                            (partition['reference'], partition['computer_reference'])):
     address_list.append([address['reference'], address['address']])
 
   return validate_and_send_json_rpc_document({
     "title": partition['partition_reference'],
-    "instance_guid": request.json["instance_guid"],
+    "instance_guid": generateInstanceGuid(partition),
     "software_release_uri": partition['software_release'],
     "software_type": partition['software_type'],
     "state": partition['requested_state'],
@@ -219,9 +208,72 @@ def get_software_instance():
     "full_ip_list": [],
     # sla are not stored in slapproxy
     "sla_parameters": {},
-    "computer_guid": computer_guid,
-    "compute_partition_id": compute_partition_id,
+    "computer_guid": partition['computer_reference'],
+    "compute_partition_id": partition['reference'],
     "processing_timestamp": int(partition['timestamp']),
     # This info is probably not available
     "access_status_message": ''
   })
+
+@json_rpc_blueprint.route('/slapos.get.v0.software_instance', methods=['POST'])
+def get_software_instance():
+  try:
+    partition_reference, requested_by = extractInstanceGuid(request.json["instance_guid"])
+  except ValueError:
+    return abort(403, 'instance_guid %s not handled.' % request.json["instance_guid"])
+
+  partition = execute_db('partition',
+    'SELECT * FROM %s WHERE partition_reference=? AND requested_by=?',
+    (partition_reference, requested_by), one=True)
+  if not partition:
+    return abort(403, 'No software instance %s found.' % request.json["instance_guid"])
+  return send_json_rpc_sql_partition(partition)
+
+@json_rpc_blueprint.route('/slapos.post.v0.software_instance', methods=['POST'])
+def post_software_instance():
+  title = request.json["title"]
+  software_release_uri = request.json["software_release_uri"]
+  software_type = request.json["software_type"]
+  shared = request.json.get("shared", False)
+  if shared:
+    raise NotImplementedError('shared is not supposed')
+  state = request.json.get("state", "started")
+  parameters = request.json.get("parameters", {})
+  # sla_parameters = request.json.get("sla_parameters", {})
+
+  # TODO
+  # - the only supported use case if updating the root instance
+  requested_by = ''
+  # - factorize the code with views.py
+  args = []
+  a = args.append
+  q = 'UPDATE %s SET slap_state="busy"'
+
+  for k, v in (('requested_state', state),
+               ('software_release', software_release_uri),
+               ('software_type', software_type),
+               ('xml', dict2xml(parameters))):
+    # XXX if partition[k] != v:
+    q += ', %s=?' % k
+    a(v)
+    # changed = True
+
+  # - no need to always update the timestamp
+  timestamp = time.time()
+  q += ', timestamp=?'
+  a(timestamp)
+
+  q += ' WHERE partition_reference=? AND requested_by=? AND slap_state=?'
+  a(title)
+  a('')
+  a('busy')
+
+  execute_db('partition', q, args)
+
+  # And send results
+  partition = execute_db('partition',
+    'SELECT * FROM %s WHERE partition_reference=? AND requested_by=?',
+    (title, ''), one=True)
+  if not partition:
+    return abort(403, 'No partition %s "" found.' % (title))
+  return send_json_rpc_sql_partition(partition)

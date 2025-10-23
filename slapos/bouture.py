@@ -14,6 +14,9 @@ from slapos.grid.utils import setRunning, setFinished
 
 from six.moves import configparser
 
+# XXX https://lab.nexedi.com/nexedi/slapos.core/-/merge_requests/824
+from slapos.grid.slapgrid import COMPUTER_PARTITION_TIMESTAMP_FILENAME
+
 
 RESOURCE_FILE = Partition.resource_file
 BOUTURE_FILE = 'bouture.json'
@@ -116,6 +119,22 @@ def bouture(bouture_conf, node_conf):
     # to be reconfigured to bang the new master, and possibly some parameters
     # changed as well, depending on the bouture file.
     cp.bang("Bouture")
+
+    # XXX Workaround: Delete local timestamp file
+    # Currently bang may not be enough if the new master has a different
+    # time than the old master: the local timestamp file may contain a
+    # timestamp from the old master that is more recent than the one from
+    # the bang in the new master.
+    # Until https://lab.nexedi.com/nexedi/slapos.core/-/merge_requests/824
+    try:
+        os.remove(os.path.join(
+            instance_root,
+            partition_id,
+            COMPUTER_PARTITION_TIMESTAMP_FILENAME,
+        ))
+    except OSError as e:
+        if e.errno != errno.ENOENT:
+            raise
 
 
 def parse_conf(cfg):

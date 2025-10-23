@@ -1385,3 +1385,33 @@ class TestCliRequestForceSerialisation(TestCliRequestParameterFile):
         'instance reference',
         'software URL',
     )
+
+
+class TestCliHelp(CliMixin):
+  def setUp(self):
+    super(CliMixin, self).setUp()
+    self._env_columns = os.environ.get('COLUMNS')
+    os.environ['COLUMNS'] = '80'
+
+  def tearDown(self):
+    if self._env_columns is not None:
+      os.environ['COLUMNS'] = self._env_columns
+    super(CliMixin, self).tearDown()
+
+  def test_help(self):
+    with patch.object(sys, 'stdout', StringIO()) as app_stdout,\
+        patch.object(sys, 'stderr', StringIO()) as app_stderr, \
+        patch('sys.exit') as sys_exit:
+      self.assertEqual(slapos.cli.entry.SlapOSApp().run(['help']), 0)
+
+    self.assertEqual(app_stderr.getvalue(), '')
+    self.assertIn('SlapOS client', app_stdout.getvalue())
+    self.assertIn('node instance  run instance deployment', app_stdout.getvalue())
+
+  def test_help_node(self):
+    with patch.object(sys, 'stdout', StringIO()) as app_stdout,\
+        patch.object(sys, 'stderr', StringIO()) as app_stderr:
+      self.assertEqual(slapos.cli.entry.SlapOSApp().run(['help', 'node', 'instance']), 0)
+    self.assertEqual(app_stderr.getvalue(), '')
+    self.assertIn('node instance [-h]', app_stdout.getvalue())
+    self.assertIn('--instance-root INSTANCE_ROOT', app_stdout.getvalue())

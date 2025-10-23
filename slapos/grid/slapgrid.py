@@ -1250,7 +1250,7 @@ stderr_logfile_backups=1
           except ValueError:
             self.logger.exception('')
             old_timestamp = 0
-        if float(timestamp) <= old_timestamp:
+        if float(timestamp) != old_timestamp:
             # Check periodicity, i.e if periodicity is one day, partition
             # should be processed at least every day.
             if time.time() <= last_runtime + periodicity or periodicity < 0:

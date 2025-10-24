@@ -166,17 +166,16 @@ def failover():
             logger.info(
                 "This node is unable to reach its SlapOS master"
             )
-            try:
-                os.remove(args.switchfile)
-            except OSError as e:
-                if e.errno != errno.ENOENT:
-                    raise
-            else:
+            if not os.path.exists(args.switchfile):
                 logger.info(
                     "Bouturing this node onto alternate master at %s",
                     args.new_master_url,
                 )
                 bouture(args, node_conf)
+                # Either bouture crashed and we don't reach here,
+                # or bouture went ok and we continue.
+                with open(args.switchfile, 'w') as f:
+                    pass
             logger.info(
                 "Processing this node from alternate master at %s",
                 args.new_master_url,
@@ -199,8 +198,11 @@ def failover():
                 "slapos node instance returned %d",
                 ret,
             )
-            with open(args.switchfile, 'w'):
-                pass
+            try:
+                os.remove(args.switchfile)
+            except OSError as e:
+                if e.errno != errno.ENOENT:
+                    raise
 
     finally:
         setFinished(args.pidfile)

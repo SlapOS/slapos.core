@@ -29,20 +29,24 @@
 # pyright: strict
 
 from __future__ import annotations
+import base64
 import contextlib
 import fnmatch
 import glob
 import logging
 import os
 import pathlib
+import pdb
 import shutil
 import sqlite3
+import subprocess
 import unittest
 import warnings
 
 from urllib.parse import urlparse
 
 from netaddr import valid_ipv6
+import requests
 
 from .utils import getPortFromPath
 from .utils import ManagedResource
@@ -51,6 +55,7 @@ from ..slap.standalone import StandaloneSlapOS
 from ..slap.standalone import SlapOSNodeCommandError
 from ..slap.standalone import PathTooDeepError
 
+from ..grid.utils import md5digest
 from ..util import mkdir_p
 from ..slap import ComputerPartition
 from .check_software import checkSoftware
@@ -97,6 +102,15 @@ SHARED_PART_LIST_DEFAULT: Sequence[str] = [
 SNAPSHOT_DIRECTORY_DEFAULT: str | None = os.environ.get(
   "SLAPOS_TEST_LOG_DIRECTORY",
 )
+SLAPOS_SR_SBOM_DEPENDENCY_TRACK_URL: str | None = os.environ.get(
+  "SLAPOS_SR_SBOM_DEPENDENCY_TRACK_URL",
+)
+SLAPOS_SR_SBOM_DEPENDENCY_TRACK_API_KEY: str | None = os.environ.get(
+  "SLAPOS_SR_SBOM_DEPENDENCY_TRACK_API_KEY",
+)
+SLAPOS_SR_SBOM_DEPENDENCY_TRACK_PROJECT_ID: str | None = os.environ.get(
+  "SLAPOS_SR_SBOM_DEPENDENCY_TRACK_PROJECT_ID",
+)
 
 
 def makeModuleSetUpAndTestCaseClass(
@@ -112,6 +126,11 @@ def makeModuleSetUpAndTestCaseClass(
   shared_part_list: Iterable[str] = SHARED_PART_LIST_DEFAULT,
   snapshot_directory: str | None = SNAPSHOT_DIRECTORY_DEFAULT,
   software_id: str | None = None,
+  dependency_track_url: str | None = SLAPOS_SR_SBOM_DEPENDENCY_TRACK_URL,
+  dependency_track_api_key: str
+  | None = SLAPOS_SR_SBOM_DEPENDENCY_TRACK_API_KEY,
+  dependency_track_project_id: str
+  | None = SLAPOS_SR_SBOM_DEPENDENCY_TRACK_PROJECT_ID,
 ) -> Tuple[Callable[[], None], Type[SlapOSInstanceTestCase]]:
   """
   Create a setup module function and a testcase for testing `software_url`.
@@ -174,6 +193,10 @@ def makeModuleSetUpAndTestCaseClass(
       By default it is computed automatically from the software URL, but can
       also be passed explicitly, to use a different name for different kind of
       tests, like for example upgrade tests.
+    dependency_track_url: The base URL of a dependency track instance, to
+      upload CycloneDX software bill of material for the software url.
+    dependency_track_api_key: API key for dependency track.
+    dependency_track_project_id: uuid of the project in dependency track.
 
   Returns:
     A tuple of two arguments:
@@ -256,8 +279,78 @@ def makeModuleSetUpAndTestCaseClass(
 
   def setUpModule() -> None:
     installSoftwareUrlList(cls, [software_url], debug=debug)
+    sbom_path = generate_sbom(cls, software_url, debug=debug)
+    if dependency_track_url and dependency_track_project_id:
+      assert dependency_track_api_key
+      upload_sbom(
+        cls,
+        sbom_path,
+        dependency_track_url,
+        dependency_track_api_key,
+        dependency_track_project_id,
+        debug=debug,
+      )
 
   return setUpModule, SlapOSInstanceTestCase_
+
+
+def generate_sbom(
+  cls: Type[SlapOSInstanceTestCase],
+  software_url: str,
+  debug: bool = False,
+) -> pathlib.Path:
+  software_hash = md5digest(software_url)
+  bom_file = pathlib.Path(cls._base_directory) / f"{software_hash}.cdx.json"  # pyright: ignore[reportPrivateUsage]
+
+  try:
+    subprocess.check_call(
+      [
+        "nxdbom",
+        "--format=cyclonedx-json",
+        "--output",
+        bom_file,
+        "software",
+        pathlib.Path(cls.slap.software_directory) / software_hash,
+      ]
+    )
+  except Exception:
+    if debug:
+      pdb.post_mortem()
+    raise
+  cls.logger.debug("Generated SBOM as %s", bom_file)
+  return bom_file
+
+
+def upload_sbom(
+  cls: Type[SlapOSInstanceTestCase],
+  sbom_path: pathlib.Path,
+  dependency_track_url: str,
+  dependency_track_api_key: str,
+  dependency_track_project_id: str,
+  debug: bool = False,
+  request_timeout: float = 30.,
+):
+  try:
+    response = requests.put(
+      f"{dependency_track_url}/api/v1/bom",
+      headers={
+        "Content-Type": "application/json",
+        "X-API-Key": dependency_track_api_key,
+      },
+      json={
+        "project": dependency_track_project_id,
+        "bom": base64.b64encode(sbom_path.read_bytes()).decode(),
+      },
+      timeout=request_timeout,
+    )
+
+    if not response.ok:
+      cls.logger.error("Error uploading SBOM, response: %s", response.text)
+    response.raise_for_status()
+  except Exception:
+    if debug:
+      pdb.post_mortem()
+    cls.logger.exception("Ignoring error uploading SBOM")
 
 
 def installSoftwareUrlList(
@@ -288,6 +381,12 @@ def installSoftwareUrlList(
         os.path.join(
           cls._base_directory,  # pyright: ignore[reportPrivateUsage]
           "var/log/*",
+        )
+      )
+      + glob.glob(
+        os.path.join(
+          cls._base_directory,  # pyright: ignore[reportPrivateUsage]
+          "*.cdx.json",
         )
       )
       + glob.glob(

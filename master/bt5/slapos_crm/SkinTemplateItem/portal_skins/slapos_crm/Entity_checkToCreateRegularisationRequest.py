@@ -23,7 +23,7 @@ ticket = portal.portal_catalog.getResultValue(
 if ticket is not None:
   return ticket, None
 
-mail_message = None
+message = None
 if person.Entity_hasOutstandingAmount(ledger_uid=portal.portal_categories.ledger.automated.getUid()):
   tag = "%s_addRegularisationRequest_inProgress" % person.getUid()
   if (portal.portal_activities.countMessageWithTag(tag) > 0):
@@ -52,22 +52,17 @@ if person.Entity_hasOutstandingAmount(ledger_uid=portal.portal_categories.ledger
   body = """Dear %s,
 
 A new invoice has been generated.
-You can access it in your invoice section at %s.
 
 Regards,
-The slapos team
-""" % (context.getTitle(), portal.portal_preferences.getPreferredSlaposWebSiteUrl())
-  notification_message_reference = "slapos-crm.create.regularisation.request"
+Administrator
+""" % (context.getTitle())
 
-  mail_message = ticket.RegularisationRequest_checkToSendUniqEvent(
-    portal.portal_preferences.getPreferredRegularisationRequestResource(),
-    subject,
-    body,
-    'Requested manual payment.',
-    notification_message=notification_message_reference,
+  message = ticket.RegularisationRequest_checkToSendUniqEvent(
+    ticket.getResource(), subject, body, 'Requested manual payment.',
+    notification_message="slapos-crm.create.regularisation.request",
     substitution_method_parameter_dict={
       'user_name': context.getTitle()
     },
   )
 
-return ticket, mail_message
+return ticket, message

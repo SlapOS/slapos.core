@@ -7,7 +7,9 @@ state = ticket.getSimulationState()
 entity = ticket.getDestinationDecisionValue(portal_type=["Person", "Organisation"])
 if (state == 'suspended') and \
    (entity is not None) and \
-   (ticket.getResource() in ['service_module/slapos_crm_stop_acknowledgement', 'service_module/slapos_crm_delete_reminder', 'service_module/slapos_crm_delete_acknowledgement']):
+   (ticket.getResource() in ['service_module/slapos_crm_stop_acknowledgement',
+                             'service_module/slapos_crm_delete_reminder',
+                             'service_module/slapos_crm_delete_acknowledgement']):
 
   portal = context.getPortalObject()
 

@@ -217,7 +217,7 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
                       person.getRelativeUrl())
     self.assertEqual(ticket.getDestinationDecision(),
                       person.getRelativeUrl())
-    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getPortalType(), 'Web Message')
     self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
     self.assertEqual(event.getResource(),
                       'service_module/slapos_crm_acknowledgement')
@@ -279,7 +279,7 @@ The slapos team
                       organisation.getRelativeUrl())
     self.assertEqual(ticket.getDestinationDecision(),
                       organisation.getRelativeUrl())
-    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getPortalType(), 'Web Message')
     self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
     self.assertEqual(event.getResource(),
                       'service_module/slapos_crm_acknowledgement')
@@ -344,7 +344,7 @@ The slapos team
                       person.getRelativeUrl())
     self.assertEqual(ticket.getDestinationDecision(),
                       person.getRelativeUrl())
-    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getPortalType(), 'Web Message')
     self.assertEqual(event.getResource(),
                       'service_module/slapos_crm_acknowledgement')
     self.assertTrue(event.getStartDate() >= before_date)

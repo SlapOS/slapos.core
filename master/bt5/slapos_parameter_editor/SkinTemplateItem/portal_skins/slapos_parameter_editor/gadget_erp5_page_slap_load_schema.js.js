@@ -28,7 +28,8 @@
 
   rJS(window)
     .declareMethod("loadJSONSchema", function (url, serialisation) {
-      var meta_schema_url = "slapos_load_meta_schema.json";
+      var meta_schema_url = "slapos_load_meta_schema.json",
+        gadget = this;
 
       if (serialisation === "xml") {
         meta_schema_url = "slapos_load_meta_schema_xml.json";
@@ -37,6 +38,7 @@
       if (serialisation === "json-in-xml") {
         meta_schema_url = "slapos_load_meta_schema_json_in_xml.json";
       }
+      meta_schema_url = rJS.getAbsoluteURL(meta_schema_url, gadget.__path);
       return getJSON(meta_schema_url)
         .push(function (meta_schema) {
           return new RSVP.Queue($RefParser.dereference(url))
@@ -50,10 +52,11 @@
         });
     })
     .declareMethod("loadSoftwareJSON", function (url) {
+      var gadget = this;
       return getJSON(url)
         .push(function (software_cfg_json) {
           return new RSVP.Queue($RefParser
-                .dereference("slapos_load_software_schema.json")
+                .dereference(rJS.getAbsoluteURL("slapos_load_software_schema.json", gadget.__path))
             )
             .push(function (software_schema) {
               var software_json = JSON.parse(software_cfg_json),

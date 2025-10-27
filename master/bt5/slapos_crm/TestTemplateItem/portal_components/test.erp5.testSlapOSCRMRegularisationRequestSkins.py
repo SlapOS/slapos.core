@@ -63,7 +63,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     self.assertEqual(ticket.getSimulationState(), 'suspended')
     self.assertEqual(ticket.getResource(), 'service_module/slapos_crm_spam')
 
-    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getPortalType(), 'Web Message')
     self.assertEqual(event.getSimulationState(), 'delivered')
     self.assertTrue(event.getStartDate() >= before_date)
     self.assertTrue(event.getStopDate() <= after_date)
@@ -110,7 +110,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     self.assertEqual(ticket.getSimulationState(), 'suspended')
     self.assertEqual(ticket.getResource(), 'service_module/slapos_crm_spam')
 
-    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getPortalType(), 'Web Message')
     self.assertEqual(event.getSimulationState(), 'delivered')
     self.assertTrue(event.getStartDate() >= before_date)
     self.assertTrue(event.getStopDate() <= after_date)
@@ -161,7 +161,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     ticket.validate()
     ticket.suspend()
     event = self.portal.event_module.newContent(
-      portal_type="Mail Message",
+      portal_type="Web Message",
       follow_up=ticket.getRelativeUrl(),
       resource='service_module/slapos_crm_spam',
       )
@@ -252,7 +252,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
     ticket.validate()
     ticket.suspend()
     event = self.portal.event_module.newContent(
-      portal_type="Mail Message",
+      portal_type="Web Message",
       follow_up=ticket.getRelativeUrl(),
       resource='service_module/slapos_crm_acknowledgement',
       start_date=DateTime() - 8,
@@ -283,7 +283,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
     ticket.validate()
     ticket.suspend()
     event = self.portal.event_module.newContent(
-      portal_type="Mail Message",
+      portal_type="Web Message",
       follow_up=ticket.getRelativeUrl(),
       resource='service_module/slapos_crm_acknowledgement',
       start_date=DateTime() - 6,
@@ -307,7 +307,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
     ticket.validate()
     ticket.suspend()
     event = self.portal.event_module.newContent(
-      portal_type="Mail Message",
+      portal_type="Web Message",
       resource='service_module/slapos_crm_acknowledgement',
       start_date=DateTime() - 2,
       )
@@ -330,7 +330,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
     ticket.validate()
     ticket.suspend()
     event = self.portal.event_module.newContent(
-      portal_type="Mail Message",
+      portal_type="Web Message",
       follow_up=ticket.getRelativeUrl(),
       resource='service_module/slapos_crm_spam',
       start_date=DateTime() - 2,
@@ -370,7 +370,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
     ticket.validate()
     ticket.suspend()
     event = self.portal.event_module.newContent(
-      portal_type="Mail Message",
+      portal_type="Web Message",
       follow_up=ticket.getRelativeUrl(),
       resource='service_module/slapos_crm_acknowledgement',
       start_date=DateTime() - 2,
@@ -393,7 +393,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
     ticket.edit(resource='service_module/slapos_crm_acknowledgement')
     ticket.validate()
     event = self.portal.event_module.newContent(
-      portal_type="Mail Message",
+      portal_type="Web Message",
       follow_up=ticket.getRelativeUrl(),
       resource='service_module/slapos_crm_acknowledgement',
       start_date=DateTime() - 2,

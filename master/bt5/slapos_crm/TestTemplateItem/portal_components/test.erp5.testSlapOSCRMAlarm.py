@@ -21,7 +21,7 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixin, SlapOSTestCaseMixinWithAbort, simulate, TemporaryAlarmScript
+  SlapOSTestCaseMixin, SlapOSTestCaseMixinWithAbort, simulate, TemporaryAlarmScript, PinnedDateTime
 from DateTime import DateTime
 import time
 import difflib
@@ -1535,3 +1535,103 @@ class TestSlaposCrmCheckStoppedEventFromRegularisationRequestToDeliver(SlapOSTes
     event.Event_checkStoppedFromRegularisationRequestToDeliver()
     self.assertEqual(event.getSimulationState(), "stopped")
     self.assertEqual(ticket.getSimulationState(), "suspended")
+
+class TestSlaposCrmCloseInactiveSuspendedSupportRequest(SlapOSTestCaseMixinWithAbort):
+
+  def _makeSupportRequest(self):
+    person = self.portal.person_module\
+         .newContent(portal_type="Person")
+    support_request = self.portal.support_request_module.newContent(
+      portal_type="Support Request",
+      resource="service_module/slapos_crm_information",
+    )
+    support_request.submit()
+    new_id = self.generateNewId()
+    support_request.edit(
+        title="Support Request éçà %s" % new_id,
+        reference="TESTSRQ-%s" % new_id,
+        destination_decision_value=person
+    )
+
+    return support_request
+
+  def test_Alarm_invalidateInactiveSuspendedSupportRequest_script_suspendedTicket(self):
+    with PinnedDateTime(self, DateTime('2025/01/01')):
+      support_request = self._makeSupportRequest()
+      support_request.validate()
+      support_request.suspend()
+      self.tic()
+    with PinnedDateTime(self, DateTime('2025/02/02')):
+      alarm = self.portal.portal_alarms.slapos_crm_invalidate_inactive_suspended_support_request
+      self._test_alarm(alarm, support_request,
+                     "SupportRequest_closeIfInactiveForAMonth")
+
+  def test_SupportRequest_closeIfInactiveForAMonth_script_suspendedOldTicket(self):
+    with PinnedDateTime(self, DateTime('2025/01/01')):
+      support_request = self._makeSupportRequest()
+      support_request.validate()
+      support_request.suspend()
+      self.tic()
+    with PinnedDateTime(self, DateTime('2025/02/02')):
+      closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "invalidated")
+    self.assertIsNotNone(closing_event)
+    self.assertIsNotNone(closing_event.getTitle())
+    self.assertIsNotNone(closing_event.getTextContent())
+
+  def test_SupportRequest_closeIfInactiveForAMonth_script_suspendedNotOldTicket(self):
+    with PinnedDateTime(self, DateTime('2025/01/04')):
+      support_request = self._makeSupportRequest()
+      support_request.validate()
+      support_request.suspend()
+      self.tic()
+    with PinnedDateTime(self, DateTime('2025/02/02')):
+      closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "suspended")
+    self.assertIsNone(closing_event)
+
+  def test_SupportRequest_closeIfInactiveForAMonth_script_suspendedNotOldTicketOneOldEvent(self):
+    with PinnedDateTime(self, DateTime('2025/01/01')):
+      support_request = self._makeSupportRequest()
+      support_request.validate()
+      self.tic()
+    with PinnedDateTime(self, DateTime('2025/01/04')):
+      support_request.suspend()
+      self.tic()
+    with PinnedDateTime(self, DateTime('2025/02/02')):
+      closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "suspended")
+    self.assertIsNone(closing_event)
+
+  def test_SupportRequest_closeIfInactiveForAMonth_script_suspendedOldMonitoringTicket(self):
+    with PinnedDateTime(self, DateTime('2025/01/01')):
+      support_request = self._makeSupportRequest()
+      support_request.setResource("service_module/slapos_crm_monitoring")
+      support_request.validate()
+      support_request.suspend()
+      self.tic()
+    with PinnedDateTime(self, DateTime('2025/02/02')):
+      closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "suspended")
+    self.assertIsNone(closing_event)
+
+  def test_SupportRequest_closeIfInactiveForAMonth_script_NotsuspendedOldTicket(self):
+    with PinnedDateTime(self, DateTime('2025/01/01')):
+      support_request = self._makeSupportRequest()
+    self.tic()
+    closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "submitted")
+    self.assertIsNone(closing_event)
+    with PinnedDateTime(self, DateTime('2025/01/01')):
+      support_request.validate()
+      self.tic()
+    closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "validated")
+    self.assertIsNone(closing_event)
+    with PinnedDateTime(self, DateTime('2025/01/01')):
+      support_request.suspend()
+      self.tic()
+    with PinnedDateTime(self, DateTime('2025/02/02')):
+      closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "invalidated")
+    self.assertIsNotNone(closing_event)

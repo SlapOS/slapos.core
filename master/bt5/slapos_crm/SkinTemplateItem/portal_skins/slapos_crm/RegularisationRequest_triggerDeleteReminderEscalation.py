@@ -18,7 +18,7 @@ Administrator
 return context.RegularisationRequest_checkToTriggerNextEscalationStep(
   delay_period_in_days=ndays,
   current_service_relative_url=portal.service_module.slapos_crm_delete_reminder.getRelativeUrl(),
-  next_service_relative_url=portal.service_module.slapos_crm_delete_reminder.getRelativeUrl(),
+  next_service_relative_url=portal.service_module.slapos_crm_delete_acknowledgement.getRelativeUrl(),
   title=subject,
   text_content=body,
   comment='Deleting acknowledgment.',

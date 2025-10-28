@@ -217,7 +217,7 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
                       person.getRelativeUrl())
     self.assertEqual(ticket.getDestinationDecision(),
                       person.getRelativeUrl())
-    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getPortalType(), 'Web Message')
     self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
     self.assertEqual(event.getResource(),
                       'service_module/slapos_crm_acknowledgement')
@@ -231,10 +231,9 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
     expected_text_content = """Dear %s,
 
 A new invoice has been generated.
-You can access it in your invoice section at http://foobar.org/.
 
 Regards,
-The slapos team
+Administrator
 """ % person.getTitle()
     self.assertEqual(event.getTextContent(), expected_text_content,
                       '\n'.join([x for x in difflib.unified_diff(
@@ -279,7 +278,7 @@ The slapos team
                       organisation.getRelativeUrl())
     self.assertEqual(ticket.getDestinationDecision(),
                       organisation.getRelativeUrl())
-    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getPortalType(), 'Web Message')
     self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
     self.assertEqual(event.getResource(),
                       'service_module/slapos_crm_acknowledgement')
@@ -293,10 +292,9 @@ The slapos team
     expected_text_content = """Dear %s,
 
 A new invoice has been generated.
-You can access it in your invoice section at http://foobar.org/.
 
 Regards,
-The slapos team
+Admistrator
 """ % organisation.getTitle()
     self.assertEqual(event.getTextContent(), expected_text_content,
                       '\n'.join([x for x in difflib.unified_diff(
@@ -344,7 +342,7 @@ The slapos team
                       person.getRelativeUrl())
     self.assertEqual(ticket.getDestinationDecision(),
                       person.getRelativeUrl())
-    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getPortalType(), 'Web Message')
     self.assertEqual(event.getResource(),
                       'service_module/slapos_crm_acknowledgement')
     self.assertTrue(event.getStartDate() >= before_date)
@@ -602,12 +600,12 @@ class TestSlapOSCrmTriggerEscalationOnAcknowledgmentRegularisationRequest(SlapOS
        'Reminder: invoice payment requested',
 """Dear user,
 
-We would like to remind you the unpaid invoice you have on %s.
+We would like to remind you the unpaid invoice.
 If no payment is done during the coming days, we will stop all your current instances to free some hardware resources.
 
 Regards,
-The slapos team
-""" % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
+Administrator
+""",
        'Stopping reminder.',
        'slapos-crm.acknowledgment.escalation',
        '{"days": 15, "user_name": null}'),
@@ -690,12 +688,12 @@ class TestSlapOSCrmTriggerEscalationOnStopReminderRegularisationRequest(SlapOSTe
        'Acknowledgment: instances stopped',
 """Dear user,
 
-Despite our last reminder, you still have an unpaid invoice on %s.
+Despite our last reminder, you still have an unpaid invoice.
 We will now stop all your current instances to free some hardware resources.
 
 Regards,
-The slapos team
-""" % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
+Administrator
+""",
        'Stopping acknowledgment.',
        'slapos-crm.stop.reminder.escalation',
        '{"days": 7, "user_name": null}'),
@@ -778,12 +776,12 @@ class TestSlapOSCrmTriggerEscalationOnStopAcknowledgmentRegularisationRequest(Sl
        'Last reminder: invoice payment requested',
 """Dear user,
 
-We would like to remind you the unpaid invoice you have on %s.
+We would like to remind you the unpaid invoice.
 If no payment is done during the coming days, we will delete all your instances.
 
 Regards,
-The slapos team
-""" % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
+Administrator
+""",
        'Deleting reminder.',
        'slapos-crm.stop.acknowledgment.escalation',
        '{"days": 7, "user_name": null}'),
@@ -863,12 +861,12 @@ class TestSlapOSCrmTriggerEscalationOnDeleteReminderRegularisationRequest(SlapOS
        'Acknowledgment: instances deleted',
 """Dear user,
 
-Despite our last reminder, you still have an unpaid invoice on %s.
+Despite our last reminder, you still have an unpaid invoices.
 We will now delete all your instances.
 
 Regards,
-The slapos team
-""" % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
+Administrator
+""",
        'Deleting acknowledgment.',
        'slapos-crm.delete.reminder.escalation',
        '{"days": 10, "user_name": null}'),

@@ -1195,12 +1195,11 @@ class TestRegularisationRequest(TestSlapOSGroupRoleSecurityMixin):
     ticket = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
         portal_type=self.ticket_portal_type)
     self.assertSecurityGroup(ticket,
-        [self.user_id, 'F-SALEAGT', 'F-SALEMAN', 'F-ACCMAN', 'F-ACCAGT'], False)
+        [self.user_id, 'F-SALEAGT', 'F-SALEMAN', 'F-ACCOUNTING*'], False)
     self.assertRoles(ticket, self.user_id, ['Owner'])
     self.assertRoles(ticket, 'F-SALEMAN', ['Assignor'])
     self.assertRoles(ticket, 'F-SALEAGT', ['Assignee'])
-    self.assertRoles(ticket, 'F-ACCMAN', ['Assignor'])
-    self.assertRoles(ticket, 'F-ACCAGT', ['Assignee'])
+    self.assertRoles(ticket, 'F-ACCOUNTING*', ['Auditor'])
 
   def test_RegularisationRequest_Customer(self):
     reference = 'TESTPERSON-%s' % self.generateNewId()
@@ -1213,13 +1212,13 @@ class TestRegularisationRequest(TestSlapOSGroupRoleSecurityMixin):
         )
     self.assertSecurityGroup(ticket,
         [person.getUserId(), self.user_id, 'F-SALEAGT',
-         'F-SALEMAN', 'F-ACCMAN', 'F-ACCAGT'], False)
+         'F-SALEMAN', 'F-ACCOUNTING*'], False)
     self.assertRoles(ticket, person.getUserId(), ['Auditor'])
     self.assertRoles(ticket, self.user_id, ['Owner'])
     self.assertRoles(ticket, 'F-SALEMAN', ['Assignor'])
     self.assertRoles(ticket, 'F-SALEAGT', ['Assignee'])
-    self.assertRoles(ticket, 'F-ACCMAN', ['Assignor'])
-    self.assertRoles(ticket, 'F-ACCAGT', ['Assignee'])
+    self.assertRoles(ticket, 'F-ACCOUNTING*', ['Auditor'])
+
 
   def test_RegularisationRequest_organisation(self):
     reference = 'TESTORG-%s' % self.generateNewId()
@@ -1232,12 +1231,11 @@ class TestRegularisationRequest(TestSlapOSGroupRoleSecurityMixin):
         destination_decision_value=org,
         )
     self.assertSecurityGroup(ticket,
-        [self.user_id, 'F-SALEAGT', 'F-SALEMAN', 'F-ACCMAN', 'F-ACCAGT'], False)
+        [self.user_id, 'F-SALEAGT', 'F-SALEMAN', 'F-ACCOUNTING*'], False)
     self.assertRoles(ticket, self.user_id, ['Owner'])
     self.assertRoles(ticket, 'F-SALEMAN', ['Assignor'])
     self.assertRoles(ticket, 'F-SALEAGT', ['Assignee'])
-    self.assertRoles(ticket, 'F-ACCMAN', ['Assignor'])
-    self.assertRoles(ticket, 'F-ACCAGT', ['Assignee'])
+    self.assertRoles(ticket, 'F-ACCOUNTING*', ['Auditor'])
 
 class TestSystemEventModule(TestSlapOSGroupRoleSecurityMixin):
   def test_SystemEventModule(self):

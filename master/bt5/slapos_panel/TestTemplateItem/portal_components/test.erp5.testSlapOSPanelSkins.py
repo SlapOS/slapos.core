@@ -351,7 +351,7 @@ class TestTicket_validateSlapOS(TestPanelSkinsMixin):
   def test_Ticket_validateSlapOS_regularisation_request(self):
     person, ticket = self._makePersonAndTicket('Regularisation Request')
     ticket.submit()
-    self.addAccountingManagerAssignment(person)
+    self.addSaleManagerAssignment(person)
     self.tic()
     self.login(person.getUserId())
     ticket.Ticket_validateSlapOS()
@@ -405,7 +405,7 @@ class TestTicket_suspendSlapOS(TestPanelSkinsMixin):
   def test_Ticket_suspendSlapOS_regularisation_request(self):
     person, ticket = self._makePersonAndTicket('Regularisation Request')
     ticket.submit()
-    self.addAccountingManagerAssignment(person)
+    self.addSaleManagerAssignment(person)
     self.tic()
     self.login(person.getUserId())
     ticket.Ticket_suspendSlapOS()

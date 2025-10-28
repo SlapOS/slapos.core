@@ -44,7 +44,6 @@ if person.Entity_hasOutstandingAmount(ledger_uid=portal.portal_categories.ledger
     comment=comment
   )
   ticket.validate(comment=comment)
-  ticket.suspend(comment=comment)
 
   ticket.reindexObject(activate_kw={'tag': tag})
 

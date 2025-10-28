@@ -294,7 +294,7 @@ Administrator
 A new invoice has been generated.
 
 Regards,
-Admistrator
+Administrator
 """ % organisation.getTitle()
     self.assertEqual(event.getTextContent(), expected_text_content,
                       '\n'.join([x for x in difflib.unified_diff(

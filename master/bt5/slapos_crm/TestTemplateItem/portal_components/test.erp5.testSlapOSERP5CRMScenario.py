@@ -150,11 +150,12 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.tic()
       regularisation_request = self.portal.portal_catalog.getResultValue(
         portal_type='Regularisation Request',
-        simulation_state='suspended',
+        simulation_state='validated',
         destination__uid=owner_person.getUid()
       )
       self.assertNotEqual(regularisation_request, None)
-      self.assertEqual(regularisation_request.getSimulationState(), 'suspended')
+      self.assertEqual(regularisation_request.getSimulationState(), 'validated')
+      regularisation_request.suspend()
 
     ##################################################
     # Trigger regularisation request escalation
@@ -250,12 +251,12 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.tic()
       regularisation_request = self.portal.portal_catalog.getResultValue(
         portal_type='Regularisation Request',
-        simulation_state='suspended',
+        simulation_state='validated',
         destination__uid=owner_person.getUid()
       )
       self.assertNotEqual(regularisation_request, None)
-      self.assertEqual(regularisation_request.getSimulationState(), 'suspended')
-
+      self.assertEqual(regularisation_request.getSimulationState(), 'validated')
+      regularisation_request.suspend()
 
     with PinnedDateTime(self, creation_date + 32.1):
       self.login(owner_person.getUserId())

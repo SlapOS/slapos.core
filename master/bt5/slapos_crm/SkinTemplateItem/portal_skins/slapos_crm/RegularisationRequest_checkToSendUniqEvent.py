@@ -22,7 +22,7 @@ event = portal.portal_catalog.getResultValue(
   follow_up__uid=ticket.getUid(),
 )
 
-if (event is None) and (ticket.getSimulationState() == 'suspended'):
+if (event is None) and (ticket.getSimulationState() in ['submitted', 'suspended']):
   tag = "%s_addUniqEvent_%s" % (ticket.getUid(), service.getUid())
   if (portal.portal_activities.countMessageWithTag(tag) > 0):
     # The event is already under creation but can not be fetched from catalog

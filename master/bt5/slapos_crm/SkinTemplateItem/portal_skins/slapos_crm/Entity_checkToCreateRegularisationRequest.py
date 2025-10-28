@@ -43,10 +43,6 @@ if person.Entity_hasOutstandingAmount(ledger_uid=portal.portal_categories.ledger
     portal_type='Regularisation Request',
     comment=comment
   )
-  ticket.validate(comment=comment)
-  ticket.suspend(comment=comment)
-
-  ticket.reindexObject(activate_kw={'tag': tag})
 
   subject = 'Invoice payment requested'
   body = """Dear %s,
@@ -64,5 +60,7 @@ Administrator
       'user_name': context.getTitle()
     },
   )
+  ticket.validate(comment=comment)
+  ticket.reindexObject(activate_kw={'tag': tag})
 
 return ticket, message

@@ -189,12 +189,6 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
   'return')
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
   def test_Entity_checkToCreateRegularisationRequest_script_paymentRequestedForPerson(self):
-    for preference in \
-      self.portal.portal_catalog(portal_type="System Preference"):
-      preference = preference.getObject()
-      if preference.getPreferenceState() == 'global':
-        preference.setPreferredSlaposWebSiteUrl('http://foobar.org/')
-
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
 
@@ -208,7 +202,7 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
     self.tic()
 
     self.assertEqual(ticket.getPortalType(), 'Regularisation Request')
-    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getSimulationState(), 'validated')
     self.assertEqual(ticket.getResource(),
                       'service_module/slapos_crm_acknowledgement')
     self.assertEqual(ticket.getTitle(),
@@ -247,12 +241,6 @@ Administrator
   'return')
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
   def test_Entity_checkToCreateRegularisationRequest_script_paymentRequestedForOrganisation(self):
-    for preference in \
-      self.portal.portal_catalog(portal_type="System Preference"):
-      preference = preference.getObject()
-      if preference.getPreferenceState() == 'global':
-        preference.setPreferredSlaposWebSiteUrl('http://foobar.org/')
-
     organisation = self.portal.organisation_module.newContent(
       portal_type='Organisation',
       default_email_coordinate_text='test@example.org'
@@ -269,7 +257,7 @@ Administrator
     self.tic()
 
     self.assertEqual(ticket.getPortalType(), 'Regularisation Request')
-    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getSimulationState(), 'validated')
     self.assertEqual(ticket.getResource(),
                       'service_module/slapos_crm_acknowledgement')
     self.assertEqual(ticket.getTitle(),
@@ -309,12 +297,6 @@ Administrator
   'context.REQUEST["test_addRegularisationRequest_notification_message"])')
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
   def test_Entity_checkToCreateRegularisationRequest_script_notificationMessage(self):
-    for preference in \
-      self.portal.portal_catalog(portal_type="System Preference"):
-      preference = preference.getObject()
-      if preference.getPreferenceState() == 'global':
-        preference.setPreferredSlaposWebSiteUrl('http://foobar.org/')
-
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
     new_id = self.generateNewId()
@@ -332,7 +314,7 @@ Administrator
     ticket, event = person.Entity_checkToCreateRegularisationRequest()
     after_date = DateTime()
     self.assertEqual(ticket.getPortalType(), 'Regularisation Request')
-    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getSimulationState(), 'validated')
     self.assertEqual(ticket.getSourceProject(), None)
     self.assertEqual(ticket.getResource(),
                       'service_module/slapos_crm_acknowledgement')
@@ -391,7 +373,7 @@ Administrator
     self.assertEqual(event, None)
 
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
-  def test_Entity_checkToCreateRegularisationRequest_script_existingSuspendedTicket(self):
+  def test_Entity_checkToCreateRegularisationRequest_script_existingValidatedTicket(self):
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
     ticket, event = person.Entity_checkToCreateRegularisationRequest()
@@ -404,11 +386,11 @@ Administrator
     self.assertEqual(event2, None)
 
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
-  def test_Entity_checkToCreateRegularisationRequest_script_existingValidatedTicket(self):
+  def test_Entity_checkToCreateRegularisationRequest_script_existingSuspendedTicket(self):
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
     ticket, event = person.Entity_checkToCreateRegularisationRequest()
-    ticket.validate()
+    ticket.suspend()
     transaction.commit()
     self.tic()
     ticket2, event2 = person.Entity_checkToCreateRegularisationRequest()

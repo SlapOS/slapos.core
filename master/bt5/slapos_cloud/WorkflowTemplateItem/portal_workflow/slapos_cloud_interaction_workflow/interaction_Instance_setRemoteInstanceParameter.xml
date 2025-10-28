@@ -55,6 +55,7 @@
             <key> <string>trigger_method_id</string> </key>
             <value>
               <tuple>
+                <string>_setUrlString.*</string>
                 <string>_setTextContent.*</string>
                 <string>requestStop</string>
                 <string>requestDestroy</string>

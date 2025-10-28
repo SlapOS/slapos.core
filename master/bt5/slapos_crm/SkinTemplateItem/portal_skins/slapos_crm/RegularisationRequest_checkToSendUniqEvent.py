@@ -6,7 +6,7 @@ portal = context.getPortalObject()
 ticket = context
 service = portal.restrictedTraverse(service_relative_url)
 assert service.getPortalType() == "Service"
-event_portal_type = "Mail Message"
+event_portal_type = "Web Message"
 
 # XXX TODO
 # # Prevent to create 2 tickets during the same transaction
@@ -32,7 +32,7 @@ if (event is None) and (ticket.getSimulationState() == 'suspended'):
   ticket.edit(resource=service_relative_url)
 
   event = ticket.Ticket_createProjectEvent(
-    title, 'outgoing', 'Mail Message',
+    title, 'outgoing', event_portal_type,
     service_relative_url,
     text_content=text_content,
     content_type='text/plain',

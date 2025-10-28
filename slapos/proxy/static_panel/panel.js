@@ -143,10 +143,19 @@
       var gadget = this;
       return gadget.getDeclaredGadget('field_your_instance_xml')
         .push(function (sub_gadget) {
+
+          var json_url;
+          try {
+            // Prevent calling an local url, which will be relative to the panel url
+            json_url = new URL(gadget.state.software_release_uri + '.json',
+                               gadget.state.software_release_uri).href;
+          } catch {
+            // Return an url which will always fail
+            // to force the gadget to render the textarea
+            json_url = 'http://0.0.0.0';
+          }
           return sub_gadget.render({
-            // json_url: 'http://0.0.0.0',
-            // json_urlXXX: response_dict.json_response.software_release_uri + '.json',
-            json_url: 'https://lab.nexedi.com/nexedi/slapos/-/raw/master/software/simpleran/software-ors.cfg.json',
+            json_url: json_url,
             shared: gadget.state.shared,
             softwaretype: gadget.state.software_type,
             parameter_xml: gadget.state.parameter_xml,

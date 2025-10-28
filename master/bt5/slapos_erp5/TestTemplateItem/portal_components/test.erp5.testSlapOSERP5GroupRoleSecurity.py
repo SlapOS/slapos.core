@@ -638,10 +638,13 @@ class TestMailMessage(TestSlapOSGroupRoleSecurityMixin):
     product = self.portal.event_module.newContent(
         portal_type=self.event_portal_type)
     self.assertSecurityGroup(product,
-        [self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
+        [self.user_id, 'F-SALEAGT', 'F-SALEMAN', 'F-ACCAGT', 'F-ACCMAN'], False)
     self.assertRoles(product, self.user_id, ['Owner'])
     self.assertRoles(product, 'F-SALEMAN', ['Assignor'])
     self.assertRoles(product, 'F-SALEAGT', ['Assignee'])
+    self.assertRoles(product, 'F-ACCMAN', ['Assignor'])
+    self.assertRoles(product, 'F-ACCAGT', ['Assignee'])
+
 
   def test_SourceCustomer(self):
     reference = 'TESTPERSON-%s' % self.generateNewId()
@@ -653,11 +656,13 @@ class TestMailMessage(TestSlapOSGroupRoleSecurityMixin):
         source_value=person,
         )
     self.assertSecurityGroup(product,
-        [person.getUserId(), self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
+        [person.getUserId(), self.user_id, 'F-SALEAGT', 'F-SALEMAN', 'F-ACCAGT', 'F-ACCMAN'], False)
     self.assertRoles(product, person.getUserId(), ['Auditor'])
     self.assertRoles(product, self.user_id, ['Owner'])
     self.assertRoles(product, 'F-SALEMAN', ['Assignor'])
     self.assertRoles(product, 'F-SALEAGT', ['Assignee'])
+    self.assertRoles(product, 'F-ACCMAN', ['Assignor'])
+    self.assertRoles(product, 'F-ACCAGT', ['Assignee'])
 
   def test_DestinationCustomer(self):
     reference = 'TESTPERSON-%s' % self.generateNewId()
@@ -669,11 +674,13 @@ class TestMailMessage(TestSlapOSGroupRoleSecurityMixin):
         destination_value=person,
         )
     self.assertSecurityGroup(product,
-        [person.getUserId(), self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
+        [person.getUserId(), self.user_id, 'F-SALEAGT', 'F-SALEMAN', 'F-ACCAGT', 'F-ACCMAN'], False)
     self.assertRoles(product, person.getUserId(), ['Auditor'])
     self.assertRoles(product, self.user_id, ['Owner'])
     self.assertRoles(product, 'F-SALEMAN', ['Assignor'])
     self.assertRoles(product, 'F-SALEAGT', ['Assignee'])
+    self.assertRoles(product, 'F-ACCMAN', ['Assignor'])
+    self.assertRoles(product, 'F-ACCAGT', ['Assignee'])
 
   def test_SourceProject(self):
     project = self.addProject()

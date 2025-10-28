@@ -1535,3 +1535,111 @@ class TestSlaposCrmCheckStoppedEventFromRegularisationRequestToDeliver(SlapOSTes
     event.Event_checkStoppedFromRegularisationRequestToDeliver()
     self.assertEqual(event.getSimulationState(), "stopped")
     self.assertEqual(ticket.getSimulationState(), "suspended")
+
+class TestSlaposCrmCloseInactiveSuspendedSupportRequest(SlapOSTestCaseMixinWithAbort):
+
+  def _makeSupportRequest(self):
+    person = self.portal.person_module\
+         .newContent(portal_type="Person")
+    support_request = self.portal.support_request_module.newContent(
+      portal_type="Support Request"
+    )
+    support_request.submit()
+    new_id = self.generateNewId()
+    support_request.edit(
+        title="Support Request éçà %s" % new_id,
+        reference="TESTSRQ-%s" % new_id,
+        destination_decision_value=person
+    )
+
+    return support_request
+
+  def _makeEvent(self, ticket, start_date):
+    new_id = self.generateNewId()
+    return self.portal.event_module.newContent(
+      portal_type="Web Message",
+      title='Test Event %s' % new_id,
+      start_date=start_date,
+      follow_up_value=ticket,
+    )
+
+  def test_Alarm_invalidateInactiveSuspendedSupportRequest_script_suspendedTicket(self):
+    support_request = self._makeSupportRequest()
+    support_request.validate()
+    support_request.suspend()
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_invalidate_inactive_suspended_support_request
+    self._test_alarm(alarm, support_request,
+                     "SupportRequest_closeIfInactiveForAMonth")
+
+  def test_SupportRequest_closeIfInactiveForAMonth_script_suspendedOldTicket(self):
+    one_month_old = DateTime() - 32
+    support_request = self._makeSupportRequest()
+    event = self._makeEvent(support_request, one_month_old)
+    event.stop()
+    support_request.validate()
+    support_request.suspend()
+    self.tic()
+    closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "invalidated")
+    self.assertIsNotNone(closing_event)
+    self.assertIsNotNone(closing_event.getTitle())
+    self.assertIsNotNone(closing_event.getTextContent())
+
+  def test_SupportRequest_closeIfInactiveForAMonth_script_suspendedNotOldTicket(self):
+    not_one_month_old = DateTime() - 30
+    support_request = self._makeSupportRequest()
+    event = self._makeEvent(support_request, not_one_month_old)
+    event.stop()
+    support_request.validate()
+    support_request.suspend()
+    self.tic()
+    closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "suspended")
+    self.assertIsNone(closing_event)
+
+  def test_SupportRequest_closeIfInactiveForAMonth_script_suspendedNotOldTicketOneOldEvent(self):
+    one_month_old = DateTime() - 32
+    not_one_month_old = DateTime() - 30
+    support_request = self._makeSupportRequest()
+    event = self._makeEvent(support_request, one_month_old)
+    event.stop()
+    event = self._makeEvent(support_request, not_one_month_old)
+    event.stop()
+    support_request.validate()
+    support_request.suspend()
+    self.tic()
+    closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "suspended")
+    self.assertIsNone(closing_event)
+
+  def test_SupportRequest_closeIfInactiveForAMonth_script_suspendedOldMonitoringTicket(self):
+    one_month_old = DateTime() - 32
+    support_request = self._makeSupportRequest()
+    support_request.setResource("service_module/slapos_crm_monitoring")
+    event = self._makeEvent(support_request, one_month_old)
+    event.stop()
+    support_request.validate()
+    support_request.suspend()
+    self.tic()
+    closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "suspended")
+    self.assertIsNone(closing_event)
+
+  def test_SupportRequest_closeIfInactiveForAMonth_script_NotsuspendedOldTicket(self):
+    one_month_old = DateTime() - 32
+    support_request = self._makeSupportRequest()
+    event = self._makeEvent(support_request, one_month_old)
+    event.stop()
+    self.tic()
+    closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "submitted")
+    self.assertIsNone(closing_event)
+    support_request.validate()
+    closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "validated")
+    self.assertIsNone(closing_event)
+    support_request.suspend()
+    closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
+    self.assertEqual(support_request.getSimulationState(), "invalidated")
+    self.assertIsNotNone(closing_event)

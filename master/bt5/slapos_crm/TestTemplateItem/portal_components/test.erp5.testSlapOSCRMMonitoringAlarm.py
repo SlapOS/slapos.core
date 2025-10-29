@@ -2513,3 +2513,57 @@ class TestSlapOSCrmGarbageCollectProject(TestSlapOSCrmMonitoringMixin):
     instance_node.InstanceNode_checkForGarbageCollect()
     self.assertEqual(instance_node.getValidationState(), 'invalidated')
 
+
+
+  ##########################################################################
+  # slapos_crm_garbage_collect_project > InstanceTree_checkForGarbageCollect
+  ##########################################################################
+  def addInstanceTreeToGarbageCollect(self, project):
+    instance_tree = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
+      reference=self.generateNewId(),
+      follow_up_value=project
+    )
+    instance_tree.validate()
+
+    return instance_tree
+
+  def test_InstanceTree_checkForGarbageCollect_alarm_oldNotSubscribedInstanceTree(self):
+    with PinnedDateTime(self, DateTime() - 32):
+      instance_tree = self.addInstanceTreeToGarbageCollect(self.addProject())
+      self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm(alarm, instance_tree, "InstanceTree_checkForGarbageCollect")
+
+  def test_InstanceTree_checkForGarbageCollect_alarm_recentNotSubscribedInstanceTree(self):
+    with PinnedDateTime(self, DateTime() - 32):
+      project = self.addProject()
+    instance_tree = self.addInstanceTreeToGarbageCollect(project)
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, instance_tree, "InstanceTree_checkForGarbageCollect")
+
+  def test_InstanceTree_checkForGarbageCollect_alarm_oldNotSubscribedWithInstanceInstanceTree(self):
+    with PinnedDateTime(self, DateTime() - 32):
+      instance_tree = self.addSoftwareInstanceToGarbageCollect().getSpecialiseValue()
+      self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, instance_tree, "InstanceTree_checkForGarbageCollect")
+
+  def test_InstanceTree_checkForGarbageCollect_script_oldNotSubscribedInstanceTree(self):
+    with PinnedDateTime(self, DateTime() - 2):
+      instance_tree = self.addInstanceTreeToGarbageCollect(self.addProject())
+
+    ticket = instance_tree.InstanceTree_checkForGarbageCollect()
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), 'Instance tree %s is not allowed' % instance_tree.getReference())
+    self.assertEqual(ticket.getCausality(), instance_tree.getRelativeUrl())
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn("This instance tree's Software Release / Type is not allowed in this project.", event.getTextContent())
+    self.assertEqual(ticket.getSimulationState(), "submitted")

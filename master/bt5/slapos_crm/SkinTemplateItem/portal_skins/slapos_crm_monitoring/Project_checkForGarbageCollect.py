@@ -111,3 +111,29 @@ portal.portal_catalog.searchAndActivate(
   method_kw={'activate_kw': activate_kw},
   activate_kw=activate_kw
 )
+
+
+####################################
+# Check instance tree to garbage collect
+# Instance tree without any Software Instance
+####################################
+select_dict= {'successor__uid': None}
+portal.portal_catalog.searchAndActivate(
+  portal_type='Instance Tree',
+  follow_up__uid=project.getUid(),
+  validation_state='validated',
+  left_join_list=select_dict.keys(),
+
+  # check instance tree not touched for some times,
+  # to give manager time to configure the project
+  creation_date=SimpleQuery(
+    creation_date=addToDate(DateTime(), to_add={'day': -1}),
+    comparison_operator="<",
+  ),
+
+  method_id='InstanceTree_checkForGarbageCollect',
+  method_kw={'activate_kw': activate_kw},
+  activate_kw=activate_kw,
+
+  **select_dict
+)

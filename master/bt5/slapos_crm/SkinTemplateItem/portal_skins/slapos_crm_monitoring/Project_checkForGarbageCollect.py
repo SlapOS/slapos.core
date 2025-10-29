@@ -94,6 +94,7 @@ portal.portal_catalog.searchAndActivate(
 ####################################
 portal.portal_catalog.searchAndActivate(
   portal_type=['Software Instance'],
+  follow_up__uid=project.getUid(),
   # check instance not touched for some times, to give slapgrid some time to handle it
   modification_date=SimpleQuery(
     modification_date=addToDate(DateTime(), to_add={'day': -1}),

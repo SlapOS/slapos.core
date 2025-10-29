@@ -113,7 +113,6 @@
                     <key> <string>right</string> </key>
                     <value>
                       <list>
-                        <string>my_preferred_regularisation_request_resource</string>
                         <string>my_preferred_regularisation_request_use_list</string>
                         <string>my_preferred_support_request_creation_limit</string>
                       </list>

@@ -271,10 +271,6 @@
             <value> <string>embeeded</string> </value>
         </item>
         <item>
-            <key> <string>preferred_slapos_web_site_url</string> </key>
-            <value> <string>http://foobar.org/</string> </value>
-        </item>
-        <item>
             <key> <string>preferred_subscription_assignment_category</string> </key>
             <value>
               <tuple>

@@ -29,11 +29,8 @@ tag = 'credential_recovery_%s' %context.getReference()
 if portal.portal_activities.countMessageWithTag(tag):
   return
 
-preferred_slapos_web_site_url = context.portal_preference.getPreferredSlaposWebSiteUrl()
 if context.getWebSectionValue() is not None:
   context.REQUEST.set('came_from', context.getWebSectionValue().absolute_url())
-elif preferred_slapos_web_site_url not in ["", None]:
-  context.REQUEST.set('came_from', preferred_slapos_web_site_url)
 
 module = portal.getDefaultModule(portal_type='Credential Recovery')
 credential_recovery = module.newContent(

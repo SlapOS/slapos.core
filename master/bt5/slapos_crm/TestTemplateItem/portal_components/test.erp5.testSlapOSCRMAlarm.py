@@ -189,12 +189,6 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
   'return')
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
   def test_Entity_checkToCreateRegularisationRequest_script_paymentRequestedForPerson(self):
-    for preference in \
-      self.portal.portal_catalog(portal_type="System Preference"):
-      preference = preference.getObject()
-      if preference.getPreferenceState() == 'global':
-        preference.setPreferredSlaposWebSiteUrl('http://foobar.org/')
-
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
 
@@ -208,7 +202,7 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
     self.tic()
 
     self.assertEqual(ticket.getPortalType(), 'Regularisation Request')
-    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getSimulationState(), 'validated')
     self.assertEqual(ticket.getResource(),
                       'service_module/slapos_crm_acknowledgement')
     self.assertEqual(ticket.getTitle(),
@@ -217,7 +211,7 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
                       person.getRelativeUrl())
     self.assertEqual(ticket.getDestinationDecision(),
                       person.getRelativeUrl())
-    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getPortalType(), 'Web Message')
     self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
     self.assertEqual(event.getResource(),
                       'service_module/slapos_crm_acknowledgement')
@@ -231,10 +225,9 @@ class TestSlapOSCRMCreateRegularisationRequestAlarm(SlapOSTestCaseMixin):
     expected_text_content = """Dear %s,
 
 A new invoice has been generated.
-You can access it in your invoice section at http://foobar.org/.
 
 Regards,
-The slapos team
+Administrator
 """ % person.getTitle()
     self.assertEqual(event.getTextContent(), expected_text_content,
                       '\n'.join([x for x in difflib.unified_diff(
@@ -248,12 +241,6 @@ The slapos team
   'return')
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
   def test_Entity_checkToCreateRegularisationRequest_script_paymentRequestedForOrganisation(self):
-    for preference in \
-      self.portal.portal_catalog(portal_type="System Preference"):
-      preference = preference.getObject()
-      if preference.getPreferenceState() == 'global':
-        preference.setPreferredSlaposWebSiteUrl('http://foobar.org/')
-
     organisation = self.portal.organisation_module.newContent(
       portal_type='Organisation',
       default_email_coordinate_text='test@example.org'
@@ -270,7 +257,7 @@ The slapos team
     self.tic()
 
     self.assertEqual(ticket.getPortalType(), 'Regularisation Request')
-    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getSimulationState(), 'validated')
     self.assertEqual(ticket.getResource(),
                       'service_module/slapos_crm_acknowledgement')
     self.assertEqual(ticket.getTitle(),
@@ -279,7 +266,7 @@ The slapos team
                       organisation.getRelativeUrl())
     self.assertEqual(ticket.getDestinationDecision(),
                       organisation.getRelativeUrl())
-    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getPortalType(), 'Web Message')
     self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
     self.assertEqual(event.getResource(),
                       'service_module/slapos_crm_acknowledgement')
@@ -293,10 +280,9 @@ The slapos team
     expected_text_content = """Dear %s,
 
 A new invoice has been generated.
-You can access it in your invoice section at http://foobar.org/.
 
 Regards,
-The slapos team
+Administrator
 """ % organisation.getTitle()
     self.assertEqual(event.getTextContent(), expected_text_content,
                       '\n'.join([x for x in difflib.unified_diff(
@@ -311,12 +297,6 @@ The slapos team
   'context.REQUEST["test_addRegularisationRequest_notification_message"])')
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
   def test_Entity_checkToCreateRegularisationRequest_script_notificationMessage(self):
-    for preference in \
-      self.portal.portal_catalog(portal_type="System Preference"):
-      preference = preference.getObject()
-      if preference.getPreferenceState() == 'global':
-        preference.setPreferredSlaposWebSiteUrl('http://foobar.org/')
-
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
     new_id = self.generateNewId()
@@ -334,7 +314,7 @@ The slapos team
     ticket, event = person.Entity_checkToCreateRegularisationRequest()
     after_date = DateTime()
     self.assertEqual(ticket.getPortalType(), 'Regularisation Request')
-    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getSimulationState(), 'validated')
     self.assertEqual(ticket.getSourceProject(), None)
     self.assertEqual(ticket.getResource(),
                       'service_module/slapos_crm_acknowledgement')
@@ -344,7 +324,7 @@ The slapos team
                       person.getRelativeUrl())
     self.assertEqual(ticket.getDestinationDecision(),
                       person.getRelativeUrl())
-    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getPortalType(), 'Web Message')
     self.assertEqual(event.getResource(),
                       'service_module/slapos_crm_acknowledgement')
     self.assertTrue(event.getStartDate() >= before_date)
@@ -393,7 +373,7 @@ The slapos team
     self.assertEqual(event, None)
 
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
-  def test_Entity_checkToCreateRegularisationRequest_script_existingSuspendedTicket(self):
+  def test_Entity_checkToCreateRegularisationRequest_script_existingValidatedTicket(self):
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
     ticket, event = person.Entity_checkToCreateRegularisationRequest()
@@ -406,11 +386,11 @@ The slapos team
     self.assertEqual(event2, None)
 
   @simulate('Entity_hasOutstandingAmount', '*args, **kwargs', 'return True')
-  def test_Entity_checkToCreateRegularisationRequest_script_existingValidatedTicket(self):
+  def test_Entity_checkToCreateRegularisationRequest_script_existingSuspendedTicket(self):
     project = self.addProject()
     person = self.makePerson(project, index=0, user=0)
     ticket, event = person.Entity_checkToCreateRegularisationRequest()
-    ticket.validate()
+    ticket.suspend()
     transaction.commit()
     self.tic()
     ticket2, event2 = person.Entity_checkToCreateRegularisationRequest()
@@ -602,12 +582,12 @@ class TestSlapOSCrmTriggerEscalationOnAcknowledgmentRegularisationRequest(SlapOS
        'Reminder: invoice payment requested',
 """Dear user,
 
-We would like to remind you the unpaid invoice you have on %s.
+We would like to remind you the unpaid invoice.
 If no payment is done during the coming days, we will stop all your current instances to free some hardware resources.
 
 Regards,
-The slapos team
-""" % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
+Administrator
+""",
        'Stopping reminder.',
        'slapos-crm.acknowledgment.escalation',
        '{"days": 15, "user_name": null}'),
@@ -690,12 +670,12 @@ class TestSlapOSCrmTriggerEscalationOnStopReminderRegularisationRequest(SlapOSTe
        'Acknowledgment: instances stopped',
 """Dear user,
 
-Despite our last reminder, you still have an unpaid invoice on %s.
+Despite our last reminder, you still have an unpaid invoice.
 We will now stop all your current instances to free some hardware resources.
 
 Regards,
-The slapos team
-""" % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
+Administrator
+""",
        'Stopping acknowledgment.',
        'slapos-crm.stop.reminder.escalation',
        '{"days": 7, "user_name": null}'),
@@ -778,12 +758,12 @@ class TestSlapOSCrmTriggerEscalationOnStopAcknowledgmentRegularisationRequest(Sl
        'Last reminder: invoice payment requested',
 """Dear user,
 
-We would like to remind you the unpaid invoice you have on %s.
+We would like to remind you the unpaid invoice.
 If no payment is done during the coming days, we will delete all your instances.
 
 Regards,
-The slapos team
-""" % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
+Administrator
+""",
        'Deleting reminder.',
        'slapos-crm.stop.acknowledgment.escalation',
        '{"days": 7, "user_name": null}'),
@@ -863,12 +843,12 @@ class TestSlapOSCrmTriggerEscalationOnDeleteReminderRegularisationRequest(SlapOS
        'Acknowledgment: instances deleted',
 """Dear user,
 
-Despite our last reminder, you still have an unpaid invoice on %s.
+Despite our last reminder, you still have an unpaid invoices.
 We will now delete all your instances.
 
 Regards,
-The slapos team
-""" % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
+Administrator
+""",
        'Deleting acknowledgment.',
        'slapos-crm.delete.reminder.escalation',
        '{"days": 10, "user_name": null}'),

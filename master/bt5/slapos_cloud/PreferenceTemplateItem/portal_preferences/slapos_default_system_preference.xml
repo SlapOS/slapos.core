@@ -239,20 +239,6 @@
             </value>
         </item>
         <item>
-            <key> <string>preferred_regularisation_request_resource</string> </key>
-            <value>
-              <tuple>
-                <string>service_module/slapos_crm_acknowledgement</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
-            <key> <string>preferred_regularisation_request_template</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>preferred_regularisation_request_use</string> </key>
             <value>
               <tuple>

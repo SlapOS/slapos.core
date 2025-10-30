@@ -6,7 +6,7 @@ portal = context.getPortalObject()
 ticket = context
 service = portal.restrictedTraverse(service_relative_url)
 assert service.getPortalType() == "Service"
-event_portal_type = "Mail Message"
+event_portal_type = "Web Message"
 
 # XXX TODO
 # # Prevent to create 2 tickets during the same transaction
@@ -22,7 +22,7 @@ event = portal.portal_catalog.getResultValue(
   follow_up__uid=ticket.getUid(),
 )
 
-if (event is None) and (ticket.getSimulationState() == 'suspended'):
+if (event is None) and (ticket.getSimulationState() in ['submitted', 'suspended']):
   tag = "%s_addUniqEvent_%s" % (ticket.getUid(), service.getUid())
   if (portal.portal_activities.countMessageWithTag(tag) > 0):
     # The event is already under creation but can not be fetched from catalog
@@ -32,7 +32,7 @@ if (event is None) and (ticket.getSimulationState() == 'suspended'):
   ticket.edit(resource=service_relative_url)
 
   event = ticket.Ticket_createProjectEvent(
-    title, 'outgoing', 'Mail Message',
+    title, 'outgoing', event_portal_type,
     service_relative_url,
     text_content=text_content,
     content_type='text/plain',

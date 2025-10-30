@@ -1,7 +1,7 @@
 if context.getPortalType() != 'Instance Tree' \
   or context.getValidationState() != 'validated' \
   or context.getSlapState() not in ['start_requested', 'stop_requested'] \
-  or context.getTitle() in context.getSuccessorTitleList():
+  or context.InstanceTree_getRootInstance() is not None:
   # nothing to do
   return
 

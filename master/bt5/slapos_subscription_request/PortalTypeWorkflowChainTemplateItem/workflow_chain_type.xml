@@ -32,6 +32,14 @@
   <workflow>slapos_subscription_request_interaction_workflow</workflow>
  </chain>
  <chain>
+  <type>Software Product Release Variation</type>
+  <workflow>slapos_subscription_request_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Software Product Type Variation</type>
+  <workflow>slapos_subscription_request_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Subscription Change Request</type>
   <workflow>edit_workflow, slapos_subscription_request_interaction_workflow, subscription_request_workflow</workflow>
  </chain>

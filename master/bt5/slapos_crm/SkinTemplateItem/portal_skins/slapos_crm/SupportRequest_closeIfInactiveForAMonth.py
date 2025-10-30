@@ -25,6 +25,6 @@ if context.getModificationDate() < limit_date:
     context.validate()
   except UnsupportedWorkflowMethod:
     pass
-  context.invalidate()
+  context.invalidate(comment=event_title)
   context.reindexObject(activate_kw=activate_kw)
   return event

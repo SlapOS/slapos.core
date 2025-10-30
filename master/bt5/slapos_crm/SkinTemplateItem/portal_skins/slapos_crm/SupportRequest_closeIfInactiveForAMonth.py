@@ -1,5 +1,7 @@
 from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
 from DateTime import DateTime
+from erp5.component.module.DateUtils import addToDate
+
 portal = context.getPortalObject()
 
 if context.getSimulationState() != "suspended":
@@ -8,7 +10,7 @@ if context.getSimulationState() != "suspended":
 if context.getResource() == "service_module/slapos_crm_monitoring":
   return
 
-limit_date = DateTime() - 31
+limit_date = addToDate(DateTime(), dict(month=-1))
 
 if context.getModificationDate() < limit_date:
   message = """ This ticket has been closed based on the following policy: Support is authorized to close any tickets assigned to a customer for over a month without feedback (customers have the option to reopen the ticket if needed).

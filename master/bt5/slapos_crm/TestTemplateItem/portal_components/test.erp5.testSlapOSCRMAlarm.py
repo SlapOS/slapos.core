@@ -1578,7 +1578,7 @@ class TestSlaposCrmCloseInactiveSuspendedSupportRequest(SlapOSTestCaseMixinWithA
     self.assertIsNotNone(closing_event.getTextContent())
 
   def test_SupportRequest_closeIfInactiveForAMonth_script_suspendedNotOldTicket(self):
-    with PinnedDateTime(self, DateTime() - 30):
+    with PinnedDateTime(self, DateTime() - 27):
       support_request = self._makeSupportRequest()
       support_request.validate()
       support_request.suspend()
@@ -1592,7 +1592,7 @@ class TestSlaposCrmCloseInactiveSuspendedSupportRequest(SlapOSTestCaseMixinWithA
       support_request = self._makeSupportRequest()
       support_request.validate()
       self.tic()
-    with PinnedDateTime(self, DateTime() - 30):
+    with PinnedDateTime(self, DateTime() - 27):
       support_request.suspend()
       self.tic()
     closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()

@@ -32,8 +32,6 @@ import os
 import re
 import warnings
 
-import pkg_resources
-import requests
 from six.moves.configparser import ConfigParser, NoOptionError, NoSectionError
 import six
 
@@ -268,62 +266,6 @@ def checkSoftware(slap, software_url):
         error_list.append(
           "Shared part is referencing non shared part or software {}\n{}\n".format(
           signature_file, signature_content))
-
-  def checkEggsVersionsKnownVulnerabilities(
-      egg_directories,
-      safety_db=requests.get(
-          'https://raw.githubusercontent.com/pyupio/safety-db/master/data/insecure_full.json'
-      ).json()):
-    # type: (List[str], Dict) -> Iterable[str]
-    """Check eggs against known vulnerabilities database from https://github.com/pyupio/safety-db
-    """
-    def get_python_versions():
-      # () -> Iterable[str]
-      """Returns all python versions used in egg_directories 
-      """
-      python_versions = set()
-      for egg_dir in egg_directories:
-        basename, _ = os.path.splitext(os.path.basename(egg_dir))
-        match = pkg_resources.EGG_NAME(basename)
-        if match:
-          pyver = match.group('pyver')
-          if pyver:
-            python_versions.add(pyver)
-      return python_versions
-
-    for python in get_python_versions():
-      env = pkg_resources.Environment(egg_directories, python=python)
-      for egg in env:
-        known_vulnerabilities = safety_db.get(egg)
-        if known_vulnerabilities:
-          for distribution in env[egg]:
-            for known_vulnerability in known_vulnerabilities:
-              for vulnerable_spec in known_vulnerability['specs']:
-                for req in pkg_resources.parse_requirements(egg +
-                                                            vulnerable_spec):
-                  vulnerability_description = "\n".join(
-                      u"{}: {}".format(*item)
-                      for item in known_vulnerability.items())
-                  if distribution in req:
-                    yield (
-                        u"{egg} use vulnerable version {distribution.version} because {vulnerable_spec}.\n"
-                        "{vulnerability_description}\n".format(**locals()))
-
-  warning_list.extend(
-      checkEggsVersionsKnownVulnerabilities(
-          glob.glob(
-              os.path.join(
-                  slap.software_directory,
-                  software_hash,
-                  'eggs',
-                  '*',
-              )) + glob.glob(
-                  os.path.join(
-                      slap.software_directory,
-                      software_hash,
-                      'develop-eggs',
-                      '*',
-                  ))))
 
   if warning_list:
     if six.PY2:

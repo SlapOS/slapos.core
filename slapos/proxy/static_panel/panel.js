@@ -42,6 +42,61 @@
       });
   }
 
+  function returnUrlIfPresent(url) {
+    return RSVP.Queue(jIO.util.ajax({
+      url: url,
+      type: 'HEAD'
+    }))
+      .push(function () {
+        return url;
+      }, function (evt) {
+        if ((evt.target.status === 404) || (evt.target.status === 403)) {
+          return null;
+        }
+        throw evt;
+      });
+  }
+
+  function guessSoftwareReleaseJsonUrl(software_release_uri) {
+    var json_url,
+      promise_list = [],
+      index;
+    // First, consider the json location is by default:
+    // software_release_uri + .json
+    try {
+      // Prevent calling an local url, which will be relative to the panel url
+      json_url = new URL(software_release_uri + '.json',
+                         software_release_uri).href;
+    } catch {
+      // Return an url which will always fail
+      // to force the gadget to render the textarea
+      json_url = 'http://0.0.0.0';
+    }
+
+    // Then, check if the panel has a public directory,
+    // that can be used to provide a local json + schema
+    // Try the known lab.nexedi.com url pattern
+    index = software_release_uri.indexOf('/software/');
+    if (index !== -1) {
+      promise_list.push(returnUrlIfPresent(
+        './public' + software_release_uri.slice(index) + '.json'
+      ));
+    }
+    promise_list.push(json_url);
+
+    return new RSVP.Queue(RSVP.all(promise_list))
+      .push(function (result_list) {
+        // Return the first result found
+        var i,
+          len = result_list.length;
+        for (i = 0; i < len; i += 1) {
+          if (result_list[i]) {
+            return result_list[i];
+          }
+        }
+      });
+  }
+
   rJS(window)
     .allowPublicAcquisition('notifyChange', function () {
       // Does nothing
@@ -104,16 +159,24 @@
             throw new Error('Only the top instance is supported');
           }
 
-          document.querySelector("#slapproxy_header_title").textContent =
-            "Software Instance: " + json_response.title + " (offline)";
+          return RSVP.hash({
+            json_response: json_response,
+            json_url: guessSoftwareReleaseJsonUrl(json_response.software_release_uri)
+          });
 
+        })
+        .push(function (result_hash) {
           var xml_document = document.implementation.createDocument(
             null,
             'instance'
           ),
             key,
             xml_element,
-            parameter_xml;
+            parameter_xml,
+            json_response = result_hash.json_response;
+
+          document.querySelector("#slapproxy_header_title").textContent =
+          "Software Instance: " + json_response.title + " (offline)";
 
           // Convert the json parameter to xml
           for (key in json_response.parameters) {
@@ -130,6 +193,7 @@
           return gadget.changeState({
             title: json_response.title,
             software_release_uri: json_response.software_release_uri,
+            json_url: result_hash.json_url,
             shared: json_response.shared,
             software_type: json_response.software_type,
             parameter_xml: parameter_xml,
@@ -143,19 +207,8 @@
       var gadget = this;
       return gadget.getDeclaredGadget('field_your_instance_xml')
         .push(function (sub_gadget) {
-
-          var json_url;
-          try {
-            // Prevent calling an local url, which will be relative to the panel url
-            json_url = new URL(gadget.state.software_release_uri + '.json',
-                               gadget.state.software_release_uri).href;
-          } catch {
-            // Return an url which will always fail
-            // to force the gadget to render the textarea
-            json_url = 'http://0.0.0.0';
-          }
           return sub_gadget.render({
-            json_url: json_url,
+            json_url: gadget.state.json_url,
             shared: gadget.state.shared,
             softwaretype: gadget.state.software_type,
             parameter_xml: gadget.state.parameter_xml,
@@ -189,7 +242,6 @@
           for (i = 0; i < len; i += 1) {
             json_document[parameter_list[i].getAttribute("id")] = parameter_list[i].textContent;
           }
-          console.log(json_document);
 
           return callJsonRpcEntryPoint('/slapos.post.v0.software_instance', {
             title: gadget.state.title,

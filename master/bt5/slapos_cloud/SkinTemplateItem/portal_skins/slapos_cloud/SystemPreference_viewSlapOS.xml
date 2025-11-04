@@ -100,7 +100,6 @@
                     <value>
                       <list>
                         <string>my_preferred_hateoas_url</string>
-                        <string>my_preferred_slapos_web_site_url</string>
                         <string>my_preferred_shacache_website_expected_state</string>
                         <string>my_preferred_wechat_integration_site</string>
                         <string>my_preferred_wechat_payment_service_reference</string>

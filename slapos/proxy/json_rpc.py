@@ -115,7 +115,7 @@ class JsonRpcManager(object):
         'type': HTTP_STATUS_CODES.get(500, 'Unknown Error'),
         'title': 'Internal server error'
       }, status_code=500)
-    return exception
+    raise exception
 
 
 @json_rpc_blueprint.route('/slapos.allDocs.v0.instance_node_instance_list', methods=['POST'])

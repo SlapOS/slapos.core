@@ -28,8 +28,6 @@
 #
 ##############################################################################
 
-import logging
-
 from slapos.proxy.views import app
 from slapos.util import sqlite_connect
 
@@ -94,6 +92,8 @@ def setupFlaskConfiguration(conf):
   app.config['software_product_list'] = conf.software_product_list
   app.config['multimaster'] = conf.multimaster
   app.config['local_software_release_root'] = getattr(conf,'local_software_release_root', None)
+  if getattr(conf, 'public_directory_path', None) is not None:
+    app.config['PUBLIC_DIRECTORY_PATH'] = conf.public_directory_path
 
 def connectDB():
   # if first connection, create an empty db at DATABASE_URI path

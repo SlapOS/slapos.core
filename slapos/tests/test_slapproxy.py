@@ -1778,13 +1778,17 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     # Wait a bit for proxy to be started
     attempts = 0
     while (attempts < 20):
+      attempts = attempts + 1
       try:
-        self.external_proxy_slap._connection_helper.GET('/')
+        response = self.external_proxy_slap._connection_helper.GET('/')
       except slapos.slap.NotFoundError:
+        # Got a response
         break
       except (slapos.slap.ConnectionError, socket.error):
-        attempts = attempts + 1
         time.sleep(0.1 * attempts)
+      else:
+        # Got a response
+        break
     else:
       self.fail('Could not start external proxy.')
 

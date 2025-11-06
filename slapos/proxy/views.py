@@ -127,7 +127,7 @@ def _updateLocalSoftwareReleaseRootPathIfNeeded():
   current_root_path = (execute_db('config',
     "SELECT value FROM %s WHERE name='local_software_release_root'",
     one=True) or {}).get('value', os.sep)
-  new_root_path = current_app.config['local_software_release_root'] or os.sep
+  new_root_path = current_app.config.get('local_software_release_root', os.sep)
   # Check whether one is the same as or a subpath of the other
   if current_root_path == new_root_path:
     return

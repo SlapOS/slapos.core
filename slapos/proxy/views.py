@@ -34,7 +34,7 @@ from datetime import datetime
 from slapos.proxy.db_version import DB_VERSION
 from slapos.util import sqlite_connect
 
-from flask import g, Flask, redirect, url_for
+from flask import g, Flask, redirect, url_for, current_app
 from .hateoas import hateoas_blueprint
 from .slap_tool import slap_tool_blueprint
 from .db import execute_db
@@ -47,7 +47,7 @@ app.register_blueprint(slap_tool_blueprint)
 
 
 def connect_db():
-  return sqlite_connect(app.config['DATABASE_URI'])
+  return sqlite_connect(current_app.config['DATABASE_URI'])
 
 def _upgradeDatabaseIfNeeded():
   """
@@ -67,11 +67,11 @@ def _upgradeDatabaseIfNeeded():
 
     # first, make a backup of current database
     backup_file_name = "{}-backup-{}to{}-{}.sql".format(
-        app.config['DATABASE_URI'],
+        current_app.config['DATABASE_URI'],
         current_schema_version,
         DB_VERSION,
         datetime.now().isoformat())
-    app.logger.info(
+    current_app.logger.info(
         'Old schema detected: Creating a backup of current tables at %s',
         backup_file_name
     )
@@ -79,14 +79,14 @@ def _upgradeDatabaseIfNeeded():
       for line in g.db.iterdump():
           f.write('%s\n' % line)
 
-  with app.open_resource('schema.sql', 'r') as f:
-    schema = f.read() % dict(version=DB_VERSION, computer=app.config['computer_id'])
+  with current_app.open_resource('schema.sql', 'r') as f:
+    schema = f.read() % dict(version=DB_VERSION, computer=current_app.config['computer_id'])
   g.db.execute('BEGIN')
   try:
     g.db.executescript(schema)
 
     if previous_table_list:
-      app.logger.info('Old schema detected: Migrating old tables...')
+      current_app.logger.info('Old schema detected: Migrating old tables...')
       n = len(current_schema_version)
       current_schema_version = int(current_schema_version)
       for old_table, in previous_table_list:
@@ -127,7 +127,7 @@ def _updateLocalSoftwareReleaseRootPathIfNeeded():
   current_root_path = (execute_db('config',
     "SELECT value FROM %s WHERE name='local_software_release_root'",
     one=True) or {}).get('value', os.sep)
-  new_root_path = app.config['local_software_release_root'] or os.sep
+  new_root_path = current_app.config['local_software_release_root'] or os.sep
   # Check whether one is the same as or a subpath of the other
   if current_root_path == new_root_path:
     return
@@ -136,36 +136,36 @@ def _updateLocalSoftwareReleaseRootPathIfNeeded():
     [new_root_path])
   relpath = os.path.relpath(new_root_path, current_root_path)
   if not relpath.startswith(os.pardir + os.sep):
-    app.logger.info('Do not rebase any URLs because %s is a subpath of %s', new_root_path, current_root_path)
+    current_app.logger.info('Do not rebase any URLs because %s is a subpath of %s', new_root_path, current_root_path)
     return
   elif os.path.basename(relpath) == os.pardir:
-    app.logger.info('Do not rebase any URLs because %s is a superpath of %s', new_root_path, current_root_path)
+    current_app.logger.info('Do not rebase any URLs because %s is a superpath of %s', new_root_path, current_root_path)
     return
   # Backup the database before migrating
-  database_path = app.config['DATABASE_URI']
+  database_path = current_app.config['DATABASE_URI']
   backup_path = database_path + "-backup-%s.sql" % datetime.now().isoformat()
-  app.logger.info("Backuping database to %s", backup_path)
+  current_app.logger.info("Backuping database to %s", backup_path)
   with open(backup_path, 'w') as f:
     for line in g.db.iterdump():
       f.write('%s\n' % line)
   # Rebase all URLs relative to the new root path
-  app.logger.info('Rebase URLs on local software release root path')
-  app.logger.info('Old root path: %s', current_root_path)
-  app.logger.info('New root path: %s', new_root_path)
+  current_app.logger.info('Rebase URLs on local software release root path')
+  current_app.logger.info('Old root path: %s', current_root_path)
+  current_app.logger.info('New root path: %s', new_root_path)
   def migrate_url(url):
-    app.logger.debug('Examining URL %s', url)
+    current_app.logger.debug('Examining URL %s', url)
     if not url or urlparse(url).scheme:
-      app.logger.debug('  Do not rebase because it is not a path')
+      current_app.logger.debug('  Do not rebase because it is not a path')
       return url
     rel = os.path.relpath(url, current_root_path)
     if rel.startswith(os.pardir + os.sep):
-      app.logger.debug('  Do not rebase because it is not a subpath of %s', current_root_path)
+      current_app.logger.debug('  Do not rebase because it is not a subpath of %s', current_root_path)
       return url
     new = os.path.join(new_root_path, rel)
     if not os.path.isfile(new) and os.path.isfile(url):
-      app.logger.debug('  Do not rebase because it refers to an existing file but %s does not', new)
+      current_app.logger.debug('  Do not rebase because it refers to an existing file but %s does not', new)
       return url
-    app.logger.debug('  Migrate to rebased URL %s', new)
+    current_app.logger.debug('  Migrate to rebased URL %s', new)
     return new
   g.db.create_function('migrate_url', 1, migrate_url)
   execute_db('software', 'UPDATE %s SET url=migrate_url(url)')

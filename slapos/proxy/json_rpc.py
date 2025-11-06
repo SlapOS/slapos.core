@@ -9,6 +9,9 @@ import sys
 import time
 
 
+json_rpc_blueprint = Blueprint('json_rpc', __name__)
+
+
 def find_best_match(status_code=None):
   if (status_code == 406) or (len(request.accept_mimetypes) == 0):
     mime = 'application/json'
@@ -57,7 +60,7 @@ def before_request():
     return abort(405)
 
   # Validate the input json
-  with current_app.open_resource('json_rpc.json', 'r') as json_rpc_open_api_file:
+  with json_rpc_blueprint.open_resource('json_rpc.json', 'r') as json_rpc_open_api_file:
     config_filejson_rpc_parsed_json = json.loads(json_rpc_open_api_file.read())
 
   try:
@@ -80,7 +83,6 @@ def before_request():
     return abort(400, err.message)
 
 
-json_rpc_blueprint = Blueprint('json_rpc', __name__)
 json_rpc_blueprint.before_request(before_request)
 
 

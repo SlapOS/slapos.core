@@ -52,46 +52,20 @@ def bouture(bouture_conf, node_conf):
             "No bouture partitions found on this node"
         )
         return
-    try:
-        partition_id, = partitions
-    except ValueError: # len(partitions) > 1
-        # Note: bouturing multiple instances will require requesting each
-        # instance into the correct partition in the new master: this can
-        # be achieved with partition capabilities.
-        raise Exception(
-            "Only one bouture partition is currently supported;"
-            "\nfound %r" % partitions
-        )
 
-    # Load instance information for bouture
-    with open(os.path.join(instance_root, partition_id, BOUTURE_FILE)) as f:
-        bouture = json.load(f)
-
-    software_url = bouture['software-url']
-    software_type = bouture['software-type']
-    instance_name = bouture['instance-title']
-    parameter_dict = bouture['config']
-    state = bouture['instance-state']
-
-    # Load partition IPs information
-    with open(os.path.join(instance_root, partition_id, RESOURCE_FILE)) as f:
-        resource = json.load(f)
-
-    partition_list = [{
-        'reference': partition_id,
-        'address_list': resource['address_list'],
-        'tap': resource['tap'],
-    }]
+    # Prepare computer information.
+    # Note: bouturing multiple instances will require requesting each
+    # instance into the correct partition in the new master. This can
+    # be achieved with partition capabilities when the are supported.
+    # Hack: for now a hack is employed: register the first partition,
+    # request the first instance, register the 2nd partition, request
+    # request the 2nd instance, etc.
+    partition_list = []
     computer_dict = dict(
         reference=computer_id,
         address=None,
         netmask=None,
         partition_list=partition_list,
-    )
-
-    logger.info(
-        "Bouturing partition %s",
-        partition_id,
     )
 
     # Connect to new master
@@ -102,39 +76,86 @@ def bouture(bouture_conf, node_conf):
         cert_file=None, # for now
         slapgrid_rest_uri=None, # for now
     )
-    # Register bouture partition
-    slap.registerComputer(computer_id).updateConfiguration(dumps(computer_dict))
-    # Supply bouture SR
-    slap.registerSupply().supply(software_url, computer_id)
-    # Request bouture instance
-    cp = slap.registerOpenOrder().request(
-        software_url,
-        instance_name,
-        parameter_dict,
-        software_type,
-        state=state,
-    )
-    # Bang the boutured instance to ensure it will be reprocessed
-    # It must be reprocessed because the master changed, so the promises need
-    # to be reconfigured to bang the new master, and possibly some parameters
-    # changed as well, depending on the bouture file.
-    cp.bang("Bouture")
 
-    # XXX Workaround: Delete local timestamp file
-    # Currently bang may not be enough if the new master has a different
-    # time than the old master: the local timestamp file may contain a
-    # timestamp from the old master that is more recent than the one from
-    # the bang in the new master.
-    # Until https://lab.nexedi.com/nexedi/slapos.core/-/merge_requests/824
-    try:
-        os.remove(os.path.join(
-            instance_root,
+    for partition_id in partitions:
+        # Load instance information for bouture
+        with open(os.path.join(instance_root, partition_id, BOUTURE_FILE)) as f:
+            bouture = json.load(f)
+
+        software_url = bouture['software-url']
+        software_type = bouture['software-type']
+        instance_name = bouture['instance-title']
+        parameter_dict = bouture['config']
+        state = bouture['instance-state']
+        shared_list = bouture['shared-list']
+
+        # Load partition IPs information
+        with open(os.path.join(instance_root, partition_id, RESOURCE_FILE)) as f:
+            resource = json.load(f)
+
+        partition_list.append({
+            'reference': partition_id,
+            'address_list': resource['address_list'],
+            'tap': resource['tap'],
+        })
+
+        logger.info(
+            "Bouturing partition %s",
             partition_id,
-            COMPUTER_PARTITION_TIMESTAMP_FILENAME,
-        ))
-    except OSError as e:
-        if e.errno != errno.ENOENT:
-            raise
+        )
+
+        # Register bouture partition
+        slap.registerComputer(computer_id).updateConfiguration(dumps(computer_dict))
+
+        # Supply bouture SR
+        slap.registerSupply().supply(software_url, computer_id)
+
+        # Request bouture instance
+        cp = slap.registerOpenOrder().request(
+            software_url,
+            instance_name,
+            parameter_dict,
+            software_type,
+            state=state,
+        )
+
+        # Request shared instances
+        logger.info(
+            "Bouturing %s shared instances",
+            len(shared_list),
+        )
+        for shared in shared_list:
+            slap.registerOpenOrder().request(
+                software_url,
+                shared['slave-title'],
+                shared['parameter-list'],
+                shared['slap-software-type'],
+                filter_kw={'instance_guid': cp._instance_guid},
+                # state=?,
+                shared=True,
+            )
+
+        # Bang the boutured instance to ensure it will be reprocessed
+        # It must be reprocessed because the master changed, so the promises need
+        # to be reconfigured to bang the new master, and possibly some parameters
+        # changed as well, depending on the bouture file.
+        cp.bang("Bouture")
+
+        # XXX Workaround: Delete local timestamp file
+        # Currently bang may not be enough if the new master has a different
+        # time than the old master: the local timestamp file may contain a
+        # timestamp from the old master that is more recent than the one from
+        # the bang in the new master.
+        # Until https://lab.nexedi.com/nexedi/slapos.core/-/merge_requests/824
+        try:
+            os.remove(os.path.join(
+                instance_root,
+                partition_id,
+                COMPUTER_PARTITION_TIMESTAMP_FILENAME,
+            ))
+        except OSError as e:
+            if e.errno != errno.ENOENT:
+                raise
 
 
 def parse_conf(cfg):
@@ -219,6 +240,7 @@ def main():
 
 if __name__ == '__main__':
     failover()
+    # main()
 
 
 # /etc/opt/slapos/slapos.cfg

@@ -44,6 +44,7 @@ def bouture(bouture_conf, node_conf):
 
     # Bouture configuration
     new_master_url = bouture_conf.new_master_url
+    new_monitor_url = bouture_conf.new_monitor_url
 
     # Find bouture partition
     partitions = find_bouture_partitions(instance_root, slappart_base)
@@ -88,6 +89,21 @@ def bouture(bouture_conf, node_conf):
         parameter_dict = bouture['config']
         state = bouture['instance-state']
         shared_list = bouture['shared-list']
+
+        # Adapt parameter dict for monitoring
+        # Hack: handle serialization
+        if new_monitor_url:
+            # match is Python3.10
+            try:
+                (key, serialized), = parameter_dict.items()
+                if key != '_':
+                    raise ValueError
+            except ValueError:
+                parameter_dict['monitor-interface-url'] = new_monitor_url
+            else:
+                deserialized = json.loads(serialized)
+                deserialized['monitor-interface-url'] = new_monitor_url
+                parameter_dict['_'] = json.dumps(deserialized)
 
         # Load partition IPs information
         with open(os.path.join(instance_root, partition_id, RESOURCE_FILE)) as f:
@@ -175,6 +191,7 @@ def failover():
     parser.add_argument('--new-cert-dir', required=True)
     parser.add_argument('--pidfile', required=True)
     parser.add_argument('--switchfile', required=True)
+    parser.add_argument('--new-monitor-url')
     args = parser.parse_args()
 
     setRunning(logger, args.pidfile)

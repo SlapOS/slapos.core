@@ -1206,7 +1206,7 @@ database_uri = %(rootdir)s/lib/proxy.db
       self.fail('Could not start proxy.')
 
   def tearDown(self):
-    self.proxy_process.kill()
+    self.proxy_process.terminate()
     self.proxy_process.wait()
     super(CliMasterMixin, self).tearDown()
 
@@ -1789,7 +1789,8 @@ database_uri = %(rootdir)s/lib/external_proxy.db
       self.fail('Could not start external proxy.')
 
   def stopExternalProxy(self):
-    self.external_proxy_process.kill()
+    self.external_proxy_process.terminate()
+    self.external_proxy_process.wait()
 
   def createSlapOSConfigurationFile(self):
     """

@@ -1,0 +1,83 @@
+#software-type {
+  padding: 10px 0 0;
+  border: 0px;
+}
+#software-type  .field[title='serialisation_type'] .input { padding-top: 0; }
+.subfield, #software-type .input{
+  padding-top: 10px;
+}
+
+.input button {margin-left: 10px;}
+
+.display-none {
+  display: none;
+}
+
+.listbox-parameters a {
+  word-wrap: break-word;
+  max-width: 400px;
+  display: inline-block;
+  word-break: keep-all;
+}
+
+.non-editable > div.input {border: 1px solid rgb(201, 201, 201); padding: 5px; background: white; font-weight: normal;
+margin: 5px 0 10px; max-height: 250px; width: 80%;}
+
+textarea.slapos-parameter {
+  width: 400px;
+  height: 100px;
+}
+
+div.parameter-editor fieldset {
+  border: 0px;
+}
+
+
+.field input ~ span {
+  position: relative;
+  top: -27px;
+  pointer-events: none;
+  cursor: text;
+}
+.field input:not(:placeholder-shown) ~ span:not(.error),
+.field select:not(:placeholder-shown) ~ span:not(.error) {
+  visibility: hidden;
+}
+.field input ~ span:not(.error),
+.field select ~ span:not(.error) {
+  opacity: .7;
+}
+.field input:focus ~ span,
+.field select:focus ~ span {
+  visibility: hidden;
+}
+
+button.slapos-show-raw-parameter,
+button.slapos-show-form {
+  cursor: pointer;
+  color: #212529;
+  padding: 3pt;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 0.325em;
+  display: inline-block;
+  margin-right: 6pt;
+}
+button.slapos-show-raw-parameter:before,
+button.slapos-show-form:before {
+  padding-right: 0.2em;
+}
+
+button.slapos-show-raw-parameter[disabled],
+button.slapos-show-form[disabled] {
+  color: #999;
+}
+
+select.readonly {
+  background: #EEE; 
+  pointer-events: none;
+  touch-action: none;
+}
+
+div.slapos-parameter-editor-button {
+  padding: 10px;
+}

@@ -36,7 +36,9 @@ class HTTPTooManyRedirect(HTTPException):
 def proxy_request(url):
   # Accept-Encoding ? Referer ?
   header_white_list = ["Content-Type", "Accept", "Accept-Language", "Range",
-                       "If-Modified-Since", "If-None-Match", "User-Agent"]
+                       "If-Modified-Since", "If-None-Match", "User-Agent",
+                       # Authorization is required for the stack private stack monitor
+                       "Authorization"]
 
   # Fake user access to the document, instead of an ajax query
   if request.headers.get('Sec-Fetch-Dest', 'empty') == 'empty':
@@ -90,7 +92,9 @@ def proxy_request(url):
 
     if k in ["Content-Disposition", "Content-Type", "Date", "Last-Modified",
              "Vary", "Cache-Control", "Etag", "Accept-Ranges",
-             "Content-Range"]:
+             "Content-Range",
+             # Authorization is required for the stack private stack monitor 
+             "WWW-Authenticate"]:
       proxy_response_headers[k] = v
     elif k == "Location":
       # In case of redirect, allow to directly fetch from proxy

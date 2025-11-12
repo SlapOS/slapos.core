@@ -785,10 +785,10 @@ class TestRequest(MasterMixin):
         shared=True,
         partition_parameter_kw={'url': 'https://[::1]:123/', })
     self.assertEqual(
-        'https://[::1]:123/',
+        'http://localhost/http_proxy/proxy/aHR0cHM6Ly9bOjoxXToxMjMv',
         request.getConnectionParameterDict()['secure_access'])
     self.assertEqual(
-        '[::1]:123',
+        'localhost',
         request.getConnectionParameterDict()['domain'])
 
   def test_request_kvm_frontend(self):
@@ -1206,7 +1206,7 @@ database_uri = %(rootdir)s/lib/proxy.db
       self.fail('Could not start proxy.')
 
   def tearDown(self):
-    self.proxy_process.kill()
+    self.proxy_process.terminate()
     self.proxy_process.wait()
     super(CliMasterMixin, self).tearDown()
 
@@ -1778,18 +1778,23 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     # Wait a bit for proxy to be started
     attempts = 0
     while (attempts < 20):
+      attempts = attempts + 1
       try:
-        self.external_proxy_slap._connection_helper.GET('/')
+        response = self.external_proxy_slap._connection_helper.GET('/')
       except slapos.slap.NotFoundError:
+        # Got a response
         break
       except (slapos.slap.ConnectionError, socket.error):
-        attempts = attempts + 1
         time.sleep(0.1 * attempts)
+      else:
+        # Got a response
+        break
     else:
       self.fail('Could not start external proxy.')
 
   def stopExternalProxy(self):
-    self.external_proxy_process.kill()
+    self.external_proxy_process.terminate()
+    self.external_proxy_process.wait()
 
   def createSlapOSConfigurationFile(self):
     """

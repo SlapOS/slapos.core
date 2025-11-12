@@ -39,6 +39,7 @@ from .json_rpc import JsonRpcManager
 from .panel import panel_blueprint
 from .hateoas import hateoas_blueprint
 from .slap_tool import slap_tool_blueprint
+from .http_proxy import http_proxy_blueprint
 from .db import execute_db
 
 from six.moves.urllib.parse import urlparse
@@ -48,7 +49,7 @@ JsonRpcManager().init_app(app)
 app.register_blueprint(panel_blueprint, url_prefix="/panel")
 app.register_blueprint(hateoas_blueprint, url_prefix="/hateoas")
 app.register_blueprint(slap_tool_blueprint)
-
+app.register_blueprint(http_proxy_blueprint, url_prefix="/http_proxy")
 
 def connect_db():
   return sqlite_connect(current_app.config['DATABASE_URI'])

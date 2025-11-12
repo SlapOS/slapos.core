@@ -2,7 +2,7 @@ import random
 import string
 import time
 
-from flask import request, Blueprint, current_app, abort
+from flask import request, Blueprint, current_app, abort, url_for
 from .db import execute_db
 import slapos
 from slapos.util import loads, dumps
@@ -294,14 +294,16 @@ def requestComputerPartition():
         and parsed_request_dict.get('software_type', '') in ('', OLD_DEFAULT_SOFTWARE_TYPE, DEFAULT_SOFTWARE_TYPE):
         url = parsed_request_dict['partition_parameter_kw'].get('url')
         if url:
+          # XXX hardcoded http_proxy. set in views.py
+          secure_access_url = url_for('httpproxy.proxy_request', url=url.encode(), _external=True)
           current_app.logger.warning("Bypassing frontend for %s => %s", parsed_request_dict, url)
           partition = ComputerPartition('', 'Fake frontend for {}'.format(url))
           partition.slap_computer_id = ''
           partition.slap_computer_partition_id = ''
           partition._parameter_dict = {}
           partition._connection_dict = {
-            'secure_access': url,
-            'domain': urlparse(url).netloc,
+            'secure_access': secure_access_url,
+            'domain': urlparse(secure_access_url).netloc,
           }
           return dumps(partition)
       # another similar case is for KVM frontends. This is used in

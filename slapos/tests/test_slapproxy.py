@@ -785,10 +785,10 @@ class TestRequest(MasterMixin):
         shared=True,
         partition_parameter_kw={'url': 'https://[::1]:123/', })
     self.assertEqual(
-        'https://[::1]:123/',
+        'http://localhost/http_proxy/proxy/aHR0cHM6Ly9bOjoxXToxMjMv',
         request.getConnectionParameterDict()['secure_access'])
     self.assertEqual(
-        '[::1]:123',
+        'localhost',
         request.getConnectionParameterDict()['domain'])
 
   def test_request_kvm_frontend(self):

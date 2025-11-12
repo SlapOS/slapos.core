@@ -783,12 +783,12 @@ class TestRequest(MasterMixin):
         self.id(),
         'slappart0',
         shared=True,
-        partition_parameter_kw={'url': 'https://[::1]:123/', })
+        partition_parameter_kw={'url': 'https://[::1]:123/my/path?my=query&string=value#myanchor', })
     self.assertEqual(
-        'https://[::1]:123/',
+        'http://localhost/http_proxy/https/%5B::1%5D:123/my/path?my=query&string=value#myanchor',
         request.getConnectionParameterDict()['secure_access'])
     self.assertEqual(
-        '[::1]:123',
+        'localhost',
         request.getConnectionParameterDict()['domain'])
 
   def test_request_kvm_frontend(self):

@@ -59,6 +59,9 @@ def proxy_request(url_scheme, url_netloc, url_path=''):
     proxy_response = requests.request(
         request.method,
         url,
+        # ignore verifying the SSL certificate
+        # as most backend servers uses self signed certificates
+        verify=False,
         data=request.get_data(),
         headers=proxy_query_header,
         timeout=5

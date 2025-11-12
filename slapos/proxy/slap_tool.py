@@ -1,5 +1,3 @@
-import random
-import string
 import time
 
 from flask import request, Blueprint, current_app, abort, url_for
@@ -14,7 +12,6 @@ from slapos.slap.slap import Computer, ComputerPartition, \
     DEFAULT_SOFTWARE_TYPE, OLD_DEFAULT_SOFTWARE_TYPE
 
 import six
-from six.moves import range
 from six.moves.urllib.parse import urlparse
 
 slap_tool_blueprint = Blueprint('slap_tool', __name__)
@@ -385,7 +382,6 @@ def getRequesterFromForm(form, required=False):
   return partition and (partition['requested_by'] or
                         partition['partition_reference'])
 
-run_id = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
 def checkIfMasterIsCurrentMaster(master_url):
   """
   Because there are several ways to contact this server, we can't easily check
@@ -402,13 +398,13 @@ def checkIfMasterIsCurrentMaster(master_url):
   slap = slapos.slap.slap()
   slap.initializeConnection(master_url)
   try:
-    return run_id == bytes2str(slap._connection_helper.GET('/getRunId'))
+    return current_app.config['run_id'] == bytes2str(slap._connection_helper.GET('/getRunId'))
   except Exception:
     return False
 
 @slap_tool_blueprint.route('/getRunId', methods=['GET'])
 def getRunId():
-  return run_id
+  return current_app.config['run_id']
 
 def checkMasterUrl(master_url):
   """

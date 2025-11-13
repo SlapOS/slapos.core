@@ -289,18 +289,29 @@ def requestComputerPartition():
       )
       if parsed_request_dict['software_release'] in apache_frontend_sr_url_list \
         and parsed_request_dict.get('software_type', '') in ('', OLD_DEFAULT_SOFTWARE_TYPE, DEFAULT_SOFTWARE_TYPE):
-        url = parsed_request_dict['partition_parameter_kw'].get('url')
-        if url:
+        url_parameter = parsed_request_dict['partition_parameter_kw'].get('url')
+        if url_parameter:
+          parsed_url_parameter = urlparse(url_parameter)
           # XXX hardcoded http_proxy. set in views.py
-          secure_access_url = url_for('httpproxy.proxy_request', url=url.encode(), _external=True)
-          current_app.logger.warning("Bypassing frontend for %s => %s", parsed_request_dict, url)
-          partition = ComputerPartition('', 'Fake frontend for {}'.format(url))
+          parsed_secure_access_url = urlparse(url_for(
+            'httpproxy.proxy_request',
+            url_scheme=parsed_url_parameter.scheme,
+            url_netloc=parsed_url_parameter.netloc,
+            url_path=parsed_url_parameter.path,
+            _external=True
+          ))
+          secure_access_url = parsed_secure_access_url._replace(
+            query=parsed_url_parameter.query,
+            fragment=parsed_url_parameter.fragment
+          ).geturl()
+          current_app.logger.warning("Bypassing frontend for %s => %s", parsed_request_dict, url_parameter)
+          partition = ComputerPartition('', 'Fake frontend for {}'.format(url_parameter))
           partition.slap_computer_id = ''
           partition.slap_computer_partition_id = ''
           partition._parameter_dict = {}
           partition._connection_dict = {
             'secure_access': secure_access_url,
-            'domain': urlparse(secure_access_url).netloc,
+            'domain': parsed_secure_access_url.netloc,
           }
           return dumps(partition)
       # another similar case is for KVM frontends. This is used in

@@ -1,13 +1,14 @@
 from flask import current_app, Blueprint, request, url_for
 from werkzeug.exceptions import BadRequest, HTTPException
 import requests
-from .base64_converter import Base64Converter
+from six.moves.urllib.parse import urlparse
+from .absolute_path_converter import AbsolutePathConverter
 
 #########################################
 # Flask Blueprint
 #########################################
 def register_converter(state):
-  state.app.url_map.converters["base64"] = Base64Converter
+  state.app.url_map.converters["absolute_path"] = AbsolutePathConverter
 http_proxy_blueprint = Blueprint('httpproxy', __name__)
 http_proxy_blueprint.record_once(register_converter)
 
@@ -32,8 +33,15 @@ class HTTPTooManyRedirect(HTTPException):
   description = 'Too Many Redirects'
 
 
-@http_proxy_blueprint.route('/proxy/<base64:url>', methods=['GET'])
-def proxy_request(url):
+@http_proxy_blueprint.route('/proxy/<url_scheme>/<url_netloc>', methods=['GET'])
+@http_proxy_blueprint.route('/proxy/<url_scheme>/<url_netloc><absolute_path:url_path>', methods=['GET'])
+def proxy_request(url_scheme, url_netloc, url_path=''):
+  url = urlparse('')._replace(
+    scheme=url_scheme,
+    netloc=url_netloc,
+    path=url_path,
+    query=request.query_string.decode()
+  ).geturl()
   # Accept-Encoding ? Referer ?
   header_white_list = ["Content-Type", "Accept", "Accept-Language", "Range",
                        "If-Modified-Since", "If-None-Match", "User-Agent",
@@ -74,14 +82,14 @@ def proxy_request(url):
   except requests.exceptions.InvalidSchema:
     raise BadRequest('"url" must be http')
   except requests.exceptions.SSLError:
-    raise HTTPSSLError()
+    raise HTTPSSLError(url)
   except requests.exceptions.ConnectionError:
-    raise HTTPConnectionError()
+    raise HTTPConnectionError(url)
   except (requests.exceptions.Timeout,
           requests.exceptions.ChunkedEncodingError):
-    raise HTTPTimeout()
+    raise HTTPTimeout(url)
   except requests.exceptions.TooManyRedirects:
-    raise HTTPTooManyRedirect()
+    raise HTTPTooManyRedirect(url)
 #  data=request.stream,
   proxy_response_headers = {
       # If content type is not present, set it to blob/binary

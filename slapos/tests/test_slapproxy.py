@@ -783,9 +783,9 @@ class TestRequest(MasterMixin):
         self.id(),
         'slappart0',
         shared=True,
-        partition_parameter_kw={'url': 'https://[::1]:123/', })
+        partition_parameter_kw={'url': 'https://[::1]:123/my/path?my=query&string=value#myanchor', })
     self.assertEqual(
-        'http://localhost/http_proxy/proxy/aHR0cHM6Ly9bOjoxXToxMjMv',
+        'http://localhost/http_proxy/https/%5B::1%5D:123/my/path?my=query&string=value#myanchor',
         request.getConnectionParameterDict()['secure_access'])
     self.assertEqual(
         'localhost',

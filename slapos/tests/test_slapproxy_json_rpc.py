@@ -297,3 +297,39 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     }
     data_result = json.loads(response.data)
     assert data_result == expect_result_dict, response.data
+
+  #######################################################
+  # slapos.allDocs.v0.compute_node_instance_list
+  #######################################################
+  def test_allDocs_v0_compute_node_instance_list(self):
+    self.format_for_number_of_partitions(1)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      }
+    )
+
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_instance_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'result_list': [{
+          'title': 'MyFirstInstance',
+          'instance_guid': 'MyFirstInstance___',
+          'state': 'started',
+          'compute_partition_id': 'slappart0',
+          'software_release_uri': 'http://sr//'
+        }]
+    }
+    data_result = json.loads(response.data)
+    assert data_result == expect_result_dict, response.data

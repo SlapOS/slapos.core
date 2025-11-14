@@ -62,7 +62,7 @@ if (state == 'suspended') and \
       ):
         if other_item.getValidationState() not in ['invalidated', 'archived']:
           can_invalidate_project = False
-          subscribed_item_list.append(other_item)
+          subscribed_item_list.append(other_item) # pylint: disable=modified-iterating-list
       if can_invalidate_project:
         subscribed_item.invalidate(comment='Not paid')
 

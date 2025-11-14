@@ -21,6 +21,35 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     assert json.loads(response.data) == expect_result_dict, response.data
 
   #######################################################
+  # compute_node_software_installation_list
+  #######################################################
+  def test_allDocs_v0_compute_node_software_installation_list(self):
+    self.format_for_number_of_partitions(0)
+    software_release_url = 'https://mysoft'
+    self.app.post('/supplySupply', data={
+      'url': software_release_url,
+      'computer_id': self.computer_id,
+      'state': 'available'
+    })
+
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_software_installation_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        "result_list": [{
+          "software_release_uri": software_release_url,
+          "state": "available"
+        }]
+    }
+    assert json.loads(response.data) == expect_result_dict, response.data
+
+  #######################################################
   # Software Instance
   #######################################################
   def test_post_v0_software_instance__no_partition(self):
@@ -242,7 +271,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
       }
     )
 
-    # assert response.status_code == 200, response.status_code
+    assert response.status_code == 200, response.status_code
     assert response.content_type == 'application/json', \
         response.content_type
     expect_result_dict = {

@@ -4,6 +4,50 @@ import unittest
 import json
 
 class JsonRpcTestCase(BasicMixin, unittest.TestCase):
+  #######################################################
+  # Get hateoas url
+  #######################################################
+  def test_post_v0_hateoas_url(self):
+    response = self.app.post(
+      '/slapos.get.v0.hateoas_url',
+      json={}
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        "hateoas_url": "http://localhost/hateoas/"
+    }
+    assert json.loads(response.data) == expect_result_dict, response.data
+
+  #######################################################
+  # compute_node_software_installation_list
+  #######################################################
+  def test_allDocs_v0_compute_node_software_installation_list(self):
+    self.format_for_number_of_partitions(0)
+    software_release_url = 'https://mysoft'
+    self.app.post('/supplySupply', data={
+      'url': software_release_url,
+      'computer_id': self.computer_id,
+      'state': 'available'
+    })
+
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_software_installation_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        "result_list": [{
+          "software_release_uri": software_release_url,
+          "state": "available"
+        }]
+    }
+    assert json.loads(response.data) == expect_result_dict, response.data
 
   #######################################################
   # Software Instance
@@ -45,7 +89,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyFirstInstance',
-        'instance_guid': 'MyFirstInstance___',
+        'instance_guid': 'MyFirstInstance______0',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -96,7 +140,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyFirstInstance',
-        'instance_guid': 'MyFirstInstance___',
+        'instance_guid': 'MyFirstInstance______0',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -148,7 +192,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MySharedInstance',
-        'instance_guid': 'MySharedInstance___',
+        'instance_guid': 'MySharedInstance______1',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -192,7 +236,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MySharedInstance',
-        'instance_guid': 'MySharedInstance___',
+        'instance_guid': 'MySharedInstance______1',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -227,12 +271,12 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
       }
     )
 
-    # assert response.status_code == 200, response.status_code
+    assert response.status_code == 200, response.status_code
     assert response.content_type == 'application/json', \
         response.content_type
     expect_result_dict = {
         'title': 'MyCDNInstance',
-        'instance_guid': 'MyCDNInstance___',
+        'instance_guid': 'MyCDNInstance______1',
         'software_release_uri': 'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
         'software_type': 'default',
         'state': 'started',
@@ -252,4 +296,110 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'access_status_message': ""
     }
     data_result = json.loads(response.data)
+    assert data_result == expect_result_dict, response.data
+
+  #######################################################
+  # slapos.allDocs.v0.compute_node_instance_list
+  #######################################################
+  def test_allDocs_v0_compute_node_instance_list(self):
+    self.format_for_number_of_partitions(1)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      }
+    )
+
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_instance_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'result_list': [{
+          'title': 'MyFirstInstance',
+          'instance_guid': 'MyFirstInstance______0',
+          'state': 'started',
+          'compute_partition_id': 'slappart0',
+          'software_release_uri': 'http://sr//'
+        }]
+    }
+    data_result = json.loads(response.data)
+    assert data_result == expect_result_dict, response.data
+
+  #######################################################
+  # slapos.get.v0.software_instance
+  #######################################################
+  def test_get_v0_software_instance__not_instance(self):
+    response = self.app.post(
+      '/slapos.get.v0.software_instance',
+      json={
+        'instance_guid': 'foo'
+      }
+    )
+    assert response.status_code == 403, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'status': 403,
+        'type': 'Forbidden',
+        'title': 'instance_guid foo not handled.'
+    }
+    data_result = json.loads(response.data)
+    assert data_result == expect_result_dict, response.data
+
+  def test_get_v0_software_instance__matching_instance(self):
+    self.format_for_number_of_partitions(1)
+    response_dict = json.loads(self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar'
+      }
+    ).data)
+
+    self.app.post('/setComputerPartitionConnectionXml', data={
+        'computer_id': response_dict['computer_guid'],
+        'computer_partition_id': response_dict['compute_partition_id'],
+        'connection_xml': dumps({'foo': 'bar'})
+    })
+
+    # Get updated information for the partition
+    response = self.app.post(
+      '/slapos.get.v0.software_instance',
+      json={
+        'instance_guid': 'MyFirstInstance______0'
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'title': 'MyFirstInstance',
+        'instance_guid': 'MyFirstInstance______0',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'state': 'started',
+        'connection_parameters': {'foo': 'bar'},
+        'parameters': {},
+        'shared': False,
+        'root_instance_title': 'MyFirstInstance',
+        'ip_list': [["tap0", "1.2.3.4"], ["tap0", "4.3.2.1"]],
+        'full_ip_list': [],
+        'sla_parameters': {},
+        'computer_guid': 'computer',
+        'compute_partition_id': 'slappart0',
+        'processing_timestamp': None,
+        'access_status_message': ""
+    }
+    data_result = json.loads(response.data)
+    expect_result_dict['processing_timestamp'] = data_result.get('processing_timestamp', 'unknown')
     assert data_result == expect_result_dict, response.data

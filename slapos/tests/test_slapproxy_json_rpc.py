@@ -4,6 +4,21 @@ import unittest
 import json
 
 class JsonRpcTestCase(BasicMixin, unittest.TestCase):
+  #######################################################
+  # Get hateoas url
+  #######################################################
+  def test_post_v0_hateoas_url(self):
+    response = self.app.post(
+      '/slapos.get.v0.hateoas_url',
+      json={}
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        "hateoas_url": "http://localhost/hateoas/"
+    }
+    assert json.loads(response.data) == expect_result_dict, response.data
 
   #######################################################
   # Software Instance

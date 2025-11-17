@@ -33,13 +33,13 @@
         <item>
             <key> <string>_count</string> </key>
             <value>
-              <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
+              <persistent> <bytes encoding="base64">AAAAAAAAAAI=</bytes> </persistent>
             </value>
         </item>
         <item>
             <key> <string>_identity_criterion</string> </key>
             <value>
-              <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
+              <persistent> <bytes encoding="base64">AAAAAAAAAAM=</bytes> </persistent>
             </value>
         </item>
         <item>
@@ -72,19 +72,19 @@
         <item>
             <key> <string>_mt_index</string> </key>
             <value>
-              <persistent> <string encoding="base64">AAAAAAAAAAQ=</string> </persistent>
+              <persistent> <bytes encoding="base64">AAAAAAAAAAQ=</bytes> </persistent>
             </value>
         </item>
         <item>
             <key> <string>_range_criterion</string> </key>
             <value>
-              <persistent> <string encoding="base64">AAAAAAAAAAU=</string> </persistent>
+              <persistent> <bytes encoding="base64">AAAAAAAAAAU=</bytes> </persistent>
             </value>
         </item>
         <item>
             <key> <string>_tree</string> </key>
             <value>
-              <persistent> <string encoding="base64">AAAAAAAAAAY=</string> </persistent>
+              <persistent> <bytes encoding="base64">AAAAAAAAAAY=</bytes> </persistent>
             </value>
         </item>
         <item>
@@ -100,13 +100,9 @@
             <value>
               <object>
                 <klass>
-                  <global id="1.1" name="_reconstructor" module="copy_reg"/>
+                  <global id="1.1" name="DateTime" module="DateTime.DateTime"/>
                 </klass>
-                <tuple>
-                  <global id="1.2" name="DateTime" module="DateTime.DateTime"/>
-                  <global id="1.3" name="object" module="__builtin__"/>
-                  <none/>
-                </tuple>
+                <tuple/>
                 <state>
                   <tuple>
                     <float>1321916400.0</float>
@@ -171,11 +167,7 @@
             <value>
               <object>
                 <klass> <reference id="1.1"/> </klass>
-                <tuple>
-                  <reference id="1.2"/>
-                  <reference id="1.3"/>
-                  <none/>
-                </tuple>
+                <tuple/>
                 <state>
                   <tuple>
                     <float>1322002800.0</float>
@@ -214,7 +206,7 @@
         <item>
             <key> <string>workflow_history</string> </key>
             <value>
-              <persistent> <string encoding="base64">AAAAAAAAAAc=</string> </persistent>
+              <persistent> <bytes encoding="base64">AAAAAAAAAAc=</bytes> </persistent>
             </value>
         </item>
       </dictionary>
@@ -294,13 +286,13 @@
                 <item>
                     <key> <string>edit_workflow</string> </key>
                     <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAg=</string> </persistent>
+                      <persistent> <bytes encoding="base64">AAAAAAAAAAg=</bytes> </persistent>
                     </value>
                 </item>
                 <item>
                     <key> <string>rule_validation_workflow</string> </key>
                     <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAk=</string> </persistent>
+                      <persistent> <bytes encoding="base64">AAAAAAAAAAk=</bytes> </persistent>
                     </value>
                 </item>
               </dictionary>
@@ -351,13 +343,9 @@
                       <value>
                         <object>
                           <klass>
-                            <global id="8.1" name="_reconstructor" module="copy_reg"/>
+                            <global id="8.1" name="DateTime" module="DateTime.DateTime"/>
                           </klass>
-                          <tuple>
-                            <global id="8.2" name="DateTime" module="DateTime.DateTime"/>
-                            <global id="8.3" name="object" module="__builtin__"/>
-                            <none/>
-                          </tuple>
+                          <tuple/>
                           <state>
                             <tuple>
                               <float>1321977118.11</float>
@@ -400,11 +388,7 @@
                       <value>
                         <object>
                           <klass> <reference id="8.1"/> </klass>
-                          <tuple>
-                            <reference id="8.2"/>
-                            <reference id="8.3"/>
-                            <none/>
-                          </tuple>
+                          <tuple/>
                           <state>
                             <tuple>
                               <float>1321977135.19</float>
@@ -447,11 +431,7 @@
                       <value>
                         <object>
                           <klass> <reference id="8.1"/> </klass>
-                          <tuple>
-                            <reference id="8.2"/>
-                            <reference id="8.3"/>
-                            <none/>
-                          </tuple>
+                          <tuple/>
                           <state>
                             <tuple>
                               <float>1322042014.96</float>
@@ -494,11 +474,7 @@
                       <value>
                         <object>
                           <klass> <reference id="8.1"/> </klass>
-                          <tuple>
-                            <reference id="8.2"/>
-                            <reference id="8.3"/>
-                            <none/>
-                          </tuple>
+                          <tuple/>
                           <state>
                             <tuple>
                               <float>1324291662.95</float>
@@ -541,11 +517,7 @@
                       <value>
                         <object>
                           <klass> <reference id="8.1"/> </klass>
-                          <tuple>
-                            <reference id="8.2"/>
-                            <reference id="8.3"/>
-                            <none/>
-                          </tuple>
+                          <tuple/>
                           <state>
                             <tuple>
                               <float>1324296120.44</float>
@@ -586,11 +558,7 @@
                       <value>
                         <object>
                           <klass> <reference id="8.1"/> </klass>
-                          <tuple>
-                            <reference id="8.2"/>
-                            <reference id="8.3"/>
-                            <none/>
-                          </tuple>
+                          <tuple/>
                           <state>
                             <tuple>
                               <float>1328869848.26</float>
@@ -633,11 +601,7 @@
                       <value>
                         <object>
                           <klass> <reference id="8.1"/> </klass>
-                          <tuple>
-                            <reference id="8.2"/>
-                            <reference id="8.3"/>
-                            <none/>
-                          </tuple>
+                          <tuple/>
                           <state>
                             <tuple>
                               <float>1352812174.58</float>
@@ -680,11 +644,7 @@
                       <value>
                         <object>
                           <klass> <reference id="8.1"/> </klass>
-                          <tuple>
-                            <reference id="8.2"/>
-                            <reference id="8.3"/>
-                            <none/>
-                          </tuple>
+                          <tuple/>
                           <state>
                             <tuple>
                               <float>1352812175.49</float>
@@ -727,11 +687,7 @@
                       <value>
                         <object>
                           <klass> <reference id="8.1"/> </klass>
-                          <tuple>
-                            <reference id="8.2"/>
-                            <reference id="8.3"/>
-                            <none/>
-                          </tuple>
+                          <tuple/>
                           <state>
                             <tuple>
                               <float>1352812175.56</float>
@@ -774,11 +730,7 @@
                       <value>
                         <object>
                           <klass> <reference id="8.1"/> </klass>
-                          <tuple>
-                            <reference id="8.2"/>
-                            <reference id="8.3"/>
-                            <none/>
-                          </tuple>
+                          <tuple/>
                           <state>
                             <tuple>
                               <float>1352812175.59</float>
@@ -821,11 +773,7 @@
                       <value>
                         <object>
                           <klass> <reference id="8.1"/> </klass>
-                          <tuple>
-                            <reference id="8.2"/>
-                            <reference id="8.3"/>
-                            <none/>
-                          </tuple>
+                          <tuple/>
                           <state>
                             <tuple>
                               <float>1352988484.6</float>
@@ -872,13 +820,9 @@
                 <value>
                   <object>
                     <klass>
-                      <global id="9.1" name="_reconstructor" module="copy_reg"/>
+                      <global id="9.1" name="DateTime" module="DateTime.DateTime"/>
                     </klass>
-                    <tuple>
-                      <global id="9.2" name="DateTime" module="DateTime.DateTime"/>
-                      <global id="9.3" name="object" module="__builtin__"/>
-                      <none/>
-                    </tuple>
+                    <tuple/>
                     <state>
                       <tuple>
                         <float>1321977511.91</float>
@@ -915,11 +859,7 @@
                 <value>
                   <object>
                     <klass> <reference id="9.1"/> </klass>
-                    <tuple>
-                      <reference id="9.2"/>
-                      <reference id="9.3"/>
-                      <none/>
-                    </tuple>
+                    <tuple/>
                     <state>
                       <tuple>
                         <float>1321977511.91</float>

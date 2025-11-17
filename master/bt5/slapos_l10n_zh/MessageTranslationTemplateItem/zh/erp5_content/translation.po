@@ -1,22 +1,1528 @@
 msgid ""
-msgstr ""
-"Project-Id-Version: ERP5 Localized Content\n"
-"POT-Creation-Date: 2017-02-08 17:02+UTC\n"
-"PO-Revision-Date: 2017-02-08 17:02+UTC\n"
+msgstr "Project-Id-Version: ERP5 Localized Content\n"
+"POT-Creation-Date: 2025-11-14 23:11+UTC\n"
+"PO-Revision-Date: 2025-11-14 23:11+UTC\n"
 "Last-Translator:  <>\n"
 "Language-Team: zh <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+
+msgid "(Compte réservé, le cas échéant, au regroupement des frais accessoires incorporés aux achats)"
+msgstr ""
+
+msgid "(Compte à la disposition des entités pour enregistrer, en cours d'exercice, les charges sur exercices antérieurs)"
+msgstr ""
+
+msgid "(Compte à la disposition des entités pour enregistrer, en cours d'exercice, les produits sur exercices antérieurs)"
+msgstr ""
+
+msgid "(Compte à ouvrir, le cas échéant, sous l'intitulé « Stocks provenant d'immobilisations »)"
+msgstr ""
+
+msgid "(Le compte 38 peut être utilisé pour comptabiliser les stocks en voie d'acheminement, mis en dépôt ou donnés en consignation)"
+msgstr ""
+
+msgid "*"
+msgstr ""
+
+msgid "1 Core"
+msgstr ""
+
+msgid "1 GB"
+msgstr ""
+
+msgid "1 GB RAM"
+msgstr ""
+
+msgid "1 Gbps"
+msgstr ""
+
+msgid "1 Gbps Ethernet"
+msgstr ""
+
+msgid "1 Gbps Fiber"
+msgstr ""
+
+msgid "1 Mbps"
+msgstr ""
+
+msgid "1 Mbps ADSL"
+msgstr ""
+
+msgid "1 TB"
+msgstr ""
+
+msgid "1 TB Storage Capacity"
+msgstr ""
+
+msgid "1.5 TB"
+msgstr ""
+
+msgid "1.5 TB Storage Capacity"
+msgstr ""
+
+msgid "10 GB"
+msgstr ""
+
+msgid "10 GB Storage Capacity"
+msgstr ""
+
+msgid "10 Gbps Ethernet"
+msgstr ""
+
+msgid "10 Mbps"
+msgstr ""
+
+msgid "10 Mbps Cable"
+msgstr ""
+
+msgid "10 Mbps Ethernet"
+msgstr ""
+
+msgid "10 Mbps Fiber"
+msgstr ""
+
+msgid "10,000 rpm"
+msgstr ""
+
+msgid "100 GB"
+msgstr ""
+
+msgid "100 GB Storage Capacity"
+msgstr ""
+
+msgid "100 Gbps Ethernet"
+msgstr ""
+
+msgid "100 Mbps"
+msgstr ""
+
+msgid "100 Mbps Cable"
+msgstr ""
+
+msgid "100 Mbps Ethernet"
+msgstr ""
+
+msgid "100 Mbps Fiber"
+msgstr ""
+
+msgid "1000"
+msgstr ""
+
+msgid "1000 MHz"
+msgstr ""
+
+msgid "1066 Mhz"
+msgstr ""
+
+msgid "1100"
+msgstr ""
+
+msgid "1100 MHz"
+msgstr ""
+
+msgid "12 GB"
+msgstr ""
+
+msgid "12 GB RAM"
+msgstr ""
+
+msgid "1200"
+msgstr ""
+
+msgid "1200 MHz"
+msgstr ""
+
+msgid "128 GB"
+msgstr ""
+
+msgid "128 GB RAM"
+msgstr ""
+
+msgid "128 GB Storage Capacity"
+msgstr ""
+
+msgid "1300"
+msgstr ""
+
+msgid "1300 MHz"
+msgstr ""
+
+msgid "1333 Mhz"
+msgstr ""
+
+msgid "1400"
+msgstr ""
+
+msgid "1400 MHz"
+msgstr ""
+
+msgid "15,000 rpm"
+msgstr ""
+
+msgid "1500"
+msgstr ""
+
+msgid "1500 MHz"
+msgstr ""
+
+msgid "16 Cores"
+msgstr ""
+
+msgid "16 GB"
+msgstr ""
+
+msgid "16 GB RAM"
+msgstr ""
+
+msgid "16 GB Storage Capacity"
+msgstr ""
+
+msgid "160 GB"
+msgstr ""
+
+msgid "160 GB Storage Capacity"
+msgstr ""
+
+msgid "1600"
+msgstr ""
+
+msgid "1600 MHz"
+msgstr ""
+
+msgid "1600 Mhz"
+msgstr ""
+
+msgid "1700"
+msgstr ""
+
+msgid "1700 MHz"
+msgstr ""
+
+msgid "1800"
+msgstr ""
+
+msgid "1800 MHz"
+msgstr ""
+
+msgid "1866 Mhz"
+msgstr ""
+
+msgid "1900"
+msgstr ""
+
+msgid "1900 MHz"
+msgstr ""
+
+msgid "196 GB"
+msgstr ""
+
+msgid "196 GB RAM"
+msgstr ""
+
+msgid "2 GB"
+msgstr ""
+
+msgid "2 GB RAM"
+msgstr ""
+
+msgid "2 Mbps"
+msgstr ""
+
+msgid "2 Mbps ADSL"
+msgstr ""
+
+msgid "2 TB"
+msgstr ""
+
+msgid "2 TB Storage Capacity"
+msgstr ""
+
+msgid "20 GB"
+msgstr ""
+
+msgid "20 GB Storage Capacity"
+msgstr ""
+
+msgid "20 Mbps"
+msgstr ""
+
+msgid "20 Mbps Cable"
+msgstr ""
+
+msgid "200 GB"
+msgstr ""
+
+msgid "200 GB Storage Capacity"
+msgstr ""
+
+msgid "2000"
+msgstr ""
+
+msgid "2000 MHz"
+msgstr ""
+
+msgid "2100"
+msgstr ""
+
+msgid "2100 MHz"
+msgstr ""
+
+msgid "2133 Mhz"
+msgstr ""
+
+msgid "2200"
+msgstr ""
+
+msgid "2200 MHz"
+msgstr ""
+
+msgid "2300"
+msgstr ""
+
+msgid "2300 MHz"
+msgstr ""
+
+msgid "24 Cores"
+msgstr ""
+
+msgid "24 GB"
+msgstr ""
+
+msgid "24 GB RAM"
+msgstr ""
+
+msgid "24 Mbps"
+msgstr ""
+
+msgid "24 Mbps ADSL"
+msgstr ""
+
+msgid "2400"
+msgstr ""
+
+msgid "2400 MHz"
+msgstr ""
+
+msgid "2500"
+msgstr ""
+
+msgid "2500 MHz"
+msgstr ""
+
+msgid "256 GB"
+msgstr ""
+
+msgid "256 GB RAM"
+msgstr ""
+
+msgid "2600"
+msgstr ""
+
+msgid "2600 MHz"
+msgstr ""
+
+msgid "2700"
+msgstr ""
+
+msgid "2700 MHz"
+msgstr ""
+
+msgid "2800"
+msgstr ""
+
+msgid "2800 MHz"
+msgstr ""
+
+msgid "2900"
+msgstr ""
+
+msgid "2900 MHz"
+msgstr ""
+
+msgid "300 GB"
+msgstr ""
+
+msgid "300 GB Storage Capacity"
+msgstr ""
+
+msgid "3000"
+msgstr ""
+
+msgid "3000 MHz"
+msgstr ""
+
+msgid "3100"
+msgstr ""
+
+msgid "3100 MHz"
+msgstr ""
+
+msgid "32 GB"
+msgstr ""
+
+msgid "32 GB RAM"
+msgstr ""
+
+msgid "32 GB Storage Capacity"
+msgstr ""
+
+msgid "32 bit"
+msgstr ""
+
+msgid "320 GB"
+msgstr ""
+
+msgid "320 GB Storage Capacity"
+msgstr ""
+
+msgid "3200"
+msgstr ""
+
+msgid "3200 MHz"
+msgstr ""
+
+msgid "3300"
+msgstr ""
+
+msgid "3300 MHz"
+msgstr ""
+
+msgid "3400"
+msgstr ""
+
+msgid "3400 MHz"
+msgstr ""
+
+msgid "4 Cores"
+msgstr ""
+
+msgid "4 GB"
+msgstr ""
+
+msgid "4 GB RAM"
+msgstr ""
+
+msgid "4 TB Storage Capacity"
+msgstr ""
+
+msgid "40 Cores"
+msgstr ""
+
+msgid "40 GB"
+msgstr ""
+
+msgid "40 GB Storage Capacity"
+msgstr ""
+
+msgid "40 Gbps Ethernet"
+msgstr ""
+
+msgid "400 Mhz"
+msgstr ""
+
+msgid "48 GB"
+msgstr ""
+
+msgid "48 GB RAM"
+msgstr ""
+
+msgid "486"
+msgstr ""
+
+msgid "5,400 rpm"
+msgstr ""
+
+msgid "500 GB"
+msgstr ""
+
+msgid "500 GB Storage Capacity"
+msgstr ""
+
+msgid "533 Mhz"
+msgstr ""
+
+msgid "586"
+msgstr ""
+
+msgid "600"
+msgstr ""
+
+msgid "600 MHz"
+msgstr ""
+
+msgid "64 Cores"
+msgstr ""
+
+msgid "64 GB"
+msgstr ""
+
+msgid "64 GB RAM"
+msgstr ""
+
+msgid "64 GB Storage Capacity"
+msgstr ""
+
+msgid "64 bit"
+msgstr ""
+
+msgid "667 Mhz"
+msgstr ""
+
+msgid "686"
+msgstr ""
+
+msgid "7,200 rpm"
+msgstr ""
+
+msgid "700"
+msgstr ""
+
+msgid "700 MHz"
+msgstr ""
+
+msgid "750 GB"
+msgstr ""
+
+msgid "750 GB Storage Capacity"
+msgstr ""
+
+msgid "8 Cores"
+msgstr ""
+
+msgid "8 GB RAM"
+msgstr ""
+
+msgid "8 Mbps"
+msgstr ""
+
+msgid "8 Mbps ADSL"
+msgstr ""
+
+msgid "8 Mbps SDSL"
+msgstr ""
+
+msgid "80 GB"
+msgstr ""
+
+msgid "80 GB Storage Capacity"
+msgstr ""
+
+msgid "800"
+msgstr ""
+
+msgid "800 MHz"
+msgstr ""
+
+msgid "800 Mhz"
+msgstr ""
+
+msgid "801.11b Wifi"
+msgstr ""
+
+msgid "802.11b"
+msgstr ""
+
+msgid "802.11g"
+msgstr ""
+
+msgid "802.11g Wifi"
+msgstr ""
+
+msgid "802.11n"
+msgstr ""
+
+msgid "802.11n Wifi"
+msgstr ""
+
+msgid "8GB"
+msgstr ""
+
+msgid "8GB Storage Capacity"
+msgstr ""
+
+msgid "900"
+msgstr ""
+
+msgid "900 MHz"
+msgstr ""
+
+msgid "96 GB"
+msgstr ""
+
+msgid "96 GB RAM"
+msgstr ""
+
+msgid "ADSL"
+msgstr ""
+
+msgid "ARM"
+msgstr ""
+
+msgid "ARM11"
+msgstr ""
+
+msgid "ARM7"
+msgstr ""
+
+msgid "ARM9"
+msgstr ""
+
 msgid "About us"
 msgstr "关于我们"
+
+msgid "AcceptSolver"
+msgstr ""
+
+msgid "Account"
+msgstr ""
+
+msgid "Account module"
+msgstr ""
+
+msgid "AccountConfiguratorItem"
+msgstr ""
+
+msgid "AccountERP5IntegrationConduit"
+msgstr ""
+
+msgid "AccountTypeConstraint"
+msgstr ""
+
+msgid "Accounted"
+msgstr ""
 
 msgid "Accounting"
 msgstr "会计"
 
+msgid "Accounting & Finance"
+msgstr ""
+
+msgid "Accounting & Finance Manager"
+msgstr ""
+
+msgid "Accounting Agent"
+msgstr ""
+
+msgid "Accounting Manager"
+msgstr ""
+
+msgid "Accounting module"
+msgstr ""
+
+msgid "Accounting module features"
+msgstr ""
+
+msgid "Accounting, Billing and Financials"
+msgstr ""
+
+msgid "AccountingERP5IntegrationConduit"
+msgstr ""
+
+msgid "AccountingPeriodConfiguratorItem"
+msgstr ""
+
+msgid "AccountingTransaction"
+msgstr ""
+
+msgid "AccountingTransactionBalanceConstraint"
+msgstr ""
+
+msgid "AccountingTransactionLine"
+msgstr ""
+
+msgid "AccountingTransactionRootSimulationRule"
+msgstr ""
+
+msgid "Accounts Payable"
+msgstr ""
+
+msgid "Accounts Receivables"
+msgstr ""
+
+msgid "Accounts payable"
+msgstr ""
+
+msgid "Accounts receivable"
+msgstr ""
+
+msgid "Accounts receivable deprecation"
+msgstr ""
+
+msgid "Achats (sauf 603)"
+msgstr ""
+
+msgid "Achats d'études et prestations de services"
+msgstr ""
+
+msgid "Achats de marchandises"
+msgstr ""
+
+msgid "Achats de matériel, équipements et travaux"
+msgstr ""
+
+msgid "Achats non stockés de matière et fournitures"
+msgstr ""
+
+msgid "Achats stockés - Autres approvisionnements"
+msgstr ""
+
+msgid "Achats stockés - Matières premières et fournitures"
+msgstr ""
+
+msgid "Acknowledgement"
+msgstr ""
+
+msgid "AcknowledgementTool"
+msgstr ""
+
+msgid "Acomptes - Régime simplifié d'imposition"
+msgstr ""
+
+msgid "Acomptes sur dividendes"
+msgstr ""
+
+msgid "Actionnaires - Capital souscrit et appelé, non versé"
+msgstr ""
+
+msgid "Actionnaires : capital souscrit - non appelé"
+msgstr ""
+
+msgid "Actionnaires défaillants"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "Actions destinées à être attribuées aux employés et affectées à des plans déterminés"
+msgstr ""
+
+msgid "Actions disponibles pour être attribuées aux employés ou pour la régularisation des cours de bourse"
+msgstr ""
+
+msgid "Actions propres"
+msgstr ""
+
+msgid "Actions propres ou parts propres"
+msgstr ""
+
+msgid "Actions propres ou parts propres en voie d’annulation"
+msgstr ""
+
+msgid "Active"
+msgstr ""
+
+msgid "Active Network Hardware"
+msgstr ""
+
+msgid "Activities of membership organizations"
+msgstr ""
+
+msgid "Activities of private households"
+msgstr ""
+
+msgid "Admin"
+msgstr ""
+
 msgid "Administration"
 msgstr "行政机构"
+
+msgid "Administrative Support"
+msgstr ""
+
+msgid "AdoptSolver"
+msgstr ""
+
+msgid "AdvancedPurchaseTradeConditionConfiguratorItem"
+msgstr ""
+
+msgid "AdvancedSaleTradeConditionConfiguratorItem"
+msgstr ""
+
+msgid "Advertisement"
+msgstr ""
+
+msgid "Advertising"
+msgstr ""
+
+msgid "Advertising Material"
+msgstr ""
+
+msgid "Advertisment"
+msgstr ""
+
+msgid "Afghan"
+msgstr ""
+
+msgid "Afghanistan"
+msgstr ""
+
+msgid "Africa"
+msgstr ""
+
+msgid "Agencements et aménagements de terrains"
+msgstr ""
+
+msgid "Agencements et aménagements de terrains (même ventilation que celle du compte 211)"
+msgstr ""
+
+msgid "Agencements et aménagements des matériels et outillages industriels"
+msgstr ""
+
+msgid "Agencements, aménagements de terrains (même ventilation que celle du compte 212)"
+msgstr ""
+
+msgid "Agent"
+msgstr ""
+
+msgid "AgentPrivilege"
+msgstr ""
+
+msgid "Agriculture & Hunting"
+msgstr ""
+
+msgid "Agriculture & forestry"
+msgstr ""
+
+msgid "Agriculture & hunting"
+msgstr ""
+
+msgid "Air transport"
+msgstr ""
+
+msgid "AlarmConfiguratorItem"
+msgstr ""
+
+msgid "Albania"
+msgstr ""
+
+msgid "Albanian"
+msgstr ""
+
+msgid "Alerts"
+msgstr ""
+
+msgid "Algeria"
+msgstr ""
+
+msgid "Algerian"
+msgstr ""
+
+msgid "Allocations logement"
+msgstr ""
+
+msgid "Amazon group"
+msgstr ""
+
+msgid "American Samoa"
+msgstr ""
+
+msgid "American Samoan"
+msgstr ""
+
+msgid "American; US citizen"
+msgstr ""
+
+msgid "Americas"
+msgstr ""
+
+msgid "AmortisationRule"
+msgstr ""
+
+msgid "Amortissement du mali de fusion sur actifs corporels"
+msgstr ""
+
+msgid "Amortissements des immobilisations"
+msgstr ""
+
+msgid "Amortissements des immobilisations corporelles (même ventilation que celle du compte 21)"
+msgstr ""
+
+msgid "Amortissements des immobilisations incorporelles et des frais d’établissement (même ventilation que celle du compte 20)"
+msgstr ""
+
+msgid "Amortissements des immobilisations mises en concession"
+msgstr ""
+
+msgid "Amortissements dérogatoires"
+msgstr ""
+
+msgid "Amount"
+msgstr ""
+
+msgid "Amount Non Subject To Contribution"
+msgstr ""
+
+msgid "AmountGeneratorLine"
+msgstr ""
+
+msgid "AmountGeneratorMixin"
+msgstr ""
+
+msgid "Analysis"
+msgstr ""
+
+msgid "Andorra"
+msgstr ""
+
+msgid "Andorran"
+msgstr ""
+
+msgid "Angola"
+msgstr ""
+
+msgid "Angolan"
+msgstr ""
+
+msgid "Anguilla"
+msgstr ""
+
+msgid "Anguillan"
+msgstr ""
+
+msgid "Annonces et insertions"
+msgstr ""
+
+msgid "Announcement"
+msgstr ""
+
+msgid "Antigua and Barbuda"
+msgstr ""
+
+msgid "Antiguan"
+msgstr ""
+
+msgid "Antiguan; Barbudian"
+msgstr ""
+
+msgid "Antillean"
+msgstr ""
+
+msgid "Apparel and Luggage and Personal Care Products"
+msgstr ""
+
+msgid "Application"
+msgstr ""
+
+msgid "AppliedRule"
+msgstr ""
+
+msgid "Apporteurs - Capital appelé, non versé"
+msgstr ""
+
+msgid "Apports en nature"
+msgstr ""
+
+msgid "Apports en numéraire"
+msgstr ""
+
+msgid "Archived"
+msgstr ""
+
+msgid "Area"
+msgstr ""
+
+msgid "Argentina"
+msgstr ""
+
+msgid "Argentinian"
+msgstr ""
+
+msgid "Armenia"
+msgstr ""
+
+msgid "Armenian"
+msgstr ""
+
+msgid "Aruba"
+msgstr ""
+
+msgid "Aruban"
+msgstr ""
+
+msgid "Asia"
+msgstr ""
+
+msgid "Ask Confirmation"
+msgstr ""
+
+msgid "Asset"
+msgstr ""
+
+msgid "Assignment"
+msgstr ""
+
+msgid "Associate"
+msgstr ""
+
+msgid "Associés - Capital appelé, non versé"
+msgstr ""
+
+msgid "Associés - Capital à rembourser"
+msgstr ""
+
+msgid "Associés - Comptes courants"
+msgstr ""
+
+msgid "Associés - Comptes d'apport en société"
+msgstr ""
+
+msgid "Associés - Dividendes à payer"
+msgstr ""
+
+msgid "Associés - Opérations faites en commun et en GIE"
+msgstr ""
+
+msgid "Associés - Opérations sur le capital"
+msgstr ""
+
+msgid "Associés - Versements anticipés"
+msgstr ""
+
+msgid "Associés - Versements reçus sur augmentation de capital"
+msgstr ""
+
+msgid "AssortedResource"
+msgstr ""
+
+msgid "Assurance - transport"
+msgstr ""
+
+msgid "Assurance obligatoire dommage construction"
+msgstr ""
+
+msgid "Asynchronous"
+msgstr ""
+
+msgid "Atlantic.net group"
+msgstr ""
+
+msgid "Audit"
+msgstr ""
+
+msgid "Augmentation des créances"
+msgstr ""
+
+msgid "Augmentation des dettes"
+msgstr ""
+
+msgid "Australia"
+msgstr ""
+
+msgid "Australia & New Zealand"
+msgstr ""
+
+msgid "Australian"
+msgstr ""
+
+msgid "Austria"
+msgstr ""
+
+msgid "Austrian"
+msgstr ""
+
+msgid "Authentication Accepted"
+msgstr ""
+
+msgid "Automated"
+msgstr ""
+
+msgid "Automatic"
+msgstr ""
+
+msgid "Autres"
+msgstr ""
+
+msgid "Autres approvisionnements"
+msgstr ""
+
+msgid "Autres charges de gestion courante"
+msgstr ""
+
+msgid "Autres charges de personnel"
+msgstr ""
+
+msgid "Autres charges exceptionnelles"
+msgstr ""
+
+msgid "Autres charges financières"
+msgstr ""
+
+msgid "Autres charges à payer"
+msgstr ""
+
+msgid "Autres comptes débiteurs"
+msgstr ""
+
+msgid "Autres comptes transitoires"
+msgstr ""
+
+msgid "Autres cotisations sociales"
+msgstr ""
+
+msgid "Autres créances immobilisées"
+msgstr ""
+
+msgid "Autres créances rattachées à des participations"
+msgstr ""
+
+msgid "Autres dettes"
+msgstr ""
+
+msgid "Autres droits"
+msgstr ""
+
+msgid "Autres droits et valeurs similaires"
+msgstr ""
+
+msgid "Autres emprunts"
+msgstr ""
+
+msgid "Autres emprunts et dettes assimilées"
+msgstr ""
+
+msgid "Autres emprunts obligataires"
+msgstr ""
+
+msgid "Autres engagements donnés."
+msgstr ""
+
+msgid "Autres engagements reçus"
+msgstr ""
+
+msgid "Autres formes de participation"
+msgstr ""
+
+msgid "Autres frais et commissions sur prestations de services"
+msgstr ""
+
+msgid "Autres immobilisations corporelles"
+msgstr ""
+
+msgid "Autres immobilisations corporelles (même ventilation que celle du compte 218)"
+msgstr ""
+
+msgid "Autres immobilisations financières"
+msgstr ""
+
+msgid "Autres immobilisations incorporelles"
+msgstr ""
+
+msgid "Autres impôts locaux"
+msgstr ""
+
+msgid "Autres impôts, taxes et versements assimilés"
+msgstr ""
+
+msgid "Autres impôts, taxes et versements assimilés (administrations des impôts)"
+msgstr ""
+
+msgid "Autres impôts, taxes et versements assimilés (autres organismes)"
+msgstr ""
+
+msgid "Autres matières et fournitures"
+msgstr ""
+
+msgid "Autres organismes financiers"
+msgstr ""
+
+msgid "Autres organismes sociaux"
+msgstr ""
+
+msgid "Autres produits d'activités annexes (cessions d'approvisionnements)"
+msgstr ""
+
+msgid "Autres produits de gestion courante"
+msgstr ""
+
+msgid "Autres produits exceptionnels"
+msgstr ""
+
+msgid "Autres produits financiers"
+msgstr ""
+
+msgid "Autres provisions pour charges"
+msgstr ""
+
+msgid "Autres provisions pour risques"
+msgstr ""
+
+msgid "Autres provisions réglementées"
+msgstr ""
+
+msgid "Autres prêts"
+msgstr ""
+
+msgid "Autres réserves"
+msgstr ""
+
+msgid "Autres services extérieurs"
+msgstr ""
+
+msgid "Autres titres"
+msgstr ""
+
+msgid "Autres titres conférant un droit de propriété"
+msgstr ""
+
+msgid "Autres valeurs mobilières"
+msgstr ""
+
+msgid "Autres valeurs mobilières de placement et autres créances assimilées"
+msgstr ""
+
+msgid "Autres valeurs mobilières de placement et créances assimilées"
+msgstr ""
+
+msgid "Auxiliary activities"
+msgstr ""
+
+msgid "Avals, cautions, garanties"
+msgstr ""
+
+msgid "Avances conditionnées de l'État"
+msgstr ""
+
+msgid "Avances consolidables"
+msgstr ""
+
+msgid "Avances et acomptes versés sur commandes d'immobilisations corporelles"
+msgstr ""
+
+msgid "Avances et acomptes versés sur commandes d'immobilisations incorporelles"
+msgstr ""
+
+msgid "Azerbaijan"
+msgstr ""
+
+msgid "Azerbaijani"
+msgstr ""
+
+msgid "BI"
+msgstr ""
+
+msgid "BTreeData"
+msgstr ""
+
+msgid "BV Islander"
+msgstr ""
+
+msgid "Backup"
+msgstr ""
+
+msgid "Backup Software"
+msgstr ""
+
+msgid "Bahamas"
+msgstr ""
+
+msgid "Bahamian"
+msgstr ""
+
+msgid "Bahrain"
+msgstr ""
+
+msgid "Bahraini"
+msgstr ""
+
+msgid "BalanceTransaction"
+msgstr ""
+
+msgid "BalanceTransactionLine"
+msgstr ""
+
+msgid "Bangladesh"
+msgstr ""
+
+msgid "Bangladeshi"
+msgstr ""
+
+msgid "Bank"
+msgstr ""
+
+msgid "Bank Account"
+msgstr ""
+
+msgid "BankAccount"
+msgstr ""
+
+msgid "BankAccountConfiguratorItem"
+msgstr ""
+
+msgid "Banques"
+msgstr ""
+
+msgid "Banques, établissements financiers et assimilés"
+msgstr ""
+
+msgid "Barbadian"
+msgstr ""
+
+msgid "Barbados"
+msgstr ""
+
+msgid "BarcodeUtils"
+msgstr ""
+
+msgid "Base"
+msgstr ""
+
+msgid "Base Application"
+msgstr ""
+
+msgid "Base CSG déductible"
+msgstr ""
+
+msgid "Base CSG déductible heures supplémentaires"
+msgstr ""
+
+msgid "Base CSG non déductible"
+msgstr ""
+
+msgid "Base CSG non déductible PEE"
+msgstr ""
+
+msgid "Base Contribution"
+msgstr ""
+
+msgid "Base Salary"
+msgstr ""
+
+msgid "Base de calcul des cotisations"
+msgstr ""
+
+msgid "Base de calcul import revenu"
+msgstr ""
+
+msgid "Base fixe de calcul"
+msgstr ""
+
+msgid "Base prévoyance"
+msgstr ""
+
+msgid "Base réduction patronales"
+msgstr ""
+
+msgid "Base réduction salariales"
+msgstr ""
+
+msgid "BaseConduit"
+msgstr ""
+
+msgid "BaseConvertableFileMixin"
+msgstr ""
+
+msgid "BaseDomain"
+msgstr ""
+
+msgid "BaseExtensibleTraversableMixin"
+msgstr ""
+
+msgid "BaseMigration"
+msgstr ""
+
+msgid "BaseVariantMovementGroup"
+msgstr ""
+
+msgid "Basic Metal"
+msgstr ""
+
+msgid "Basotho"
+msgstr ""
+
+msgid "Batch Ingestion"
+msgstr ""
+
+msgid "BearerToken"
+msgstr ""
+
+msgid "Become ERP5 Tiolive Consultant"
+msgstr ""
+
+msgid "Become Tiolive Certified Consultant"
+msgstr ""
+
+msgid "Belarus"
+msgstr ""
+
+msgid "Belarusian"
+msgstr ""
+
+msgid "Belgian"
+msgstr ""
+
+msgid "Belgium"
+msgstr ""
+
+msgid "Belize"
+msgstr ""
+
+msgid "Belizean"
+msgstr ""
+
+msgid "Benin"
+msgstr ""
+
+msgid "Beninese"
+msgstr ""
+
+msgid "Bermuda"
+msgstr ""
+
+msgid "Bermudian"
+msgstr ""
+
+msgid "Bhutan"
+msgstr ""
+
+msgid "Bhutanese"
+msgstr ""
+
+msgid "Biens et prestations de services échangés entre établissements - charges"
+msgstr ""
+
+msgid "Biens et prestations de services échangés entre établissements - produits"
+msgstr ""
+
+msgid "Big Data"
+msgstr ""
+
+msgid "BigFile"
+msgstr ""
+
+msgid "Bilan"
+msgstr ""
+
+msgid "Bilan d'ouverture"
+msgstr ""
+
+msgid "Bilan de clôture"
+msgstr ""
+
+msgid "Biological assets"
+msgstr ""
+
+msgid "Bolivia"
+msgstr ""
+
+msgid "Bolivian"
+msgstr ""
+
+msgid "Bonifications obtenues des clients et primes sur ventes"
+msgstr ""
+
+msgid "Bonis provenant de clauses d’indexation"
+msgstr ""
+
+msgid "Bonis provenant du rachat par l’entreprise d’actions et d’obligations émises par elle-même"
+msgstr ""
+
+msgid "Bonis sur reprises d'emballages consignés"
+msgstr ""
+
+msgid "Bons"
+msgstr ""
+
+msgid "Bons de souscription"
+msgstr ""
+
+msgid "Bons de souscription d'actions"
+msgstr ""
+
+msgid "Bons du Trésor et bons de caisse à court terme"
+msgstr ""
+
+msgid "Bonus"
+msgstr ""
+
+msgid "Book"
+msgstr ""
+
+msgid "Bosnia and Herzegovina"
+msgstr ""
+
+msgid "Botswana"
+msgstr ""
+
+msgid "Botswanan"
+msgstr ""
+
+msgid "Brazil"
+msgstr ""
+
+msgid "Brazilian"
+msgstr ""
+
+msgid "British"
+msgstr ""
+
+msgid "British Virgin Islander"
+msgstr ""
+
+msgid "British Virgin Islands"
+msgstr ""
+
+msgid "Brunei Darussalam"
+msgstr ""
+
+msgid "Bruneian"
+msgstr ""
+
+msgid "BuilderMixin"
+msgstr ""
+
+msgid "BuilderTool"
+msgstr ""
+
+msgid "Building and Construction Machinery and Accessories"
+msgstr ""
+
+msgid "Building and Construction and Maintenance Services"
+msgstr ""
+
+msgid "Bulgaria"
+msgstr ""
+
+msgid "Bulgarian"
+msgstr ""
+
+msgid "Bull group"
+msgstr ""
+
+msgid "Burkina Faso"
+msgstr ""
+
+msgid "Burkinabe"
+msgstr ""
+
+msgid "Burmese"
+msgstr ""
+
+msgid "Burundi"
+msgstr ""
+
+msgid "Burundian"
+msgstr ""
+
+msgid "Business Intelligence"
+msgstr ""
+
+msgid "Business Phone with TioLive"
+msgstr ""
+
+msgid "BusinessConfiguration"
+msgstr ""
+
+msgid "BusinessLink"
+msgstr ""
+
+msgid "BusinessProcess"
+msgstr ""
+
+msgid "BusinessProcessConfiguratorItem"
+msgstr ""
 
 msgid "By Air"
 msgstr "空运"
@@ -30,119 +1536,8282 @@ msgstr "路运"
 msgid "By Sea"
 msgstr "水运"
 
+msgid "Bylaws"
+msgstr ""
+
+msgid "Byte"
+msgstr ""
+
+msgid "Bâtiments"
+msgstr ""
+
+msgid "C and C++"
+msgstr ""
+
+msgid "C and C++ Library"
+msgstr ""
+
+msgid "CLASSE 1 : COMPTES DE CAPITAUX"
+msgstr ""
+
+msgid "CLASSE 2 : COMPTES D'IMMOBILISATIONS"
+msgstr ""
+
+msgid "CLASSE 3 : COMPTES DE STOCKS ET EN-COURS"
+msgstr ""
+
+msgid "CLASSE 4 : COMPTES DE TIERS"
+msgstr ""
+
+msgid "CLASSE 5 : COMPTES FINANCIERS"
+msgstr ""
+
+msgid "CLASSE 6 : COMPTES DE CHARGES"
+msgstr ""
+
+msgid "CLASSE 7 : COMPTES DE PRODUITS"
+msgstr ""
+
+msgid "CLASSE 8 : COMPTES SPÉCIAUX"
+msgstr ""
+
+msgid "CMS"
+msgstr ""
+
+msgid "CRM"
+msgstr ""
+
+msgid "CRMMigration"
+msgstr ""
+
+msgid "CRMUtils"
+msgstr ""
+
+msgid "CSG Non Taxable To Income Tax"
+msgstr ""
+
+msgid "CSG/CRDS Taxable To Income Tax"
+msgstr ""
+
+msgid "Cable Network"
+msgstr ""
+
+msgid "Cabo Verde"
+msgstr ""
+
+msgid "CachedConvertableMixin"
+msgstr ""
+
+msgid "Cadeaux à la clientèle"
+msgstr ""
+
+msgid "Caisse"
+msgstr ""
+
+msgid "Calendar"
+msgstr ""
+
+msgid "CallableTool"
+msgstr ""
+
+msgid "Cambodia"
+msgstr ""
+
+msgid "Cambodian"
+msgstr ""
+
+msgid "Cameroon"
+msgstr ""
+
+msgid "Cameroonian"
+msgstr ""
+
+msgid "Campaign"
+msgstr ""
+
+msgid "Campaign module features"
+msgstr ""
+
+msgid "Campaigns"
+msgstr ""
+
+msgid "Canada"
+msgstr ""
+
+msgid "Canadian"
+msgstr ""
+
+msgid "Capacity"
+msgstr ""
+
+msgid "Capacity Access Contract"
+msgstr ""
+
+msgid "Cape Verde"
+msgstr ""
+
+msgid "Cape Verdean"
+msgstr ""
+
+msgid "Capital"
+msgstr ""
+
+msgid "Capital amorti"
+msgstr ""
+
+msgid "Capital et réserves"
+msgstr ""
+
+msgid "Capital non amorti"
+msgstr ""
+
+msgid "Capital souscrit - appelé, non versé"
+msgstr ""
+
+msgid "Capital souscrit - appelé, versé"
+msgstr ""
+
+msgid "Capital souscrit - non appelé"
+msgstr ""
+
+msgid "Capital souscrit soumis à des réglementations particulières"
+msgstr ""
+
+msgid "Career"
+msgstr ""
+
+msgid "Caribbean"
+msgstr ""
+
+msgid "Carriage Paid To"
+msgstr ""
+
+msgid "Carriage and Insurance Paid to"
+msgstr ""
+
+msgid "Cash"
+msgstr ""
+
+msgid "Cash and Cash Equivalents"
+msgstr ""
+
+msgid "Cash and cash equivalents"
+msgstr ""
+
+msgid "CatalogKeywordKeyConfiguratorItem"
+msgstr ""
+
+msgid "Catalogues et imprimés"
+msgstr ""
+
+msgid "CategoriesSpreadsheetConfiguratorItem"
+msgstr ""
+
+msgid "Category"
+msgstr ""
+
+msgid "CategoryConfiguratorItem"
+msgstr ""
+
+msgid "CategoryMembershipEquivalenceTester"
+msgstr ""
+
+msgid "CategoryMovementGroup"
+msgstr ""
+
+msgid "Causality"
+msgstr ""
+
+msgid "CausalityAssignmentMovementGroup"
+msgstr ""
+
+msgid "CausalityMovementGroup"
+msgstr ""
+
+msgid "Cautionnements"
+msgstr ""
+
+msgid "Cayman Islands"
+msgstr ""
+
+msgid "Caymanian"
+msgstr ""
+
+msgid "Cell"
+msgstr ""
+
+msgid "Centrafrique"
+msgstr ""
+
+msgid "Central"
+msgstr ""
+
+msgid "Central African"
+msgstr ""
+
+msgid "Central African Republic"
+msgstr ""
+
+msgid "Central America"
+msgstr ""
+
+msgid "Central Asia"
+msgstr ""
+
+msgid "CertificateAuthorityTool"
+msgstr ""
+
+msgid "CertificateLoginMixin"
+msgstr ""
+
+msgid "Chad"
+msgstr ""
+
+msgid "Chadian"
+msgstr ""
+
+msgid "Channel Islands"
+msgstr ""
+
+msgid "Charges"
+msgstr ""
+
+msgid "Charges constatées d'avance"
+msgstr ""
+
+msgid "Charges d'intérêts"
+msgstr ""
+
+msgid "Charges de la fiducie, résultat de la période"
+msgstr ""
+
+msgid "Charges de personnel"
+msgstr ""
+
+msgid "Charges exceptionnelles"
+msgstr ""
+
+msgid "Charges financières"
+msgstr ""
+
+msgid "Charges fiscales sur congés à payer"
+msgstr ""
+
+msgid "Charges locatives et de copropriété"
+msgstr ""
+
+msgid "Charges nettes sur cessions de jetons"
+msgstr ""
+
+msgid "Charges nettes sur cessions de titres immobilisés de l’activité de portefeuille"
+msgstr ""
+
+msgid "Charges nettes sur cessions de valeurs mobilières de placement"
+msgstr ""
+
+msgid "Charges sociales sur congés à payer"
+msgstr ""
+
+msgid "Charges sur cession d’éléments financiers"
+msgstr ""
+
+msgid "Charges à payer"
+msgstr ""
+
+msgid "Chemical products"
+msgstr ""
+
+msgid "Chemicals including Bio Chemicals and Gas Materials"
+msgstr ""
+
+msgid "Cheptel"
+msgstr ""
+
 msgid "Cheque"
 msgstr "支票"
+
+msgid "Chile"
+msgstr ""
+
+msgid "Chilean"
+msgstr ""
+
+msgid "China"
+msgstr ""
+
+msgid "Chinese"
+msgstr ""
+
+msgid "Chunk Accepted"
+msgstr ""
+
+msgid "Chunked item accepted and buffered"
+msgstr ""
+
+msgid "Chèques à encaisser"
+msgstr ""
+
+msgid "Cleaning Equipment and Supplies"
+msgstr ""
 
 msgid "Client"
 msgstr "客户"
 
+msgid "Clients"
+msgstr ""
+
+msgid "Clients - Autres avoirs"
+msgstr ""
+
+msgid "Clients - Avances et acomptes reçus sur commandes"
+msgstr ""
+
+msgid "Clients - Dettes sur emballages et matériels consignés"
+msgstr ""
+
+msgid "Clients - Effets à recevoir"
+msgstr ""
+
+msgid "Clients - Factures à établir"
+msgstr ""
+
+msgid "Clients - Intérêts courus"
+msgstr ""
+
+msgid "Clients - Produits non encore facturés"
+msgstr ""
+
+msgid "Clients - Retenues de garantie"
+msgstr ""
+
+msgid "Clients - Ventes de biens ou de prestations de services"
+msgstr ""
+
+msgid "Clients créditeurs"
+msgstr ""
+
+msgid "Clients douteux ou litigieux"
+msgstr ""
+
+msgid "Clients et comptes rattachés"
+msgstr ""
+
+msgid "Clock"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Closed by User"
+msgstr ""
+
+msgid "Closed for maintenance"
+msgstr ""
+
+msgid "Closed for termination"
+msgstr ""
+
+msgid "Closed forever"
+msgstr ""
+
+msgid "Closed oudated"
+msgstr ""
+
+msgid "Cloud"
+msgstr ""
+
+msgid "Cloud Industry"
+msgstr ""
+
+msgid "Cloud Management"
+msgstr ""
+
+msgid "Cloud Services"
+msgstr ""
+
+msgid "Coal & lignite"
+msgstr ""
+
+msgid "Cohabitating"
+msgstr ""
+
+msgid "Coke, refined petroleum & nuclear fuel"
+msgstr ""
+
+msgid "Collaborative"
+msgstr ""
+
+msgid "Collected VAT"
+msgstr ""
+
+msgid "Collection, purification & distribution of water"
+msgstr ""
+
+msgid "Colombia"
+msgstr ""
+
+msgid "Colombian"
+msgstr ""
+
+msgid "Combustibles"
+msgstr ""
+
+msgid "Comité social et économique"
+msgstr ""
+
+msgid "Command Failed"
+msgstr ""
+
+msgid "Commercial and Military and Private Vehicles and their Accessories"
+msgstr ""
+
+msgid "Commission"
+msgstr ""
+
+msgid "Commissions et courtages"
+msgstr ""
+
+msgid "Commissions et courtages sur achats"
+msgstr ""
+
+msgid "Commissions et courtages sur ventes"
+msgstr ""
+
+msgid "Commissions et frais sur émission d'emprunts"
+msgstr ""
+
+msgid "Commodity"
+msgstr ""
+
+msgid "Commodity Services"
+msgstr ""
+
+msgid "Communication"
+msgstr ""
+
+msgid "Comorian"
+msgstr ""
+
+msgid "Comoros"
+msgstr ""
+
+msgid "Company"
+msgstr ""
+
+msgid "Company Agent"
+msgstr ""
+
+msgid "Company Executive"
+msgstr ""
+
+msgid "Company Manager"
+msgstr ""
+
+msgid "Company headquarter office"
+msgstr ""
+
+msgid "Complaint"
+msgstr ""
+
+msgid "Component"
+msgstr ""
+
+msgid "Components"
+msgstr ""
+
+msgid "CompositionMixin"
+msgstr ""
+
+msgid "Compression"
+msgstr ""
+
+msgid "Compression Software"
+msgstr ""
+
+msgid "Compte de l'exploitant"
+msgstr ""
+
+msgid "Comptes bloqués"
+msgstr ""
+
+msgid "Comptes courants"
+msgstr ""
+
+msgid "Comptes courants des associés"
+msgstr ""
+
+msgid "Comptes d'attente"
+msgstr ""
+
+msgid "Comptes de liaison des sociétés en participation"
+msgstr ""
+
+msgid "Comptes de liaison des établissements"
+msgstr ""
+
+msgid "Comptes de liaison des établissements et sociétés en participation"
+msgstr ""
+
+msgid "Comptes de régularisation"
+msgstr ""
+
+msgid "Comptes de répartition périodique des charges et des produits"
+msgstr ""
+
+msgid "Comptes du groupe"
+msgstr ""
+
+msgid "Comptes en devises"
+msgstr ""
+
+msgid "Comptes en euros"
+msgstr ""
+
+msgid "Comptes transitoires ou d'attente"
+msgstr ""
+
+msgid "Compute Node"
+msgstr ""
+
+msgid "Compute Node Hardware"
+msgstr ""
+
+msgid "Compute Node Hosting Contract"
+msgstr ""
+
+msgid "Compute Node Installation and Maintenance"
+msgstr ""
+
+msgid "Compute Node Maintenance"
+msgstr ""
+
+msgid "Compute Node Maintenance Agent"
+msgstr ""
+
+msgid "Compute Node Maintenance Manager"
+msgstr ""
+
+msgid "Computer"
+msgstr ""
+
+msgid "Computer & related activities"
+msgstr ""
+
+msgid "ComputerPartition"
+msgstr ""
+
+msgid "Concessions et droits similaires, brevets, licences, marques, procédés, solutions informatiques, droits et valeurs similaires"
+msgstr ""
+
+msgid "Concessions et droits similaires, brevets, licences, solutions informatiques, droits et valeurs similaires"
+msgstr ""
+
+msgid "Concours bancaires courants"
+msgstr ""
+
+msgid "Concours divers (cotisations)"
+msgstr ""
+
+msgid "Conference"
+msgstr ""
+
+msgid "ConfigurableMixin"
+msgstr ""
+
+msgid "ConfigurablePropertySolverMixin"
+msgstr ""
+
+msgid "Configuration"
+msgstr ""
+
+msgid "ConfigurationSave"
+msgstr ""
+
+msgid "ConfigurationTemplate_readOOoCalcFile"
+msgstr ""
+
+msgid "ConfiguratorItemMixin"
+msgstr ""
+
+msgid "ConfiguratorTestMixin"
+msgstr ""
+
+msgid "ConfiguratorTool"
+msgstr ""
+
+msgid "Configure Thunderbird for Tiolive"
+msgstr ""
+
+msgid "Conflict"
+msgstr ""
+
+msgid "Conflict Resolved With Client's Command “Winning”"
+msgstr ""
+
+msgid "Conflict Resolved With Merge"
+msgstr ""
+
+msgid "Congo"
+msgstr ""
+
+msgid "Congolese"
+msgstr ""
+
+msgid "Congés payés"
+msgstr ""
+
+msgid "Construction"
+msgstr ""
+
+msgid "Constructions"
+msgstr ""
+
+msgid "Constructions (même ventilation que celle du compte 213)"
+msgstr ""
+
+msgid "Constructions sur sol d'autrui"
+msgstr ""
+
+msgid "Constructions sur sol d'autrui (même ventilation que celle du compte 213)"
+msgstr ""
+
+msgid "Constructions sur sol d'autrui (même ventilation que celle du compte 214)"
+msgstr ""
+
+msgid "Consumer"
+msgstr ""
+
+msgid "Consumers' cooperative"
+msgstr ""
+
+msgid "Consumption"
+msgstr ""
+
+msgid "Contact Us"
+msgstr ""
+
+msgid "Contact modules"
+msgstr ""
+
+msgid "Contact us"
+msgstr ""
+
+msgid "Contacting TioLive"
+msgstr ""
+
+msgid "Container"
+msgstr ""
+
+msgid "ContainerCell"
+msgstr ""
+
+msgid "ContainerLine"
+msgstr ""
+
+msgid "Content Management System"
+msgstr ""
+
+msgid "Contract"
+msgstr ""
+
+msgid "Contrats"
+msgstr ""
+
+msgid "Contribution Relief"
+msgstr ""
+
+msgid "Contribution additionnelle à l'impôt sur les bénéfices"
+msgstr ""
+
+msgid "Contribution sociale de solidarité à la charge des sociétés"
+msgstr ""
+
+msgid "Contribution unique des employeurs à la formation professionnelle"
+msgstr ""
+
+msgid "Contribution économique territoriale"
+msgstr ""
+
+msgid "ContributionPredicate"
+msgstr ""
+
+msgid "ContributionRegistryTool"
+msgstr ""
+
+msgid "ContributionTool"
+msgstr ""
+
+msgid "Contributions, impôts et taxes recouvrés pour le compte de l'État"
+msgstr ""
+
+msgid "Converted"
+msgstr ""
+
+msgid "Cook Islands"
+msgstr ""
+
+msgid "Cooperative"
+msgstr ""
+
+msgid "Coordinate"
+msgstr ""
+
+msgid "Core"
+msgstr ""
+
+msgid "Corporate"
+msgstr ""
+
+msgid "Corporate tax"
+msgstr ""
+
+msgid "Cost and Freight"
+msgstr ""
+
+msgid "Cost of Sales"
+msgstr ""
+
+msgid "Cost of sales"
+msgstr ""
+
+msgid "Cost, Insurance and Freight"
+msgstr ""
+
+msgid "Costa Rica"
+msgstr ""
+
+msgid "Costa Rican"
+msgstr ""
+
+msgid "Cote d'Ivoire"
+msgstr ""
+
+msgid "Cotisation pour défaut d'investissement obligatoire dans la construction"
+msgstr ""
+
+msgid "Cotisations aux autres organismes sociaux"
+msgstr ""
+
+msgid "Cotisations aux caisses de retraites"
+msgstr ""
+
+msgid "Cotisations aux mutuelles"
+msgstr ""
+
+msgid "Cotisations de sécurité sociale et de prévoyance"
+msgstr ""
+
+msgid "Cotisations sociales personnelles de l'exploitant"
+msgstr ""
+
+msgid "Cotisations à Pôle emploi"
+msgstr ""
+
+msgid "Cotisations à l'Urssaf"
+msgstr ""
+
+msgid "Coupons échus à l'encaissement"
+msgstr ""
+
+msgid "CrawlableMixin"
+msgstr ""
+
+msgid "Credential"
+msgstr ""
+
+msgid "CredentialRecovery"
+msgstr ""
+
+msgid "CredentialRequest"
+msgstr ""
+
 msgid "Credit Card"
 msgstr "信用卡"
+
+msgid "Croat"
+msgstr ""
+
+msgid "Croatia"
+msgstr ""
+
+msgid "Créances"
+msgstr ""
+
+msgid "Créances de l'exercice"
+msgstr ""
+
+msgid "Créances des exercices antérieurs"
+msgstr ""
+
+msgid "Créances diverses"
+msgstr ""
+
+msgid "Créances escomptées non échues"
+msgstr ""
+
+msgid "Créances rattachées à des participations"
+msgstr ""
+
+msgid "Créances rattachées à des participations (même ventilation que celle du compte 267)"
+msgstr ""
+
+msgid "Créances rattachées à des participations - groupe"
+msgstr ""
+
+msgid "Créances rattachées à des participations - hors groupe"
+msgstr ""
+
+msgid "Créances rattachées à des sociétés en participation"
+msgstr ""
+
+msgid "Créances rattachées à des sociétés en participation (même ventilation que celle du compte 268)"
+msgstr ""
+
+msgid "Créances sur cessions d'immobilisations"
+msgstr ""
+
+msgid "Créances sur cessions de valeurs mobilières de placement"
+msgstr ""
+
+msgid "Crédit de TVA à reporter"
+msgstr ""
+
+msgid "Crédit de mobilisation de créances commerciales"
+msgstr ""
+
+msgid "Crédit-bail immobilier"
+msgstr ""
+
+msgid "Crédit-bail mobilier"
+msgstr ""
+
+msgid "Cuba"
+msgstr ""
+
+msgid "Cuban"
+msgstr ""
+
+msgid "Cubic Meter"
+msgstr ""
+
+msgid "Currency"
+msgstr ""
+
+msgid "Currency module features"
+msgstr ""
+
+msgid "CurrencyConfiguratorItem"
+msgstr ""
+
+msgid "Current Assets"
+msgstr ""
+
+msgid "Current Liabilities"
+msgstr ""
 
 msgid "Custom"
 msgstr "惯例"
 
+msgid "Customer"
+msgstr ""
+
+msgid "Customer Relation Management"
+msgstr ""
+
+msgid "CustomerBT5ConfiguratorItem"
+msgstr ""
+
+msgid "Cypriot"
+msgstr ""
+
+msgid "Cyprus"
+msgstr ""
+
+msgid "Czech"
+msgstr ""
+
+msgid "Czech Republic"
+msgstr ""
+
+msgid "DDR2 Memory"
+msgstr ""
+
+msgid "DDR3 Memory"
+msgstr ""
+
+msgid "DHT"
+msgstr ""
+
+msgid "DMS"
+msgstr ""
+
+msgid "Dane"
+msgstr ""
+
+msgid "Dans les comptes à trois chiffres et plus, la terminaison 9 permet d'identifier les opérations de sens contraire"
+msgstr ""
+
+msgid "Data Center Hardware"
+msgstr ""
+
+msgid "DataArray"
+msgstr ""
+
+msgid "DataArrayLine"
+msgstr ""
+
+msgid "DataArrayLineExistenceConstraint"
+msgstr ""
+
+msgid "DataArrayView"
+msgstr ""
+
+msgid "DataArrayViewLine"
+msgstr ""
+
+msgid "DataBucketStream"
+msgstr ""
+
+msgid "DataMapping"
+msgstr ""
+
+msgid "DataSet"
+msgstr ""
+
+msgid "DataStream"
+msgstr ""
+
+msgid "DataTransformation"
+msgstr ""
+
+msgid "Database"
+msgstr ""
+
+msgid "Database Image"
+msgstr ""
+
+msgid "DateTimeEquivalenceTester"
+msgstr ""
+
+msgid "DateUtils"
+msgstr ""
+
+msgid "Day"
+msgstr ""
+
+msgid "DayMovementGroup"
+msgstr ""
+
+msgid "Debian"
+msgstr ""
+
+msgid "Deductible Tax"
+msgstr ""
+
+msgid "Deductible Withholdings"
+msgstr ""
+
+msgid "Default"
+msgstr ""
+
+msgid "Defense and Law Enforcement and Security and Safety Equipment"
+msgstr ""
+
+msgid "Delivered"
+msgstr ""
+
+msgid "Delivered At Frontier"
+msgstr ""
+
+msgid "Delivered Duty Paid"
+msgstr ""
+
+msgid "Delivered Duty Unpaid"
+msgstr ""
+
+msgid "Delivered Ex Quay"
+msgstr ""
+
+msgid "Delivered Ex Ship"
+msgstr ""
+
+msgid "Delivery"
+msgstr ""
+
+msgid "DeliveryCausalityAssignmentMovementGroup"
+msgstr ""
+
+msgid "DeliveryCell"
+msgstr ""
+
+msgid "DeliveryLine"
+msgstr ""
+
+msgid "DeliveryRootSimulationRule"
+msgstr ""
+
+msgid "DeliverySimulationRule"
+msgstr ""
+
+msgid "DeliveryTool"
+msgstr ""
+
+msgid "Democratic People's Republic of Korea"
+msgstr ""
+
+msgid "Democratic Republic of the Congo"
+msgstr ""
+
+msgid "Denmark"
+msgstr ""
+
+msgid "Deposit"
+msgstr ""
+
+msgid "Deprecation"
+msgstr ""
+
+msgid "Deprecation of Financials Assets"
+msgstr ""
+
+msgid "Deprecation of Fixed Assets"
+msgstr ""
+
+msgid "Deprecation of Intangible Assets"
+msgstr ""
+
+msgid "Deprecation of Other Receivables"
+msgstr ""
+
+msgid "Deprecation of Trade Receivables"
+msgstr ""
+
+msgid "Deprecation of Trade and Other Receivables"
+msgstr ""
+
+msgid "Deprecation of inventories"
+msgstr ""
+
+msgid "Design"
+msgstr ""
+
+msgid "Desktop PC"
+msgstr ""
+
+msgid "Dettes provisionnées pour congés à payer"
+msgstr ""
+
+msgid "Dettes provisionnées pour participation des salariés aux résultats"
+msgstr ""
+
+msgid "Dettes rattachées à des participations"
+msgstr ""
+
+msgid "Dettes rattachées à des participations - groupe"
+msgstr ""
+
+msgid "Dettes rattachées à des participations - hors groupe"
+msgstr ""
+
+msgid "Dettes rattachées à des sociétés en participation"
+msgstr ""
+
+msgid "Dettes sur acquisitions de valeurs mobilières de placement"
+msgstr ""
+
+msgid "Developer"
+msgstr ""
+
+msgid "Developer Documentation"
+msgstr ""
+
+msgid "Developer for a Project"
+msgstr ""
+
+msgid "Development"
+msgstr ""
+
+msgid "Diff End"
+msgstr ""
+
+msgid "Diff Filter"
+msgstr ""
+
+msgid "DiffTool"
+msgstr ""
+
+msgid "DiffUtils"
+msgstr ""
+
+msgid "Different"
+msgstr ""
+
+msgid "Différence de conversion - Actif"
+msgstr ""
+
+msgid "Différences compensées par couverture de change"
+msgstr ""
+
+msgid "Différences d'évaluation sur instruments financiers à terme - Actif"
+msgstr ""
+
+msgid "Différences d'évaluation sur instruments financiers à terme - Passif"
+msgstr ""
+
+msgid "Différences d'évaluation sur jetons détenus - Actif"
+msgstr ""
+
+msgid "Différences d'évaluation sur jetons détenus - Passif"
+msgstr ""
+
+msgid "Différences de conversion - Passif"
+msgstr ""
+
+msgid "Différences d’évaluation de jetons sur des passifs - Actif"
+msgstr ""
+
+msgid "Différences d’évaluation de jetons sur des passifs - Passif"
+msgstr ""
+
+msgid "Différences d’évaluation – Actif"
+msgstr ""
+
+msgid "Différences d’évaluation – Passif"
+msgstr ""
+
+msgid "Diminution des créances"
+msgstr ""
+
+msgid "Diminution des dettes"
+msgstr ""
+
+msgid "Disabled"
+msgstr ""
+
+msgid "Discount"
+msgstr ""
+
+msgid "Discount Service"
+msgstr ""
+
 msgid "Discounted"
 msgstr "打折"
+
+msgid "DiscoverableMixin"
+msgstr ""
+
+msgid "Disk"
+msgstr ""
+
+msgid "Disk Storage"
+msgstr ""
+
+msgid "Display"
+msgstr ""
+
+msgid "Distributed Hash Table"
+msgstr ""
+
+msgid "Distribution"
+msgstr ""
+
+msgid "Distribution and Conditioning Systems and Equipment and Components"
+msgstr ""
+
+msgid "DivergenceMessage"
+msgstr ""
+
+msgid "Divers"
+msgstr ""
+
+msgid "Divers (pourboires, dons courants)"
+msgstr ""
+
+msgid "Divers comptes créditeurs et charges à payer"
+msgstr ""
+
+msgid "Divers comptes débiteurs et produits à recevoir"
+msgstr ""
+
+msgid "Division"
+msgstr ""
+
+msgid "Division Agent"
+msgstr ""
+
+msgid "Division Manager"
+msgstr ""
+
+msgid "Division or Business Unit"
+msgstr ""
+
+msgid "Divorced"
+msgstr ""
+
+msgid "Djibouti"
+msgstr ""
+
+msgid "Djiboutian"
+msgstr ""
 
 msgid "Doctor"
 msgstr "博士"
 
+msgid "Document"
+msgstr ""
+
+msgid "Document module features"
+msgstr ""
+
+msgid "DocumentConnection"
+msgstr ""
+
+msgid "DocumentExtensibleTraversableMixin"
+msgstr ""
+
+msgid "DocumentExtraction"
+msgstr ""
+
+msgid "DocumentManagement"
+msgstr ""
+
+msgid "DocumentMixin"
+msgstr ""
+
+msgid "DocumentProxyMixin"
+msgstr ""
+
+msgid "DocumentSecurity"
+msgstr ""
+
+msgid "Documentary Collection"
+msgstr ""
+
+msgid "Documentation"
+msgstr ""
+
+msgid "Documentation générale"
+msgstr ""
+
+msgid "Documentation technique"
+msgstr ""
+
 msgid "Documents"
 msgstr "文档"
+
+msgid "Domain"
+msgstr ""
+
+msgid "DomainGenerator"
+msgstr ""
+
+msgid "DomainTool"
+msgstr ""
+
+msgid "Domestic Appliances and Supplies and Consumer Electronic Products"
+msgstr ""
+
+msgid "Dominica"
+msgstr ""
+
+msgid "Dominican"
+msgstr ""
+
+msgid "Dominican Republic"
+msgstr ""
+
+msgid "Dotations aux amortissements des frais d'émission des emprunts"
+msgstr ""
+
+msgid "Dotations aux amortissements des primes de remboursement des emprunts"
+msgstr ""
+
+msgid "Dotations aux amortissements exceptionnels des immobilisations"
+msgstr ""
+
+msgid "Dotations aux amortissements sur immobilisations incorporelles et corporelles"
+msgstr ""
+
+msgid "Dotations aux amortissements, aux dépréciations et aux provisions"
+msgstr ""
+
+msgid "Dotations aux amortissements, aux dépréciations et aux provisions (à inscrire dans les charges d'exploitation)"
+msgstr ""
+
+msgid "Dotations aux amortissements, aux dépréciations et aux provisions (à inscrire dans les charges exceptionnelles)"
+msgstr ""
+
+msgid "Dotations aux amortissements, aux dépréciations et aux provisions (à inscrire dans les charges financières)"
+msgstr ""
+
+msgid "Dotations aux autres provisions réglementées"
+msgstr ""
+
+msgid "Dotations aux provisions d'exploitation"
+msgstr ""
+
+msgid "Dotations aux provisions exceptionnelles"
+msgstr ""
+
+msgid "Dotations aux provisions financières"
+msgstr ""
+
+msgid "Dotations aux provisions réglementées (immobilisations)"
+msgstr ""
+
+msgid "Dotations aux provisions réglementées (stocks)"
+msgstr ""
+
+msgid "Dotations pour dépréciation des éléments financiers"
+msgstr ""
+
+msgid "Dotations pour dépréciations des actifs circulants"
+msgstr ""
+
+msgid "Dotations pour dépréciations des immobilisations incorporelles et corporelles"
+msgstr ""
+
+msgid "Dotations pour dépréciations exceptionnelles"
+msgstr ""
+
+msgid "DownloadableMixin"
+msgstr ""
+
+msgid "Droit au bail"
+msgstr ""
+
+msgid "Droits d'auteur et de reproduction"
+msgstr ""
+
+msgid "Droits d'enregistrement et de timbre"
+msgstr ""
+
+msgid "Droits de mutation"
+msgstr ""
+
+msgid "Droits du concédant"
+msgstr ""
+
+msgid "Droits représentatifs d'actifs nets remis en fiducie"
+msgstr ""
+
+msgid "Drugs and Pharmaceutical Products"
+msgstr ""
+
+msgid "DuplicateInventoryConstraint"
+msgstr ""
+
+msgid "Débiteurs divers et créditeurs divers"
+msgstr ""
+
+msgid "Déchets"
+msgstr ""
+
+msgid "Dédits et pénalités perçus sur achats et ventes"
+msgstr ""
+
+msgid "Dégrèvements d’impôts autres qu’impôts sur les bénéfices"
+msgstr ""
+
+msgid "Déplacements, missions et réceptions"
+msgstr ""
+
+msgid "Dépréciation du mali de fusion sur actifs corporels"
+msgstr ""
+
+msgid "Dépréciation du mali de fusion sur actifs incorporels"
+msgstr ""
+
+msgid "Dépréciations des autres approvisionnements"
+msgstr ""
+
+msgid "Dépréciations des autres immobilisations financières"
+msgstr ""
+
+msgid "Dépréciations des comptes de clients"
+msgstr ""
+
+msgid "Dépréciations des comptes de débiteurs divers"
+msgstr ""
+
+msgid "Dépréciations des comptes de tiers"
+msgstr ""
+
+msgid "Dépréciations des comptes du groupe et des associés"
+msgstr ""
+
+msgid "Dépréciations des comptes financiers"
+msgstr ""
+
+msgid "Dépréciations des en-cours de production de biens"
+msgstr ""
+
+msgid "Dépréciations des en-cours de production de services"
+msgstr ""
+
+msgid "Dépréciations des immobilisations"
+msgstr ""
+
+msgid "Dépréciations des immobilisations corporelles"
+msgstr ""
+
+msgid "Dépréciations des immobilisations en cours"
+msgstr ""
+
+msgid "Dépréciations des immobilisations incorporelles"
+msgstr ""
+
+msgid "Dépréciations des immobilisations mises en concession"
+msgstr ""
+
+msgid "Dépréciations des matières premières et fournitures"
+msgstr ""
+
+msgid "Dépréciations des participations et créances rattachées à des participations"
+msgstr ""
+
+msgid "Dépréciations des stocks de marchandises"
+msgstr ""
+
+msgid "Dépréciations des stocks de produits"
+msgstr ""
+
+msgid "Dépréciations des stocks et en-cours"
+msgstr ""
+
+msgid "Dépréciations des valeurs mobilières de placement"
+msgstr ""
+
+msgid "Dépôts"
+msgstr ""
+
+msgid "Dépôts et cautionnements reçus"
+msgstr ""
+
+msgid "Dépôts et cautionnements versés"
+msgstr ""
+
+msgid "ERP"
+msgstr ""
+
+msgid "ERP5"
+msgstr ""
+
+msgid "ERP5 Express Subscription Request Accepted"
+msgstr ""
+
+msgid "ERP5 Worklists"
+msgstr ""
+
+msgid "ERP5Administration"
+msgstr ""
+
+msgid "ERP5Conduit"
+msgstr ""
+
+msgid "ERP5ConduitTitleGid"
+msgstr ""
+
+msgid "ERP5DocumentConduit"
+msgstr ""
+
+msgid "ERP5NodeConduit"
+msgstr ""
+
+msgid "ERP5PaymentTransactionConduit"
+msgstr ""
+
+msgid "ERP5ResourceConduit"
+msgstr ""
+
+msgid "ERP5RunMyDocs"
+msgstr ""
+
+msgid "ERP5ShopOrderConduit"
+msgstr ""
+
+msgid "ERP5TransactionConduit"
+msgstr ""
+
+msgid "ERP5UserMixin"
+msgstr ""
+
+msgid "EXPRESS CONFIGURATION"
+msgstr ""
+
+msgid "EXPRESS DEVELOPMENT"
+msgstr ""
+
+msgid "EXPRESS HOSTING"
+msgstr ""
+
+msgid "EXPRESS SUPPORT"
+msgstr ""
+
+msgid "Earnings"
+msgstr ""
+
+msgid "East Timorese"
+msgstr ""
+
+msgid "Eastern"
+msgstr ""
+
+msgid "Eastern Africa"
+msgstr ""
+
+msgid "Eastern Asia"
+msgstr ""
+
+msgid "Eastern Europe"
+msgstr ""
+
+msgid "Ecommerce"
+msgstr ""
+
+msgid "Ecuador"
+msgstr ""
+
+msgid "Ecuadorian"
+msgstr ""
+
+msgid "Editorial and Design and Graphic and Fine Art Services"
+msgstr ""
+
+msgid "Education"
+msgstr ""
+
+msgid "Education and Training Services"
+msgstr ""
+
+msgid "Effets circulant sous l'endos de l'entité"
+msgstr ""
+
+msgid "Effets à l'encaissement"
+msgstr ""
+
+msgid "Effets à l'escompte"
+msgstr ""
+
+msgid "Egypt"
+msgstr ""
+
+msgid "Egyptian"
+msgstr ""
+
+msgid "Eire"
+msgstr ""
+
+msgid "El Salvador"
+msgstr ""
+
+msgid "Electrical Systems and Lighting and Components and Accessories"
+msgstr ""
+
+msgid "Electrical machinery & apparatus"
+msgstr ""
+
+msgid "Electricity"
+msgstr ""
+
+msgid "Electricity, gas & water"
+msgstr ""
+
+msgid "Electricity, gas, steam & hot water supply"
+msgstr ""
+
+msgid "Electronic Commerce"
+msgstr ""
+
+msgid "Electronic Components and Supplies"
+msgstr ""
+
+msgid "EmailDocument"
+msgstr ""
+
+msgid "Emballages"
+msgstr ""
+
+msgid "Emballages perdus"
+msgstr ""
+
+msgid "Emballages récupérables"
+msgstr ""
+
+msgid "Emballages récupérables non identifiables"
+msgstr ""
+
+msgid "Emballages à usage mixte"
+msgstr ""
+
+msgid "EmbeddedFile"
+msgstr ""
+
+msgid "Emirian"
+msgstr ""
+
+msgid "Employee Share"
+msgstr ""
+
+msgid "Employer Share"
+msgstr ""
+
+msgid "Emprunts auprès des établissements de crédit"
+msgstr ""
+
+msgid "Emprunts et dettes assimilées"
+msgstr ""
+
+msgid "Emprunts et dettes assortis de conditions particulières"
+msgstr ""
+
+msgid "Emprunts obligataires convertibles"
+msgstr ""
+
+msgid "Emprunts participatifs"
+msgstr ""
+
+msgid "En-cours de production de biens"
+msgstr ""
+
+msgid "En-cours de production de services"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "EncryptedPasswordMixin"
+msgstr ""
+
+msgid "Energy"
+msgstr ""
+
+msgid "Engagements"
+msgstr ""
+
+msgid "Engagements donnés par l'entité"
+msgstr ""
+
+msgid "Engagements reçus par l'entité"
+msgstr ""
+
+msgid "Engagements reçus pour utilisation en crédit-bail"
+msgstr ""
+
+msgid "Engineering and Research and Technology Based Services"
+msgstr ""
+
+msgid "English"
+msgstr ""
+
+msgid "Enterprise Resource Planning"
+msgstr ""
+
+msgid "Enterprise Resource Planning with TioLive"
+msgstr ""
+
+msgid "Entretien et réparation"
+msgstr ""
+
+msgid "Entretien et réparation sur biens immobiliers"
+msgstr ""
+
+msgid "Entretien et réparation sur biens mobiliers"
+msgstr ""
+
+msgid "Environment"
+msgstr ""
+
+msgid "Environment Hardware"
+msgstr ""
+
+msgid "Environmental Services"
+msgstr ""
+
+msgid "Equatorial Guinea"
+msgstr ""
+
+msgid "Equatorial Guinean"
+msgstr ""
+
+msgid "Equipment Components & Supplies"
+msgstr ""
+
+msgid "Equity"
+msgstr ""
+
+msgid "Equity and Non-Current Liabilities"
+msgstr ""
+
+msgid "EquivalenceTesterMixin"
+msgstr ""
+
+msgid "Eritrea"
+msgstr ""
+
+msgid "Eritrean"
+msgstr ""
+
+msgid "Escomptes accordés"
+msgstr ""
+
+msgid "Escomptes obtenus"
+msgstr ""
+
+msgid "Estonia"
+msgstr ""
+
+msgid "Estonian"
+msgstr ""
+
+msgid "Ethernet"
+msgstr ""
+
+msgid "Ethiopia"
+msgstr ""
+
+msgid "Ethiopian"
+msgstr ""
+
+msgid "Europe"
+msgstr ""
+
+msgid "Event"
+msgstr ""
+
+msgid "Event module features"
+msgstr ""
+
+msgid "Ex Works"
+msgstr ""
+
+msgid "Exceptional income"
+msgstr ""
+
+msgid "Executive"
+msgstr ""
+
+msgid "ExpandPolicy"
+msgstr ""
+
+msgid "Expense"
+msgstr ""
+
+msgid "Expenses"
+msgstr ""
+
+msgid "ExplainableMixin"
+msgstr ""
+
+msgid "ExplanationCache"
+msgstr ""
+
+msgid "Express Configuration"
+msgstr ""
+
+msgid "Express Hosting"
+msgstr ""
+
+msgid "Express Support"
+msgstr ""
+
+msgid "ExtensibleTraversableMixin"
+msgstr ""
+
+msgid "External"
+msgstr ""
+
+msgid "ExternalSource"
+msgstr ""
+
+msgid "Extra"
+msgstr ""
+
+msgid "Extraterritorial organizations & bodies"
+msgstr ""
+
+msgid "FIFODeliverySolver"
+msgstr ""
+
+msgid "FTPConnector"
+msgstr ""
+
+msgid "Fabricated metal products except machinery"
+msgstr ""
+
+msgid "FacebookLoginUtility"
+msgstr ""
+
+msgid "Faeroe Islands"
+msgstr ""
+
+msgid "Faeroese"
+msgstr ""
+
+msgid "Failed"
+msgstr ""
+
+msgid "Falkland Islander"
+msgstr ""
+
+msgid "Falkland Islands"
+msgstr ""
+
+msgid "Falkland Islands (Malvinas)"
+msgstr ""
+
+msgid "Family-Socal Security"
+msgstr ""
+
+msgid "Farming and Fishing and Forestry and Wildlife Contracting Services"
+msgstr ""
+
+msgid "Farming and Fishing and Forestry and Wildlife Machinery and Accessories"
+msgstr ""
+
+msgid "Features"
+msgstr ""
+
+msgid "Federated States of Micronesia"
+msgstr ""
+
+msgid "Feed Reader"
+msgstr ""
 
 msgid "Female"
 msgstr "女"
 
+msgid "Fiber"
+msgstr ""
+
+msgid "Fiji"
+msgstr ""
+
+msgid "Fiji Islander"
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "File System Image"
+msgstr ""
+
+msgid "Filipino"
+msgstr ""
+
+msgid "Finance costs"
+msgstr ""
+
+msgid "Finance income"
+msgstr ""
+
+msgid "Financial Reports"
+msgstr ""
+
+msgid "Financial Support"
+msgstr ""
+
+msgid "Financial and Insurance Services"
+msgstr ""
+
+msgid "Financial assets"
+msgstr ""
+
+msgid "Financial assets amortisation"
+msgstr ""
+
+msgid "Financial intermediation"
+msgstr ""
+
+msgid "Financial intermediation except insurance"
+msgstr ""
+
+msgid "Financials Assets"
+msgstr ""
+
+msgid "Finite Storage Capacity"
+msgstr ""
+
+msgid "Finland"
+msgstr ""
+
+msgid "Finn"
+msgstr ""
+
+msgid "First Access"
+msgstr ""
+
+msgid "First Phone Number"
+msgstr ""
+
+msgid "First Teacher Name"
+msgstr ""
+
+msgid "FirstCausalityMovementGroup"
+msgstr ""
+
+msgid "Fishing & aquaculture"
+msgstr ""
+
+msgid "Fixed Assets"
+msgstr ""
+
+msgid "FloatEquivalenceTester"
+msgstr ""
+
+msgid "Foires et expositions"
+msgstr ""
+
+msgid "FolderWorkflowActionUtils"
+msgstr ""
+
+msgid "Fonds commercial"
+msgstr ""
+
+msgid "Fonds de participation"
+msgstr ""
+
+msgid "Fonds fiduciaires"
+msgstr ""
+
+msgid "Food Beverage and Tobacco Products"
+msgstr ""
+
+msgid "Food products & beverages"
+msgstr ""
+
+msgid "Foreign Languages"
+msgstr ""
+
+msgid "Forestry"
+msgstr ""
+
+msgid "Fournisseurs"
+msgstr ""
+
+msgid "Fournisseurs - Achats d'immobilisations"
+msgstr ""
+
+msgid "Fournisseurs - Achats de biens et prestations de services"
+msgstr ""
+
+msgid "Fournisseurs - Autres avoirs"
+msgstr ""
+
+msgid "Fournisseurs - Avances et acomptes versés sur commandes"
+msgstr ""
+
+msgid "Fournisseurs - Créances pour emballages et matériel à rendre"
+msgstr ""
+
+msgid "Fournisseurs - Effets à payer"
+msgstr ""
+
+msgid "Fournisseurs - Factures non parvenues"
+msgstr ""
+
+msgid "Fournisseurs - Intérêts courus"
+msgstr ""
+
+msgid "Fournisseurs - Retenues de garantie"
+msgstr ""
+
+msgid "Fournisseurs d'exploitation"
+msgstr ""
+
+msgid "Fournisseurs d'immobilisations"
+msgstr ""
+
+msgid "Fournisseurs d'immobilisations - Effets à payer"
+msgstr ""
+
+msgid "Fournisseurs d'immobilisations - Retenues de garantie"
+msgstr ""
+
+msgid "Fournisseurs débiteurs"
+msgstr ""
+
+msgid "Fournisseurs et comptes rattachés"
+msgstr ""
+
+msgid "Fourniture de bureau"
+msgstr ""
+
+msgid "Fournitures administratives"
+msgstr ""
+
+msgid "Fournitures consommables"
+msgstr ""
+
+msgid "Fournitures d'atelier et d'usine"
+msgstr ""
+
+msgid "Fournitures d'entretien et de petit équipement"
+msgstr ""
+
+msgid "Fournitures de bureau"
+msgstr ""
+
+msgid "Fournitures de magasin"
+msgstr ""
+
+msgid "Fournitures non stockables (eau, énergie, etc.)"
+msgstr ""
+
+msgid "Frais d'actes et de contentieux"
+msgstr ""
+
+msgid "Frais d'augmentation de capital et d'opérations diverses - fusions, scissions, transformations"
+msgstr ""
+
+msgid "Frais d'établissement"
+msgstr ""
+
+msgid "Frais d'établissement (même ventilation que celle du compte 201)"
+msgstr ""
+
+msgid "Frais de colloques, séminaires, conférences"
+msgstr ""
+
+msgid "Frais de constitution"
+msgstr ""
+
+msgid "Frais de déménagement"
+msgstr ""
+
+msgid "Frais de développement"
+msgstr ""
+
+msgid "Frais de premier établissement"
+msgstr ""
+
+msgid "Frais de prospection"
+msgstr ""
+
+msgid "Frais de publicité"
+msgstr ""
+
+msgid "Frais de recrutement de personnel"
+msgstr ""
+
+msgid "Frais d’émission des emprunts"
+msgstr ""
+
+msgid "Frais d’établissement"
+msgstr ""
+
+msgid "Frais postaux et de télécommunications"
+msgstr ""
+
+msgid "Frais sur effets"
+msgstr ""
+
+msgid "Frais sur titres (achat, vente, garde)"
+msgstr ""
+
+msgid "France"
+msgstr ""
+
+msgid "Free Alongside Ship"
+msgstr ""
+
+msgid "Free Carrier"
+msgstr ""
+
+msgid "Free On Board"
+msgstr ""
+
+msgid "Freelance"
+msgstr ""
+
+msgid "Freelance Staff"
+msgstr ""
+
+msgid "French"
+msgstr ""
+
+msgid "French Guiana"
+msgstr ""
+
+msgid "French Polynesia"
+msgstr ""
+
+msgid "French Specific Payroll Amounts"
+msgstr ""
+
+msgid "Front End"
+msgstr ""
+
+msgid "Fuels and Fuel Additives and Lubricants and Anti corrosive Materials"
+msgstr ""
+
+msgid "Furniture"
+msgstr ""
+
+msgid "Furniture and Furnishings"
+msgstr ""
+
+msgid "GANDI group"
+msgstr ""
+
+msgid "GB"
+msgstr ""
+
+msgid "GB Day"
+msgstr ""
+
+msgid "Gabon"
+msgstr ""
+
+msgid "Gabonese"
+msgstr ""
+
+msgid "Gadget"
+msgstr ""
+
+msgid "GadgetTool"
+msgstr ""
+
+msgid "Gains de change financiers"
+msgstr ""
+
+msgid "Gains de change sur créances et dettes commerciales"
+msgstr ""
+
+msgid "Galon"
+msgstr ""
+
+msgid "Gambia"
+msgstr ""
+
+msgid "Gambian"
+msgstr ""
+
+msgid "General Purchase Contract"
+msgstr ""
+
+msgid "General Sales Contract"
+msgstr ""
+
+msgid "General and administrative expenses"
+msgstr ""
+
+msgid "GeneratedAmountList"
+msgstr ""
+
+msgid "GeneratedDeliveryBuilder"
+msgstr ""
+
+msgid "GeographicAddress"
+msgstr ""
+
+msgid "GeographicalArea"
+msgstr ""
+
+msgid "GeographicalPoint"
+msgstr ""
+
+msgid "Georgia"
+msgstr ""
+
+msgid "Georgian"
+msgstr ""
+
+msgid "German"
+msgstr ""
+
+msgid "Germany"
+msgstr ""
+
+msgid "GetRssDataAsDict"
+msgstr ""
+
+msgid "Ghana"
+msgstr ""
+
+msgid "Ghanaian"
+msgstr ""
+
+msgid "Gibraltar"
+msgstr ""
+
+msgid "Gibraltarian"
+msgstr ""
+
+msgid "Giga Bytes"
+msgstr ""
+
+msgid "Goods-producing activities for own use"
+msgstr ""
+
+msgid "Google Calendar"
+msgstr ""
+
+msgid "Google clock"
+msgstr ""
+
+msgid "GoogleConnector"
+msgstr ""
+
+msgid "Government"
+msgstr ""
+
+msgid "Gram"
+msgstr ""
+
+msgid "GraphEditorUtils"
+msgstr ""
+
+msgid "Greece"
+msgstr ""
+
+msgid "Greek"
+msgstr ""
+
+msgid "Greenland"
+msgstr ""
+
+msgid "Greenlander"
+msgstr ""
+
+msgid "Grenada"
+msgstr ""
+
+msgid "Grenadian"
+msgstr ""
+
+msgid "Gross Salary"
+msgstr ""
+
+msgid "Groupe"
+msgstr ""
+
+msgid "Groupe et associés"
+msgstr ""
+
+msgid "Guadeloupe"
+msgstr ""
+
+msgid "Guadeloupean"
+msgstr ""
+
+msgid "Guam"
+msgstr ""
+
+msgid "Guamanian"
+msgstr ""
+
+msgid "Guatemala"
+msgstr ""
+
+msgid "Guatemalan"
+msgstr ""
+
+msgid "Guernsey"
+msgstr ""
+
+msgid "Guianese"
+msgstr ""
+
+msgid "Guinea"
+msgstr ""
+
+msgid "Guinea-Bissau"
+msgstr ""
+
+msgid "Guinean"
+msgstr ""
+
+msgid "Guyana"
+msgstr ""
+
+msgid "Guyanese"
+msgstr ""
+
+msgid "HQ"
+msgstr ""
+
+msgid "HR"
+msgstr ""
+
+msgid "HTTP"
+msgstr ""
+
+msgid "HTTP Front End"
+msgstr ""
+
+msgid "Haiti"
+msgstr ""
+
+msgid "Haitian"
+msgstr ""
+
+msgid "HalStyle"
+msgstr ""
+
+msgid "Hardware"
+msgstr ""
+
+msgid "Hardware Industry"
+msgstr ""
+
+msgid "Hateoas"
+msgstr ""
+
+msgid "Headquarters"
+msgstr ""
+
+msgid "Headquarters Agent"
+msgstr ""
+
+msgid "Headquarters Executive"
+msgstr ""
+
+msgid "Headquarters Manager"
+msgstr ""
+
+msgid "Health"
+msgstr ""
+
+msgid "Health & social work"
+msgstr ""
+
+msgid "Healthcare Services"
+msgstr ""
+
+msgid "Helper"
+msgstr ""
+
+msgid "Helper Software"
+msgstr ""
+
+msgid "Highlight"
+msgstr ""
+
+msgid "Holy See"
+msgstr ""
+
 msgid "Home"
 msgstr "首页"
+
+msgid "Honduran"
+msgstr ""
+
+msgid "Honduras"
+msgstr ""
+
+msgid "Hong Kong"
+msgstr ""
+
+msgid "Hong Kong Chinese"
+msgstr ""
+
+msgid "Hong Kong Special Administrative Region of China"
+msgstr ""
+
+msgid "Honoraires"
+msgstr ""
+
+msgid "Host"
+msgstr ""
+
+msgid "Hosting"
+msgstr ""
+
+msgid "Hosting Agent"
+msgstr ""
+
+msgid "Hosting Incident"
+msgstr ""
+
+msgid "Hosting Initial Software Configuration"
+msgstr ""
+
+msgid "Hosting Manager"
+msgstr ""
+
+msgid "Hosting Usage"
+msgstr ""
+
+msgid "Hotels & restaurants"
+msgstr ""
 
 msgid "Hour"
 msgstr "小时"
 
+msgid "How to configure Thomson VOIP Phone to use the Tiolive VOIP account"
+msgstr ""
+
+msgid "How to create a User in Tiolive"
+msgstr ""
+
+msgid "Human Resources"
+msgstr ""
+
+msgid "Human Resources Agent"
+msgstr ""
+
+msgid "Human Resources Manager"
+msgstr ""
+
+msgid "Human resources"
+msgstr ""
+
+msgid "Hungarian"
+msgstr ""
+
+msgid "Hungary"
+msgstr ""
+
+msgid "IAS"
+msgstr ""
+
+msgid "IAccountingMovement"
+msgstr ""
+
+msgid "IAmount"
+msgstr ""
+
+msgid "IAmountArithmetic"
+msgstr ""
+
+msgid "IAmountConversion"
+msgstr ""
+
+msgid "IAmountCore"
+msgstr ""
+
+msgid "IAmountGenerator"
+msgstr ""
+
+msgid "IAmountGeneratorLine"
+msgstr ""
+
+msgid "IAmountList"
+msgstr ""
+
+msgid "IAmountPrice"
+msgstr ""
+
+msgid "IArrowBase"
+msgstr ""
+
+msgid "IAssetMovement"
+msgstr ""
+
+msgid "IBM group"
+msgstr ""
+
+msgid "IBaseConvertable"
+msgstr ""
+
+msgid "IBuildableBusinessLinkProcess"
+msgstr ""
+
+msgid "IBusinessLink"
+msgstr ""
+
+msgid "IBusinessLinkProcess"
+msgstr ""
+
+msgid "IBusinessProcess"
+msgstr ""
+
+msgid "IBusinessProcessUnionProvider"
+msgstr ""
+
+msgid "ICachedConvertable"
+msgstr ""
+
+msgid "IConduit"
+msgstr ""
+
+msgid "IConfigurable"
+msgstr ""
+
+msgid "IConfiguratorItem"
+msgstr ""
+
+msgid "IConvertable"
+msgstr ""
+
+msgid "ICoordinate"
+msgstr ""
+
+msgid "ICrawlable"
+msgstr ""
+
+msgid "IDE"
+msgstr ""
+
+msgid "IDeliverySolver"
+msgstr ""
+
+msgid "IDiscoverable"
+msgstr ""
+
+msgid "IDivergenceController"
+msgstr ""
+
+msgid "IDivergenceMessage"
+msgstr ""
+
+msgid "IDivergenceTester"
+msgstr ""
+
+msgid "IDocument"
+msgstr ""
+
+msgid "IDocumentProxy"
+msgstr ""
+
+msgid "IDownloadable"
+msgstr ""
+
+msgid "IEncryptedPassword"
+msgstr ""
+
+msgid "IEntity"
+msgstr ""
+
+msgid "IEquivalenceTester"
+msgstr ""
+
+msgid "IExpandable"
+msgstr ""
+
+msgid "IExplainable"
+msgstr ""
+
+msgid "IExtensibleTraversable"
+msgstr ""
+
+msgid "IFRS"
+msgstr ""
+
+msgid "IFile"
+msgstr ""
+
+msgid "IFormatConvertable"
+msgstr ""
+
+msgid "IGeneratedDeliveryBuilder"
+msgstr ""
+
+msgid "IGranulatable"
+msgstr ""
+
+msgid "IHtmlConvertable"
+msgstr ""
+
+msgid "IImmobilisationItem"
+msgstr ""
+
+msgid "IJSONConvertable"
+msgstr ""
+
+msgid "ILoginAccountProvider"
+msgstr ""
+
+msgid "IMappedValue"
+msgstr ""
+
+msgid "IMimeSender"
+msgstr ""
+
+msgid "IMovement"
+msgstr ""
+
+msgid "IMovementCollection"
+msgstr ""
+
+msgid "IMovementCollectionDiff"
+msgstr ""
+
+msgid "IMovementCollectionUpdater"
+msgstr ""
+
+msgid "IMovementGenerator"
+msgstr ""
+
+msgid "IMovementGroup"
+msgstr ""
+
+msgid "IMovementList"
+msgstr ""
+
+msgid "IPaymentService"
+msgstr ""
+
+msgid "IProductionMovement"
+msgstr ""
+
+msgid "IReferenceable"
+msgstr ""
+
+msgid "IRoundable"
+msgstr ""
+
+msgid "IRoundingTool"
+msgstr ""
+
+msgid "IRule"
+msgstr ""
+
+msgid "ISendable"
+msgstr ""
+
+msgid "ISimilarityProvider"
+msgstr ""
+
+msgid "ISimulatedDeliveryBuilder"
+msgstr ""
+
+msgid "ISimulationMovement"
+msgstr ""
+
+msgid "ISimulationMovementProcess"
+msgstr ""
+
+msgid "ISolver"
+msgstr ""
+
+msgid "ISpreadsheetConfiguratorItem"
+msgstr ""
+
+msgid "IT Support"
+msgstr ""
+
+msgid "ITextConvertable"
+msgstr ""
+
+msgid "ITextConvertableLegacy"
+msgstr ""
+
+msgid "ITextDocument"
+msgstr ""
+
+msgid "ITradeModelPath"
+msgstr ""
+
+msgid "ITradeModelPathProcess"
+msgstr ""
+
+msgid "ITradePhaseProcess"
+msgstr ""
+
+msgid "ITradeStateProcess"
+msgstr ""
+
+msgid "ITranslatable"
+msgstr ""
+
+msgid "IUploadable"
+msgstr ""
+
+msgid "IUrl"
+msgstr ""
+
+msgid "IUrlRegistryTool"
+msgstr ""
+
+msgid "IVersionable"
+msgstr ""
+
+msgid "IWatermarkable"
+msgstr ""
+
+msgid "Iceland"
+msgstr ""
+
+msgid "Icelander"
+msgstr ""
+
+msgid "Identical"
+msgstr ""
+
+msgid "Image"
+msgstr ""
+
+msgid "ImageUtil"
+msgstr ""
+
+msgid "Imaging"
+msgstr ""
+
+msgid "Imaging Software"
+msgstr ""
+
+msgid "ImmobilisableItem"
+msgstr ""
+
+msgid "Immobilisation"
+msgstr ""
+
+msgid "ImmobilisationDelivery"
+msgstr ""
+
+msgid "ImmobilisationLine"
+msgstr ""
+
+msgid "ImmobilisationMovement"
+msgstr ""
+
+msgid "Immobilisations corporelles"
+msgstr ""
+
+msgid "Immobilisations corporelles en cours"
+msgstr ""
+
+msgid "Immobilisations en cours, avances et acomptes"
+msgstr ""
+
+msgid "Immobilisations financières"
+msgstr ""
+
+msgid "Immobilisations incorporelles"
+msgstr ""
+
+msgid "Immobilisations incorporelles en cours"
+msgstr ""
+
+msgid "Immobilisations incorporelles et frais d’établissement"
+msgstr ""
+
+msgid "Immobilisations mises en concession"
+msgstr ""
+
+msgid "ImplicitItemMovement"
+msgstr ""
+
+msgid "Impôts directs (sauf impôts sur les bénéfices)"
+msgstr ""
+
+msgid "Impôts dus en France"
+msgstr ""
+
+msgid "Impôts dus à l'étranger"
+msgstr ""
+
+msgid "Impôts et taxes exigibles à l'étranger"
+msgstr ""
+
+msgid "Impôts indirects"
+msgstr ""
+
+msgid "Impôts sur les bénéfices"
+msgstr ""
+
+msgid "Impôts, taxes et versements assimilés"
+msgstr ""
+
+msgid "Impôts, taxes et versements assimilés sur rémunérations (administrations des impôts)"
+msgstr ""
+
+msgid "Impôts, taxes et versements assimilés sur rémunérations (autres organismes)"
+msgstr ""
+
 msgid "In Cash"
 msgstr "现金"
+
+msgid "Incident"
+msgstr ""
+
+msgid "Income"
+msgstr ""
+
+msgid "Income Tax"
+msgstr ""
+
+msgid "Incoming"
+msgstr ""
+
+msgid "Indemnités d’assurance"
+msgstr ""
+
+msgid "Indemnités et autres produits"
+msgstr ""
+
+msgid "Indemnités et avantages divers"
+msgstr ""
+
+msgid "India"
+msgstr ""
+
+msgid "Indian"
+msgstr ""
+
+msgid "Indonesia"
+msgstr ""
+
+msgid "Indonesian"
+msgstr ""
+
+msgid "Industrial Cleaning Services"
+msgstr ""
+
+msgid "Industrial Equipment"
+msgstr ""
+
+msgid "Industrial Production and Manufacturing Services"
+msgstr ""
+
+msgid "Industry"
+msgstr ""
+
+msgid "Infiniband"
+msgstr ""
+
+msgid "Infinite Storage Capacity"
+msgstr ""
+
+msgid "Information"
+msgstr ""
+
+msgid "Information Systems"
+msgstr ""
+
+msgid "Information Systems Manager"
+msgstr ""
+
+msgid "Information Technology"
+msgstr ""
+
+msgid "Information Technology Broadcasting and Telecommunications"
+msgstr ""
+
+msgid "Ingestion"
+msgstr ""
+
+msgid "IngestionPolicy"
+msgstr ""
+
+msgid "IngestionPolicyTool"
+msgstr ""
+
+msgid "Inquiry"
+msgstr ""
+
+msgid "Insolvabilité clients"
+msgstr ""
+
+msgid "Installations complexes spécialisées"
+msgstr ""
+
+msgid "Installations complexes spécialisées sur sol d'autrui"
+msgstr ""
+
+msgid "Installations complexes spécialisées sur sol propre"
+msgstr ""
+
+msgid "Installations générales - agencements - aménagements des constructions"
+msgstr ""
+
+msgid "Installations générales, agencements, aménagements divers"
+msgstr ""
+
+msgid "Installations techniques, matériels et outillages industriels"
+msgstr ""
+
+msgid "Installations à caractère spécifique"
+msgstr ""
+
+msgid "Installations à caractère spécifique sur sol d'autrui"
+msgstr ""
+
+msgid "Installations à caractère spécifique sur sol propre"
+msgstr ""
+
+msgid "Installations, matériel et outillage industriels (même ventilation que celle du compte 215)"
+msgstr ""
+
+msgid "Instance"
+msgstr ""
+
+msgid "Instance Tree"
+msgstr ""
+
+msgid "Instruments financiers à terme"
+msgstr ""
+
+msgid "Instruments financiers à terme et jetons détenus"
+msgstr ""
+
+msgid "Insurance & pension funding"
+msgstr ""
+
+msgid "Intangible Assets"
+msgstr ""
+
+msgid "Intangible assets"
+msgstr ""
+
+msgid "Intangible assets amortisation"
+msgstr ""
+
+msgid "IntegrationMapping"
+msgstr ""
+
+msgid "IntegrationModule"
+msgstr ""
+
+msgid "IntegrationSite"
+msgstr ""
+
+msgid "IntegrationTool"
+msgstr ""
+
+msgid "Integrations"
+msgstr ""
+
+msgid "Intel 486"
+msgstr ""
+
+msgid "Intel Core"
+msgstr ""
+
+msgid "Intel Nehalem Architecture"
+msgstr ""
+
+msgid "Intel Pentium"
+msgstr ""
+
+msgid "Intel Pentium Pro"
+msgstr ""
+
+msgid "Intel Sandy Bridge Architecture"
+msgstr ""
+
+msgid "Intel x86"
+msgstr ""
+
+msgid "Intel x86 32 bit"
+msgstr ""
+
+msgid "Intel x86 64 bit"
+msgstr ""
+
+msgid "Interest Expense"
+msgstr ""
+
+msgid "Interest Income"
+msgstr ""
+
+msgid "Intern"
+msgstr ""
 
 msgid "Internal"
 msgstr "内部人员"
 
+msgid "International Accounting Standards"
+msgstr ""
+
+msgid "International Financial Reporting Standards"
+msgstr ""
+
+msgid "InternetProtocolAddress"
+msgstr ""
+
+msgid "IntrospectionTool"
+msgstr ""
+
+msgid "Intégration fiscale"
+msgstr ""
+
+msgid "Intégration fiscale - Charges"
+msgstr ""
+
+msgid "Intégration fiscale - Produits"
+msgstr ""
+
+msgid "Intérêts bancaires et sur opérations de financement (escompte…)"
+msgstr ""
+
+msgid "Intérêts courus"
+msgstr ""
+
+msgid "Intérêts courus sur autres emprunts et dettes assimilées"
+msgstr ""
+
+msgid "Intérêts courus sur autres emprunts obligataires"
+msgstr ""
+
+msgid "Intérêts courus sur avances conditionnées"
+msgstr ""
+
+msgid "Intérêts courus sur concours bancaires courants"
+msgstr ""
+
+msgid "Intérêts courus sur créances diverses"
+msgstr ""
+
+msgid "Intérêts courus sur dépôts et cautionnements"
+msgstr ""
+
+msgid "Intérêts courus sur dépôts et cautionnements reçus"
+msgstr ""
+
+msgid "Intérêts courus sur emprunts auprès des établissements de crédit"
+msgstr ""
+
+msgid "Intérêts courus sur emprunts obligataires convertibles"
+msgstr ""
+
+msgid "Intérêts courus sur emprunts participatifs"
+msgstr ""
+
+msgid "Intérêts courus sur obligations, bons et valeurs assimilés"
+msgstr ""
+
+msgid "Intérêts courus sur participation des salariés aux résultats"
+msgstr ""
+
+msgid "Intérêts courus sur prêts"
+msgstr ""
+
+msgid "Intérêts courus sur titres immobilisés (droit de créance)"
+msgstr ""
+
+msgid "Intérêts courus sur titres participatifs"
+msgstr ""
+
+msgid "Intérêts courus à payer"
+msgstr ""
+
+msgid "Intérêts courus à recevoir"
+msgstr ""
+
+msgid "Intérêts des autres dettes"
+msgstr ""
+
+msgid "Intérêts des comptes courants et des dépôts créditeurs"
+msgstr ""
+
+msgid "Intérêts des dettes commerciales"
+msgstr ""
+
+msgid "Intérêts des dettes diverses"
+msgstr ""
+
+msgid "Intérêts des dettes rattachées à des participations"
+msgstr ""
+
+msgid "Intérêts des emprunts et dettes"
+msgstr ""
+
+msgid "Intérêts des emprunts et dettes assimilées"
+msgstr ""
+
+msgid "Intérêts des obligations cautionnées"
+msgstr ""
+
+msgid "Invalid Credentials"
+msgstr ""
+
+msgid "Inventories"
+msgstr ""
+
+msgid "Inventories depreciation"
+msgstr ""
+
+msgid "Inventory"
+msgstr ""
+
+msgid "Inventory module features"
+msgstr ""
+
+msgid "InventoryBrain"
+msgstr ""
+
+msgid "InventoryCell"
+msgstr ""
+
+msgid "InventoryLine"
+msgstr ""
+
 msgid "Invoice"
 msgstr "发票"
+
+msgid "Invoice Discounted"
+msgstr ""
+
+msgid "Invoice Normal Rate"
+msgstr ""
+
+msgid "Invoice Normal Rate VAT"
+msgstr ""
+
+msgid "Invoice Reduced Rate"
+msgstr ""
+
+msgid "Invoice Reduced Rate VAT"
+msgstr ""
+
+msgid "Invoice Taxable"
+msgstr ""
+
+msgid "Invoice VAT"
+msgstr ""
+
+msgid "Invoice Zero Rate"
+msgstr ""
+
+msgid "Invoice Zero Rate VAT"
+msgstr ""
+
+msgid "InvoiceCell"
+msgstr ""
+
+msgid "InvoiceLine"
+msgstr ""
+
+msgid "InvoiceMovementGroup"
+msgstr ""
+
+msgid "InvoiceRootSimulationRule"
+msgstr ""
+
+msgid "InvoiceSimulationRule"
+msgstr ""
+
+msgid "InvoiceTransactionSimulationRule"
+msgstr ""
+
+msgid "Invoiced"
+msgstr ""
+
+msgid "Invoicing"
+msgstr ""
+
+msgid "Iran"
+msgstr ""
+
+msgid "Iran, Islamic Republic of"
+msgstr ""
+
+msgid "Iranian"
+msgstr ""
+
+msgid "Iraq"
+msgstr ""
+
+msgid "Iraqi"
+msgstr ""
+
+msgid "Ireland"
+msgstr ""
+
+msgid "Irishman"
+msgstr ""
+
+msgid "Isle of Man"
+msgstr ""
+
+msgid "Israel"
+msgstr ""
+
+msgid "Israeli"
+msgstr ""
+
+msgid "Italian"
+msgstr ""
+
+msgid "Italy"
+msgstr ""
+
+msgid "Item"
+msgstr ""
+
+msgid "Item Added"
+msgstr ""
+
+msgid "ItemListSplitSolver"
+msgstr ""
+
+msgid "Ivorian"
+msgstr ""
+
+msgid "JSONForm"
+msgstr ""
+
+msgid "JSONType"
+msgstr ""
+
+msgid "Jamaica"
+msgstr ""
+
+msgid "Jamaican"
+msgstr ""
+
+msgid "Japan"
+msgstr ""
+
+msgid "Japanese"
+msgstr ""
+
+msgid "Java"
+msgstr ""
+
+msgid "Java Library"
+msgstr ""
+
+msgid "Java Stack"
+msgstr ""
+
+msgid "Javascript"
+msgstr ""
+
+msgid "Javascript Library"
+msgstr ""
+
+msgid "Javascript Stack"
+msgstr ""
+
+msgid "Jersey"
+msgstr ""
+
+msgid "Jetons auto-détenus"
+msgstr ""
+
+msgid "Jetons détenus"
+msgstr ""
+
+msgid "Jetons empruntés"
+msgstr ""
+
+msgid "Jordan"
+msgstr ""
+
+msgid "Jordanian"
+msgstr ""
+
+msgid "Joyent group"
+msgstr ""
+
+msgid "JsonRpcAPIService"
+msgstr ""
+
+msgid "JsonUtils"
+msgstr ""
+
+msgid "JupyterCompile"
+msgstr ""
+
+msgid "KB"
+msgstr ""
+
+msgid "KB Day"
+msgstr ""
+
+msgid "Kazakh"
+msgstr ""
+
+msgid "Kazakhstan"
+msgstr ""
+
+msgid "Kenya"
+msgstr ""
+
+msgid "Kenyan"
+msgstr ""
+
+msgid "Kilo Bytes"
+msgstr ""
+
+msgid "Kilogram"
+msgstr ""
+
+msgid "Kilowatt-Hour"
+msgstr ""
+
+msgid "Kiribati"
+msgstr ""
+
+msgid "Kiribatian"
+msgstr ""
+
+msgid "Kittsian; Nevisian"
+msgstr ""
+
+msgid "Knowledge Base"
+msgstr ""
+
+msgid "Kuwait"
+msgstr ""
+
+msgid "Kuwaiti"
+msgstr ""
+
+msgid "Kyrgyz"
+msgstr ""
+
+msgid "Kyrgyzstan"
+msgstr ""
+
+msgid "LAMP"
+msgstr ""
+
+msgid "LAMP Stack"
+msgstr ""
+
+msgid "LIFODeliverySolver"
+msgstr ""
+
+msgid "LLC"
+msgstr ""
+
+msgid "LLP"
+msgstr ""
+
+msgid "LP"
+msgstr ""
+
+msgid "Laboratory and Measuring and Observing and Testing Equipment"
+msgstr ""
+
+msgid "Labour"
+msgstr ""
+
+msgid "Land Transport"
+msgstr ""
+
+msgid "Land transport"
+msgstr ""
+
+msgid "Language"
+msgstr ""
+
+msgid "Lao"
+msgstr ""
+
+msgid "Lao People's Democratic Republic"
+msgstr ""
+
+msgid "Laos"
+msgstr ""
+
+msgid "Laptop"
+msgstr ""
+
+msgid "Laptop PC"
+msgstr ""
+
+msgid "Latvia"
+msgstr ""
+
+msgid "Latvian"
+msgstr ""
+
+msgid "Lead"
+msgstr ""
+
+msgid "Lease"
+msgstr ""
+
+msgid "Leave time"
+msgstr ""
+
+msgid "Lebanese"
+msgstr ""
+
+msgid "Lebanon"
+msgstr ""
+
+msgid "Legal"
+msgstr ""
+
+msgid "Length"
+msgstr ""
+
+msgid "Lesotho"
+msgstr ""
 
 msgid "Lessons"
 msgstr "课程"
 
+msgid "Level 1"
+msgstr ""
+
+msgid "Level 2"
+msgstr ""
+
+msgid "Level 3"
+msgstr ""
+
+msgid "Level 4"
+msgstr ""
+
+msgid "Level 5"
+msgstr ""
+
+msgid "Liability"
+msgstr ""
+
+msgid "Liberia"
+msgstr ""
+
+msgid "Liberian"
+msgstr ""
+
+msgid "Library"
+msgstr ""
+
+msgid "Libyan"
+msgstr ""
+
+msgid "Libyan Arab Jamahiriya"
+msgstr ""
+
+msgid "Libéralités reçues"
+msgstr ""
+
+msgid "License"
+msgstr ""
+
+msgid "Liechtenstein"
+msgstr ""
+
+msgid "Liechtensteiner"
+msgstr ""
+
+msgid "Limited company (Ltd.)"
+msgstr ""
+
+msgid "Limited liability company (LLC)"
+msgstr ""
+
+msgid "Limited liability partnership (LLP)"
+msgstr ""
+
+msgid "Limited partnership (LP)"
+msgstr ""
+
+msgid "Line"
+msgstr ""
+
+msgid "Lithuania"
+msgstr ""
+
+msgid "Lithuanian"
+msgstr ""
+
+msgid "Litre"
+msgstr ""
+
+msgid "Live Plant and Animal Material, Accessories and Supplies"
+msgstr ""
+
+msgid "Loans"
+msgstr ""
+
+msgid "Location de coffres"
+msgstr ""
+
+msgid "Locations"
+msgstr ""
+
+msgid "Locations diverses"
+msgstr ""
+
+msgid "Locations immobilières"
+msgstr ""
+
+msgid "Locations mobilières"
+msgstr ""
+
+msgid "Log"
+msgstr ""
+
+msgid "Log Processing Software"
+msgstr ""
+
+msgid "Login"
+msgstr ""
+
+msgid "LoginAccountProviderMixin"
+msgstr ""
+
+msgid "Long Term Assets"
+msgstr ""
+
+msgid "Long Term Liabilities"
+msgstr ""
+
+msgid "Long term loan"
+msgstr ""
+
+msgid "Lots"
+msgstr ""
+
 msgid "Low Priority"
 msgstr "低优先性"
+
+msgid "Ltd"
+msgstr ""
+
+msgid "Luxembourg"
+msgstr ""
+
+msgid "Luxembourger"
+msgstr ""
+
+msgid "MB"
+msgstr ""
+
+msgid "MB Day"
+msgstr ""
+
+msgid "Macanese"
+msgstr ""
+
+msgid "Macao"
+msgstr ""
+
+msgid "Macao Special Administrative Region of China"
+msgstr ""
+
+msgid "Macedonia"
+msgstr ""
+
+msgid "Macedonian"
+msgstr ""
+
+msgid "Machine"
+msgstr ""
+
+msgid "Machinery & equipment"
+msgstr ""
+
+msgid "Madagascar"
+msgstr ""
 
 msgid "Madam"
 msgstr "女士"
 
+msgid "Mahorais"
+msgstr ""
+
+msgid "MailMessage"
+msgstr ""
+
+msgid "MailMessageMixin"
+msgstr ""
+
 msgid "Main site"
 msgstr "主要站点"
+
+msgid "Maintenance"
+msgstr ""
+
+msgid "Malagasy"
+msgstr ""
+
+msgid "Malawi"
+msgstr ""
+
+msgid "Malawian"
+msgstr ""
+
+msgid "Malaysia"
+msgstr ""
+
+msgid "Malaysian"
+msgstr ""
+
+msgid "Maldives"
+msgstr ""
+
+msgid "Maldivian"
+msgstr ""
 
 msgid "Male"
 msgstr "男"
 
+msgid "Mali"
+msgstr ""
+
+msgid "Mali de fusion sur actif circulant"
+msgstr ""
+
+msgid "Mali de fusion sur actifs corporels"
+msgstr ""
+
+msgid "Mali de fusion sur actifs financiers"
+msgstr ""
+
+msgid "Mali de fusion sur actifs incorporels"
+msgstr ""
+
+msgid "Mali provenant du rachat par l’entité d’actions et obligations émises par elle-même"
+msgstr ""
+
+msgid "Malian"
+msgstr ""
+
+msgid "Malis provenant de clauses d’indexation"
+msgstr ""
+
+msgid "Malis sur emballage"
+msgstr ""
+
+msgid "Malta"
+msgstr ""
+
+msgid "Maltese"
+msgstr ""
+
+msgid "Management"
+msgstr ""
+
+msgid "Management Collaborative"
+msgstr ""
+
+msgid "Management Personal"
+msgstr ""
+
+msgid "Management and Business Professionals and Administrative Services"
+msgstr ""
+
+msgid "Manager"
+msgstr ""
+
+msgid "Manual"
+msgstr ""
+
+msgid "Manufactured Products"
+msgstr ""
+
+msgid "Manufacturing"
+msgstr ""
+
+msgid "Manufacturing Components and Supplies"
+msgstr ""
+
+msgid "MappedProperty"
+msgstr ""
+
+msgid "MappedValue"
+msgstr ""
+
+msgid "Market Survey"
+msgstr ""
+
+msgid "Marketing"
+msgstr ""
+
+msgid "Marketing Agent"
+msgstr ""
+
+msgid "Marketing Campaign"
+msgstr ""
+
+msgid "Marketing Manager"
+msgstr ""
+
+msgid "Marques, procédés, droits et valeurs similaires"
+msgstr ""
+
+msgid "Married"
+msgstr ""
+
+msgid "Marshall Islands"
+msgstr ""
+
+msgid "Marshallese"
+msgstr ""
+
+msgid "Martinican"
+msgstr ""
+
+msgid "Martinique"
+msgstr ""
+
+msgid "Mass"
+msgstr ""
+
+msgid "Master Card"
+msgstr ""
+
+msgid "Material Handling and Conditioning and Storage Machinery"
+msgstr ""
+
+msgid "Matières consommables"
+msgstr ""
+
+msgid "Matières de récupération"
+msgstr ""
+
+msgid "Matières premières et fournitures"
+msgstr ""
+
+msgid "Matériel de bureau et matériel informatique"
+msgstr ""
+
+msgid "Matériel de transport"
+msgstr ""
+
+msgid "Matériels industriels"
+msgstr ""
+
+msgid "Mauritania"
+msgstr ""
+
+msgid "Mauritanian"
+msgstr ""
+
+msgid "Mauritian"
+msgstr ""
+
+msgid "Mauritius"
+msgstr ""
+
+msgid "Mayotte"
+msgstr ""
+
+msgid "Measure"
+msgstr ""
+
 msgid "Media"
 msgstr "组织"
+
+msgid "Medical Equipment and Accessories and Supplies"
+msgstr ""
+
+msgid "Medical, precision & optical instruments"
+msgstr ""
+
+msgid "Meeting"
+msgstr ""
+
+msgid "Meetings"
+msgstr ""
+
+msgid "Mega Bytes"
+msgstr ""
+
+msgid "Melanesia"
+msgstr ""
+
+msgid "Member"
+msgstr ""
 
 msgid "Member Access"
 msgstr "会员通道"
 
+msgid "Metal ores"
+msgstr ""
+
+msgid "Meter"
+msgstr ""
+
+msgid "Mexican"
+msgstr ""
+
+msgid "Mexico"
+msgstr ""
+
+msgid "Micronesia"
+msgstr ""
+
+msgid "Micronesia, Federated States of"
+msgstr ""
+
+msgid "Micronesian"
+msgstr ""
+
+msgid "Microsoft group"
+msgstr ""
+
+msgid "Middle"
+msgstr ""
+
+msgid "Middle Africa"
+msgstr ""
+
+msgid "Mile"
+msgstr ""
+
+msgid "Millimeter"
+msgstr ""
+
+msgid "Mineral and Textile and Inedible Plant and Animal Materials"
+msgstr ""
+
+msgid "MinimisePriceDeliverySolver"
+msgstr ""
+
+msgid "Mining & quarrying"
+msgstr ""
+
+msgid "Mining and Well Drilling Machinery and Accessories"
+msgstr ""
+
+msgid "Mining and oil and gas services"
+msgstr ""
+
+msgid "Minute"
+msgstr ""
+
+msgid "Mise à disposition de personnel facturée"
+msgstr ""
+
 msgid "Miss"
 msgstr "小姐"
+
+msgid "Missing Credentials"
+msgstr ""
+
+msgid "MissingCategoryDocumentConstraint"
+msgstr ""
+
+msgid "Missions"
+msgstr ""
 
 msgid "Mister"
 msgstr "先生"
 
+msgid "Mistress"
+msgstr ""
+
+msgid "Mobilier"
+msgstr ""
+
+msgid "Mobilisation de créances nées à l'étranger"
+msgstr ""
+
+msgid "Moldovan"
+msgstr ""
+
+msgid "Monaco"
+msgstr ""
+
+msgid "MonacoEditorUtils"
+msgstr ""
+
+msgid "Monegasque"
+msgstr ""
+
+msgid "Mongolia"
+msgstr ""
+
+msgid "Mongolian"
+msgstr ""
+
+msgid "Monitoring"
+msgstr ""
+
+msgid "Monitoring Software"
+msgstr ""
+
+msgid "Montenegrin"
+msgstr ""
+
+msgid "Montenegro"
+msgstr ""
+
+msgid "Month"
+msgstr ""
+
+msgid "MonthlyRangeMovementGroup"
+msgstr ""
+
+msgid "Montserrat"
+msgstr ""
+
+msgid "Montserratian"
+msgstr ""
+
+msgid "Moroccan"
+msgstr ""
+
+msgid "Morocco"
+msgstr ""
+
+msgid "Motor vehicles & trailers"
+msgstr ""
+
+msgid "Movement"
+msgstr ""
+
+msgid "MovementCollectionDiff"
+msgstr ""
+
+msgid "MovementCollectionUpdaterMixin"
+msgstr ""
+
+msgid "MovementGeneratorMixin"
+msgstr ""
+
+msgid "MovementGroup"
+msgstr ""
+
+msgid "MovementSplitSolver"
+msgstr ""
+
+msgid "Mozambican"
+msgstr ""
+
+msgid "Mozambique"
+msgstr ""
+
+msgid "Mr"
+msgstr ""
+
+msgid "Mrs"
+msgstr ""
+
+msgid "Ms"
+msgstr ""
+
+msgid "Multimedia"
+msgstr ""
+
+msgid "Multimedia Software"
+msgstr ""
+
+msgid "Multirisques"
+msgstr ""
+
+msgid "Musical Instruments and Games and Educational Equipment"
+msgstr ""
+
+msgid "Must Revalidate"
+msgstr ""
+
+msgid "Myanmar"
+msgstr ""
+
+msgid "Médecine du travail, pharmacie"
+msgstr ""
+
+msgid "NAS"
+msgstr ""
+
+msgid "NGO"
+msgstr ""
+
+msgid "NPO"
+msgstr ""
+
+msgid "Namibia"
+msgstr ""
+
+msgid "Namibian"
+msgstr ""
+
+msgid "National Defense and Public Order and Security and Safety Services"
+msgstr ""
+
+msgid "Nauru"
+msgstr ""
+
+msgid "Nauruan"
+msgstr ""
+
+msgid "Nehalem"
+msgstr ""
+
+msgid "Nepal"
+msgstr ""
+
+msgid "Nepalese"
+msgstr ""
+
+msgid "NestedLineMovementGroup"
+msgstr ""
+
+msgid "Net"
+msgstr ""
+
+msgid "Net Salary"
+msgstr ""
+
+msgid "NetConvertedQuantityEquivalenceTester"
+msgstr ""
+
+msgid "Netherlander"
+msgstr ""
+
+msgid "Netherlands"
+msgstr ""
+
+msgid "Netherlands Antilles"
+msgstr ""
+
+msgid "Network"
+msgstr ""
+
+msgid "Network Attached Storage"
+msgstr ""
+
+msgid "Never"
+msgstr ""
+
+msgid "New Caledonia"
+msgstr ""
+
+msgid "New Caledonian"
+msgstr ""
+
+msgid "New Zealand"
+msgstr ""
+
+msgid "New Zealander"
+msgstr ""
+
+msgid "News"
+msgstr ""
+
+msgid "News Feed"
+msgstr ""
+
 msgid "Nexedi Values"
 msgstr "Nexedi价值观"
+
+msgid "Next Message"
+msgstr ""
+
+msgid "Nicaragua"
+msgstr ""
+
+msgid "Nicaraguan"
+msgstr ""
+
+msgid "Niger"
+msgstr ""
+
+msgid "Nigeria"
+msgstr ""
+
+msgid "Nigerian"
+msgstr ""
+
+msgid "Nigerien"
+msgstr ""
+
+msgid "Niue"
+msgstr ""
+
+msgid "Niuean"
+msgstr ""
+
+msgid "No Cache"
+msgstr ""
+
+msgid "No Store"
+msgstr ""
+
+msgid "NoSQL"
+msgstr ""
+
+msgid "NoSQL Database"
+msgstr ""
+
+msgid "Node Image"
+msgstr ""
+
+msgid "Non Deductible Tax"
+msgstr ""
+
+msgid "Non Deductible Withholdings"
+msgstr ""
+
+msgid "Non Governmental Organisation"
+msgstr ""
+
+msgid "Non Op. Expense"
+msgstr ""
+
+msgid "Non Op. Income"
+msgstr ""
+
+msgid "Non Operating Expense"
+msgstr ""
+
+msgid "Non Operating Income"
+msgstr ""
+
+msgid "Non Tax Withholding"
+msgstr ""
+
+msgid "Non Taxable Bonus"
+msgstr ""
+
+msgid "Non-current assets"
+msgstr ""
+
+msgid "Non-current provisions"
+msgstr ""
+
+msgid "Non-metallic mineral products"
+msgstr ""
+
+msgid "Non-operating expenses"
+msgstr ""
+
+msgid "Non-profit organisation"
+msgstr ""
+
+msgid "Norfolk Island"
+msgstr ""
+
+msgid "Norfolk Islander"
+msgstr ""
 
 msgid "Normal"
 msgstr "普通"
 
+msgid "North Korea"
+msgstr ""
+
+msgid "North Korean"
+msgstr ""
+
+msgid "Northern"
+msgstr ""
+
+msgid "Northern Africa"
+msgstr ""
+
+msgid "Northern America"
+msgstr ""
+
+msgid "Northern Europe"
+msgstr ""
+
+msgid "Northern Mariana"
+msgstr ""
+
+msgid "Northern Mariana Islander"
+msgstr ""
+
+msgid "Northern Mariana Islands"
+msgstr ""
+
+msgid "Norway"
+msgstr ""
+
+msgid "Norwegian"
+msgstr ""
+
+msgid "NotificationTool"
+msgstr ""
+
+msgid "OAuth2AuthorisationClientConnector"
+msgstr ""
+
+msgid "OAuthTool"
+msgstr ""
+
+msgid "OEM"
+msgstr ""
+
+msgid "OEM Page"
+msgstr ""
+
+msgid "OOoDocument"
+msgstr ""
+
+msgid "OOoDocumentExtensibleTraversableMixin"
+msgstr ""
+
+msgid "OVH group"
+msgstr ""
+
+msgid "Obligations"
+msgstr ""
+
+msgid "Obligations cautionnées"
+msgstr ""
+
+msgid "Obligations et bons émis par la société et rachetés par elle"
+msgstr ""
+
+msgid "Obligations représentatives de passifs nets remis en fiducie"
+msgstr ""
+
+msgid "Occupied Palestinian Territory"
+msgstr ""
+
+msgid "Oceania"
+msgstr ""
+
+msgid "Office"
+msgstr ""
+
+msgid "Office Equipment and Accessories and Supplies"
+msgstr ""
+
+msgid "Office Software"
+msgstr ""
+
+msgid "Office, accounting & computing machinery"
+msgstr ""
+
+msgid "Oman"
+msgstr ""
+
+msgid "Omani"
+msgstr ""
+
+msgid "One Day Max Modification Date"
+msgstr ""
+
+msgid "One Hour Max Modification Date"
+msgstr ""
+
+msgid "One Way From Client"
+msgstr ""
+
+msgid "One Way From Server"
+msgstr ""
+
+msgid "One Year Cache (Powerful and Dangerous)"
+msgstr ""
+
+msgid "One way From Client By Server"
+msgstr ""
+
+msgid "Online Shop"
+msgstr ""
+
+msgid "Open"
+msgstr ""
+
+msgid "Open Order"
+msgstr ""
+
+msgid "OpenAPIService"
+msgstr ""
+
+msgid "OpenAPITypeInformation"
+msgstr ""
+
+msgid "OpenOrder"
+msgstr ""
+
+msgid "OpenOrderCell"
+msgstr ""
+
+msgid "OpenOrderLine"
+msgstr ""
+
+msgid "Operating Expenses"
+msgstr ""
+
+msgid "Operating Income"
+msgstr ""
+
+msgid "Operation"
+msgstr ""
+
+msgid "Operational Expenses"
+msgstr ""
+
+msgid "Optical Fiber"
+msgstr ""
+
+msgid "Opérations courantes"
+msgstr ""
+
+msgid "Opérations de constitution ou liquidation des fiducies"
+msgstr ""
+
+msgid "Opérations faites en commun et en GIE"
+msgstr ""
+
 msgid "Order"
 msgstr "订单"
+
+msgid "OrderBuilder"
+msgstr ""
+
+msgid "OrderCell"
+msgstr ""
+
+msgid "OrderLine"
+msgstr ""
+
+msgid "OrderMovementGroup"
+msgstr ""
+
+msgid "OrderRootSimulationRule"
+msgstr ""
+
+msgid "OrderTool"
+msgstr ""
+
+msgid "Ordered"
+msgstr ""
+
+msgid "Organisation"
+msgstr ""
+
+msgid "Organisation module features"
+msgstr ""
+
+msgid "OrganisationConfiguratorItem"
+msgstr ""
+
+msgid "OrganisationERP5IntegrationConduit"
+msgstr ""
+
+msgid "Organismes sociaux - Charges à payer"
+msgstr ""
+
+msgid "Organismes sociaux - Produits à recevoir"
+msgstr ""
+
+msgid "Organizations and Clubs"
+msgstr ""
+
+msgid "Other"
+msgstr ""
+
+msgid "Other Contract"
+msgstr ""
+
+msgid "Other Current Liabilities"
+msgstr ""
+
+msgid "Other Employer Contributions"
+msgstr ""
+
+msgid "Other Marketing Service"
+msgstr ""
+
+msgid "Other Meeting"
+msgstr ""
+
+msgid "Other Receivables"
+msgstr ""
+
+msgid "Other Support Service"
+msgstr ""
+
+msgid "Other business activities"
+msgstr ""
+
+msgid "Other community, social & personal services"
+msgstr ""
+
+msgid "Other current Assets"
+msgstr ""
+
+msgid "Other event"
+msgstr ""
+
+msgid "Other service activities"
+msgstr ""
+
+msgid "Other transport equipment"
+msgstr ""
+
+msgid "Others Liabilities"
+msgstr ""
+
+msgid "Outgoing"
+msgstr ""
+
+msgid "Outillages industriels"
+msgstr ""
+
+msgid "Ouvrages d'infrastructure"
+msgstr ""
+
+msgid "Overtime"
+msgstr ""
+
+msgid "Owner or Associate"
+msgstr ""
+
+msgid "PC"
+msgstr ""
+
+msgid "PDFDocument"
+msgstr ""
+
+msgid "PDM"
+msgstr ""
+
+msgid "PHP"
+msgstr ""
+
+msgid "PHP Library"
+msgstr ""
+
+msgid "PROPORTION"
+msgstr ""
 
 msgid "Packing List"
 msgstr "装箱单"
 
+msgid "PackingList"
+msgstr ""
+
+msgid "Paid"
+msgstr ""
+
+msgid "Pakistan"
+msgstr ""
+
+msgid "Pakistani"
+msgstr ""
+
+msgid "Palau"
+msgstr ""
+
+msgid "Palauan"
+msgstr ""
+
+msgid "Palestine"
+msgstr ""
+
+msgid "Palestinian"
+msgstr ""
+
+msgid "Panama"
+msgstr ""
+
+msgid "Panamanian"
+msgstr ""
+
+msgid "Paper Materials and Products"
+msgstr ""
+
+msgid "Paper products"
+msgstr ""
+
+msgid "Papua New Guinea"
+msgstr ""
+
+msgid "Papua New Guinean"
+msgstr ""
+
+msgid "Paraguay"
+msgstr ""
+
+msgid "Paraguayan"
+msgstr ""
+
+msgid "ParentDeliveryPropertyMovementGroup"
+msgstr ""
+
+msgid "ParentExplanationMovementGroup"
+msgstr ""
+
+msgid "Paris Office"
+msgstr ""
+
+msgid "Partial Content"
+msgstr ""
+
+msgid "Participation des employeurs à l'effort de construction"
+msgstr ""
+
+msgid "Participation des salariés - Impôts sur les bénéfices et assimilés"
+msgstr ""
+
+msgid "Participation des salariés aux résultats"
+msgstr ""
+
+msgid "Participations et créances rattachées à des participations"
+msgstr ""
+
+msgid "Parties"
+msgstr ""
+
+msgid "Partner"
+msgstr ""
+
+msgid "Partner Collaborative"
+msgstr ""
+
+msgid "Partners"
+msgstr ""
+
+msgid "Partnership Meeting"
+msgstr ""
+
+msgid "Passive"
+msgstr ""
+
+msgid "Passive Network Hardware"
+msgstr ""
+
+msgid "PasswordTool"
+msgstr ""
+
+msgid "Path"
+msgstr ""
+
+msgid "PayPal"
+msgstr ""
+
+msgid "Payable"
+msgstr ""
+
+msgid "PaymentCondition"
+msgstr ""
+
+msgid "PaymentSimulationRule"
+msgstr ""
+
+msgid "Paypal"
+msgstr ""
+
+msgid "Payroll"
+msgstr ""
+
+msgid "Payroll Bonus"
+msgstr ""
+
+msgid "Payroll Fees"
+msgstr ""
+
+msgid "Payroll Income"
+msgstr ""
+
+msgid "Payroll Overtime"
+msgstr ""
+
+msgid "Payroll taxes"
+msgstr ""
+
+msgid "Payzen"
+msgstr ""
+
+msgid "PayzenService"
+msgstr ""
+
+msgid "Peer"
+msgstr ""
+
+msgid "Peering"
+msgstr ""
+
+msgid "Peering Contract"
+msgstr ""
+
+msgid "Percent Day"
+msgstr ""
+
+msgid "PermissionConfiguratorItem"
+msgstr ""
+
+msgid "Person"
+msgstr ""
+
+msgid "Person module features"
+msgstr ""
+
+msgid "PersonConfiguratorItem"
+msgstr ""
+
+msgid "PersonLoginMigration"
+msgstr ""
+
+msgid "Personal"
+msgstr ""
+
+msgid "Personal Management"
+msgstr ""
+
+msgid "Personal and Domestic Services"
+msgstr ""
+
+msgid "Personnel - Avances et acomptes et autres comptes débiteurs"
+msgstr ""
+
+msgid "Personnel - Charges à payer"
+msgstr ""
+
+msgid "Personnel - Dépôts"
+msgstr ""
+
+msgid "Personnel - Oppositions"
+msgstr ""
+
+msgid "Personnel - Rémunérations dues"
+msgstr ""
+
+msgid "Personnel détaché ou prêté à l'entité"
+msgstr ""
+
+msgid "Personnel et comptes rattachés"
+msgstr ""
+
+msgid "Personnel extérieur à l'entité"
+msgstr ""
+
+msgid "Personnel intérimaire"
+msgstr ""
+
+msgid "Persons"
+msgstr ""
+
+msgid "Pertes de change financières"
+msgstr ""
+
+msgid "Pertes de change sur créances et dettes commerciales"
+msgstr ""
+
+msgid "Pertes sur créances irrécouvrables"
+msgstr ""
+
+msgid "Pertes sur créances liées à des participations"
+msgstr ""
+
+msgid "Peru"
+msgstr ""
+
+msgid "Peruvian"
+msgstr ""
+
+msgid "Petroleum & Gas"
+msgstr ""
+
+msgid "Petroleum & gas"
+msgstr ""
+
+msgid "Philippines"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
 msgid "Piece"
 msgstr "件"
+
+msgid "Pitcairn"
+msgstr ""
+
+msgid "Pitcairner"
+msgstr ""
+
+msgid "Plan Comptable Général (Version au 1er janvier 2025)"
+msgstr ""
+
+msgid "Plans comptables français"
+msgstr ""
+
+msgid "Poland"
+msgstr ""
+
+msgid "Pole"
+msgstr ""
+
+msgid "Polish"
+msgstr ""
+
+msgid "Politics and Civic Affairs Services"
+msgstr ""
+
+msgid "Polynesia"
+msgstr ""
+
+msgid "Polynesian"
+msgstr ""
+
+msgid "PortalTypeConfiguratorItem"
+msgstr ""
+
+msgid "PortalTypeRolesSpreadsheetConfiguratorItem"
+msgstr ""
+
+msgid "Ports et frais accessoires facturés"
+msgstr ""
+
+msgid "Portugal"
+msgstr ""
+
+msgid "Portuguese"
+msgstr ""
+
+msgid "Post and telecommunications"
+msgstr ""
+
+msgid "Post-Upgrade"
+msgstr ""
+
+msgid "Power"
+msgstr ""
+
+msgid "Power Generation and Distribution Machinery and Accessories"
+msgstr ""
+
+msgid "Power Hardware"
+msgstr ""
+
+msgid "Pre-Upgrade"
+msgstr ""
+
+msgid "PredicateGroup"
+msgstr ""
+
+msgid "PredicateMatrix"
+msgstr ""
+
+msgid "PreferenceConfiguratorItem"
+msgstr ""
+
+msgid "Preferred Payment Mode"
+msgstr ""
+
+msgid "Presence Time"
+msgstr ""
+
+msgid "Presentation"
+msgstr ""
+
+msgid "Press"
+msgstr "热点新闻"
+
+msgid "Press Book"
+msgstr ""
+
+msgid "Press File"
+msgstr ""
+
+msgid "Press Profile"
+msgstr ""
+
+msgid "Press Release"
+msgstr ""
+
+msgid "Prestations de services"
+msgstr ""
+
+msgid "Prestations de services en cours"
+msgstr ""
+
+msgid "Prestations directes"
+msgstr ""
+
+msgid "PreviousCausalityMovementGroup"
+msgstr ""
 
 msgid "Price"
 msgstr "产品价格"
 
+msgid "Pricing"
+msgstr ""
+
+msgid "Primary Frequent Flyer Number"
+msgstr ""
+
+msgid "Primes"
+msgstr ""
+
+msgid "Primes d'apport"
+msgstr ""
+
+msgid "Primes d'assurances"
+msgstr ""
+
+msgid "Primes d'émission"
+msgstr ""
+
+msgid "Primes de conversion d'obligations en actions"
+msgstr ""
+
+msgid "Primes de fusion"
+msgstr ""
+
+msgid "Primes de remboursement des emprunts"
+msgstr ""
+
+msgid "Primes et gratifications"
+msgstr ""
+
+msgid "Primes liées au capital"
+msgstr ""
+
+msgid "Principal"
+msgstr ""
+
+msgid "Printing and Photographic and Audio and Visual Equipment and Supplies"
+msgstr ""
+
+msgid "Private"
+msgstr ""
+
+msgid "Process State"
+msgstr ""
+
+msgid "Processed"
+msgstr ""
+
 msgid "Product"
 msgstr "产品"
+
+msgid "Product module features"
+msgstr ""
+
+msgid "Product or Service Description"
+msgstr ""
+
+msgid "Production"
+msgstr ""
+
+msgid "Production Agent"
+msgstr ""
+
+msgid "Production Management"
+msgstr ""
+
+msgid "Production Manager"
+msgstr ""
+
+msgid "Production immobilisée"
+msgstr ""
+
+msgid "Production stockée (ou déstockage)"
+msgstr ""
+
+msgid "Production – Manufacturing"
+msgstr ""
+
+msgid "Productivity"
+msgstr ""
+
+msgid "Produits"
+msgstr ""
+
+msgid "Produits - Reports en arrière des déficits"
+msgstr ""
+
+msgid "Produits constatés d'avance"
+msgstr ""
+
+msgid "Produits constatés d’avance sur jetons émis"
+msgstr ""
+
+msgid "Produits d'entretien"
+msgstr ""
+
+msgid "Produits de la fiducie, résultat de la période"
+msgstr ""
+
+msgid "Produits de participations"
+msgstr ""
+
+msgid "Produits des activités annexes"
+msgstr ""
+
+msgid "Produits des autres immobilisations financières"
+msgstr ""
+
+msgid "Produits des cessions d’immobilisations financières"
+msgstr ""
+
+msgid "Produits des cessions d’immobilisations incorporelles et corporelles"
+msgstr ""
+
+msgid "Produits des services exploités dans l'intérêt du personnel"
+msgstr ""
+
+msgid "Produits en cours"
+msgstr ""
+
+msgid "Produits exceptionnels"
+msgstr ""
+
+msgid "Produits financiers"
+msgstr ""
+
+msgid "Produits finis"
+msgstr ""
+
+msgid "Produits intermédiaires"
+msgstr ""
+
+msgid "Produits nets sur cessions de jetons"
+msgstr ""
+
+msgid "Produits nets sur cessions de titres immobilisés de l’activité de portefeuille"
+msgstr ""
+
+msgid "Produits nets sur cessions de valeurs mobilières de placement"
+msgstr ""
+
+msgid "Produits résiduels"
+msgstr ""
+
+msgid "Produits résiduels ou matières de récupération"
+msgstr ""
+
+msgid "Produits sur cession d’éléments financiers"
+msgstr ""
+
+msgid "Profile"
+msgstr ""
+
+msgid "Profit and loss"
+msgstr ""
+
+msgid "Profit or Loss"
+msgstr ""
+
+msgid "Profit or loss"
+msgstr ""
+
+msgid "Project"
+msgstr ""
+
+msgid "Project Collaborative"
+msgstr ""
+
+msgid "Project Management"
+msgstr ""
+
+msgid "Project Management & Implementation"
+msgstr ""
+
+msgid "Project Manager"
+msgstr ""
+
+msgid "Project Meeting"
+msgstr ""
+
+msgid "Project Personal"
+msgstr ""
+
+msgid "Promotion"
+msgstr ""
+
+msgid "Prompt Payment"
+msgstr ""
+
+msgid "Property"
+msgstr ""
+
+msgid "Property, plant and equipment"
+msgstr ""
+
+msgid "Property, plant and equipment amortisation"
+msgstr ""
+
+msgid "PropertyAssignmentMovementGroup"
+msgstr ""
+
+msgid "PropertyGroupingMovementGroup"
+msgstr ""
+
+msgid "PropertyMovementGroup"
+msgstr ""
+
+msgid "Proportion"
+msgstr ""
+
+msgid "Proprietorship"
+msgstr ""
+
+msgid "Prospect"
+msgstr ""
+
+msgid "Provisions"
+msgstr ""
+
+msgid "Provisions pour amendes et pénalités"
+msgstr ""
+
+msgid "Provisions pour charges"
+msgstr ""
+
+msgid "Provisions pour garanties données aux clients"
+msgstr ""
+
+msgid "Provisions pour gros entretien ou grandes révisions"
+msgstr ""
+
+msgid "Provisions pour impôts"
+msgstr ""
+
+msgid "Provisions pour litiges"
+msgstr ""
+
+msgid "Provisions pour pensions et obligations similaires"
+msgstr ""
+
+msgid "Provisions pour pertes de change"
+msgstr ""
+
+msgid "Provisions pour pertes sur contrats"
+msgstr ""
+
+msgid "Provisions pour remise en état"
+msgstr ""
+
+msgid "Provisions pour renouvellement des immobilisations - entreprises concessionnaires"
+msgstr ""
+
+msgid "Provisions pour restructurations"
+msgstr ""
+
+msgid "Provisions pour risques"
+msgstr ""
+
+msgid "Provisions réglementées"
+msgstr ""
+
+msgid "Provisions réglementées pour hausse de prix"
+msgstr ""
+
+msgid "Prélèvements forfaitaires non libératoires"
+msgstr ""
+
+msgid "Prélèvements à la source (Impôt sur le revenu)"
+msgstr ""
+
+msgid "Prêts"
+msgstr ""
+
+msgid "Prêts au personnel"
+msgstr ""
+
+msgid "Prêts aux associés"
+msgstr ""
+
+msgid "Prêts participatifs"
+msgstr ""
+
+msgid "Public"
+msgstr ""
+
+msgid "Public Collaborative"
+msgstr ""
+
+msgid "Public Presentations"
+msgstr ""
+
+msgid "Public Utilities and Public Sector Related Services"
+msgstr ""
+
+msgid "Public administration & defence"
+msgstr ""
+
+msgid "Publications"
+msgstr ""
+
+msgid "Publicité, publications, relations publiques"
+msgstr ""
+
+msgid "Published Products"
+msgstr ""
+
+msgid "Publishing, printing of recorded media"
+msgstr ""
+
+msgid "Puerto Rican"
+msgstr ""
+
+msgid "Puerto Rico"
+msgstr ""
+
+msgid "Purchase"
+msgstr ""
+
+msgid "Purchase Agent"
+msgstr ""
+
+msgid "Purchase Manager"
+msgstr ""
+
+msgid "Purchase Order module features"
+msgstr ""
+
+msgid "Purchase Packing List module features"
+msgstr ""
+
+msgid "Purchase Trade Conditions module features"
+msgstr ""
+
+msgid "PurchaseTradeConditionConfiguratorItem"
+msgstr ""
+
+msgid "Purchases"
+msgstr ""
+
+msgid "Purchases Campaign"
+msgstr ""
+
+msgid "Purchases Meeting"
+msgstr ""
+
+msgid "Python"
+msgstr ""
+
+msgid "Python Library"
+msgstr ""
+
+msgid "Python Stack"
+msgstr ""
+
+msgid "PythonCodeUtils"
+msgstr ""
+
+msgid "Pénalités et autres charges"
+msgstr ""
+
+msgid "Pénalités sur marchés (et dédits payés sur achats et ventes)"
+msgstr ""
+
+msgid "Pénalités, amendes fiscales et pénales"
+msgstr ""
+
+msgid "Qatar"
+msgstr ""
+
+msgid "Qatari"
+msgstr ""
+
+msgid "Quality Assurance"
+msgstr ""
+
+msgid "Quantity"
+msgstr ""
+
+msgid "QuantitySignMovementGroup"
+msgstr ""
+
+msgid "QuantitySplitMoveSolver"
+msgstr ""
+
+msgid "QuantitySplitSolver"
+msgstr ""
+
+msgid "QuantityUnitConversionDefinition"
+msgstr ""
+
+msgid "QuantityUnitConversionGroup"
+msgstr ""
+
+msgid "Query module features"
+msgstr ""
+
+msgid "Quotas d’émission à acquérir"
+msgstr ""
+
+msgid "Quote-part de bénéfice attribuée - comptabilité des associés non-gérants"
+msgstr ""
+
+msgid "Quote-part de bénéfice transférée - comptabilité du gérant"
+msgstr ""
+
+msgid "Quote-part de perte supportée - comptabilité des associés non gérants"
+msgstr ""
+
+msgid "Quote-part de perte transférée - comptabilité du gérant"
+msgstr ""
+
+msgid "Quote-part de résultat sur opérations faites en commun"
+msgstr ""
+
+msgid "Quote-part des subventions d’investissement virée au résultat de l’exercice"
+msgstr ""
+
+msgid "R & D expenses"
+msgstr ""
+
+msgid "R&D"
+msgstr ""
+
+msgid "R&D Agent"
+msgstr ""
+
+msgid "RAID"
+msgstr ""
+
+msgid "RAID0"
+msgstr ""
+
+msgid "RAID0+1"
+msgstr ""
+
+msgid "RAID1"
+msgstr ""
+
+msgid "RAID1+0"
+msgstr ""
+
+msgid "RAID2"
+msgstr ""
+
+msgid "RAID3"
+msgstr ""
+
+msgid "RAID4"
+msgstr ""
+
+msgid "RAID5"
+msgstr ""
+
+msgid "RAID5+0"
+msgstr ""
+
+msgid "RAID6"
+msgstr ""
+
+msgid "RAM"
+msgstr ""
+
+msgid "RAM Storage"
+msgstr ""
+
+msgid "RDC"
+msgstr ""
+
+msgid "RESTAPIClientConnectorMixin"
+msgstr ""
+
+msgid "Rabais, remises et ristournes accordés"
+msgstr ""
+
+msgid "Rabais, remises et ristournes accordés sur prestations de services"
+msgstr ""
+
+msgid "Rabais, remises et ristournes accordés sur produits des activités annexes"
+msgstr ""
+
+msgid "Rabais, remises et ristournes accordés sur travaux intermédiaires"
+msgstr ""
+
+msgid "Rabais, remises et ristournes accordés sur ventes de marchandises"
+msgstr ""
+
+msgid "Rabais, remises et ristournes accordés sur ventes de produits"
+msgstr ""
+
+msgid "Rabais, remises et ristournes accordés sur ventes de produits finis"
+msgstr ""
+
+msgid "Rabais, remises et ristournes accordés sur études"
+msgstr ""
+
+msgid "Rabais, remises et ristournes non affectés"
+msgstr ""
+
+msgid "Rabais, remises et ristournes obtenus sur achats (même ventilation que celle du compte 60)"
+msgstr ""
+
+msgid "Rabais, remises et ristournes obtenus sur autres services extérieurs"
+msgstr ""
+
+msgid "Rabais, remises et ristournes obtenus sur services extérieurs"
+msgstr ""
+
+msgid "Rabais, remises, ristournes à accorder et autres avoirs à établir"
+msgstr ""
+
+msgid "Rabais, remises, ristournes à obtenir et autres avoirs non encore reçus"
+msgstr ""
+
+msgid "Rackspace group"
+msgstr ""
+
+msgid "Radio,TV & communication equipment"
+msgstr ""
+
+msgid "Rappel d’impôts (autres qu’impôts sur les bénéfices)"
+msgstr ""
+
+msgid "Ratio"
+msgstr ""
+
+msgid "Raw Materials"
+msgstr ""
+
+msgid "Read RSS and ATOM feeds"
+msgstr ""
+
+msgid "Real Estate"
+msgstr ""
+
+msgid "Real estate"
+msgstr ""
+
+msgid "Real estate, renting & business activities"
+msgstr ""
+
+msgid "Rebuts"
+msgstr ""
+
+msgid "Receivable"
+msgstr ""
+
+msgid "Recreational, cultural & sporting activities"
+msgstr ""
+
+msgid "Recycling"
+msgstr ""
+
+msgid "Redevances crédit-bail restant à courir"
+msgstr ""
+
+msgid "Redevances de crédit-bail"
+msgstr ""
+
+msgid "Redevances pour concessions, brevets, licences, marques, procédés, solutions informatiques"
+msgstr ""
+
+msgid "Redevances pour concessions, brevets, licences, marques, procédés, solutions informatiques, droits et valeurs similaires"
+msgstr ""
+
+msgid "Redundant Array of Independent Disks"
+msgstr ""
+
+msgid "Redundant Array of Independent Disks Level 0"
+msgstr ""
+
+msgid "Redundant Array of Independent Disks Level 0 + Level 1"
+msgstr ""
+
+msgid "Redundant Array of Independent Disks Level 1"
+msgstr ""
+
+msgid "Redundant Array of Independent Disks Level 1 + Level 0"
+msgstr ""
+
+msgid "Redundant Array of Independent Disks Level 2"
+msgstr ""
+
+msgid "Redundant Array of Independent Disks Level 3"
+msgstr ""
+
+msgid "Redundant Array of Independent Disks Level 4"
+msgstr ""
+
+msgid "Redundant Array of Independent Disks Level 5"
+msgstr ""
+
+msgid "Redundant Array of Independent Disks Level 5 + Level 0"
+msgstr ""
+
+msgid "Redundant Array of Independent Disks Level 6"
+msgstr ""
+
+msgid "Refresh From Client By Server"
+msgstr ""
+
+msgid "Refresh From Client Only"
+msgstr ""
+
+msgid "Refresh From Server"
+msgstr ""
+
+msgid "Refresh Required"
+msgstr ""
+
+msgid "Refundable VAT"
+msgstr ""
+
+msgid "Region"
+msgstr ""
+
+msgid "Regular"
+msgstr ""
+
+msgid "Regular Staff"
+msgstr ""
+
+msgid "Regularisation Request"
+msgstr ""
+
+msgid "Release"
+msgstr ""
+
+msgid "Release Author"
+msgstr ""
+
+msgid "Remboursement de taxes sur le chiffre d'affaires demandé"
+msgstr ""
+
+msgid "Remboursements de charges de personnel"
+msgstr ""
+
+msgid "Remote Access"
+msgstr ""
+
+msgid "Remote Access Software"
+msgstr ""
+
+msgid "Rentes viagères capitalisées"
+msgstr ""
+
+msgid "Renting of machinery"
+msgstr ""
+
+msgid "Rentrées sur créances amorties"
+msgstr ""
+
+msgid "Report"
+msgstr ""
+
+msgid "Report à nouveau"
+msgstr ""
+
+msgid "Report à nouveau - solde créditeur"
+msgstr ""
+
+msgid "Report à nouveau - solde débiteur"
+msgstr ""
+
+msgid "Reprises sur amortissements des immobilisations incorporelles et corporelles"
+msgstr ""
+
+msgid "Reprises sur amortissements, dépréciations et provisions"
+msgstr ""
+
+msgid "Reprises sur amortissements, dépréciations et provisions (à inscrire dans les produits d'exploitation)"
+msgstr ""
+
+msgid "Reprises sur autres provisions réglementées"
+msgstr ""
+
+msgid "Reprises sur dépréciations des actifs circulants"
+msgstr ""
+
+msgid "Reprises sur dépréciations des immobilisations incorporelles et corporelles"
+msgstr ""
+
+msgid "Reprises sur dépréciations des éléments financiers"
+msgstr ""
+
+msgid "Reprises sur dépréciations et provisions (à inscrire dans les produits exceptionnels)"
+msgstr ""
+
+msgid "Reprises sur dépréciations et provisions (à inscrire dans les produits financiers)"
+msgstr ""
+
+msgid "Reprises sur dépréciations exceptionnelles"
+msgstr ""
+
+msgid "Reprises sur provisions d'exploitation"
+msgstr ""
+
+msgid "Reprises sur provisions exceptionnelles"
+msgstr ""
+
+msgid "Reprises sur provisions financières"
+msgstr ""
+
+msgid "Reprises sur provisions réglementées (immobilisations)"
+msgstr ""
+
+msgid "Reprises sur provisions réglementées (stocks)"
+msgstr ""
+
+msgid "Republic of Korea"
+msgstr ""
+
+msgid "Republic of Moldova"
+msgstr ""
+
+msgid "Required Item Types"
+msgstr ""
+
+msgid "RequirementMovementGroup"
+msgstr ""
+
+msgid "Research"
+msgstr ""
+
+msgid "Research and Development"
+msgstr ""
+
+msgid "Research and Development Agent"
+msgstr ""
+
+msgid "Research and Development Manager"
+msgstr ""
+
+msgid "Research and development"
+msgstr ""
+
+msgid "Resin and Rosin and Rubber and Foam and Film and Elastomeric Materials"
+msgstr ""
+
+msgid "ResourceMeasuresConsistencyConstraint"
+msgstr ""
+
+msgid "Restricted"
+msgstr ""
+
+msgid "Result Alert"
+msgstr ""
+
+msgid "Retail trade, except of motor vehicles"
+msgstr ""
+
+msgid "Retained earnings"
+msgstr ""
+
+msgid "Retenues et prélèvements sur les distributions"
+msgstr ""
+
+msgid "Retirement"
+msgstr ""
+
+msgid "Reunionese"
+msgstr ""
+
+msgid "Revenue"
+msgstr ""
+
+msgid "Revenus des autres créances"
+msgstr ""
+
+msgid "Revenus des créances commerciales"
+msgstr ""
+
+msgid "Revenus des créances diverses"
+msgstr ""
+
+msgid "Revenus des créances immobilisées"
+msgstr ""
+
+msgid "Revenus des créances rattachées à des participations"
+msgstr ""
+
+msgid "Revenus des immeubles non affectés à des activités professionnelles"
+msgstr ""
+
+msgid "Revenus des prêts"
+msgstr ""
+
+msgid "Revenus des titres de participation"
+msgstr ""
+
+msgid "Revenus des titres immobilisés"
+msgstr ""
+
+msgid "Revenus des valeurs mobilières de placement"
+msgstr ""
+
+msgid "Revenus sur autres formes de participation"
+msgstr ""
+
+msgid "Risques d'exploitation"
+msgstr ""
+
+msgid "Ristournes perçues des coopératives provenant des excédents"
+msgstr ""
+
+msgid "RoleConfiguratorItem"
+msgstr ""
+
+msgid "RoleDefinition"
+msgstr ""
+
+msgid "Romania"
+msgstr ""
+
+msgid "Romanian"
+msgstr ""
+
+msgid "RootAppliedRuleCausalityCausalityMovementGroup"
+msgstr ""
+
+msgid "RootAppliedRuleCausalityMovementGroup"
+msgstr ""
+
+msgid "RoundingModel"
+msgstr ""
+
+msgid "RoundingTool"
+msgstr ""
+
+msgid "Rubber & plastics"
+msgstr ""
+
+msgid "Ruby"
+msgstr ""
+
+msgid "Ruby Library"
+msgstr ""
+
+msgid "Ruby Stack"
+msgstr ""
+
+msgid "RuleConfiguratorItem"
+msgstr ""
+
+msgid "RuleMixin"
+msgstr ""
+
+msgid "RuleTool"
+msgstr ""
+
+msgid "Russian"
+msgstr ""
+
+msgid "Russian Federation"
+msgstr ""
+
+msgid "Rwanda"
+msgstr ""
+
+msgid "Rwandan"
+msgstr ""
+
+msgid "Réceptions"
+msgstr ""
+
+msgid "Rémunération du travail de l'exploitant"
+msgstr ""
+
+msgid "Rémunérations d'affacturage"
+msgstr ""
+
+msgid "Rémunérations d'intermédiaires et honoraires"
+msgstr ""
+
+msgid "Rémunérations de l’activité des administrateurs et des gérants"
+msgstr ""
+
+msgid "Rémunérations des transitaires"
+msgstr ""
+
+msgid "Rémunérations du personnel"
+msgstr ""
+
+msgid "Réserve légale"
+msgstr ""
+
+msgid "Réserve spéciale"
+msgstr ""
+
+msgid "Réserves"
+msgstr ""
+
+msgid "Réserves indisponibles"
+msgstr ""
+
+msgid "Réserves réglementées"
+msgstr ""
+
+msgid "Réserves statutaires ou contractuelles"
+msgstr ""
+
+msgid "Résultat de l'exercice"
+msgstr ""
+
+msgid "Résultat de l'exercice - bénéfice"
+msgstr ""
+
+msgid "Résultat de l'exercice – perte"
+msgstr ""
+
+msgid "Résultat en instance d'affectation"
+msgstr ""
+
+msgid "Réunion"
+msgstr ""
+
+msgid "SAN"
+msgstr ""
+
+msgid "SAS"
+msgstr ""
+
+msgid "SATA"
+msgstr ""
+
+msgid "SDSL"
+msgstr ""
+
+msgid "SFTPConnection"
+msgstr ""
+
+msgid "SMTP"
+msgstr ""
+
+msgid "SMTP Front END"
+msgstr ""
+
+msgid "SOAPConnection"
+msgstr ""
+
+msgid "SOAPWSDLConnection"
+msgstr ""
+
+msgid "SQL"
+msgstr ""
+
+msgid "SQL Database"
+msgstr ""
+
+msgid "SQLConnection"
+msgstr ""
+
+msgid "SSD"
+msgstr ""
+
+msgid "Sahrawi"
+msgstr ""
+
+msgid "Saint Helena"
+msgstr ""
+
+msgid "Saint Helenian"
+msgstr ""
+
+msgid "Saint Kitts and Nevis"
+msgstr ""
+
+msgid "Saint Lucia"
+msgstr ""
+
+msgid "Saint Lucian"
+msgstr ""
+
+msgid "Saint Martin"
+msgstr ""
+
+msgid "Saint Martin (French part)"
+msgstr ""
+
+msgid "Saint Pierre and Miquelon"
+msgstr ""
+
+msgid "Saint Vincent and the Grenadines"
+msgstr ""
+
+msgid "Saint-Barthélemy"
+msgstr ""
+
+msgid "Salaires, appointements"
+msgstr ""
+
+msgid "Salary"
+msgstr ""
+
+msgid "Salary Range"
+msgstr ""
+
+msgid "Sale"
+msgstr ""
+
+msgid "Sale & maintenance of motor vehicles"
+msgstr ""
+
+msgid "Sale Opportunites module features"
+msgstr ""
+
+msgid "Sale Opportunity"
+msgstr ""
+
+msgid "Sale Orders module features"
+msgstr ""
+
+msgid "SaleOpportunity"
+msgstr ""
+
+msgid "SaleTradeConditionConfiguratorItem"
+msgstr ""
+
+msgid "Sales"
+msgstr ""
+
+msgid "Sales Agent"
+msgstr ""
+
+msgid "Sales Campaign"
+msgstr ""
 
 msgid "Sales Lead"
 msgstr "销售线索"
 
+msgid "Sales Manager"
+msgstr ""
+
+msgid "Sales Meeting"
+msgstr ""
+
 msgid "Sales Prospect"
 msgstr "潜在客户"
+
+msgid "Salvadorian"
+msgstr ""
+
+msgid "Samoa"
+msgstr ""
+
+msgid "Samoan"
+msgstr ""
+
+msgid "San Marinese"
+msgstr ""
+
+msgid "San Marino"
+msgstr ""
+
+msgid "Sandy Bridge"
+msgstr ""
+
+msgid "Sao Tome and Principe"
+msgstr ""
+
+msgid "Saudi Arabia"
+msgstr ""
+
+msgid "Saudi Arabian"
+msgstr ""
+
+msgid "Scheduling"
+msgstr ""
+
+msgid "Scheduling Software"
+msgstr ""
+
+msgid "Script"
+msgstr ""
+
+msgid "ScriptConstraint"
+msgstr ""
+
+msgid "SearchUtility"
+msgstr ""
+
+msgid "Seasonal Discount"
+msgstr ""
+
+msgid "Second"
+msgstr ""
+
+msgid "Secure Payments"
+msgstr ""
+
+msgid "SecurePaymentTool"
+msgstr ""
+
+msgid "Security"
+msgstr ""
+
+msgid "SecurityCategoryMappingConfiguratorItem"
+msgstr ""
+
+msgid "Segment 1"
+msgstr ""
+
+msgid "Segment 2"
+msgstr ""
+
+msgid "Segment 3"
+msgstr ""
+
+msgid "Segment 4"
+msgstr ""
+
+msgid "Segment 5"
+msgstr ""
+
+msgid "Selling expenses"
+msgstr ""
+
+msgid "Selling, General and Adm."
+msgstr ""
+
+msgid "Selling, General and Administrative Expenses"
+msgstr ""
+
+msgid "Senegal"
+msgstr ""
+
+msgid "Senegalese"
+msgstr ""
+
+msgid "Serb"
+msgstr ""
+
+msgid "Serbia"
+msgstr ""
+
+msgid "Serial Advanced Technology Attachment"
+msgstr ""
+
+msgid "Serial Attached SCSI"
+msgstr ""
+
+msgid "Server"
+msgstr ""
 
 msgid "Service"
 msgstr "服务"
 
+msgid "Service Industry Machinery and Equipment and Supplies"
+msgstr ""
+
+msgid "Service Provider"
+msgstr ""
+
+msgid "Service-producing activities for own use"
+msgstr ""
+
+msgid "ServiceConfiguratorItem"
+msgstr ""
+
+msgid "Services"
+msgstr ""
+
+msgid "Services bancaires et assimilés"
+msgstr ""
+
+msgid "Services extérieurs"
+msgstr ""
+
+msgid "SessionTool"
+msgstr ""
+
+msgid "Sewage & refuse disposal, sanitation"
+msgstr ""
+
+msgid "Seychelles"
+msgstr ""
+
+msgid "Seychellois"
+msgstr ""
+
+msgid "ShaCache"
+msgstr ""
+
+msgid "ShaCacheMixin"
+msgstr ""
+
+msgid "ShaDir"
+msgstr ""
+
+msgid "ShaDirMixin"
+msgstr ""
+
+msgid "Shadow"
+msgstr ""
+
+msgid "Share Capital"
+msgstr ""
+
+msgid "Share capital"
+msgstr ""
+
+msgid "Share premium"
+msgstr ""
+
+msgid "SharedVCardConduit"
+msgstr ""
+
+msgid "Shareholder"
+msgstr ""
+
+msgid "Shipping"
+msgstr ""
+
+msgid "Show all or a set of persons."
+msgstr ""
+
+msgid "Sierra Leone"
+msgstr ""
+
+msgid "Sierra Leonean"
+msgstr ""
+
+msgid "Simple Google Calendar"
+msgstr ""
+
+msgid "SimulableMixin"
+msgstr ""
+
+msgid "SimulatedDeliveryBuilder"
+msgstr ""
+
+msgid "SimulationMovement"
+msgstr ""
+
+msgid "SimulationTool"
+msgstr ""
+
+msgid "Singapore"
+msgstr ""
+
+msgid "Singaporean"
+msgstr ""
+
+msgid "Single"
+msgstr ""
+
+msgid "SitePropertyConfiguratorItem"
+msgstr ""
+
 msgid "Sitemap"
 msgstr "站点地图"
+
+msgid "SkinConfiguratorItemMixin"
+msgstr ""
+
+msgid "SlapOS"
+msgstr ""
+
+msgid "SlapOS Aggregated Consumption Delivery Integration Site"
+msgstr ""
+
+msgid "SlapOS Aggregated Delivery Integration Site"
+msgstr ""
+
+msgid "SlapOS Company"
+msgstr ""
+
+msgid "SlapOS Master Operation"
+msgstr ""
+
+msgid "SlapOSAccounting"
+msgstr ""
+
+msgid "SlapOSAccountingQuantityUpdatingOrderBuilder"
+msgstr ""
+
+msgid "SlapOSAdministration"
+msgstr ""
+
+msgid "SlapOSCacheMixin"
+msgstr ""
+
+msgid "SlapOSCatalogToolCacheMixin"
+msgstr ""
+
+msgid "SlapOSCloud"
+msgstr ""
+
+msgid "SlapOSComputeNodeMixin"
+msgstr ""
+
+msgid "SlapOSComputePartitionMixin"
+msgstr ""
+
+msgid "SlapOSHypermedia"
+msgstr ""
+
+msgid "SlapOSJsonRpcApi"
+msgstr ""
+
+msgid "SlapOSLogin"
+msgstr ""
+
+msgid "SlapOSRSS"
+msgstr ""
+
+msgid "SlapOSSecurity"
+msgstr ""
+
+msgid "SlapOSSlapTool"
+msgstr ""
+
+msgid "SlapOSTestCaseDefaultScenarioMixin"
+msgstr ""
+
+msgid "SlapOSTestCaseMixin"
+msgstr ""
+
+msgid "SlapTool"
+msgstr ""
+
+msgid "Slovak"
+msgstr ""
+
+msgid "Slovakia"
+msgstr ""
+
+msgid "Slovene"
+msgstr ""
+
+msgid "Slovenia"
+msgstr ""
+
+msgid "Slow Sync"
+msgstr ""
+
+msgid "Social Declaration"
+msgstr ""
+
+msgid "Social Security"
+msgstr ""
+
+msgid "Software"
+msgstr ""
+
+msgid "Software Approval"
+msgstr ""
+
+msgid "Software Approval Agent"
+msgstr ""
+
+msgid "Software Approval Manager"
+msgstr ""
+
+msgid "Software Component"
+msgstr ""
+
+msgid "Software Developer"
+msgstr ""
+
+msgid "Software Industry"
+msgstr ""
+
+msgid "Software License"
+msgstr ""
+
+msgid "Software Manager"
+msgstr ""
+
+msgid "Software Publisher"
+msgstr ""
+
+msgid "Software Release Approval"
+msgstr ""
+
+msgid "Software Release Author"
+msgstr ""
+
+msgid "Software Stack"
+msgstr ""
+
+msgid "Software development skills"
+msgstr ""
+
+msgid "SoftwareInstance"
+msgstr ""
+
+msgid "SoftwareInstanceJsonTypeMixin"
+msgstr ""
+
+msgid "SoftwareLicence"
+msgstr ""
+
+msgid "SoftwareProduct"
+msgstr ""
+
+msgid "SoftwareProductReleaseVariation"
+msgstr ""
+
+msgid "SoftwareProductTypeVariation"
+msgstr ""
+
+msgid "Sole proprietorship"
+msgstr ""
+
+msgid "Solid State Disk"
+msgstr ""
+
+msgid "Solomon Islander"
+msgstr ""
+
+msgid "Solomon Islands"
+msgstr ""
 
 msgid "Solutions"
 msgstr "解决方案"
 
+msgid "SolverConfiguratorItem"
+msgstr ""
+
+msgid "SolverDecision"
+msgstr ""
+
+msgid "SolverMixin"
+msgstr ""
+
+msgid "SolverProcess"
+msgstr ""
+
+msgid "SolverProcessTool"
+msgstr ""
+
+msgid "Somali"
+msgstr ""
+
+msgid "Somalia"
+msgstr ""
+
+msgid "Sous-sols et sur-sols"
+msgstr ""
+
+msgid "Sous-traitance générale"
+msgstr ""
+
+msgid "South Africa"
+msgstr ""
+
+msgid "South African"
+msgstr ""
+
+msgid "South America"
+msgstr ""
+
+msgid "South Korea"
+msgstr ""
+
+msgid "South Korean"
+msgstr ""
+
+msgid "South-Eastern"
+msgstr ""
+
+msgid "South-Eastern Asia"
+msgstr ""
+
+msgid "Southern"
+msgstr ""
+
+msgid "Southern Africa"
+msgstr ""
+
+msgid "Southern Asia"
+msgstr ""
+
+msgid "Southern Europe"
+msgstr ""
+
+msgid "Spain"
+msgstr ""
+
+msgid "Spaniard"
+msgstr ""
+
+msgid "Spanish"
+msgstr ""
+
+msgid "SpecialiseEquivalenceTester"
+msgstr ""
+
+msgid "SplitMovementGroup"
+msgstr ""
+
+msgid "Sports and Recreational Equipment and Supplies and Accessories"
+msgstr ""
+
+msgid "Square Centimeter"
+msgstr ""
+
+msgid "Square Meter"
+msgstr ""
+
+msgid "Sri Lanka"
+msgstr ""
+
+msgid "Sri Lankan"
+msgstr ""
+
+msgid "St-Pierrais"
+msgstr ""
+
+msgid "St-Pierrais; Miquelonnais"
+msgstr ""
+
+msgid "Stack"
+msgstr ""
+
+msgid "Staff"
+msgstr ""
+
+msgid "Staff Collaborative"
+msgstr ""
+
+msgid "Staff Contract"
+msgstr ""
+
+msgid "Standard"
+msgstr ""
+
+msgid "StandardBT5ConfiguratorItem"
+msgstr ""
+
+msgid "StandardSecurity"
+msgstr ""
+
+msgid "StaticWebSection"
+msgstr ""
+
+msgid "StaticWebSite"
+msgstr ""
+
+msgid "Stocks de marchandises"
+msgstr ""
+
+msgid "Stocks de produits"
+msgstr ""
+
+msgid "Stocks et en-cours"
+msgstr ""
+
+msgid "Storage Area Network"
+msgstr ""
+
+msgid "Stream Ingestion"
+msgstr ""
+
+msgid "StringEquivalenceTester"
+msgstr ""
+
+msgid "Structures and Building and Construction and Manufacturing Components"
+msgstr ""
+
+msgid "Subscriber"
+msgstr ""
+
+msgid "Subscription"
+msgstr ""
+
+msgid "SubscriptionItem"
+msgstr ""
+
+msgid "SubscriptionItemRootSimulationRule"
+msgstr ""
+
+msgid "Subsidiary"
+msgstr ""
+
+msgid "Subsidiary Agent"
+msgstr ""
+
+msgid "Subsidiary Manager"
+msgstr ""
+
+msgid "Subventions"
+msgstr ""
+
+msgid "Subventions d'investissement"
+msgstr ""
+
+msgid "Subventions d'investissement inscrites au compte de résultat"
+msgstr ""
+
+msgid "Subventions d'investissement octroyées"
+msgstr ""
+
+msgid "Subventions d’exploitation"
+msgstr ""
+
+msgid "Subventions d’équilibre"
+msgstr ""
+
+msgid "Success"
+msgstr ""
+
+msgid "Sudan"
+msgstr ""
+
+msgid "Sudanese"
+msgstr ""
+
+msgid "Summary"
+msgstr ""
+
 msgid "Supplier"
 msgstr "供应商"
+
+msgid "Supply"
+msgstr ""
+
+msgid "SupplyCell"
+msgstr ""
+
+msgid "SupplyLine"
+msgstr ""
+
+msgid "Supplément familial"
+msgstr ""
+
+msgid "Suppléments d'impôt sur les sociétés liés aux distributions"
+msgstr ""
+
+msgid "Support"
+msgstr ""
+
+msgid "Support Request"
+msgstr ""
+
+msgid "Supporting & auxiliary activities"
+msgstr ""
+
+msgid "Surchage"
+msgstr ""
+
+msgid "Suriname"
+msgstr ""
+
+msgid "Surinamer"
+msgstr ""
+
+msgid "Svalbard and Jan Mayen"
+msgstr ""
+
+msgid "Svalbard and Jan Mayen Islands"
+msgstr ""
+
+msgid "Swazi"
+msgstr ""
+
+msgid "Swaziland"
+msgstr ""
+
+msgid "Swede"
+msgstr ""
+
+msgid "Sweden"
+msgstr ""
+
+msgid "Swiss"
+msgstr ""
+
+msgid "Switzerland"
+msgstr ""
+
+msgid "SyncMLConflict"
+msgstr ""
+
+msgid "SyncMLConstant"
+msgstr ""
+
+msgid "SyncMLEngineAsynchronous"
+msgstr ""
+
+msgid "SyncMLEngineMixin"
+msgstr ""
+
+msgid "SyncMLEngineSynchronous"
+msgstr ""
+
+msgid "SyncMLMessage"
+msgstr ""
+
+msgid "SyncMLPublication"
+msgstr ""
+
+msgid "SyncMLSignature"
+msgstr ""
+
+msgid "SyncMLSubscription"
+msgstr ""
+
+msgid "SyncMLTool"
+msgstr ""
+
+msgid "SyncMLTransportERP5"
+msgstr ""
+
+msgid "SyncMLTransportFile"
+msgstr ""
+
+msgid "SyncMLTransportHTTP"
+msgstr ""
+
+msgid "SyncMLTransportMail"
+msgstr ""
+
+msgid "SyncMLUtils"
+msgstr ""
+
+msgid "SynchronizationTool"
+msgstr ""
+
+msgid "Synchronous"
+msgstr ""
+
+msgid "Syria"
+msgstr ""
+
+msgid "Syrian"
+msgstr ""
+
+msgid "Syrian Arab Republic"
+msgstr ""
+
+msgid "System Administration"
+msgstr ""
+
+msgid "System Administration Software"
+msgstr ""
+
+msgid "System Administrator"
+msgstr ""
+
+msgid "SystemPreferenceConfiguratorItem"
+msgstr ""
+
+msgid "Sécurité sociale"
+msgstr ""
+
+msgid "Sécurité sociale et autres organismes sociaux"
+msgstr ""
+
+msgid "T&C Islander"
+msgstr ""
+
+msgid "TB"
+msgstr ""
+
+msgid "TB Day"
+msgstr ""
+
+msgid "TRAINING"
+msgstr ""
+
+msgid "TVA collectée"
+msgstr ""
+
+msgid "TVA due intracommunautaire"
+msgstr ""
+
+msgid "TVA récupérée d’avance"
+msgstr ""
+
+msgid "TVA sur autres biens et services"
+msgstr ""
+
+msgid "TVA sur immobilisations"
+msgstr ""
+
+msgid "TVA transférée par d'autres entités"
+msgstr ""
+
+msgid "TVA à décaisser"
+msgstr ""
+
+msgid "Tablet"
+msgstr ""
+
+msgid "Taiwan"
+msgstr ""
+
+msgid "Tajik"
+msgstr ""
+
+msgid "Tajikistan"
+msgstr ""
+
+msgid "Tanning & dressing of leather"
+msgstr ""
+
+msgid "Tanzania"
+msgstr ""
+
+msgid "Tanzanian"
+msgstr ""
+
+msgid "Task"
+msgstr ""
+
+msgid "Tax"
+msgstr ""
+
+msgid "Tax Category"
+msgstr ""
 
 msgid "Taxable"
 msgstr "应税"
 
+msgid "Taxable Gross"
+msgstr ""
+
+msgid "Taxable Gross Salary"
+msgstr ""
+
+msgid "Taxable Net"
+msgstr ""
+
+msgid "Taxable Net Salary"
+msgstr ""
+
+msgid "Taxe sur le chiffre d'affaires non récupérables"
+msgstr ""
+
+msgid "Taxe sur les salaires"
+msgstr ""
+
+msgid "Taxe sur les véhicules des sociétés"
+msgstr ""
+
+msgid "Taxes assimilées à la TVA"
+msgstr ""
+
+msgid "Taxes diverses"
+msgstr ""
+
+msgid "Taxes foncières"
+msgstr ""
+
+msgid "Taxes perçues par les organismes publics internationaux"
+msgstr ""
+
+msgid "Taxes sur le chiffre d'affaires collectées"
+msgstr ""
+
+msgid "Taxes sur le chiffre d'affaires déductibles"
+msgstr ""
+
+msgid "Taxes sur le chiffre d'affaires à décaisser"
+msgstr ""
+
+msgid "Taxes sur le chiffre d'affaires à régulariser ou en attente"
+msgstr ""
+
+msgid "Taxes sur le chiffre d’affaires sur factures non parvenues"
+msgstr ""
+
+msgid "Taxes sur le chiffre d’affaires sur factures à établir"
+msgstr ""
+
+msgid "Team"
+msgstr ""
+
+msgid "Team Collaborative"
+msgstr ""
+
+msgid "Team Personal"
+msgstr ""
+
+msgid "Technical Library"
+msgstr ""
+
+msgid "Telecommunication"
+msgstr ""
+
+msgid "Telephone"
+msgstr ""
+
+msgid "Template"
+msgstr ""
+
+msgid "Temporary"
+msgstr ""
+
+msgid "Temporary Staff"
+msgstr ""
+
+msgid "Tera Bytes"
+msgstr ""
+
+msgid "Terrains"
+msgstr ""
+
+msgid "Terrains aménagés"
+msgstr ""
+
+msgid "Terrains bâtis"
+msgstr ""
+
+msgid "Terrains de carrières (Tréfonds)"
+msgstr ""
+
+msgid "Terrains nus"
+msgstr ""
+
+msgid "TestInvoiceMixin"
+msgstr ""
+
+msgid "TestTool"
+msgstr ""
+
+msgid "TextConvertableMixin"
+msgstr ""
+
+msgid "TextDocument"
+msgstr ""
+
+msgid "Textiles"
+msgstr ""
+
+msgid "Thai"
+msgstr ""
+
+msgid "Thailand"
+msgstr ""
+
+msgid "The former Yugoslav Republic of Macedonia"
+msgstr ""
+
+msgid "Ticket"
+msgstr ""
+
+msgid "Time"
+msgstr ""
+
+msgid "TimeoutTransport"
+msgstr ""
+
+msgid "Timepieces and Jewelry and Gemstone Products"
+msgstr ""
+
+msgid "Timor-Leste"
+msgstr ""
+
+msgid "TioLive Corporate Information"
+msgstr ""
+
+msgid "TioLive Features Summary"
+msgstr ""
+
+msgid "TioLive Partnership Program"
+msgstr ""
+
+msgid "TioSafeBaseConduit"
+msgstr ""
+
+msgid "TioSafeBrain"
+msgstr ""
+
+msgid "TioSafeDoNothingConduit"
+msgstr ""
+
+msgid "TioSafeNodeConduit"
+msgstr ""
+
+msgid "TioSafeResourceConduit"
+msgstr ""
+
+msgid "TioSafeTool"
+msgstr ""
+
+msgid "TioSafeUtils"
+msgstr ""
+
+msgid "TitleMovementGroup"
+msgstr ""
+
+msgid "Titres cotés"
+msgstr ""
+
+msgid "Titres de participation"
+msgstr ""
+
+msgid "Titres immobilisés (droit de créance)"
+msgstr ""
+
+msgid "Titres immobilisés autres que les titres immobilisés de l'activité de portefeuille (droit de"
+msgstr ""
+
+msgid "Titres immobilisés autres que les titres immobilisés de l'activité de portefeuille (droit de propriété)"
+msgstr ""
+
+msgid "Titres immobilisés de l'activité de portefeuille"
+msgstr ""
+
+msgid "Titres non cotés"
+msgstr ""
+
+msgid "Titres évalués par équivalence"
+msgstr ""
+
+msgid "Tobacco products"
+msgstr ""
+
+msgid "Togo"
+msgstr ""
+
+msgid "Togolese"
+msgstr ""
+
+msgid "Tokelau"
+msgstr ""
+
+msgid "Tokelauan"
+msgstr ""
+
+msgid "Tokyo Office"
+msgstr ""
+
+msgid "Ton"
+msgstr ""
+
+msgid "Tonga"
+msgstr ""
+
+msgid "Tongan"
+msgstr ""
+
+msgid "Tools and General Machinery"
+msgstr ""
+
+msgid "Total Deduction"
+msgstr ""
+
+msgid "Total Income"
+msgstr ""
+
+msgid "Trade"
+msgstr ""
+
+msgid "Trade In"
+msgstr ""
+
+msgid "Trade Receivables"
+msgstr ""
+
+msgid "Trade and Other Receivables"
+msgstr ""
+
+msgid "TradeCondition"
+msgstr ""
+
+msgid "TradeModelCell"
+msgstr ""
+
+msgid "TradeModelLine"
+msgstr ""
+
+msgid "TradeModelLineCellConsistencyConstraint"
+msgstr ""
+
+msgid "TradeModelPath"
+msgstr ""
+
+msgid "TradeModelSimulationRule"
+msgstr ""
+
+msgid "TradeModelSolver"
+msgstr ""
+
+msgid "Trainee"
+msgstr ""
+
+msgid "Training"
+msgstr ""
+
+msgid "TransformDocToDocx"
+msgstr ""
+
+msgid "TransformDocToHtml"
+msgstr ""
+
+msgid "TransformDocxToDocy"
+msgstr ""
+
+msgid "TransformDocxToOdt"
+msgstr ""
+
+msgid "TransformDocyToDocx"
+msgstr ""
+
+msgid "TransformHtmlToPdf"
+msgstr ""
+
+msgid "TransformImageToBmp"
+msgstr ""
+
+msgid "TransformImageToPcx"
+msgstr ""
+
+msgid "TransformLib"
+msgstr ""
+
+msgid "TransformOdpToHtml"
+msgstr ""
+
+msgid "TransformOdpToPdf"
+msgstr ""
+
+msgid "TransformOdpToPptx"
+msgstr ""
+
+msgid "TransformOdpToSxi"
+msgstr ""
+
+msgid "TransformOdsToHtml"
+msgstr ""
+
+msgid "TransformOdsToPdf"
+msgstr ""
+
+msgid "TransformOdsToXlsx"
+msgstr ""
+
+msgid "TransformOdtToDocx"
+msgstr ""
+
+msgid "TransformOdtToHtml"
+msgstr ""
+
+msgid "TransformPdfToBmp"
+msgstr ""
+
+msgid "TransformPptToPptx"
+msgstr ""
+
+msgid "TransformPptxToOdp"
+msgstr ""
+
+msgid "TransformPptxToPpty"
+msgstr ""
+
+msgid "TransformPptyToPptx"
+msgstr ""
+
+msgid "TransformSxiToHtml"
+msgstr ""
+
+msgid "TransformSxiToOdp"
+msgstr ""
+
+msgid "TransformXlsToOds"
+msgstr ""
+
+msgid "TransformXlsToXlsx"
+msgstr ""
+
+msgid "TransformXlsxToOds"
+msgstr ""
+
+msgid "TransformXlsxToXlsy"
+msgstr ""
+
+msgid "TransformXlsyToXlsx"
+msgstr ""
+
+msgid "Transformation"
+msgstr ""
+
+msgid "TransformedResource"
+msgstr ""
+
+msgid "Transport, storage & communications"
+msgstr ""
+
+msgid "Transportation and Storage and Mail Services"
+msgstr ""
+
+msgid "Transports administratifs"
+msgstr ""
+
+msgid "Transports collectifs du personnel"
+msgstr ""
+
+msgid "Transports de biens et transports collectifs du personnel"
+msgstr ""
+
+msgid "Transports entre établissements ou chantiers"
+msgstr ""
+
+msgid "Transports sur achats"
+msgstr ""
+
+msgid "Transports sur ventes"
+msgstr ""
+
+msgid "Travaux"
+msgstr ""
+
+msgid "Travaux en cours"
+msgstr ""
+
+msgid "Travel and Food and Lodging and Entertainment Services"
+msgstr ""
+
+msgid "Trinidad and Tobago"
+msgstr ""
+
+msgid "Trinidadian"
+msgstr ""
+
+msgid "Trinidadian; Tobagonian"
+msgstr ""
+
+msgid "Tunisia"
+msgstr ""
+
+msgid "Tunisian"
+msgstr ""
+
+msgid "Turk"
+msgstr ""
+
+msgid "Turkey"
+msgstr ""
+
+msgid "Turkmen"
+msgstr ""
+
+msgid "Turkmenistan"
+msgstr ""
+
+msgid "Turks and Caicos Islander"
+msgstr ""
+
+msgid "Turks and Caicos Islands"
+msgstr ""
+
+msgid "Tuvalu"
+msgstr ""
+
+msgid "Tuvaluan"
+msgstr ""
+
+msgid "Two Way"
+msgstr ""
+
+msgid "Two Way By Server"
+msgstr ""
+
+msgid "US Virgin Islander"
+msgstr ""
+
+msgid "US citizen"
+msgstr ""
+
+msgid "USB"
+msgstr ""
+
+msgid "USB2"
+msgstr ""
+
+msgid "USB3"
+msgstr ""
+
+msgid "Uganda"
+msgstr ""
+
+msgid "Ugandan"
+msgstr ""
+
+msgid "Ukraine"
+msgstr ""
+
+msgid "Ukrainian"
+msgstr ""
+
+msgid "Unemployment Insurance"
+msgstr ""
+
+msgid "UnifySolver"
+msgstr ""
+
+msgid "Unit"
+msgstr ""
+
+msgid "United Arab Emirates"
+msgstr ""
+
+msgid "United Kingdom"
+msgstr ""
+
+msgid "United Kingdom of Great Britain and Northern Ireland"
+msgstr ""
+
+msgid "United Republic of Tanzania"
+msgstr ""
+
+msgid "United States Virgin Islands"
+msgstr ""
+
+msgid "United States of America"
+msgstr ""
+
+msgid "Universal Serial Bus"
+msgstr ""
+
+msgid "Upgrade"
+msgstr ""
+
+msgid "Upgrade Decision"
+msgstr ""
+
+msgid "Uranium"
+msgstr ""
+
 msgid "Urgent"
 msgstr "紧急"
+
+msgid "Url"
+msgstr ""
+
+msgid "UrlMixin"
+msgstr ""
+
+msgid "UrlRegistryTool"
+msgstr ""
+
+msgid "Uruguay"
+msgstr ""
+
+msgid "Uruguayan"
+msgstr ""
+
+msgid "Usage"
+msgstr ""
 
 msgid "Use Case"
 msgstr "客户案例"
 
+msgid "User"
+msgstr ""
+
+msgid "User Documentation"
+msgstr ""
+
+msgid "Uzbek"
+msgstr ""
+
+msgid "Uzbekistan"
+msgstr ""
+
+msgid "VCardConduit"
+msgstr ""
+
+msgid "VIFIB Company"
+msgstr ""
+
+msgid "Valeurs comptables des immobilisations financières cédées"
+msgstr ""
+
+msgid "Valeurs comptables des immobilisations incorporelles et corporelles cédées"
+msgstr ""
+
+msgid "Valeurs mobilières de placement"
+msgstr ""
+
+msgid "Valeurs à l'encaissement"
+msgstr ""
+
+msgid "Vanuatu"
+msgstr ""
+
+msgid "Vanuatuan"
+msgstr ""
+
+msgid "VariantMovementGroup"
+msgstr ""
+
+msgid "Variation"
+msgstr ""
+
+msgid "Variation des en-cours de production de biens"
+msgstr ""
+
+msgid "Variation des en-cours de production de services"
+msgstr ""
+
+msgid "Variation des stocks d'approvisionnements et de marchandises"
+msgstr ""
+
+msgid "Variation des stocks de marchandises"
+msgstr ""
+
+msgid "Variation des stocks de matières premières et fournitures"
+msgstr ""
+
+msgid "Variation des stocks de produits"
+msgstr ""
+
+msgid "Variation des stocks des autres approvisionnements"
+msgstr ""
+
+msgid "Variation des stocks des en-cours de production et de produits"
+msgstr ""
+
+msgid "VariationEquivalenceTester"
+msgstr ""
+
+msgid "VariationPropertyMovementGroup"
+msgstr ""
+
+msgid "Venezuela"
+msgstr ""
+
+msgid "Venezuela (Bolivarian Republic of)"
+msgstr ""
+
+msgid "Venezuelan"
+msgstr ""
+
+msgid "Ventes de marchandises"
+msgstr ""
+
+msgid "Ventes de produits fabriqués, prestations de services, marchandises"
+msgstr ""
+
+msgid "Ventes de produits finis"
+msgstr ""
+
+msgid "Ventes de produits intermédiaires"
+msgstr ""
+
+msgid "Ventes de produits résiduels"
+msgstr ""
+
+msgid "Versement de transport"
+msgstr ""
+
+msgid "Versements au comité social et économique"
+msgstr ""
+
+msgid "Versements aux autres œuvres sociales"
+msgstr ""
+
+msgid "Versements libératoires ouvrant droit à l'exonération de la taxe d'apprentissage"
+msgstr ""
+
+msgid "Versements représentatifs d'apports non capitalisés - appel de fonds"
+msgstr ""
+
+msgid "Versements restant à effectuer sur titres de participation non libérés"
+msgstr ""
+
+msgid "Versements restant à effectuer sur titres immobilisés non libérés"
+msgstr ""
+
+msgid "Versements restant à effectuer sur valeurs mobilières de placement non libérées"
+msgstr ""
+
+msgid "Vertical"
+msgstr ""
+
+msgid "Vertical Collaborative"
+msgstr ""
+
+msgid "Vertical Personal"
+msgstr ""
+
+msgid "Viet Nam"
+msgstr ""
+
+msgid "Vietnamese"
+msgstr ""
+
+msgid "Vincentian"
+msgstr ""
+
+msgid "Virements internes"
+msgstr ""
+
+msgid "Virtual Master"
+msgstr ""
+
+msgid "VirtualFolderMixin"
+msgstr ""
+
+msgid "Visa"
+msgstr ""
+
+msgid "Volume"
+msgstr ""
+
+msgid "Voyages et déplacements"
+msgstr ""
+
+msgid "Wallis and Futuna"
+msgstr ""
+
+msgid "Wallis and Futuna Islands"
+msgstr ""
+
+msgid "Wallisian"
+msgstr ""
+
+msgid "Wallisian; Futunan"
+msgstr ""
+
+msgid "Warehouse"
+msgstr ""
+
+msgid "Warehouse Agent"
+msgstr ""
+
+msgid "Warehouse Manager"
+msgstr ""
+
+msgid "Water transport"
+msgstr ""
+
+msgid "Wearing apparel"
+msgstr ""
+
+msgid "Web"
+msgstr ""
+
+msgid "Web Section"
+msgstr ""
+
+msgid "Web Site"
+msgstr ""
+
+msgid "Web Site Front"
+msgstr ""
+
+msgid "WebDAVSupport"
+msgstr ""
+
+msgid "WebRenderJSUI"
+msgstr ""
+
+msgid "WebSection"
+msgstr ""
+
+msgid "WebServiceConnector"
+msgstr ""
+
+msgid "WebServiceRequest"
+msgstr ""
+
+msgid "WebServiceRequestGroup"
+msgstr ""
+
+msgid "WebServiceTool"
+msgstr ""
+
+msgid "WebSite"
+msgstr ""
+
+msgid "WebUtility"
+msgstr ""
+
+msgid "Wechat"
+msgstr ""
+
+msgid "WechatService"
+msgstr ""
+
+msgid "Week"
+msgstr ""
+
+msgid "Wendelin"
+msgstr ""
+
+msgid "West"
+msgstr ""
+
+msgid "Western"
+msgstr ""
+
+msgid "Western Africa"
+msgstr ""
+
+msgid "Western Asia"
+msgstr ""
+
+msgid "Western Europe"
+msgstr ""
+
+msgid "Western Sahara"
+msgstr ""
+
+msgid "Wholesale & retail trade; motor vehicles"
+msgstr ""
+
+msgid "Wholesale trade except of motor vehicles"
+msgstr ""
+
+msgid "Why TioLive?"
+msgstr ""
+
+msgid "Widowed"
+msgstr ""
+
+msgid "Wifi"
+msgstr ""
+
+msgid "Wifi 802.11"
+msgstr ""
+
 msgid "Wire Transfer"
 msgstr "电汇"
+
+msgid "Withholdings"
+msgstr ""
+
+msgid "Wood products except furniture"
+msgstr ""
+
+msgid "Work Accident-Occupational Disease"
+msgstr ""
+
+msgid "Work in progress"
+msgstr ""
+
+msgid "XMLRPCConnection"
+msgstr ""
+
+msgid "XMLSyncUtils"
+msgstr ""
+
+msgid "XMLUtils"
+msgstr ""
+
+msgid "XupdateUtils"
+msgstr ""
+
+msgid "Yemen"
+msgstr ""
+
+msgid "Yemeni"
+msgstr ""
+
+msgid "You are here:"
+msgstr ""
+
+msgid "ZODBHistory"
+msgstr ""
+
+msgid "Zambia"
+msgstr ""
+
+msgid "Zambian"
+msgstr ""
+
+msgid "Zimbabwe"
+msgstr ""
+
+msgid "Zimbabwean"
+msgstr ""
+
+msgid "accounting"
+msgstr ""
+
+msgid "boolean"
+msgstr ""
+
+msgid "computer"
+msgstr ""
+
+msgid "content"
+msgstr ""
+
+msgid "data"
+msgstr ""
+
+msgid "date"
+msgstr ""
+
+msgid "debian10"
+msgstr ""
+
+msgid "debian11"
+msgstr ""
+
+msgid "default_system_preference"
+msgstr ""
+
+msgid "delivery"
+msgstr ""
+
+msgid "discount"
+msgstr ""
+
+msgid "eCommerce"
+msgstr ""
+
+msgid "float"
+msgstr ""
+
+msgid "function"
+msgstr ""
+
+msgid "global"
+msgstr ""
+
+msgid "group"
+msgstr ""
+
+msgid "h"
+msgstr ""
+
+msgid "int"
+msgstr ""
+
+msgid "invoicing"
+msgstr ""
+
+msgid "lines"
+msgstr ""
+
+msgid "long"
+msgstr ""
+
+msgid "migrateWorkflowModuleToPortalWorkflow"
+msgstr ""
+
+msgid "multiple selection"
+msgstr ""
+
+msgid "object"
+msgstr ""
+
+msgid "object_action"
+msgstr ""
+
+msgid "object_button"
+msgstr ""
+
+msgid "object_dialog"
+msgstr ""
+
+msgid "object_exchange"
+msgstr ""
+
+msgid "object_exchange_raw"
+msgstr ""
+
+msgid "object_fast_input"
+msgstr ""
+
+msgid "object_fast_input_raw"
+msgstr ""
+
+msgid "object_icon"
+msgstr ""
+
+msgid "object_jio_action"
+msgstr ""
+
+msgid "object_jio_action_raw"
+msgstr ""
+
+msgid "object_jio_button"
+msgstr ""
+
+msgid "object_jio_button_raw"
+msgstr ""
+
+msgid "object_jio_exchange"
+msgstr ""
+
+msgid "object_jio_exchange_raw"
+msgstr ""
+
+msgid "object_jio_fast_input"
+msgstr ""
+
+msgid "object_jio_fast_input_raw"
+msgstr ""
+
+msgid "object_jio_js_script"
+msgstr ""
+
+msgid "object_jio_jump"
+msgstr ""
+
+msgid "object_jio_jump_raw"
+msgstr ""
+
+msgid "object_jio_print"
+msgstr ""
+
+msgid "object_jio_print_raw"
+msgstr ""
+
+msgid "object_jio_report"
+msgstr ""
+
+msgid "object_jio_report_raw"
+msgstr ""
+
+msgid "object_jio_search"
+msgstr ""
+
+msgid "object_jio_view"
+msgstr ""
+
+msgid "object_jump"
+msgstr ""
+
+msgid "object_list"
+msgstr ""
+
+msgid "object_onlyjio_action"
+msgstr ""
+
+msgid "object_onlyjio_action_raw"
+msgstr ""
+
+msgid "object_onlyjio_button"
+msgstr ""
+
+msgid "object_onlyjio_button_raw"
+msgstr ""
+
+msgid "object_onlyjio_jump"
+msgstr ""
+
+msgid "object_onlyjio_jump_raw"
+msgstr ""
+
+msgid "object_onlyjio_view"
+msgstr ""
+
+msgid "object_onlyxhtml_view"
+msgstr ""
+
+msgid "object_print"
+msgstr ""
+
+msgid "object_print_raw"
+msgstr ""
+
+msgid "object_report"
+msgstr ""
+
+msgid "object_report_raw"
+msgstr ""
+
+msgid "object_search"
+msgstr ""
+
+msgid "object_view"
+msgstr ""
+
+msgid "object_web_view"
+msgstr ""
+
+msgid "of Bosnia Herzegovina"
+msgstr ""
+
+msgid "of the Cook Islands"
+msgstr ""
+
+msgid "of the Holy See"
+msgstr ""
+
+msgid "order"
+msgstr ""
+
+msgid "organisation"
+msgstr ""
+
+msgid "payment"
+msgstr ""
+
+msgid "portal_slap"
+msgstr ""
+
+msgid "pprofile"
+msgstr ""
+
+msgid "project"
+msgstr ""
+
+msgid "selection"
+msgstr ""
+
+msgid "shadow"
+msgstr ""
+
+msgid "slapos_default_system_preference"
+msgstr ""
+
+msgid "slapos_erp5"
+msgstr ""
+
+msgid "string"
+msgstr ""
+
+msgid "subscription"
+msgstr ""
+
+msgid "sur achats"
+msgstr ""
+
+msgid "sur autres biens"
+msgstr ""
+
+msgid "sur ventes"
+msgstr ""
+
+msgid "tales"
+msgstr ""
+
+msgid "tax"
+msgstr ""
+
+msgid "testAccounting"
+msgstr ""
+
+msgid "testAccountingReports"
+msgstr ""
+
+msgid "testAccounting_l10n_fr"
+msgstr ""
+
+msgid "testAcknowledgementTool"
+msgstr ""
+
+msgid "testAmount"
+msgstr ""
+
+msgid "testAuthenticationPolicy"
+msgstr ""
+
+msgid "testBPMCore"
+msgstr ""
+
+msgid "testBigFile"
+msgstr ""
+
+msgid "testCRM"
+msgstr ""
+
+msgid "testCRMNotificationTool"
+msgstr ""
+
+msgid "testCRMSupportRequest"
+msgstr ""
+
+msgid "testCertificateAuthorityPerson"
+msgstr ""
+
+msgid "testCertificateAuthorityTool"
+msgstr ""
+
+msgid "testComplexTradeModelLineUseCase"
+msgstr ""
+
+msgid "testComputer"
+msgstr ""
+
+msgid "testComputerWithComputerModel"
+msgstr ""
+
+msgid "testConfiguratorItem"
+msgstr ""
+
+msgid "testConfiguratorTool"
+msgstr ""
+
+msgid "testContentTranslation"
+msgstr ""
+
+msgid "testCrmReports"
+msgstr ""
+
+msgid "testDeliveryBuilderToSupportMultipleLines"
+msgstr ""
+
+msgid "testDeliveryNode"
+msgstr ""
+
+msgid "testDivergenceTester"
+msgstr ""
+
+msgid "testDms"
+msgstr ""
+
+msgid "testDmsWithFlare"
+msgstr ""
+
+msgid "testDomainTool"
+msgstr ""
+
+msgid "testERP5AccessToken"
+msgstr ""
+
+msgid "testERP5Administration"
+msgstr ""
+
+msgid "testERP5BearerToken"
+msgstr ""
+
+msgid "testERP5CatalogSecurityUidOptimization"
+msgstr ""
+
+msgid "testERP5Commerce"
+msgstr ""
+
+msgid "testERP5Credential"
+msgstr ""
+
+msgid "testERP5CredentialAlarm"
+msgstr ""
+
+msgid "testERP5DocumentSyncML"
+msgstr ""
+
+msgid "testERP5Interfaces"
+msgstr ""
+
+msgid "testERP5PayzenSecurePayment"
+msgstr ""
+
+msgid "testERP5Simulation"
+msgstr ""
+
+msgid "testERP5SyncML"
+msgstr ""
+
+msgid "testERP5SyncMLMixin"
+msgstr ""
+
+msgid "testERP5SyncMLVCard"
+msgstr ""
+
+msgid "testERP5Web"
+msgstr ""
+
+msgid "testERP5WebWithCRM"
+msgstr ""
+
+msgid "testERP5WebWithDms"
+msgstr ""
+
+msgid "testERP5WechatSecurePayment"
+msgstr ""
+
+msgid "testEditorField"
+msgstr ""
+
+msgid "testExecuteJupyter"
+msgstr ""
+
+msgid "testFTPConnection"
+msgstr ""
+
+msgid "testFacebookLogin"
+msgstr ""
+
+msgid "testFieldLibraryGuideline"
+msgstr ""
+
+msgid "testGoogleLogin"
+msgstr ""
+
+msgid "testHalJsonStyle"
+msgstr ""
+
+msgid "testHalRestrictedJsonStyle"
+msgstr ""
+
+msgid "testImmobilisation"
+msgstr ""
+
+msgid "testInternalOrder"
+msgstr ""
+
+msgid "testInventory"
+msgstr ""
+
+msgid "testInventoryModule"
+msgstr ""
+
+msgid "testInventoryReportModule"
+msgstr ""
+
+msgid "testInvoice"
+msgstr ""
+
+msgid "testItem"
+msgstr ""
+
+msgid "testJSONForm"
+msgstr ""
+
+msgid "testJsonRpcAPIService"
+msgstr ""
+
+msgid "testMilestoneReporting"
+msgstr ""
+
+msgid "testMovementGroup"
+msgstr ""
+
+msgid "testOOoChart"
+msgstr ""
+
+msgid "testOOoConversionCache"
+msgstr ""
+
+msgid "testOOoConversionServerRetry"
+msgstr ""
+
+msgid "testOdsStyle"
+msgstr ""
+
+msgid "testOdtStyle"
+msgstr ""
+
+msgid "testOpenAPIService"
+msgstr ""
+
+msgid "testOpenOrder"
+msgstr ""
+
+msgid "testOrder"
+msgstr ""
+
+msgid "testOrderBuilder"
+msgstr ""
+
+msgid "testPDM"
+msgstr ""
+
+msgid "testPackingList"
+msgstr ""
+
+msgid "testPackingListRoundingPrecision"
+msgstr ""
+
+msgid "testPasswordToolWithCRM"
+msgstr ""
+
+msgid "testProject"
+msgstr ""
+
+msgid "testPurchaseOrder"
+msgstr ""
+
+msgid "testRESTAPIClientConnectorMixin"
+msgstr ""
+
+msgid "testRSS"
+msgstr ""
+
+msgid "testResource"
+msgstr ""
+
+msgid "testResourceVariation"
+msgstr ""
+
+msgid "testReturnedOrder"
+msgstr ""
+
+msgid "testReturnedSalePackingList"
+msgstr ""
+
+msgid "testRoundingTool"
+msgstr ""
+
+msgid "testRule"
+msgstr ""
+
+msgid "testRunMyDoc"
+msgstr ""
+
+msgid "testShaCache"
+msgstr ""
+
+msgid "testShaDir"
+msgstr ""
+
+msgid "testSimulationPerformance"
+msgstr ""
+
+msgid "testSlapOSAbyss"
+msgstr ""
+
+msgid "testSlapOSAccountingAlarm"
+msgstr ""
+
+msgid "testSlapOSAccountingBuilder"
+msgstr ""
+
+msgid "testSlapOSAccountingConstraint"
+msgstr ""
+
+msgid "testSlapOSAccountingInteractionWorkflow"
+msgstr ""
+
+msgid "testSlapOSAccountingRule"
+msgstr ""
+
+msgid "testSlapOSAccountingSkins"
+msgstr ""
+
+msgid "testSlapOSAllocationSupply"
+msgstr ""
+
+msgid "testSlapOSAuthenticationPolicy"
+msgstr ""
+
+msgid "testSlapOSCRMAlarm"
+msgstr ""
+
+msgid "testSlapOSCRMMonitoringAlarm"
+msgstr ""
+
+msgid "testSlapOSCRMRegularisationRequestSkins"
+msgstr ""
+
+msgid "testSlapOSCRMSkins"
+msgstr ""
+
+msgid "testSlapOSCatalogConsistency"
+msgstr ""
+
+msgid "testSlapOSCloud"
+msgstr ""
+
+msgid "testSlapOSCloudAlarm"
+msgstr ""
+
+msgid "testSlapOSCloudAllocationAlarm"
+msgstr ""
+
+msgid "testSlapOSCloudComputeNodeSlapInterfaceWorkflow"
+msgstr ""
+
+msgid "testSlapOSCloudComputePartitionSlapInterfaceWorkflow"
+msgstr ""
+
+msgid "testSlapOSCloudConstraint"
+msgstr ""
+
+msgid "testSlapOSCloudInstanceSlapInterfaceWorkflow"
+msgstr ""
+
+msgid "testSlapOSCloudInteractionWorkflow"
+msgstr ""
+
+msgid "testSlapOSCloudNetworkSlapInterfaceWorkflow"
+msgstr ""
+
+msgid "testSlapOSCloudPersonSlapInterfaceWorkflow"
+msgstr ""
+
+msgid "testSlapOSCloudSecurityGroup"
+msgstr ""
+
+msgid "testSlapOSCloudShadow"
+msgstr ""
+
+msgid "testSlapOSCloudUpgrader"
+msgstr ""
+
+msgid "testSlapOSCodingStyle"
+msgstr ""
+
+msgid "testSlapOSConfigurator"
+msgstr ""
+
+msgid "testSlapOSConsumptionSkins"
+msgstr ""
+
+msgid "testSlapOSCoreSkins"
+msgstr ""
+
+msgid "testSlapOSERP5AccountingScenario"
+msgstr ""
+
+msgid "testSlapOSERP5Alarm"
+msgstr ""
+
+msgid "testSlapOSERP5AllocationScenario"
+msgstr ""
+
+msgid "testSlapOSERP5CRMScenario"
+msgstr ""
+
+msgid "testSlapOSERP5GroupRoleSecurity"
+msgstr ""
+
+msgid "testSlapOSERP5InteractionWorkflow"
+msgstr ""
+
+msgid "testSlapOSERP5LocalPermissionSlapOSInteractionWorkflow"
+msgstr ""
+
+msgid "testSlapOSERP5ManualAccountingScenario"
+msgstr ""
+
+msgid "testSlapOSERP5SiteDump"
+msgstr ""
+
+msgid "testSlapOSERP5SkinSelection"
+msgstr ""
+
+msgid "testSlapOSERP5SubscriptionChangeRequestScenario"
+msgstr ""
+
+msgid "testSlapOSERP5SubscriptionScenario"
+msgstr ""
+
+msgid "testSlapOSERP5VirtualMasterScenario"
+msgstr ""
+
+msgid "testSlapOSEntityCreatePayment"
+msgstr ""
+
+msgid "testSlapOSHalRestrictedCompatibilityJsonStyle"
+msgstr ""
+
+msgid "testSlapOSJsonRpc"
+msgstr ""
+
+msgid "testSlapOSPDMAlarm"
+msgstr ""
+
+msgid "testSlapOSPDMCreateUpgradeDecisionSkins"
+msgstr ""
+
+msgid "testSlapOSPDMDestroySoftwareInstallation"
+msgstr ""
+
+msgid "testSlapOSPDMSkins"
+msgstr ""
+
+msgid "testSlapOSPanelSkins"
+msgstr ""
+
+msgid "testSlapOSPayzenAlarm"
+msgstr ""
+
+msgid "testSlapOSPayzenEntityCreatePayment"
+msgstr ""
+
+msgid "testSlapOSPayzenSkins"
+msgstr ""
+
+msgid "testSlapOSPayzenWorkflow"
+msgstr ""
+
+msgid "testSlapOSPrecacheManifest"
+msgstr ""
+
+msgid "testSlapOSRSSStyleSkins"
+msgstr ""
+
+msgid "testSlapOSSaleSupply"
+msgstr ""
+
+msgid "testSlapOSSlapTool"
+msgstr ""
+
+msgid "testSlapOSSlapToolComputeNodeUpdateFromDict"
+msgstr ""
+
+msgid "testSlapOSSubscriptionAlarm"
+msgstr ""
+
+msgid "testSlapOSWechatAlarm"
+msgstr ""
+
+msgid "testSlapOSWechatEntityCreatePayment"
+msgstr ""
+
+msgid "testSlapOSWechatSkins"
+msgstr ""
+
+msgid "testSlapOSWechatWorkflow"
+msgstr ""
+
+msgid "testSlapOSWendelinCoreTwo"
+msgstr ""
+
+msgid "testSlapOSXHTML"
+msgstr ""
+
+msgid "testSupply"
+msgstr ""
+
+msgid "testTask"
+msgstr ""
+
+msgid "testTaskReportDivergence"
+msgstr ""
+
+msgid "testTaskReporting"
+msgstr ""
+
+msgid "testTradeCondition"
+msgstr ""
+
+msgid "testTradeModelLine"
+msgstr ""
+
+msgid "testTradeModelLinePurchase"
+msgstr ""
+
+msgid "testTradeReports"
+msgstr ""
+
+msgid "testTranslatedRelatedKeys"
+msgstr ""
+
+msgid "testTypeDefinition"
+msgstr ""
+
+msgid "testUpgrader"
+msgstr ""
+
+msgid "testUrl"
+msgstr ""
+
+msgid "testWebCrawler"
+msgstr ""
+
+msgid "testWebDavSupport"
+msgstr ""
+
+msgid "testWebPageConvert"
+msgstr ""
+
+msgid "testWebServiceTool"
+msgstr ""
+
+msgid "testWebSiteLanguage"
+msgstr ""
+
+msgid "testWendelin"
+msgstr ""
+
+msgid "testXMLMatrix"
+msgstr ""
+
+msgid "text"
+msgstr ""
+
+msgid "tokens"
+msgstr ""
+
+msgid "user"
+msgstr ""
+
+msgid "wmWare group"
+msgstr ""
+
+msgid "workflow"
+msgstr ""
+
+msgid "x86"
+msgstr ""
+
+msgid "Åland Islander"
+msgstr ""
+
+msgid "Åland Islands"
+msgstr ""
+
+msgid "Écart d'équivalence"
+msgstr ""
+
+msgid "Écarts de réévaluation"
+msgstr ""
+
+msgid "Échantillons"
+msgstr ""
+
+msgid "Émissions de titres participatifs"
+msgstr ""
+
+msgid "État - Charges à Payer"
+msgstr ""
+
+msgid "État - Charges à payer et produits à recevoir"
+msgstr ""
+
+msgid "État - Impôts sur les bénéfices"
+msgstr ""
+
+msgid "État - Produits à recevoir"
+msgstr ""
+
+msgid "État - Subventions et aides à recevoir"
+msgstr ""
+
+msgid "État - Taxes sur le chiffre d'affaires"
+msgstr ""
+
+msgid "État et autres collectivités publiques"
+msgstr ""
+
+msgid "Études"
+msgstr ""
+
+msgid "Études en cours"
+msgstr ""
+
+msgid "Études et recherches"
+msgstr ""

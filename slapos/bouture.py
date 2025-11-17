@@ -184,16 +184,7 @@ def parse_conf(cfg):
     return argparse.Namespace(**node_conf)
 
 
-def failover():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--node-cfg', required=True)
-    parser.add_argument('--new-master-url', required=True)
-    parser.add_argument('--new-cert-dir', required=True)
-    parser.add_argument('--pidfile', required=True)
-    parser.add_argument('--switchfile', required=True)
-    parser.add_argument('--new-monitor-url')
-    args = parser.parse_args()
-
+def failover(args):
     setRunning(logger, args.pidfile)
     try:
         cfg = args.node_cfg
@@ -246,18 +237,56 @@ def failover():
         setFinished(args.pidfile)
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--node-cfg', required=True)
-    parser.add_argument('--new-master-url', required=True)
-    args = parser.parse_args()
+def graft(args):
     node_conf = parse_conf(args.node_cfg)
     bouture(args, node_conf)
 
 
+def instance(args):
+    logger.info(
+        "Processing this node from alternate master at %s",
+        args.new_master_url,
+    )
+    subprocess.call((
+        'slapos', 'node', 'instance',
+        '--cfg', args.node_cfg,
+        '--master-url', args.new_master_url,
+        # '--certificate_repository_path', args.new_cert_dir,
+        # '--certificate_repository_path', '',
+    ))
+
+
+def main():
+    main_parser = argparse.ArgumentParser()
+    subparsers = main_parser.add_subparsers()
+
+    failover_parser = subparsers.add_parser('failover')
+    failover_parser.set_defaults(func=failover)
+    failover_parser.add_argument('--node-cfg', required=True)
+    failover_parser.add_argument('--new-master-url', required=True)
+    failover_parser.add_argument('--new-cert-dir', required=True)
+    failover_parser.add_argument('--pidfile', required=True)
+    failover_parser.add_argument('--switchfile', required=True)
+    failover_parser.add_argument('--new-monitor-url')
+
+    bouture_parser = subparsers.add_parser('graft')
+    bouture_parser.set_defaults(func=graft)
+    bouture_parser.add_argument('--node-cfg', required=True)
+    bouture_parser.add_argument('--new-master-url', required=True)
+    bouture_parser.add_argument('--new-monitor-url')
+
+    instance_parser = subparsers.add_parser('instance')
+    instance_parser.set_defaults(func=instance)
+    instance_parser.add_argument('--node-cfg', required=True)
+    instance_parser.add_argument('--new-master-url', required=True)
+    instance_parser.add_argument('--new-cert-dir', required=True)
+
+    args = main_parser.parse_args()
+    args.func(args)
+
+
 if __name__ == '__main__':
-    failover()
-    # main()
+    main()
 
 
 # /etc/opt/slapos/slapos.cfg

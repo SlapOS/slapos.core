@@ -85,17 +85,17 @@ def proxy_request(url_scheme, url_netloc, url_path=''):
   for k, v in proxy_response.headers.items():
     k = k.title()
 
-    if k in ["Content-Disposition", "Content-Type", "Date", "Last-Modified",
+    if k in ["Content-Type", "Date", "Last-Modified",
              "Vary", "Cache-Control", "Etag", "Accept-Ranges",
              "Content-Range",
              # Authorization is required for the stack private stack monitor 
              "Www-Authenticate",
              # Allow CORS
              "Access-Control-Allow-Origin",
-             "Access-Control-Allow-Methods"
+             "Access-Control-Allow-Methods",
              "Access-Control-Expose-Headers",
              "Access-Control-Allow-Headers",
-             "Access-Control-Allow-Credentials"
+             "Access-Control-Allow-Credentials",
              ]:
       proxy_response_headers[k] = v
     elif k == "Location":

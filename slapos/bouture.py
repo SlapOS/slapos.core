@@ -46,6 +46,11 @@ def bouture(bouture_conf, node_conf):
     new_master_url = bouture_conf.new_master_url
     new_monitor_url = bouture_conf.new_monitor_url
 
+    logger.info(
+        "Bouturing this node onto alternate master at %s",
+        new_master_url,
+    )
+
     # Find bouture partition
     partitions = find_bouture_partitions(instance_root, slappart_base)
     if not partitions:
@@ -184,23 +189,40 @@ def parse_conf(cfg):
     return argparse.Namespace(**node_conf)
 
 
+def configure(args):
+    old_cfg = args.original_cfg
+    new_cfg = args.new_cfg
+    assert(old_cfg != new_cfg)
+    logger.info(
+        "Writing configuration for alternate master %s at %s",
+        args.new_master_url,
+        new_cfg,
+    )
+    configp = configparser.ConfigParser()
+    if configp.read(old_cfg) != [old_cfg]:
+       raise Exception("Could not read %s" % cfg)
+    configp['slapos']['master_url'] = args.new_master_url
+    # Remove client certificate parameters to disable client SSL
+    configp.remove_option('slapos', 'key_file')
+    configp.remove_option('slapos', 'cert_file')
+    configp.remove_option('slapos', 'certificate_repository_path')
+    with open(new_cfg, 'w') as f:
+        configp.write(f)
+
+
 def failover(args):
     setRunning(logger, args.pidfile)
     try:
-        cfg = args.node_cfg
-        node_conf = parse_conf(cfg)
-
-        ret = subprocess.call(('slapos', 'node', 'instance', '--cfg', cfg))
+        old_cfg = args.original_cfg
+        new_cfg = args.new_cfg
+        ret = subprocess.call(('slapos', 'node', 'instance', '--cfg', old_cfg))
         if ret == SLAPGRID_OFFLINE_SUCCESS:
             logger.info(
                 "This node is unable to reach its SlapOS master"
             )
             if not os.path.exists(args.switchfile):
-                logger.info(
-                    "Bouturing this node onto alternate master at %s",
-                    args.new_master_url,
-                )
-                bouture(args, node_conf)
+                configure(args)
+                bouture(args, parse_conf(old_cfg))
                 # Either bouture crashed and we don't reach here,
                 # or bouture went ok and we continue.
                 with open(args.switchfile, 'w') as f:
@@ -209,12 +231,7 @@ def failover(args):
                 "Processing this node from alternate master at %s",
                 args.new_master_url,
             )
-            subprocess.call((
-                'slapos', 'node', 'instance',
-                '--cfg', cfg,
-                '--master-url', args.new_master_url,
-                '--certificate_repository_path', args.new_cert_dir,
-            ))
+            subprocess.call(('slapos', 'node', 'instance', '--cfg', new_cfg))
         else:
             # If ret != 0, likely SlapOS master is reachable and some
             # promise or buildout is failing. If SlapOS master is not
@@ -238,22 +255,12 @@ def failover(args):
 
 
 def graft(args):
-    node_conf = parse_conf(args.node_cfg)
+    node_conf = parse_conf(args.original_cfg)
     bouture(args, node_conf)
 
 
 def instance(args):
-    logger.info(
-        "Processing this node from alternate master at %s",
-        args.new_master_url,
-    )
-    subprocess.call((
-        'slapos', 'node', 'instance',
-        '--cfg', args.node_cfg,
-        '--master-url', args.new_master_url,
-        # '--certificate_repository_path', args.new_cert_dir,
-        # '--certificate_repository_path', '',
-    ))
+    subprocess.call(('slapos', 'node', 'instance', '--cfg', args.new_cfg))
 
 
 def main():
@@ -262,24 +269,28 @@ def main():
 
     failover_parser = subparsers.add_parser('failover')
     failover_parser.set_defaults(func=failover)
-    failover_parser.add_argument('--node-cfg', required=True)
+    failover_parser.add_argument('--original-cfg', required=True)
+    failover_parser.add_argument('--new-cfg', required=True)
     failover_parser.add_argument('--new-master-url', required=True)
-    failover_parser.add_argument('--new-cert-dir', required=True)
     failover_parser.add_argument('--pidfile', required=True)
     failover_parser.add_argument('--switchfile', required=True)
     failover_parser.add_argument('--new-monitor-url')
 
     bouture_parser = subparsers.add_parser('graft')
     bouture_parser.set_defaults(func=graft)
-    bouture_parser.add_argument('--node-cfg', required=True)
+    bouture_parser.add_argument('--cfg', required=True)
     bouture_parser.add_argument('--new-master-url', required=True)
     bouture_parser.add_argument('--new-monitor-url')
 
+    configure_parser = subparsers.add_parser('configure')
+    configure_parser.set_defaults(func=configure)
+    configure_parser.add_argument('--original-cfg', required=True)
+    configure_parser.add_argument('--new-cfg', required=True)
+    configure_parser.add_argument('--new-master-url', required=True)
+
     instance_parser = subparsers.add_parser('instance')
     instance_parser.set_defaults(func=instance)
-    instance_parser.add_argument('--node-cfg', required=True)
-    instance_parser.add_argument('--new-master-url', required=True)
-    instance_parser.add_argument('--new-cert-dir', required=True)
+    instance_parser.add_argument('--new-cfg', required=True)
 
     args = main_parser.parse_args()
     args.func(args)

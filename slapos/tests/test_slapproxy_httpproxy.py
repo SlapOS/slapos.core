@@ -1,9 +1,6 @@
 from test_slapproxy import BasicMixin
-from slapos.util import dumps
 import unittest
-import json
 import httpretty
-import mock
 
 class HttpProxyTestCase(BasicMixin, unittest.TestCase):
 

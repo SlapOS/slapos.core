@@ -35,6 +35,7 @@ from slapos.proxy.db_version import DB_VERSION
 from slapos.util import sqlite_connect
 
 from flask import g, Flask, redirect, url_for, current_app
+from werkzeug.middleware.proxy_fix import ProxyFix
 from .json_rpc import JsonRpcManager
 from .panel import panel_blueprint
 from .hateoas import hateoas_blueprint
@@ -45,6 +46,8 @@ from .db import execute_db
 from six.moves.urllib.parse import urlparse
 
 app = Flask(__name__)
+# Support having haproxy/nginx in front to provide https
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 JsonRpcManager().init_app(app)
 app.register_blueprint(panel_blueprint, url_prefix="/panel")
 app.register_blueprint(hateoas_blueprint, url_prefix="/hateoas")

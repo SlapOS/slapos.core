@@ -151,7 +151,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <unicode>zope</unicode> </value>
+                      <value> <string>zope</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -190,7 +190,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <unicode>zope</unicode> </value>
+                      <value> <string>zope</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -227,7 +227,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <unicode>zope</unicode> </value>
+                      <value> <string>zope</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -280,7 +280,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <unicode>zope</unicode> </value>
+                      <value> <string>zope</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -323,7 +323,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <unicode>zope</unicode> </value>
+                      <value> <string>zope</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -366,7 +366,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <unicode>zope</unicode> </value>
+                      <value> <string>zope</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -409,7 +409,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <unicode>zope</unicode> </value>
+                      <value> <string>zope</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -452,7 +452,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <unicode>zope</unicode> </value>
+                      <value> <string>zope</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -495,7 +495,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <unicode>zope</unicode> </value>
+                      <value> <string>zope</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -557,7 +557,7 @@
               <dictionary>
                 <item>
                     <key> <string>source_item</string> </key>
-                    <value> <unicode>/erp5/account_module/deposit_received</unicode> </value>
+                    <value> <string>/erp5/account_module/deposit_received</string> </value>
                 </item>
               </dictionary>
             </value>

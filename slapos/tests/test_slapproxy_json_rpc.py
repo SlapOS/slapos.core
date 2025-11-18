@@ -103,7 +103,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyFirstInstance',
-        'instance_guid': 'MyFirstInstance___',
+        'instance_guid': 'MyFirstInstance______0',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -154,7 +154,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyFirstInstance',
-        'instance_guid': 'MyFirstInstance___',
+        'instance_guid': 'MyFirstInstance______0',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -206,7 +206,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MySharedInstance',
-        'instance_guid': 'MySharedInstance___',
+        'instance_guid': 'MySharedInstance______1',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -250,7 +250,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MySharedInstance',
-        'instance_guid': 'MySharedInstance___',
+        'instance_guid': 'MySharedInstance______1',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -290,7 +290,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyCDNInstance',
-        'instance_guid': 'MyCDNInstance___',
+        'instance_guid': 'MyCDNInstance______1',
         'software_release_uri': 'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
         'software_type': 'default',
         'state': 'started',
@@ -339,7 +339,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     expect_result_dict = {
         'result_list': [{
           'title': 'MyFirstInstance',
-          'instance_guid': 'MyFirstInstance___',
+          'instance_guid': 'MyFirstInstance______0',
           'state': 'started',
           'compute_partition_id': 'slappart0',
           'software_release_uri': 'http://sr//'
@@ -390,7 +390,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.get.v0.software_instance',
       json={
-        'instance_guid': 'MyFirstInstance___'
+        'instance_guid': 'MyFirstInstance______0'
       }
     )
     assert response.status_code == 200, response.status_code
@@ -398,7 +398,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyFirstInstance',
-        'instance_guid': 'MyFirstInstance___',
+        'instance_guid': 'MyFirstInstance______0',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',

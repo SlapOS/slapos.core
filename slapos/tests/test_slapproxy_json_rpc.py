@@ -20,6 +20,20 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     }
     assert json.loads(response.data) == expect_result_dict, response.data
 
+  def test_post_v0_hateoas_url_with_https(self):
+    response = self.app.post(
+      '/slapos.get.v0.hateoas_url',
+      json={},
+      headers={'X-Forwarded-Proto': 'https'}
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        "hateoas_url": "https://localhost/hateoas/"
+    }
+    assert json.loads(response.data) == expect_result_dict, response.data
+
   #######################################################
   # post compute node usage
   #######################################################

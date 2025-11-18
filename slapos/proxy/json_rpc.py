@@ -156,12 +156,14 @@ def compute_node_software_installation_list():
     'result_list': software_release_list
   })
 
-def generateInstanceGuid(title, requested_by):
+def generateInstanceGuid(title, requested_by, is_shared):
   # We expect slapproxy to only a uniq partition_reference/requested_by
-  return '%s___%s' % (title, requested_by)
+  return '%s___%s___%i' % (title, requested_by, int(is_shared))
 
 def extractInstanceGuid(instance_guid):
-  return instance_guid.split('___', 1)
+  result_list = instance_guid.split('___', 2)
+  result_list[2] = bool(int(result_list[2]))
+  return result_list
 
 @json_rpc_blueprint.route('/slapos.allDocs.v0.compute_node_instance_list', methods=['POST'])
 def compute_node_instance_list():
@@ -173,7 +175,7 @@ def compute_node_instance_list():
   for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=? AND slap_state="busy"', [computer_id]):
     instance_list.append({
       "title": partition['partition_reference'],
-      "instance_guid": generateInstanceGuid(partition['partition_reference'], partition['requested_by']),
+      "instance_guid": generateInstanceGuid(partition['partition_reference'], partition['requested_by'], False),
       "state": partition['requested_state'],
       "compute_partition_id": partition['reference'],
       "software_release_uri": partition['software_release'],
@@ -197,7 +199,7 @@ def send_json_rpc_sql_partition(partition):
 
   return validate_and_send_json_rpc_document({
     "title": partition['partition_reference'],
-    "instance_guid": generateInstanceGuid(partition['partition_reference'], partition['requested_by']),
+    "instance_guid": generateInstanceGuid(partition['partition_reference'], partition['requested_by'], False),
     "software_release_uri": partition['software_release'],
     "software_type": partition['software_type'],
     "state": partition['requested_state'],
@@ -227,7 +229,7 @@ def send_json_rpc_slap_instance(title, requested_by, is_shared, slap_instance):
     state = slap_instance._requested_state
   return validate_and_send_json_rpc_document({
     "title": title,
-    "instance_guid": generateInstanceGuid(title, requested_by),
+    "instance_guid": generateInstanceGuid(title, requested_by, is_shared),
     "software_release_uri": slap_instance.slap_software_release_url,
     "software_type": slap_instance.slap_software_type,
     "state": state,
@@ -249,9 +251,12 @@ def send_json_rpc_slap_instance(title, requested_by, is_shared, slap_instance):
 @json_rpc_blueprint.route('/slapos.get.v0.software_instance', methods=['POST'])
 def get_software_instance():
   try:
-    partition_reference, requested_by = extractInstanceGuid(request.json["instance_guid"])
-  except ValueError:
+    partition_reference, requested_by, is_shared = extractInstanceGuid(request.json["instance_guid"])
+  except (ValueError, IndexError):
     return abort(403, 'instance_guid %s not handled.' % request.json["instance_guid"])
+
+  if is_shared:
+    return abort(500, 'Retrieving shared instance is not implemented')
 
   partition = execute_db('partition',
     'SELECT * FROM %s WHERE partition_reference=? AND requested_by=?',
@@ -291,7 +296,7 @@ def post_software_instance():
   elif isinstance(slap_instance, ComputerPartition):
     return validate_and_send_json_rpc_document({
       "title": title,
-      "instance_guid": generateInstanceGuid(title, requested_by),
+      "instance_guid": generateInstanceGuid(title, requested_by, is_shared),
       "software_release_uri": request.json["software_release_uri"],
       "software_type": request.json["software_type"],
       "state": requested_state,

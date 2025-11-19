@@ -1,6 +1,7 @@
 include CHANGES.rst
 include slapos/proxy/schema.sql
 include slapos/proxy/json_rpc.json
+include slapos/proxy/json_rpc_experimental.json
 include slapos/slapos-client.cfg.example
 include slapos/slapos-proxy.cfg.example
 include slapos/slapos.cfg.example

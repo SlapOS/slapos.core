@@ -511,3 +511,22 @@ def requestInstanceFromDB(slave=None, **parsed_request_dict):
   else:
     software_instance = requestNotSlave(**parsed_request_dict)
   return software_instance
+
+def getRootPartitionList(title=None):
+  query = "SELECT * FROM %s WHERE slap_state!='free' AND requested_by=''"
+  args = []
+  if title:
+    query += ' AND partition_reference=?'
+    args.append(title)
+  return execute_db('partition', query, args)
+
+def getRootSharedList(title=None):
+  query = "SELECT * FROM %s WHERE asked_by=''"
+  args = []
+  if title:
+    query += ' AND reference=?'
+    args.append('_' + title)
+  return execute_db('slave', query, args)
+
+def getInstanceTreeList(title=None):
+  return [getRootPartitionList(), getRootSharedList()]

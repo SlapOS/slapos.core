@@ -1,0 +1,100 @@
+{
+  "info": {
+    "version": "0.0.1", 
+    "description": "Do not use, this is only experimental and can be removed", 
+    "title": "slap proxy experimental api"
+  }, 
+  "paths": {
+    "/slapos.allDocs.WIP.instance_tree_list": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false, 
+                "$schema": "http://json-schema.org/draft-07/schema#", 
+                "type": "object", 
+                "description": "Get the user Instance Tree list", 
+                "title": "Get the user Instance Tree list"
+              }
+            }
+          }, 
+          "description": "Instance Tree Search"
+        }, 
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Payload returned by allDocs method.", 
+                  "title": "allDocs: Response Payload", 
+                  "required": [
+                    "result_list"
+                  ], 
+                  "additionalProperties": false, 
+                  "$schema": "http://json-schema.org/draft-07/schema#", 
+                  "type": "object", 
+                  "properties": {
+                    "result_list": {
+                      "items": {
+                        "additionalProperties": false, 
+                        "required": [
+                          "instance_guid", 
+                          "title", 
+                          "state"
+                        ], 
+                        "type": "object", 
+                        "properties": {
+                          "state": {
+                            "enum": [
+                              "started", 
+                              "stopped", 
+                              "destroyed"
+                            ], 
+                            "type": "string", 
+                            "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance.", 
+                            "title": "Requested State"
+                          }, 
+                          "compute_partition_id": {
+                            "type": "string", 
+                            "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance", 
+                            "title": "Compute Partition Id"
+                          }, 
+                          "software_release_uri": {
+                            "type": "string", 
+                            "description": "URL of the software release used by the software instance", 
+                            "title": "Software Release URI"
+                          }, 
+                          "instance_guid": {
+                            "type": "string", 
+                            "description": "Unique identifier of the Software Instance", 
+                            "title": "Software Instance Reference"
+                          }, 
+                          "title": {
+                            "type": "string", 
+                            "title": "Unique Title of the Instance"
+                          }
+                        }, 
+                        "title": "Software Instance"
+                      }, 
+                      "type": "array", 
+                      "description": "Contains a representation of the items", 
+                      "title": "Result List"
+                    }
+                  }
+                }
+              }
+            }, 
+            "description": "Payload returned by allDocs method."
+          }
+        }
+      }
+    }
+  }, 
+  "servers": [
+    {
+      "url": "."
+    }
+  ], 
+  "openapi": "3.0.0"
+}

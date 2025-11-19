@@ -333,17 +333,14 @@ def instance_tree_list():
   for partition in partition_and_shared_list[0]:
     result_list.append({
       "instance_guid": generateInstanceGuid(partition['partition_reference'], '', False),
-      "title": partition['partition_reference'],
-      "state": partition['requested_state']
+      "title": partition['partition_reference']
     })
   for shared in partition_and_shared_list[1]:
     # XXX remove the _ prefix
     title = shared['reference'][1:]
     result_list.append({
       "instance_guid": generateInstanceGuid(title, '', True),
-      "title": title,
-      # XXX it is not stored in the db
-      "state": 'started'
+      "title": title
     })
   return validate_and_send_json_rpc_document({
     'result_list': result_list

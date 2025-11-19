@@ -453,12 +453,10 @@ class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
     expect_result_dict = {
         'result_list': [{
           'title': 'MyFirstInstance',
-          'instance_guid': 'MyFirstInstance______0',
-          'state': 'started'
+          'instance_guid': 'MyFirstInstance______0'
         }, {
           'title': 'MyFirstShared',
-          'instance_guid': 'MyFirstShared______1',
-          'state': 'started'
+          'instance_guid': 'MyFirstShared______1'
         }]
     }
     assert json.loads(response.data) == expect_result_dict, response.data

@@ -40,31 +40,10 @@
                         "additionalProperties": false, 
                         "required": [
                           "instance_guid", 
-                          "title", 
-                          "state"
+                          "title"
                         ], 
                         "type": "object", 
                         "properties": {
-                          "state": {
-                            "enum": [
-                              "started", 
-                              "stopped", 
-                              "destroyed"
-                            ], 
-                            "type": "string", 
-                            "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance.", 
-                            "title": "Requested State"
-                          }, 
-                          "compute_partition_id": {
-                            "type": "string", 
-                            "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance", 
-                            "title": "Compute Partition Id"
-                          }, 
-                          "software_release_uri": {
-                            "type": "string", 
-                            "description": "URL of the software release used by the software instance", 
-                            "title": "Software Release URI"
-                          }, 
                           "instance_guid": {
                             "type": "string", 
                             "description": "Unique identifier of the Software Instance", 

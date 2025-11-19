@@ -9,7 +9,11 @@ import slapos.slap.slap
 from slapos.util import dumps
 from slapos.format import Partition
 
-from slapos.grid.slapgrid import SLAPGRID_SUCCESS, SLAPGRID_OFFLINE_SUCCESS
+from slapos.grid.slapgrid import (
+    SLAPGRID_SUCCESS,
+    SLAPGRID_PROMISE_FAIL,
+    SLAPGRID_OFFLINE_SUCCESS,
+)
 from slapos.grid.utils import setRunning, setFinished
 
 from six.moves import configparser
@@ -246,24 +250,42 @@ def failover(args):
                 args.new_master_url,
             )
             subprocess.call(('slapos', 'node', 'instance', '--cfg', new_cfg))
-        else:
-            # If ret != 0, likely SlapOS master is reachable and some
-            # promise or buildout is failing. If SlapOS master is not
-            # reachable then it's offline processing that failed, and
-            # that means there is a bug in slapos node instance or an
-            # error in starting instance services, and things are bad
-            # anyway.
+        elif ret in (SLAPGRID_SUCCESS, SLAPGRID_PROMISE_FAIL):
+            # If slaps node instance succeeded or only the promises failed,
+            # we can be sure that master was reachable.
+            if ret == SLAPGRID_SUCCESS:
+                msg = "slapos node instance succeeded"
+            else:
+                msg = "slapos node instance worked but promises failed"
             logger.info(
-                "This node seems able to reach its SlapOS master: "
-                "slapos node instance returned %d",
-                ret,
+                "This node is able to reach its SlapOS master: %s" % msg
             )
             try:
                 os.remove(args.switchfile)
             except OSError as e:
                 if e.errno != errno.ENOENT:
                     raise
-
+        else:
+            # If slapos node instance failed and it wasn't just the promises,
+            # then either the master is reachable but buildout crashed, or
+            # the master is unreachable and offline processing failed, or
+            # maybe the master stopped being reachable midway.
+            # Whatever the case, either the switchfile was never created yet,
+            # or it was already removed previously, or it still exists. If it
+            # does still exist, it's likely the bouture file was not properly
+            # produced, so it's better not to remove the switchfile for now:
+            # either the situation will stabilize towards offline success, and
+            # what's already in the proxy is better than a stale or corrupted
+            # bouture file, or it will stabilize towards a working instance and
+            # a clearly reachable master, and the switchfile will be removed.
+            # If it never stabilize, something is wrong beyond the normal
+            # working bounds of the instance anyway.
+            logger.info(
+                "This node is in an ambiguous state: slapos node instance "
+                "failed in an unexpected way (returned %d). "
+                "Let's wait until it stabilizes.",
+                ret,
+            )
     finally:
         setFinished(args.pidfile)
 

@@ -1,0 +1,20 @@
+slapos=$(which slapos)
+python=$(head -n 1 $slapos | cut -c3-)
+
+exec $python << EOF
+import importlib.util
+import sys
+import shlex
+
+def import_from_path(name, path):
+    loader = importlib.machinery.SourceFileLoader(name, path)
+    spec = importlib.util.spec_from_loader(name, loader)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+import_from_path('<slapos>', '$slapos')
+sys.argv[:] = shlex.split('$@')
+import_from_path('__main__', '$1')
+
+EOF
+

@@ -83,6 +83,11 @@ def bouture(bouture_conf, node_conf):
         slapgrid_rest_uri=None, # for now
     )
 
+    # Empty preexisting partitions
+    # XXX: this does not remove the content of the slave table
+    # (but it does empty the shared partition list in the partition table)
+    slap.registerComputer(computer_id).updateConfiguration(dumps(computer_dict))
+
     for partition_id in partitions:
         # Load instance information for bouture
         with open(os.path.join(instance_root, partition_id, BOUTURE_FILE)) as f:

@@ -255,7 +255,7 @@ def failover(args):
 
 
 def graft(args):
-    node_conf = parse_conf(args.original_cfg)
+    node_conf = parse_conf(args.cfg)
     bouture(args, node_conf)
 
 

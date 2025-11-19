@@ -151,9 +151,18 @@ def bouture(bouture_conf, node_conf):
             len(shared_list),
         )
         for shared in shared_list:
+            title = shared['slave-title']
+            # XXX: slapproxy prepends shared names with _, and unlike SlapOS
+            # master, it sets the reference and the title to this same value.
+            # In case we ever bouture into the slapproxy from a bouture file
+            # that was produced under the proxy, let's detect this and remove
+            # the _ prefix so that the proxy does not end up with __ prefix.
+            # In other words, let's keep bouture idempotent.
+            if title == shared['slave-reference'] and title.startswith('_'):
+              title = title[1:]
             slap.registerOpenOrder().request(
                 software_url,
-                shared['slave-title'],
+                title,
                 shared['parameter-list'],
                 shared['slap-software-type'],
                 filter_kw={'instance_guid': cp._instance_guid},

@@ -2,7 +2,7 @@ from werkzeug.http import HTTP_STATUS_CODES
 from werkzeug.exceptions import NotAcceptable
 from flask import current_app, request, abort, Blueprint, make_response, g, url_for
 from .db import execute_db, requestInstanceFromDB, supplyFromDB, \
-                AllocationFailure, getAllocatedInstance
+                AllocationFailure, getInstanceTreeList, getAllocatedInstance
 from slapos.util import xml2dict, loads
 from slapos.slap.slap import ComputerPartition, SoftwareInstance
 import json
@@ -11,6 +11,7 @@ import sys
 
 
 json_rpc_blueprint = Blueprint('json_rpc', __name__)
+json_rpc_experimental_blueprint = Blueprint('json_rpc_experimental', __name__)
 
 
 def find_best_match(status_code=None):
@@ -56,12 +57,12 @@ def validate_and_send_json_rpc_document(json_rpc_dict, **kw):
   return send_json_rpc_document(json_rpc_dict, **kw)
 
 
-def before_request():
+def before_request(open_api_json_file_name):
   if (request.method != "POST"):
     return abort(405)
 
   # Validate the input json
-  with json_rpc_blueprint.open_resource('json_rpc.json', 'r') as json_rpc_open_api_file:
+  with json_rpc_blueprint.open_resource(open_api_json_file_name, 'r') as json_rpc_open_api_file:
     config_filejson_rpc_parsed_json = json.loads(json_rpc_open_api_file.read())
 
   try:
@@ -83,8 +84,14 @@ def before_request():
   except jsonschema.exceptions.ValidationError as err:
     return abort(400, err.message)
 
+def before_json_rpc_request():
+  return before_request('json_rpc.json')
 
-json_rpc_blueprint.before_request(before_request)
+def before_json_rpc_experimental_request():
+  return before_request('json_rpc_experimental.json')
+
+json_rpc_blueprint.before_request(before_json_rpc_request)
+json_rpc_experimental_blueprint.before_request(before_json_rpc_experimental_request)
 
 
 class JsonRpcManager(object):
@@ -93,12 +100,13 @@ class JsonRpcManager(object):
   '''
   def init_app(self, app, **kw):
     app.register_blueprint(json_rpc_blueprint, **kw)
+    app.register_blueprint(json_rpc_experimental_blueprint, **kw)
     app.handle_exception = self._custom_handle_exception
     app.handle_http_exception = self._custom_handle_http_exception
 
   # Redefine http exception handling to return JSON
   def _custom_handle_http_exception(self, exception):
-    if request.blueprint == 'json_rpc':
+    if request.blueprint in ['json_rpc', 'json_rpc_experimental']:
       error_dict = {
         "status": exception.code,
         "type": HTTP_STATUS_CODES.get(exception.code, 'Unknown Error'),
@@ -109,7 +117,7 @@ class JsonRpcManager(object):
 
   # Redefine python exception handling to return JSON
   def _custom_handle_exception(self, exception):
-    if request.blueprint == 'json_rpc':
+    if request.blueprint in ['json_rpc', 'json_rpc_experimental']:
       # Log exception and return json
       exc_type, exc_value, tb = sys.exc_info()
       current_app.log_exception((exc_type, exc_value, tb))
@@ -387,4 +395,36 @@ def put_software_installation_error():
   return validate_and_send_json_rpc_document({
     'type': 'success',
     'title': 'Ignored'
+  })
+
+
+@json_rpc_experimental_blueprint.route('/slapos.allDocs.WIP.instance_tree_list', methods=['POST'])
+def instance_tree_list():
+  partition_and_shared_list = getInstanceTreeList()
+  result_list = []
+  for partition in partition_and_shared_list[0]:
+    result_list.append({
+      "instance_guid": generateInstanceGuid(partition['partition_reference'], '', False),
+      "title": partition['partition_reference']
+    })
+  for shared in partition_and_shared_list[1]:
+    # remove the _ prefix
+    title = shared['reference'][len(shared['asked_by']) + 1:]
+    result_list.append({
+      "instance_guid": generateInstanceGuid(title, '', True),
+      "title": title
+    })
+  return validate_and_send_json_rpc_document({
+    'result_list': result_list
+  })
+
+@json_rpc_experimental_blueprint.route('/slapos.allDocs.WIP.compute_node_list', methods=['POST'])
+def compute_node_list():
+  result_list = []
+  for computer in execute_db('computer', 'SELECT reference FROM %s', ()):
+    result_list.append({
+      "computer_guid": computer['reference']
+    })
+  return validate_and_send_json_rpc_document({
+    'result_list': result_list
   })

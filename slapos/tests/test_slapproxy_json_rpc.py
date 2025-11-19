@@ -536,3 +536,66 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         "title": "Ignored"
     }
     assert json.loads(response.data) == expect_result_dict, response.data
+
+
+class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
+  #######################################################
+  # Get instance tree list
+  #######################################################
+  def test_allDocs_WIP_instance_tree_list(self):
+    self.format_for_number_of_partitions(1)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar'
+      }
+    )
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstShared',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'shared': True
+      }
+    )
+
+    response = self.app.post(
+      '/slapos.allDocs.WIP.instance_tree_list',
+      json={}
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'result_list': [{
+          'title': 'MyFirstInstance',
+          'instance_guid': 'MyFirstInstance______0'
+        }, {
+          'title': 'MyFirstShared',
+          'instance_guid': 'MyFirstShared______1'
+        }]
+    }
+    assert json.loads(response.data) == expect_result_dict, response.data
+
+  #######################################################
+  # Get compute node list
+  #######################################################
+  def test_allDocs_WIP_compute_node_list(self):
+    self.format_for_number_of_partitions(1)
+
+    response = self.app.post(
+      '/slapos.allDocs.WIP.compute_node_list',
+      json={}
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'result_list': [{
+          'computer_guid': 'computer'
+        }]
+    }
+    assert json.loads(response.data) == expect_result_dict, response.data

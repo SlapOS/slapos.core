@@ -121,7 +121,8 @@
   var page_container,
     DISPLAY_INSTANCE_TREE_LIST = 'display_instance_tree_list',
     DISPLAY_INSTANCE_TREE = 'display_instance_tree',
-    DISPLAY_INSTANCE_TREE_UPDATE_DIALOG = 'display_instance_tree_update_dialog';
+    DISPLAY_INSTANCE_TREE_UPDATE_DIALOG = 'display_instance_tree_update_dialog',
+    SEARCH_CONNECTION_PARAMETER = 'search_connection_parameter';
 
   //////////////////////////////////////////////////////
   // Header
@@ -206,7 +207,6 @@
 
         for (i = 0; i < instance_tree_list.length; i += 1) {
           // XXX TODO / HACK retrieving shared instance info is not supported
-          console.log(instance_tree_list[i].instance_guid);
           if (instance_tree_list[i].instance_guid[instance_tree_list[i].instance_guid.length - 1] === '0') {
             element_list.push(domsugar('li', [
               domsugar('a', {}, [
@@ -293,7 +293,6 @@
                 "title": "",
                 "default": domsugar('button', {
                   type: 'button',
-                  // XXX TODO use css
                   // XXX TODO move to the left panel
                   text: "Update Parameter",
                   'data-display_step': DISPLAY_INSTANCE_TREE_UPDATE_DIALOG,
@@ -305,6 +304,45 @@
                 "key": "edit_button",
                 "hidden": 0,
                 "type": "EditorField"
+              },
+              "connection_listbox": {
+                "sort": [],
+                "show_stat": false,
+                "domain_root_list": [],
+                "search_column_list": [],
+                "description": "",
+                "portal_type": [],
+                "editable": 0,
+                "checked_uid_list": [],
+                "show_select": 1,
+                "key": "field_connection_listbox",
+                "query": "urn:jio:allDocs?query=" + SEARCH_CONNECTION_PARAMETER,
+                "default_params": {
+                  "ignore_unknown_columns": true
+                },
+                "editable_column_list": [],
+                "title": "Connection Parameters",
+                "css_class": "",
+                "show_anchor": 0,
+                "lines": 200,
+                "all_column_list": [],
+                "autocomplete": null,
+                "sort_column_list": [],
+                "column_list": [
+                  [
+                    "connection_key",
+                    "Parameter"
+                  ],
+                  [
+                    "connection_value",
+                    "Value"
+                  ]
+                ],
+                "selection_name": "instance_tree_connection_hateoas_selection",
+                "show_count": false,
+                "domain_dict": {},
+                "hidden": 0,
+                "type": "ListBox",
               }
             }},
             "_links": {
@@ -319,6 +357,8 @@
               "left", [["my_title"], ["my_software_type"], ["my_software_release_uri"]]
             ], [
               "right", [["my_state"], ["edit_button"]]
+            ], [
+              "bottom", [["connection_listbox"]]
             ]]
           }
         });
@@ -331,6 +371,67 @@
       });
   }
 
+  function searchConnectionParameterList(gadget, search_options) {
+    return callJsonRpcEntryPoint(
+      '/slapos.get.v0.software_instance', {
+        instance_guid: gadget.state.instance_guid
+      }
+    )
+      .push(function (json_response) {
+        var connection_dict = json_response.connection_parameters,
+          result_list = [],
+          key;
+
+        if (connection_dict.hasOwnProperty("_")) {
+          connection_dict = JSON.parse(connection_dict["_"]);
+        }
+
+        for (key in connection_dict) {
+          if (connection_dict.hasOwnProperty(key)) {
+            result_list.push({
+              connection_key: {
+                "url_value": {},
+                "field_gadget_param": {
+                  "description": "",
+                  "title": "Connection Key",
+                  "default": key,
+                  "css_class": "",
+                  "required": null,
+                  "editable": false,
+                  "autocomplete": null,
+                  "url": "gadget_slapos_label_listbox_field.html",
+                  "sandbox": "",
+                  "renderjs_extra": "{}",
+                  "key": "field_connection_listbox_connection_key_" + connection_dict[key],
+                  "hidden": 0,
+                  "type": "GadgetField"
+                }
+              },
+              "connection_value": {
+                "url_value": {},
+                "field_gadget_param": {
+                  "description": "",
+                  "title": "Connection Value",
+                  "default": connection_dict[key],
+                  "css_class": "",
+                  "required": null,
+                  "editable": false,
+                  "autocomplete": null,
+                  "url": "gadget_slapos_label_listbox_field.html",
+                  "sandbox": "",
+                  "renderjs_extra": "{}",
+                  "key": "field_connection_listbox_connection_value_" + connection_dict[key],
+                  "hidden": 0,
+                  "type": "GadgetField"
+                }
+              }
+            });
+          }
+        }
+
+        return result_list;
+      });
+  }
 
   //////////////////////////////////////////////////////
   // DISPLAY_INSTANCE_TREE_UPDATE_DIALOG
@@ -489,6 +590,16 @@
       // Does nothing
       return ".";
     })
+    .allowPublicAcquisition('getUrlForList', function (param_list) {
+      // Does nothing
+      var arg_list = param_list[0],
+        i,
+        result_list = [];
+      for (i = 0; i < arg_list.length; i += 1) {
+        result_list.push(".")
+      }
+      return result_list;
+    })
     .allowPublicAcquisition("getTranslationList", function getTranslationList(param_list) {
       return param_list[0];
     })
@@ -539,7 +650,6 @@
     }, false, false)
 
     .allowPublicAcquisition("submitContent", function submitContent(param_list) {
-      console.log(param_list);
       var gadget = this;
       return getTranslationDict(gadget)
         .push(function (translation_dict) {
@@ -553,6 +663,34 @@
           }
           throw new Error('Unhandled submit step: ' + gadget.state.display_step);
         });
+    })
+
+    .allowPublicAcquisition("jio_allDocs", function jio_allDocs(param_list) {
+      var search_method_dict = {},
+        allDocs_args = param_list[0];
+
+      search_method_dict[SEARCH_CONNECTION_PARAMETER] = searchConnectionParameterList;
+
+      if (!search_method_dict.hasOwnProperty(allDocs_args.query)) {
+        throw new Error('Unhandled search step: ' + allDocs_args.query);
+      }
+
+      return new RSVP.Queue(search_method_dict[allDocs_args.query](this, allDocs_args))
+        .push(function (result_list) {
+          var row_list = [],
+            i;
+          for (i = 0; i < result_list.length; i += 1) {
+            row_list.push({
+              value: result_list[i]
+            });
+          }
+          return {
+            data: {
+              total_rows: result_list.length,
+              rows: row_list
+            }
+          };
+        })
     });
 
 }());

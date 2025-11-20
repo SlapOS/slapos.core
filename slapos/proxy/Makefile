@@ -26,6 +26,10 @@ external_lib: \
 	${DESTDIR}/gadget_erp5_field_string.js \
 	${DESTDIR}/gadget_erp5_field_gadget.html \
 	${DESTDIR}/gadget_erp5_field_gadget.js \
+	${DESTDIR}/gadget_erp5_field_listbox.html \
+	${DESTDIR}/gadget_erp5_field_listbox.js \
+	${DESTDIR}/gadget_slapos_label_listbox_field.html \
+	${DESTDIR}/gadget_slapos_label_listbox_field.js \
 	${DESTDIR}/gadget_html5_element.html \
 	${DESTDIR}/gadget_html5_element.js \
 	${DESTDIR}/gadget_erp5_global.js \

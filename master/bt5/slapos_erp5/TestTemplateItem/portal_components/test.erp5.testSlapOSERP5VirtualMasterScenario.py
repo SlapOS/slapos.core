@@ -281,7 +281,7 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     return production_manager_person
 
   def bootstrapAccountingTest(self):
-    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
+    currency, _, _, sale_person, accountant_person = self.bootstrapVirtualMasterTest()
     self.tic()
 
     self.logout()
@@ -312,7 +312,7 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
         'destination_project/%s' % project.getRelativeUrl()
       ]
     )
-    return owner_person, currency, project
+    return owner_person, currency, project, accountant_person
 
 
 class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):

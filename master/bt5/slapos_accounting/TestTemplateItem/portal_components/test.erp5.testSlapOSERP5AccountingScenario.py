@@ -18,7 +18,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     User does not pay the subscription, which is cancelled after some time
     """
     with PinnedDateTime(self, DateTime('2023/05/19')):
-      owner_person, _, project = self.bootstrapAccountingTest()
+      owner_person, _, project, _ = self.bootstrapAccountingTest()
     # Ensure no unexpected object has been created
     # 2 assignment request
     # 2 assignment
@@ -39,7 +39,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.assertEqual(len(deposit_outstanding_amount_list), 1)
     self.assertEqual(subscription_request.getUid(),
      deposit_outstanding_amount_list[0].getUid())
-    
+
     with PinnedDateTime(self, DateTime('2024/04/04')):
       payment_transaction = owner_person.Entity_createDepositPaymentTransaction(
         deposit_outstanding_amount_list)
@@ -172,7 +172,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     """
     creation_date = DateTime('2023/05/19')
     with PinnedDateTime(self, creation_date):
-      owner_person, currency, project = self.bootstrapAccountingTest()
+      owner_person, currency, project, _ = self.bootstrapAccountingTest()
       # Create software product
       software_release_url = self.generateNewSoftwareReleaseUrl()
       software_type = 'public type'
@@ -325,7 +325,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     """
     creation_date = DateTime('2023/02/19')
     with PinnedDateTime(self, creation_date):
-      owner_person, _, project = self.bootstrapAccountingTest()
+      owner_person, _, project, _ = self.bootstrapAccountingTest()
       owner_person.edit(default_address_region='america/south/brazil')
 
     # Ensure no unexpected object has been created
@@ -395,7 +395,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     """
     creation_date = DateTime('2024/03/19')
     with PinnedDateTime(self, creation_date):
-      owner_person, _, project = self.bootstrapAccountingTest()
+      owner_person, _, project, accountant_person = self.bootstrapAccountingTest()
     # Ensure no unexpected object has been created
     # 2 assignment request
     # 2 assignment
@@ -532,7 +532,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     """
     creation_date = DateTime('2024/03/19')
     with PinnedDateTime(self, creation_date):
-      owner_person, _, project = self.bootstrapAccountingTest()
+      owner_person, _, project, accountant_person = self.bootstrapAccountingTest()
     # Ensure no unexpected object has been created
     # 2 assignment request
     # 2 assignment

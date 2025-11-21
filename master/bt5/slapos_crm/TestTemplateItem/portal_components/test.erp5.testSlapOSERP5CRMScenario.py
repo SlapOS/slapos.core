@@ -30,7 +30,7 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
 
   def bootstrapCRMScenario(self, creation_date):
     with PinnedDateTime(self, creation_date):
-      owner_person, currency, project = self.bootstrapAccountingTest()
+      owner_person, currency, project, _ = self.bootstrapAccountingTest()
       # Create software product
       software_release_url = self.generateNewSoftwareReleaseUrl()
       software_type = 'public type'

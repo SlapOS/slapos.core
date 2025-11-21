@@ -492,6 +492,9 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 subscription requests
     self.assertRelatedObjectCount(project, 18)
 
+    self.logout()
+    self.login(accountant_person.getUserId())
+
     # Use the deposit to pay the invoice
     accounting_transaction = owner_person.Entity_createAccountingTransactionToConsumeDeposit(
       owner_person.Entity_getOutstandingAmountList(
@@ -504,6 +507,9 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     )
     self.assertAlmostEqual(accounting_transaction.AccountingTransaction_getTotalCredit(), 42)
     self.tic()
+
+    self.logout()
+    self.login()
 
     self.assertFalse(owner_person.Entity_hasOutstandingAmount(include_planned=True))
     amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=True)
@@ -629,6 +635,9 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 subscription requests
     self.assertRelatedObjectCount(project, 18)
 
+    self.logout()
+    self.login(accountant_person.getUserId())
+
     # Use the deposit to pay the invoice
     payment_transaction = owner_person.Entity_createAccountingTransactionToConsumeDeposit(
       owner_person.Entity_getOutstandingAmountList(
@@ -642,6 +651,9 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     )
     self.assertAlmostEqual(payment_transaction.AccountingTransaction_getTotalCredit(), 42)
     self.tic()
+
+    self.logout()
+    self.login()
 
     self.assertFalse(owner_person.Entity_hasOutstandingAmount(include_planned=True))
     amount_list = owner_person.Entity_getOutstandingAmountList(include_planned=True)

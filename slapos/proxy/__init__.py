@@ -28,12 +28,12 @@
 #
 ##############################################################################
 
-import logging
-
 from slapos.proxy.views import app
 from slapos.util import sqlite_connect
 
+import random
 import six
+import string
 
 def _generateSoftwareProductListFromString(software_product_list_string):
   """
@@ -93,7 +93,11 @@ def setupFlaskConfiguration(conf):
   app.config['DATABASE_URI'] = conf.database_uri
   app.config['software_product_list'] = conf.software_product_list
   app.config['multimaster'] = conf.multimaster
-  app.config['local_software_release_root'] = getattr(conf,'local_software_release_root', None)
+  app.config['run_id'] = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
+  if getattr(conf, 'local_software_release_root', None) is not None:
+    app.config['local_software_release_root'] = conf.local_software_release_root
+  if getattr(conf, 'public_directory_path', None) is not None:
+    app.config['PUBLIC_DIRECTORY_PATH'] = conf.public_directory_path
 
 def connectDB():
   # if first connection, create an empty db at DATABASE_URI path

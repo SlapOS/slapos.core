@@ -50,6 +50,7 @@ class TestSlapOSDump(SlapOSTestCaseMixin):
     self.assertEqual(0, issue_count)
 
   def test_save_and_assert(self):
+    self.maxDiff = True
     self.beforeDumpExpectedConfiguration()
     self.assertRaises(ValueError, self.portal.ERP5Site_assertDumpedConfiguration)
     msg = self.portal.ERP5Site_saveDumpedConfiguration()

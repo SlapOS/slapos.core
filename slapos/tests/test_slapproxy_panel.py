@@ -20,7 +20,7 @@ class PanelTestCase(BasicMixin, unittest.TestCase):
         "text/html; charset=utf-8", \
         response.headers
     assert response.headers["Content-Length"] == \
-        "4621", \
+        "3105", \
         response.headers
 
   def test_panel_dependencies(self):

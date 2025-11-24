@@ -1,0 +1,15 @@
+button.ui-btn-icon-left {
+  color: #212529;
+  padding: 3pt;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 0.325em;
+  display: inline-block;
+  margin-right: 6pt;
+}
+button.ui-btn-icon-left:disabled,
+button.ui-btn-icon-left[disabled] {
+  color: #999999;
+}
+button.ui-btn-icon-left:before {
+  padding-right: 0.2em;
+}

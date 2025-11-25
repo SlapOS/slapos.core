@@ -1,5 +1,5 @@
 from flask import request, abort, Blueprint, url_for, redirect
-from .db import execute_db
+from .db import execute_db, getRootPartitionList, getRootSharedList
 from six.moves.urllib.parse import unquote, urljoin
 from slapos.util import loads, dict2xml
 import re
@@ -22,12 +22,7 @@ def unquoted_url_for(method, **kwargs):
 
 def busy_root_partitions_list(title=None):
   partitions = []
-  query = "SELECT * FROM %s WHERE slap_state!='free' AND requested_by=''"
-  args = []
-  if title:
-    query += ' AND partition_reference=?'
-    args.append(title)
-  for row in execute_db('partition', query, args):
+  for row in getRootPartitionList(title=title):
     p = dict(row)
     p['url_string'] = p['software_release']
     p['title'] = p['partition_reference']
@@ -37,12 +32,7 @@ def busy_root_partitions_list(title=None):
 
 def busy_root_shared_list(title=None):
   shared = []
-  query = "SELECT * FROM %s WHERE asked_by=''"
-  args = []
-  if title:
-    query += ' AND reference=?'
-    args.append('_' + title)
-  for row in execute_db('slave', query, args):
+  for row in getRootSharedList(title=title):
     host = execute_db('partition', 'SELECT * FROM %s WHERE reference=?', [row['hosted_by']], one=True)
     if not host:
       continue

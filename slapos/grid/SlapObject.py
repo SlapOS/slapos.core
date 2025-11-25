@@ -216,12 +216,17 @@ class Software(object):
         finally:
           tar.close()
       elif force_binary_cache:
+        completed_tag = os.path.join(self.software_path, '.completed')
         if os.path.exists(self.software_path):
-          message = 'Binary cache forced for %r, but directory %s already exists, will retry again' % (self.url, self.software_path)
+          if not os.path.exists(completed_tag):
+            message = 'Binary cache forced for %r, but directory %s already exists, will retry again' % (self.url, self.software_path)
+          else:
+            message = None
         else:
           message = 'Binary cache forced for %r, but failed to download, will retry again' % (self.url,)
-        self.logger.error(message)
-        raise BuildoutFailedError(message)
+        if message is not None:
+          self.logger.error(message)
+          raise BuildoutFailedError(message)
       else:
         self._install_from_buildout()
         # Upload to binary cache if possible and allowed

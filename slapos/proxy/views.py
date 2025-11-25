@@ -198,3 +198,7 @@ def after_request(response):
 @app.route('/', methods=['GET'])
 def index():
   return redirect(url_for('panel.index'))
+
+@app.route('/getRunId', methods=['GET'])
+def getRunId():
+  return current_app.config['run_id']

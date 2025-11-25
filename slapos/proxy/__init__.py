@@ -96,6 +96,8 @@ def setupFlaskConfiguration(conf):
   app.config['run_id'] = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
   if getattr(conf, 'local_software_release_root', None) is not None:
     app.config['local_software_release_root'] = conf.local_software_release_root
+  if getattr(conf, 'public_directory_path', None) is not None:
+    app.config['PUBLIC_DIRECTORY_PATH'] = conf.public_directory_path
 
 def connectDB():
   # if first connection, create an empty db at DATABASE_URI path

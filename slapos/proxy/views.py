@@ -190,3 +190,7 @@ def after_request(response):
     g.db.commit()
     g.db.close()
   return response
+
+@app.route('/getRunId', methods=['GET'])
+def getRunId():
+  return current_app.config['run_id']

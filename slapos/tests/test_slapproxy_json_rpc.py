@@ -116,7 +116,8 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
       json={
         'title': 'MyFirstInstance',
         'software_release_uri': 'http://sr//',
-        'software_type': 'foobar'
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
       }
     ).data)
 
@@ -132,7 +133,8 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
       json={
         'title': 'MyFirstInstance',
         'software_release_uri': 'http://sr//',
-        'software_type': 'foobar'
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
       }
     )
     assert response.status_code == 200, response.status_code
@@ -145,7 +147,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'software_type': 'foobar',
         'state': 'started',
         'connection_parameters': {'foo': 'bar'},
-        'parameters': {},
+        'parameters': {'bar': 'foo'},
         'shared': False,
         'root_instance_title': 'MyFirstInstance',
         'ip_list': [["tap0", "1.2.3.4"], ["tap0", "4.3.2.1"]],
@@ -362,7 +364,8 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
       json={
         'title': 'MyFirstInstance',
         'software_release_uri': 'http://sr//',
-        'software_type': 'foobar'
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
       }
     ).data)
 
@@ -389,10 +392,70 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'software_type': 'foobar',
         'state': 'started',
         'connection_parameters': {'foo': 'bar'},
-        'parameters': {},
+        'parameters': {'bar': 'foo'},
         'shared': False,
         'root_instance_title': 'MyFirstInstance',
         'ip_list': [["tap0", "1.2.3.4"], ["tap0", "4.3.2.1"]],
+        'full_ip_list': [],
+        'sla_parameters': {},
+        'computer_guid': 'computer',
+        'compute_partition_id': 'slappart0',
+        'processing_timestamp': None,
+        'access_status_message': ""
+    }
+    data_result = json.loads(response.data)
+    expect_result_dict['processing_timestamp'] = data_result.get('processing_timestamp', 'unknown')
+    assert data_result == expect_result_dict, response.data
+
+  def test_get_v0_software_instance__matching_shared_instance(self):
+    self.format_for_number_of_partitions(1)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar'
+      }
+    )
+    response_dict = json.loads(self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstShared',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'shared': True,
+        'parameters': {'bar': 'foo'}
+      }
+    ).data)
+
+    self.app.post('/setComputerPartitionConnectionXml', data={
+        'computer_id': response_dict['computer_guid'],
+        'computer_partition_id': response_dict['compute_partition_id'],
+        'slave_reference': '_MyFirstShared',
+        'connection_xml': dumps({'foo': 'bar'})
+    })
+
+    # Get updated information for the partition
+    response = self.app.post(
+      '/slapos.get.v0.software_instance',
+      json={
+        'instance_guid': 'MyFirstShared______1'
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'title': 'MyFirstShared',
+        'instance_guid': 'MyFirstShared______1',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'state': 'started',
+        'connection_parameters': {'foo': 'bar'},
+        'parameters': {'bar': 'foo'},
+        'shared': True,
+        'root_instance_title': 'MyFirstShared',
+        'ip_list': [],
         'full_ip_list': [],
         'sla_parameters': {},
         'computer_guid': 'computer',

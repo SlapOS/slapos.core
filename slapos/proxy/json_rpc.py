@@ -1,8 +1,8 @@
 from werkzeug.http import HTTP_STATUS_CODES
 from werkzeug.exceptions import NotAcceptable
 from flask import current_app, request, abort, Blueprint, make_response, g, url_for
-from .db import execute_db, requestInstanceFromDB, AllocationFailure, getInstanceTreeList
-from slapos.util import xml2dict
+from .db import execute_db, requestInstanceFromDB, AllocationFailure, getInstanceTreeList, getAllocatedInstance
+from slapos.util import xml2dict, loads
 from slapos.slap.slap import ComputerPartition, SoftwareInstance
 import json
 import jsonschema
@@ -226,6 +226,38 @@ def send_json_rpc_sql_partition(partition):
     "access_status_message": ''
   })
 
+
+def send_json_rpc_sql_shared(shared_instance, partition):
+  # Remove the _ prefix
+  title = shared_instance['reference'][len(shared_instance['asked_by']) + 1:]
+  slave_information = [x for x in loads(partition['slave_instance_list'].encode('utf-8')) if x['slave_title'] == shared_instance['reference']][0]
+  # Drop added informations
+  slave_information.pop('slave_title')
+  slave_information.pop('slap_software_type')
+  slave_information.pop('slave_reference')
+
+  return validate_and_send_json_rpc_document({
+    "title": title,
+    "instance_guid": generateInstanceGuid(title, shared_instance['asked_by'], True),
+    "software_release_uri": partition['software_release'],
+    "software_type": partition['software_type'],
+    # XXX This is not stored
+    "state": "started",
+    "connection_parameters": xml2dict(shared_instance['connection_xml']),
+    "parameters": slave_information,
+    "shared": True,
+    "root_instance_title": shared_instance['asked_by'] or title,
+    "ip_list": [],
+    "full_ip_list": [],
+    # sla are not stored in slapproxy
+    "sla_parameters": {},
+    "computer_guid": partition['computer_reference'],
+    "compute_partition_id": partition['reference'],
+    "processing_timestamp": int(partition['timestamp']),
+    # This info is probably not available
+    "access_status_message": ''
+  })
+
 def send_json_rpc_slap_instance(title, requested_by, is_shared, slap_instance):
   parameters = slap_instance._parameter_dict
   if is_shared:
@@ -264,11 +296,21 @@ def get_software_instance():
     return abort(403, 'instance_guid %s not handled.' % request.json["instance_guid"])
 
   if is_shared:
-    return abort(500, 'Retrieving shared instance is not implemented')
+    # XXX Copied from db.getAllocatedSlaveInstance
+    shared = execute_db('slave',
+      'SELECT * FROM %s WHERE reference=? AND asked_by=?',
+      ('_%s' % partition_reference, requested_by), one=True)
+    if not shared:
+      return abort(403, 'No shared instance %s found.' % request.json["instance_guid"])
+    # Get the matching partition
+    partition = execute_db('partition',
+      'SELECT * FROM %s WHERE computer_reference=? AND reference=?',
+      (shared['computer_reference'], shared['hosted_by']), one=True)
+    if not partition:
+      return abort(403, 'No partition hosting %s found.' % request.json["instance_guid"])
+    return send_json_rpc_sql_shared(shared, partition)
 
-  partition = execute_db('partition',
-    'SELECT * FROM %s WHERE partition_reference=? AND requested_by=?',
-    (partition_reference, requested_by), one=True)
+  partition = getAllocatedInstance(partition_reference, requested_by)
   if not partition:
     return abort(403, 'No software instance %s found.' % request.json["instance_guid"])
   return send_json_rpc_sql_partition(partition)
@@ -336,8 +378,8 @@ def instance_tree_list():
       "title": partition['partition_reference']
     })
   for shared in partition_and_shared_list[1]:
-    # XXX remove the _ prefix
-    title = shared['reference'][1:]
+    # remove the _ prefix
+    title = shared['reference'][len(shared['asked_by']) + 1:]
     result_list.append({
       "instance_guid": generateInstanceGuid(title, '', True),
       "title": title

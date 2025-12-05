@@ -1,6 +1,6 @@
 from flask import request, Blueprint, current_app, abort
 from .db import execute_db, requestInstanceFromDB, supplyFromDB, removeFromDB, \
-                bangInstanceFromDB, freePartitionFromDB, \
+                bangInstanceFromDB, freePartitionFromDB, formatFromDB, \
                 NotFoundPartitionFailure, PartitionDeletionFailure, \
                 getPartitionFromDB, AllocationFailure, ConfigurationError
 from slapos.util import loads, dumps
@@ -175,39 +175,7 @@ def useComputer():
 def loadComputerConfigurationFromXML():
   xml = request.form['xml']
   computer_dict = loads(xml.encode('utf-8'))
-  execute_db('computer', 'INSERT OR REPLACE INTO %s values(:reference, :address, :netmask)',
-             computer_dict)
-
-  # remove references to old partitions.
-  execute_db(
-    'partition',
-    'DELETE FROM %s WHERE computer_reference = ? and reference not in ({})'.format(
-      ','.join('?' * len(computer_dict['partition_list'])) # Create as many placeholder as partitions requested
-    ),
-    # Prepare arguments : first is for computer_reference, followed by the same of the partitions
-    [computer_dict['reference']] + [x['reference'] for x in computer_dict['partition_list']]
-  )
-
-  execute_db(
-    'slave',
-    'DELETE FROM %s WHERE computer_reference = ? and hosted_by not in ({})'.format(
-      ','.join('?' * len(computer_dict['partition_list'])) # Create as many placeholder as partitions requested
-    ),
-    # Prepare arguments : first is for computer_reference, followed by the same of the partitions
-    [computer_dict['reference']] + [x['reference'] for x in computer_dict['partition_list']]
-  )
-  execute_db('partition_network', 'DELETE FROM %s WHERE computer_reference = :reference', computer_dict)
-
-  for partition in computer_dict['partition_list']:
-    partition['computer_reference'] = computer_dict['reference']
-    execute_db('partition', 'INSERT OR IGNORE INTO %s (reference, computer_reference) values(:reference, :computer_reference)', partition)
-    for address in partition['address_list']:
-      # keep "or partition['reference']" for backward compatibility in webrunner
-      address['reference'] = partition['tap']['name'] or partition['reference']
-      address['partition_reference'] = partition['reference']
-      address['computer_reference'] = partition['computer_reference']
-      execute_db('partition_network', 'INSERT OR REPLACE INTO %s (reference, partition_reference, computer_reference, address, netmask) values(:reference, :partition_reference, :computer_reference, :addr, :netmask)', address)
-
+  formatFromDB(computer_dict)
   return 'done'
 
 

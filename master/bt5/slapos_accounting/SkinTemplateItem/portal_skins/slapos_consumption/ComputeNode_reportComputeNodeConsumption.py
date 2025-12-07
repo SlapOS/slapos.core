@@ -1,4 +1,5 @@
 from zExceptions import Unauthorized
+from Products.ERP5Type.Utils import str2bytes
 if REQUEST is not None:
   raise Unauthorized
 
@@ -15,7 +16,7 @@ document = portal.consumption_document_module.newContent(
   title="%s consumption (%s)" % (compute_node.getReference(), source_reference),
   reference=reference,
   version=version,
-  data=consumption_xml,
+  data=str2bytes(consumption_xml),
   classification="personal",
   publication_section="other",
   contributor_value=compute_node,

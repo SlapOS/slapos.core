@@ -5,7 +5,7 @@ project = context
 
 compute_node_list = portal.portal_catalog(
   portal_type="Compute Node",
-  validation_state=['validated', 'published'],
+  validation_state='validated',
   follow_up__uid=project.getUid(),
   allocation_scope__uid=portal.restrictedTraverse("portal_categories/allocation_scope/open").getUid(),
 )

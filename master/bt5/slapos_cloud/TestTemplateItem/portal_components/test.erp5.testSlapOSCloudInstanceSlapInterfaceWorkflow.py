@@ -21,7 +21,7 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 from erp5.component.document.SoftwareInstance import SoftwareInstance, \
   DisconnectedSoftwareTree, CyclicSoftwareTree
-from Products.ERP5Type.Utils import str2unicode
+from Products.ERP5Type.Utils import str2unicode, str2bytes
 import transaction
 from cryptography import x509
 from cryptography.x509.oid import NameOID
@@ -1155,7 +1155,8 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
     self.assertEqual(certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(certificate_login.getReference(), None)
     self.assertNotEqual(certificate_login.getCsrId(), None)
-    ssl_certificate = x509.load_pem_x509_certificate(self.software_instance.getSslCertificate())
+    ssl_certificate = x509.load_pem_x509_certificate(
+      str2bytes(self.software_instance.getSslCertificate()))
     self.assertEqual(len(ssl_certificate.subject), 2)
     cn = [i.value for i in ssl_certificate.subject if i.oid == NameOID.COMMON_NAME][0]
     self.assertEqual(str2unicode(certificate_login.getReference()), cn)

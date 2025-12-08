@@ -3,7 +3,7 @@ portal.portal_catalog.searchAndActivate(
   portal_type='Upgrade Decision',
   simulation_state='started',
   method_id='UpgradeDecision_processUpgrade',
-  activate_kw={'tag': tag }
+  activate_kw={'tag': tag, 'priority': 2}
 )
 
 context.activate(after_tag=tag).getId()

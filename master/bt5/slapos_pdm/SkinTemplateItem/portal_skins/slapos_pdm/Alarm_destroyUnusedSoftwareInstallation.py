@@ -2,7 +2,7 @@ portal = context.getPortalObject()
 
 portal.portal_catalog.searchAndActivate(
   method_id = 'SoftwareInstallation_destroyIfUnused',
-  activate_kw = {'tag':tag},
+  activate_kw = {'tag': tag, 'priority': 2},
   portal_type='Software Installation',
   validation_state='validated',
   **{"slapos_item.slap_state": "start_requested"}

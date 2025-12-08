@@ -5,7 +5,7 @@ portal.portal_catalog.searchAndActivate(
   validation_state="invalidated",
   parent_uid=context.getPortalObject().software_instance_module.getUid(),
   method_id='SoftwareInstance_tryToUnallocatePartition',
-  activate_kw={'tag': tag}
+  activate_kw={'tag': tag, 'priority': 2}
 )
 
 context.activate(after_tag=tag).getId()

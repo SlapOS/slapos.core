@@ -10,7 +10,7 @@ portal.portal_catalog.searchAndActivate(
   creation_date=Query(creation_date=addToDate(DateTime(), to_add={'day': -1}), range="max"),
   method_id='invalidate',
   method_kw={"comment": "Unused for 1 day."},
-  activate_kw={'tag': tag},
+  activate_kw={'tag': tag, 'priority': 2},
 )
 
 context.activate(after_tag=tag).getId()

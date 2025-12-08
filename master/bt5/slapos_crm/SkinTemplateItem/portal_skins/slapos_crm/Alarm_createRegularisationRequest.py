@@ -20,6 +20,6 @@ if entity_uid_list:
     validation_state="validated",
     uid=entity_uid_list,
     method_id='Entity_checkToCreateRegularisationRequest',
-    activate_kw={'tag': tag}
+    activate_kw={'tag': tag, 'priority': 2}
   )
 context.activate(after_tag=tag).getId()

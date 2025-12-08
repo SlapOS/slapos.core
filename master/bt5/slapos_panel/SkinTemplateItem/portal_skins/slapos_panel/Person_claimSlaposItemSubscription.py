@@ -1,10 +1,6 @@
 portal = context.getPortalObject()
 Base_translateString = portal.Base_translateString
 
-from zExceptions import Unauthorized
-if REQUEST is not None:
-  raise Unauthorized
-
 batch = (dialog_id is None)
 
 # Search for the matching item

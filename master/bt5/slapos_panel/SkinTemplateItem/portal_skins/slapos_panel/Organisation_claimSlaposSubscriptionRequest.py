@@ -2,9 +2,7 @@ portal = context.getPortalObject()
 Base_translateString = portal.Base_translateString
 organisation = context
 
-from zExceptions import Unauthorized
-if REQUEST is not None:
-  raise Unauthorized
+assert organisation.getPortalType() == 'Organisation'
 
 batch = (dialog_id is None)
 if activate_kw is None:

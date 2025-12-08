@@ -14,7 +14,7 @@ portal.portal_catalog.searchAndActivate(
         portal.portal_categories.payment_mode.wechat.getUid()],
       method_id='PaymentTransaction_cancelIfSaleInvoiceTransactionIsLettered',
       packet_size=1, # just one to minimise errors
-      activate_kw={'tag': tag},
+      activate_kw={'tag': tag, 'priority': 2},
       **kw
       )
 context.activate(after_tag=tag).getId()

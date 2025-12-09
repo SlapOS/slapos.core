@@ -19,8 +19,8 @@ portal.portal_catalog.searchAndActivate(
   portal_type=["Compute Node", "Instance Tree"],
   validation_state="validated",
   packet_size=1, # Separate calls to many transactions
-  activate_kw={'tag': tag},
-  method_kw={'activate_kw': {'tag': tag}},
+  activate_kw={'tag': tag, 'priority': 2},
+  method_kw={'activate_kw': {'tag': tag, 'priority': 2}},
   **sql_kw
 )
 """

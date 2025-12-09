@@ -4,6 +4,6 @@ portal.portal_catalog.searchAndActivate(
       simulation_state=["suspended"],
       resource__uid=portal.service_module.slapos_crm_acknowledgement.getUid(),
       method_id='RegularisationRequest_triggerAcknowledgmentEscalation',
-      activate_kw={'tag': tag}
+      activate_kw={'tag': tag, 'priority': 2}
       )
 context.activate(after_tag=tag).getId()

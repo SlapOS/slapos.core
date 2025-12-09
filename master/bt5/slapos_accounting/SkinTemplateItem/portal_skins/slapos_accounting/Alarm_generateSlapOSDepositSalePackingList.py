@@ -1,6 +1,6 @@
 portal = context.getPortalObject()
 
-activate_kw = {'tag': tag}
+activate_kw = {'tag': tag, 'priority': 2}
 select_dict= {'causality__uid': None}
 
 portal.portal_catalog.searchAndActivate(

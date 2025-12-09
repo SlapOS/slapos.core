@@ -13,6 +13,6 @@ portal.portal_catalog.searchAndActivate(
       # Limit activity number, as method_id also calls searchAndActivate
       activity_count=1,
       packet_size=1,
-      activate_kw={'tag': tag, 'after_tag': sub_tag}
+      activate_kw={'tag': tag, 'after_tag': sub_tag, 'priority': 2}
       )
 context.activate(after_tag=tag).getId()

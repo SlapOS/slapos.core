@@ -7,6 +7,6 @@ portal.portal_catalog.searchAndActivate(
   causality_state='solved',
   ledger__uid=portal.portal_categories.ledger.automated.getUid(),
   method_id='Delivery_stopConfirmedAggregatedSaleInvoiceTransaction',
-  activate_kw={'tag': tag}
+  activate_kw={'tag': tag, 'priority': 2}
 )
 context.activate(after_tag=tag).getId()

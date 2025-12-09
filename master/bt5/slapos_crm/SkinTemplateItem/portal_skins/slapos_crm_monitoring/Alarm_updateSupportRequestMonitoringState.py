@@ -7,7 +7,7 @@ portal.portal_catalog.searchAndActivate(
     resource__uid=default_resource_uid,
     causality__portal_type=["Instance Tree"],
     method_id='SupportRequest_updateMonitoringState',
-    activate_kw={'tag':tag}
+    activate_kw={'tag': tag, 'priority': 2}
   )
 
 context.activate(after_tag=tag).getId()

@@ -7,7 +7,7 @@ portal.portal_catalog.searchAndActivate(
   portal_type=["Subscription Request"],
   simulation_state='submitted',
   packet_size=1, # Separate calls to many transactions
-  activate_kw={'tag': tag}
+  activate_kw={'tag': tag, 'priority': 2}
 )
 
 context.activate(after_tag=tag).getId()

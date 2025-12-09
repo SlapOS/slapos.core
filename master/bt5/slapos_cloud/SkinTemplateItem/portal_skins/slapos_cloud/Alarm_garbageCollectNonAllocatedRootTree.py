@@ -8,7 +8,7 @@ portal.portal_catalog.searchAndActivate(
   left_join_list=select_dict.keys(),
 
   method_id='SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree',
-  activate_kw={'tag': tag},
+  activate_kw={'tag': tag, 'priority': 2},
   **{"slapos_item.slap_state": ['start_requested', 'stop_requested']}
 )
 

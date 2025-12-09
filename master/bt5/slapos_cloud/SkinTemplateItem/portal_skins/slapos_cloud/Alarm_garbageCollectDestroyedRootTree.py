@@ -5,7 +5,7 @@ portal.portal_catalog.searchAndActivate(
   validation_state="validated",
   specialise_validation_state="archived",
   method_id='SoftwareInstance_tryToGarbageCollect',
-  activate_kw={'tag': tag},
+  activate_kw={'tag': tag, 'priority': 2},
   **{"slapos_item.slap_state": ("start_requested", "stop_requested")}
 )
 

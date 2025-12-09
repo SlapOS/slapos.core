@@ -3,6 +3,6 @@ portal.portal_catalog.searchAndActivate(
       portal_type="Regularisation Request",
       simulation_state=["suspended", "validated"],
       method_id='RegularisationRequest_invalidateIfEntityBalanceIsOk',
-      activate_kw={'tag': tag}
+      activate_kw={'tag': tag, 'priority': 2}
       )
 context.activate(after_tag=tag).getId()

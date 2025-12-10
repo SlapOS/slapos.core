@@ -1,7 +1,7 @@
 data_dict['portal_type'] = 'Software Instance'
 instance = context.JSONRPCService_getObjectFromData(data_dict)
 
-instance.setErrorStatus('bang called')
+instance.setErrorStatus('bang called: %s' % data_dict.get("message", ""))
 timestamp = str(int(instance.getModificationDate()))
 key = "%s_bangstamp" % instance.getReference()
 

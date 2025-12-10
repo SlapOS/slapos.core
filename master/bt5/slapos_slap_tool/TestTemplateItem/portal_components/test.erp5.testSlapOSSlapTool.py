@@ -1908,7 +1908,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <string>state</string>
     <string/>
     <string>text</string>
-    <string>#error bang called</string>
+    <string>#error bang called: %(error_log)s</string>
     <string>user</string>
     <string>%(instance_guid)s</string>
   </dictionary>
@@ -1917,6 +1917,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     created_at=created_at,
     since=since,
     instance_guid=self.start_requested_software_instance.getReference(),
+    error_log=error_log
   )
       self.assertXMLEqual(str2bytes(expected_xml), got_xml)
       self.assertInstanceBangSimulator((), {'comment': error_log, 'bang_tree': True})
@@ -2981,7 +2982,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <string>state</string>
     <string/>
     <string>text</string>
-    <string>#error bang called</string>
+    <string>#error bang called: %(error_log)s</string>
     <string>user</string>
     <string>%(person_reference)s</string>
   </dictionary>
@@ -2990,7 +2991,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     created_at=created_at,
     since=since,
     person_reference=self.person_reference,
-    instance_guid=self.start_requested_software_instance.getReference()
+    instance_guid=self.start_requested_software_instance.getReference(),
+    error_log=error_log
   )
       self.assertXMLEqual(str2bytes(expected_xml), got_xml)
       self.assertInstanceBangSimulator((), {'comment': error_log, 'bang_tree': True})

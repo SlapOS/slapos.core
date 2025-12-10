@@ -857,7 +857,7 @@ class SlapTool(BaseTool):
         compute_node_id,
         compute_partition_id)
     
-    software_instance.setErrorStatus('bang called')
+    software_instance.setErrorStatus('bang called: %s' % str(message))
     timestamp = str(int(software_instance.getModificationDate()))
     key = "%s_bangstamp" % software_instance.getReference()
 

@@ -980,7 +980,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual('application/json', response.headers.get('content-type'))
     partition = instance.getAggregateValue(portal_type="Compute Partition")
     self.assertEqual({
-      'access_status_message': '#error bang called',
+      'access_status_message': '#error bang called: %s' % error_log,
       "computer_guid": partition.getParentValue().getReference(),
       "compute_partition_id": partition.getReference(),
       'full_ip_list': [],
@@ -1529,7 +1529,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     self.assertEqual('application/json', response.headers.get('content-type'))
     partition = instance.getAggregateValue(portal_type="Compute Partition")
     self.assertEqual({
-      'access_status_message': '#error bang called',
+      'access_status_message': '#error bang called: %s' % error_log,
       "computer_guid": partition.getParentValue().getReference(),
       "compute_partition_id": partition.getReference(),
       'full_ip_list': [],

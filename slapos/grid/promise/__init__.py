@@ -115,11 +115,16 @@ class PromiseProcess(Process):
     periodicity_file = os.path.join(self.partition_folder,
                                     PROMISE_STATE_FOLDER_NAME,
                                     '%s.periodicity' % self.name)
+    stats_file = os.path.join(self.partition_dir,
+                              PROMISE_STATE_FOLDER_NAME,
+                              'promise_stats.json')
 
     if os.path.exists(timestamp_file) and os.path.isfile(timestamp_file):
       os.unlink(timestamp_file)
     if os.path.exists(periodicity_file) and os.path.isfile(periodicity_file):
       os.unlink(periodicity_file)
+    if os.path.exists(stats_file) and os.path.isfile(stats_file):
+      os.unlink(stats_file)
 
     # remove promise history from slapgrid files
     if os.path.exists(promise_history_output_dir):

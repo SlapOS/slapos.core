@@ -36,8 +36,8 @@
             <key> <string>response_schema</string> </key>
             <value> <string>{\n
   "$schema": "http://json-schema.org/draft-07/schema#",\n
-  "title": "Instance informations",\n
-  "description": "Instance informations",\n
+  "title": "Instance information",\n
+  "description": "Instance information",\n
   "type": "object",\n
   "additionalProperties": false,\n
   "properties": {\n
@@ -52,7 +52,7 @@
       "type": "string"\n
     },\n
     "root_instance_title": {\n
-      "title": "Title of the Roor Instance",\n
+      "title": "Title of the Root Instance",\n
       "type": "string"\n
     },\n
     "title": {\n
@@ -156,8 +156,8 @@
             <key> <string>text_content</string> </key>
             <value> <string>{\n
   "$schema": "http://json-schema.org/draft-07/schema#",\n
-  "title": "Get Compute Partition informations",\n
-  "description": "Get Compute Partition informations",\n
+  "title": "Get Compute Partition information",\n
+  "description": "Get Compute Partition information",\n
   "type": "object",\n
   "additionalProperties": false,\n
 \n

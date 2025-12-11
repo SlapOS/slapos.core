@@ -115,11 +115,32 @@ class PromiseProcess(Process):
     periodicity_file = os.path.join(self.partition_folder,
                                     PROMISE_STATE_FOLDER_NAME,
                                     '%s.periodicity' % self.name)
+    stats_file = os.path.join(self.partition_folder,
+                              PROMISE_STATE_FOLDER_NAME,
+                              'promise_stats.json')
+
+    status_file = os.path.join(self.partition_folder,
+                                       PROMISE_STATE_FOLDER_NAME,
+                                       'promise_status.json')
+    global_file = os.path.join(self.partition_folder,
+                               PROMISE_STATE_FOLDER_NAME,
+                               'global.json')
+    public_file = os.path.join(self.partition_folder,
+                               PROMISE_STATE_FOLDER_NAME,
+                               'public.json')
 
     if os.path.exists(timestamp_file) and os.path.isfile(timestamp_file):
       os.unlink(timestamp_file)
     if os.path.exists(periodicity_file) and os.path.isfile(periodicity_file):
       os.unlink(periodicity_file)
+    if os.path.exists(stats_file) and os.path.isfile(stats_file):
+      os.unlink(stats_file)
+    if os.path.exists(status_file) and os.path.isfile(status_file):
+      os.unlink(status_file)
+    if os.path.exists(global_file) and os.path.isfile(global_file):
+      os.unlink(global_file)
+    if os.path.exists(public_file) and os.path.isfile(public_file):
+      os.unlink(public_file)
 
     # remove promise history from slapgrid files
     if os.path.exists(promise_history_output_dir):

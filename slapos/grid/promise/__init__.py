@@ -104,16 +104,25 @@ class PromiseProcess(Process):
     self._cleanupDeprecated()
 
   def _cleanupDeprecated(self):
+    history_path_name = '.slapgrid/promise/history'
+    promise_history_output_dir = os.path.join(
+                                              self.partition_folder,
+                                              history_path_name)
     timestamp_file = os.path.join(self.partition_folder,
                                   PROMISE_STATE_FOLDER_NAME,
                                   '%s.timestamp' % self.name)
     periodicity_file = os.path.join(self.partition_folder,
                                     PROMISE_STATE_FOLDER_NAME,
                                     '%s.periodicity' % self.name)
+
     if os.path.exists(timestamp_file) and os.path.isfile(timestamp_file):
       os.unlink(timestamp_file)
     if os.path.exists(periodicity_file) and os.path.isfile(periodicity_file):
       os.unlink(periodicity_file)
+
+    # remove promise history from slapgrid files
+    if os.path.exists(promise_history_output_dir):
+      shutil.rmtree(promise_history_output_dir)
 
   def getPromiseTitle(self):
     return os.path.splitext(self.name)[0]

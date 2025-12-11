@@ -57,7 +57,7 @@ from slapos.grid.exception import (BuildoutFailedError, WrongPermissionError,
                                    PathDoesNotExistError, DiskSpaceError)
 from slapos.grid.networkcache import download_network_cached, upload_network_cached
 from slapos.human import bytes2human
-from slapos.util import bytes2str, rmtree
+from slapos.util import bytes2str, rmtree, mkdir_p
 
 
 WATCHDOG_MARK = '-on-watch'
@@ -127,6 +127,7 @@ class Software(object):
                buildout_debug=False,
                shared_part_list='',
                build_time_part_list='',
+               build_time_symlinks='',
               ):
     """Initialisation of class parameters
     """
@@ -147,6 +148,7 @@ class Software(object):
                                       self.software_url_hash)
     self.shared_part_list = shared_part_list
     self.build_time_part_list = build_time_part_list
+    self.build_time_symlinks = build_time_symlinks
     self.buildout = buildout
     self.buildout_debug = buildout_debug
     self.logger = logger
@@ -310,13 +312,29 @@ class Software(object):
     try:
       self._set_ownership(extends_cache)
 
+      if self.build_time_symlinks:
+        mkdir_p(self.build_time_symlinks)
+        build_time_part_list = []
+        for path in self.build_time_part_list.strip().splitlines():
+          path = path.strip().rstrip(os.sep)
+          description = '-'.join(path.split(os.sep))
+          target_name = '-'.join(
+            (self.software_url_hash, md5digest(path), description)
+          )
+          target_path = os.path.join(self.build_time_symlinks, target_name)
+          build_time_part_list.append(target_path)
+          os.symlink(path, target_path)
+        build_time_part_list_string = '\n'.join(build_time_part_list)
+      else:
+        build_time_part_list_string = self.build_time_part_list
+
       buildout_cfg = os.path.join(self.software_path, 'buildout.cfg')
       if not os.path.exists(buildout_cfg):
         self._create_buildout_profile(
           buildout_cfg,
           self.url,
           self.shared_part_list,
-          self.build_time_part_list,
+          build_time_part_list_string,
         )
       self._note_git_revision(buildout_cfg, self.url)
 
@@ -349,6 +367,9 @@ class Software(object):
       shutil.rmtree(extends_cache)
       if f is not None:
         f.close()
+      if self.build_time_symlinks:
+        for target in build_time_part_list:
+          os.remove(target)
 
   def _create_buildout_profile(self, buildout_cfg, url,
                                shared_part_list, build_time_part_list):

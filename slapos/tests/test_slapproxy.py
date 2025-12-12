@@ -181,7 +181,7 @@ database_uri = %(rootdir)s/lib/proxy.db
   def _requestComputerPartition(self, software_release, software_type, partition_reference,
               partition_id=None,
               shared=False, partition_parameter_kw=None, filter_kw=None,
-              state=None, computer_id=None):
+              state=None, computer_id=None, headers=None):
     """
     Check parameters, call requestComputerPartition server method and return result
     """
@@ -207,7 +207,7 @@ database_uri = %(rootdir)s/lib/proxy.db
         computer_id=computer_id or self.computer_id,
         computer_partition_id=partition_id,
       )
-    return self.app.post('/requestComputerPartition', data=request_dict)
+    return self.app.post('/requestComputerPartition', data=request_dict, headers=headers)
 
 
 class TestLoadComputerConfiguration(BasicMixin, unittest.TestCase):
@@ -785,7 +785,24 @@ class TestRequest(MasterMixin):
         shared=True,
         partition_parameter_kw={'url': 'https://[::1]:123/my/path?my=query&string=value#myanchor', })
     self.assertEqual(
-        'http://localhost/http_proxy/https/%5B::1%5D:123/my/path?my=query&string=value#myanchor',
+        'https://[::1]:123/my/path?my=query&string=value#myanchor',
+        request.getConnectionParameterDict()['secure_access'])
+    self.assertEqual(
+        '[::1]:123',
+        request.getConnectionParameterDict()['domain'])
+
+  def test_request_frontend_with_secure_access(self):
+    # slapproxy tells client to bypass "simple" frontends by just using the URL.
+    request = self.request(
+        'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
+        None,
+        self.id(),
+        'slappart0',
+        shared=True,
+        partition_parameter_kw={'url': 'https://[::1]:123/my/path?my=query&string=value#myanchor', },
+        headers={'X-Forwarded-Proto': 'https'})
+    self.assertEqual(
+        'https://localhost/http_proxy/https/%5B::1%5D:123/my/path?my=query&string=value#myanchor',
         request.getConnectionParameterDict()['secure_access'])
     self.assertEqual(
         'localhost',

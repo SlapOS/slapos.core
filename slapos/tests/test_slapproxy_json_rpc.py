@@ -489,7 +489,47 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'software_type': 'default',
         'state': 'started',
         'connection_parameters': {
-          'secure_access': 'http://localhost/http_proxy/https/%5B::1%5D:123/my/path?my=query&string=value#myanchor',
+          'secure_access': 'https://[::1]:123/my/path?my=query&string=value#myanchor',
+          'domain': '[::1]:123'
+        },
+        'parameters': {'url': 'https://[::1]:123/my/path?my=query&string=value#myanchor'},
+        'shared': True,
+        'root_instance_title': 'MyCDNInstance',
+        'ip_list': [],
+        'full_ip_list': [],
+        'sla_parameters': {},
+        'computer_guid': '',
+        'compute_partition_id': 'Fake frontend for https://[::1]:123/my/path?my=query&string=value#myanchor',
+        'processing_timestamp': 0,
+        'access_status_message': ""
+    }
+    data_result = json.loads(response.data)
+    assert data_result == expect_result_dict, response.data
+
+  def test_post_v0_shared_instance__with_cdn_and_https_proxy(self):
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyCDNInstance',
+        'software_release_uri': 'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
+        'software_type': 'default',
+        'parameters': {'url': 'https://[::1]:123/my/path?my=query&string=value#myanchor'},
+        'shared': True
+      },
+      headers={'X-Forwarded-Proto': 'https'}
+    )
+
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'title': 'MyCDNInstance',
+        'instance_guid': 'MyCDNInstance______1',
+        'software_release_uri': 'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
+        'software_type': 'default',
+        'state': 'started',
+        'connection_parameters': {
+          'secure_access': 'https://localhost/http_proxy/https/%5B::1%5D:123/my/path?my=query&string=value#myanchor',
           'domain': 'localhost'
         },
         'parameters': {'url': 'https://[::1]:123/my/path?my=query&string=value#myanchor'},

@@ -2,6 +2,24 @@ from slapos.tests.test_slapproxy import BasicMixin
 import os
 import unittest
 import tempfile
+import shutil
+
+
+class TemporaryDirectory(object):
+    """
+    Context manager for tempfile.mkdtemp().
+    This class is available in python +v3.2.
+    """
+    def __enter__(self):
+        self.dir_name = tempfile.mkdtemp()
+        return self.dir_name
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        shutil.rmtree(self.dir_name)
+
+TemporaryDirectory = getattr(tempfile, 'TemporaryDirectory',
+                             TemporaryDirectory)
+
 
 class PanelTestCase(BasicMixin, unittest.TestCase):
 
@@ -33,8 +51,9 @@ class PanelTestCase(BasicMixin, unittest.TestCase):
     assert b'callJsonRpcEntryPoint' in response.data, response.data
 
     # Response header forced
-    assert response.headers["Content-Type"] == \
-        "application/javascript; charset=utf-8", \
+    assert response.headers["Content-Type"] in \
+        ["application/javascript; charset=utf-8", \
+         "text/javascript; charset=utf-8"], \
         response.headers
     assert response.headers["Content-Length"] == \
         "32062", \
@@ -50,8 +69,9 @@ class PanelTestCase(BasicMixin, unittest.TestCase):
     assert b'clearGadgetInternalParameters' in response.data, response.data
 
     # Response header forced
-    assert response.headers["Content-Type"] == \
-        "application/javascript; charset=utf-8", \
+    assert response.headers["Content-Type"] in \
+        ["application/javascript; charset=utf-8", \
+         "text/javascript; charset=utf-8"], \
         response.headers
     assert response.headers["Content-Length"] == \
         "107174", \
@@ -63,7 +83,7 @@ class PanelTestCase(BasicMixin, unittest.TestCase):
     assert b'The public directory path is not configured.' in response.data, response.data
 
   def test_panel_public_directory_configured(self):
-    with tempfile.TemporaryDirectory() as tmpdirname:
+    with TemporaryDirectory() as tmpdirname:
       with tempfile.NamedTemporaryFile(dir=tmpdirname) as fp:
         fp.write(b'Hello world!')
         fp.seek(0)

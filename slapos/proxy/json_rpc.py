@@ -147,7 +147,7 @@ def supply_software_installation():
   supplyFromDB(computer_id, software_release_uri, state)
   return validate_and_send_json_rpc_document({
     'type': 'success',
-    'title': 'Supplied %r to be %s' % (software_release_uri, state)
+    'title': 'Supplied %s to be %s' % (software_release_uri, state)
   })
 
 @json_rpc_blueprint.route('/slapos.post.v0.compute_node_usage', methods=['POST'])

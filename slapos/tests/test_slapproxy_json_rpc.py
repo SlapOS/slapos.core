@@ -150,7 +150,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         "type": "success",
-        "title": "Supplied 'https://mysoft' to be available"
+        "title": "Supplied https://mysoft to be available"
     }
     assert json.loads(response.data) == expect_result_dict, response.data
 

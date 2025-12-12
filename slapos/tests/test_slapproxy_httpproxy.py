@@ -67,7 +67,7 @@ class HttpProxyTestCase(BasicMixin, unittest.TestCase):
     last_request = httpretty.last_request()
 
     # Request path and query string
-    assert last_request.path == '/my/path?key1=value1&key2=value2', last_request.path
+    assert last_request.path in ['/my/path?key1=value1&key2=value2', '/my/path?key2=value2&key1=value1'], last_request.path
 
     # Request body
     assert last_request.body == b'datafoo=databar', last_request.body

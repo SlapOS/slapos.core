@@ -2,7 +2,7 @@ from slapos.tests.test_slapproxy import BasicMixin
 from slapos.util import dumps
 import unittest
 import json
-from unittest import mock
+import mock
 
 
 class JsonRpcTestCase(BasicMixin, unittest.TestCase):
@@ -1389,7 +1389,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     previous_timestamp = json.loads(response.data).get('processing_timestamp', 'unknown')
 
     # The API timestamp is rounded by second
-    with unittest.mock.patch('time.time', return_value=previous_timestamp + 1):
+    with mock.patch('time.time', return_value=previous_timestamp + 1):
       response = self.app.post(
         '/slapos.put.v0.software_instance_bang',
         json={

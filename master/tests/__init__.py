@@ -23,6 +23,8 @@ slapos_bt_list = [
     'slapos_abyss',
     'slapos_rss_style',
     'slapos_json_rpc_api',
+    'erp5_web_monitoring',
+    'erp5_web_monitoring_ui_test',
   ]
 
 class SlapOSCloud(SavedTestSuite, ProjectTestSuite):

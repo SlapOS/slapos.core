@@ -66,7 +66,7 @@
       "type": "string"\n
     },\n
     "root_instance_title": {\n
-      "title": "Title of the Roor Instance",\n
+      "title": "Title of the Root Instance",\n
       "type": "string"\n
     },\n
     "title": {\n
@@ -222,7 +222,7 @@
     "sla_parameters": {\n
       "title": "Target Node Selection Parameters",\n
       "type": "object",\n
-      "description": "Also known as SLA parameters. Used to pick where an how the instance is to be deployed",\n
+      "description": "Also known as SLA parameters. Used to pick where and how the instance is to be deployed",\n
       "properties": {\n
         "computer_guid": {\n
           "title": "Requested Compute Node",\n

@@ -1,4 +1,4 @@
-from test_slapproxy import BasicMixin
+from slapos.tests.test_slapproxy import BasicMixin
 import os
 import unittest
 import tempfile

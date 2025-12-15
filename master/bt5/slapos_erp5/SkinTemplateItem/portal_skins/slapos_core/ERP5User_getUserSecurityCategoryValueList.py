@@ -27,6 +27,7 @@ if portal_type == 'Person':
     rule_dict={
       ('function',): ((), ('function',)),
       ('destination_project',): ((), ),
+      ('destination',): ((), ),
       ('destination_project', 'function'): ((), ),
     },
    )

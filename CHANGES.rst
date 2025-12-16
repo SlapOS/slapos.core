@@ -1,6 +1,15 @@
 Changes
 =======
 
+1.20.0 (2025-12-16)
+-------------------
+
+ * slapproxy: add an HTTP frontend to slapproxy with JSON RPC API
+ * testing: check_software: no longer output safety-db vulnerabilities
+ * testcase: generate SBOM and upload it to dependency track
+ * tests: add missing tests for help in slapos core CLI
+ * testing: check_software: fix false positive with software updated in place
+
 1.19.0 (2025-10-09)
 -------------------
  * slapproxy: allow several instances with subpartitions having same reference (fix implementation of 1.18.1)

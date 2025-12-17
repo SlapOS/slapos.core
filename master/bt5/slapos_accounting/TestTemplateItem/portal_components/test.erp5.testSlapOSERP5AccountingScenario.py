@@ -395,7 +395,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     """
     creation_date = DateTime('2024/03/19')
     with PinnedDateTime(self, creation_date):
-      owner_person, _, project, accountant_person = self.bootstrapAccountingTest()
+      owner_person, _, project, _ = self.bootstrapAccountingTest()
     # Ensure no unexpected object has been created
     # 2 assignment request
     # 2 assignment
@@ -532,7 +532,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     """
     creation_date = DateTime('2024/03/19')
     with PinnedDateTime(self, creation_date):
-      owner_person, _, project, accountant_person = self.bootstrapAccountingTest()
+      owner_person, _, project, _ = self.bootstrapAccountingTest()
     # Ensure no unexpected object has been created
     # 2 assignment request
     # 2 assignment

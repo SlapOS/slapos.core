@@ -201,10 +201,11 @@ class TestPaymentTransaction(TestSlapOSGroupRoleSecurityMixin):
         )
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
     self.assertSecurityGroup(product,
-        ['F-ACCOUNTING*', self.user_id, person.getUserId(),
+        ['F-ACCOUNTING*', 'R-SHADOW-PERSON', self.user_id, person.getUserId(),
          shadow_user_id], False)
     self.assertRoles(product, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(product, shadow_user_id, ['Assignee'])
+    self.assertRoles(product, 'R-SHADOW-PERSON', ['Assignee'])
     self.assertRoles(product, person.getUserId(), ['Auditor'])
     self.assertRoles(product, self.user_id, ['Owner'])
 

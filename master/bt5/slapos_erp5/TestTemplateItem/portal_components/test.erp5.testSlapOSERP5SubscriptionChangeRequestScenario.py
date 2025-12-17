@@ -445,7 +445,8 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       )
       owner_organisation = self.portal.organisation_module.newContent(
         title='Test Owner Organisation',
-        vat_code='1234567890'
+        vat_code='1234567890',
+        region='europe/france'
       )
       owner_organisation.validate()
       new_trade_condition = owner_organisation.Organisation_claimSlaposSubscriptionRequest(

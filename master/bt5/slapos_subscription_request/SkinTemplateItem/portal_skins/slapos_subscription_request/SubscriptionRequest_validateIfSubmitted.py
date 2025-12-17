@@ -42,18 +42,33 @@ if (((subscription_request.getSourceProjectValue() is not None) and
   return markHistory(subscription_request,
                      'Virtual master subscription is not valid.')
 
-# Accept the subscription only if user paid the security payment
-total_price = subscription_request.getTotalPrice()
-if 0 < total_price:
+is_deposit_check_needed = True
+subscription_change_request = subscription_request.getCausalityValue(portal_type='Subscription Change Request')
+if subscription_change_request is not None:
+  previous_open_sale_order = subscription_change_request.getCausalityValue(portal_type='Open Sale Order')
+  if previous_open_sale_order is not None:
+    # If the Subscription Request comes from a previously validated Open Sale Order,
+    # do NOT check the deposit.
+    # The new Subscription Request may change the buyer, who may not have enough credits
+    # (deposit is PER buyer)
+    # BUT, we do not want to block the working service in such case
+    # (somebody already paid a deposit the first time)
+    # If the buyer was changed, consider the system Sale Agents trust the new buyer
+    is_deposit_check_needed = False
 
-  customer = subscription_request.getDestinationSectionValue()
-  balance = customer.Entity_getDepositBalanceAmount([subscription_request])
+if is_deposit_check_needed:
+  # Accept the subscription only if user paid the security payment
+  total_price = subscription_request.getTotalPrice()
+  if 0 < total_price:
 
-  # XXX what is the guarantee deposit account_type?
-  if balance < total_price:
-    markHistory(subscription_request,
-                'Your user does not have enough deposit.')
-    return
+    customer = subscription_request.getDestinationSectionValue()
+    balance = customer.Entity_getDepositBalanceAmount([subscription_request])
+
+    # XXX what is the guarantee deposit account_type?
+    if balance < total_price:
+      markHistory(subscription_request,
+                  'Your user does not have enough deposit.')
+      return
 
 if subscription_request.checkConsistency():
   return markHistory(subscription_request,

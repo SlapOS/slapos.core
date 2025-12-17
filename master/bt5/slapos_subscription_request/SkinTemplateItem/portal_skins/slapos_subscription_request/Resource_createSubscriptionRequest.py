@@ -55,6 +55,7 @@ tmp_sale_order = module.newContent(
   portal_type='Sale Order',
   temp_object=True,
   trade_condition_type=trade_condition_type,
+  specialise_value=specialise_value,
   start_date=now,
   destination_value=subscriber_person_value,
   # Do NOT use destination_section to search the trade condition

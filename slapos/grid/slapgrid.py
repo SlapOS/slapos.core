@@ -1168,6 +1168,8 @@ stderr_logfile_backups=1
     )
     parameter_dict = computer_partition.getInstanceParameterDict()
     timestamp = parameter_dict.get('timestamp')
+    if timestamp:
+      timestamp = str(timestamp)
 
     error_output_file = os.path.join(
         instance_path,
@@ -1246,11 +1248,11 @@ stderr_logfile_backups=1
       else:
         with open(timestamp_path) as f:
           try:
-            old_timestamp = float(f.read())
+            old_timestamp = f.read()
           except ValueError:
             self.logger.exception('')
             old_timestamp = 0
-        if float(timestamp) <= old_timestamp:
+        if timestamp != old_timestamp:
             # Check periodicity, i.e if periodicity is one day, partition
             # should be processed at least every day.
             if time.time() <= last_runtime + periodicity or periodicity < 0:
@@ -1381,7 +1383,7 @@ stderr_logfile_backups=1
     # If partition has been successfully processed, write timestamp
     if timestamp:
       with open(timestamp_path, 'w') as f:
-        f.write(str(timestamp))
+        f.write(timestamp)
 
   def FilterComputerPartitionList(self, computer_partition_list):
     """

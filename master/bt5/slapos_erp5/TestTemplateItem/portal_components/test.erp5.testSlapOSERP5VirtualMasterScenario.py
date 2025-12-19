@@ -441,7 +441,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 subscription request
     self.assertRelatedObjectCount(project, 32)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
+      self.checkERP5StateBeforeExit()
 
 
   def test_deposit_with_accounting_scenario(self):
@@ -777,7 +778,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 subscription requests
     self.assertRelatedObjectCount(project, 58)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
+      self.checkERP5StateBeforeExit()
 
 
   def test_virtual_master_with_accounting_scenario(self):
@@ -1017,7 +1019,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 4 subscription requests
     self.assertRelatedObjectCount(project, 73)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 01:02')):
+      self.checkERP5StateBeforeExit()
 
 
   def test_virtual_master_slave_without_accounting_scenario(self):
@@ -1165,7 +1168,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 4 subscription request
     self.assertRelatedObjectCount(project, 48)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 00:05')):
+      self.checkERP5StateBeforeExit()
 
 
   def test_virtual_master_slave_on_same_tree_without_accounting_scenario(self):
@@ -1276,7 +1280,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 subscription request
     self.assertRelatedObjectCount(project, 33)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 00:05')):
+      self.checkERP5StateBeforeExit()
 
 
   def test_virtual_master_on_remote_tree_without_accounting_scenario(self):
@@ -1501,7 +1506,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 2 subscription requests
     self.assertRelatedObjectCount(project, 26)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
+      self.checkERP5StateBeforeExit()
 
 
   def test_virtual_master_slave_instance_on_remote_tree_without_accounting_scenario(self):

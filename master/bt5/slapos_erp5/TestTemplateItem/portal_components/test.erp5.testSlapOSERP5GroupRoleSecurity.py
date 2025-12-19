@@ -1729,6 +1729,25 @@ class TestSaleTradeCondition(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'R-SHADOW-PERSON', ['Auditor'])
 
 
+class TestSaleTradeConditionChangeRequestModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_SaleTradeConditionChangeRequestModule(self):
+    module = self.portal.sale_trade_condition_change_request_module
+    self.assertSecurityGroup(module,
+        ['F-SALE*', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
+    self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
+
+
+class TestSaleTradeConditionChangeRequest(TestSlapOSGroupRoleSecurityMixin):
+  def test_SaleTradeConditionChangeRequest_default(self):
+    delivery = self.portal.sale_trade_condition_change_request_module.newContent(
+        portal_type='Sale Trade Condition Change Request')
+    self.assertSecurityGroup(delivery,
+        ['F-SALE*', self.user_id], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
+    self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
+
+
 class TestSubscriptionRequestModule(TestSlapOSGroupRoleSecurityMixin):
   def test_SubscriptionRequestModule(self):
     module = self.portal.subscription_request_module

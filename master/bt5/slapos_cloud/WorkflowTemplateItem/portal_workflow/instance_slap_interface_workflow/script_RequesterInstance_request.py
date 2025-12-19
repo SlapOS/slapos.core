@@ -181,6 +181,12 @@ if instance_found:
   request_software_instance.checkNotCyclic(graph)
 
   if successor != requester_instance:
+    # Protection as the code does not support too many successors currently
+    # as it will create many changes in the zodb
+    # + it will slow down all code calling the getter accessors
+    # The 100 value is fully arbitrary, based on current usage
+    if 100 < len(successor_list):
+      raise NotImplementedError('Too many successor values on %s' % requester_instance.getRelativeUrl())
     requester_instance.edit(
       successor_list=successor_list,
       activate_kw={'tag': tag}

@@ -327,3 +327,101 @@ shared_part_list = anything
 
     do_prune(self.logger, self.config, False)
     self.assertTrue(os.path.exists(used_in_software_from_instance))
+
+  def test_shared_part_used_in_additional_software_directory(self):
+    """Shared parts used by software in additional directories should not be pruned."""
+    # create an additional software directory outside the main software_root
+    additional_software_root = os.path.join(self.base_directory, 'additional_software')
+    os.mkdir(additional_software_root)
+
+    # create shared parts
+    used_in_additional = self._createSharedPart('used_in_additional')
+    not_used = self._createSharedPart('not_used')
+
+    # create software in the additional directory that uses the shared part
+    self._createFakeSoftware(
+        'soft_in_additional',
+        using=used_in_additional,
+        software_root=additional_software_root
+    )
+
+    # prune with the additional software directory
+    do_prune(self.logger, self.config, False, [additional_software_root])
+
+    # shared part used in additional software directory should NOT be removed
+    self.assertTrue(os.path.exists(used_in_additional))
+    # unused shared part should be removed
+    self.assertFalse(os.path.exists(not_used))
+    self.logger.warning.assert_called_with(
+        'Unused shared parts at %s%s', not_used, ' ... removed')
+
+  def test_shared_part_used_in_multiple_additional_software_directories(self):
+    """Test with multiple additional software directories."""
+    # create two additional software directories
+    additional_software_root1 = os.path.join(self.base_directory, 'additional_software1')
+    additional_software_root2 = os.path.join(self.base_directory, 'additional_software2')
+    os.mkdir(additional_software_root1)
+    os.mkdir(additional_software_root2)
+
+    # create shared parts
+    used_in_additional1 = self._createSharedPart('used_in_additional1')
+    used_in_additional2 = self._createSharedPart('used_in_additional2')
+    not_used = self._createSharedPart('not_used')
+
+    # create software in each additional directory
+    self._createFakeSoftware(
+        'soft_in_additional1',
+        using=used_in_additional1,
+        software_root=additional_software_root1
+    )
+    self._createFakeSoftware(
+        'soft_in_additional2',
+        using=used_in_additional2,
+        software_root=additional_software_root2
+    )
+
+    # prune with both additional software directories
+    do_prune(self.logger, self.config, False,
+             [additional_software_root1, additional_software_root2])
+
+    # shared parts used in additional software directories should NOT be removed
+    self.assertTrue(os.path.exists(used_in_additional1))
+    self.assertTrue(os.path.exists(used_in_additional2))
+    # unused shared part should be removed
+    self.assertFalse(os.path.exists(not_used))
+
+  def test_additional_software_directory_does_not_exist(self):
+    """Non-existent additional software directory should log warning but continue."""
+    used = self._createSharedPart('used_part')
+    not_used = self._createSharedPart('not_used')
+    self._createFakeSoftware(self.id(), using=used)
+
+    non_existent_dir = os.path.join(self.base_directory, 'non_existent')
+
+    do_prune(self.logger, self.config, False, [non_existent_dir])
+
+    # should log a warning about non-existent directory
+    self.assertIn(
+        mock.call(
+            'Additional software directory does not exist: %s', non_existent_dir),
+        self.logger.warning.mock_calls)
+    # normal pruning should still work
+    self.assertTrue(os.path.exists(used))
+    self.assertFalse(os.path.exists(not_used))
+
+  def test_no_additional_software_directories(self):
+    """Existing behavior should be unchanged when no additional directories are provided."""
+    not_used = self._createSharedPart('not_used')
+    used = self._createSharedPart('used_part')
+    self._createFakeSoftware(self.id(), using=used)
+
+    # call without additional directories (None)
+    do_prune(self.logger, self.config, False, None)
+    self.assertTrue(os.path.exists(used))
+    self.assertFalse(os.path.exists(not_used))
+
+    # recreate not_used and call with empty list
+    not_used = self._createSharedPart('not_used2')
+    do_prune(self.logger, self.config, False, [])
+    self.assertTrue(os.path.exists(used))
+    self.assertFalse(os.path.exists(not_used))

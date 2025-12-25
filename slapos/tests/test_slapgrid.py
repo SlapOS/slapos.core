@@ -162,6 +162,7 @@ class BasicMixin(object):
     self.software_root = os.path.join(self._tempdir, 'software')
     self.shared_parts_root = os.path.join(self._tempdir, 'shared')
     self.build_time_parts_root = os.path.join(self._tempdir, 'build-time')
+    self.build_time_symlinks = os.path.join(self._tempdir, 'build-symlinks')
     self.instance_root = os.path.join(self._tempdir, 'instance')
     if 'SLAPGRID_INSTANCE_ROOT' in os.environ:
       del os.environ['SLAPGRID_INSTANCE_ROOT']
@@ -200,6 +201,7 @@ class BasicMixin(object):
                                   logger=logging.getLogger(),
                                   shared_part_list=self.shared_parts_root,
                                   build_time_part_list=self.build_time_parts_root,
+                                  build_time_symlinks=self.build_time_symlinks,
                                   force_stop=force_stop,
                                   certificate_repository_path=self.certificate_repository_path)
     self.grid._manager_list = self.manager_list
@@ -2285,7 +2287,9 @@ echo %s; echo %s; exit 42""" % (line1, line2))
       software.setBuildout("""#!/bin/sh
         cat buildout.cfg; exit 1""")
       self.launchSlapgridSoftware()
-    self.assertIn('build-time-part-list = %s' % self.build_time_parts_root, software.error_log)
+    prefix = '%s/%s-' % (self.build_time_symlinks, software.software_hash)
+    self.assertIn('build-time-part-list = %s' % prefix, software.error_log)
+    self.assertFalse(os.listdir(self.build_time_symlinks))
 
   def test_remove_software(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)

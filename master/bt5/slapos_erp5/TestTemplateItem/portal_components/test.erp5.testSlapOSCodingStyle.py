@@ -169,7 +169,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_accounting/Movement_getPriceCalculationOperandDict',
         'slapos_accounting/PaymentTransaction_acceptDepositPayment',
         'slapos_accounting/PaymentTransaction_getExternalPaymentId',
-        'slapos_accounting/PaymentTransaction_postOrderBuild',
         'slapos_accounting/SaleInvoiceTransaction_getBaseCategoryDictForPrintout',
         'slapos_accounting/SaleInvoiceTransaction_init',
         'slapos_accounting/SaleInvoiceTransaction_isTotalPriceEqualAccounting',

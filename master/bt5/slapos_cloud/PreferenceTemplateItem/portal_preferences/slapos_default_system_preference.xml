@@ -122,14 +122,6 @@
             <value> <string>report</string> </value>
         </item>
         <item>
-            <key> <string>preferred_document_conversion_server_url</string> </key>
-            <value>
-              <tuple>
-                <string>https://cloudooo.erp5.net/,https://cloudooo1.erp5.net/</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
             <key> <string>preferred_event_resource</string> </key>
             <value>
               <tuple>

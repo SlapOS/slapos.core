@@ -153,7 +153,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_simulation/SaleInvoiceTransaction_postSlapOSSaleInvoiceTransactionLineGeneration',
         'slapos_simulation/SaleInvoiceTransaction_selectSlapOSDelivery',
         'slapos_simulation/SalePackingList_postSlapOSGeneration',
-        'slapos_simulation/SimulationMovement_removeBogusDeliveryLink',
         'slapos_simulation/SimulationMovement_testCommonRule',
         'slapos_simulation/SimulationMovement_testInvoiceSimulationRule',
         'slapos_simulation/SimulationMovement_testInvoiceTransactionSimulationRule',

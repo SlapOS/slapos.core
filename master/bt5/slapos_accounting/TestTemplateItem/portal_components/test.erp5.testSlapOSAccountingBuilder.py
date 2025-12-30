@@ -15,6 +15,16 @@ def convertCategoryList(base, l):
 class TestSlapOSBuilderMixin(SlapOSTestCaseMixin):
   require_certificate = 1
 
+  def addServiceSetup(self):
+    """ Just an additional service added to movement to validate it works """
+    service = self.portal.service_module.newContent(
+      title="Instance Setup %s " % self.generateNewId(),
+      reference="ISETUP-%s" % self.generateNewId(),
+      use='trade/sale',
+    )
+    service.validate()
+    return service
+
   def checkSimulationMovement(self, simulation_movement):
     self.assertEqual(1.0, simulation_movement.getDeliveryRatio())
     self.assertEqual(0.0, simulation_movement.getDeliveryError())
@@ -184,8 +194,9 @@ class TestSlapOSSalePackingListBuilder(TestSlapOSBuilderMixin):
 
 class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
 
-  def test_sale_invoice_builder(self, causality1=None, causality2=None): # pylint: disable=arguments-differ 
+  def test_sale_invoice_builder(self, causality1=None, causality2=None): # pylint: disable=arguments-differ
     resource, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(is_accountable=True)
+    service_setup = self.addServiceSetup()
     project = instance_tree.getFollowUpValue()
     trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
     currency = trade_condition.getPriceCurrencyValue()
@@ -244,7 +255,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
         batch_mode=1)
     delivery_line_1_bis.edit(
         price=0.0,
-        resource='service_module/slapos_instance_setup',
+        resource_value=service_setup,
         quantity_unit='unit/piece'
     )
 
@@ -425,7 +436,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
     self.checkDelivery(invoice_movement_1, invoice_1,
         category_list=category_list + convertCategoryList('causality',
           [delivery_1.getRelativeUrl(), delivery_2.getRelativeUrl()]), **invoice_kw)
-    
+
     # Start building and check again, remember invoice_1 and invoice_2 
     invoice_1.startBuilding()
     self.checkDelivery(invoice_movement_2, invoice_2,
@@ -439,7 +450,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
         # Keep price different else this line will be merged with delivery_line_1_bis
         # on the invoice side
         price=1.1,
-        resource='service_module/slapos_instance_setup',
+        resource_value=service_setup,
         quantity_unit='unit/piece'
     )
     simulation_movement_2_bis = applied_rule_2.newContent(
@@ -522,6 +533,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
 
   def test_sale_invoice_builder_with_different_date(self):
     resource, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(is_accountable=True)
+    service_setup = self.addServiceSetup()
     project = instance_tree.getFollowUpValue()
     trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
     currency = trade_condition.getPriceCurrencyValue()
@@ -555,7 +567,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
         stop_date=DateTime('2012/02/01'),
         **delivery_kw
     )
-    
+
     # Create Applied rule and set causality
     applied_rule_1 = self.portal.portal_simulation.newContent(
       portal_type='Applied Rule',
@@ -577,7 +589,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
         batch_mode=1)
     delivery_line_1_bis.edit(
         price=0.0,
-        resource='service_module/slapos_instance_setup',
+        resource_value=service_setup,
         quantity_unit='unit/piece'
     )
 
@@ -1615,188 +1627,3 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSBuilderMixin):
          'use/trade/tax'])
     self.assertEqual(invoice_2.getRelativeUrl(),
         model_line_2_tax_bis.getParentValue().getRelativeUrl())
-
-"""
-class TestSlapOSAggregatedDeliveryBuilder(SlapOSTestCaseMixin):
-  def emptyBuild(self, **kw):
-    delivery_list = self._build(**kw)
-    self.assertSameSet([], delivery_list)
-    return delivery_list
-
-  def fullBuild(self, **kw):
-    delivery_list = self._build(**kw)
-    self.assertNotEqual([], delivery_list)
-    return delivery_list
-
-  def _build(self, **kw):
-    return self.portal.portal_orders.slapos_aggregated_delivery_builder.build(
-        **kw)
-
-  def _createDelivery(self, **kwargs):
-    delivery = self.portal.restrictedTraverse(
-        self.portal.portal_preferences.getPreferredInstanceDeliveryTemplate()
-        ).Base_createCloneDocument(batch_mode=1)
-    delivery.edit(**kwargs)
-    self.portal.portal_workflow._jumpToStateFor(delivery, 'delivered')
-    return delivery
-
-  def _addDeliveryLine(self, delivery, **kwargs):
-    kwargs.setdefault('portal_type', 'Sale Packing List Line')
-    kwargs.setdefault('quantity', 1.0)
-    kwargs.setdefault('resource', 'service_module/slapos_instance_setup')
-    kwargs.setdefault('price', 0.0)
-    delivery_line = delivery.newContent(**kwargs)
-    return delivery_line
-
-  def test(self):
-    person = self.portal.person_module\
-        .newContent(portal_type="Person")
-    delivery = self._createDelivery(destination_value=person,
-        destination_decision_value=person)
-    delivery_line = self._addDeliveryLine(delivery)
-    self.tic()
-
-    delivery_list = self.fullBuild(uid=delivery_line.getUid())
-
-    self.assertEqual(1, len(delivery_list))
-
-    built_delivery = delivery_list[0]
-
-    self.assertEqual(delivery_line.getGroupingReference(),
-        built_delivery.getReference())
-    self.assertEqual('confirmed', built_delivery.getSimulationState())
-    self.assertEqual('building', built_delivery.getCausalityState())
-    self.assertSameSet([
-        'ledger/automated',
-        'destination/%s' % person.getRelativeUrl(),
-        'destination_decision/%s' % person.getRelativeUrl(),
-        'destination_section/%s' % person.getRelativeUrl(),
-        'destination_project/%s' % self.slapos_project.getRelativeUrl(),
-        'price_currency/currency_module/EUR',
-        'source/%s' % self.expected_slapos_organisation,
-        'source_section/%s' % self.expected_slapos_organisation,
-        'specialise/%s' % self.slapos_trade_condition.getRelativeUrl()],
-        built_delivery.getCategoryList())
-    self.assertEqual(DateTime().earliestTime(), built_delivery.getStartDate())
-    delivery_line_list = built_delivery.contentValues(
-        portal_type='Sale Packing List Line')
-    self.assertEqual(1, len(delivery_line_list))
-    built_delivery_line = delivery_line_list[0]
-    self.assertEqual(1.0, built_delivery_line.getQuantity())
-    self.assertEqual(0.0, built_delivery_line.getPrice())
-    self.assertEqual(delivery_line.getResource(),
-        built_delivery_line.getResource())
-
-  def test_many_lines(self):
-    person = self.portal.person_module\
-        .newContent(portal_type="Person")
-    delivery = self._createDelivery(destination_value=person,
-        destination_decision_value=person)
-    setup_line_1 = self._addDeliveryLine(delivery)
-    setup_line_2 = self._addDeliveryLine(delivery)
-    cleanup_line = self._addDeliveryLine(delivery,
-        resource='service_module/slapos_instance_cleanup')
-    update_line = self._addDeliveryLine(delivery,
-        resource='service_module/slapos_instance_update')
-    subscription_line = self._addDeliveryLine(delivery,
-        resource='service_module/slapos_instance_subscription')
-    self.tic()
-
-    delivery_list = self.fullBuild(uid=[setup_line_1.getUid(),
-        setup_line_2.getUid(), cleanup_line.getUid(), update_line.getUid(),
-        subscription_line.getUid()])
-
-    self.assertEqual(1, len(delivery_list))
-
-    built_delivery = delivery_list[0]
-
-    self.assertEqual(setup_line_1.getGroupingReference(),
-        built_delivery.getReference())
-    self.assertEqual(setup_line_2.getGroupingReference(),
-        built_delivery.getReference())
-    self.assertEqual(cleanup_line.getGroupingReference(),
-        built_delivery.getReference())
-    self.assertEqual(update_line.getGroupingReference(),
-        built_delivery.getReference())
-
-    self.assertEqual('confirmed', built_delivery.getSimulationState())
-    self.assertEqual('building', built_delivery.getCausalityState())
-    delivery_line_list = built_delivery.contentValues(
-        portal_type='Sale Packing List Line')
-    self.assertEqual(4, len(delivery_line_list))
-
-    built_setup_line = [q for q in delivery_line_list if q.getResource() == 'service_module/slapos_instance_setup'][0]
-    built_cleanup_line = [q for q in delivery_line_list if q.getResource() == 'service_module/slapos_instance_cleanup'][0]
-    built_update_line = [q for q in delivery_line_list if q.getResource() == 'service_module/slapos_instance_update'][0]
-    built_subscription_line = [q for q in delivery_line_list if q.getResource() == 'service_module/slapos_instance_subscription'][0]
-
-    self.assertEqual(2.0, built_setup_line.getQuantity())
-    self.assertEqual(0.0, built_setup_line.getPrice())
-    self.assertEqual(setup_line_1.getResource(),
-        built_setup_line.getResource())
-
-    self.assertEqual(1.0, built_cleanup_line.getQuantity())
-    self.assertEqual(0.0, built_cleanup_line.getPrice())
-    self.assertEqual(cleanup_line.getResource(),
-        built_cleanup_line.getResource())
-
-    self.assertEqual(1.0, built_update_line.getQuantity())
-    self.assertEqual(0.0, built_update_line.getPrice())
-    self.assertEqual(update_line.getResource(),
-        built_update_line.getResource())
-
-    self.assertEqual(1.0, built_subscription_line.getQuantity())
-    self.assertAlmostEqual(0.0, built_subscription_line.getPrice(), 3)
-    self.assertEqual(subscription_line.getResource(),
-        built_subscription_line.getResource())
-
-  def test_added_after(self):
-    person = self.portal.person_module\
-        .newContent(portal_type="Person")
-    delivery = self._createDelivery(destination_value=person,
-        destination_decision_value=person)
-    delivery_line = self._addDeliveryLine(delivery)
-    self.tic()
-
-    delivery_list = self.fullBuild(uid=delivery_line.getUid())
-
-    self.assertEqual(1, len(delivery_list))
-
-    built_delivery = delivery_list[0]
-
-    self.assertEqual(delivery_line.getGroupingReference(),
-        built_delivery.getReference())
-    self.assertEqual('confirmed', built_delivery.getSimulationState())
-    self.assertEqual('building', built_delivery.getCausalityState())
-    delivery_line_list = built_delivery.contentValues(
-        portal_type='Sale Packing List Line')
-    self.assertEqual(1, len(delivery_line_list))
-    built_delivery_line = delivery_line_list[0]
-    self.assertEqual(1.0, built_delivery_line.getQuantity())
-    self.assertEqual(0.0, built_delivery_line.getPrice())
-    self.assertEqual(delivery_line.getResource(),
-        built_delivery_line.getResource())
-
-    delivery_line_2 = self._addDeliveryLine(delivery)
-    self.tic()
-
-    delivery_list = self.fullBuild(uid=delivery_line_2.getUid())
-
-    self.assertEqual(1, len(delivery_list))
-
-    new_built_delivery = delivery_list[0]
-    self.assertEqual(built_delivery, new_built_delivery)
-
-    self.assertEqual(delivery_line_2.getGroupingReference(),
-        built_delivery.getReference())
-    self.assertEqual('confirmed', built_delivery.getSimulationState())
-    self.assertEqual('building', built_delivery.getCausalityState())
-    delivery_line_list = built_delivery.contentValues(
-        portal_type='Sale Packing List Line')
-    self.assertEqual(1, len(delivery_line_list))
-    built_delivery_line = delivery_line_list[0]
-    self.assertEqual(2.0, built_delivery_line.getQuantity())
-    self.assertEqual(0.0, built_delivery_line.getPrice())
-    self.assertEqual(delivery_line_2.getResource(),
-        built_delivery_line.getResource())
-"""

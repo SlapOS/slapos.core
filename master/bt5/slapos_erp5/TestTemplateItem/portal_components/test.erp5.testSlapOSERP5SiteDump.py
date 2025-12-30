@@ -25,7 +25,6 @@ class TestSlapOSDump(SlapOSTestCaseMixin):
         ('ERP5Site_dumpBuilderList', 'expected_builder_dumped_configuration', None),
         ('ERP5Site_dumpInstalledBusinessTemplateList', 'expected_business_template_dumped_configuration',
              {'ignore_business_template_list': ["erp5_ui_test_core"]}),
-        ('ERP5Site_dumpOrderBuilderList', 'expected_order_builder_dumped_configuration', None),
         ('ERP5Site_dumpPortalTypeActionList', 'expected_type_actions_dumped_configuration', None),
         ('ERP5Site_dumpPortalTypeList', 'expected_portal_type_dumped_configuration', None),
         ('ERP5Site_dumpPortalTypeRoleList', 'expected_role_dumped_configuration', None),

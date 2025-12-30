@@ -154,12 +154,6 @@
             <value> <int>1</int> </value>
         </item>
         <item>
-            <key> <string>preferred_instance_delivery_template</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>preferred_max_authentication_failure</string> </key>
             <value> <int>10</int> </value>
         </item>
@@ -174,12 +168,6 @@
         <item>
             <key> <string>preferred_maximum_due_day</string> </key>
             <value> <int>15</int> </value>
-        </item>
-        <item>
-            <key> <string>preferred_meeting_use</string> </key>
-            <value>
-              <tuple/>
-            </value>
         </item>
         <item>
             <key> <string>preferred_min_password_length</string> </key>
@@ -198,24 +186,12 @@
             <value> <int>24</int> </value>
         </item>
         <item>
-            <key> <string>preferred_open_sale_order_line_template</string> </key>
-            <value> <string>open_sale_order_module/slapos_accounting_open_sale_order_line_template/slapos_accounting_open_sale_order_line_template</string> </value>
-        </item>
-        <item>
-            <key> <string>preferred_open_sale_order_template</string> </key>
-            <value> <string>open_sale_order_module/slapos_accounting_open_sale_order_template</string> </value>
-        </item>
-        <item>
             <key> <string>preferred_organisation_credential_update_automatic_approval</string> </key>
             <value> <int>1</int> </value>
         </item>
         <item>
             <key> <string>preferred_password_lifetime_expire_warning_duration</string> </key>
             <value> <int>336</int> </value>
-        </item>
-        <item>
-            <key> <string>preferred_registration_resource</string> </key>
-            <value> <string>service_module/vifib_registration</string> </value>
         </item>
         <item>
             <key> <string>preferred_regular_expression_group</string> </key>
@@ -234,12 +210,6 @@
               <tuple>
                 <string>crm/regularisation_request</string>
               </tuple>
-            </value>
-        </item>
-        <item>
-            <key> <string>preferred_sale_opportunity_use</string> </key>
-            <value>
-              <tuple/>
             </value>
         </item>
         <item>

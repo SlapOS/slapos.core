@@ -106,6 +106,7 @@ setup(name=name,
           'complete = slapos.cli.complete:CompleteCommand',
           # SlapOS Node commands
           'node bang = slapos.cli.bang:BangCommand',
+          'node bouture = slapos.cli.bouture:BoutureCommand',
           'node format = slapos.cli.format:FormatCommand',
           'node register = slapos.cli.register:RegisterCommand',
           'node supervisord = slapos.cli.supervisord:SupervisordCommand',

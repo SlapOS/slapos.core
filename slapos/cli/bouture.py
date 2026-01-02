@@ -26,31 +26,54 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
-import argparse
-
-from slapos.bouture import bouture
+from slapos.bouture import Bouture
 from slapos.cli.config import ConfigCommand
 
 
-class BoutureCommand(ConfigCommand):
+class GraftCommand(ConfigCommand):
     """
     bouture node onto a new master
     """
-    command_group = 'node'
+    command_group = 'bouture'
 
     def get_parser(self, prog_name):
-        ap = super(BoutureCommand, self).get_parser(prog_name)
-
+        ap = super(GraftCommand, self).get_parser(prog_name)
         ap.add_argument('--new-master-url',
+                        required=True,
                         help='Url of new SlapOS Master onto which to bouture')
-
+        ap.add_argument('--new-monitor-url',
+                        help='Url of new monitor application')
         return ap
 
     def take_action(self, args):
-        configp = self.fetch_config(args)
-        node_conf = {}
-        for section in ("slapformat", "slapos"):
-          node_conf.update(configp.items(section))
-        node_conf = argparse.Namespace(**node_conf)
-        bouture(args, node_conf)
+        node_configp = self.fetch_config(args)
+        Bouture(self.app.log, node_configp).graft(args)
 
+
+class ConfigureCommand(GraftCommand):
+    def get_parser(self, prog_name):
+        ap = super(ConfigureCommand, self).get_parser(prog_name)
+        ap.add_argument('--new-node-cfg',
+                        required=True,
+                        help='Path of the new node configuration file')
+        return ap
+
+    def take_action(self, args):
+        node_configp = self.fetch_config(args)
+        Bouture(self.app.log, node_configp).configure(args)
+
+
+class FailoverCommand(InstanceCommand):
+    def get_parser(self, prog_name):
+        ap = super(FailoverCommand, self).get_parser(prog_name)
+        ap.add_argument('--pidfile',
+                        required=True
+                        help='Path of the pidfile for instance processing')
+        ap.add_argument('--switchfile',
+                        required=True,
+                        help='Path of the flag file for failover mode')
+        return ap
+
+    def take_action(self, args):
+        node_configp = self.fetch_config(args)
+        Bouture(self.app.log, node_configp).failover(args)

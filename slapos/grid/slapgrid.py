@@ -1167,7 +1167,10 @@ stderr_logfile_backups=1
         COMPUTER_PARTITION_TIMESTAMP_FILENAME
     )
     parameter_dict = computer_partition.getInstanceParameterDict()
-    timestamp = parameter_dict.get('timestamp')
+    try:
+      timestamp = str(parameter_dict['timestamp'])
+    except KeyError:
+      timestamp = None
 
     error_output_file = os.path.join(
         instance_path,
@@ -1233,11 +1236,11 @@ stderr_logfile_backups=1
     if self.force_stop and computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
       timestamp = None
 
-    # Check if timestamp from server is more recent than local one.
+    # Check if timestamp from server is different from local one.
     # If not: it's not worth processing this partition (nothing has
     # changed).
     if (computer_partition_id not in self.computer_partition_filter_list and
-          not self.develop and timestamp and periodicity):
+          not self.develop and timestamp is not None and periodicity):
       try:
         last_runtime = os.path.getmtime(timestamp_path)
       except OSError as e:
@@ -1246,11 +1249,11 @@ stderr_logfile_backups=1
       else:
         with open(timestamp_path) as f:
           try:
-            old_timestamp = float(f.read())
+            old_timestamp = f.read()
           except ValueError:
             self.logger.exception('')
             old_timestamp = 0
-        if float(timestamp) <= old_timestamp:
+        if timestamp == old_timestamp:
             # Check periodicity, i.e if periodicity is one day, partition
             # should be processed at least every day.
             if time.time() <= last_runtime + periodicity or periodicity < 0:
@@ -1379,9 +1382,9 @@ stderr_logfile_backups=1
         manager.instanceTearDown(local_partition)
 
     # If partition has been successfully processed, write timestamp
-    if timestamp:
+    if timestamp is not None:
       with open(timestamp_path, 'w') as f:
-        f.write(str(timestamp))
+        f.write(timestamp)
 
   def FilterComputerPartitionList(self, computer_partition_list):
     """

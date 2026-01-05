@@ -53,6 +53,13 @@ class PruneCommand(ConfigCommand):
     ap = super(PruneCommand, self).get_parser(prog_name)
     ap.add_argument(
         '--dry-run', help="Don't delete, just log", action='store_true')
+    ap.add_argument(
+        '--additional-software-directory',
+        action='append',
+        default=[],
+        help="Additional software directory containing .installed.cfg to consider. "
+             "Shared parts used by software in these directories will not be pruned. "
+             "Can be specified multiple times.")
     return ap
 
   def take_action(self, args):
@@ -75,7 +82,8 @@ class PruneCommand(ConfigCommand):
     if pidfile_software:
       setRunning(logger=self.app.log, pidfile=pidfile_software)
     try:
-      do_prune(self.app.log, options, args.dry_run)
+      do_prune(self.app.log, options, args.dry_run,
+               args.additional_software_directory)
     finally:
       if pidfile_software:
         setFinished(pidfile_software)
@@ -88,9 +96,19 @@ def _prune(
     instance_root,
     ignored_shared_parts,
     dry_run,
+    additional_software_directories=None,
 ):
   signatures = getUsageSignatureFromSoftwareAndSharedPart(
       logger, software_root, shared_root, ignored_shared_parts)
+
+  # collect signatures from additional software directories
+  for additional_dir in (additional_software_directories or []):
+    if os.path.exists(additional_dir):
+      signatures.update(getUsageSignatureFromSoftwareAndSharedPart(
+          logger, additional_dir, shared_root, ignored_shared_parts))
+    else:
+      logger.warning(
+          "Additional software directory does not exist: %s", additional_dir)
 
   # recursively look in instance
   signatures.update(getUsageSignaturesFromSubInstance(
@@ -113,7 +131,8 @@ def _prune(
         yield shared_part
 
 
-def _prune_loop(logger, shared_root, software_root, instance_root, dry_run):
+def _prune_loop(logger, shared_root, software_root, instance_root, dry_run,
+                additional_software_directories=None):
   ignored_shared_parts = set()
   while True:
     pruned = list(
@@ -124,13 +143,14 @@ def _prune_loop(logger, shared_root, software_root, instance_root, dry_run):
             instance_root,
             ignored_shared_parts,
             dry_run,
+            additional_software_directories,
         ))
     if not pruned:
       break
     ignored_shared_parts.update(pruned)
 
 
-def do_prune(logger, options, dry_run):
+def do_prune(logger, options, dry_run, additional_software_directories=None):
   shared_root = options['shared_part_list'].splitlines()[-1].strip()
   logger.warning("Pruning shared directories at %s", shared_root)
   _prune_loop(
@@ -139,6 +159,7 @@ def do_prune(logger, options, dry_run):
       options['software_root'],
       options['instance_root'],
       dry_run,
+      additional_software_directories,
   )
 
 

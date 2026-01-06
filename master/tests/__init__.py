@@ -15,6 +15,7 @@ slapos_bt_list = [
     'slapos_crm',
     'slapos_payzen',
     'slapos_wechat',
+    'slapos_workgroup',
     'slapos_configurator',
     'slapos_mysql_innodb_catalog',
     'slapos_panel',

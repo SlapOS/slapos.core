@@ -255,6 +255,7 @@ class SlapOSConfigWriter(ConfigWriter):
               port = {standalone_slapos._server_port}
               database_uri = {standalone_slapos._proxy_database}
               local_software_release_root = {standalone_slapos._local_software_release_root}
+              public_directory_path = {standalone_slapos._public_directory_path}
 
               {partition_forward_configuration}
               """).format(**locals()))
@@ -406,8 +407,9 @@ class StandaloneSlapOS(object):
       partition_forward_configuration=(),
       slapos_bin='slapos',
       local_software_release_root=os.sep,
+      public_directory_path='',
     ):
-    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]], str, str) -> None
+    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]], Optional[str], Optional[str], Optional[str]) -> None
     """Constructor, creates a standalone slapos in `base_directory`.
 
     Arguments:
@@ -421,6 +423,7 @@ class StandaloneSlapOS(object):
       * `partition_forward_configuration` -- configuration of partition request forwarding to external SlapOS master.
       * `slapos_bin` -- slapos executable to use, default to "slapos" (thus depending on the runtime PATH).
       * `local_software_release_root` -- root for local Software Releases paths in the SlapOS proxy, default to `/`.
+      * `public_directory_path` -- directory where slapproxy will look for json schema of SR
 
     Error cases:
       * `PathTooDeepError` when `base_directory` is too deep. Because of limitation
@@ -434,6 +437,7 @@ class StandaloneSlapOS(object):
     self._server_port = server_port
     self._master_url = "http://{server_ip}:{server_port}".format(**locals())
     self._local_software_release_root = local_software_release_root
+    self._public_directory_path = public_directory_path
 
     self._base_directory = base_directory
     self._shared_part_list = list(shared_part_list)

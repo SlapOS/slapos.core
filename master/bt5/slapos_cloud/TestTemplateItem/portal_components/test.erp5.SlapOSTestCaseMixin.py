@@ -126,7 +126,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
   expected_invoice_zh_notification_message = 'A new invoice has been generated'
 
   # Allow customize extra bt5 and modules available on the deployed setup
-  _custom_expected_module_list = []
   _custom_additional_bt5_list = []
 
   # Used by testSlapOSERP5GroupRoleSecurity.TestSlapOSGroupRoleSecurityCoverage for

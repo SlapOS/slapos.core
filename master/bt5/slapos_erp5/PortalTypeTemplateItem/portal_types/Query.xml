@@ -61,15 +61,11 @@
         </item>
         <item>
             <key> <string>init_script</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>permission</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>searchable_text_method_id</string> </key>
@@ -86,12 +82,6 @@
         <item>
             <key> <string>type_class</string> </key>
             <value> <string>TextDocument</string> </value>
-        </item>
-        <item>
-            <key> <string>type_interface</string> </key>
-            <value>
-              <tuple/>
-            </value>
         </item>
       </dictionary>
     </pickle>

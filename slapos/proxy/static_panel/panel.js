@@ -25,7 +25,9 @@
       data = {};
     }
     return RSVP.Queue(jIO.util.ajax({
-      url: url,
+      // use relative path in case we are behind a proxy
+      // panel is at panel/ path and slaptool is at the "top"
+      url: '..' + url,
       type: 'POST',
       headers: {
         Accept: 'application/json',
@@ -212,10 +214,6 @@
         var instance_tree_list = json_response.result_list,
           element_list = [],
           i;
-
-        if (instance_tree_list.length === 0) {
-          return domsugar(page_container, {text: translation_dict['No Instance Tree found']});
-        }
 
         for (i = 0; i < instance_tree_list.length; i += 1) {
           element_list.push(domsugar('li', [

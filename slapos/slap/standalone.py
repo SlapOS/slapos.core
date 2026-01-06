@@ -255,6 +255,7 @@ class SlapOSConfigWriter(ConfigWriter):
               port = {standalone_slapos._server_port}
               database_uri = {standalone_slapos._proxy_database}
               local_software_release_root = {standalone_slapos._local_software_release_root}
+              public_directory_path = {standalone_slapos._public_directory_path}
 
               {partition_forward_configuration}
               """).format(**locals()))
@@ -406,6 +407,7 @@ class StandaloneSlapOS(object):
       partition_forward_configuration=(),
       slapos_bin='slapos',
       local_software_release_root=os.sep,
+      public_directory_path=None,
     ):
     # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]], str, str) -> None
     """Constructor, creates a standalone slapos in `base_directory`.
@@ -434,6 +436,7 @@ class StandaloneSlapOS(object):
     self._server_port = server_port
     self._master_url = "http://{server_ip}:{server_port}".format(**locals())
     self._local_software_release_root = local_software_release_root
+    self._public_directory_path = public_directory_path
 
     self._base_directory = base_directory
     self._shared_part_list = list(shared_part_list)

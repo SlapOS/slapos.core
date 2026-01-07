@@ -760,22 +760,31 @@ class TestInstanceTree(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(subscription, self.user_id, ['Owner'])
     self.assertRoles(subscription, 'F-SALE*', ['Auditor'])
 
-  def test_InstanceTree_CustomOfTheInstanceTree(self):
-    customer_reference = 'TESTPERSON-%s' % self.generateNewId()
-    customer = self.portal.person_module.newContent(
-        portal_type='Person', reference=customer_reference)
+  def _test_InstanceTree_CustomerOfTheInstanceTree(self, entity):
     reference = 'TESTHS-%s' % self.generateNewId()
     subscription = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree', reference=reference)
     subscription.edit(
-        destination_section_value=customer)
+        destination_section_value=entity)
 
     self.assertSecurityGroup(subscription, [self.user_id, 'F-SALE*', reference,
-        customer.getUserId()], False)
+        entity.getUserId()], False)
     self.assertRoles(subscription, reference, ['Assignee'])
     self.assertRoles(subscription, 'F-SALE*', ['Auditor'])
-    self.assertRoles(subscription, customer.getUserId(), ['Assignee'])
+    self.assertRoles(subscription, entity.getUserId(), ['Assignee'])
     self.assertRoles(subscription, self.user_id, ['Owner'])
+
+  def test_InstanceTree_CustomerOfTheInstanceTree_Person(self):
+    entity = self.portal.person_module.newContent(
+        portal_type='Person',
+        reference='TESTPERSON-%s' % self.generateNewId())
+    self._test_InstanceTree_CustomerOfTheInstanceTree(entity)
+
+  def test_InstanceTree_CustomerOfTheInstanceTree_Workgroup(self):
+    entity = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup',
+        reference='TESTWORKGROUP-%s' % self.generateNewId())
+    self._test_InstanceTree_CustomerOfTheInstanceTree(entity)
 
   def test_InstanceTree_ProjectMember(self):
     project = self.addProject()
@@ -1979,12 +1988,14 @@ class TestWorkgroupModule(TestSlapOSGroupRoleSecurityMixin):
 
 class TestWorkgroup(TestSlapOSGroupRoleSecurityMixin):
 
-  def test_Workgroup_selfUser(self):
+  def test_Workgroup_selfWorkgroup(self):
     document = self.portal.workgroup_module.newContent(
         portal_type='Workgroup')
     self.assertSecurityGroup(document,
         ['F-ACCMAN', 'F-SALEAGT', 'F-ACCAGT', 'F-SALEMAN',
-         document.getUserId(), 'SHADOW-%s' % document.getUserId(),
+         document.getUserId(),
+         # XXX RAFAEL: Remove SHADOW if this is not required
+         'SHADOW-%s' % document.getUserId(),
          self.user_id], False)
     self.assertRoles(document, self.user_id, ['Owner'])
     self.assertRoles(document, 'F-SALEAGT', ['Assignee'])
@@ -1992,6 +2003,7 @@ class TestWorkgroup(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(document, 'F-ACCMAN', ['Assignor'])
     self.assertRoles(document, 'F-ACCAGT', ['Assignee'])
     self.assertRoles(document, document.getUserId(), ['Assignee'])
+    # XXX RAFAEL: Remove SHADOW if this is not required
     self.assertRoles(document, 'SHADOW-%s' % document.getUserId(), ['Auditor'])
 
 

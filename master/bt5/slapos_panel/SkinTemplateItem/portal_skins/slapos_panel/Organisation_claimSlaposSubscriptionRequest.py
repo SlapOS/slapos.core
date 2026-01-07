@@ -62,7 +62,7 @@ subscription_change_request = subscription_request.getResourceValue().Resource_c
 )
 current_trade_condition = subscription_change_request.getSpecialiseValue()
 
-if (current_trade_condition.getDestination() is None):
+if (current_trade_condition.getDestination() != organisation.getRelativeUrl()):
   # Create a dedicated trade condition for the customer
   # to define the payment by this organisation
   customer = subscription_request.getDestinationValue()
@@ -77,31 +77,25 @@ if (current_trade_condition.getDestination() is None):
     trade_condition_type=current_trade_condition.getTradeConditionType(),
     activate_kw=activate_kw
   )
-  new_sale_trade_condition.validate()
-  context.activate(activity='SQLQueue', after_tag=tag).Organisation_claimSlaposSubscriptionRequest(reference, None, activate_kw)
-  keep_items = {
-    'portal_status_message': Base_translateString('Creating a dedicated Trade Condition for the customer')
-  }
-  if batch:
-    return new_sale_trade_condition
-  return new_sale_trade_condition.Base_redirect(keep_items=keep_items)
+  new_sale_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate(activate_kw=activate_kw)
 
-else:
-  subscription_change_request = subscription_request.getResourceValue().Resource_createSubscriptionRequest(
-    subscription_request.getDestinationValue(),
-    # [software_type, software_release],
-    subscription_request.getVariationCategoryList(),
-    project,
-    currency_value=subscription_request.getPriceCurrencyValue(),
-    item_value=item,
-    causality_value=subscription_request,
-    portal_type='Subscription Change Request'
-  )
-  keep_items = {
-    'your_reference': reference,
-    'portal_status_level': 'error',
-    'portal_status_message': Base_translateString('This customer already has a dedicated Trade Condition')
-  }
-  if batch:
-    return subscription_change_request
-  return subscription_change_request.Base_redirect(keep_items=keep_items)
+subscription_change_request = subscription_request.getResourceValue().Resource_createSubscriptionRequest(
+  subscription_request.getDestinationValue(),
+  # [software_type, software_release],
+  subscription_request.getVariationCategoryList(),
+  project,
+  currency_value=subscription_request.getPriceCurrencyValue(),
+  item_value=item,
+  causality_value=subscription_request,
+  specialise_value=new_sale_trade_condition,
+  portal_type='Subscription Change Request',
+  activate_kw=activate_kw
+)
+keep_items = {
+  'your_reference': reference,
+  'portal_status_level': 'error',
+  'portal_status_message': Base_translateString('This customer already has a dedicated Trade Condition')
+}
+if batch:
+  return subscription_change_request
+return subscription_change_request.Base_redirect(keep_items=keep_items)

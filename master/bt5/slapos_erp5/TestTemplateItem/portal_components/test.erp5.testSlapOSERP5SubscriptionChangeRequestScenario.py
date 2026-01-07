@@ -332,22 +332,24 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       )
       owner_organisation = self.portal.organisation_module.newContent(
         title='Test Owner Organisation',
-        vat_code='1234567890'
+        vat_code='1234567890',
+        default_address_region='europe/west/france',
       )
       owner_organisation.validate()
-      new_trade_condition = owner_organisation.Organisation_claimSlaposSubscriptionRequest(
+      new_subscription_change_request = owner_organisation.Organisation_claimSlaposSubscriptionRequest(
         subscription_request.getReference(),
         None
       )
       self.tic()
       self.logout()
       self.login()
-      self.assertEqual(new_trade_condition.getDestination(),
+
+      self.assertEqual(new_subscription_change_request.getDestination(),
                         owner_person.getRelativeUrl())
-      self.assertEqual(new_trade_condition.getDestinationSection(),
+      self.assertEqual(new_subscription_change_request.getDestinationSection(),
                         owner_organisation.getRelativeUrl())
-      self.assertEqual(new_trade_condition.getPortalType(),
-                        'Sale Trade Condition')
+      self.assertEqual(new_subscription_change_request.getPortalType(),
+                        'Subscription Change Request')
       self.assertEqual(subscription_request.getSimulationState(),
                         'cancelled')
 
@@ -446,22 +448,24 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       owner_organisation = self.portal.organisation_module.newContent(
         title='Test Owner Organisation',
         vat_code='1234567890',
-        region='europe/france'
+        default_address_region='europe/west/france',
       )
       owner_organisation.validate()
-      new_trade_condition = owner_organisation.Organisation_claimSlaposSubscriptionRequest(
+      new_subscription_change_request = owner_organisation.Organisation_claimSlaposSubscriptionRequest(
         subscription_request.getReference(),
         None
       )
       self.tic()
       self.logout()
       self.login()
-      self.assertEqual(new_trade_condition.getDestination(),
+
+      self.assertEqual(new_subscription_change_request.getDestination(),
                         owner_person.getRelativeUrl())
-      self.assertEqual(new_trade_condition.getDestinationSection(),
+      self.assertEqual(new_subscription_change_request.getDestinationSection(),
                         owner_organisation.getRelativeUrl())
-      self.assertEqual(new_trade_condition.getPortalType(),
-                        'Sale Trade Condition')
+      self.assertEqual(new_subscription_change_request.getPortalType(),
+                        'Subscription Change Request')
+
       self.assertEqual(subscription_request.getSimulationState(),
                         'cancelled')
 

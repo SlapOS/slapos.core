@@ -50,7 +50,7 @@ else:
   current_trade_condition = subscription_change_request.getSpecialiseValue()
 
 new_sale_trade_condition = None
-if (current_trade_condition is None):
+if (current_trade_condition is None) and (not is_second_run):
   # Create a dedicated trade condition for the customer
   # to define free price
   previous_title = subscription_request.getTitle()
@@ -71,8 +71,10 @@ if (current_trade_condition is None):
     trade_condition_type=trade_condition_type,
     activate_kw=activate_kw
   )
-  new_sale_trade_condition.validate()
-  subscription_request.activate(after_tag=activate_kw['tag']).SubscriptionRequest_changeFromPayableToFree(None)
+  new_sale_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate(activate_kw=activate_kw)
+  # is_second_run is required to prevent entering an infinite activity loop
+  # which create an infinite number of sale trade condition
+  subscription_request.activate(after_tag=activate_kw['tag']).SubscriptionRequest_changeFromPayableToFree(None, is_second_run=True, activate_kw=activate_kw)
 
   keep_items = {
     'portal_status_message': Base_translateString('Creating a free dedicated Trade Condition for the customer')
@@ -96,7 +98,8 @@ elif (current_trade_condition.getDestination() == customer.getRelativeUrl()) and
     item_value=item,
     causality_value=subscription_request,
     portal_type='Subscription Change Request',
-    trade_condition_type=trade_condition_type
+    trade_condition_type=trade_condition_type,
+    activate_kw=activate_kw
   )
 
   keep_items = {

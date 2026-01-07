@@ -163,7 +163,9 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       title="test_bank_account_%s" % self.generateNewId(),
       price_currency_value=currency
     )
+    self.login(accountant_person.getUserId())
     seller_bank_account.validate()
+    self.login(sale_person.getUserId())
     seller_organisation.validate()
 
     # Sale Trade Condition for Tax

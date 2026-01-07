@@ -1934,7 +1934,6 @@ class TestPersonModule(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(module, 'F-PRODUCTION*', ['Auditor'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
 
-
 class TestPerson(TestSlapOSGroupRoleSecurityMixin):
   def test_Person_default(self):
     delivery = self.portal.person_module.newContent(
@@ -1963,6 +1962,37 @@ class TestPerson(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'F-ACCAGT', ['Assignee'])
     self.assertRoles(delivery, delivery.getUserId(), ['Assignee'])
     self.assertRoles(delivery, 'SHADOW-%s' % delivery.getUserId(), ['Auditor'])
+
+class TestWorkgroupModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_WorkgroupModule(self):
+    module = self.portal.workgroup_module
+    self.assertSecurityGroup(module,
+        ['F-SALE*', 'F-ACCOUNTING*', 'F-CUSTOMER', 'F-PRODUCTION*',
+         'R-SHADOW-PERSON', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
+    self.assertRoles(module, 'F-ACCOUNTING*', ['Auditor', 'Author'])
+    self.assertRoles(module, 'F-CUSTOMER', ['Auditor'])
+    self.assertRoles(module, 'R-SHADOW-PERSON', ['Auditor'])
+    self.assertRoles(module, 'F-PRODUCTION*', ['Auditor'])
+    self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
+
+
+class TestWorkgroup(TestSlapOSGroupRoleSecurityMixin):
+
+  def test_Workgroup_selfUser(self):
+    document = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup')
+    self.assertSecurityGroup(document,
+        ['F-ACCMAN', 'F-SALEAGT', 'F-ACCAGT', 'F-SALEMAN',
+         document.getUserId(), 'SHADOW-%s' % document.getUserId(),
+         self.user_id], False)
+    self.assertRoles(document, self.user_id, ['Owner'])
+    self.assertRoles(document, 'F-SALEAGT', ['Assignee'])
+    self.assertRoles(document, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(document, 'F-ACCMAN', ['Assignor'])
+    self.assertRoles(document, 'F-ACCAGT', ['Assignee'])
+    self.assertRoles(document, document.getUserId(), ['Assignee'])
+    self.assertRoles(document, 'SHADOW-%s' % document.getUserId(), ['Auditor'])
 
 
 class TestERP5Login(TestSlapOSGroupRoleSecurityMixin):

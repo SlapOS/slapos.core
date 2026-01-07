@@ -879,26 +879,34 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertSecurityGroup(instance, [self.user_id], False)
     self.assertRoles(instance, self.user_id, ['Owner'])
 
-  def test_SoftwareInstance_CustomerOfTheInstance(self):
-    customer_reference = 'TESTPERSON-%s' % self.generateNewId()
-    customer = self.portal.person_module.newContent(
-        portal_type='Person', reference=customer_reference)
-
+  def _test_SoftwareInstance_CustomerOfTheInstance(self, entity):
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
     subscription = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
         reference=subscription_reference,
-        destination_section=customer.getRelativeUrl())
+        destination_section=entity.getRelativeUrl())
 
     instance = self.portal.software_instance_module.newContent(
         portal_type='Software Instance')
     instance.edit(specialise=subscription.getRelativeUrl())
 
-    self.assertSecurityGroup(instance, [customer.getUserId(),
+    self.assertSecurityGroup(instance, [entity.getUserId(),
         subscription_reference, self.user_id], False)
-    self.assertRoles(instance, customer.getUserId(), ['Assignee'])
+    self.assertRoles(instance, entity.getUserId(), ['Assignee'])
     self.assertRoles(instance, subscription_reference, ['Assignee'])
     self.assertRoles(instance, self.user_id, ['Owner'])
+
+  def test_SoftwareInstance_CustomerOfTheInstance_Person(self):
+    customer = self.portal.person_module.newContent(
+        portal_type='Person',
+        reference='TESTPERSON-%s' % self.generateNewId())
+    self._test_SoftwareInstance_CustomerOfTheInstance(customer)
+
+  def test_SoftwareInstance_CustomerOfTheInstance_Workgroup(self):
+    workgroup = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup',
+        reference='TESTWORKGROUP-%s' % self.generateNewId())
+    self._test_SoftwareInstance_CustomerOfTheInstance(workgroup)
 
   def test_SoftwareInstance_ProjectMember(self):
     project = self.addProject()
@@ -945,26 +953,34 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertSecurityGroup(instance, [self.user_id], False)
     self.assertRoles(instance, self.user_id, ['Owner'])
 
-  def test_SlaveInstance_CustomerOfTheInstance(self):
-    customer_reference = 'TESTPERSON-%s' % self.generateNewId()
-    customer = self.portal.person_module.newContent(
-        portal_type='Person', reference=customer_reference)
-
+  def _test_SlaveInstance_CustomerOfTheInstance(self, entity):
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
     subscription = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
         reference=subscription_reference,
-        destination_section=customer.getRelativeUrl())
+        destination_section=entity.getRelativeUrl())
 
     instance = self.portal.software_instance_module.newContent(
         portal_type='Slave Instance')
     instance.edit(specialise=subscription.getRelativeUrl())
 
-    self.assertSecurityGroup(instance, [customer.getUserId(),
+    self.assertSecurityGroup(instance, [entity.getUserId(),
         subscription_reference, self.user_id], False)
-    self.assertRoles(instance, customer.getUserId(), ['Assignee'])
+    self.assertRoles(instance, entity.getUserId(), ['Assignee'])
     self.assertRoles(instance, subscription_reference, ['Assignee'])
     self.assertRoles(instance, self.user_id, ['Owner'])
+
+  def test_SlaveInstance_CustomerOfTheInstance_Person(self):
+    customer = self.portal.person_module.newContent(
+        portal_type='Person',
+        reference='TESTPERSON-%s' % self.generateNewId())
+    self._test_SlaveInstance_CustomerOfTheInstance(customer)
+
+  def test_SlaveInstance_CustomerOfTheInstance_Workgroup(self):
+    workgroup = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup',
+        reference='TESTWORKGROUP-%s' % self.generateNewId())
+    self._test_SlaveInstance_CustomerOfTheInstance(workgroup)
 
   def test_SlaveInstance_ProjectMember(self):
     project = self.addProject()

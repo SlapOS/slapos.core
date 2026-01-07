@@ -46,11 +46,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>dialog_id, activate_kw=None, REQUEST=None, is_second_run=False, **kw</string> </value>
+            <value> <string>activate_kw=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SubscriptionRequest_changeFromPayableToFree</string> </value>
+            <value> <string>SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate</string> </value>
         </item>
       </dictionary>
     </pickle>

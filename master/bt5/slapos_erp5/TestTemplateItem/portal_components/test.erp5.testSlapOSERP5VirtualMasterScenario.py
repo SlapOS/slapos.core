@@ -206,18 +206,19 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
         'base_contribution/base_amount/invoicing/taxable/vat/zero_rate'
       )
     )
-    sale_trade_condition.validate()
+    sale_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
+    self.tic()
 
     # Create Trade Condition to create Deposit
     self.portal.sale_trade_condition_module.newContent(
       portal_type="Sale Trade Condition",
-      title="For deposit",
+      title="For deposit (%s)" % seller_organisation.getTitle(),
       trade_condition_type="deposit",
       specialise_value=sale_trade_condition,
       source_value=seller_organisation,
       source_section_value=seller_organisation,
       price_currency_value=currency,
-    ).validate()
+    ).SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
 
     # Create Trade Condition to create Project
     if is_virtual_master_accountable:
@@ -236,7 +237,7 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       source_section_value=source_section_value,
       price_currency_value=currency,
     )
-    sale_trade_condition.validate()
+    sale_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
 
     sale_supply = self.portal.sale_supply_module.newContent(
       portal_type="Sale Supply",
@@ -249,6 +250,8 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       resource="service_module/slapos_virtual_master_subscription"
     )
     sale_supply.validate()
+
+    self.tic()
 
     return currency, seller_organisation, seller_bank_account, sale_person, accountant_person
 
@@ -555,14 +558,13 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       dedicated_trade_condition = self.portal.sale_trade_condition_module.newContent(
         portal_type='Sale Trade Condition',
         title='%s dedicated %s' % (virtual_master_trade_condition.getTitle(), owner_person.getTitle()),
-        reference='DEDICATED %s' % self.generateNewId(),
         destination_value=owner_person,
         destination_section_value=customer_section_organisation,
         specialise_value=virtual_master_trade_condition,
         price_currency=virtual_master_trade_condition.getPriceCurrency(),
         trade_condition_type=virtual_master_trade_condition.getTradeConditionType()
       )
-      dedicated_trade_condition.validate()
+      dedicated_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
       self.tic()
 
       project_relative_url = self.addProject(is_accountable=True, person=owner_person, currency=currency)
@@ -660,7 +662,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       dedicated_trade_condition = self.portal.sale_trade_condition_module.newContent(
         portal_type='Sale Trade Condition',
         title='%s dedicated %s' % (instance_trade_condition.getTitle(), owner_person.getTitle()),
-        reference='DEDICATED %s' % self.generateNewId(),
         source_project=instance_trade_condition.getSourceProject(),
         destination_value=public_person,
         destination_section_value=customer_section_organisation,
@@ -668,7 +669,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         price_currency=instance_trade_condition.getPriceCurrency(),
         trade_condition_type=instance_trade_condition.getTradeConditionType()
       )
-      dedicated_trade_condition.validate()
+      dedicated_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
       self.tic()
 
       # Pay deposit to validate virtual master + one computer, for the organisation

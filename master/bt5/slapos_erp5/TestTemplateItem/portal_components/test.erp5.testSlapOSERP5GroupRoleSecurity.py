@@ -1797,10 +1797,7 @@ class TestSubscriptionRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
 
-  def test_SubscriptionRequest_user(self):
-    reference = 'TESTPERSON-%s' % self.generateNewId()
-    person = self.portal.person_module.newContent(portal_type='Person',
-        reference=reference)
+  def _test_SubscriptionRequest_user(self, person):
     delivery = self.portal.subscription_request_module.newContent(
         portal_type='Subscription Request')
     delivery.edit(destination_decision_value=person, ledger="automated")
@@ -1812,6 +1809,17 @@ class TestSubscriptionRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(delivery, person.getUserId(), ['Associate'])
     self.assertRoles(delivery, "SHADOW-%s" % person.getUserId(), ['Auditor'])
+
+  def test_SubscriptionRequest_user(self):
+    person = self.portal.person_module.newContent(portal_type='Person',
+        reference='TESTPERSON-%s' % self.generateNewId())
+    self._test_SubscriptionRequest_user(person)
+
+  def test_SubscriptionRequest_workgroup(self):
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup',
+      reference='TESTWORKGROUP-%s' % self.generateNewId())
+    self._test_SubscriptionRequest_user(workgroup)
 
   def test_SubscriptionRequest_organisation(self):
     # Ensure compatibility if destination_decision is an org

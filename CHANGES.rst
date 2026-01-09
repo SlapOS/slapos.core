@@ -1,6 +1,13 @@
 Changes
 =======
 
+1.20.1 (2025-12-16)
+-------------------
+
+ * standalone: support new option public_directory_path
+ * slapproxy: support being behind a CDN
+ * slapgrid: reprocess whenever timestamp changes
+
 1.20.0 (2025-12-16)
 -------------------
 

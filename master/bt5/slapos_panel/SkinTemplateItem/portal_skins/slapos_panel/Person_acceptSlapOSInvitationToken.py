@@ -19,7 +19,7 @@ assert invitation_token.getPortalType() == 'Invitation Token'
 assignment_request = portal.assignment_request_module.newContent(
   portal_type='Assignment Request',
   title='%s: %s' % (invitation_token.getFunctionTitle(), person.getTitle()),
-  destination_value=person,
+  destination_decision_value=person,
   function=invitation_token.getFunction(),
   destination_project=invitation_token.getFollowUp()
 )

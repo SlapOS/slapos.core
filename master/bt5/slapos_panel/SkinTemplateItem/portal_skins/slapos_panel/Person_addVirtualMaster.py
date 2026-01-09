@@ -43,7 +43,7 @@ if ((specialise_value is None) or
 # who can manage compute nodes and create instances
 portal.assignment_request_module.newContent(
   portal_type='Assignment Request',
-  destination_value=customer,
+  destination_decision_value=customer,
   title="Manager for %s" % project.getReference(),
   destination_project_value=project,
   function='production/manager',
@@ -51,7 +51,7 @@ portal.assignment_request_module.newContent(
 ).submit()
 portal.assignment_request_module.newContent(
   portal_type='Assignment Request',
-  destination_value=customer,
+  destination_decision_value=customer,
   title="Client for %s" % project.getReference(),
   destination_project_value=project,
   function='customer',

@@ -2004,7 +2004,7 @@ class TestWorkgroupModule(TestSlapOSGroupRoleSecurityMixin):
          'R-SHADOW-PERSON', module.Base_getOwnerId()], False)
     self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
     self.assertRoles(module, 'F-ACCOUNTING*', ['Auditor', 'Author'])
-    self.assertRoles(module, 'F-CUSTOMER', ['Auditor'])
+    self.assertRoles(module, 'F-CUSTOMER', ['Auditor', 'Author'])
     self.assertRoles(module, 'R-SHADOW-PERSON', ['Auditor'])
     self.assertRoles(module, 'F-PRODUCTION*', ['Auditor'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])

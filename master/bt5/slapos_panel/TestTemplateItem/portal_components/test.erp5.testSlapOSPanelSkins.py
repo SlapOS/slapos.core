@@ -224,7 +224,7 @@ class TestPerson_getCertificate(TestPanelSkinsMixin):
 
     self.assertSameSet(response_dict.keys(), ["common_name", "certificate", "id", "key"])
 
-    self.assertEqual(response_dict["id"], login.getDestinationReference())
+    self.assertEqual(response_dict["id"], login.getCsrId())
     self.assertEqual(json.dumps(response_dict["common_name"]), json.dumps(login.getReference()))
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
 
@@ -238,11 +238,11 @@ class TestPerson_getCertificate(TestPanelSkinsMixin):
     self.assertEqual("validated" , login.getValidationState())
     self.assertEqual("validated" , new_login.getValidationState())
     self.assertNotEqual(login.getReference(), new_login.getReference())
-    self.assertNotEqual(login.getDestinationReference(), new_login.getDestinationReference())
+    self.assertNotEqual(login.getCsrId(), new_login.getCsrId())
 
     self.assertSameSet(new_response_dict.keys(), ["common_name", "certificate", "id", "key"])
     self.assertEqual(json.dumps(new_response_dict["common_name"]), json.dumps(new_login.getReference()))
-    self.assertEqual(new_response_dict["id"], new_login.getDestinationReference())
+    self.assertEqual(new_response_dict["id"], new_login.getCsrId())
 
     self.assertNotEqual(new_response_dict["common_name"], response_dict["common_name"])
     self.assertNotEqual(new_response_dict["id"], response_dict["id"])

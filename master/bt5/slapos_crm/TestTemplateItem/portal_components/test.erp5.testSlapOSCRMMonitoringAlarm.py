@@ -2191,6 +2191,8 @@ class TestSlaposCrmCheckSuspendedSupportRequestToReopen(TestSlapOSCrmMonitoringM
 
 class TestSlapOSCrmGarbageCollectProject(TestSlapOSCrmMonitoringMixin):
 
+  require_certificate = 1
+
   ##########################################################################
   # slapos_crm_garbage_collect_project > Project_checkForGarbageCollect
   ##########################################################################

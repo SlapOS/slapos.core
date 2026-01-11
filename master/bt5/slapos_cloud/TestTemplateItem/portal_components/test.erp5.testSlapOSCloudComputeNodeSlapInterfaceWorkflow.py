@@ -18,11 +18,12 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
-  string_escape
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
+from Products.ERP5Type.Utils import str2unicode
 import transaction
 from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
-
+from cryptography import x509
+from cryptography.x509.oid import NameOID
 
 class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
@@ -48,6 +49,14 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.portal.REQUEST['compute_node_key'] = None
     self.portal.REQUEST['compute_node_certificate'] = None
 
+  def _getCommonNameList(self, ssl_certificate):
+    cn_list = [i.value for i in ssl_certificate.subject \
+                 if i.oid == NameOID.COMMON_NAME and i.value != "erp5-user"]
+
+    self.assertEqual(len(cn_list), 1)
+    return cn_list[0]
+
+
   def test_generateCertificate(self):
     self.login(self.compute_node.getUserId())
     self.compute_node.generateCertificate()
@@ -60,10 +69,12 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     certificate_login = certificate_login_list[0]
     self.assertEqual(certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(certificate_login.getReference(), None)
-    self.assertNotEqual(certificate_login.getDestinationReference(), None)
-    serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
-    self.assertIn(serial, compute_node_certificate)
-    self.assertIn(certificate_login.getReference(), string_escape(compute_node_certificate))
+    self.assertNotEqual(certificate_login.getCsrId(), None)
+
+    ssl_certificate = x509.load_pem_x509_certificate(compute_node_certificate)
+    self.assertEqual(len(ssl_certificate.subject), 2)
+    cn = self._getCommonNameList(ssl_certificate)
+    self.assertEqual(str2unicode(certificate_login.getReference()), cn)
 
   def test_generateCertificate_twice(self):
     self.login(self.compute_node.getUserId())
@@ -72,17 +83,19 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
     self.assertNotEqual(None, compute_node_key)
     self.assertNotEqual(None, compute_node_certificate)
-    self.assertEqual(None, self.compute_node.getDestinationReference())
+    self.assertEqual(None, self.compute_node.getSourceReference())
 
     certificate_login_list = self.compute_node.objectValues(portal_type="Certificate Login")
     self.assertEqual(len(certificate_login_list), 1)
     certificate_login = certificate_login_list[0]
     self.assertEqual(certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(certificate_login.getReference(), None)
-    self.assertNotEqual(certificate_login.getDestinationReference(), None)
-    serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
-    self.assertIn(serial, compute_node_certificate)
-    self.assertIn(certificate_login.getReference(), string_escape(compute_node_certificate))
+    self.assertNotEqual(certificate_login.getCsrId(), None)
+
+    ssl_certificate = x509.load_pem_x509_certificate(compute_node_certificate)
+    self.assertEqual(len(ssl_certificate.subject), 2)
+    cn = self._getCommonNameList(ssl_certificate)
+    self.assertEqual(str2unicode(certificate_login.getReference()), cn)
 
     self.assertRaises(ValueError, self.compute_node.generateCertificate)
     self.assertEqual(None, self.portal.REQUEST.get('compute_node_key'))
@@ -274,10 +287,13 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     certificate_login = certificate_login_list[0]
     self.assertEqual(certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(certificate_login.getReference(), None)
-    self.assertNotEqual(certificate_login.getDestinationReference(), None)
-    serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
-    self.assertIn(serial, compute_node_certificate)
-    self.assertIn(certificate_login.getReference(), string_escape(compute_node_certificate))
+    self.assertNotEqual(certificate_login.getCsrId(), None)
+
+    ssl_certificate = x509.load_pem_x509_certificate(compute_node_certificate)
+    self.assertEqual(len(ssl_certificate.subject), 2)
+    cn = self._getCommonNameList(ssl_certificate)
+    self.assertEqual(str2unicode(certificate_login.getReference()), cn)
+
     self.assertNotEqual(certificate_login.getReference(),
                         self.compute_node.getReference())
 
@@ -292,7 +308,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertRaises(ValueError, self.compute_node.revokeCertificate)
     self.assertEqual(None, self.portal.REQUEST.get('compute_node_key'))
     self.assertEqual(None, self.portal.REQUEST.get('compute_node_certificate'))
-    self.assertEqual(None, self.compute_node.getDestinationReference())
+    self.assertEqual(None, self.compute_node.getSourceReference())
     certificate_login_list = self.compute_node.objectValues(portal_type="Certificate Login")
     self.assertEqual(len(certificate_login_list), 0)
 
@@ -308,13 +324,14 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     certificate_login = certificate_login_list[0]
     self.assertEqual(certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(certificate_login.getReference(), None)
-    self.assertNotEqual(certificate_login.getDestinationReference(), None)
-    serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
-    self.assertIn(serial, compute_node_certificate)
-    self.assertIn(certificate_login.getReference(), string_escape(compute_node_certificate))
+    self.assertNotEqual(certificate_login.getCsrId(), None)
     self.assertNotEqual(certificate_login.getReference(),
                         self.compute_node.getReference())
 
+    ssl_certificate = x509.load_pem_x509_certificate(compute_node_certificate)
+    self.assertEqual(len(ssl_certificate.subject), 2)
+    cn = self._getCommonNameList(ssl_certificate)
+    self.assertEqual(str2unicode(certificate_login.getReference()), cn)
     self.compute_node.revokeCertificate()
     self.assertEqual(None, self.portal.REQUEST.get('compute_node_key'))
     self.assertEqual(None, self.portal.REQUEST.get('compute_node_certificate'))
@@ -339,17 +356,22 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     certificate_login_list = self.compute_node.objectValues(portal_type="Certificate Login")
     self.assertEqual(len(certificate_login_list), 1)
     certificate_login = certificate_login_list[0]
-    destination_reference = certificate_login.getDestinationReference()
+    source_reference = certificate_login.getCsrId()
 
     self.assertEqual(certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(certificate_login.getReference(), None)
-    self.assertNotEqual(certificate_login.getDestinationReference(), None)
-    serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
-    self.assertIn(serial, compute_node_certificate)
-    self.assertIn(certificate_login.getReference(), string_escape(compute_node_certificate))
+    self.assertNotEqual(certificate_login.getCsrId(), None)
     self.assertNotEqual(certificate_login.getReference(),
                         self.compute_node.getReference())
-    self.assertNotEqual(None, destination_reference)
+
+    ssl_certificate = x509.load_pem_x509_certificate(compute_node_certificate)
+    self.assertEqual(len(ssl_certificate.subject), 2)
+    cn = self._getCommonNameList(ssl_certificate)
+    self.assertEqual(str2unicode(certificate_login.getReference()), cn)
+
+    # TODO: Should we check for csr_id
+    #self.assertTrue(certificate_login.getCsrId() in compute_node_certificate)
+    self.assertNotEqual(None, source_reference)
 
     self.compute_node.revokeCertificate()
     self.compute_node.generateCertificate()
@@ -360,7 +382,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertNotEqual(compute_node_certificate, self.portal.REQUEST.get('compute_node_certificate'))
 
     self.assertEqual(certificate_login.getValidationState(), 'invalidated')
-    self.assertEqual(certificate_login.getDestinationReference(), destination_reference)
+    self.assertEqual(certificate_login.getCsrId(), source_reference)
     self.assertNotEqual(certificate_login.getReference(), None)
 
     certificate_login_list = self.compute_node.objectValues(portal_type="Certificate Login")
@@ -368,22 +390,21 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     new_certificate_login = [i for i in certificate_login_list \
       if i.getId() != certificate_login.getId()][0]
     
-    destination_reference = certificate_login.getDestinationReference()
+    source_reference = certificate_login.getCsrId()
     self.assertEqual(new_certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(new_certificate_login.getReference(), None)
     self.assertNotEqual(new_certificate_login.getReference(),
       certificate_login.getReference())
   
-    self.assertNotEqual(new_certificate_login.getDestinationReference(), None)
-    self.assertNotEqual(new_certificate_login.getDestinationReference(),
-      certificate_login.getDestinationReference())
-    serial = '0x%x' % int(new_certificate_login.getDestinationReference(), 16)
-
+    self.assertNotEqual(new_certificate_login.getCsrId(), None)
+    self.assertNotEqual(new_certificate_login.getCsrId(),
+      certificate_login.getCsrId())
     compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
-    self.assertIn(serial, compute_node_certificate)
-    self.assertIn(new_certificate_login.getReference(), string_escape(compute_node_certificate))
-    self.assertNotIn(certificate_login.getReference(), string_escape(compute_node_certificate))
-    
+    ssl_certificate = x509.load_pem_x509_certificate(compute_node_certificate)
+    self.assertEqual(len(ssl_certificate.subject), 2)
+    cn = [i.value for i in ssl_certificate.subject if i.oid == NameOID.COMMON_NAME][-1]
+    self.assertEqual(str2unicode(new_certificate_login.getReference()), cn)
+    self.assertNotEqual(str2unicode(certificate_login.getReference()), cn)
     self.assertNotEqual(certificate_login.getReference(),
                         self.compute_node.getReference())
 
@@ -398,17 +419,19 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     certificate_login_list = self.compute_node.objectValues(portal_type="Certificate Login")
     self.assertEqual(len(certificate_login_list), 1)
     certificate_login = certificate_login_list[0]
-    destination_reference = certificate_login.getDestinationReference()
+    source_reference = certificate_login.getCsrId()
 
     self.assertEqual(certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(certificate_login.getReference(), None)
-    self.assertNotEqual(certificate_login.getDestinationReference(), None)
-    serial = '0x%x' % int(certificate_login.getDestinationReference(), 16)
-    self.assertIn(serial, compute_node_certificate)
-    self.assertIn(certificate_login.getReference(), string_escape(compute_node_certificate))
+    self.assertNotEqual(certificate_login.getCsrId(), None)
+
+    ssl_certificate = x509.load_pem_x509_certificate(compute_node_certificate)
+    self.assertEqual(len(ssl_certificate.subject), 2)
+    cn = self._getCommonNameList(ssl_certificate)
+    self.assertEqual(str2unicode(certificate_login.getReference()), cn)
     self.assertNotEqual(certificate_login.getReference(),
                         self.compute_node.getReference())
-    self.assertNotEqual(None, destination_reference)
+    self.assertNotEqual(None, source_reference)
 
     self.compute_node.revokeCertificate()
     self.compute_node.generateCertificate()
@@ -419,7 +442,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertNotEqual(compute_node_certificate, self.portal.REQUEST.get('compute_node_certificate'))
 
     self.assertEqual(certificate_login.getValidationState(), 'invalidated')
-    self.assertEqual(certificate_login.getDestinationReference(), destination_reference)
+    self.assertEqual(certificate_login.getCsrId(), source_reference)
     self.assertNotEqual(certificate_login.getReference(), None)
 
     certificate_login_list = self.compute_node.objectValues(portal_type="Certificate Login")
@@ -427,22 +450,21 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     new_certificate_login = [i for i in certificate_login_list \
       if i.getId() != certificate_login.getId()][0]
     
-    destination_reference = certificate_login.getDestinationReference()
+    source_reference = certificate_login.getCsrId()
     self.assertEqual(new_certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(new_certificate_login.getReference(), None)
     self.assertNotEqual(new_certificate_login.getReference(),
       certificate_login.getReference())
   
-    self.assertNotEqual(new_certificate_login.getDestinationReference(), None)
-    self.assertNotEqual(new_certificate_login.getDestinationReference(),
-      certificate_login.getDestinationReference())
-    serial = '0x%x' % int(new_certificate_login.getDestinationReference(), 16)
-
+    self.assertNotEqual(new_certificate_login.getCsrId(), None)
+    self.assertNotEqual(new_certificate_login.getCsrId(),
+      certificate_login.getCsrId())
     compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
-    self.assertIn(serial, compute_node_certificate)
-    self.assertIn(new_certificate_login.getReference(), string_escape(compute_node_certificate))
-    self.assertNotIn(certificate_login.getReference(), string_escape(compute_node_certificate))
-    
+    ssl_certificate = x509.load_pem_x509_certificate(compute_node_certificate)
+    self.assertEqual(len(ssl_certificate.subject), 2)
+    cn = self._getCommonNameList(ssl_certificate)
+    self.assertEqual(str2unicode(new_certificate_login.getReference()), cn)
+    self.assertNotEqual(str2unicode(certificate_login.getReference()), cn)
     self.assertNotEqual(certificate_login.getReference(),
                         self.compute_node.getReference())
 
@@ -455,7 +477,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertNotEqual(compute_node_certificate, self.portal.REQUEST.get('compute_node_certificate'))
 
     self.assertEqual(new_certificate_login.getValidationState(), 'invalidated')
-    self.assertNotEqual(new_certificate_login.getDestinationReference(), destination_reference)
+    self.assertNotEqual(new_certificate_login.getCsrId(), source_reference)
     self.assertNotEqual(new_certificate_login.getReference(), None)
 
     certificate_login_list = self.compute_node.objectValues(portal_type="Certificate Login")
@@ -464,22 +486,22 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     third_certificate_login = [i for i in certificate_login_list \
       if i.getId() not in [certificate_login.getId(), new_certificate_login.getId()]][0]
     
-    destination_reference = new_certificate_login.getDestinationReference()
+    source_reference = new_certificate_login.getCsrId()
     self.assertEqual(third_certificate_login.getValidationState(), 'validated')
     self.assertNotEqual(third_certificate_login.getReference(), None)
     self.assertNotEqual(third_certificate_login.getReference(),
       certificate_login.getReference())
   
-    self.assertNotEqual(third_certificate_login.getDestinationReference(), None)
-    self.assertNotEqual(third_certificate_login.getDestinationReference(),
-      new_certificate_login.getDestinationReference())
-    serial = '0x%x' % int(third_certificate_login.getDestinationReference(), 16)
+    self.assertNotEqual(third_certificate_login.getCsrId(), None)
+    self.assertNotEqual(third_certificate_login.getCsrId(),
+      new_certificate_login.getCsrId())
 
     compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
-    self.assertIn(serial, compute_node_certificate)
-    self.assertIn(third_certificate_login.getReference(), string_escape(compute_node_certificate))
-    self.assertNotIn(new_certificate_login.getReference(), string_escape(compute_node_certificate))
-    
+    ssl_certificate = x509.load_pem_x509_certificate(compute_node_certificate)
+    self.assertEqual(len(ssl_certificate.subject), 2)
+    cn = self._getCommonNameList(ssl_certificate)
+    self.assertEqual(str2unicode(third_certificate_login.getReference()), cn)
+    self.assertNotEqual(str2unicode(new_certificate_login.getReference()), cn)
     self.assertNotEqual(third_certificate_login.getReference(),
                         self.compute_node.getReference())
 

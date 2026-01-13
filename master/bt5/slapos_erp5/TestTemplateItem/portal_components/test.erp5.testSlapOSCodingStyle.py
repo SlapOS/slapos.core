@@ -164,6 +164,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_accounting/AccountingTransactionLine_getGroupingExtraParameterList',
         'slapos_accounting/OpenSaleOrder_archiveIfUnusedItem',
         'slapos_accounting/Base_getAccountForUse',
+        'slapos_accounting/Base_returnNewEffectiveSaleTradeConditionList',
         'slapos_accounting/Entity_createPaymentTransactionAction',
         'slapos_accounting/Movement_getPriceCalculationOperandDict',
         'slapos_accounting/PaymentTransaction_acceptDepositPayment',

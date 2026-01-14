@@ -115,10 +115,9 @@ else:
       predicate_category_list=cell_key,
       variation_category_list=cell_key
     )
-    price = tmp_order_cell.getPrice() or default_price or 0
+    price = forced_subscription_price or tmp_order_cell.getPrice() or default_price or 0
   else:
-    price = tmp_order_line.getPrice() or default_price or 0
-
+    price = forced_subscription_price or tmp_order_line.getPrice() or default_price or 0
 
   # but if accounting is needed, we expect a price
   if not price:

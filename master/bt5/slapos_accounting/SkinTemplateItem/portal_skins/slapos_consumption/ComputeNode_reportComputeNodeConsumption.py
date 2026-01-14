@@ -1,8 +1,7 @@
 from zExceptions import Unauthorized
+from Products.ERP5Type.Utils import str2bytes
 if REQUEST is not None:
   raise Unauthorized
-
-from Products.ERP5Type.Utils import str2bytes
 
 portal = context.getPortalObject()
 compute_node = context

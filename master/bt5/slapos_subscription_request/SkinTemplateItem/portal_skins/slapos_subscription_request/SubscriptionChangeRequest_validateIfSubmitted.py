@@ -8,6 +8,7 @@ subscription_change_request = context
 portal = context.getPortalObject()
 assert subscription_change_request.getPortalType() == 'Subscription Change Request'
 assert subscription_change_request.getSimulationState() == 'submitted'
+subscription_change_request.reindexObject(activate_kw=activate_kw)
 
 ###############################################################################################
 ### Check the causality to change
@@ -210,6 +211,5 @@ else:
   raise NotImplementedError('Do not know how to compensate')
 
 
-subscription_change_request.reindexObject(activate_kw=activate_kw)
 subscription_change_request.validate()
 return subscription_change_request.invalidate(comment='New subscription request: %s' % new_subscription_request.getRelativeUrl())

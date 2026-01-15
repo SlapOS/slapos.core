@@ -71,7 +71,8 @@ subscription_change_request = open_sale_order_cell.getResourceValue().Resource_c
   currency_value=open_sale_order.getPriceCurrencyValue(),
   portal_type='Subscription Change Request',
   item_value=item,
-  causality_value=open_sale_order
+  causality_value=open_sale_order,
+  activate_kw=activate_kw
 )
 
 if batch:

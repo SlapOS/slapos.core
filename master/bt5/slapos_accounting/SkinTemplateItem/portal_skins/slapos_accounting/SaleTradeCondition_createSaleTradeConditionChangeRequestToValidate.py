@@ -6,4 +6,8 @@ change_request = portal.sale_trade_condition_change_request_module.newContent(
   activate_kw=activate_kw
 )
 change_request.submit()
-return change_request
+
+if REQUEST is None:
+  return change_request
+
+return change_request.Base_redirect()

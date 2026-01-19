@@ -36,6 +36,10 @@
   <workflow>slapos_accounting_interaction_workflow, slapos_simulation_interaction_workflow</workflow>
  </chain>
  <chain>
+  <type>Sale Trade Condition Change Request</type>
+  <workflow>edit_workflow, slapos_accounting_interaction_workflow, ticket_workflow</workflow>
+ </chain>
+ <chain>
   <type>Simulation Movement</type>
   <workflow>slapos_simulation_interaction_workflow</workflow>
  </chain>

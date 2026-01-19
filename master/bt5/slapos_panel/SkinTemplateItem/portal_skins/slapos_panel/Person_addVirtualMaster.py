@@ -16,7 +16,7 @@ currency_value = portal.restrictedTraverse(price_currency)
 
 # create the subscription request, which will lead to the Open Order
 try:
-  subscription_request = resource.Resource_createSubscriptionRequest(customer, [], project, currency_value=currency_value)
+  subscription_request = resource.Resource_createSubscriptionRequest(customer, [], project, currency_value=currency_value, activate_kw=activate_kw)
 except AssertionError as e:
   if batch:
     raise
@@ -74,7 +74,7 @@ if subscription_request.getDestinationSectionUid() != customer.getUid():
   destination_section_value = subscription_request.getDestinationSectionValue()
 sale_trade_condition = portal.sale_trade_condition_module.newContent(
   portal_type="Sale Trade Condition",
-  reference='%s-ComputeNode' % project.getReference(),
+  title='%s-ComputeNode' % project.getReference(),
   trade_condition_type="compute_node",
   specialise_value=specialise_value,
   source_project_value=project,
@@ -86,7 +86,7 @@ sale_trade_condition = portal.sale_trade_condition_module.newContent(
   price_currency_value=currency_value,
   activate_kw=activate_kw
 )
-sale_trade_condition.validate()
+sale_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
 
 # Instance Tree trade condition
 if is_instance_tree_payable:
@@ -100,7 +100,7 @@ else:
   source_section_value = None
 sale_trade_condition = portal.sale_trade_condition_module.newContent(
   portal_type="Sale Trade Condition",
-  reference='%s-InstanceTree' % project.getReference(),
+  title='%s-InstanceTree' % project.getReference(),
   trade_condition_type="instance_tree",
   specialise_value=specialise_value,
   source_project_value=project,
@@ -110,7 +110,7 @@ sale_trade_condition = portal.sale_trade_condition_module.newContent(
   price_currency_value=currency_value,
   activate_kw=activate_kw
 )
-sale_trade_condition.validate()
+sale_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate(activate_kw=activate_kw)
 
 if is_compute_node_payable or is_instance_tree_payable:
   # Create a draft sale supply to buy nodes / instances
@@ -119,7 +119,8 @@ if is_compute_node_payable or is_instance_tree_payable:
     portal_type="Sale Supply",
     title="Project Prices for %s" % project.getReference(),
     source_project_value=project,
-    price_currency_value=currency_value
+    price_currency_value=currency_value,
+    activate_kw=activate_kw
   )
   if is_compute_node_payable:
     sale_supply.newContent(

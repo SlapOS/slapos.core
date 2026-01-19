@@ -8,6 +8,7 @@ subscription_change_request = context
 portal = context.getPortalObject()
 assert subscription_change_request.getPortalType() == 'Subscription Change Request'
 assert subscription_change_request.getSimulationState() == 'submitted'
+subscription_change_request.reindexObject(activate_kw=activate_kw)
 
 ###############################################################################################
 ### Check the causality to change
@@ -50,7 +51,9 @@ else:
 ### - change project owner
 ### - change paying organisation (switch b2b)
 ### - change payable to free
+### - change free to payable
 ### - change payable price
+### - change trade condition version
 
 identical_order_base_category_list = [
   # 'destination',
@@ -89,21 +92,24 @@ elif previous_causality_to_compare.getDestinationSection() != subscription_chang
   edit_kw['destination_section'] = subscription_change_request.getDestinationSection()
   edit_kw['specialise'] = subscription_change_request.getSpecialise()
 
-elif (previous_causality_to_compare.getSourceSection(None) is not None) and \
-     (previous_causality_to_compare.getPrice() != subscription_change_request.getPrice()):
-  # change a payable price
+elif ((previous_causality_to_compare.getSourceSection(None) != subscription_change_request.getSourceSection(None)) or
+      (previous_causality_to_compare.getPrice() != subscription_change_request.getPrice())):
+  # change a payable price or seller
   identical_order_base_category_list.extend(['destination', 'destination_section', 'destination_decision'])
   edit_kw['price'] = subscription_change_request.getPrice()
   edit_kw['specialise'] = subscription_change_request.getSpecialise()
+  if subscription_change_request.getSourceSection(None):
+    # Source section can be removed when changing to free
+    edit_kw['source_section'] = subscription_change_request.getSourceSection()
 
-  if 0 < subscription_change_request.getPrice():
-    # change the price
-    identical_order_base_category_list.extend(['source_section'])
+elif ((previous_causality_to_compare.getSpecialise() != subscription_change_request.getSpecialise()) and
+      (previous_causality_to_compare.getSpecialiseTitle() == subscription_change_request.getSpecialiseTitle())):
+  # change the sale trade condition version only (nothing else change. Used when updating vat for example)
+  # 'specialise'
+  edit_kw['specialise'] = subscription_change_request.getSpecialise(None)
+  identical_order_base_category_list.extend(['destination', 'destination_section', 'destination_decision',
+                                             'source_section', 'price'])
 
-  else:
-    # change to free
-    if subscription_change_request.getSourceSection() is not None:
-      return subscription_change_request.cancel(comment='Can only change payable Subscription Request to free')
 
 else:
   return subscription_change_request.cancel(comment='Unsupported changes')
@@ -114,7 +120,7 @@ else:
 for changed_key, changed_value in edit_kw.items():
   if changed_value is None:
     # Ensure new values are not empty
-    return subscription_change_request.cancel(comment='Unhandled requested changes on: %s' % changed_key)
+    return subscription_change_request.cancel(comment='Unhandled empty changes on: %s' % changed_key)
 
 for identical_order_base_category in identical_order_base_category_list:
   edit_kw[identical_order_base_category] = subscription_change_request.getProperty(identical_order_base_category)
@@ -210,6 +216,5 @@ else:
   raise NotImplementedError('Do not know how to compensate')
 
 
-subscription_change_request.reindexObject(activate_kw=activate_kw)
 subscription_change_request.validate()
 return subscription_change_request.invalidate(comment='New subscription request: %s' % new_subscription_request.getRelativeUrl())

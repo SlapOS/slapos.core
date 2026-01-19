@@ -3,4 +3,7 @@
   <item>Computer Consumption TioXML File</item>
   <item>User Consumption HTML File</item>
  </portal_type>
+ <portal_type id="Sale Trade Condition Change Request Module">
+  <item>Sale Trade Condition Change Request</item>
+ </portal_type>
 </hidden_content_type_list>

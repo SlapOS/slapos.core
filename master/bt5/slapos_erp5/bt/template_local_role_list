@@ -43,6 +43,7 @@ project_module
 regularisation_request_module
 sale_packing_list_module
 sale_supply_module
+sale_trade_condition_change_request_module
 sale_trade_condition_module
 service_module
 service_module/cpu_load_percent

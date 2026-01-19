@@ -51,6 +51,7 @@ else:
 ### - change project owner
 ### - change paying organisation (switch b2b)
 ### - change payable to free
+### - change free to payable
 ### - change payable price
 
 identical_order_base_category_list = [
@@ -90,21 +91,15 @@ elif previous_causality_to_compare.getDestinationSection() != subscription_chang
   edit_kw['destination_section'] = subscription_change_request.getDestinationSection()
   edit_kw['specialise'] = subscription_change_request.getSpecialise()
 
-elif (previous_causality_to_compare.getSourceSection(None) is not None) and \
-     (previous_causality_to_compare.getPrice() != subscription_change_request.getPrice()):
-  # change a payable price
+elif ((previous_causality_to_compare.getSourceSection(None) != subscription_change_request.getSourceSection(None)) or
+      (previous_causality_to_compare.getPrice() != subscription_change_request.getPrice())):
+  # change a payable price or seller
   identical_order_base_category_list.extend(['destination', 'destination_section', 'destination_decision'])
   edit_kw['price'] = subscription_change_request.getPrice()
   edit_kw['specialise'] = subscription_change_request.getSpecialise()
-
-  if 0 < subscription_change_request.getPrice():
-    # change the price
-    identical_order_base_category_list.extend(['source_section'])
-
-  else:
-    # change to free
-    if subscription_change_request.getSourceSection() is not None:
-      return subscription_change_request.cancel(comment='Can only change payable Subscription Request to free')
+  if subscription_change_request.getSourceSection(None):
+    # Source section can be removed when changing to free
+    edit_kw['source_section'] = subscription_change_request.getSourceSection()
 
 else:
   return subscription_change_request.cancel(comment='Unsupported changes')
@@ -115,7 +110,7 @@ else:
 for changed_key, changed_value in edit_kw.items():
   if changed_value is None:
     # Ensure new values are not empty
-    return subscription_change_request.cancel(comment='Unhandled requested changes on: %s' % changed_key)
+    return subscription_change_request.cancel(comment='Unhandled empty changes on: %s' % changed_key)
 
 for identical_order_base_category in identical_order_base_category_list:
   edit_kw[identical_order_base_category] = subscription_change_request.getProperty(identical_order_base_category)

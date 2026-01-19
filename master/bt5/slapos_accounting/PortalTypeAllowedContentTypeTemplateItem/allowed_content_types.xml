@@ -12,6 +12,9 @@
  <portal_type id="Rule Tool">
   <item>Subscription Item Root Simulation Rule</item>
  </portal_type>
+ <portal_type id="Sale Trade Condition Change Request Module">
+  <item>Sale Trade Condition Change Request</item>
+ </portal_type>
  <portal_type id="SlapOS Accounting Quantity Updating Order Builder">
   <item>Base Variant Movement Group</item>
   <item>Category Movement Group</item>

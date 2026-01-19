@@ -201,10 +201,11 @@ class TestPaymentTransaction(TestSlapOSGroupRoleSecurityMixin):
         )
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
     self.assertSecurityGroup(product,
-        ['F-ACCOUNTING*', self.user_id, person.getUserId(),
+        ['F-ACCOUNTING*', 'R-SHADOW-PERSON', self.user_id, person.getUserId(),
          shadow_user_id], False)
     self.assertRoles(product, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(product, shadow_user_id, ['Assignee'])
+    self.assertRoles(product, 'R-SHADOW-PERSON', ['Assignee'])
     self.assertRoles(product, person.getUserId(), ['Auditor'])
     self.assertRoles(product, self.user_id, ['Owner'])
 
@@ -1640,11 +1641,10 @@ class TestSaleTradeCondition(TestSlapOSGroupRoleSecurityMixin):
     delivery = self.portal.sale_trade_condition_module.newContent(
         portal_type='Sale Trade Condition')
     self.assertSecurityGroup(delivery,
-        ['F-SALEAGT', 'F-SALEMAN', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
+        ['F-SALE*', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
          self.user_id], False)
     self.assertRoles(delivery, self.user_id, ['Owner'])
-    self.assertRoles(delivery, 'F-SALEAGT', ['Assignee'])
-    self.assertRoles(delivery, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(delivery, 'R-SHADOW-PERSON', ['Auditor'])
 
@@ -1653,22 +1653,20 @@ class TestSaleTradeCondition(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Sale Trade Condition')
     delivery.validate()
     self.assertSecurityGroup(delivery,
-        ['F-SALEAGT', 'F-SALEMAN', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
+        ['F-SALE*', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
          'F-CUSTOMER', self.user_id], False)
     self.assertRoles(delivery, self.user_id, ['Owner'])
-    self.assertRoles(delivery, 'F-SALEAGT', ['Assignee'])
-    self.assertRoles(delivery, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(delivery, 'F-CUSTOMER', ['Auditor'])
     self.assertRoles(delivery, 'R-SHADOW-PERSON', ['Auditor'])
 
     delivery.invalidate()
     self.assertSecurityGroup(delivery,
-        ['F-SALEAGT', 'F-SALEMAN', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
+        ['F-SALE*', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
          self.user_id], False)
     self.assertRoles(delivery, self.user_id, ['Owner'])
-    self.assertRoles(delivery, 'F-SALEAGT', ['Assignee'])
-    self.assertRoles(delivery, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(delivery, 'R-SHADOW-PERSON', ['Auditor'])
 
@@ -1681,22 +1679,20 @@ class TestSaleTradeCondition(TestSlapOSGroupRoleSecurityMixin):
     delivery.validate()
     delivery.edit(destination_value=person)
     self.assertSecurityGroup(delivery,
-        ['F-SALEAGT', 'F-SALEMAN', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
+        ['F-SALE*', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
          self.user_id, person.getUserId()], False)
     self.assertRoles(delivery, self.user_id, ['Owner'])
-    self.assertRoles(delivery, 'F-SALEAGT', ['Assignee'])
-    self.assertRoles(delivery, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(delivery, person.getUserId(), ['Auditor'])
     self.assertRoles(delivery, 'R-SHADOW-PERSON', ['Auditor'])
 
     delivery.invalidate()
     self.assertSecurityGroup(delivery,
-        ['F-SALEAGT', 'F-SALEMAN', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
+        ['F-SALE*', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
          self.user_id], False)
     self.assertRoles(delivery, self.user_id, ['Owner'])
-    self.assertRoles(delivery, 'F-SALEAGT', ['Assignee'])
-    self.assertRoles(delivery, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(delivery, 'R-SHADOW-PERSON', ['Auditor'])
 
@@ -1708,24 +1704,41 @@ class TestSaleTradeCondition(TestSlapOSGroupRoleSecurityMixin):
     delivery.validate()
     delivery.edit(destination_project_value=project)
     self.assertSecurityGroup(delivery,
-        ['F-SALEAGT', 'F-SALEMAN', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
+        ['F-SALE*', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
          self.user_id, project.getReference()], False)
     self.assertRoles(delivery, self.user_id, ['Owner'])
-    self.assertRoles(delivery, 'F-SALEAGT', ['Assignee'])
-    self.assertRoles(delivery, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(delivery, project.getReference(), ['Auditor'])
     self.assertRoles(delivery, 'R-SHADOW-PERSON', ['Auditor'])
 
     delivery.invalidate()
     self.assertSecurityGroup(delivery,
-        ['F-SALEAGT', 'F-SALEMAN', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
+        ['F-SALE*', 'F-ACCOUNTING*', 'R-SHADOW-PERSON',
          self.user_id], False)
     self.assertRoles(delivery, self.user_id, ['Owner'])
-    self.assertRoles(delivery, 'F-SALEAGT', ['Assignee'])
-    self.assertRoles(delivery, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(delivery, 'R-SHADOW-PERSON', ['Auditor'])
+
+
+class TestSaleTradeConditionChangeRequestModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_SaleTradeConditionChangeRequestModule(self):
+    module = self.portal.sale_trade_condition_change_request_module
+    self.assertSecurityGroup(module,
+        ['F-SALE*', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
+    self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
+
+
+class TestSaleTradeConditionChangeRequest(TestSlapOSGroupRoleSecurityMixin):
+  def test_SaleTradeConditionChangeRequest_default(self):
+    delivery = self.portal.sale_trade_condition_change_request_module.newContent(
+        portal_type='Sale Trade Condition Change Request')
+    self.assertSecurityGroup(delivery,
+        ['F-SALE*', self.user_id], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
+    self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
 
 
 class TestSubscriptionRequestModule(TestSlapOSGroupRoleSecurityMixin):

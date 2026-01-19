@@ -1,3 +1,7 @@
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
+
 portal = context.getPortalObject()
 resource = context
 
@@ -55,6 +59,7 @@ tmp_sale_order = module.newContent(
   portal_type='Sale Order',
   temp_object=True,
   trade_condition_type=trade_condition_type,
+  specialise_value=specialise_value,
   start_date=now,
   destination_value=subscriber_person_value,
   # Do NOT use destination_section to search the trade condition
@@ -114,10 +119,9 @@ else:
       predicate_category_list=cell_key,
       variation_category_list=cell_key
     )
-    price = tmp_order_cell.getPrice() or default_price or 0
+    price = forced_subscription_price or tmp_order_cell.getPrice() or default_price or 0
   else:
-    price = tmp_order_line.getPrice() or default_price or 0
-
+    price = forced_subscription_price or tmp_order_line.getPrice() or default_price or 0
 
   # but if accounting is needed, we expect a price
   if not price:

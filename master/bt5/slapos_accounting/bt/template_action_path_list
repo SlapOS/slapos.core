@@ -14,6 +14,9 @@ Person | create_slapos_payment_transaction
 Root Applied Rule Causality Causality Movement Group | view
 Sale Invoice Transaction | create_slapos_reversal
 Sale Packing List | jump_related_aggregated_packing_list
+Sale Trade Condition Change Request Module | view
+Sale Trade Condition Change Request | view
+Sale Trade Condition | submit_slapos_sale_trade_condition
 SlapOS Accounting Quantity Updating Order Builder | view
 SlapOS Accounting Quantity Updating Order Builder | view_predicate_group
 SlapOS Accounting Quantity Updating Order Builder | view_profile

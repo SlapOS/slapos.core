@@ -74,7 +74,7 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
       # Sale Trade Condition for Tax
       sale_trade_condition = portal.sale_trade_condition_module.newContent(
         portal_type="Sale Trade Condition",
-        reference="Tax/payment for: %s" % currency.getRelativeUrl(),
+        title="Tax/payment for: %s" % currency.getRelativeUrl(),
         trade_condition_type="default",
         # XXX hardcoded
         specialise="business_process_module/slapos_sale_subscription_business_process",
@@ -97,7 +97,7 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
       # Sale trade condition for project
       trade_condition = portal.sale_trade_condition_module.newContent(
         portal_type="Sale Trade Condition",
-        reference="virtual master for %s" % organisation.getTitle(),
+        title="virtual master for %s" % organisation.getTitle(),
         trade_condition_type="virtual_master",
         specialise_value=sale_trade_condition,
         source_value=organisation,
@@ -111,7 +111,7 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
         # Create trade condition for Deposit
         portal.sale_trade_condition_module.newContent(
           portal_type="Sale Trade Condition",
-          reference="Deposit for : %s" % currency.getRelativeUrl(),
+          title="Deposit for : %s" % currency.getRelativeUrl(),
           trade_condition_type="deposit",
           specialise_value=sale_trade_condition,
           source_value=organisation,

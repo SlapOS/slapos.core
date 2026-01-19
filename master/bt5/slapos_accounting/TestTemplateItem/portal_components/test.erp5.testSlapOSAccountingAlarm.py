@@ -31,6 +31,7 @@ from functools import wraps
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort, TemporaryAlarmScript
 from unittest import expectedFailure
+from zExceptions import Unauthorized
 
 
 import os
@@ -621,3 +622,420 @@ class TestSlapOSCancelSaleTnvoiceTransactionPaiedPaymentListAlarm(SlapOSTestCase
 
   def test_PaymentTransaction_cancelIfSaleInvoiceTransactionIsLettered_alarm_isStartedWechat(self):
     self._test_payment_is_started(payment_mode="wechat")
+
+
+class TestSlapOSSaleTradeConditionChangeRequestValidateAlarm(SlapOSTestCaseMixin):
+  #################################################################
+  # slapos_sale_trade_condition_change_request_validate_submitted
+  # Alarm_validateSubmittedSaleTradeConditionChangeRequest
+  #################################################################
+  def _createSaleTradeConditionChangeRequest(self):
+    return self.portal.sale_trade_condition_change_request_module.newContent(
+      portal_type='Sale Trade Condition Change Request',
+      title="Test STC change %s" % (self.generateNewId())
+    )
+
+  def _createCustomerPerson(self):
+    return self.portal.person_module.newContent(
+      portal_type='Person',
+      title="Test customer %s" % (self.generateNewId())
+    )
+
+  def _createSellerOrganisation(self, currency):
+    return self.portal.organisation_module.newContent(
+      portal_type='Organisation',
+      title="Test seller %s" % (self.generateNewId()),
+      vat_code='1234567890',
+      default_address_region='europe/france',
+      price_currency_value=currency
+    )
+
+  def _createCurrency(self):
+    return self.portal.currency_module.newContent(
+      portal_type='Currency',
+      title="Test currency %s" % (self.generateNewId())
+    )
+
+  def _createSaleTradeCondition(self, create_currency=True):
+    if create_currency:
+      currency = self._createCurrency()
+    else:
+      currency = None
+    return self.portal.sale_trade_condition_module.newContent(
+      portal_type='Sale Trade Condition',
+      title="Test STC %s" % (self.generateNewId()),
+      price_currency_value=currency,
+      specialise='business_process_module/slapos_sale_subscription_business_process',
+      trade_condition_type='manual'
+    )
+
+  def _getLastComment(self, document):
+    return self.portal.portal_workflow.getInfoFor(ob=document,
+                                          name='comment', wf_id='ticket_workflow')
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_alarm_notSubmitted(self):
+    script_name = "SaleTradeConditionChangeRequest_validateIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_sale_trade_condition_change_request_validate_submitted
+    self._test_alarm_not_visited(alarm, self._createSaleTradeConditionChangeRequest(), script_name)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_alarm_submitted(self):
+    script_name = "SaleTradeConditionChangeRequest_validateIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_sale_trade_condition_change_request_validate_submitted
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    self._test_alarm(alarm, change_request, script_name)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_REQUEST_disallowed(self):
+    self.assertRaises(
+      Unauthorized,
+      self.portal.SaleTradeConditionChangeRequest_validateIfSubmitted,
+      REQUEST={})
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_noSTC(self):
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'cancelled')
+    self.assertEqual(self._getLastComment(change_request), 'No draft Sale Trade Condition found')
+    self.assertEqual(result, None)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_nonDraftSTC(self):
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    sale_trade_condition = self._createSaleTradeCondition()
+    self.portal.portal_workflow._jumpToStateFor(sale_trade_condition, 'validated')
+    change_request.edit(specialise_value=sale_trade_condition)
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'cancelled')
+    self.assertEqual(self._getLastComment(change_request), 'No draft Sale Trade Condition found')
+    self.assertEqual(result, None)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_firstTopLevelDraftSTC(self):
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    sale_trade_condition = self._createSaleTradeCondition()
+    change_request.edit(
+      specialise_value=sale_trade_condition
+    )
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'invalidated')
+    self.assertEqual(self._getLastComment(change_request), 'New STC')
+    self.assertEqual(sale_trade_condition.getValidationState(), 'validated')
+    self.assertEqual(result, sale_trade_condition)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_secondTopLevelDraftSTCForSameDestination(self):
+    first_sale_trade_condition = self._createSaleTradeCondition()
+    self.portal.portal_workflow._jumpToStateFor(first_sale_trade_condition, 'validated')
+    self.tic()
+
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    sale_trade_condition.edit(
+      price_currency_value=first_sale_trade_condition.getPriceCurrencyValue()
+    )
+    change_request.edit(
+      specialise_value=sale_trade_condition
+    )
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'cancelled')
+    self.assertEqual(self._getLastComment(change_request), 'There is a STC for the customer: %s' % first_sale_trade_condition.getRelativeUrl())
+    self.assertEqual(sale_trade_condition.getValidationState(), 'draft')
+    self.assertEqual(result, None)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_secondTopLevelDraftSTCNotSpecialising(self):
+    first_sale_trade_condition = self._createSaleTradeCondition()
+    self.portal.portal_workflow._jumpToStateFor(first_sale_trade_condition, 'validated')
+    self.tic()
+
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    customer = self._createCustomerPerson()
+    sale_trade_condition.edit(
+      price_currency_value=first_sale_trade_condition.getPriceCurrencyValue(),
+      destination_value=customer,
+      destination_section_value=customer,
+    )
+    change_request.edit(
+      specialise_value=sale_trade_condition
+    )
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'cancelled')
+    self.assertEqual(self._getLastComment(change_request), 'Must specialise a similar STC')
+    self.assertEqual(sale_trade_condition.getValidationState(), 'draft')
+    self.assertEqual(result, None)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_secondTopLevelDraftSTCSpecialisingACustomerSTC(self):
+    customer = self._createCustomerPerson()
+    first_sale_trade_condition = self._createSaleTradeCondition()
+    first_sale_trade_condition.edit(
+      destination_value=customer,
+      destination_section_value=customer
+    )
+    self.portal.portal_workflow._jumpToStateFor(first_sale_trade_condition, 'validated')
+    self.tic()
+
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    customer2 = self._createCustomerPerson()
+    sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    sale_trade_condition.edit(
+      price_currency_value=first_sale_trade_condition.getPriceCurrencyValue(),
+      destination_value=customer2,
+      destination_section_value=customer2,
+      specialise_value=first_sale_trade_condition
+    )
+    change_request.edit(
+      specialise_value=sale_trade_condition
+    )
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'cancelled')
+    self.assertEqual(self._getLastComment(change_request), 'Can not specialise a customer STC: %s' % first_sale_trade_condition.getRelativeUrl())
+    self.assertEqual(sale_trade_condition.getValidationState(), 'draft')
+    self.assertEqual(result, None)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_secondTopLevelDraftSTCNotForCustomerSpecialising(self):
+    first_sale_trade_condition = self._createSaleTradeCondition()
+    self.portal.portal_workflow._jumpToStateFor(first_sale_trade_condition, 'validated')
+    self.tic()
+
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    customer = self._createCustomerPerson()
+    sale_trade_condition.edit(
+      price_currency_value=first_sale_trade_condition.getPriceCurrencyValue(),
+      destination_value=customer,
+      specialise_value=first_sale_trade_condition
+    )
+    change_request.edit(
+      specialise_value=sale_trade_condition
+    )
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'cancelled')
+    self.assertEqual(self._getLastComment(change_request), 'Is not a customer STC: %s' % sale_trade_condition.getRelativeUrl())
+    self.assertEqual(sale_trade_condition.getValidationState(), 'draft')
+    self.assertEqual(result, None)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_secondTopLevelDraftSTCSpecialisingChangingSource(self):
+    first_sale_trade_condition = self._createSaleTradeCondition()
+    self.portal.portal_workflow._jumpToStateFor(first_sale_trade_condition, 'validated')
+    self.tic()
+
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    customer = self._createCustomerPerson()
+    sale_trade_condition.edit(
+      price_currency_value=first_sale_trade_condition.getPriceCurrencyValue(),
+      destination_value=customer,
+      destination_section_value=customer,
+      source_value=customer,
+      specialise_value=first_sale_trade_condition
+    )
+    change_request.edit(
+      specialise_value=sale_trade_condition
+    )
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'cancelled')
+    self.assertEqual(self._getLastComment(change_request), 'Can not change source STC: %s' % first_sale_trade_condition.getRelativeUrl())
+    self.assertEqual(sale_trade_condition.getValidationState(), 'draft')
+    self.assertEqual(result, None)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_secondTopLevelDraftSTCSpecialisingChangingSourceSection(self):
+    first_sale_trade_condition = self._createSaleTradeCondition()
+    self.portal.portal_workflow._jumpToStateFor(first_sale_trade_condition, 'validated')
+    self.tic()
+
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    customer = self._createCustomerPerson()
+    seller = self._createSellerOrganisation(first_sale_trade_condition.getPriceCurrencyValue())
+    sale_trade_condition.edit(
+      price_currency_value=first_sale_trade_condition.getPriceCurrencyValue(),
+      destination_value=customer,
+      destination_section_value=customer,
+      source_section_value=seller,
+      specialise_value=first_sale_trade_condition
+    )
+    change_request.edit(
+      specialise_value=sale_trade_condition
+    )
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'cancelled')
+    self.assertEqual(self._getLastComment(change_request), 'Can not change source section STC: %s' % first_sale_trade_condition.getRelativeUrl())
+    self.assertEqual(sale_trade_condition.getValidationState(), 'draft')
+    self.assertEqual(result, None)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_secondTopLevelDraftSTCSpecialising(self):
+    first_sale_trade_condition = self._createSaleTradeCondition()
+    self.portal.portal_workflow._jumpToStateFor(first_sale_trade_condition, 'validated')
+    self.tic()
+
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    customer = self._createCustomerPerson()
+    sale_trade_condition.edit(
+      price_currency_value=first_sale_trade_condition.getPriceCurrencyValue(),
+      destination_value=customer,
+      destination_section_value=customer,
+      specialise_value=first_sale_trade_condition
+    )
+    change_request.edit(
+      specialise_value=sale_trade_condition
+    )
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'invalidated')
+    self.assertEqual(self._getLastComment(change_request), 'Specialising')
+    self.assertEqual(sale_trade_condition.getValidationState(), 'validated')
+    self.assertEqual(result, sale_trade_condition)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_tooManyPreviousVersion(self):
+    first_sale_trade_condition = self._createSaleTradeCondition()
+    self.portal.portal_workflow._jumpToStateFor(first_sale_trade_condition, 'validated')
+    second_sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    second_sale_trade_condition.edit(
+      title=first_sale_trade_condition.getTitle()
+    )
+    self.portal.portal_workflow._jumpToStateFor(second_sale_trade_condition, 'validated')
+    self.tic()
+
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    sale_trade_condition.edit(
+      price_currency_value=first_sale_trade_condition.getPriceCurrencyValue(),
+      title=first_sale_trade_condition.getTitle()
+    )
+    change_request.edit(
+      specialise_value=sale_trade_condition
+    )
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'cancelled')
+    self.assertEqual(self._getLastComment(change_request), 'Too many previous version of the STC')
+    self.assertEqual(sale_trade_condition.getValidationState(), 'draft')
+    self.assertEqual(result, None)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_singlePreviousVersionWithoutChange(self):
+    first_sale_trade_condition = self._createSaleTradeCondition()
+    self.portal.portal_workflow._jumpToStateFor(first_sale_trade_condition, 'validated')
+    self.tic()
+
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    sale_trade_condition.edit(
+      price_currency_value=first_sale_trade_condition.getPriceCurrencyValue(),
+      title=first_sale_trade_condition.getTitle()
+    )
+    change_request.edit(
+      specialise_value=sale_trade_condition
+    )
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'invalidated')
+    self.assertEqual(self._getLastComment(change_request), 'Expiring %s' % first_sale_trade_condition.getRelativeUrl())
+    self.assertEqual(first_sale_trade_condition.getValidationState(), 'validated')
+    self.assertFalse(first_sale_trade_condition.getExpirationDate() is None)
+    self.assertEqual(sale_trade_condition.getValidationState(), 'validated')
+    self.assertEqual(sale_trade_condition.getEffectiveDate(), first_sale_trade_condition.getExpirationDate())
+    self.assertTrue(sale_trade_condition.getExpirationDate() is None)
+    self.assertEqual(result, sale_trade_condition)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_singlePreviousVersionWithUnexpectedChange(self):
+    first_sale_trade_condition = self._createSaleTradeCondition()
+    self.portal.portal_workflow._jumpToStateFor(first_sale_trade_condition, 'validated')
+    self.tic()
+
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    customer = self._createCustomerPerson()
+    sale_trade_condition.edit(
+      price_currency_value=first_sale_trade_condition.getPriceCurrencyValue(),
+      title=first_sale_trade_condition.getTitle(),
+      destination_value=customer
+    )
+    change_request.edit(
+      specialise_value=sale_trade_condition
+    )
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'cancelled')
+    self.assertEqual(self._getLastComment(change_request), 'Unhandled requested changes on: destination')
+    self.assertEqual(sale_trade_condition.getValidationState(), 'draft')
+    self.assertEqual(result, None)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_singlePreviousVersionChangingSeller(self):
+    first_sale_trade_condition = self._createSaleTradeCondition()
+    self.portal.portal_workflow._jumpToStateFor(first_sale_trade_condition, 'validated')
+    self.tic()
+
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    seller = self._createSellerOrganisation(first_sale_trade_condition.getPriceCurrencyValue())
+    sale_trade_condition.edit(
+      price_currency_value=first_sale_trade_condition.getPriceCurrencyValue(),
+      title=first_sale_trade_condition.getTitle(),
+      source_section_value=seller
+    )
+    change_request.edit(
+      specialise_value=sale_trade_condition
+    )
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'invalidated')
+    self.assertEqual(self._getLastComment(change_request), 'Expiring %s' % first_sale_trade_condition.getRelativeUrl())
+    self.assertEqual(first_sale_trade_condition.getValidationState(), 'validated')
+    self.assertFalse(first_sale_trade_condition.getExpirationDate() is None)
+    self.assertEqual(sale_trade_condition.getValidationState(), 'validated')
+    self.assertEqual(sale_trade_condition.getEffectiveDate(), first_sale_trade_condition.getExpirationDate())
+    self.assertTrue(sale_trade_condition.getExpirationDate() is None)
+    self.assertEqual(result, sale_trade_condition)
+
+  def test_SaleTradeConditionChangeRequest_validateIfSubmitted_script_singlePreviousVersionUpdatingSpecialiseVersion(self):
+    previous_date = DateTime('2024/01/01')
+    first_specialise_sale_trade_condition = self._createSaleTradeCondition()
+    first_specialise_sale_trade_condition.edit(
+      expiration_date=previous_date
+    )
+    self.portal.portal_workflow._jumpToStateFor(first_specialise_sale_trade_condition, 'validated')
+    second_specialise_sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    second_specialise_sale_trade_condition.edit(
+      price_currency_value=first_specialise_sale_trade_condition.getPriceCurrencyValue(),
+      title=first_specialise_sale_trade_condition.getTitle(),
+      effective_date=previous_date
+    )
+    self.portal.portal_workflow._jumpToStateFor(second_specialise_sale_trade_condition, 'validated')
+
+
+    first_sale_trade_condition = self._createSaleTradeCondition()
+    first_sale_trade_condition.edit(
+      specialise_value=first_specialise_sale_trade_condition
+    )
+    self.portal.portal_workflow._jumpToStateFor(first_sale_trade_condition, 'validated')
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+
+    change_request = self._createSaleTradeConditionChangeRequest()
+    self.portal.portal_workflow._jumpToStateFor(change_request, 'submitted')
+    sale_trade_condition = self._createSaleTradeCondition(create_currency=False)
+    sale_trade_condition.edit(
+      price_currency_value=first_sale_trade_condition.getPriceCurrencyValue(),
+      title=first_sale_trade_condition.getTitle(),
+      specialise_value=second_specialise_sale_trade_condition
+    )
+    change_request.edit(
+      specialise_value=sale_trade_condition
+    )
+    result = change_request.SaleTradeConditionChangeRequest_validateIfSubmitted()
+    self.assertEqual(change_request.getSimulationState(), 'invalidated')
+    self.assertEqual(self._getLastComment(change_request), 'Expiring %s' % first_sale_trade_condition.getRelativeUrl())
+    self.assertEqual(first_sale_trade_condition.getValidationState(), 'validated')
+    self.assertFalse(first_sale_trade_condition.getExpirationDate() is None)
+    self.assertEqual(sale_trade_condition.getValidationState(), 'validated')
+    self.assertEqual(sale_trade_condition.getEffectiveDate(), first_sale_trade_condition.getExpirationDate())
+    self.assertTrue(sale_trade_condition.getExpirationDate() is None)
+    self.assertEqual(result, sale_trade_condition)
+

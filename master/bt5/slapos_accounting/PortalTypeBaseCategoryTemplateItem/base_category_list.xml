@@ -8,6 +8,9 @@
  <portal_type id="Hosting Subscription">
   <item>follow_up</item>
  </portal_type>
+ <portal_type id="Sale Trade Condition Change Request Module">
+  <item>business_application</item>
+ </portal_type>
  <portal_type id="Slave Instance">
   <item>causality</item>
  </portal_type>

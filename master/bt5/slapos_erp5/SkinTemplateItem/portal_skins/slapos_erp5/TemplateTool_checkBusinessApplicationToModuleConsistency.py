@@ -37,6 +37,7 @@ for business_application_id, module_name_list in [
           "instance_tree_module",
           "invitation_token_module",
           "project_module",
+          "sale_trade_condition_change_request_module",
           "software_installation_module",
           "software_instance_module",
           "subscription_request_module",

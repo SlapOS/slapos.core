@@ -84,6 +84,7 @@
                         <string>your_reference</string>
                         <string>your_password</string>
                         <string>password_confirm</string>
+                        <string>your_mobile_phone</string>
                       </list>
                     </value>
                 </item>

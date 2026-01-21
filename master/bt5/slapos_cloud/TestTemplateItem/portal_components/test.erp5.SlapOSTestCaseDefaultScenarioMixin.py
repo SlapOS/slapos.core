@@ -117,6 +117,13 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertTrue(expected_message in credential_request_form,
       '%s not in %s' % (expected_message, credential_request_form))
 
+    # Read captcha key
+    result = re.search(r'<input .*name="__captcha_field_your_captcha__" .*/>', credential_request_form)
+    self.assertTrue(result, credential_request_form)
+    result = re.search(r'value="(\w+)"', result.group(0))
+    self.assertTrue(result, credential_request_form)
+    captcha_key = result.group(1)
+
     # According to email address RFC you should be 'ascii' compatible
     # for email specificiations.
     # reference: https://en.wikipedia.org/wiki/Email_address#Local-part
@@ -127,6 +134,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       request_method='POST',
       env={'CONTENT_TYPE': 'application/x-www-form-urlencoded'},
       stdin = BytesIO(urlencode({
+        "__captcha_field_your_captcha__": captcha_key,
+        "field_your_captcha": self.portal.portal_sessions[captcha_key][captcha_key],
         "dialog_method": "WebSection_newCredentialRequest",
         "dialog_id": "WebSection_viewCreatePanelAccountDialog",
         "field_your_first_name": "Joe",

@@ -137,6 +137,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         "field_password_confirm": "demo_functional_user",
         "field_your_career_subordination_title": "Nexedi",
         "field_your_default_telephone_text": "12345678",
+        "field_your_mobile_phone": "",
         "field_your_default_address_street_address": "Av Pelinca",
         "field_your_default_address_zip_code": "28480",
         "field_your_default_address_city": "Campos",

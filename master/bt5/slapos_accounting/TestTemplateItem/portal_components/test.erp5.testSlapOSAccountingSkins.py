@@ -93,7 +93,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
   def createSaleTradeCondition(self):
     trade_condition = self.portal.sale_trade_condition_module.newContent(
         portal_type="Sale Trade Condition",
-        reference="Dummy Trade Condition %s" % self.generateNewId(),
+        title="Dummy Trade Condition %s" % self.generateNewId(),
         trade_condition_type="default",
         # XXX hardcoded
         specialise="business_process_module/slapos_manual_accounting_business_process"

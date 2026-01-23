@@ -27,6 +27,7 @@ Sale Packing List Line | SlapOSMovementConstraint
 Sale Packing List | SlapOSAccountingSalePackingListConstraint
 Sale Packing List | SlapOSLedgerConstraint
 Sale Packing List | SlapOSSaleProfileConstraint
+Sale Trade Condition | SaleTradeConditionUpgradeConstraint
 Sale Trade Condition | SlapOSAccountingSaleTradeConditionConstraint
 Sale Trade Condition | SlapOSSaleProfileConstraint
 Simulation Movement | SlapOSMovementConstraint

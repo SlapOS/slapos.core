@@ -12,6 +12,9 @@ Sale Invoice Transaction | slapos_accounting_interaction_workflow
 Sale Invoice Transaction | slapos_simulation_interaction_workflow
 Sale Packing List | slapos_accounting_interaction_workflow
 Sale Packing List | slapos_simulation_interaction_workflow
+Sale Trade Condition Change Request | edit_workflow
+Sale Trade Condition Change Request | slapos_accounting_interaction_workflow
+Sale Trade Condition Change Request | ticket_workflow
 Simulation Movement | slapos_simulation_interaction_workflow
 Subscription Item Root Simulation Rule | edit_workflow
 Subscription Item Root Simulation Rule | rule_validation_workflow

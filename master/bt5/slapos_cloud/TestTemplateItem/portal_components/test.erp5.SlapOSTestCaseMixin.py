@@ -679,7 +679,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       # Create Trade Condition to create Deposit
       self.portal.sale_trade_condition_module.newContent(
         portal_type="Sale Trade Condition",
-        reference="For deposit",
+        title="For deposit",
         trade_condition_type="deposit",
         specialise_value=sale_trade_condition,
         source_value=seller_organisation,

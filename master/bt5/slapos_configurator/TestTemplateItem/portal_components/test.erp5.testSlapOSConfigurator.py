@@ -238,6 +238,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'sale_packing_list_module',
        'sale_supply_module',
        'sale_trade_condition_module',
+       'sale_trade_condition_change_request_module',
        'service_module',
        'service_report_module',
        'software_installation_module',

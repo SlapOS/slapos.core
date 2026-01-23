@@ -163,13 +163,15 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       title="test_bank_account_%s" % self.generateNewId(),
       price_currency_value=currency
     )
+    self.login(accountant_person.getUserId())
     seller_bank_account.validate()
+    self.login(sale_person.getUserId())
     seller_organisation.validate()
 
     # Sale Trade Condition for Tax
     sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
       portal_type="Sale Trade Condition",
-      reference="Tax/payment for: %s" % currency.getRelativeUrl(),
+      title="Tax/payment for: %s" % currency.getRelativeUrl(),
       trade_condition_type="default",
       # XXX hardcoded
       specialise="business_process_module/slapos_sale_subscription_business_process",
@@ -178,7 +180,7 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     )
     sale_trade_condition.newContent(
       portal_type="Trade Model Line",
-      reference="Normal Rate VAT",
+      title="Normal Rate VAT",
       resource="service_module/slapos_tax",
       base_application="base_amount/invoicing/taxable/vat/normal_rate",
       trade_phase="slapos/tax",
@@ -204,18 +206,19 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
         'base_contribution/base_amount/invoicing/taxable/vat/zero_rate'
       )
     )
-    sale_trade_condition.validate()
+    sale_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
+    self.tic()
 
     # Create Trade Condition to create Deposit
     self.portal.sale_trade_condition_module.newContent(
       portal_type="Sale Trade Condition",
-      reference="For deposit",
+      title="For deposit (%s)" % seller_organisation.getTitle(),
       trade_condition_type="deposit",
       specialise_value=sale_trade_condition,
       source_value=seller_organisation,
       source_section_value=seller_organisation,
       price_currency_value=currency,
-    ).validate()
+    ).SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
 
     # Create Trade Condition to create Project
     if is_virtual_master_accountable:
@@ -227,14 +230,14 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
 
     sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
       portal_type="Sale Trade Condition",
-      reference=title,
+      title=title,
       trade_condition_type="virtual_master",
       specialise_value=sale_trade_condition,
       source_value=seller_organisation,
       source_section_value=source_section_value,
       price_currency_value=currency,
     )
-    sale_trade_condition.validate()
+    sale_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
 
     sale_supply = self.portal.sale_supply_module.newContent(
       portal_type="Sale Supply",
@@ -247,6 +250,8 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       resource="service_module/slapos_virtual_master_subscription"
     )
     sale_supply.validate()
+
+    self.tic()
 
     return currency, seller_organisation, seller_bank_account, sale_person, accountant_person
 
@@ -441,7 +446,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 subscription request
     self.assertRelatedObjectCount(project, 32)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
+      self.checkERP5StateBeforeExit()
 
 
   def test_deposit_with_accounting_scenario(self):
@@ -553,14 +559,13 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       dedicated_trade_condition = self.portal.sale_trade_condition_module.newContent(
         portal_type='Sale Trade Condition',
         title='%s dedicated %s' % (virtual_master_trade_condition.getTitle(), owner_person.getTitle()),
-        reference='DEDICATED %s' % self.generateNewId(),
         destination_value=owner_person,
         destination_section_value=customer_section_organisation,
         specialise_value=virtual_master_trade_condition,
         price_currency=virtual_master_trade_condition.getPriceCurrency(),
         trade_condition_type=virtual_master_trade_condition.getTradeConditionType()
       )
-      dedicated_trade_condition.validate()
+      dedicated_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
       self.tic()
 
       project_relative_url = self.addProject(is_accountable=True, person=owner_person, currency=currency)
@@ -658,7 +663,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       dedicated_trade_condition = self.portal.sale_trade_condition_module.newContent(
         portal_type='Sale Trade Condition',
         title='%s dedicated %s' % (instance_trade_condition.getTitle(), owner_person.getTitle()),
-        reference='DEDICATED %s' % self.generateNewId(),
         source_project=instance_trade_condition.getSourceProject(),
         destination_value=public_person,
         destination_section_value=customer_section_organisation,
@@ -666,7 +670,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         price_currency=instance_trade_condition.getPriceCurrency(),
         trade_condition_type=instance_trade_condition.getTradeConditionType()
       )
-      dedicated_trade_condition.validate()
+      dedicated_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
       self.tic()
 
       # Pay deposit to validate virtual master + one computer, for the organisation
@@ -777,7 +781,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 subscription requests
     self.assertRelatedObjectCount(project, 58)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
+      self.checkERP5StateBeforeExit()
 
 
   def test_virtual_master_with_accounting_scenario(self):
@@ -1017,7 +1022,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 4 subscription requests
     self.assertRelatedObjectCount(project, 73)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 01:02')):
+      self.checkERP5StateBeforeExit()
 
 
   def test_virtual_master_slave_without_accounting_scenario(self):
@@ -1165,7 +1171,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 4 subscription request
     self.assertRelatedObjectCount(project, 48)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 00:05')):
+      self.checkERP5StateBeforeExit()
 
 
   def test_virtual_master_slave_on_same_tree_without_accounting_scenario(self):
@@ -1276,7 +1283,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 subscription request
     self.assertRelatedObjectCount(project, 33)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 00:05')):
+      self.checkERP5StateBeforeExit()
 
 
   def test_virtual_master_on_remote_tree_without_accounting_scenario(self):
@@ -1501,7 +1509,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 2 subscription requests
     self.assertRelatedObjectCount(project, 26)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
+      self.checkERP5StateBeforeExit()
 
 
   def test_virtual_master_slave_instance_on_remote_tree_without_accounting_scenario(self):

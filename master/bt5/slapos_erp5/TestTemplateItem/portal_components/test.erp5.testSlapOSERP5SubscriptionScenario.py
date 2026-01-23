@@ -338,7 +338,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 2 Sale Trade condition
     # 1 subscription request
     self.assertRelatedObjectCount(project, 14)
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/01')):
+      self.checkERP5StateBeforeExit()
 
   def test_subscription_request_cancel_after_compute_node_is_invalidated(self):
     """ It is only tested with is_virtual_master_accountable enabled since the
@@ -842,4 +843,5 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 4 subscription requests
     self.assertRelatedObjectCount(project, 54)
 
-    self.checkERP5StateBeforeExit()
+    with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
+      self.checkERP5StateBeforeExit()

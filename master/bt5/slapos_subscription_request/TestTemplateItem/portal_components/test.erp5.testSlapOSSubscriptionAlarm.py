@@ -21,6 +21,9 @@
 from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixin, TemporaryAlarmScript, SlapOSTestCaseMixinWithAbort
 import time
+from DateTime import DateTime
+from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
+
 
 class TestSlapOSSubscriptionRequestProcessAlarm(SlapOSTestCaseMixin):
 
@@ -241,3 +244,190 @@ class TestSlaposCrmCheckStoppedEventFromSubscriptionRequestToDeliver(SlapOSTestC
     event.Event_checkStoppedFromSubscriptionRequestToDeliver()
     self.assertEqual(event.getSimulationState(), "stopped")
     self.assertEqual(subscription_request.getSimulationState(), "suspended")
+
+
+class TestSlaposSubscriptionGenerateSubscriptionChangeRequestForExpiredSaleTradeCondition(SlapOSTestCaseMixinWithAbort):
+
+  def _createSaleTradeConditionToExpire(self):
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                                             "'disabled'", attribute='comment'):
+      sale_trade_condition_module = self.portal.sale_trade_condition_module
+      ledger_automated = self.portal.portal_categories.ledger.automated
+
+      specialised_sale_trade_condition_version1 = sale_trade_condition_module.newContent(
+        portal_type='Sale Trade Condition',
+        ledger_value=ledger_automated,
+        title="Test specialised STC %s" % (self.generateNewId())
+      )
+      specialised_sale_trade_condition_version1.validate()
+
+      # XXX Move to a script
+      now = DateTime()
+      container = specialised_sale_trade_condition_version1.getParentValue()
+      clipboard = container.manage_copyObjects(ids=[specialised_sale_trade_condition_version1.getId()])
+      specialised_sale_trade_condition_version2 = container[container.manage_pasteObjects(clipboard)[0]['new_id']]
+      specialised_sale_trade_condition_version1.edit(
+        expiration_date=now
+      )
+      specialised_sale_trade_condition_version2.edit(
+        effective_date=now
+      )
+      specialised_sale_trade_condition_version2.validate()
+
+      sale_trade_condition_to_expire = sale_trade_condition_module.newContent(
+        portal_type='Sale Trade Condition',
+        ledger_value=ledger_automated,
+        title="Test STC to expire %s" % (self.generateNewId()),
+        specialise_value=specialised_sale_trade_condition_version1
+      )
+      sale_trade_condition_to_expire.validate()
+      self.tic()
+    return sale_trade_condition_to_expire
+
+  def _createOpenSaleOrderToExpire(self):
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                                             "'disabled'", attribute='comment'):
+      sale_trade_condition_module = self.portal.sale_trade_condition_module
+      ledger_automated = self.portal.portal_categories.ledger.automated
+
+      specialised_sale_trade_condition_version1 = sale_trade_condition_module.newContent(
+        portal_type='Sale Trade Condition',
+        ledger_value=ledger_automated,
+        title="Test specialised STC %s" % (self.generateNewId())
+      )
+      specialised_sale_trade_condition_version1.validate()
+
+      # XXX Move to a script
+      now = DateTime()
+      container = specialised_sale_trade_condition_version1.getParentValue()
+      clipboard = container.manage_copyObjects(ids=[specialised_sale_trade_condition_version1.getId()])
+      specialised_sale_trade_condition_version2 = container[container.manage_pasteObjects(clipboard)[0]['new_id']]
+      specialised_sale_trade_condition_version1.edit(
+        expiration_date=now
+      )
+      specialised_sale_trade_condition_version2.edit(
+        effective_date=now
+      )
+      specialised_sale_trade_condition_version2.validate()
+
+      open_sale_order_to_expire = self.portal.open_sale_order_module.newContent(
+        portal_type='Open Sale Order',
+        ledger_value=ledger_automated,
+        title="Test OSO to expire %s" % (self.generateNewId()),
+        specialise_value=specialised_sale_trade_condition_version1
+      )
+      open_sale_order_to_expire.plan()
+      open_sale_order_to_expire.validate()
+      self.tic()
+    return open_sale_order_to_expire
+
+  def test_SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition_alarm_notExpired(self):
+    script_name = "SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition"
+    alarm = self.portal.portal_alarms.slapos_subscription_change_request_create_from_expired_sale_trade_condition
+    self._test_alarm(alarm, self._createSaleTradeConditionToExpire(), script_name)
+
+  def test_SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition_alarm_alreadyExpired(self):
+    script_name = "SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition"
+    alarm = self.portal.portal_alarms.slapos_subscription_change_request_create_from_expired_sale_trade_condition
+    sale_trade_condition = self._createSaleTradeConditionToExpire()
+    sale_trade_condition.edit(expiration_date=DateTime())
+    self.tic()
+    self._test_alarm_not_visited(alarm, sale_trade_condition, script_name)
+
+  def test_SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition_alarm_invalidated(self):
+    script_name = "SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition"
+    alarm = self.portal.portal_alarms.slapos_subscription_change_request_create_from_expired_sale_trade_condition
+    sale_trade_condition = self._createSaleTradeConditionToExpire()
+    sale_trade_condition.invalidate()
+    self.tic()
+    self._test_alarm_not_visited(alarm, sale_trade_condition, script_name)
+
+  def test_SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition_alarm_expiredInFutur(self):
+    script_name = "SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition"
+    alarm = self.portal.portal_alarms.slapos_subscription_change_request_create_from_expired_sale_trade_condition
+    with PinnedDateTime(self, DateTime() + 1):
+      sale_trade_condition = self._createSaleTradeConditionToExpire()
+      self.tic()
+    self._test_alarm_not_visited(alarm, sale_trade_condition, script_name)
+
+  def test_SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition_script_notExpired(self):
+    sale_trade_condition = self._createSaleTradeConditionToExpire()
+
+    sale_trade_condition_change_request_relative_url = sale_trade_condition.SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition()
+    self.assertEqual(sale_trade_condition.getValidationState(), "validated")
+    self.assertEqual(sale_trade_condition.getExpirationDate(), None)
+
+    sale_trade_condition_change_request = self.portal.restrictedTraverse(sale_trade_condition_change_request_relative_url)
+    self.assertEqual(sale_trade_condition_change_request.getSimulationState(), "submitted")
+
+    proposed_sale_trade_condition = sale_trade_condition_change_request.getSpecialiseValue()
+    self.assertEqual(proposed_sale_trade_condition.getValidationState(), "draft")
+
+    self.assertEqual(proposed_sale_trade_condition.getEffectiveDate(), None)
+    self.assertEqual(proposed_sale_trade_condition.getTitle(), sale_trade_condition.getTitle())
+    self.assertNotEqual(proposed_sale_trade_condition.getSpecialise(), sale_trade_condition.getSpecialise())
+    # Check that the new specialised value was used
+    old_specialise_value = sale_trade_condition.getSpecialiseValue()
+    new_specialise_value = proposed_sale_trade_condition.getSpecialiseValue()
+    self.assertEqual(new_specialise_value.getValidationState(), "validated")
+    self.assertEqual(new_specialise_value.getEffectiveDate(), old_specialise_value.getExpirationDate())
+    self.assertEqual(new_specialise_value.getTitle(), old_specialise_value.getTitle())
+
+  def test_SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition_script_expired(self):
+    sale_trade_condition = self._createSaleTradeConditionToExpire()
+    now = DateTime()
+    sale_trade_condition.edit(expiration_date=now)
+    result = sale_trade_condition.SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition()
+
+    self.assertEqual(sale_trade_condition.getValidationState(), "validated")
+    self.assertEqual(sale_trade_condition.getExpirationDate(), now)
+    self.assertEqual(result, None)
+
+  def test_SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition_script_noNewVersionFound(self):
+    sale_trade_condition = self._createSaleTradeConditionToExpire()
+    new_version = self.portal.portal_catalog.getResultValue(
+      portal_type='Sale Trade Condition',
+      title={'query': sale_trade_condition.getSpecialiseTitle(), 'key': 'ExactMatch'},
+      validation_state='validated',
+      # The dates must match
+      effective_date=sale_trade_condition.getSpecialiseValue().getExpirationDate(),
+    )
+    # Changing the date must be enough
+    new_version.edit(effective_date=new_version.getEffectiveDate() - 1)
+    self.tic()
+
+    result = sale_trade_condition.SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition()
+    self.assertEqual(sale_trade_condition.getValidationState(), "validated")
+    self.assertEqual(sale_trade_condition.getExpirationDate(), None)
+    self.assertEqual(result, None)
+
+
+  def test_OpenSaleOrder_generateSubscriptionChangeRequestFromExpiredSaleTradeCondition_alarm_notExpired(self):
+    script_name = "OpenSaleOrder_generateSubscriptionChangeRequestFromExpiredSaleTradeCondition"
+    alarm = self.portal.portal_alarms.slapos_subscription_change_request_create_from_expired_sale_trade_condition
+    self._test_alarm(alarm, self._createOpenSaleOrderToExpire(), script_name)
+
+  def test_OpenSaleOrder_generateSubscriptionChangeRequestFromExpiredSaleTradeCondition_alarm_expired(self):
+    script_name = "OpenSaleOrder_generateSubscriptionChangeRequestFromExpiredSaleTradeCondition"
+    alarm = self.portal.portal_alarms.slapos_subscription_change_request_create_from_expired_sale_trade_condition
+    open_sale_order = self._createOpenSaleOrderToExpire()
+    open_sale_order.edit(expiration_date=DateTime())
+    self.tic()
+    self._test_alarm_not_visited(alarm, open_sale_order, script_name)
+
+  def test_OpenSaleOrder_generateSubscriptionChangeRequestFromExpiredSaleTradeCondition_alarm_invalidated(self):
+    script_name = "OpenSaleOrder_generateSubscriptionChangeRequestFromExpiredSaleTradeCondition"
+    alarm = self.portal.portal_alarms.slapos_subscription_change_request_create_from_expired_sale_trade_condition
+    open_sale_order = self._createOpenSaleOrderToExpire()
+    open_sale_order.invalidate()
+    self.tic()
+    self._test_alarm_not_visited(alarm, open_sale_order, script_name)
+
+  def test_OpenSaleOrder_generateSubscriptionChangeRequestFromExpiredSaleTradeCondition_alarm_expiredInFutur(self):
+    script_name = "OpenSaleOrder_generateSubscriptionChangeRequestFromExpiredSaleTradeCondition"
+    alarm = self.portal.portal_alarms.slapos_subscription_change_request_create_from_expired_sale_trade_condition
+    with PinnedDateTime(self, DateTime() + 1):
+      open_sale_order = self._createOpenSaleOrderToExpire()
+      self.tic()
+    self._test_alarm_not_visited(alarm, open_sale_order, script_name)
+

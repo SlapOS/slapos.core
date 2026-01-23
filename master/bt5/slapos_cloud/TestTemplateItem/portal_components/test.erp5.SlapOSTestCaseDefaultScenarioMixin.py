@@ -21,6 +21,8 @@
 
 import six
 import six.moves.urllib.parse
+from six.moves.urllib.parse import urlencode
+from io import BytesIO
 from erp5.component.test.testSlapOSCloudSecurityGroup import TestSlapOSSecurityMixin
 from erp5.component.test.SlapOSTestCaseMixin import changeSkin
 import re
@@ -104,31 +106,58 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         if [q for q in candidate[1] if email in q] and body in candidate[2]:
           return candidate[2]
 
-    self.portal.portal_skins.changeSkin('RJS')
-    credential_request_form = self.web_site.slapos_master_panel.hateoas.connection.join_form()
+    ret = self.publish(
+      self.web_site.slapos_master_panel.hateoas.connection.join_form.getPath() + '/'
+    )
+    self.assertEqual(ret.getStatus(), 200)
+    self.assertEqual(ret.getHeader("Content-Type"), "text/html; charset=utf-8")
+    credential_request_form = ret.getBody()
 
     expected_message = 'You will receive a confirmation email to activate your account.'
     self.assertTrue(expected_message in credential_request_form,
       '%s not in %s' % (expected_message, credential_request_form))
+
+    # Read captcha key
+    result = re.search(r'<input .*name="__captcha_field_your_captcha__" .*/>', credential_request_form)
+    self.assertTrue(result, credential_request_form)
+    result = re.search(r'value="(\w+)"', result.group(0))
+    self.assertTrue(result, credential_request_form)
+    captcha_key = result.group(1)
 
     # According to email address RFC you should be 'ascii' compatible
     # for email specificiations.
     # reference: https://en.wikipedia.org/wiki/Email_address#Local-part
     email = 'joe%s@example.com' % self.generateNewAsciiId()
 
-    redirect_url = self.web_site.slapos_master_panel.hateoas.connection.WebSection_newCredentialRequest(
-      reference=reference,
-      default_email_text=email,
-      first_name="Joe",
-      last_name=reference,
-      password="demo_functional_user",
-      default_telephone_text="12345678",
-      corporate_name="Nexedi",
-      default_address_city="Campos",
-      default_address_street_address="Av Pelinca",
-      default_address_zip_code="28480",
-      default_address_region='europe/west/france',
+    ret = self.publish(
+      self.web_site.slapos_master_panel.hateoas.connection.join_form.getPath() + '/',
+      request_method='POST',
+      env={'CONTENT_TYPE': 'application/x-www-form-urlencoded'},
+      stdin = BytesIO(urlencode({
+        "__captcha_field_your_captcha__": captcha_key,
+        "field_your_captcha": self.portal.portal_sessions[captcha_key][captcha_key],
+        "dialog_method": "WebSection_newCredentialRequest",
+        "dialog_id": "WebSection_viewCreatePanelAccountDialog",
+        "field_your_first_name": "Joe",
+        "field_your_last_name": reference,
+        "field_your_default_email_text": email,
+        "field_your_reference": reference,
+        "field_your_password": "demo_functional_user",
+        "field_password_confirm": "demo_functional_user",
+        "field_your_career_subordination_title": "Nexedi",
+        "field_your_default_telephone_text": "12345678",
+        "field_your_mobile_phone": "",
+        "field_your_default_address_street_address": "Av Pelinca",
+        "field_your_default_address_zip_code": "28480",
+        "field_your_default_address_city": "Campos",
+        "field_your_default_address_region": "europe/west/france",
+        "default_field_your_default_address_region:int": "0",
+        "WebSection_callRJSDialogMethod:method": "Register"
+      }).encode('utf-8'))
     )
+    self.assertEqual(ret.getStatus(), 303)
+    redirect_url = ret.getHeader('Location')
+
     parsed_url = six.moves.urllib.parse.urlparse(redirect_url)
     self.assertEqual(parsed_url.path.split('/')[-1], 'login_form')
     self.assertEqual(
@@ -147,12 +176,13 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     join_key = to_click_url.split('=')[-1]
     self.assertNotEqual(join_key, None)
-    self.portal.portal_skins.changeSkin('RJS')
-    web_site.slapos_master_panel.hateoas.connection.ERP5Site_activeLogin(key=join_key)
 
-    self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 303)
+    ret = self.publish(
+      self.web_site.slapos_master_panel.hateoas.connection.getPath() + '/ERP5Site_activeLogin?key=' + join_key
+    )
+    self.assertEqual(ret.getStatus(), 303)
     self.assertIn(self.web_site.getId() + "/%23%21login%3Fp.page%3Dslapos_master_panel_access%26p.view%3D1%7B%26n.me%7D",
-      self.portal.REQUEST.RESPONSE.getHeader("Location"))
+      ret.getHeader("Location"))
 
     self.tic()
 

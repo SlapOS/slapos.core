@@ -2,6 +2,10 @@
 Paramameter list :
 reference -- User login is mandatory (String)
 default_email_text -- Email is mandatory (String)"""
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
+
 # create the credential request
 import binascii
 from Products.ERP5Type.Utils import bytes2str, str2bytes
@@ -11,9 +15,14 @@ module = portal.getDefaultModule(portal_type='Credential Request')
 portal_preferences = portal.portal_preferences
 category_list = portal_preferences.getPreferredSubscriptionAssignmentCategoryList()
 
+# Do this check after the captcha, to not allow search existing logins
 if not context.CredentialRequest_checkLoginAvailability(reference):
   message_str = "Selected login is already in use, please choose different one."
-  return context.REQUEST.RESPONSE.redirect(context.absolute_url() + "/join_form?portal_status_message=" + context.Base_translateString(message_str))
+  REQUEST = context.REQUEST
+  REQUEST.set('portal_status_message', context.Base_translateString(message_str))
+  REQUEST.set('portal_status_level', 'error')
+  REQUEST.RESPONSE.setStatus(400)
+  return getattr(context, dialog_id)()
 
 credential_request = module.newContent(
                 portal_type="Credential Request",
@@ -60,7 +69,7 @@ else:
     activity_kw = dict(activity='SQLQueue',
                        after_path_and_method_id=path_and_method_id)
     credential_request.activate(**activity_kw).CredentialRequest_sendSubmittedNotification(
-      context_url=context.absolute_url(),
+      context_url=context.getParentValue().absolute_url(),
       notification_reference='credential_request-subscription')
     message_str = "Thank you for your registration. You will receive an email to activate your account."
   else:
@@ -72,4 +81,11 @@ else:
 if batch_mode:
   return credential_request
 
-return context.REQUEST.RESPONSE.redirect(context.absolute_url() + "/login_form?portal_status_message=" + context.Base_translateString(message_str))
+# Go to 'connection' web section
+return context.getParentValue().Base_redirect(
+  'login_form',
+  status_code=303,
+  keep_items={
+    'portal_status_message': context.Base_translateString(message_str)
+  }
+)

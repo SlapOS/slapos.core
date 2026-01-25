@@ -306,7 +306,9 @@ class Software(object):
     self._copy_netrc_file(self.software_path)
 
     f = None
-    extends_cache = tempfile.mkdtemp()
+    extends_cache = os.path.join(self.software_path, 'extends-cache')
+    if not os.path.isdir(extends_cache):
+      os.mkdir(extends_cache)
     try:
       self._set_ownership(extends_cache)
 
@@ -346,7 +348,6 @@ class Software(object):
       if f is not None:
         os.remove(buildout_marker)
     finally:
-      shutil.rmtree(extends_cache)
       if f is not None:
         f.close()
 

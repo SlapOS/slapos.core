@@ -1,0 +1,126 @@
+<tal:block xmlns:tal="http://xml.zope.org/namespaces/tal"
+           xmlns:metal="http://xml.zope.org/namespaces/metal"
+           xmlns:i18n="http://xml.zope.org/namespaces/i18n">
+
+  <tal:block metal:define-macro="master">
+    <tal:block tal:define="
+      dummy python: request.set('is_web_mode', True);
+      dummy python: request.set('ignore_layout', False);
+      dummy python: request.set('editable_mode', True);
+      dialog_category python: '';
+      web_site python: here.getWebSiteValue();
+      web_section python: here.getWebSectionValue();
+      is_rendering_web_section python: ((request['REQUEST_METHOD'] == 'GET') and (request['PUBLISHED'] == web_section)) or ((request['REQUEST_METHOD'] == 'POST') and (request['PATH_INFO'].endswith(web_section.getRelativeUrl() + '/WebSection_callRJSDialogMethod')));
+      is_unexpected_missing_trailing_slash python: is_rendering_web_section and (request['REQUEST_METHOD'] == 'GET') and (not request['PATH_INFO'].endswith('/'));
+      is_unexpected_acquisition_access python: (web_section.getParentValue().getRelativeUrl() != web_section.aq_parent.getRelativeUrl()) or (web_site.getParentValue().getRelativeUrl() != web_site.aq_parent.getRelativeUrl());
+      site_name python: web_site.getTranslatedTitle();
+      document_title python: here.getTitle();
+      site_url python: '%s/' % web_site.absolute_url();
+      favicon_url python: site_url + 'gadget_slapos_panel.png?format=png';
+      current_language python: web_site.getPortalObject().Localizer.get_selected_language();">
+  <tal:block tal:condition="python: not is_rendering_web_section">
+    <div tal:omit-tag="" comment="Force to only render web section only, to ensure HTTP POST stay on the same url"></div>
+    <tal:block metal:use-macro="context/error_main/macros/master">
+      <metal:slot metal:fill-slot="main" i18n:domain="erp5_ui">
+        <h2 i18n:translate="" tal:define="dummy python: request.response.setStatus(404);">Not rendering a web section</h2>
+        <p i18n:translate="" tal:content="python: request">It can only be rendered as a web section.</p>
+      </metal:slot>
+    </tal:block>
+  </tal:block>
+  <tal:block tal:condition="python: is_unexpected_acquisition_access">
+    <tal:block metal:use-macro="context/error_main/macros/master">
+      <metal:slot metal:fill-slot="main" i18n:domain="erp5_ui">
+        <h2 i18n:translate="" tal:define="dummy python: request.response.setStatus(404);">Unexpected URL</h2>
+        <p i18n:translate="">The URL should not rely on ID acquisition.</p>
+      </metal:slot>
+    </tal:block>
+  </tal:block>
+  <tal:block tal:condition="python: is_unexpected_missing_trailing_slash">
+    <tal:block metal:use-macro="context/error_main/macros/master">
+      <metal:slot metal:fill-slot="main" i18n:domain="erp5_ui">
+        <h2 i18n:translate="">Unexpected URL</h2>
+        <p i18n:translate="">The URL should have a single trailing slash.</p>
+        <tal:redirect tal:define="redirect python: request.RESPONSE.redirect('%s/%s' % (web_section.absolute_url(), '?%s' % request.get('QUERY_STRING', '') if request.get('QUERY_STRING', '') else ''));" />
+      </metal:slot>
+    </tal:block>
+  </tal:block>
+  <tal:block tal:condition="python: is_rendering_web_section and not (is_unexpected_acquisition_access or is_unexpected_missing_trailing_slash)">
+
+<!DOCTYPE html>
+<html tal:attributes="lang current_language">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:">
+  <meta name="referrer" content="same-origin">
+  <base tal:attributes="href python: '%s/' % web_section.absolute_url()">
+  <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1">
+  <title tal:content="python: here.getTranslatedTitle() or web_section.getTranslatedTitle()"></title>
+  <tal:block tal:condition="favicon_url">
+    <link rel="icon" tal:attributes="href favicon_url">
+    <link rel="shortcut icon" tal:attributes="href favicon_url">
+    <link rel="apple-touch-icon-precomposed" tal:attributes="href favicon_url">
+  </tal:block>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" tal:attributes="href python: site_url + 'gadget_erp5_nojqm.css'">
+  </head>
+  <body>
+
+  <div data-role='page'>
+
+    <div data-gadget-scope='header'>
+      <div class="ui-header">
+        <h1><span i18n:domain="ui" i18n:translate="">Join</span></h1>
+      </div>
+    </div>
+
+    <div data-gadget-scope='panel'>
+      <div data-role="header">
+        <div class="panel_img">
+          <img class="ui-title" alt="SlapOS logo" tal:attributes="src favicon_url"/>
+        </div>
+      </div>
+    </div>
+
+    <div role="main" class="ui-content gadget-content">
+
+    <tal:block  tal:omit-tag="" tal:condition="exists: request/portal_status_message">
+      <div data-gadget-scope="notification" class="visible"><button tal:attributes="class python: 'success' if (request.get('portal_status_level', 'success') == 'success') else 'error'">
+      <p tal:content="request/portal_status_message | nothing" id="portal_status_message"/>
+      </button></div>
+    </tal:block>
+    <tal:block tal:omit-tag="" tal:condition="exists: request/field_errors">
+      <div data-gadget-scope="notification" class="visible" tal:define="dummy python: request.response.setStatus(400);"><button class='error'>
+      <p i18n:translate="" i18n:domain="ui">Input data has errors.</p>
+      </button></div>
+    </tal:block>
+
+    <div><div><form id="main_form"
+          tal:attributes="enctype enctype | form/Form_getEnctype | nothing;
+          action python: '%s/' % web_section.absolute_url();
+          method python:str(path('form/method | string:post')).lower()">
+
+      <input type="hidden" name="dialog_method" tal:attributes="value form/action" />
+      <input type="hidden" name="dialog_id" tal:attributes="value form/id | template/id" />
+
+      <tal:block metal:use-macro="here/form_render/macros/master" />
+      <tal:block metal:define-slot="main"/>
+            <input tal:condition="form/action|nothing" accesskey="V"
+                    id="dialog_submit_button" name="WebSection_callRJSDialogMethod:method"
+                    type="submit"
+                    i18n:translate="" i18n:domain="ui"
+                    tal:attributes="value python:here.Base_getFormViewDialogActionButtonTitle(form)" />
+      </form></div></div>
+        <!--/section>
+
+      </article-->
+    </div>
+   </div>
+
+
+  </body>
+</html>
+    </tal:block>
+  </tal:block>
+  </tal:block>
+
+</tal:block>

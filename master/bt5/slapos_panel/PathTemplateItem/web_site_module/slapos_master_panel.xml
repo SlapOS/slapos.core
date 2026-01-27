@@ -421,7 +421,7 @@
         </item>
         <item>
             <key> <string>configuration_default_view_action_reference</string> </key>
-            <value> <string>slapos_panel_view</string> </value>
+            <value> <string>view</string> </value>
         </item>
         <item>
             <key> <string>configuration_frontpage_gadget_url</string> </key>
@@ -433,7 +433,9 @@
         </item>
         <item>
             <key> <string>configuration_header_gadget_url</string> </key>
-            <value> <string>slapos_master_panel_header.html</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>configuration_icon_url</string> </key>
@@ -743,12 +745,12 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>ERP5TypeTestCase</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
                       <value>
-                        <persistent> <bytes encoding="base64">AAAAAAAAAAs=</bytes> </persistent>
+                        <none/>
                       </value>
                   </item>
                   <item>
@@ -757,7 +759,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1026.19906.14153.56593</string> </value>
+                      <value> <string>1030.31611.30220.47650</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -773,7 +775,7 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                           <tuple/>
                           <state>
                             <tuple>
-                              <float>1753248596.05</float>
+                              <float>1769506392.62</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -783,33 +785,6 @@ WebSection_getPanelPrecacheManifestList</string> </value>
                 </dictionary>
               </list>
             </value>
-        </item>
-      </dictionary>
-    </pickle>
-  </record>
-  <record id="11" aka="AAAAAAAAAAs=">
-    <pickle>
-      <global name="Message" module="Products.ERP5Type.Message"/>
-    </pickle>
-    <pickle>
-      <dictionary>
-        <item>
-            <key> <string>default</string> </key>
-            <value> <string>Translation data updated.</string> </value>
-        </item>
-        <item>
-            <key> <string>domain</string> </key>
-            <value> <string>erp5_ui</string> </value>
-        </item>
-        <item>
-            <key> <string>mapping</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
-            <key> <string>message</string> </key>
-            <value> <string>Translation data updated.</string> </value>
         </item>
       </dictionary>
     </pickle>

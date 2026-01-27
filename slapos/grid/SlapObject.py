@@ -307,11 +307,8 @@ class Software(object):
 
     f = None
     extends_cache = os.path.join(
-      tempfile.gettempdir(),
-      'extends-cache.%s.%s' % (
-        os.getuid() or os.stat(self.software_root).st_uid,
-        self.software_url_hash,
-      ),
+      self.software_path,
+      'extends-cache',
     )
     if not os.path.isdir(extends_cache):
       os.makedirs(extends_cache)

@@ -306,10 +306,7 @@ class Software(object):
     self._copy_netrc_file(self.software_path)
 
     f = None
-    extends_cache = os.path.join(
-      self.software_path,
-      'extends-cache',
-    )
+    extends_cache = os.path.join(self.software_path, 'extends-cache')
     if not os.path.isdir(extends_cache):
       os.makedirs(extends_cache)
     try:

@@ -323,7 +323,7 @@ class Software(object):
       self._note_git_revision(buildout_cfg, self.url)
 
       additional_parameters = list(self._additional_buildout_parameters(extends_cache))
-      additional_parameters.extend(['-c', buildout_cfg])
+      additional_parameters.extend(['-N', '-c', buildout_cfg])
 
       buildout_binary = os.path.join(self.software_path, 'bin', 'buildout')
       buildout_marker = buildout_binary + "-bootstrap-skipped"

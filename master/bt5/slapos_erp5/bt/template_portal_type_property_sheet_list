@@ -1,5 +1,4 @@
 Category Tool | CategoryToolUpgraderRegionConstraint
-Certificate Authority Tool | CertificateAuthorityToolConsistencyConstraint
 Id Tool | SlapOSModuleIdGeneratorConstraint
 Invitation Token | Reference
 Organisation | GeographicOrganisation

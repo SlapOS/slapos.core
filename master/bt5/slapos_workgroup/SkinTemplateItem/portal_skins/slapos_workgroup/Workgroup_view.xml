@@ -85,6 +85,7 @@
                     <key> <string>right</string> </key>
                     <value>
                       <list>
+                        <string>my_destination_title</string>
                         <string>my_translated_validation_state_title</string>
                       </list>
                     </value>

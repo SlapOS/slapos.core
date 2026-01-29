@@ -30,7 +30,7 @@
    <multi_property id='categories'>local_role_group/shadow</multi_property>
    <multi_property id='base_category'>group</multi_property>
   </role>
-  <role id='Assignee'>
+  <role id='Auditor'>
    <property id='title'>Workgroup itself</property>
    <property id='description'>Monovalued role</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromSelf</property>

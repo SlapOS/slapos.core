@@ -131,5 +131,6 @@ Upgrade Decision | slapos_reject
 Web Message | slapos_panel_view
 Workgroup Module | slapos_panel_view
 Workgroup Module | slapos_panel_view_my_workgroup_list
+Workgroup | invite_slapos_person
 Workgroup | jump_to_slapos_assignment_request
 Workgroup | slapos_panel_view

@@ -78,6 +78,8 @@ else:
     follow_up_value=project_list[0],
     activate_kw={'tag': tag},
   )
+  # Prevent 2 nodes to call request concurrently
+  person.serialize()
 
 request_instance_tree.InstanceTree_updateParameterAndRequest(
   root_state, software_release_url_string, software_title, software_type, instance_xml, sla_xml, is_slave

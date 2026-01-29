@@ -7,7 +7,8 @@ assert person.getPortalType() == "Person"
 
 workgroup = portal.workgroup_module.newContent(
   portal_type='Workgroup',
-  title=title
+  title=title,
+  destination_value=person
 )
 
 if len(workgroup.checkConsistency()) != 0:

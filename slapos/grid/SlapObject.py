@@ -306,7 +306,9 @@ class Software(object):
     self._copy_netrc_file(self.software_path)
 
     f = None
-    extends_cache = tempfile.mkdtemp()
+    extends_cache = os.path.join(self.software_path, 'extends-cache')
+    if not os.path.isdir(extends_cache):
+      os.mkdir(extends_cache)
     try:
       self._set_ownership(extends_cache)
 
@@ -321,7 +323,7 @@ class Software(object):
       self._note_git_revision(buildout_cfg, self.url)
 
       additional_parameters = list(self._additional_buildout_parameters(extends_cache))
-      additional_parameters.extend(['-c', buildout_cfg])
+      additional_parameters.extend(['-N', '-c', buildout_cfg])
 
       buildout_binary = os.path.join(self.software_path, 'bin', 'buildout')
       buildout_marker = buildout_binary + "-bootstrap-skipped"
@@ -345,8 +347,8 @@ class Software(object):
                            debug=self.buildout_debug)
       if f is not None:
         os.remove(buildout_marker)
-    finally:
       shutil.rmtree(extends_cache)
+    finally:
       if f is not None:
         f.close()
 

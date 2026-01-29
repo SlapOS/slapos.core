@@ -2026,7 +2026,7 @@ class TestWorkgroup(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(document, 'F-SALEMAN', ['Assignor'])
     self.assertRoles(document, 'F-ACCMAN', ['Assignor'])
     self.assertRoles(document, 'F-ACCAGT', ['Assignee'])
-    self.assertRoles(document, document.getUserId(), ['Assignee'])
+    self.assertRoles(document, document.getUserId(), ['Auditor'])
     # XXX RAFAEL: Remove SHADOW if this is not required
     self.assertRoles(document, 'SHADOW-%s' % document.getUserId(), ['Auditor'])
 

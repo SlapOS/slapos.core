@@ -25,6 +25,7 @@ import difflib
 slapos_folder_list = """slapos_erp5
 slapos_upgrader
 slapos_abyss
+slapos_workgroup
 slapos_base
 slapos_json_rpc_api
 slapos_subscription_request

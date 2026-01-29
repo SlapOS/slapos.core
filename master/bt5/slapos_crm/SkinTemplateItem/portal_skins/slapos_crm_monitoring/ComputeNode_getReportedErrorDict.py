@@ -1,3 +1,5 @@
+from zExceptions import Unauthorized
+
 portal = context.getPortalObject()
 compute_node = context
 
@@ -62,8 +64,16 @@ minimal_slapos_version = portal.portal_preferences.getPreferredMinimalSlaposVers
 # If version isn't uploaded yet dont fail too early
 compute_node_version = context.getSlaposVersion("10000")
 
+def compareVersions(*args):
+  try:
+    return portal.portal_templates.compareVersions(*args)
+  except Unauthorized:
+    # This is working when called by an alarm
+    # But fails from the ticket "Recheck" field
+    return 0
+
 # If found version is smaller them minimal version
-if  portal.portal_templates.compareVersions(compute_node_version, minimal_slapos_version) < 0:
+if compareVersions(compute_node_version, minimal_slapos_version) < 0:
   error_dict['last_contact'] = last_contact
   error_dict['should_notify'] = True
   error_dict['notification_message_reference'] = "slapos-crm-compute_node_check_outdated_os.notification"

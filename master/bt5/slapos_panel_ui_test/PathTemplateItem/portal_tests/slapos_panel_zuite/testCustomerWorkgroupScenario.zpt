@@ -1,0 +1,71 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test SlapOS Panel</title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test SlapOS Panel</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration()">
+
+      <tal:block tal:define="init_configuration python: {'scenario': 'customer'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/slapos_init" />
+      </tal:block>
+
+      <tr>
+        <td>open</td>
+        <td>${base_url}/web_site_module/slapos_master_panel/#?editable=1</td>
+        <td></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_app_loaded" />
+
+
+      <tal:block tal:define="login_configuration python: {'user': user_configuration['customer_login'], 'password': user_configuration['passwd']}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/login" />
+      </tal:block>
+
+      <tr>
+        <td colspan="3"><b>Go to the profile</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'My Account'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block tal:define="click_configuration python: {'text': 'Profile'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_page_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+
+      <tr>
+        <td colspan="3"><b>Create Workgroup</b></td>
+      </tr>
+      <tal:block tal:define="click_configuration python: {'text': 'Create Workgroup'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tr>
+        <td>type</td>
+        <td>//input[@name='field_your_title']</td>
+        <td tal:content="python: 'Workgroup for ' + user_configuration['customer_login']"></td>
+      </tr>
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                                 'text': 'Workgroup created.'}">
+        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_notification" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/wait_for_activities" />
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/check_consistency" />
+    </tbody>
+  </table>
+</body>
+
+</html>

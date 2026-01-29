@@ -1763,6 +1763,30 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 )
     self.assertXMLEqual(str2bytes(expected_xml), got_xml)
 
+  def test_softwareInstanceErrorWithSlaveReference(self):
+    self._makeComplexComputeNode(self.project, with_slave=True)
+    slave_instance = self.start_requested_slave_instance
+    partition_id = self.start_requested_software_instance.getAggregateValue(
+        portal_type='Compute Partition').getReference()
+    self.login(self.start_requested_software_instance.getUserId())
+    error_log = 'The error'
+    response = self.portal_slap.softwareInstanceError(self.compute_node_id,
+      partition_id, error_log,
+      slave_reference=slave_instance.getReference())
+    self.assertEqual('None', response)
+
+    data_dict = slave_instance.getAccessStatus()
+    self.assertEquals('#error while instanciating: The error', data_dict['text'])
+    self.assertEquals(slave_instance.getReference(), data_dict['reference'])
+    self.assertEquals(self.start_requested_software_instance.getReference(),
+                      data_dict['user'])
+
+    data_dict = self.start_requested_software_instance.getAccessStatus()
+    self.assertEquals(
+      '#error no data found for %s' % self.start_requested_software_instance.getReference(),
+      data_dict['text']
+    )
+
   def test_softwareInstanceError_twice(self):
     self._makeComplexComputeNode(self.project)
     partition_id = self.start_requested_software_instance.getAggregateValue(

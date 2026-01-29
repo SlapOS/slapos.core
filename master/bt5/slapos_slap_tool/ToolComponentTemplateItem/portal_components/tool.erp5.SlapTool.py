@@ -557,12 +557,14 @@ class SlapTool(BaseTool):
   security.declareProtected(Permissions.AccessContentsInformation,
     'softwareInstanceError')
   def softwareInstanceError(self, computer_id,
-                            computer_partition_id, error_log):
+                            computer_partition_id, error_log,
+                            slave_reference=None):
     """
     Add an error for the software Instance Workflow
     """
     return self._softwareInstanceError(computer_id, computer_partition_id,
-                                       error_log)
+                                       error_log,
+                                       slave_reference=slave_reference)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'softwareInstanceRename')
@@ -823,13 +825,16 @@ class SlapTool(BaseTool):
 
   @convertToREST
   def _softwareInstanceError(self, compute_node_id,
-                            compute_partition_id, error_log=""):
+                            compute_partition_id, error_log="",
+                            slave_reference=None):
     """
     Add an error for the software Instance Workflow
     """
     instance = self._getSoftwareInstanceForComputePartition(
         compute_node_id,
-        compute_partition_id)
+        compute_partition_id,
+        slave_reference=slave_reference
+    )
     
     if error_log is None:
       error_log = ""

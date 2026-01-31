@@ -192,7 +192,7 @@ def merged_options(args, configp):
     if value is not None:
       options[key] = value
 
-  if options.get('all'):
+  if options.get('force'):
     options['develop'] = True
 
   # Parse cache / binary cache options
@@ -650,15 +650,15 @@ stderr_logfile_backups=1
         if state == 'available':
           available_software_path_set.add(software_path)
           completed_tag = os.path.join(software_path, '.completed')
-          if (self.develop or (not os.path.exists(completed_tag) and
-                 len(self.software_release_filter_list) == 0) or
+          if (self.develop or not os.path.exists(completed_tag)) and (
+                 len(self.software_release_filter_list) == 0 or
                  url_hash in self.software_release_filter_list or
                  url_hash in (md5digest(uri) for uri in self.software_release_filter_list)):
             try:
               software_release.building()
             except NotFoundError:
               pass
-            software.install()
+            software.install(develop=develop)
             # Report to the slapos master that the software is available
             # before marking it locally
             # this will allow to reprocess the installation in case
@@ -1149,6 +1149,10 @@ stderr_logfile_backups=1
     if not computer_partition_id:
       raise ValueError('Computer Partition id is empty.')
 
+    if not self.develop and self.computer_partition_filter_list and
+        computer_partition_id not in self.computer_partition_filter_list:
+      return
+
     self.logger.debug('Check if %s requires processing...' % computer_partition_id)
 
     instance_path = os.path.join(self.instance_root, computer_partition_id)
@@ -1239,8 +1243,9 @@ stderr_logfile_backups=1
     # Check if timestamp from server is different from local one.
     # If not: it's not worth processing this partition (nothing has
     # changed).
-    if (computer_partition_id not in self.computer_partition_filter_list and
-          not self.develop and timestamp is not None and periodicity):
+    if not self.develop and (not self.computer_partition_filter_list or
+          computer_partition_id in self.computer_partition_filter_list) and
+          timestamp is not None and periodicity:
       try:
         last_runtime = os.path.getmtime(timestamp_path)
       except OSError as e:

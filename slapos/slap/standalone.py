@@ -390,7 +390,7 @@ class StandaloneSlapOS(object):
   Extends the existing `IRequester` and `ISupply`, with the special behavior that
   `IRequester.request` and `ISupply.supply` will only use the embedded computer.
   """
-  # an "hidden" flag to run slapos node instance and software with --all, for
+  # an "hidden" flag to run slapos node instance and software with --force, for
   # test suites for softwares with missing promises.
   _force_slapos_node_instance_all = False
 
@@ -466,7 +466,7 @@ class StandaloneSlapOS(object):
         },
         'slapos-node-software-all': {
             'command':
-                '{self._slapos_bin} node software --cfg {self._slapos_config} --all {debug_args}',
+                '{self._slapos_bin} node software --cfg {self._slapos_config} --force {debug_args}',
             'debug_args':
                 '-v --buildout-debug',
             'stdout_logfile':
@@ -482,7 +482,7 @@ class StandaloneSlapOS(object):
         },
         'slapos-node-instance-all': {
             'command':
-                '{self._slapos_bin} node instance --cfg {self._slapos_config} --all {debug_args}',
+                '{self._slapos_bin} node instance --cfg {self._slapos_config} --force {debug_args}',
             'debug_args':
                 '-v --buildout-debug',
             'stdout_logfile':
@@ -828,7 +828,7 @@ class StandaloneSlapOS(object):
 
     If `install_all` is true, all softwares will be installed, even the ones
     for which the installation was already completed. This is equivalent to
-    running `slapos node software --all`.
+    running `slapos node software --force`.
 
     Error cases:
       * `SlapOSNodeSoftwareError` when buildout error while installing software.

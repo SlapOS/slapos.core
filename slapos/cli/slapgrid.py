@@ -151,7 +151,8 @@ class SoftwareCommand(SlapgridCommand):
                           help='Process anyway, even if already installed. '
                                'Existing extends cache will be used only when dowload fails.')
         only.add_argument('--all', action='store_true',
-                          help='Deprecated. Use --force without --only-sr instead.', deprecated=True)
+                          help='Deprecated. Use --force without --only-sr instead.',
+                          dest='force', deprecated=True)
         only.add_argument('--only-sr', '--only',
                           help='Force the update of a single software release (can be full URL or MD5 hash), '
                                'even if is already installed. This option will make all other '
@@ -183,7 +184,8 @@ class InstanceCommand(SlapgridCommand):
         only.add_argument('--force', action='store_true',
                           help='Process Computer Partitions even if already processed.')
         only.add_argument('--all', action='store_true',
-                          help='Deprecated. Use --force without --only-cp instead.', deprecated=True)
+                          help='Deprecated. Use --force without --only-cp instead.',
+                          dest='force', deprecated=True)
         only.add_argument('--only-cp', '--only',
                           help='Update a single or a list of computer partitions '
                                '(ie.:slappartX, slappartY), '

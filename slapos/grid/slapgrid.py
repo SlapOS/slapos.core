@@ -911,7 +911,7 @@ stderr_logfile_backups=1
       reload_process = FPopen(reload_cmd, universal_newlines=True)
       stdout, stderr = reload_process.communicate()
       if reload_process.returncode != 0:
-        raise Exception("Failed to load firewalld rules with command %s.\n%" % (
+        raise Exception("Failed to load firewalld rules with command %s.\n%s" % (
                         stderr, reload_cmd))
 
     if reload_rules or not os.path.exists(firewall_rules_path):

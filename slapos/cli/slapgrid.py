@@ -146,9 +146,13 @@ class SoftwareCommand(SlapgridCommand):
                         action='store_true',
                         help='Destroy software folders that are not supplied on this computer, '
                              'but still present on disk.')
+        ap.add_argument('--force', action='store_true',
+                        help='Process anyway, even if already installed. '
+                             'Existing extends cache will be used only when dowload fails.')
         only = ap.add_mutually_exclusive_group()
         only.add_argument('--all', action='store_true',
-                          help='Process all Software Releases, even if already installed.')
+                          help='Deprecated. Use --force without --only-sr instead.',
+                          dest='force', deprecated=True)
         only.add_argument('--only-sr', '--only',
                           help='Force the update of a single software release (can be full URL or MD5 hash), '
                                'even if is already installed. This option will make all other '
@@ -176,9 +180,12 @@ class InstanceCommand(SlapgridCommand):
         ap.add_argument('--force-stop',
                         action='store_true',
                         help='Stop the services even for instances requested as started')
+        ap.add_argument('--force', action='store_true',
+                        help='Process Computer Partitions even if already processed.')
         only = ap.add_mutually_exclusive_group()
         only.add_argument('--all', action='store_true',
-                          help='Process all Computer Partitions.')
+                          help='Deprecated. Use --force without --only-cp instead.',
+                          dest='force', deprecated=True)
         only.add_argument('--only-cp', '--only',
                           help='Update a single or a list of computer partitions '
                                '(ie.:slappartX, slappartY), '

@@ -152,7 +152,7 @@ class SoftwareCommand(SlapgridCommand):
         only = ap.add_mutually_exclusive_group()
         only.add_argument('--all', action='store_true',
                           help='Deprecated. Use --force without --only-sr instead.',
-                          dest='force', deprecated=True)
+                          dest='force')
         only.add_argument('--only-sr', '--only',
                           help='Force the update of a single software release (can be full URL or MD5 hash), '
                                'even if is already installed. This option will make all other '
@@ -185,7 +185,7 @@ class InstanceCommand(SlapgridCommand):
         only = ap.add_mutually_exclusive_group()
         only.add_argument('--all', action='store_true',
                           help='Deprecated. Use --force without --only-cp instead.',
-                          dest='force', deprecated=True)
+                          dest='force')
         only.add_argument('--only-cp', '--only',
                           help='Update a single or a list of computer partitions '
                                '(ie.:slappartX, slappartY), '

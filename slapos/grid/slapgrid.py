@@ -1151,7 +1151,7 @@ stderr_logfile_backups=1
     if not computer_partition_id:
       raise ValueError('Computer Partition id is empty.')
 
-    if self.computer_partition_filter_list and
+    if self.computer_partition_filter_list and \
         computer_partition_id not in self.computer_partition_filter_list:
       return
 

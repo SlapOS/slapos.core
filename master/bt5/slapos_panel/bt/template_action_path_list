@@ -132,6 +132,7 @@ Web Message | slapos_panel_view
 Workgroup Module | slapos_panel_view
 Workgroup Module | slapos_panel_view_my_workgroup_list
 Workgroup | accept_slapos_invitation_token
+Workgroup | claim_slapos_item_subscription
 Workgroup | invite_slapos_person
 Workgroup | jump_to_slapos_assignment_request
 Workgroup | slapos_panel_view

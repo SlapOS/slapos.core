@@ -612,10 +612,6 @@ stderr_logfile_backups=1
       try:
         software_release_uri = software_release.getURI()
         url_hash = md5digest(software_release_uri)
-        if self.software_release_filter_list and \
-            url_hash not in self.software_release_filter_list and \
-            url_hash not in (md5digest(uri) for uri in self.software_release_filter_list):
-          continue
         software_path = os.path.join(self.software_root, url_hash)
         software = Software(url=software_release_uri,
             software_root=self.software_root,
@@ -652,7 +648,11 @@ stderr_logfile_backups=1
         for manager in self._manager_list:
           manager.software(software)
 
-        if state == 'available':
+        if self.software_release_filter_list and \
+            url_hash not in self.software_release_filter_list and \
+            url_hash not in (md5digest(uri) for uri in self.software_release_filter_list):
+          pass
+        elif state == 'available':
           available_software_path_set.add(software_path)
           completed_tag = os.path.join(software_path, '.completed')
           if self.develop or not os.path.exists(completed_tag):
@@ -1151,10 +1151,6 @@ stderr_logfile_backups=1
     if not computer_partition_id:
       raise ValueError('Computer Partition id is empty.')
 
-    if self.computer_partition_filter_list and \
-        computer_partition_id not in self.computer_partition_filter_list:
-      return
-
     self.logger.debug('Check if %s requires processing...' % computer_partition_id)
 
     instance_path = os.path.join(self.instance_root, computer_partition_id)
@@ -1241,6 +1237,13 @@ stderr_logfile_backups=1
     # - the timestamp should not be updated
     if self.force_stop and computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
       timestamp = None
+
+    if self.computer_partition_filter_list and \
+        computer_partition_id not in self.computer_partition_filter_list:
+      # Run manager tear down
+      for manager in self._manager_list:
+        manager.instanceTearDown(local_partition)
+      return
 
     # Check if timestamp from server is different from local one.
     # If not: it's not worth processing this partition (nothing has

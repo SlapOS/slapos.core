@@ -612,9 +612,9 @@ stderr_logfile_backups=1
       try:
         software_release_uri = software_release.getURI()
         url_hash = md5digest(software_release_uri)
-        if (self.software_release_filter_list and
-            url_hash in self.software_release_filter_list or
-            url_hash in (md5digest(uri) for uri in self.software_release_filter_list)):
+        if self.software_release_filter_list and \
+            url_hash not in self.software_release_filter_list and \
+            url_hash not in (md5digest(uri) for uri in self.software_release_filter_list):
           continue
         software_path = os.path.join(self.software_root, url_hash)
         software = Software(url=software_release_uri,

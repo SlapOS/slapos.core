@@ -65,7 +65,7 @@ if has_busy_partition:
 
   # Propose to close and invalidate this server
   ticket_title = 'Compute Node %s seems outdated' % compute_node.getReference()
-  ticket_description = """This Compute Node is not contacting the SlapOS master.
+  ticket_description = """The Compute Node "%s" (%s) is not contacting the SlapOS master.
 
 It only contains instances to destroy.
 
@@ -74,19 +74,19 @@ If you could, please run slapos node format to trigger the deletion of all user 
 Then, please change its allocation scope to 'close/forever' to definitely drop its access to the system.
 
 Thanks in advance.
-"""
+""" % (compute_node.getTitle(), compute_node.getReference())
 
 
 #########################################
 # has_busy_partition is False
 else:
   ticket_title = 'Compute Node %s seems outdated' % compute_node.getReference()
-  ticket_description = """This empty Compute Node is not contacting the SlapOS master.
+  ticket_description = """The empty Compute Node "%s" (%s) is not contacting the SlapOS master.
 
 If not used anymore, could you please change its allocation scope to 'close/forever' to definitely drop its access to the system?
 
 Thanks in advance.
-"""
+""" % (compute_node.getTitle(), compute_node.getReference())
 
 
 # Create the ticket

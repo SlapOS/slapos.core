@@ -2267,7 +2267,13 @@ class TestSlapOSCrmGarbageCollectProject(TestSlapOSCrmMonitoringMixin):
     self.assertEqual(len(event_list), 1)
     event = event_list[0]
 
-    self.assertIn('This empty Compute Node is not contacting the SlapOS master.', event.getTextContent())
+    self.assertIn(
+      'The empty Compute Node "%s" (%s) is not contacting the SlapOS master.' % (
+        compute_node.getTitle(),
+        compute_node.getReference()
+      ),
+      event.getTextContent()
+    )
     self.assertEqual(ticket.getSimulationState(), "submitted")
 
   def test_ComputeNode_checkForGarbageCollect_script_nonClosedComputeNode(self):

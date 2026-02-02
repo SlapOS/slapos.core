@@ -312,6 +312,20 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     self.login()
     self.simulateSlapgridSR(compute_node)
 
+  def createWorkgroup(self, person, project=None):
+    self.login(person.getUserId())
+    workgroup = person.Person_createWorkgroup(
+      'Test workgroup for %s %s' % (person.getTitle(), self.generateNewId()),
+       batch=1)
+    self.tic()
+    self.assertEqual(workgroup.getValidationState(), 'validated')
+    if project is not None:
+      # We directly add assignment to make our life easier
+      self.login()
+      self.addProjectCustomerAssignment(workgroup, project)
+    self.tic()
+    return workgroup
+
 class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
   def test_virtual_master_without_accounting_scenario(self):

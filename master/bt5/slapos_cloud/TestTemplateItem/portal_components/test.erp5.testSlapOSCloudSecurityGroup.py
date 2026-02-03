@@ -218,7 +218,6 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     self.assertIn('Authenticated', user.getRoles())
     self.assertSameSet([], user.getGroups())
 
-
     # add to group category
     self.login()
     person.newContent(portal_type='Assignment', group='company').open()
@@ -284,6 +283,47 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
                         project2.getReference(),
                         '%s_F-PRODMAN' % project2.getReference()], user.getGroups())
 
+    # add workgroup
+    self.login()
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup',
+      title='workgroup-%s' % self.generateNewId()
+    )
+    workgroup.validate()
+
+    person.newContent(portal_type='Assignment',
+      destination_value=workgroup).open()
+    self.tic()
+
+    self.portal.portal_caches.clearAllCache()
+    self.login(person.getUserId())
+    user = getSecurityManager().getUser()
+    self.assertIn('Authenticated', user.getRoles())
+    self.assertSameSet(['F-ACCMAN', 'F-ACCOUNTING*', 'F-ACCMAN*',
+                        project.getReference(),
+                        'F-PRODMAN', 'F-PRODUCTION*', 'F-PRODMAN*',
+                        project2.getReference(),
+                        '%s_F-PRODMAN' % project2.getReference(),
+                        workgroup.getUserId()], user.getGroups())
+
+    # add assignment in workgroup
+    self.login()
+    project3 = self.addProject()
+    self.addProjectProductionManagerAssignment(workgroup, project3)
+    self.tic()
+
+    self.portal.portal_caches.clearAllCache()
+    self.login(person.getUserId())
+    user = getSecurityManager().getUser()
+    self.assertIn('Authenticated', user.getRoles())
+    self.assertSameSet(['F-ACCMAN', 'F-ACCOUNTING*', 'F-ACCMAN*',
+                        project.getReference(),
+                        'F-PRODMAN', 'F-PRODUCTION*', 'F-PRODMAN*',
+                        project2.getReference(),
+                        '%s_F-PRODMAN' % project2.getReference(),
+                        project3.getReference(),
+                        '%s_F-PRODMAN' % project3.getReference(),
+                        workgroup.getUserId()], user.getGroups())
 
   def test_inactive(self, login_portal_type="Certificate Login"):
     reference = self._generateRandomUniqueReference('Person')
@@ -314,6 +354,8 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
   def test_inactive_erp5_login(self):
     self.test_inactive(login_portal_type="ERP5 Login")
 
+
+    
 def test_suite():
   suite = unittest.TestSuite()
   suite.addTest(unittest.makeSuite(TestSlapOSComputeNodeSecurity))

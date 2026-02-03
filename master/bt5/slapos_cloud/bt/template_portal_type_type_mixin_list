@@ -1,4 +1,6 @@
 Catalog Tool | SlapOSCatalogToolCacheMixin
+Software Instance | SlapOSInstanceSlapInterfaceMixin
+Slave Instance | SlapOSInstanceSlapInterfaceMixin
 Compute Node | SlapOSCacheMixin
 Compute Node | SlapOSComputeNodeMixin
 Compute Partition | SlapOSCacheMixin

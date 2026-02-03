@@ -277,6 +277,7 @@ def create_slapgrid_object(options, logger):
                   instance_root=op['instance_root'],
                   shared_part_list=op.get('shared_part_list', ''),
                   build_time_part_list=op.get('build_time_part_list', ''),
+                  build_time_symlinks=op.get('build_time_symlinks', ''),
                   master_url=op['master_url'],
                   computer_id=op['computer_id'],
                   buildout=op.get('buildout'),
@@ -385,6 +386,7 @@ class Slapgrid(object):
                buildout_debug=False,
                shared_part_list='',
                build_time_part_list='',
+               build_time_symlinks='',
                force_stop=False,
                partition_timeout=None,
                ):
@@ -457,6 +459,7 @@ class Slapgrid(object):
     self._manager_list = slapmanager.from_config(config)
     self.shared_part_list = shared_part_list
     self.build_time_part_list = build_time_part_list
+    self.build_time_symlinks = build_time_symlinks
     self.force_stop = force_stop
 
   def _getWatchdogLine(self):
@@ -641,6 +644,7 @@ stderr_logfile_backups=1
             software_min_free_space=self.software_min_free_space,
             shared_part_list=self.shared_part_list,
             build_time_part_list=self.build_time_part_list,
+            build_time_symlinks=self.build_time_symlinks,
         )
 
         # call manager for every software release

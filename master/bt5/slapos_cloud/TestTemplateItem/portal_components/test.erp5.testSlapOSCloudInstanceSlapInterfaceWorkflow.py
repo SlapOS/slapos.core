@@ -101,37 +101,37 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     # substract parameters
     request_kw = good_request_kw.copy()
     request_kw.pop('software_release')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
     request_kw = good_request_kw.copy()
     request_kw.pop('software_title')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
     request_kw = good_request_kw.copy()
     request_kw.pop('software_type')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
     request_kw = good_request_kw.copy()
     request_kw.pop('instance_xml')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
     request_kw = good_request_kw.copy()
     request_kw.pop('sla_xml')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
     request_kw = good_request_kw.copy()
     request_kw.pop('shared')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
     request_kw = good_request_kw.copy()
     request_kw.pop('state')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
   def test_request_createdInstance(self):

@@ -212,13 +212,13 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       )
 
     self.tic()
-    self.assertEqual(None,
-      instance.workflow_history['instance_slap_interface_workflow'][-1]['action'])
+    self.assertEqual('',
+      instance.workflow_history['edit_workflow'][-1]['comment'])
 
     instance.edit(**{method_id: self.generateSafeXml()})
     self.tic()
-    self.assertEqual('bang',
-      instance.workflow_history['instance_slap_interface_workflow'][-1]['action'])
+    self.assertEqual('Parameter changed',
+      instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_change_instance_parameter_onInstanceUrlString(self):
     return self.check_change_instance_parameter("Software Instance",

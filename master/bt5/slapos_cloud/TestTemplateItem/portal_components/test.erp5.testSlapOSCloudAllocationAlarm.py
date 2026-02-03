@@ -374,13 +374,17 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(software_instance.getValidationState(), 'validated')
 
     software_instance.setSlaXml(sla_xml)
-    software_instance.SoftwareInstance_tryToAllocatePartition()
-
-    self.tic()
     portal_workflow = software_instance.portal_workflow
     last_workflow_item = portal_workflow.getInfoFor(ob=software_instance,
                                           name='comment', wf_id='edit_workflow')
-    self.assertEqual(None, last_workflow_item)
+    self.assertEqual('Visited by SoftwareInstance_tryToAllocatePartition',
+                     last_workflow_item)
+    software_instance.SoftwareInstance_tryToAllocatePartition()
+
+    self.tic()
+    last_workflow_item = portal_workflow.getInfoFor(ob=software_instance,
+                                          name='comment', wf_id='edit_workflow')
+    self.assertEqual('Parameter changed', last_workflow_item)
     self.assertNotEqual(None,
       software_instance.getAggregateValue(portal_type='Compute Partition'))
 

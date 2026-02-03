@@ -27,6 +27,8 @@
 
 from AccessControl import ClassSecurityInfo
 from Products.ERP5Type import Permissions
+from DateTime import DateTime
+from Products.ZSQLCatalog.SQLCatalog import Query, NegatedQuery
 
 
 class SlapOSInstanceSlapInterfaceMixin:
@@ -264,4 +266,37 @@ class SlapOSInstanceSlapInterfaceMixin:
     else:
       self.REQUEST.set('request_instance', None)
 
+  security.declareProtected(Permissions.ModifyPortalContent, 'bang')
+  def bang(self, comment, bang_tree=False):
+    instance = self
+    assert instance.getPortalType() in ["Slave Instance", "Software Instance"]
+    instance.Base_checkConsistency()
+
+    portal = instance.getPortalObject()
+    instance.setBangTimestamp(int(float(DateTime()) * 1e6))
+    key = "%s_bangstamp" % instance.getReference()
+    instance.setLastData(key, str(int(instance.getModificationDate())))
+    if comment:
+      portal_workflow = portal.portal_workflow
+      last_workflow_item = portal_workflow.getInfoFor(
+        ob=instance,
+        name='comment',
+        wf_id='edit_workflow'
+       )
+      if last_workflow_item != comment:
+        portal.portal_workflow.doActionFor(
+          instance,
+          action='edit_action',
+          comment=comment
+        )
+
+    if bang_tree:
+      instance_tree = instance.getSpecialiseValue(portal_type="Instance Tree")
+      portal.portal_catalog.searchAndActivate(
+        default_specialise_uid=instance_tree.getUid(),
+        path=NegatedQuery(Query(path=instance.getPath())),
+        portal_type=["Slave Instance", "Software Instance"],
+        method_id='bang',
+        method_kw={'bang_tree': False, 'comment': comment},
+      )
 

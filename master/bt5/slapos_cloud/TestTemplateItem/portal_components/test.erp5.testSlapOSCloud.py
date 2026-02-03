@@ -938,8 +938,7 @@ class TestSlapOSCloudInstanceInvalidRequest(SlapOSTestCaseMixin):
       sla_xml=sla_xml,
       shared=shared,
       software_title=title,
-      state='started',
-      project_reference=self.project.getReference()
+      state='started'
     )
 
     # Ensure this produces a consistent instance first, to start.
@@ -1006,8 +1005,7 @@ class TestSlapOSCloudInstanceInvalidRequest(SlapOSTestCaseMixin):
       sla_xml=self.generateSafeXml(),
       shared=shared,
       software_title=instance_tree.getTitle(),
-      state='started',
-      project_reference=self.project.getReference()
+      state='started'
     )
     instance_tree.requestStart(**software_instance_kw)
     with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
@@ -1056,8 +1054,7 @@ class TestSlapOSCloudInstanceInvalidRequest(SlapOSTestCaseMixin):
       sla_xml=sla_xml,
       shared=False,
       software_title=title,
-      state='started',
-      project_reference=self.project.getReference()
+      state='started'
     )
 
     with self.assertRaises(ValidationFailed):

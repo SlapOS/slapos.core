@@ -1,4 +1,5 @@
 mixin.erp5.SlapOSCacheMixin
+mixin.erp5.SlapOSCatalogToolCacheMixin
 mixin.erp5.SlapOSComputeNodeMixin
 mixin.erp5.SlapOSComputePartitionMixin
-mixin.erp5.SlapOSCatalogToolCacheMixin
+mixin.erp5.SlapOSInstanceSlapInterfaceMixin

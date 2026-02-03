@@ -1043,6 +1043,7 @@ class SlapTool(BaseTool):
       last_data.get('hash') != value['hash'] or \
       requested_software_instance is None:
       if compute_node_id and compute_partition_id:
+        kw.pop('project_reference')
         requester.requestInstance(**kw)
       else:
         # requester is a person so we use another method

@@ -43,8 +43,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
         instance_xml=self.generateSafeXml(),
         sla_xml=self.generateSafeXml(),
         shared=False,
-        state="started",
-        project_reference=self.project.getReference()
+        state="started"
     )
 
     # prepare part of tree
@@ -1068,8 +1067,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
         instance_xml=self.generateSafeXml(),
         sla_xml=self.generateSafeXml(),
         shared=False,
-        state="started",
-        project_reference=self.project.getReference()
+        state="started"
     )
 
     # prepare part of tree

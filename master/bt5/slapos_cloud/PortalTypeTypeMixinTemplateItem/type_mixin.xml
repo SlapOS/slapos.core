@@ -13,6 +13,9 @@
  <portal_type id="Instance Node">
   <item>SlapOSCacheMixin</item>
  </portal_type>
+ <portal_type id="Instance Tree">
+  <item>SlapOSInstanceSlapInterfaceMixin</item>
+ </portal_type>
  <portal_type id="Person">
   <item>SlapOSCacheMixin</item>
  </portal_type>

@@ -1,13 +1,14 @@
 Catalog Tool | SlapOSCatalogToolCacheMixin
-Software Instance | SlapOSInstanceSlapInterfaceMixin
-Slave Instance | SlapOSInstanceSlapInterfaceMixin
 Compute Node | SlapOSCacheMixin
 Compute Node | SlapOSComputeNodeMixin
 Compute Partition | SlapOSCacheMixin
 Compute Partition | SlapOSComputePartitionMixin
 Instance Node | SlapOSCacheMixin
+Instance Tree | SlapOSInstanceSlapInterfaceMixin
 Person | SlapOSCacheMixin
 Remote Node | SlapOSCacheMixin
 Slave Instance | SlapOSCacheMixin
+Slave Instance | SlapOSInstanceSlapInterfaceMixin
 Software Installation | SlapOSCacheMixin
 Software Instance | SlapOSCacheMixin
+Software Instance | SlapOSInstanceSlapInterfaceMixin

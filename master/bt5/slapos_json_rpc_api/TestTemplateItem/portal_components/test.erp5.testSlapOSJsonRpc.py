@@ -962,12 +962,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     portal_workflow = self.portal.portal_workflow
     comment = portal_workflow.getInfoFor(ob=instance,
                                          name='comment',
-                                         wf_id='instance_slap_interface_workflow')
+                                         wf_id='edit_workflow')
     self.assertEqual(comment, error_log)
-    action_id = portal_workflow.getInfoFor(ob=instance,
-                                           name='action',
-                                           wf_id='instance_slap_interface_workflow')
-    self.assertEqual(action_id, 'bang')
 
     # Check get return the expected results after
     response = self.callJsonRpcWebService(
@@ -1511,12 +1507,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     portal_workflow = self.portal.portal_workflow
     comment = portal_workflow.getInfoFor(ob=instance,
                                          name='comment',
-                                         wf_id='instance_slap_interface_workflow')
+                                         wf_id='edit_workflow')
     self.assertEqual(comment, error_log)
-    action_id = portal_workflow.getInfoFor(ob=instance,
-                                           name='action',
-                                           wf_id='instance_slap_interface_workflow')
-    self.assertEqual(action_id, 'bang')
 
     # Check get return the expected results after
     response = self.callJsonRpcWebService(

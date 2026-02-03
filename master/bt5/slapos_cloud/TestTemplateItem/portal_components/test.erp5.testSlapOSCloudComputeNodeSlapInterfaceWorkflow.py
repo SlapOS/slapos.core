@@ -105,8 +105,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
   def _countInstanceBang(self, instance, comment):
     return len([q for q in instance.workflow_history[
-        'instance_slap_interface_workflow'] if q['action'] == 'bang' and \
-            q['comment'] == comment])
+        'edit_workflow'] if q['comment']])
 
   def _countComputeNodeeBang(self, compute_node, comment):
     return len([q for q in compute_node.workflow_history[

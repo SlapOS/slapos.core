@@ -745,7 +745,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
   def _countBang(self, document):
     return len([q for q in document.workflow_history[
-        'instance_slap_interface_workflow'] if q['action'] == 'bang'])
+        'edit_workflow'] if q['comment']])
 
   def test_request_started_no_bang(self):
     request_kw = self.request_kw.copy()

@@ -50,12 +50,12 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       self._addCertificateLogin(instance)
     self.tic()
 
-    def verify_activeSense_call(self):
+    def verify_activeSense_call(self, *args, **kw):
       if self.getRelativeUrl() == 'portal_alarms/slapos_allocate_instance':
         instance.portal_workflow.doActionFor(instance, action='edit_action',
           comment='activeSense triggered')
       else:
-        return self.activeSense_call()
+        return self.activeSense_call(*args, **kw)
 
     from Products.ERP5Type.Document.Alarm import Alarm #pylint: disable=import-error
 

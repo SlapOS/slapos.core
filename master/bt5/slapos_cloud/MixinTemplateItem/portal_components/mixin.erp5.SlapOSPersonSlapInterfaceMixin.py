@@ -178,3 +178,52 @@ class SlapOSPersonSlapInterfaceMixin:
     self.REQUEST.set("compute_node_url", compute_node.absolute_url())
     self.REQUEST.set("compute_node_reference", compute_node.getReference())
 
+  security.declareProtected(Permissions.ModifyPortalContent, 'requestNetwork')
+  def requestNetwork(self, network_title, project_reference):
+    person = self
+    portal = person.getPortalObject()
+
+    # Ensure the person is consistent
+    person.Base_checkConsistency()
+
+    computer_network_title = network_title
+
+    tag = "%s_%s_NetworkInProgress" % (person.getUid(),
+                                   computer_network_title)
+    if (portal.portal_activities.countMessageWithTag(tag) > 0):
+      # The software instance is already under creation but can not be fetched from catalog
+      # As it is not possible to fetch informations, it is better to raise an error
+      raise NotImplementedError(tag)
+
+    # Ensure project is correctly set
+    project_list = portal.portal_catalog.portal_catalog(portal_type='Project', reference=project_reference,
+                                                        validation_state='validated', limit=2)
+    if len(project_list) != 1:
+      raise NotImplementedError("%i projects '%s'" % (len(project_list), project_reference))
+
+    computer_network_portal_type = "Computer Network"
+    computer_network_list = portal.portal_catalog.portal_catalog(
+      portal_type=computer_network_portal_type,
+      title={'query': computer_network_title, 'key': 'ExactMatch'},
+      follow_up__uid=project_list[0].getUid(),
+      #validation_state="validated",
+      limit=2)
+
+    if len(computer_network_list) == 2:
+      raise NotImplementedError
+    elif len(computer_network_list) == 1:
+      self.REQUEST.set("computer_network_relative_url", computer_network_list[0].getRelativeUrl())
+      self.REQUEST.set("computer_network_reference", computer_network_list[0].getReference())
+    else:
+      module = portal.getDefaultModule(portal_type=computer_network_portal_type)
+      computer_network = module.newContent(
+        portal_type=computer_network_portal_type,
+        title=computer_network_title,
+        source_administration=person.getRelativeUrl(),
+        follow_up_value=project_list[0],
+        activate_kw={'tag': tag}
+      )
+      self.REQUEST.set("computer_network_relative_url", computer_network.getRelativeUrl())
+      self.REQUEST.set("computer_network_reference", computer_network.getReference())
+
+      computer_network.approveRegistration()

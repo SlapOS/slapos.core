@@ -53,4 +53,20 @@ class SlapOSComputeNodeSlapInterfaceMixin:
     self.REQUEST.set("compute_node_certificate", certificate_dict["certificate"])
     self.REQUEST.set("compute_node_key", certificate_dict["key"])
 
+  security.declareProtected(Permissions.ModifyPortalContent, 'approveComputeNodeRegistration')
+  def approveComputeNodeRegistration(self):
+    compute_node = self
+    portal = compute_node.getPortalObject()
+    compute_node.edit(
+      capacity_scope='open'
+    )
+
+    # Keep this extra call separated to be compabible
+    # with interaction workflow whenever this is
+    # updated.
+    compute_node.edit(
+      allocation_scope='open'
+    )
+
+    portal.portal_workflow.doActionFor(compute_node, 'validate_action')
 

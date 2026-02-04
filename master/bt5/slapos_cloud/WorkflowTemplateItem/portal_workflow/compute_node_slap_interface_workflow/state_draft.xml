@@ -15,9 +15,7 @@
         <item>
             <key> <string>categories</string> </key>
             <value>
-              <tuple>
-                <string>destination/portal_workflow/compute_node_slap_interface_workflow/transition_request_software_release</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>

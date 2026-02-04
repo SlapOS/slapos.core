@@ -4,6 +4,7 @@ Compute Node | SlapOSComputeNodeMixin
 Compute Node | SlapOSComputeNodeSlapInterfaceMixin
 Compute Partition | SlapOSCacheMixin
 Compute Partition | SlapOSComputePartitionMixin
+Computer Network | SlapOSNetworkSlapInterfaceMixin
 Instance Node | SlapOSCacheMixin
 Instance Tree | SlapOSInstanceSlapInterfaceMixin
 Person | SlapOSCacheMixin

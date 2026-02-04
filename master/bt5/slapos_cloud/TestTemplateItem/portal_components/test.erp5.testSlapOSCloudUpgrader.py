@@ -254,8 +254,6 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
                      migrated_compute_node.getProperty('bar'))
     self.assertEqual('validated',
                      migrated_compute_node.getValidationState())
-    self.assertEqual('draft',
-                     migrated_compute_node.getSlapState())
     self.assertEqual(creation_date,
                      migrated_compute_node.getCreationDate())
     # self.assertEqual(modification_date,

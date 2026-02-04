@@ -40,7 +40,7 @@ if len(previous_sale_trade_condition_list) == 0:
     source_project__uid=sale_trade_condition.getSourceProjectUid(),
     price_currency__uid=sale_trade_condition.getPriceCurrencyUid(),
   )
-  for key in search_kw.keys():
+  for key in search_kw.copy().keys():
     if not search_kw[key]:
       search_kw.pop(key)
 

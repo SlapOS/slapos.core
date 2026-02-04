@@ -5,6 +5,7 @@
  <portal_type id="Compute Node">
   <item>SlapOSCacheMixin</item>
   <item>SlapOSComputeNodeMixin</item>
+  <item>SlapOSComputeNodeSlapInterfaceMixin</item>
  </portal_type>
  <portal_type id="Compute Partition">
   <item>SlapOSCacheMixin</item>
@@ -22,6 +23,7 @@
  </portal_type>
  <portal_type id="Remote Node">
   <item>SlapOSCacheMixin</item>
+  <item>SlapOSComputeNodeSlapInterfaceMixin</item>
  </portal_type>
  <portal_type id="Slave Instance">
   <item>SlapOSCacheMixin</item>

@@ -287,6 +287,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'slapos_subscription_request',
       'slapos_wechat',
       'slapos_web_deploy',
+      'slapos_workgroup',
       'slapos_erp5',
       'erp5_big_file',
       'erp5_data_notebook',

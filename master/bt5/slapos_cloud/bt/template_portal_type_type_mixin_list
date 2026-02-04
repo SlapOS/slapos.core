@@ -6,6 +6,7 @@ Compute Partition | SlapOSComputePartitionMixin
 Instance Node | SlapOSCacheMixin
 Instance Tree | SlapOSInstanceSlapInterfaceMixin
 Person | SlapOSCacheMixin
+Person | SlapOSPersonSlapInterfaceMixin
 Remote Node | SlapOSCacheMixin
 Slave Instance | SlapOSCacheMixin
 Slave Instance | SlapOSInstanceSlapInterfaceMixin

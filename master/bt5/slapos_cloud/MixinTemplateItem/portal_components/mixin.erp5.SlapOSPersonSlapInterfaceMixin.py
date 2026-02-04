@@ -119,3 +119,62 @@ class SlapOSPersonSlapInterfaceMixin:
     if (root_state == "destroyed"):
       self.REQUEST.set('request_instance_tree', None)
 
+  security.declareProtected(Permissions.ModifyPortalContent, 'requestComputeNode')
+  def requestComputeNode(self, compute_node_title, project_reference):
+    person = self
+    portal = person.getPortalObject()
+
+    # Ensure the person is consistent
+    person.Base_checkConsistency()
+
+    tag = "%s_%s_ComputeNodeInProgress" % (person.getUid(),
+                                   compute_node_title)
+    if (portal.portal_activities.countMessageWithTag(tag) > 0):
+      # The software instance is already under creation but can not be fetched from catalog
+      # As it is not possible to fetch informations, it is better to raise an error
+      raise NotImplementedError(tag)
+
+    # Ensure project is correctly set
+    project_list = portal.portal_catalog.portal_catalog(portal_type='Project', reference=project_reference,
+                                                        validation_state='validated', limit=2)
+    if len(project_list) != 1:
+      raise NotImplementedError("%i projects '%s'" % (len(project_list), project_reference))
+
+    compute_node_portal_type = "Compute Node"
+    compute_node_list = portal.portal_catalog.portal_catalog(
+      portal_type=compute_node_portal_type,
+      title={'query': compute_node_title, 'key': 'ExactMatch'},
+      validation_state='validated',
+      follow_up__uid=project_list[0].getUid(),
+      limit=2
+    )
+
+    if len(compute_node_list) == 2:
+      raise NotImplementedError
+    elif len(compute_node_list) == 1:
+      compute_node = compute_node_list[0]
+      assert compute_node.getFollowUp() == project_list[0].getRelativeUrl()
+    else:
+
+      reference = "COMP-%s" % portal.portal_ids.generateNewId(
+        id_group='slap_computer_reference',
+        id_generator='uid')
+      module = portal.getDefaultModule(portal_type=compute_node_portal_type)
+      compute_node = module.newContent(
+        portal_type=compute_node_portal_type,
+        title=compute_node_title,
+        reference=reference,
+        follow_up_value=project_list[0],
+        activate_kw={'tag': tag}
+      )
+      compute_node.approveComputeNodeRegistration()
+      # Prevent 2 nodes to call request concurrently
+      person.serialize()
+
+
+    compute_node = self.restrictedTraverse(compute_node.getRelativeUrl())
+
+    self.REQUEST.set("compute_node", compute_node.getRelativeUrl())
+    self.REQUEST.set("compute_node_url", compute_node.absolute_url())
+    self.REQUEST.set("compute_node_reference", compute_node.getReference())
+

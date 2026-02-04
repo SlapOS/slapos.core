@@ -9,7 +9,6 @@ Allocation Supply | validation_workflow
 Compute Node | slapos_cloud_interaction_workflow
 Compute Partition | compute_partition_slap_interface_workflow
 Compute Partition | slapos_cloud_interaction_workflow
-Computer Network | network_slap_interface_workflow
 Hosting Subscription | edit_workflow
 Hosting Subscription | hosting_subscription_workflow
 Instance Node | edit_workflow

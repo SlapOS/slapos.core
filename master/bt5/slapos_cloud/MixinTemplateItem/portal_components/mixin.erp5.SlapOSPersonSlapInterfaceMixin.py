@@ -227,3 +227,22 @@ class SlapOSPersonSlapInterfaceMixin:
       self.REQUEST.set("computer_network_reference", computer_network.getReference())
 
       computer_network.approveRegistration()
+
+  security.declareProtected(Permissions.ModifyPortalContent, 'requestToken')
+  def requestToken(self, request_url):
+    person = self
+    portal = person.getPortalObject()
+
+    # Ensure the person is consistent
+    person.Base_checkConsistency()
+
+    access_token = portal.access_token_module.newContent(
+      portal_type="One Time Restricted Access Token",
+      agent_value=person,
+      url_string=request_url,
+      url_method="POST"
+    )
+    access_token_id = access_token.getId()
+    access_token.validate()
+
+    self.REQUEST.set("token", access_token_id)

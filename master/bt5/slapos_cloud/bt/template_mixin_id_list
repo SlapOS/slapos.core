@@ -4,4 +4,5 @@ mixin.erp5.SlapOSComputeNodeMixin
 mixin.erp5.SlapOSComputeNodeSlapInterfaceMixin
 mixin.erp5.SlapOSComputePartitionMixin
 mixin.erp5.SlapOSInstanceSlapInterfaceMixin
+mixin.erp5.SlapOSNetworkSlapInterfaceMixin
 mixin.erp5.SlapOSPersonSlapInterfaceMixin

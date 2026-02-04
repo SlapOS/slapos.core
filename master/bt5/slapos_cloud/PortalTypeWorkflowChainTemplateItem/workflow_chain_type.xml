@@ -20,10 +20,6 @@
   <workflow>compute_partition_slap_interface_workflow, slapos_cloud_interaction_workflow</workflow>
  </chain>
  <chain>
-  <type>Computer Network</type>
-  <workflow>network_slap_interface_workflow</workflow>
- </chain>
- <chain>
   <type>Hosting Subscription</type>
   <workflow>edit_workflow, hosting_subscription_workflow</workflow>
  </chain>

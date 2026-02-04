@@ -18,6 +18,7 @@
  </portal_type>
  <portal_type id="Person">
   <item>SlapOSCacheMixin</item>
+  <item>SlapOSPersonSlapInterfaceMixin</item>
  </portal_type>
  <portal_type id="Remote Node">
   <item>SlapOSCacheMixin</item>

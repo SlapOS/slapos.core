@@ -114,11 +114,11 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     credential_request_form = ret.getBody()
 
     expected_message = 'You will receive a confirmation email to activate your account.'
-    self.assertTrue(expected_message in credential_request_form,
-      '%s not in %s' % (expected_message, credential_request_form))
+    self.assertIn(str2bytes(expected_message), credential_request_form)
 
     # Read captcha key
-    result = re.search(r'<input .*name="__captcha_field_your_captcha__" .*/>', credential_request_form)
+    result = re.search(r'<input .*name="__captcha_field_your_captcha__" .*/>',
+                       bytes2str(credential_request_form))
     self.assertTrue(result, credential_request_form)
     result = re.search(r'value="(\w+)"', result.group(0))
     self.assertTrue(result, credential_request_form)

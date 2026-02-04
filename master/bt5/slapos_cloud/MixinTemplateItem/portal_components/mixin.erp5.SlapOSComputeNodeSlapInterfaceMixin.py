@@ -87,3 +87,43 @@ class SlapOSComputeNodeSlapInterfaceMixin:
     if no_certificate:
       raise ValueError('No certificate')
 
+  security.declarePrivate('_markHistory')
+  def _markHistory(self, comment):
+    portal_workflow = self.getPortalObject().portal_workflow
+    last_workflow_item = portal_workflow.getInfoFor(ob=self,
+                                            name='comment', wf_id='edit_workflow')
+    if last_workflow_item != comment:
+      portal_workflow.doActionFor(self, action='edit_action', comment=comment)
+
+  security.declareProtected(Permissions.ModifyPortalContent, 'reportComputeNodeBang')
+  def reportComputeNodeBang(self, comment=None):
+    compute_node = self
+    portal = compute_node.getPortalObject()
+    compute_partition_uid_list = [x.getUid() for x in compute_node.contentValues(portal_type='Compute Partition') if x.getSlapState() == 'busy']
+
+    if comment:
+      message = 'bang: %s' % comment
+    else:
+      message = 'bang'
+    self._markHistory(message)
+
+    for instance_sql in portal.portal_catalog(
+      default_aggregate_uid=compute_partition_uid_list,
+      portal_type=["Software Instance", "Slave Instance"],
+      validation_state='validated',
+      # Try limiting conflicts on multiple instances of the same tree
+      # example: monitor frontend
+      group_by_list=['specialise_uid']
+    ):
+      instance = instance_sql.getObject()
+      if instance.getSlapState() in ["start_requested", "stop_requested"]:
+        # Increase priority to not block indexations
+        # if there are many activities created
+        instance.activate(priority=2).SoftwareInstance_bangAsSelf(
+          relative_url=instance.getRelativeUrl(),
+          reference=instance.getReference(),
+          comment=comment
+        )
+
+    compute_node.setErrorStatus(message)
+

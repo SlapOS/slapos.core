@@ -1776,13 +1776,13 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertEqual('None', response)
 
     data_dict = slave_instance.getAccessStatus()
-    self.assertEquals('#error while instanciating: The error', data_dict['text'])
-    self.assertEquals(slave_instance.getReference(), data_dict['reference'])
-    self.assertEquals(self.start_requested_software_instance.getReference(),
+    self.assertEqual('#error while instanciating: The error', data_dict['text'])
+    self.assertEqual(slave_instance.getReference(), data_dict['reference'])
+    self.assertEqual(self.start_requested_software_instance.getReference(),
                       data_dict['user'])
 
     data_dict = self.start_requested_software_instance.getAccessStatus()
-    self.assertEquals(
+    self.assertEqual(
       '#error no data found for %s' % self.start_requested_software_instance.getReference(),
       data_dict['text']
     )

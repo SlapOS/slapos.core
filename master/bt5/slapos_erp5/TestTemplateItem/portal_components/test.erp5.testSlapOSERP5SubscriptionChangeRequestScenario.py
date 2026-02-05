@@ -79,8 +79,14 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       public_person = self.joinSlapOS(self.web_site, public_reference)
       self.logout()
     with PinnedDateTime(self, DateTime('2024/01/01')):
-      public_reference2 = 'public2-%s' % self.generateNewId()
-      public_person2 = self.joinSlapOS(self.web_site, public_reference2)
+      self.login(public_person.getUserId())
+      workgroup = self.createWorkgroup(public_person)
+      self.tic()
+      # We directly add assignment to make our life easier
+      self.logout()
+      self.login()
+      self.addProjectCustomerAssignment(workgroup, project)
+      self.tic()
       self.logout()
 
     self.login()
@@ -109,17 +115,6 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       )
       self.checkServiceSubscriptionRequest(instance_tree)
       self.tic()
-
-    with PinnedDateTime(self, DateTime('2024/02/15')):
-      self.login(public_person.getUserId())
-      workgroup = self.createWorkgroup(public_person)
-      self.tic()
-      # We directly add assignment to make our life easier
-      self.logout()
-      self.login()
-      self.addProjectCustomerAssignment(workgroup, project)
-      self.tic()
-      self.logout()
 
     with PinnedDateTime(self, DateTime('2024/02/25')):
       self.login(sale_person.getUserId())
@@ -177,10 +172,10 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     # Ensure no unexpected object has been created
     # 4 assignment request
-    # 2 credential request
+    # 1 credential request
     # 1 instance tree
     # 7 open sale order
-    # 4 assignment
+    # 3 assignment
     # 4 simulation movement
     # 7 sale packing list / line
     # 2 sale trade condition ( a 3rd trade condition is not linked to the project)
@@ -188,7 +183,8 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 1 software product
     # 1 subscription change request
     # 3 subscription request
-    self.assertRelatedObjectCount(project, 37)
+    # 1 workgroup
+    self.assertRelatedObjectCount(project, 36)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()

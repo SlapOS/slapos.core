@@ -27,7 +27,8 @@ destination_decision_value = None
 resource_vcl = []
 if item.getPortalType() == 'Instance Tree':
   service, _, software_type = item.InstanceTree_getSoftwareProduct()
-  destination_decision_value = item.getDestinationSectionValue(portal_type="Person")
+  destination_decision_value = item.getDestinationSectionValue(
+    portal_type=["Person", "Workgroup"])
   if service is not None:
     resource_vcl = [
       # Do not set the software release as variation

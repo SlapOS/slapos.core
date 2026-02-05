@@ -6,11 +6,9 @@ Allocation Supply Line | supply_line_interaction_workflow
 Allocation Supply | edit_workflow
 Allocation Supply | slapos_cloud_interaction_workflow
 Allocation Supply | validation_workflow
-Compute Node | compute_node_slap_interface_workflow
 Compute Node | slapos_cloud_interaction_workflow
 Compute Partition | compute_partition_slap_interface_workflow
 Compute Partition | slapos_cloud_interaction_workflow
-Computer Network | network_slap_interface_workflow
 Hosting Subscription | edit_workflow
 Hosting Subscription | hosting_subscription_workflow
 Instance Node | edit_workflow
@@ -22,8 +20,6 @@ Instance Tree | instance_tree_workflow
 Instance Tree | slapos_cloud_interaction_workflow
 One Time Virtual Master Access Token | edit_workflow
 One Time Virtual Master Access Token | validation_workflow
-Person | person_slap_interface_workflow
-Remote Node | compute_node_slap_interface_workflow
 Remote Node | edit_workflow
 Remote Node | slapos_cloud_interaction_workflow
 Remote Node | validation_workflow

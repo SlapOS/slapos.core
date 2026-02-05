@@ -447,8 +447,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       sla_xml=self.generateSafeXml(),
       shared=False,
       software_title=instance_tree.getTitle(),
-      state='started',
-      project_reference=project.getReference()
+      state='started'
     )
     instance_tree.requestStart(**kw)
     with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
@@ -474,8 +473,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         sla_xml=self.generateSafeXml(),
         shared=True,
         software_title=instance_tree.getTitle(),
-        state='started',
-        project_reference=project.getReference()
+        state='started'
       )
       instance_tree.requestStart(**slave_kw)
       with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
@@ -501,8 +499,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       sla_xml=self.generateSafeXml(),
       shared=False,
       software_title=instance_tree.getTitle(),
-      state='stopped',
-      project_reference=project.getReference()
+      state='stopped'
     )
     instance_tree.requestStop(**kw)
     with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
@@ -529,8 +526,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       sla_xml=self.generateSafeXml(),
       shared=False,
       software_title=instance_tree.getTitle(),
-      state='stopped',
-      project_reference=project.getReference()
+      state='stopped'
     )
     instance_tree.requestStop(**kw)
     with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
@@ -561,8 +557,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       sla_xml=self.generateSafeXml(),
       shared=False,
       software_title=instance_tree.getTitle(),
-      state='stopped',
-      project_reference=project.getReference()
+      state='stopped'
     )
     instance_tree.requestStop(**kw)
     with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):

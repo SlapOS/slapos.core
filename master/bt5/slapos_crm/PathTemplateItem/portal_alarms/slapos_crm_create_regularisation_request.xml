@@ -31,17 +31,23 @@
         <item>
             <key> <string>periodicity_hour</string> </key>
             <value>
-              <tuple/>
+              <tuple>
+                <int>5</int>
+              </tuple>
             </value>
         </item>
         <item>
             <key> <string>periodicity_hour_frequency</string> </key>
-            <value> <int>6</int> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>periodicity_minute</string> </key>
             <value>
-              <tuple/>
+              <tuple>
+                <int>16</int>
+              </tuple>
             </value>
         </item>
         <item>

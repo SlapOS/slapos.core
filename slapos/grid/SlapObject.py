@@ -127,6 +127,7 @@ class Software(object):
                buildout_debug=False,
                shared_part_list='',
                build_time_part_list='',
+               develop=False,
               ):
     """Initialisation of class parameters
     """
@@ -171,6 +172,7 @@ class Software(object):
     self.download_from_binary_cache_force_url_list = \
         download_from_binary_cache_force_url_list
     self.software_min_free_space = software_min_free_space
+    self.develop = develop
 
   def check_free_space(self):
     required = self.software_min_free_space or 0
@@ -306,7 +308,9 @@ class Software(object):
     self._copy_netrc_file(self.software_path)
 
     f = None
-    extends_cache = tempfile.mkdtemp()
+    extends_cache = os.path.join(self.software_path, 'extends-cache')
+    if not os.path.isdir(extends_cache):
+      os.mkdir(extends_cache)
     try:
       self._set_ownership(extends_cache)
 
@@ -321,6 +325,8 @@ class Software(object):
       self._note_git_revision(buildout_cfg, self.url)
 
       additional_parameters = list(self._additional_buildout_parameters(extends_cache))
+      if not self.develop:
+        additional_parameters.append('-N')
       additional_parameters.extend(['-c', buildout_cfg])
 
       buildout_binary = os.path.join(self.software_path, 'bin', 'buildout')
@@ -346,7 +352,6 @@ class Software(object):
       if f is not None:
         os.remove(buildout_marker)
     finally:
-      shutil.rmtree(extends_cache)
       if f is not None:
         f.close()
 

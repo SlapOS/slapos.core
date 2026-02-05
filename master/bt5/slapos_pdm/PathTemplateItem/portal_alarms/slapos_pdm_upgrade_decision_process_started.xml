@@ -26,12 +26,16 @@
         </item>
         <item>
             <key> <string>periodicity_day_frequency</string> </key>
-            <value> <int>1</int> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>periodicity_hour</string> </key>
             <value>
-              <tuple/>
+              <tuple>
+                <int>5</int>
+              </tuple>
             </value>
         </item>
         <item>
@@ -43,7 +47,9 @@
         <item>
             <key> <string>periodicity_minute</string> </key>
             <value>
-              <tuple/>
+              <tuple>
+                <int>17</int>
+              </tuple>
             </value>
         </item>
         <item>

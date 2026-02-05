@@ -13,15 +13,11 @@
  </chain>
  <chain>
   <type>Compute Node</type>
-  <workflow>compute_node_slap_interface_workflow, slapos_cloud_interaction_workflow</workflow>
+  <workflow>slapos_cloud_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Compute Partition</type>
   <workflow>compute_partition_slap_interface_workflow, slapos_cloud_interaction_workflow</workflow>
- </chain>
- <chain>
-  <type>Computer Network</type>
-  <workflow>network_slap_interface_workflow</workflow>
  </chain>
  <chain>
   <type>Hosting Subscription</type>
@@ -40,12 +36,8 @@
   <workflow>edit_workflow, validation_workflow</workflow>
  </chain>
  <chain>
-  <type>Person</type>
-  <workflow>person_slap_interface_workflow</workflow>
- </chain>
- <chain>
   <type>Remote Node</type>
-  <workflow>compute_node_slap_interface_workflow, edit_workflow, slapos_cloud_interaction_workflow, validation_workflow</workflow>
+  <workflow>edit_workflow, slapos_cloud_interaction_workflow, validation_workflow</workflow>
  </chain>
  <chain>
   <type>Slave Instance</type>

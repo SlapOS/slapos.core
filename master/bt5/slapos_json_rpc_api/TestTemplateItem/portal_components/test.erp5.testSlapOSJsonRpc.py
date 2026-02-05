@@ -202,12 +202,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     portal_workflow = self.portal.portal_workflow
     comment = portal_workflow.getInfoFor(ob=self.compute_node,
                                          name='comment',
-                                         wf_id='compute_node_slap_interface_workflow')
-    self.assertEqual(comment, error_log)
-    action_id = portal_workflow.getInfoFor(ob=self.compute_node,
-                                           name='action',
-                                           wf_id='compute_node_slap_interface_workflow')
-    self.assertEqual(action_id, 'report_compute_node_bang')
+                                         wf_id='edit_workflow')
+    self.assertEqual(comment, 'bang: %s' % error_log)
 
   def test_ComputeNodeAccess_04_destroyedSoftwareRelease_noSoftwareInstallation(self):
     with self.changeContextByDisablingPortalAlarm():
@@ -962,12 +958,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
     portal_workflow = self.portal.portal_workflow
     comment = portal_workflow.getInfoFor(ob=instance,
                                          name='comment',
-                                         wf_id='instance_slap_interface_workflow')
+                                         wf_id='edit_workflow')
     self.assertEqual(comment, error_log)
-    action_id = portal_workflow.getInfoFor(ob=instance,
-                                           name='action',
-                                           wf_id='instance_slap_interface_workflow')
-    self.assertEqual(action_id, 'bang')
 
     # Check get return the expected results after
     response = self.callJsonRpcWebService(
@@ -1424,12 +1416,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     portal_workflow = self.portal.portal_workflow
     comment = portal_workflow.getInfoFor(ob=compute_node,
                                          name='comment',
-                                         wf_id='compute_node_slap_interface_workflow')
-    self.assertEqual(comment, error_log)
-    action_id = portal_workflow.getInfoFor(ob=compute_node,
-                                           name='action',
-                                           wf_id='compute_node_slap_interface_workflow')
-    self.assertEqual(action_id, 'report_compute_node_bang')
+                                         wf_id='edit_workflow')
+    self.assertEqual(comment, 'bang: %s' % error_log)
 
   def test_PersonAccess_31_getInstanceWithSharedInstance(self, with_slave=True):
     _, _, _, _, partition, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated', shared=with_slave)
@@ -1511,12 +1499,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
     portal_workflow = self.portal.portal_workflow
     comment = portal_workflow.getInfoFor(ob=instance,
                                          name='comment',
-                                         wf_id='instance_slap_interface_workflow')
+                                         wf_id='edit_workflow')
     self.assertEqual(comment, error_log)
-    action_id = portal_workflow.getInfoFor(ob=instance,
-                                           name='action',
-                                           wf_id='instance_slap_interface_workflow')
-    self.assertEqual(action_id, 'bang')
 
     # Check get return the expected results after
     response = self.callJsonRpcWebService(

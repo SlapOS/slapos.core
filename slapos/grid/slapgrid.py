@@ -192,7 +192,7 @@ def merged_options(args, configp):
     if value is not None:
       options[key] = value
 
-  if options.get('all'):
+  if options.get('force'):
     options['develop'] = True
 
   # Parse cache / binary cache options
@@ -641,19 +641,21 @@ stderr_logfile_backups=1
             software_min_free_space=self.software_min_free_space,
             shared_part_list=self.shared_part_list,
             build_time_part_list=self.build_time_part_list,
+            develop=self.develop,
         )
 
         # call manager for every software release
         for manager in self._manager_list:
           manager.software(software)
 
-        if state == 'available':
+        if self.software_release_filter_list and \
+            url_hash not in self.software_release_filter_list and \
+            url_hash not in (md5digest(uri) for uri in self.software_release_filter_list):
+          pass
+        elif state == 'available':
           available_software_path_set.add(software_path)
           completed_tag = os.path.join(software_path, '.completed')
-          if (self.develop or (not os.path.exists(completed_tag) and
-                 len(self.software_release_filter_list) == 0) or
-                 url_hash in self.software_release_filter_list or
-                 url_hash in (md5digest(uri) for uri in self.software_release_filter_list)):
+          if self.develop or not os.path.exists(completed_tag):
             try:
               software_release.building()
             except NotFoundError:
@@ -1236,11 +1238,17 @@ stderr_logfile_backups=1
     if self.force_stop and computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
       timestamp = None
 
+    if self.computer_partition_filter_list and \
+        computer_partition_id not in self.computer_partition_filter_list:
+      # Run manager tear down
+      for manager in self._manager_list:
+        manager.instanceTearDown(local_partition)
+      return
+
     # Check if timestamp from server is different from local one.
     # If not: it's not worth processing this partition (nothing has
     # changed).
-    if (computer_partition_id not in self.computer_partition_filter_list and
-          not self.develop and timestamp is not None and periodicity):
+    if not self.develop and timestamp is not None and periodicity:
       try:
         last_runtime = os.path.getmtime(timestamp_path)
       except OSError as e:

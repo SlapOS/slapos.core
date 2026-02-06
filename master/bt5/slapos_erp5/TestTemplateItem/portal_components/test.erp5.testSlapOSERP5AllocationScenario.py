@@ -88,15 +88,7 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
     self.logout()
     self.login()
     project = self.portal.restrictedTraverse(project_relative_url)
-    preference = self.portal.portal_preferences.slapos_default_system_preference
-    preference.edit(
-      preferred_subscription_assignment_category_list=[
-        'function/customer',
-        'role/client',
-        'destination_project/%s' % project.getRelativeUrl()
-      ]
-    )
-    self.tic()
+    self.updateSystemPreference(project_relative_url)
     return project, project_owner
 
   def joinSlapOSAsOwner(self):

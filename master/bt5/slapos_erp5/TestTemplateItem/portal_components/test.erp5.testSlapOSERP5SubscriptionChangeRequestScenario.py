@@ -40,17 +40,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
-
-      self.tic()
-
+      self.updateSystemPreference(project_relative_url)
       self.logout()
       self.login(owner_person.getUserId())
 
@@ -198,17 +188,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
-
-      self.tic()
-
+      self.updateSystemPreference(project_relative_url)
       self.logout()
       self.login(owner_person.getUserId())
       public_server_title = 'Public Server for %s' % owner_reference
@@ -310,17 +290,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
-
-      self.tic()
-
+      self.updateSystemPreference(project_relative_url)
       self.logout()
       self.login(owner_person.getUserId())
 
@@ -421,17 +391,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
-
-      self.tic()
-
+      self.updateSystemPreference(project_relative_url)
       self.logout()
       self.login(owner_person.getUserId())
 
@@ -530,16 +490,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
-
-      self.tic()
+      self.updateSystemPreference(project_relative_url)
 
     # XXX XXX XXX XXX '2024/02/25'
     with PinnedDateTime(self, DateTime('2024/02/27')):
@@ -642,16 +593,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
-
-      self.tic()
+      self.updateSystemPreference(project_relative_url)
 
       #############################
       # Set a custom price, to ensure changing later the vat will keep the price

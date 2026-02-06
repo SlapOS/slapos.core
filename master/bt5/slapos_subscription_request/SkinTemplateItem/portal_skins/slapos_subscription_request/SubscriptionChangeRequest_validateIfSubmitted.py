@@ -163,7 +163,7 @@ if is_owner_change_needed:
       portal_type='Assignment Request',
       simulation_state='validated',
       destination_project__uid=subscribed_item.getUid(),
-      destination__uid=subscribed_item.getDestinationUid(),
+      destination_decision__uid=subscribed_item.getDestinationUid(),
       function__uid=portal.portal_categories.function.production.manager.getUid()
     )
     if existing_assignment_request is not None:
@@ -173,7 +173,7 @@ if is_owner_change_needed:
     assignment_request = portal.assignment_request_module.newContent(
       portal_type='Assignment Request',
       destination_project_value=subscribed_item,
-      destination_value=subscription_change_request.getDestinationValue(),
+      destination_decision_value=subscription_change_request.getDestinationValue(),
       function_value=portal.portal_categories.function.production.manager
     )
     assignment_request.submit(comment='Created by the Subscription Change Request %s' % subscription_change_request.getRelativeUrl())

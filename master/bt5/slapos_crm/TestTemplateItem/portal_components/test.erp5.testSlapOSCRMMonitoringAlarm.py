@@ -2329,7 +2329,7 @@ class TestSlapOSCrmGarbageCollectProject(TestSlapOSCrmMonitoringMixin):
     assignment_request = self.portal.assignment_request_module.newContent(
       portal_type='Assignment Request',
       destination_project_value=project,
-      destination_value=person
+      destination_decision_value=person
     )
     assignment_request.submit()
     assignment_request.validate()

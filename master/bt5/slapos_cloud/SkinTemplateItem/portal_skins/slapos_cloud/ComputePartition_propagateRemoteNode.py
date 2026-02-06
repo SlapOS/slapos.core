@@ -1,4 +1,5 @@
 from zExceptions import Unauthorized
+from Products.ZSQLCatalog.SQLCatalog import SimpleQuery
 if REQUEST is not None:
   raise Unauthorized
 
@@ -23,6 +24,13 @@ if local_instance_list is None:
       aggregate__uid=compute_partition.getUid(),
       validation_state='validated'
     )
+
+  if previous_run_date is not None:
+    search_kw['indexation_timestamp'] = SimpleQuery(
+      indexation_timestamp=previous_run_date,
+      comparison_operator=">="
+    )
+
 else:
   search_kw = dict(uid=[portal.restrictedTraverse(x).getUid() for x in local_instance_list])
 

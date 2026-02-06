@@ -11,6 +11,10 @@
             <value> <string>Alarm_managePublicComputeNodeCapacityScope</string> </value>
         </item>
         <item>
+            <key> <string>automatic_solve</string> </key>
+            <value> <int>0</int> </value>
+        </item>
+        <item>
             <key> <string>description</string> </key>
             <value>
               <none/>

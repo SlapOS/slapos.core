@@ -2024,8 +2024,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
           partition_parameter_xml='<marshal><dictionary id="i2"/></marshal>',
           filter_xml='<marshal><dictionary id="i2"/></marshal>',
           state='<marshal><string>started</string></marshal>',
-          shared_xml='<marshal><bool>1</bool></marshal>',
-          project_reference=self.project.getReference()
+          shared_xml='<marshal><bool>1</bool></marshal>'
           )
       self.assertEqual(408, response.status)
       self.assertEqual('private',
@@ -2037,8 +2036,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
           'state': 'started',
           'sla_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
           'software_type': 'req_type',
-          'shared': True,
-          'project_reference': self.project.getReference()
+          'shared': True
       })
     finally:
       if os.path.exists(self.instance_request_simulator):
@@ -2062,8 +2060,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
           partition_parameter_xml='<marshal><dictionary id="i2"/></marshal>',
           filter_xml='<marshal><dictionary id="i2"/></marshal>',
           state='<marshal><string>started</string></marshal>',
-          shared_xml='<marshal><bool>0</bool></marshal>',
-          project_reference=self.project.getReference()
+          shared_xml='<marshal><bool>0</bool></marshal>'
           )
       self.assertEqual(408, response.status)
       self.assertEqual('private',
@@ -2075,8 +2072,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
           'state': 'started',
           'sla_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
           'software_type': 'req_type',
-          'shared': False,
-          'project_reference': self.project.getReference()
+          'shared': False
       })
     finally:
       if os.path.exists(self.instance_request_simulator):
@@ -2100,8 +2096,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
           partition_parameter_xml='<marshal><dictionary id="i2"/></marshal>',
           filter_xml='<marshal><dictionary id="i2"/></marshal>',
           state='<marshal><string>started</string></marshal>',
-          shared_xml='<marshal><bool>0</bool></marshal>',
-          project_reference=self.project.getReference()
+          shared_xml='<marshal><bool>0</bool></marshal>'
           )
       self.assertEqual(408, response.status)
       self.assertEqual('private',
@@ -2113,8 +2108,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
           'state': 'stopped',
           'sla_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
           'software_type': 'req_type',
-          'shared': False,
-          'project_reference': self.project.getReference()
+          'shared': False
       })
     finally:
       if os.path.exists(self.instance_request_simulator):

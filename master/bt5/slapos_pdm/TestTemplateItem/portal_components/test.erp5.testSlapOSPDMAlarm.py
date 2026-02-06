@@ -43,29 +43,70 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
         'Visited by UpgradeDecision_processUpgrade',
         upgrade_decision.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_alarm_instance_tree_create_upgrade_decision(self):
+  #################################################################
+  # InstanceTree_createUpgradeDecision
+  #################################################################
+  def test_createUpgradeDecision_alarm_validated(self):
     instance_tree = self._makeInstanceTree()
     self.tic()
 
-    with TemporaryAlarmScript(self.portal, 'InstanceTree_createUpgradeDecision'):
-      self.portal.portal_alarms.slapos_pdm_instance_tree_create_upgrade_decision.\
-        activeSense()
-      self.tic()
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_pdm_instance_tree_create_upgrade_decision,
+      instance_tree,
+      'InstanceTree_createUpgradeDecision'
+    )
 
-    self.assertEqual('Visited by InstanceTree_createUpgradeDecision',
-      instance_tree.workflow_history['edit_workflow'][-1]['comment'])
-
-  def test_alarm_create_upgrade_decision_destroyed_instance_tree(self):
+  def test_createUpgradeDecision_alarm_destroyed(self):
     instance_tree = self._makeInstanceTree(slap_state="destroy_requested")
     self.tic()
 
-    with TemporaryAlarmScript(self.portal, 'InstanceTree_createUpgradeDecision'):
-      self.portal.portal_alarms.slapos_pdm_instance_tree_create_upgrade_decision.\
-        activeSense()
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_pdm_instance_tree_create_upgrade_decision,
+      instance_tree,
+      'InstanceTree_createUpgradeDecision'
+    )
+
+  def test_createUpgradeDecision_alarm_optimized(self):
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              fake_return=None, attribute=False):
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(has_allocation_supply=True)
+      self.tic()
+    allocation_supply = self.portal.portal_catalog.getResultValue(
+      portal_type='Allocation Supply',
+      destination_project__uid=instance_tree.getFollowUpUid()
+    )
+
+    # Sadly, indexation timestamp is not impacted by PinnedDateTime
+    # so, wait a bit...
+    time.sleep(1)
+
+    alarm = self.portal.portal_alarms.slapos_pdm_instance_tree_create_upgrade_decision
+    params = {'Base_reindexAndSenseAlarm': True}
+    # Fake previous alarm run
+    alarm.Alarm_storeCurrentRunDateAndReturnPreviousRunDate(params)
+    self.tic()
+
+    # If the object was not reindexed since last alarm run,
+    # the alarm does not browse it anymore
+    self._test_alarm_not_visited(
+      alarm,
+      instance_tree,
+      'InstanceTree_createUpgradeDecision',
+      sense_kw={'params': params}
+    )
+
+    allocation_supply.reindexObject()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              fake_return=None, attribute=False):
       self.tic()
 
-    self.assertNotEqual('Visited by InstanceTree_createUpgradeDecision',
-      instance_tree.workflow_history['edit_workflow'][-1]['comment'])
+    # But it is was reindexed, in this case, it is checked
+    self._test_alarm(
+      alarm,
+      instance_tree,
+      'InstanceTree_createUpgradeDecision',
+      sense_kw={'params': params}
+    )
 
   def test_alarm_destroy_unused_software_installation(self):
     software_installation = self.portal.software_installation_module.newContent(

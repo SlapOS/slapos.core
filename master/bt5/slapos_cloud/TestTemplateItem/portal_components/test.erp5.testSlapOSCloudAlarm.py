@@ -1,5 +1,6 @@
 # Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
 import transaction
+import time
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, TemporaryAlarmScript
 from zExceptions import Unauthorized
 from DateTime import DateTime
@@ -1353,6 +1354,95 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
       'ComputePartition_propagateRemoteNode'
     )
 
+  def test_propagateRemoteNode_alarm_optimizedBusyPartitionInRemoteNode(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    _, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              fake_return=None, attribute=False):
+      self.tic()
+
+    # Sadly, indexation timestamp is not impacted by PinnedDateTime
+    # so, wait a bit...
+    time.sleep(1)
+
+    alarm = self.portal.portal_alarms.slapos_cloud_propagate_remote_node_instance
+    params = {'Base_reindexAndSenseAlarm': True}
+    # Fake previous alarm run
+    alarm.Alarm_storeCurrentRunDateAndReturnPreviousRunDate(params)
+    self.tic()
+
+    # If the object was not reindexed since last alarm run,
+    # the alarm does not browse it anymore
+    self._test_alarm_not_visited(
+      alarm,
+      software_instance,
+      'SoftwareInstance_propagateRemoteNode',
+      sense_kw={'params': params}
+    )
+
+    software_instance.reindexObject()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              fake_return=None, attribute=False):
+      self.tic()
+
+    # But it is was reindexed, in this case, it is checked
+    self._test_alarm(
+      alarm,
+      software_instance,
+      'SoftwareInstance_propagateRemoteNode',
+      sense_kw={'params': params}
+    )
+
+  def test_propagateRemoteNode_alarm_optimizedInstanceTree(self):
+    instance_tree = self.addInstanceTree()
+    instance_tree.edit(
+      title="_remote_FOO_%s" % instance_tree.getTitle()
+    )
+
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              fake_return=None, attribute=False):
+      self.tic()
+
+    # Sadly, indexation timestamp is not impacted by PinnedDateTime
+    # so, wait a bit...
+    time.sleep(1)
+
+    alarm = self.portal.portal_alarms.slapos_cloud_propagate_remote_node_instance
+    params = {'Base_reindexAndSenseAlarm': True}
+    # Fake previous alarm run
+    alarm.Alarm_storeCurrentRunDateAndReturnPreviousRunDate(params)
+    self.tic()
+
+    # If the object was not reindexed since last alarm run,
+    # the alarm does not browse it anymore
+    self._test_alarm_not_visited(
+      alarm,
+      instance_tree,
+      'InstanceTree_propagateFromRemoteNode',
+      sense_kw={'params': params}
+    )
+
+    instance_tree.reindexObject()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              fake_return=None, attribute=False):
+      self.tic()
+
+    # But it is was reindexed, in this case, it is checked
+    self._test_alarm(
+      alarm,
+      instance_tree,
+      'InstanceTree_propagateFromRemoteNode',
+      sense_kw={'params': params}
+    )
+
   #################################################################
   # ComputePartition_propagateRemoteNode
   #################################################################
@@ -2024,6 +2114,28 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
 
     self.assertEqual(software_instance.getConnectionXml(), None)
     self.assertEqual(software_instance.getAccessStatus()['text'], "#error Can not propagate from inconsistent Remote Node")
+
+  #################################################################
+  # InstanceTree_propagateFromRemoteNode
+  #################################################################
+  def test_propagateRemoteNode_InstanceTree_REQUEST_disallowed(self):
+    instance_tree = self.addInstanceTree()
+    self.assertRaises(
+      Unauthorized,
+      instance_tree.InstanceTree_propagateFromRemoteNode,
+      REQUEST={})
+
+  def test_propagateRemoteNode_InstanceTree_script_createRemoteInstanceTree(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    self.tic()
+    instance_tree.edit(
+      title='_remote_%s_%s' % (software_instance.getFollowUpReference(),
+                               software_instance.getReference())
+    )
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_propagateRemoteNode', attribute='description'):
+      instance_tree.InstanceTree_propagateFromRemoteNode()
+    self.assertEqual(software_instance.getDescription(), 'Visited by SoftwareInstance_propagateRemoteNode')
 
 
 class TestERP5InvitationTokenAlarm(SlapOSTestCaseMixin):

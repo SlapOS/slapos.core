@@ -105,7 +105,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_cloud/SoftwareInstance_getComputePartitionIPv6',
         'slapos_cloud/SoftwareInstance_getDefaultImageAbsoluteUrl',
         'slapos_cloud/SoftwareInstance_init',
-        'slapos_cloud/SoftwareInstance_propagateRemoteNode',
         'slapos_cloud/SoftwareInstance_renameAndRequestStopAction',
         'slapos_cloud/SoftwareRelease_getRelatedNetworkList',
         'slapos_cloud/SoftwareRelease_getUsableComputeNodeList',

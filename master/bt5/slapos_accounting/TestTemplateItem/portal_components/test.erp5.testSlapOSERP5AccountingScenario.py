@@ -244,13 +244,11 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Use a different date, to ensure discount are also created
     with PinnedDateTime(self, creation_date + 3):
       for person in person_list:
-        self.logout()
         self.login(person.getUserId())
         self.portal.portal_slap.requestComputer(self.generateNewId(),
                                                 project.getReference())
     with PinnedDateTime(self, creation_date + 3):
       for person in person_list:
-        self.logout()
         self.login(person.getUserId())
         self.portal.portal_slap.requestComputer(self.generateNewId(),
                                                 project.getReference())
@@ -261,7 +259,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
           shared_xml='<marshal><bool>0</bool></marshal>',
           project_reference=project.getReference())
 
-      self.logout()
       self.login()
       # Check that no activity has been triggered yet
       self.assertEqual(self.portal.portal_catalog.countResults(
@@ -284,7 +281,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # existing invoices
     with PinnedDateTime(self, creation_date + 4):
       for person in person_list:
-        self.logout()
         self.login(person.getUserId())
         self.portal.portal_slap.requestComputer(self.generateNewId(),
                                                 project.getReference())
@@ -294,7 +290,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
           partition_reference=self.generateNewId(),
           shared_xml='<marshal><bool>0</bool></marshal>',
           project_reference=project.getReference())
-      self.logout()
       self.login()
       # Execute activities for all services
       # To try detection bad activity tag dependencies
@@ -307,7 +302,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     ##################################################
     # Ensure new monthly invoices are created
     with PinnedDateTime(self, creation_date + 80):
-      self.logout()
       self.login()
       self.portal.portal_alarms.update_open_order_simulation.activeSense()
       self.tic()
@@ -349,7 +343,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       payment_transaction.stop()
       self.tic()
 
-      self.logout()
       self.login()
       # Execute activities for all services
       # To try detection bad activity tag dependencies

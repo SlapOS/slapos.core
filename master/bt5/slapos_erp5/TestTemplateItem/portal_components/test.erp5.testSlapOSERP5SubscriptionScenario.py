@@ -50,13 +50,11 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
       self.tic()
-      self.logout()
       self.login(sale_person.getUserId())
 
       project_relative_url = self.addProject(
         is_accountable=True, person=project_owner_person, currency=currency)
 
-      self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
       self.updateSystemPreference(project_relative_url)
@@ -68,7 +66,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
         "instance product", project, public_server_software, public_instance_type
       )
 
-      self.logout()
       self.login(sale_person.getUserId())
 
       self.tic()
@@ -114,7 +111,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
 
       self.tic()
-      self.logout()
       self.login()
       payment_transaction = self.portal.portal_catalog.getResultValue(
         portal_type="Payment Transaction",
@@ -197,7 +193,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.tic()
       subscription_request = self.checkServiceSubscriptionRequest(instance_tree, 'cancelled')
 
-      self.logout()
       self.login()
 
     # Check stock
@@ -252,13 +247,11 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
       self.tic()
-      self.logout()
       self.login(sale_person.getUserId())
 
       project_relative_url = self.addProject(
         is_accountable=True, person=project_owner_person, currency=currency)
 
-      self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
       self.updateSystemPreference(project_relative_url)
@@ -337,13 +330,11 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
       self.tic()
-      self.logout()
       self.login(sale_person.getUserId())
 
       project_relative_url = self.addProject(
         is_accountable=True, person=project_owner_person, currency=currency)
 
-      self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
       self.updateSystemPreference(project_relative_url)
@@ -355,7 +346,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
         "instance product", project, public_server_software, public_instance_type
       )
 
-      self.logout()
       self.login(sale_person.getUserId())
 
       self.tic()
@@ -404,7 +394,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
 
       self.tic()
-      self.logout()
       self.login()
       payment_transaction = self.portal.portal_catalog.getResultValue(
         portal_type="Payment Transaction",
@@ -538,7 +527,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     self.assertEqual(sum([i.total_price for i in outstanding_amount_list]), deposit_amount)
 
     # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    self.logout()
     self.login(sale_person.getUserId())
     #previous_trade_condition = subscription_request.getSpecialiseValue()
     subscription_request.SubscriptionRequest_changeFromPayableToFree(None)
@@ -551,7 +539,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     #outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
 
     self.tic()
-    self.logout()
     self.login()
     payment_transaction = self.portal.portal_catalog.getResultValue(
       portal_type="Payment Transaction",
@@ -609,13 +596,11 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       self.login()
       self.tic()
-      self.logout()
       self.login(sale_person.getUserId())
 
       project_relative_url = self.addProject(
         is_accountable=True, person=project_owner_person, currency=currency)
 
-      self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
       self.updateSystemPreference(project_relative_url)
@@ -627,7 +612,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
         "instance product", project, public_server_software, public_instance_type
       )
 
-      self.logout()
       self.login(sale_person.getUserId())
 
       self.tic()
@@ -680,7 +664,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # format the compute_nodes
       self.formatComputeNode(public_server)
-      self.logout()
       self.login(project_owner_person.getUserId())
 
       # Pay deposit to validate virtual master + one computer
@@ -697,7 +680,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
 
       self.tic()
-      self.logout()
       self.login()
       payment_transaction = self.portal.portal_catalog.getResultValue(
         portal_type="Payment Transaction",
@@ -748,7 +730,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
           project.getReference())
 
       # and uninstall some software on them
-      self.logout()
       self.login(owner_person.getUserId())
       self.supplySoftware(public_server, public_server_software,
                           state='destroyed')

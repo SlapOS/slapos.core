@@ -43,15 +43,11 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     """
     with PinnedDateTime(self, DateTime('2024/01/31')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
-
-      self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
       project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
-      self.tic()
       self.login(sale_person.getUserId())
-
       project_relative_url = self.addProject(
         is_accountable=True, person=project_owner_person, currency=currency)
 
@@ -81,15 +77,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       sale_supply.validate()
 
       self.tic()
-      # some preparation
-      self.logout()
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
-
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -130,14 +121,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
           currency.getUid(), ledger_uid=ledger.getUid())])
       self.assertEqual(0, amount)
 
-      self.logout()
-
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(self.web_site, public_reference)
-      self.login()
 
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
@@ -241,14 +228,11 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     with PinnedDateTime(self, DateTime('2024/01/31')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
-      self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
       project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
-      self.tic()
       self.login(sale_person.getUserId())
-
       project_relative_url = self.addProject(
         is_accountable=True, person=project_owner_person, currency=currency)
 
@@ -261,9 +245,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
-
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -324,12 +305,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     with PinnedDateTime(self, DateTime('2024/01/31')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
-      self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
       project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
-      self.tic()
       self.login(sale_person.getUserId())
 
       project_relative_url = self.addProject(
@@ -365,14 +344,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       sale_supply.validate()
 
       self.tic()
-      # some preparation
-      self.logout()
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -589,13 +564,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
-      self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
       project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
-      self.login()
-      self.tic()
       self.login(sale_person.getUserId())
 
       project_relative_url = self.addProject(
@@ -631,14 +603,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       sale_supply.validate()
 
       self.tic()
-      # some preparation
-      self.logout()
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -702,10 +670,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(self.web_site, public_reference)
-      self.login()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()

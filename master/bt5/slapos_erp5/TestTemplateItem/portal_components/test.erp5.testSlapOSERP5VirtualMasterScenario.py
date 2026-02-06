@@ -109,13 +109,10 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
 
     ################################################################
     # lets join as slapos accountant, which will manages currencies
-    self.logout()
     accountant_reference = 'accountant-%s' % self.generateNewId()
     accountant_person = self.joinSlapOS(self.web_site, accountant_reference)
-    self.login()
     self.addAccountingManagerAssignment(accountant_person)
 
-    self.tic()
     # hooray, now it is time to create accounting data
     self.login(accountant_person.getUserId())
 
@@ -129,13 +126,11 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
 
     ################################################################
     # lets join as slapos sales manager, which will manages trade condition
-    self.logout()
     sale_reference = 'sales-%s' % self.generateNewId()
     sale_person = self.joinSlapOS(self.web_site, sale_reference)
-    self.login()
     self.addSaleManagerAssignment(sale_person)
-
     self.tic()
+
     # hooray, now it is time to create sale data
     self.login(sale_person.getUserId())
 
@@ -273,7 +268,6 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     production_manager_reference = 'production_manager-%s' % self.generateNewId()
     production_manager_person = self.joinSlapOS(
       self.web_site, production_manager_reference)
-    self.login()
     self.addProjectProductionManagerAssignment(production_manager_person, project)
     self.tic()
     return production_manager_person
@@ -282,13 +276,9 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     currency, _, _, sale_person, accountant_person = self.bootstrapVirtualMasterTest()
     self.tic()
 
-    self.logout()
     # lets join as slapos administrator, which will manager the project
     owner_reference = 'project-%s' % self.generateNewId()
     owner_person = self.joinSlapOS(self.web_site, owner_reference)
-    self.login()
-    self.tic()
-    self.logout()
 
     self.login(sale_person.getUserId())
     with PinnedDateTime(self, DateTime('2020/01/01')):
@@ -298,7 +288,6 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
         currency=currency
       )
       self.tic()
-    self.logout()
 
     self.login()
     project = self.portal.restrictedTraverse(project_relative_url)
@@ -324,16 +313,12 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
   def test_virtual_master_without_accounting_scenario(self):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-
       self.tic()
 
-      self.logout()
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
-      self.login()
-      self.tic()
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
 
@@ -378,10 +363,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(self.web_site, public_reference)
-      self.login()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -406,7 +389,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.supplySoftware(public_server, public_server_software,
                           state='destroyed')
 
-      self.logout()
       # Uninstall from compute_node
       self.login()
       self.simulateSlapgridSR(public_server)
@@ -439,13 +421,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     currency, seller_organisation, _, _, _ = \
       self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
 
-    self.logout()
     # lets join as slapos administrator, which will own few compute_nodes
     owner_reference = 'owner-%s' % self.generateNewId()
     owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
-    self.login()
-    self.tic()
     self.login(owner_person.getUserId())
 
     # Pre-input a reservation payment for a huge amount, to have enough amount.
@@ -503,12 +482,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, accountant_person = self.bootstrapVirtualMasterTest()
 
-      self.logout()
       # lets join as slapos administrator, which will manager the project
       owner_reference = 'project-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
-      self.login()
-      self.tic()
 
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
@@ -552,8 +528,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       project_relative_url = self.addProject(is_accountable=True, person=owner_person, currency=currency)
 
-      self.logout()
-
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
       self.updateSystemPreference(project_relative_url)
@@ -583,14 +557,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       )
       sale_supply.validate()
 
-      # some preparation
-      self.logout()
-
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -619,11 +588,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(self.web_site, public_reference)
-
-      self.login()
       public_person.setCareerSubordinationValue(customer_subordination_organisation)
 
       # XXX Instance will be paid by the organisation
@@ -693,8 +659,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.supplySoftware(public_server, public_server_software,
                           state='destroyed')
 
-      self.logout()
-      # Uninstall from compute_node
       self.login()
       self.simulateSlapgridSR(public_server)
 
@@ -760,19 +724,13 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
-      self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
       project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
 
-      self.login()
-      self.tic()
       self.login(sale_person.getUserId())
-
       project_relative_url = self.addProject(
         is_accountable=True, person=project_owner_person, currency=currency)
-
-      self.logout()
 
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
@@ -804,14 +762,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       sale_supply.validate()
 
       self.tic()
-      # some preparation
-      self.logout()
-
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
-      self.login()
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -871,14 +825,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           currency.getUid(), ledger_uid=ledger.getUid())])
       self.assertEqual(0, amount)
 
-      self.logout()
-
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(self.web_site, public_reference)
-      self.login()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       # Simulate access from compute_node, to open the capacity scope
@@ -919,8 +869,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.supplySoftware(public_server, public_server_software,
                           state='destroyed')
 
-      self.logout()
-      # Uninstall from compute_node
       self.login()
       self.simulateSlapgridSR(public_server)
 
@@ -988,14 +936,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
 
-      # some preparation
-      self.logout()
-
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
-      self.login()
       self.tic()
       self.login(sale_person.getUserId())
       # create a default project
@@ -1035,15 +979,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(self.web_site, public_reference)
-
-      self.logout()
       shared_public_reference = 'shared_public-%s' % self.generateNewId()
       shared_public_person = self.joinSlapOS(self.web_site, shared_public_reference)
-
-      self.login()
 
     with PinnedDateTime(self, DateTime('2024/02/17 00:05')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -1090,8 +1029,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.supplySoftware(public_server, public_server_software,
                           state='destroyed')
 
-      self.logout()
-      # Uninstall from compute_node
       self.login()
       self.simulateSlapgridSR(public_server)
 
@@ -1123,15 +1060,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
 
-      # some preparation
-      self.logout()
-
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
-      self.login()
-      self.tic()
       self.login(sale_person.getUserId())
       # create a default project
       project_relative_url = self.addProject(person=owner_person, currency=currency)
@@ -1171,10 +1103,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(self.web_site, public_reference)
-      self.login()
 
     with PinnedDateTime(self, DateTime('2024/02/17 00:05')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -1222,15 +1152,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
 
-      # some preparation
-      self.logout()
-
       # lets join as slapos administrator, which will own few compute_nodes
       remote_owner_reference = 'remote-owner-%s' % self.generateNewId()
       remote_owner_person = self.joinSlapOS(self.web_site, remote_owner_reference)
 
-      self.login()
-      self.tic()
       self.login(sale_person.getUserId())
       # create a default project
       remote_project_relative_url = self.addProject(person=remote_owner_person, currency=currency)
@@ -1269,11 +1194,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
       remote_public_reference = 'remote-public-%s' % self.generateNewId()
       remote_public_person = self.joinSlapOS(self.web_site, remote_public_reference)
-
-      self.login()
 
       ####################################
       # Create a local project
@@ -1287,7 +1209,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.updateSystemPreference(project_relative_url)
 
       owner_person = remote_public_person
-      self.logout()
 
       # hooray, now it is time to create compute_nodes
       self.login(owner_person.getUserId())
@@ -1310,11 +1231,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(self.web_site, public_reference)
-
-      self.login()
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -1324,7 +1242,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           remote_compute_node, project.getReference())
 
       # XXX Do this for every scenario tests
-      self.logout()
       self.tic()
       # now instantiate it on compute_node and set some nice connection dict
       self.simulateSlapgridCP(remote_server)
@@ -1424,15 +1341,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
   def test_virtual_master_slave_instance_on_remote_tree_without_accounting_scenario(self):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-
-      # some preparation
-      self.logout()
-
       # lets join as slapos administrator, which will own few compute_nodes
       remote_owner_reference = 'remote-owner-%s' % self.generateNewId()
       remote_owner_person = self.joinSlapOS(self.web_site, remote_owner_reference)
 
-      self.tic()
       self.login(sale_person.getUserId())
 
       # create a default project
@@ -1491,10 +1403,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
       remote_public_reference = 'remote-public-%s' % self.generateNewId()
       remote_public_person = self.joinSlapOS(self.web_site, remote_public_reference)
-
 
       ####################################
       # Create a local project
@@ -1508,8 +1418,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.updateSystemPreference(project_relative_url)
 
       owner_person = remote_public_person
-      self.logout()
-
       # hooray, now it is time to create compute_nodes
       self.login(owner_person.getUserId())
 
@@ -1531,7 +1439,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(self.web_site, public_reference)
 
@@ -1544,7 +1451,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           slave=True)
 
       # XXX Do this for every scenario tests
-      self.logout()
       self.tic()
       # now instantiate it on compute_node and set some nice connection dict
       self.simulateSlapgridCP(remote_server)

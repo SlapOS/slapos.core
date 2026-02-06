@@ -50,12 +50,12 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       self._addCertificateLogin(instance)
     self.tic()
 
-    def verify_activeSense_call(self):
+    def verify_activeSense_call(self, *args, **kw):
       if self.getRelativeUrl() == 'portal_alarms/slapos_allocate_instance':
         instance.portal_workflow.doActionFor(instance, action='edit_action',
           comment='activeSense triggered')
       else:
-        return self.activeSense_call()
+        return self.activeSense_call(*args, **kw)
 
     from Products.ERP5Type.Document.Alarm import Alarm #pylint: disable=import-error
 
@@ -212,13 +212,13 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       )
 
     self.tic()
-    self.assertEqual(None,
-      instance.workflow_history['instance_slap_interface_workflow'][-1]['action'])
+    self.assertEqual('',
+      instance.workflow_history['edit_workflow'][-1]['comment'])
 
     instance.edit(**{method_id: self.generateSafeXml()})
     self.tic()
-    self.assertEqual('bang',
-      instance.workflow_history['instance_slap_interface_workflow'][-1]['action'])
+    self.assertEqual('Parameter changed',
+      instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_change_instance_parameter_onInstanceUrlString(self):
     return self.check_change_instance_parameter("Software Instance",

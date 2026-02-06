@@ -43,8 +43,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
         instance_xml=self.generateSafeXml(),
         sla_xml=self.generateSafeXml(),
         shared=False,
-        state="started",
-        project_reference=self.project.getReference()
+        state="started"
     )
 
     # prepare part of tree
@@ -102,37 +101,37 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     # substract parameters
     request_kw = good_request_kw.copy()
     request_kw.pop('software_release')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
     request_kw = good_request_kw.copy()
     request_kw.pop('software_title')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
     request_kw = good_request_kw.copy()
     request_kw.pop('software_type')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
     request_kw = good_request_kw.copy()
     request_kw.pop('instance_xml')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
     request_kw = good_request_kw.copy()
     request_kw.pop('sla_xml')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
     request_kw = good_request_kw.copy()
     request_kw.pop('shared')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
     request_kw = good_request_kw.copy()
     request_kw.pop('state')
-    self.assertRaises(KeyError, self.software_instance.requestInstance,
+    self.assertRaises(TypeError, self.software_instance.requestInstance,
                       **request_kw)
 
   def test_request_createdInstance(self):
@@ -746,7 +745,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
   def _countBang(self, document):
     return len([q for q in document.workflow_history[
-        'instance_slap_interface_workflow'] if q['action'] == 'bang'])
+        'edit_workflow'] if q['comment']])
 
   def test_request_started_no_bang(self):
     request_kw = self.request_kw.copy()
@@ -1068,8 +1067,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
         instance_xml=self.generateSafeXml(),
         sla_xml=self.generateSafeXml(),
         shared=False,
-        state="started",
-        project_reference=self.project.getReference()
+        state="started"
     )
 
     # prepare part of tree

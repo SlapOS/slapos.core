@@ -46,7 +46,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>local_instance_list=None, activate_kw=None, REQUEST=None</string> </value>
+            <value> <string>local_instance_list=None, activate_kw=None, previous_run_date=None, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

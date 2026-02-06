@@ -5,27 +5,38 @@
  <portal_type id="Compute Node">
   <item>SlapOSCacheMixin</item>
   <item>SlapOSComputeNodeMixin</item>
+  <item>SlapOSComputeNodeSlapInterfaceMixin</item>
  </portal_type>
  <portal_type id="Compute Partition">
   <item>SlapOSCacheMixin</item>
   <item>SlapOSComputePartitionMixin</item>
  </portal_type>
+ <portal_type id="Computer Network">
+  <item>SlapOSNetworkSlapInterfaceMixin</item>
+ </portal_type>
  <portal_type id="Instance Node">
   <item>SlapOSCacheMixin</item>
  </portal_type>
+ <portal_type id="Instance Tree">
+  <item>SlapOSInstanceSlapInterfaceMixin</item>
+ </portal_type>
  <portal_type id="Person">
   <item>SlapOSCacheMixin</item>
+  <item>SlapOSPersonSlapInterfaceMixin</item>
  </portal_type>
  <portal_type id="Remote Node">
   <item>SlapOSCacheMixin</item>
+  <item>SlapOSComputeNodeSlapInterfaceMixin</item>
  </portal_type>
  <portal_type id="Slave Instance">
   <item>SlapOSCacheMixin</item>
+  <item>SlapOSInstanceSlapInterfaceMixin</item>
  </portal_type>
  <portal_type id="Software Installation">
   <item>SlapOSCacheMixin</item>
  </portal_type>
  <portal_type id="Software Instance">
   <item>SlapOSCacheMixin</item>
+  <item>SlapOSInstanceSlapInterfaceMixin</item>
  </portal_type>
 </type_mixin>

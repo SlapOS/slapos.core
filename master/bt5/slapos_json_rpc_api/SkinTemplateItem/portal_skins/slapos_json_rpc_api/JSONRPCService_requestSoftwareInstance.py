@@ -92,6 +92,7 @@ if last_data is None or not isinstance(last_data, type(value)) or \
   last_data.get('hash') != value['hash'] or \
   requested_software_instance is None:
   if requester.getPortalType() == 'Software Instance':
+    kw.pop('project_reference')
     requester.requestInstance(**kw)
   else:
     # requester is a person so we use another method

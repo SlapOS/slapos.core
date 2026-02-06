@@ -18,18 +18,13 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
   def test_subscription_change_request_change_instance_destination_without_accounting_scenario(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-
     self.tic()
-
-    self.logout()
 
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
-      self.login()
-      self.tic()
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
 
@@ -51,16 +46,14 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
 
     with PinnedDateTime(self, DateTime('2023/12/29')):
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(self.web_site, public_reference)
-      self.logout()
+
     with PinnedDateTime(self, DateTime('2024/01/01')):
       public_reference2 = 'public2-%s' % self.generateNewId()
       public_person2 = self.joinSlapOS(self.web_site, public_reference2)
-      self.logout()
 
     self.login()
     person_user_id = public_person.getUserId()
@@ -162,18 +155,12 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
   def test_subscription_change_request_change_project_destination_without_accounting_scenario(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-
     self.tic()
-
-    self.logout()
 
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
-      self.tic()
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
 
@@ -185,19 +172,15 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.updateSystemPreference(project_relative_url)
       self.login(owner_person.getUserId())
       public_server_title = 'Public Server for %s' % owner_reference
-      compute_node_id = self.requestComputeNode(public_server_title, project.getReference())
-      print(compute_node_id)
+      self.requestComputeNode(public_server_title, project.getReference())
       self.tic()
       self.logout()
 
     with PinnedDateTime(self, DateTime('2024/01/01')):
       public_reference2 = 'public2-%s' % self.generateNewId()
       public_person2 = self.joinSlapOS(self.web_site, public_reference2)
-      self.logout()
 
-    self.login()
     person_user_id = owner_person.getUserId()
-
     self.login(person_user_id)
 
     with PinnedDateTime(self, DateTime('2024/01/10')):
@@ -260,18 +243,13 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
   def test_subscription_change_request_change_project_destination_section_scenario(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
-
     self.tic()
-
-    self.logout()
 
     with PinnedDateTime(self, DateTime('2024/01/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
-      self.login()
-      self.tic()
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
 
@@ -347,18 +325,13 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
   def test_subscription_change_request_change_instance_destination_section_scenario(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-
     self.tic()
-
-    self.logout()
 
     with PinnedDateTime(self, DateTime('2024/01/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
-      self.login()
-      self.tic()
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
 
@@ -452,18 +425,12 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
   def test_subscription_change_request_change_free_project_to_payable_scenario(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-
     self.tic()
-
-    self.logout()
 
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
-      self.tic()
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
 
@@ -552,18 +519,13 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
   def test_subscription_change_request_change_vat_scenario(self):
     currency, _, _, sale_person, accountant_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
-
     self.tic()
-
-    self.logout()
 
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(self.web_site, owner_reference)
 
-      self.login()
-      self.tic()
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
 

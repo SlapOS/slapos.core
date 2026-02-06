@@ -741,7 +741,6 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
     person.REQUEST.set('Entity_addDepositPayment_%s' % person.getUid(), None)
     self.tic()
-    self.logout()
     self.login()
     payment_transaction = self.portal.portal_catalog.getResultValue(
       portal_type="Payment Transaction",

@@ -842,11 +842,9 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
 
     # Remove the slave link to the partition
     # Compute Node should loose permission to access the slave instance
-    self.logout()
     self.login()
     # unallocate is done by an alarm
     self.start_requested_slave_instance.setAggregate('')
-    self.logout()
     self.login(self.compute_node_user_id)
     self.commit()
 

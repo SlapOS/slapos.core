@@ -172,7 +172,6 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
     )
     self.tic()
 
-    self.logout()
     self.login(person.getUserId())
     self.portal.portal_skins.changeSkin('RSS')
     parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
@@ -216,7 +215,6 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
     )
     self.tic()
 
-    self.logout()
     self.login(person.getUserId())
     self.portal.portal_skins.changeSkin('RSS')
     parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())

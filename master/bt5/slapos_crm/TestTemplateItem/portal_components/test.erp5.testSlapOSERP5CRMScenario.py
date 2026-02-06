@@ -81,7 +81,6 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
 
       self.tic()
-      self.logout()
       self.login()
       payment_transaction = self.portal.portal_catalog.getResultValue(
         portal_type="Payment Transaction",
@@ -102,7 +101,6 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
     ##################################################
     # Add first batch of service, and generate invoices
     with PinnedDateTime(self, creation_date):
-      self.logout()
       self.login(owner_person.getUserId())
       self.portal.portal_slap.requestComputer(self.generateNewId(),
                                               project.getReference())
@@ -113,7 +111,6 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
         shared_xml='<marshal><bool>0</bool></marshal>',
         project_reference=project.getReference())
 
-      self.logout()
       self.login()
       # Execute activities for all services
       # To try detection bad activity tag dependencies
@@ -144,7 +141,6 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Ensure new monthly invoices are created
     # Regularisation Request must also be created
     with PinnedDateTime(self, creation_date + 32):
-      self.logout()
       self.login()
       self.portal.portal_alarms.update_open_order_simulation.activeSense()
       self.tic()
@@ -159,7 +155,6 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     ##################################################
     # Trigger regularisation request escalation
-    self.logout()
     self.login()
     for date_offset in range(33, 70, 1):
       # Trigger the alarm everyday, to not depend too much
@@ -245,7 +240,6 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Ensure new monthly invoices are created
     # Regularisation Request must also be created
     with PinnedDateTime(self, creation_date + 32):
-      self.logout()
       self.login()
       self.portal.portal_alarms.update_open_order_simulation.activeSense()
       self.tic()
@@ -270,13 +264,11 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertEqual(regularisation_request.getSimulationState(), 'suspended')
       self.assertEqual(event.getSimulationState(), 'stopped')
 
-    self.logout()
     self.login()
     regularisation_request.validate()
 
     ##################################################
     # Trigger regularisation request escalation
-    self.logout()
     self.login()
     for date_offset in range(33, 70, 1):
       # Trigger the alarm everyday, to not depend too much

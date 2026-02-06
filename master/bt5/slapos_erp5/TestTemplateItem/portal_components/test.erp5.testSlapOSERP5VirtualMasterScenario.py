@@ -335,18 +335,15 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.login()
       self.tic()
       # hooray, now it is time to create compute_nodes
-      self.logout()
       self.login(sale_person.getUserId())
 
       # create a default project
       project_relative_url = self.addProject(person=owner_person, currency=currency)
 
-      self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
       self.updateSystemPreference(project_relative_url)
 
-      self.logout()
       self.login(owner_person.getUserId())
 
       public_server_title = 'Public Server for %s' % owner_reference
@@ -375,7 +372,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
                                release_variation, type_variation)
 
       self.tic()
-      self.logout()
       self.login()
 
       self.checkServiceSubscriptionRequest(public_server)
@@ -406,7 +402,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           project.getReference())
 
       # and uninstall some software on them
-      self.logout()
       self.login(owner_person.getUserId())
       self.supplySoftware(public_server, public_server_software,
                           state='destroyed')
@@ -451,7 +446,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     self.login()
     self.tic()
-    self.logout()
     self.login(owner_person.getUserId())
 
     # Pre-input a reservation payment for a huge amount, to have enough amount.
@@ -486,7 +480,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
        total_price, currency.getRelativeUrl()])
 
     self.tic()
-    self.logout()
     self.login()
     # payzen interface will only stop the payment
     payment_transaction.stop()
@@ -518,7 +511,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.tic()
 
       # hooray, now it is time to create compute_nodes
-      self.logout()
       self.login(sale_person.getUserId())
 
       customer_section_organisation = self.portal.organisation_module.newContent(
@@ -573,7 +565,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         "instance product", project, public_server_software, public_instance_type
       )
 
-      self.logout()
       self.login(sale_person.getUserId())
 
       self.tic()
@@ -657,7 +648,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # Pay deposit to validate virtual master + one computer, for the organisation
       # For now we cannot rely on user payments
-      self.logout()
       self.login(accountant_person.getUserId())
       deposit_amount = 42.0 + 99.0
       ledger = self.portal.portal_categories.ledger.automated
@@ -699,7 +689,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           project.getReference())
 
       # and uninstall some software on them
-      self.logout()
       self.login(owner_person.getUserId())
       self.supplySoftware(public_server, public_server_software,
                           state='destroyed')
@@ -778,7 +767,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       self.login()
       self.tic()
-      self.logout()
       self.login(sale_person.getUserId())
 
       project_relative_url = self.addProject(
@@ -797,7 +785,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         "instance product", project, public_server_software, public_instance_type
       )
 
-      self.logout()
       self.login(sale_person.getUserId())
 
       self.tic()
@@ -850,7 +837,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # format the compute_nodes
       self.formatComputeNode(public_server)
-      self.logout()
       self.login(project_owner_person.getUserId())
 
       # Pay deposit to validate virtual master + one computer
@@ -867,7 +853,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
 
       self.tic()
-      self.logout()
       self.login()
       payment_transaction = self.portal.portal_catalog.getResultValue(
         portal_type="Payment Transaction",
@@ -930,7 +915,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           project.getReference())
 
       # and uninstall some software on them
-      self.logout()
       self.login(owner_person.getUserId())
       self.supplySoftware(public_server, public_server_software,
                           state='destroyed')
@@ -1013,12 +997,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       self.login()
       self.tic()
-      self.logout()
       self.login(sale_person.getUserId())
       # create a default project
       project_relative_url = self.addProject(person=owner_person, currency=currency)
 
-      self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
       self.updateSystemPreference(project_relative_url)
@@ -1104,7 +1086,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           project.getReference())
 
       # and uninstall some software on them
-      self.logout()
       self.login(owner_person.getUserId())
       self.supplySoftware(public_server, public_server_software,
                           state='destroyed')
@@ -1151,12 +1132,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       self.login()
       self.tic()
-      self.logout()
       self.login(sale_person.getUserId())
       # create a default project
       project_relative_url = self.addProject(person=owner_person, currency=currency)
 
-      self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
       self.updateSystemPreference(project_relative_url)
@@ -1252,12 +1231,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       self.login()
       self.tic()
-      self.logout()
       self.login(sale_person.getUserId())
       # create a default project
       remote_project_relative_url = self.addProject(person=remote_owner_person, currency=currency)
 
-      self.logout()
       self.login()
       remote_project = self.portal.restrictedTraverse(remote_project_relative_url)
       self.updateSystemPreference(remote_project_relative_url)
@@ -1301,12 +1278,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       ####################################
       # Create a local project
       ####################################
-      self.logout()
       self.login(sale_person.getUserId())
       # create a default project
       project_relative_url = self.addProject(person=remote_public_person, currency=currency)
 
-      self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
       self.updateSystemPreference(project_relative_url)
@@ -1458,13 +1433,11 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       remote_owner_person = self.joinSlapOS(self.web_site, remote_owner_reference)
 
       self.tic()
-      self.logout()
       self.login(sale_person.getUserId())
 
       # create a default project
       remote_project_relative_url = self.addProject(person=remote_owner_person, currency=currency)
 
-      self.logout()
       self.login()
       remote_project = self.portal.restrictedTraverse(remote_project_relative_url)
       self.updateSystemPreference(remote_project_relative_url)
@@ -1526,12 +1499,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       ####################################
       # Create a local project
       ####################################
-      self.logout()
       self.login(sale_person.getUserId())
       # create a default project
       project_relative_url = self.addProject(person=remote_public_person, currency=currency)
 
-      self.logout()
       self.login()
       project = self.portal.restrictedTraverse(project_relative_url)
       self.updateSystemPreference(project_relative_url)

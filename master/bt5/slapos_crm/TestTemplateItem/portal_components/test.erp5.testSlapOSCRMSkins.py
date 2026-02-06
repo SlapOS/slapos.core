@@ -196,7 +196,6 @@ class TestCRMPropertySheetConstraint(SlapOSTestCaseMixin):
     )
     self.tic()
 
-    self.logout()
     self.login()
 
     event = self.support_request.getFollowUpRelatedValue()

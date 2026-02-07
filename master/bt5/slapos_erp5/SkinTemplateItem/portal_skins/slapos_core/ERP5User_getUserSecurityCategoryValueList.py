@@ -1,15 +1,38 @@
 # Please see ERP5User_getSecurityCategoryValueFromAssignment for more informations
 # on what this script outputs.
+from DateTime import DateTime
+now = DateTime()
 
 portal_type = context.getPortalType()
 if portal_type == 'Person':
-  return context.ERP5User_getSecurityCategoryValueFromAssignment(
+  category_list = []
+  for assignment_value in context.objectValues(portal_type='Assignment'):
+    if assignment_value.getValidationState() == 'open' and \
+      assignment_value.getDestination(portal_type="Workgroup") is not None and \
+    (  not assignment_value.hasStartDate() or assignment_value.getStartDate() <= now
+    ) and (
+      not assignment_value.hasStopDate() or assignment_value.getStopDate() >= now
+    ):
+      category_list.extend(
+        assignment_value.getDestinationValue().ERP5User_getSecurityCategoryValueFromAssignment(
+        rule_dict={
+          ('function',): ((), ('function',)),
+          ('destination_project',): ((), ),
+          ('destination_project', 'function'): ((), ),
+        },
+       )
+      )
+  category_list.extend(
+    context.ERP5User_getSecurityCategoryValueFromAssignment(
     rule_dict={
       ('function',): ((), ('function',)),
       ('destination_project',): ((), ),
+      ('destination',): ((), ),
       ('destination_project', 'function'): ((), ),
     },
+   )
   )
+  return category_list
 
 category_list = []
 portal = context.getPortalObject()

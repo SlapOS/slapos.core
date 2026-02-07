@@ -7,4 +7,11 @@
    <multi_property id='category'>function/production/manager</multi_property>
    <multi_property id='base_category'>follow_up</multi_property>
   </role>
+  <role id='Auditor'>
+   <property id='title'>Destination Workgroup</property>
+   <property id='condition'>python: context.getFollowUp('', portal_type='Workgroup') != ""</property>
+   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
+   <multi_property id='categories'>local_role_group/user</multi_property>
+   <multi_property id='base_category'>follow_up</multi_property>
+  </role>
 </type_roles>

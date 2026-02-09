@@ -10,7 +10,7 @@
       dialog_category python: '';
       web_site python: here.getWebSiteValue();
       web_section python: here.getWebSectionValue();
-      is_rendering_web_section python: ((request['REQUEST_METHOD'] == 'GET') and (request['PUBLISHED'] == web_section)) or ((request['REQUEST_METHOD'] == 'POST') and (request['PATH_INFO'].endswith(web_section.getRelativeUrl() + '/WebSection_callRJSDialogMethod')));
+      is_rendering_web_section python: ((request['REQUEST_METHOD'] == 'GET') and (request['PUBLISHED'] == web_section)) or ((request['REQUEST_METHOD'] == 'POST') and (request['PATH_INFO'].endswith(web_section.getId() + '/WebSection_callRJSDialogMethod')));
       is_unexpected_missing_trailing_slash python: is_rendering_web_section and (request['REQUEST_METHOD'] == 'GET') and (not request['PATH_INFO'].endswith('/'));
       is_unexpected_acquisition_access python: (web_section.getParentValue().getRelativeUrl() != web_section.aq_parent.getRelativeUrl()) or (web_site.getParentValue().getRelativeUrl() != web_site.aq_parent.getRelativeUrl());
       site_name python: web_site.getTranslatedTitle();
@@ -23,7 +23,7 @@
     <tal:block metal:use-macro="context/error_main/macros/master">
       <metal:slot metal:fill-slot="main" i18n:domain="erp5_ui">
         <h2 i18n:translate="" tal:define="dummy python: request.response.setStatus(404);">Not rendering a web section</h2>
-        <p i18n:translate="" tal:content="python: request">It can only be rendered as a web section.</p>
+        <p i18n:translate="">It can only be rendered as a web section.</p>
       </metal:slot>
     </tal:block>
   </tal:block>

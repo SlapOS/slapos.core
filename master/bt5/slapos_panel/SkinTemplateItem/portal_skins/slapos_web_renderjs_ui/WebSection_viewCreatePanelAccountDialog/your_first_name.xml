@@ -10,6 +10,7 @@
             <key> <string>delegated_list</string> </key>
             <value>
               <list>
+                <string>external_validator</string>
                 <string>max_length</string>
                 <string>required</string>
               </list>
@@ -77,6 +78,12 @@
             <value>
               <dictionary>
                 <item>
+                    <key> <string>external_validator</string> </key>
+                    <value>
+                      <persistent> <bytes encoding="base64">AAAAAAAAAAI=</bytes> </persistent>
+                    </value>
+                </item>
+                <item>
                     <key> <string>field_id</string> </key>
                     <value> <string>my_dialog_mode_first_name</string> </value>
                 </item>
@@ -98,6 +105,19 @@
                 </item>
               </dictionary>
             </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="2" aka="AAAAAAAAAAI=">
+    <pickle>
+      <global name="Method" module="Products.Formulator.MethodField"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>method_name</string> </key>
+            <value> <string>WebSection_validatePersonName</string> </value>
         </item>
       </dictionary>
     </pickle>

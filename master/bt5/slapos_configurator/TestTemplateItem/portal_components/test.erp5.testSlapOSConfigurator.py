@@ -282,9 +282,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'data_array_module',
        'data_mapping_module'
     ]
-    # If mixin contains a custom definition that introduce new business templated from
-    # the project scope, them include it on expected list.
-    expected_module_list.extend(self._custom_expected_module_list)
 
     self.assertSameSet(module_list, expected_module_list)
 

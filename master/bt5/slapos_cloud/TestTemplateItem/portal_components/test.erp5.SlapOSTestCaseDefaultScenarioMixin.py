@@ -106,6 +106,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         if [q for q in candidate[1] if email in q] and body in candidate[2]:
           return candidate[2]
 
+    user_agent = 'My super agent'
     ret = self.publish(
       self.web_site.slapos_master_panel.hateoas.connection.join_form.getPath() + '/'
     )
@@ -132,7 +133,10 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     ret = self.publish(
       self.web_site.slapos_master_panel.hateoas.connection.join_form.getPath() + '/',
       request_method='POST',
-      env={'CONTENT_TYPE': 'application/x-www-form-urlencoded'},
+      env={
+        'CONTENT_TYPE': 'application/x-www-form-urlencoded',
+        'USER_AGENT': user_agent
+      },
       stdin = BytesIO(urlencode({
         "__captcha_field_your_captcha__": captcha_key,
         "field_your_captcha": self.portal.portal_sessions[captcha_key][captcha_key],
@@ -147,6 +151,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         "field_your_career_subordination_title": "Nexedi",
         "field_your_default_telephone_text": "12345678",
         "field_your_mobile_phone": "",
+        "field_your_agent_info": user_agent,
         "field_your_default_address_street_address": "Av Pelinca",
         "field_your_default_address_zip_code": "28480",
         "field_your_default_address_city": "Campos",

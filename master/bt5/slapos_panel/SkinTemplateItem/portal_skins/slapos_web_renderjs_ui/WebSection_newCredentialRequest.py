@@ -16,7 +16,8 @@ portal_preferences = portal.portal_preferences
 category_list = portal_preferences.getPreferredSubscriptionAssignmentCategoryList()
 
 # Do this check after the captcha, to not allow search existing logins
-if not context.CredentialRequest_checkLoginAvailability(reference):
+if ((not context.CredentialRequest_checkLoginAvailability(reference)) or
+    (not context.CredentialRequest_checkEmailAvailability(default_email_text))):
   message_str = "Selected login is already in use, please choose different one."
   REQUEST = context.REQUEST
   REQUEST.set('portal_status_message', context.Base_translateString(message_str))

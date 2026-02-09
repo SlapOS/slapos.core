@@ -87,6 +87,7 @@
                         <string>your_password</string>
                         <string>password_confirm</string>
                         <string>your_mobile_phone</string>
+                        <string>your_agent_info</string>
                       </list>
                     </value>
                 </item>

@@ -343,7 +343,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       self.tic()
       self.login()
-
       self.checkServiceSubscriptionRequest(public_server)
 
       # join as the another visitor and request software instance on public
@@ -358,9 +357,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           public_server_software, public_instance_type,
           public_server, project.getReference())
 
-      self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type='ERP5 Login', reference=public_reference).getParentValue()
       self.login(owner_person.getUserId())
 
       # and the instances
@@ -619,9 +615,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           public_server_software, public_instance_type,
           public_server, project.getReference())
 
-      self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type='ERP5 Login', reference=public_reference).getParentValue()
       self.login(owner_person.getUserId())
       # and the instances
       self.checkInstanceUnallocation(public_person.getUserId(),
@@ -636,7 +629,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       self.login()
       self.simulateSlapgridSR(public_server)
-
       self.tic()
 
     # Check stock
@@ -814,9 +806,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           public_server, project.getReference(),
           10.8, currency)
 
-      self.login()
-      public_person = self.portal.portal_catalog.getResultValue(
-        portal_type='ERP5 Login', reference=public_reference).getParentValue()
       self.login(owner_person.getUserId())
 
       # and the instances

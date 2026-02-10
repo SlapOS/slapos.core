@@ -45,7 +45,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
+      project_owner_person = self.joinSlapOS(project_owner_reference)
 
       self.login(sale_person.getUserId())
       project_relative_url = self.addProject(
@@ -80,7 +80,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -124,7 +124,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       # join as the another visitor and request software instance on public
       # compute_node
       public_reference = 'public-%s' % self.generateNewId()
-      public_person = self.joinSlapOS(self.web_site, public_reference)
+      public_person = self.joinSlapOS(public_reference)
 
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
@@ -230,7 +230,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
+      project_owner_person = self.joinSlapOS(project_owner_reference)
 
       self.login(sale_person.getUserId())
       project_relative_url = self.addProject(
@@ -244,7 +244,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -307,7 +307,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
+      project_owner_person = self.joinSlapOS(project_owner_reference)
 
       self.login(sale_person.getUserId())
 
@@ -347,7 +347,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -566,7 +566,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
+      project_owner_person = self.joinSlapOS(project_owner_reference)
 
       self.login(sale_person.getUserId())
 
@@ -606,7 +606,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -671,7 +671,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       # join as the another visitor and request software instance on public
       # compute_node
       public_reference = 'public-%s' % self.generateNewId()
-      public_person = self.joinSlapOS(self.web_site, public_reference)
+      public_person = self.joinSlapOS(public_reference)
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()

@@ -100,7 +100,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.admin_user = admin_user
 
   @changeSkin('Hal')
-  def joinSlapOS(self, web_site, reference):
+  def joinSlapOS(self, reference):
     def findMessage(email, body):
       for candidate in reversed(self.portal.MailHost.getMessageList()):
         if [q for q in candidate[1] if email in q] and body in candidate[2]:

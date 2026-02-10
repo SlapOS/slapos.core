@@ -48,12 +48,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       project_owner_person = self.joinSlapOS(project_owner_reference)
 
       self.login(sale_person.getUserId())
-      project_relative_url = self.addProject(
+      project = self.addDefaultProject(
         is_accountable=True, person=project_owner_person, currency=currency)
-
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      self.updateSystemPreference(project_relative_url)
 
       public_server_software = self.generateNewSoftwareReleaseUrl()
       public_instance_type = 'public type'
@@ -233,14 +229,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       project_owner_person = self.joinSlapOS(project_owner_reference)
 
       self.login(sale_person.getUserId())
-      project_relative_url = self.addProject(
+      project = self.addDefaultProject(
         is_accountable=True, person=project_owner_person, currency=currency)
-
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      self.updateSystemPreference(project_relative_url)
-
-      self.logout()
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
@@ -310,13 +300,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       project_owner_person = self.joinSlapOS(project_owner_reference)
 
       self.login(sale_person.getUserId())
-
-      project_relative_url = self.addProject(
+      project = self.addDefaultProject(
         is_accountable=True, person=project_owner_person, currency=currency)
-
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      self.updateSystemPreference(project_relative_url)
 
       public_server_software = self.generateNewSoftwareReleaseUrl()
       public_instance_type = 'public type'
@@ -569,12 +554,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       self.login(sale_person.getUserId())
 
-      project_relative_url = self.addProject(
+      project = self.addDefaultProject(
         is_accountable=True, person=project_owner_person, currency=currency)
-
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      self.updateSystemPreference(project_relative_url)
 
       public_server_software = self.generateNewSoftwareReleaseUrl()
       public_instance_type = 'public type'

@@ -51,7 +51,7 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
     self.checkServiceSubscriptionRequest(compute_node)
     return compute_node
 
-  def removeSoftwareReleaseFromComputer(self, computer_owner, 
+  def removeSoftwareReleaseFromComputer(self, computer_owner,
        compute_node, software_release):
     # and uninstall some software on them
     self.login(computer_owner.getUserId())
@@ -59,11 +59,8 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
       compute_node, software_release,
       state='destroyed')
 
-    self.logout()
-    # Uninstall from compute_node
     self.login()
     self.simulateSlapgridSR(compute_node)
-    self.tic()
 
   def bootstrapVirtualMasterTestWithProject(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)

@@ -23,8 +23,7 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       # XXX
       capacity_scope='close'
     )
-    self.setServerOpenPublic(remote_node)
-    remote_node.setCapacityScope('open')
+    self.setServerOpen(remote_node)
 
     # XXX format
     partition = remote_node.newContent(
@@ -329,15 +328,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.updateSystemPreference(project_relative_url)
 
       self.login(owner_person.getUserId())
-
       public_server_title = 'Public Server for %s' % owner_reference
-      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
-      public_server = self.portal.portal_catalog.getResultValue(
-          portal_type='Compute Node', reference=public_server_id)
-      self.setAccessToMemcached(public_server)
-      self.assertNotEqual(None, public_server)
-      self.setServerOpenPublic(public_server)
-      public_server.generateCertificate()
+      public_server = self.requestComputeNode(public_server_title, project.getReference())
 
       # and install some software on them
       public_server_software = self.generateNewSoftwareReleaseUrl()
@@ -568,14 +560,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.login(owner_person.getUserId())
 
       public_server_title = 'Public Server for %s' % owner_reference
-      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
-      public_server = self.portal.portal_catalog.getResultValue(
-          portal_type='Compute Node', reference=public_server_id)
-      self.setAccessToMemcached(public_server)
-      self.assertNotEqual(None, public_server)
-      self.setServerOpenPublic(public_server)
-      public_server.generateCertificate()
-
+      public_server = self.requestComputeNode(public_server_title, project.getReference())
       self.addAllocationSupply("for compute node", public_server, software_product,
                                release_variation, type_variation)
 
@@ -774,13 +759,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.login(owner_person.getUserId())
 
       public_server_title = 'Public Server for %s' % owner_reference
-      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
-      public_server = self.portal.portal_catalog.getResultValue(
-          portal_type='Compute Node', reference=public_server_id)
-      self.setAccessToMemcached(public_server)
-      self.assertNotEqual(None, public_server)
-      self.setServerOpenPublic(public_server)
-      public_server.generateCertificate()
+      public_server = self.requestComputeNode(public_server_title, project.getReference())
 
       self.addAllocationSupply("for compute node", public_server, software_product,
                                release_variation, type_variation)
@@ -942,23 +921,13 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.tic()
       self.login(sale_person.getUserId())
       # create a default project
-      project_relative_url = self.addProject(person=owner_person, currency=currency)
-
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      self.updateSystemPreference(project_relative_url)
+      project = self.addDefaultProject(person=owner_person, currency=currency)
 
       # hooray, now it is time to create compute_nodes
       self.login(owner_person.getUserId())
 
       public_server_title = 'Public Server for %s' % owner_reference
-      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
-      public_server = self.portal.portal_catalog.getResultValue(
-          portal_type='Compute Node', reference=public_server_id)
-      self.setAccessToMemcached(public_server)
-      self.assertNotEqual(None, public_server)
-      self.setServerOpenPublic(public_server)
-      public_server.generateCertificate()
+      public_server = self.requestComputeNode(public_server_title, project.getReference())
 
       # and install some software on them
       public_server_software = self.generateNewSoftwareReleaseUrl()
@@ -1167,13 +1136,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.login(remote_owner_person.getUserId())
 
       remote_server_title = 'Remote Server for %s' % remote_owner_person
-      remote_server_id = self.requestComputeNode(remote_server_title, remote_project.getReference())
-      remote_server = self.portal.portal_catalog.getResultValue(
-          portal_type='Compute Node', reference=remote_server_id)
-      self.setAccessToMemcached(remote_server)
-      self.assertNotEqual(None, remote_server)
-      self.setServerOpenPublic(remote_server)
-      remote_server.generateCertificate()
+      remote_server = self.requestComputeNode(remote_server_title, remote_project.getReference())
 
       # and install some software on them
       remote_server_software = self.generateNewSoftwareReleaseUrl()
@@ -1357,13 +1320,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.login(remote_owner_person.getUserId())
 
       remote_server_title = 'Remote Server for %s' % remote_owner_person
-      remote_server_id = self.requestComputeNode(remote_server_title, remote_project.getReference())
-      remote_server = self.portal.portal_catalog.getResultValue(
-          portal_type='Compute Node', reference=remote_server_id)
-      self.setAccessToMemcached(remote_server)
-      self.assertNotEqual(None, remote_server)
-      self.setServerOpenPublic(remote_server)
-      remote_server.generateCertificate()
+      remote_server = self.requestComputeNode(remote_server_title, remote_project.getReference())
 
       # and install some software on them
       remote_server_software = self.generateNewSoftwareReleaseUrl()

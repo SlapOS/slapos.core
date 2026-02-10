@@ -23,7 +23,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
 
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
@@ -49,11 +49,11 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     with PinnedDateTime(self, DateTime('2023/12/29')):
       public_reference = 'public-%s' % self.generateNewId()
-      public_person = self.joinSlapOS(self.web_site, public_reference)
+      public_person = self.joinSlapOS(public_reference)
 
     with PinnedDateTime(self, DateTime('2024/01/01')):
       public_reference2 = 'public2-%s' % self.generateNewId()
-      public_person2 = self.joinSlapOS(self.web_site, public_reference2)
+      public_person2 = self.joinSlapOS(public_reference2)
 
     self.login()
     person_user_id = public_person.getUserId()
@@ -160,7 +160,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
 
@@ -178,7 +178,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     with PinnedDateTime(self, DateTime('2024/01/01')):
       public_reference2 = 'public2-%s' % self.generateNewId()
-      public_person2 = self.joinSlapOS(self.web_site, public_reference2)
+      public_person2 = self.joinSlapOS(public_reference2)
 
     person_user_id = owner_person.getUserId()
     self.login(person_user_id)
@@ -248,7 +248,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     with PinnedDateTime(self, DateTime('2024/01/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
 
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
@@ -330,7 +330,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     with PinnedDateTime(self, DateTime('2024/01/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
 
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
@@ -430,7 +430,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
 
@@ -524,7 +524,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
 
       # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())

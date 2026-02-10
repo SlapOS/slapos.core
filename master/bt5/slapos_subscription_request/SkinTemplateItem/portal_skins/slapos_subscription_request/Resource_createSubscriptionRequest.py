@@ -127,6 +127,11 @@ else:
   if not price:
     raise AssertionError('Can not find a price to generate the Subscription Request (%s)' % tmp_sale_order.getSpecialiseValue())
 
+if activate_kw is None:
+  activate_kw = {}
+# Do not wait to index object
+activate_kw.pop('priority', None)
+
 subscription_request = portal.getDefaultModuleValue(portal_type).newContent(
   portal_type=portal_type,
   temp_object=temp_object,

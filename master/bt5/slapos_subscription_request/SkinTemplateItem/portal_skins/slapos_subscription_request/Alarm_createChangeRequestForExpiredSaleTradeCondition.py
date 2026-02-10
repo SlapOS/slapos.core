@@ -2,6 +2,7 @@ from Products.ZSQLCatalog.SQLCatalog import SimpleQuery
 
 portal = context.getPortalObject()
 ledger_uid = portal.portal_categories.ledger.automated.getUid()
+activate_kw = {'tag': tag, 'priority': 5}
 
 trade_condition_list = portal.portal_catalog(
   portal_type='Sale Trade Condition',
@@ -20,8 +21,8 @@ portal.portal_catalog.searchAndActivate(
   specialise__uid=trade_condition_uid_list,
 
   method_id='SaleTradeCondition_generateNewVersionFromExpiredSaleTradeCondition',
-  method_kw={'activate_kw': {'tag': tag, 'priority': 5}},
-  activate_kw={'tag': tag}
+  method_kw={'activate_kw': activate_kw},
+  activate_kw=activate_kw
 )
 
 portal.portal_catalog.searchAndActivate(
@@ -32,8 +33,8 @@ portal.portal_catalog.searchAndActivate(
   specialise__uid=trade_condition_uid_list,
 
   method_id='OpenSaleOrder_generateSubscriptionChangeRequestFromExpiredSaleTradeCondition',
-  method_kw={'activate_kw': {'tag': tag, 'priority': 5}},
-  activate_kw={'tag': tag}
+  method_kw={'activate_kw': activate_kw},
+  activate_kw=activate_kw
 )
 
 context.activate(after_tag=tag).getId()

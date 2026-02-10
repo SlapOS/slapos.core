@@ -38,6 +38,7 @@ if len(new_specialise_list) != 1:
 result = None
 for open_sale_order_cell in line_list:
   item_value = [x for x in open_sale_order_cell.getAggregateValueList() if x.getPortalType() != 'Hosting Subscription'][0]
+  new_specialise_value = portal.restrictedTraverse(new_specialise_list[0])
   result = open_sale_order_cell.getResourceValue().Resource_createSubscriptionRequest(
     open_sale_order.getDestinationValue(),
     # [software_type, software_release],
@@ -50,7 +51,8 @@ for open_sale_order_cell in line_list:
     portal_type='Subscription Change Request',
     item_value=item_value,
     causality_value=open_sale_order,
-    specialise_value=portal.restrictedTraverse(new_specialise_list[0]),
+    specialise_value=new_specialise_value,
+    trade_condition_type=new_specialise_value.getTradeConditionType(),
     activate_kw=activate_kw
   )
 

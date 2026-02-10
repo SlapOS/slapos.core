@@ -40,7 +40,6 @@ extras_require = {
         'pyflakes',
         'mock',
         'httmock',
-        'httpretty'
     ),
     'testing': (  # to use slapos.core testing helpers (typically, in software release tests)
         'caucase',

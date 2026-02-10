@@ -1,73 +1,82 @@
 from slapos.tests.test_slapproxy import BasicMixin
 import unittest
-import httpretty
+import httmock
+
 
 class HttpProxyTestCase(BasicMixin, unittest.TestCase):
 
-  @httpretty.activate
   def test_full_request(self):
-    url_to_proxy = 'http://example.org/my/path'
-    httpretty.register_uri(
-        httpretty.GET,
-        url_to_proxy,
-        status=201,
-        body="bar\nfoo\n",
-        adding_headers={
-            # whilelisted
-            "Content-Type": "foo1",
-            "Date": "foo2",
-            "Last-Modified": "foo3",
-            "Vary": "foo4",
-            "Cache-Control": "foo5",
-            "Etag": "foo6",
-            "Accept-Ranges": "foo7",
-            "Content-Range": "foo8",
-            "Www-Authenticate": "foo9",
-            "Access-Control-Allow-Origin": "foo10",
-            "Access-Control-Allow-Methods": "foo11",
-            "Access-Control-Expose-Headers": "foo12",
-            "Access-Control-Allow-Headers": "foo13",
-            "Access-Control-Allow-Credentials": "foo14",
-            # forced
-            "Content-Disposition": "foobarfoo",
-            # changed
-            "Location": "http://example.org/my/new/path?a=b",
-            # dropped
-            "Set-Cookie": "Foo",
-            "foo": "bar"
-        }
-    )
-    response = self.app.get(
-        '/http_proxy/http/example.org/my/path',
-        query_string={
-          "key1": "value1",
-          "key2": "value2"
-        },
-        headers={
-            # whitelisted
-            "Content-Type": "bar1",
-            "Accept": "bar2",
-            "Accept-Language": "bar3",
-            "Range": "bar4",
-            "If-Modified-Since": "bar5",
-            "If-None-Match": "bar6",
-            "User-Agent": "bar7",
-            "Authorization": "bar8",
-            "Origin": "bar9",
-            # rejected
-            "Cookie": "bar10",
-            "bar11": "bar11"
-        },
-        data="datafoo=databar"
-    )
+    captured = {}
+
+    def handler(url, request):
+      captured['url'] = url
+      captured['request'] = request
+      return httmock.response(
+          201,
+          b"bar\nfoo\n",
+          headers={
+              # allowed
+              "Content-Type": "foo1",
+              "Date": "foo2",
+              "Last-Modified": "foo3",
+              "Vary": "foo4",
+              "Cache-Control": "foo5",
+              "Etag": "foo6",
+              "Accept-Ranges": "foo7",
+              "Content-Range": "foo8",
+              "Www-Authenticate": "foo9",
+              "Access-Control-Allow-Origin": "foo10",
+              "Access-Control-Allow-Methods": "foo11",
+              "Access-Control-Expose-Headers": "foo12",
+              "Access-Control-Allow-Headers": "foo13",
+              "Access-Control-Allow-Credentials": "foo14",
+              # forced
+              "Content-Disposition": "foobarfoo",
+              # changed
+              "Location": "http://example.org/my/new/path?a=b",
+              # dropped
+              "Set-Cookie": "Foo",
+              "foo": "bar"
+          },
+          request=request,
+      )
+
+    with httmock.HTTMock(handler):
+      response = self.app.get(
+          '/http_proxy/http/example.org/my/path',
+          query_string={
+            "key1": "value1",
+            "key2": "value2"
+          },
+          headers={
+              # allowed
+              "Content-Type": "bar1",
+              "Accept": "bar2",
+              "Accept-Language": "bar3",
+              "Range": "bar4",
+              "If-Modified-Since": "bar5",
+              "If-None-Match": "bar6",
+              "User-Agent": "bar7",
+              "Authorization": "bar8",
+              "Origin": "bar9",
+              # rejected
+              "Cookie": "bar10",
+              "bar11": "bar11"
+          },
+          data="datafoo=databar"
+      )
+
+    last_url = captured['url']
+    last_request = captured['request']
 
     # Response status code
     assert response.status_code == 201, response.status_code
 
-    last_request = httpretty.last_request()
-
     # Request path and query string
-    assert last_request.path in ['/my/path?key1=value1&key2=value2', '/my/path?key2=value2&key1=value1'], last_request.path
+    full_path = last_url.path
+    if last_url.query:
+      full_path += '?' + last_url.query
+    assert full_path in ['/my/path?key1=value1&key2=value2', '/my/path?key2=value2&key1=value1'], full_path
 
     # Request body
     assert last_request.body == b'datafoo=databar', last_request.body
@@ -120,49 +129,31 @@ class HttpProxyTestCase(BasicMixin, unittest.TestCase):
     assert 'Set-Cookie' not in response.headers, response.headers
     assert 'foo' not in response.headers, response.headers
 
-  @httpretty.activate
   def test_path_propagated(self):
-    httpretty.register_uri(
-        httpretty.GET,
-        'http://example.org/a/b',
-        body="http://example.org/a/b",
-    )
-    httpretty.register_uri(
-        httpretty.GET,
-        'http://example.org/a',
-        body="http://example.org/a",
-    )
-    httpretty.register_uri(
-        httpretty.GET,
-        'http://example.org/',
-        body="http://example.org/",
-    )
-    httpretty.register_uri(
-        httpretty.GET,
-        'http://example.org',
-        body="http://example.org",
-    )
+    captured = {}
 
-    response = self.app.get('/http_proxy/http/example.org')
-    assert response.status_code == 200, response.status_code
-    last_request = httpretty.last_request()
-    assert last_request.path == '/', last_request.path
-    assert response.data == b'http://example.org', response.data
+    def handler(url, request):
+      captured['url'] = url
+      return httmock.response(200, ('http://example.org' + url.path).encode(),
+                              request=request)
 
-    response = self.app.get('/http_proxy/http/example.org/')
-    assert response.status_code == 200, response.status_code
-    last_request = httpretty.last_request()
-    assert last_request.path == '/', last_request.path
-    assert response.data == b'http://example.org/', response.data
+    with httmock.HTTMock(handler):
+      response = self.app.get('/http_proxy/http/example.org')
+      assert response.status_code == 200, response.status_code
+      assert captured['url'].path == '/', captured['url'].path
+      assert response.data == b'http://example.org/', response.data
 
-    response = self.app.get('/http_proxy/http/example.org/a')
-    assert response.status_code == 200, response.status_code
-    last_request = httpretty.last_request()
-    assert last_request.path == '/a', last_request.path
-    assert response.data == b'http://example.org/a', response.data
+      response = self.app.get('/http_proxy/http/example.org/')
+      assert response.status_code == 200, response.status_code
+      assert captured['url'].path == '/', captured['url'].path
+      assert response.data == b'http://example.org/', response.data
 
-    response = self.app.get('/http_proxy/http/example.org/a/b')
-    assert response.status_code == 200, response.status_code
-    last_request = httpretty.last_request()
-    assert last_request.path == '/a/b', last_request.path
-    assert response.data == b'http://example.org/a/b', response.data
+      response = self.app.get('/http_proxy/http/example.org/a')
+      assert response.status_code == 200, response.status_code
+      assert captured['url'].path == '/a', captured['url'].path
+      assert response.data == b'http://example.org/a', response.data
+
+      response = self.app.get('/http_proxy/http/example.org/a/b')
+      assert response.status_code == 200, response.status_code
+      assert captured['url'].path == '/a/b', captured['url'].path
+      assert response.data == b'http://example.org/a/b', response.data

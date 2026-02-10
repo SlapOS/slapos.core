@@ -89,7 +89,7 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
   def joinSlapOSAsOwner(self):
     # lets join as slapos administrator, which will own few compute_nodes
     owner_reference = 'owner-%s' % self.generateNewId()
-    owner_person = self.joinSlapOS(self.web_site, owner_reference)
+    owner_person = self.joinSlapOS(owner_reference)
     self.login()
     self.tic()
     return owner_person

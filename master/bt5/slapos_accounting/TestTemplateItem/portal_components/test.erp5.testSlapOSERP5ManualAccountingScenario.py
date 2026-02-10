@@ -507,7 +507,7 @@ class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin
     # Register a deposit as a customer
     self.logout()
     owner_reference = 'owner-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, owner_reference)
+    self.joinSlapOS(owner_reference)
     self.login()
     owner_person = self.portal.portal_catalog.getResultValue(
       portal_type="ERP5 Login",

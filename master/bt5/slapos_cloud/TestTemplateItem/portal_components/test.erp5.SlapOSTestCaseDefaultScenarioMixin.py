@@ -107,6 +107,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
           return candidate[2]
 
     user_agent = 'My super agent'
+    # Always logout to ensure you are annonyous
+    self.logout()
     ret = self.publish(
       self.web_site.slapos_master_panel.hateoas.connection.join_form.getPath() + '/'
     )
@@ -741,7 +743,6 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
     person.REQUEST.set('Entity_addDepositPayment_%s' % person.getUid(), None)
     self.tic()
-    self.logout()
     self.login()
     payment_transaction = self.portal.portal_catalog.getResultValue(
       portal_type="Payment Transaction",

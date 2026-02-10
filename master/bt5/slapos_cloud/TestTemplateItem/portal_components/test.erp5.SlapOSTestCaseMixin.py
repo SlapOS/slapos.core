@@ -150,6 +150,12 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         # Reset values set on script_ComputeNode_requestSoftwareReleaseChange
         self.portal.REQUEST.set(key, None)
 
+  def login(self, user_name=None, quiet=0):
+    # Login always logout, this prevent us call logout+login everywhere in this
+    # project.
+    self.logout()
+    testSlapOSMixin.login(self, user_name=user_name, quiet=quiet)
+
   @ensureConsistency
   def _addAssignment(self, person, function, project=None, **kw):
     assignment = person.newContent(

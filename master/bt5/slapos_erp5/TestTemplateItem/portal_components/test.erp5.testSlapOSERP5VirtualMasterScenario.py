@@ -280,16 +280,13 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
 
     self.login(sale_person.getUserId())
     with PinnedDateTime(self, DateTime('2020/01/01')):
-      project_relative_url = self.addProject(
+      project = self.addDefaultProject(
         is_accountable=True,
         person=owner_person,
         currency=currency
       )
       self.tic()
 
-    self.login()
-    project = self.portal.restrictedTraverse(project_relative_url)
-    self.updateSystemPreference(project_relative_url)
     return owner_person, currency, project, accountant_person
 
   def updateSystemPreference(self, project_relative_url=None):
@@ -321,11 +318,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.login(sale_person.getUserId())
 
       # create a default project
-      project_relative_url = self.addProject(person=owner_person, currency=currency)
-
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      self.updateSystemPreference(project_relative_url)
+      project = self.addDefaultProject(
+        person=owner_person, currency=currency)
 
       self.login(owner_person.getUserId())
       public_server_title = 'Public Server for %s' % owner_reference
@@ -517,11 +511,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       dedicated_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
       self.tic()
 
-      project_relative_url = self.addProject(is_accountable=True, person=owner_person, currency=currency)
-
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      self.updateSystemPreference(project_relative_url)
+      project = self.addDefaultProject(
+        is_accountable=True, person=owner_person, currency=currency)
 
       public_server_software = self.generateNewSoftwareReleaseUrl()
       public_instance_type = 'public type'
@@ -713,12 +704,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       project_owner_person = self.joinSlapOS(project_owner_reference)
 
       self.login(sale_person.getUserId())
-      project_relative_url = self.addProject(
+      project = self.addDefaultProject(
         is_accountable=True, person=project_owner_person, currency=currency)
-
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      self.updateSystemPreference(project_relative_url)
 
       public_server_software = self.generateNewSoftwareReleaseUrl()
       public_instance_type = 'public type'
@@ -1034,23 +1021,14 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       self.login(sale_person.getUserId())
       # create a default project
-      project_relative_url = self.addProject(person=owner_person, currency=currency)
-
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      self.updateSystemPreference(project_relative_url)
+      project = self.addDefaultProject(
+        person=owner_person, currency=currency)
 
       # hooray, now it is time to create compute_nodes
       self.login(owner_person.getUserId())
 
       public_server_title = 'Public Server for %s' % owner_reference
-      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
-      public_server = self.portal.portal_catalog.getResultValue(
-          portal_type='Compute Node', reference=public_server_id)
-      self.setAccessToMemcached(public_server)
-      self.assertNotEqual(None, public_server)
-      self.setServerOpenPublic(public_server)
-      public_server.generateCertificate()
+      public_server = self.requestComputeNode(public_server_title, project.getReference())
 
       # and install some software on them
       public_server_software = self.generateNewSoftwareReleaseUrl()
@@ -1126,11 +1104,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       self.login(sale_person.getUserId())
       # create a default project
-      remote_project_relative_url = self.addProject(person=remote_owner_person, currency=currency)
-
-      self.login()
-      remote_project = self.portal.restrictedTraverse(remote_project_relative_url)
-      self.updateSystemPreference(remote_project_relative_url)
+      remote_project = self.addDefaultProject(
+        person=remote_owner_person, currency=currency)
 
       # hooray, now it is time to create compute_nodes
       self.login(remote_owner_person.getUserId())
@@ -1164,11 +1139,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       ####################################
       self.login(sale_person.getUserId())
       # create a default project
-      project_relative_url = self.addProject(person=remote_public_person, currency=currency)
-
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      self.updateSystemPreference(project_relative_url)
+      project_relative_url = self.addDefaulttProject(
+        person=remote_public_person, currency=currency)
 
       owner_person = remote_public_person
 
@@ -1310,11 +1282,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.login(sale_person.getUserId())
 
       # create a default project
-      remote_project_relative_url = self.addProject(person=remote_owner_person, currency=currency)
-
-      self.login()
-      remote_project = self.portal.restrictedTraverse(remote_project_relative_url)
-      self.updateSystemPreference(remote_project_relative_url)
+      remote_project = self.addDefaultProject(
+        person=remote_owner_person, currency=currency)
 
       # hooray, now it is time to create compute_nodes
       self.login(remote_owner_person.getUserId())
@@ -1367,11 +1336,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       ####################################
       self.login(sale_person.getUserId())
       # create a default project
-      project_relative_url = self.addProject(person=remote_public_person, currency=currency)
-
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      self.updateSystemPreference(project_relative_url)
+      project = self.addDefaultProject(
+        person=remote_public_person,
+        currency=currency)
 
       owner_person = remote_public_person
       # hooray, now it is time to create compute_nodes

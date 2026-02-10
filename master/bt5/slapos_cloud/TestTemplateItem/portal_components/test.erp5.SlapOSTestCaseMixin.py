@@ -213,6 +213,19 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       currency_relative_url,
       batch=1).getRelativeUrl()
 
+  def addDefaultProject(self, organisation=None, currency=None, person=None, is_accountable=False):
+    project_relative_url = self.addProject(
+      organisation=organisation,
+      currency=currency,
+      person=person,
+      is_accountable=is_accountable)
+
+    self.login()
+    project = self.portal.restrictedTraverse(project_relative_url)
+    self.updateSystemPreference(project_relative_url)
+    return project
+
+
   @ensureConsistency
   def _addERP5Login(self, document, **kw):
     if document.getPortalType() != "Person":

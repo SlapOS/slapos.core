@@ -395,9 +395,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       public_server_id = self.requestComputeNode(public_server_title, project.getReference())
       public_server = self.portal.portal_catalog.getResultValue(
           portal_type='Compute Node', reference=public_server_id)
-      self.setAccessToMemcached(public_server)
       self.assertNotEqual(None, public_server)
-      self.setServerOpenPublic(public_server)
+      self.setServerOpen(public_server)
       public_server.generateCertificate()
 
       self.addAllocationSupply("for compute node", public_server, software_product,
@@ -619,9 +618,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       public_server_id = self.requestComputeNode(public_server_title, project.getReference())
       public_server = self.portal.portal_catalog.getResultValue(
           portal_type='Compute Node', reference=public_server_id)
-      self.setAccessToMemcached(public_server)
       self.assertNotEqual(None, public_server)
-      self.setServerOpenPublic(public_server)
+      self.setServerOpen(public_server)
       public_server.generateCertificate()
 
       self.addAllocationSupply("for compute node", public_server, software_product,

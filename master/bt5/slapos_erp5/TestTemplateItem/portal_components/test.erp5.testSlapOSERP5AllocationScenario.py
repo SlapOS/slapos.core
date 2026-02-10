@@ -34,8 +34,7 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
     server_id = self.requestComputeNode(server_title, project.getReference())
     compute_node = self.portal.portal_catalog.getResultValue(
         portal_type='Compute Node', reference=server_id)
-    self.setAccessToMemcached(compute_node)
-    self.setServerOpenPublic(compute_node)
+    self.setServerOpen(compute_node)
     self.assertNotEqual(None, compute_node)
     compute_node.generateCertificate()
 

@@ -355,7 +355,8 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     with PinnedDateTime(self, DateTime('2024/02/25')):
       public_server_title = 'Public Server for %s' % owner_reference
-      compute_node_id = self.requestComputeNode(public_server_title, project.getReference())
+      compute_node = self.requestComputeNode(public_server_title, project.getReference())
+      compute_node_id = compute_node.getId()
       self.tic()
 
       self.login(sale_person.getUserId())

@@ -223,7 +223,12 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     compute_node = loads(str2bytes(requestXml))
     compute_node_id = getattr(compute_node, '_computer_id', None)
     self.assertNotEqual(None, compute_node_id)
-    return compute_node_id.encode('UTF-8')
+    node = self.portal.portal_catalog.getResultValue(
+      portal_type='Compute Node', reference=compute_node_id.encode('UTF-8'))
+    self.assertNotEqual(None, node)
+    self.setServerOpen(node)
+    node.generateCertificate()
+    return node
 
   def supplySoftware(self, server, url, state='available'):
     self.portal.portal_slap.supplySupply(url, server.getReference(), state)
@@ -243,9 +248,9 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       self.assertEqual('destroy_requested', software_installation.getSlapState())
 
   @changeSkin('RJS')
-  def setServerOpenPublic(self, server):
-    server.edit(
-        allocation_scope='open')
+  def setServerOpen(self, server):
+    self.setAccessToMemcached(server)
+    server.edit(allocation_scope='open')
     self.assertEqual('open', server.getAllocationScope())
     self.assertEqual('close', server.getCapacityScope())
     server.edit(capacity_scope='open')

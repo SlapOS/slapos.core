@@ -22,7 +22,7 @@
             <key> <string>constraint_base_category</string> </key>
             <value>
               <tuple>
-                <string>destination</string>
+                <string>destination_decision</string>
               </tuple>
             </value>
         </item>
@@ -38,7 +38,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>destination_arity_constraint</string> </value>
+            <value> <string>destination_decision_arity_constraint</string> </value>
         </item>
         <item>
             <key> <string>max_arity</string> </key>

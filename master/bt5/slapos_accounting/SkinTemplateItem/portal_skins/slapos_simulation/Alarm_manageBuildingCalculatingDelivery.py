@@ -1,6 +1,7 @@
 portal = context.getPortalObject()
 activate_kw = {
-  'tag': tag
+  'tag': tag,
+  'priority': 2
 }
 portal.portal_catalog.searchAndActivate(
   portal_type=portal.getPortalDeliveryTypeList(),

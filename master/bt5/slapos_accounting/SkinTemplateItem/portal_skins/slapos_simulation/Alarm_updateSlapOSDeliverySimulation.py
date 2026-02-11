@@ -18,7 +18,7 @@ kw.update(
   method_id='updateSimulation',
   packet_size=1, # Separate calls to many transactions
   method_kw={'expand_root': 1},
-  activate_kw={'tag': tag},
+  activate_kw={'tag': tag, 'priority': 2},
 )
 
 portal.portal_catalog.searchAndActivate(

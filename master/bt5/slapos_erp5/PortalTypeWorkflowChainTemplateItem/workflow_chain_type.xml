@@ -207,4 +207,8 @@
   <type>Wechat Event</type>
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
+ <chain>
+  <type>Workgroup</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
 </workflow_chain>

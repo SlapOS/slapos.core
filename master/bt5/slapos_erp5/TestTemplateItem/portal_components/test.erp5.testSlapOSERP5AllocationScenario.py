@@ -51,17 +51,6 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
     self.checkServiceSubscriptionRequest(compute_node)
     return compute_node
 
-  def removeSoftwareReleaseFromComputer(self, computer_owner,
-       compute_node, software_release):
-    # and uninstall some software on them
-    self.login(computer_owner.getUserId())
-    self.supplySoftware(
-      compute_node, software_release,
-      state='destroyed')
-
-    self.login()
-    self.simulateSlapgridSR(compute_node)
-
   def bootstrapVirtualMasterTestWithProject(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
     self.tic()
@@ -177,7 +166,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
         software_release, software_type, compute_node,
         project.getReference())
 
-    self.removeSoftwareReleaseFromComputer(owner_person,
+    self.removeSoftwareReleaseFromComputeNode(owner_person,
       compute_node, software_release)
 
     self.checkERP5StateBeforeExit()
@@ -292,7 +281,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
     self.assertTrue(timestamp > timestamp_before_unallocation,
       "timestamp: %s < before_unallocation:%s" % (timestamp, timestamp_before_unallocation))
 
-    self.removeSoftwareReleaseFromComputer(owner_person,
+    self.removeSoftwareReleaseFromComputeNode(owner_person,
       compute_node, software_release)
 
     self.checkERP5StateBeforeExit()
@@ -471,7 +460,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
     self.assertTrue(timestamp > timestamp_before_unallocation,
       "timestamp: %s < before_unallocation:%s" % (timestamp, timestamp_before_unallocation))
 
-    self.removeSoftwareReleaseFromComputer(owner_person,
+    self.removeSoftwareReleaseFromComputeNode(owner_person,
       compute_node, software_release)
 
     self.checkERP5StateBeforeExit()

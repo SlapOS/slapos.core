@@ -63,7 +63,7 @@ class SlapOSPersonSlapInterfaceMixin:
 
     # Ensure project is correctly set
     assert project_reference, 'No project reference'
-    project_list = portal.portal_catalog.portal_catalog(portal_type='Project', reference=project_reference,
+    project_list = portal.portal_catalog(portal_type='Project', reference=project_reference,
                                                         validation_state='validated', limit=2)
     if len(project_list) != 1:
       raise NotImplementedError("%i projects '%s'" % (len(project_list), project_reference))
@@ -135,13 +135,13 @@ class SlapOSPersonSlapInterfaceMixin:
       raise NotImplementedError(tag)
 
     # Ensure project is correctly set
-    project_list = portal.portal_catalog.portal_catalog(portal_type='Project', reference=project_reference,
+    project_list = portal.portal_catalog(portal_type='Project', reference=project_reference,
                                                         validation_state='validated', limit=2)
     if len(project_list) != 1:
       raise NotImplementedError("%i projects '%s'" % (len(project_list), project_reference))
 
     compute_node_portal_type = "Compute Node"
-    compute_node_list = portal.portal_catalog.portal_catalog(
+    compute_node_list = portal.portal_catalog(
       portal_type=compute_node_portal_type,
       title={'query': compute_node_title, 'key': 'ExactMatch'},
       validation_state='validated',
@@ -196,13 +196,13 @@ class SlapOSPersonSlapInterfaceMixin:
       raise NotImplementedError(tag)
 
     # Ensure project is correctly set
-    project_list = portal.portal_catalog.portal_catalog(portal_type='Project', reference=project_reference,
+    project_list = portal.portal_catalog(portal_type='Project', reference=project_reference,
                                                         validation_state='validated', limit=2)
     if len(project_list) != 1:
       raise NotImplementedError("%i projects '%s'" % (len(project_list), project_reference))
 
     computer_network_portal_type = "Computer Network"
-    computer_network_list = portal.portal_catalog.portal_catalog(
+    computer_network_list = portal.portal_catalog(
       portal_type=computer_network_portal_type,
       title={'query': computer_network_title, 'key': 'ExactMatch'},
       follow_up__uid=project_list[0].getUid(),

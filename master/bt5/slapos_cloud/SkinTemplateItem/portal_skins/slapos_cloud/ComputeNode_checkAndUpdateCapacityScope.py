@@ -65,7 +65,7 @@ if can_allocate:
       comment = 'Compute Node capacity limit exceeded (%s >= %s)' % (consumed_capacity, compute_node_capacity_quantity)
 
   if can_allocate:
-    for sql_instance in portal.portal_catalog.portal_catalog(
+    for sql_instance in portal.portal_catalog(
         default_aggregate_relative_url='%s/%%' % compute_node.getRelativeUrl(),
         portal_type=['Software Instance', 'Slave Instance'],
         validation_state='validated',
@@ -83,7 +83,7 @@ if can_allocate:
         break
 
 # if can_allocate:
-#   result_list = portal.portal_catalog.portal_catalog(
+#   result_list = portal.portal_catalog(
 #     parent_uid=compute_node.getUid(),
 #     portal_type='Compute Partition',
 #     free_for_request=1,

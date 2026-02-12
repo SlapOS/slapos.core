@@ -1,6 +1,16 @@
 Changes
 =======
 
+1.21 (2026-02-12)
+------------------
+
+ * slapos node prune: add --additional-software-directory option
+ * slapgrid: make software building faster when retried
+ * slapgrid: introduce --force option and deprecate --all option for node software and node instance
+ * slapgrid: fix check result of firewalld command and raise on any failure
+ * SlapObject: use -N (non newest mode) to build software to reduce network requests
+ * SlapObject: always use the same extends-cache directory under buildout root directory
+
 1.20.1 (2025-12-16)
 -------------------
 

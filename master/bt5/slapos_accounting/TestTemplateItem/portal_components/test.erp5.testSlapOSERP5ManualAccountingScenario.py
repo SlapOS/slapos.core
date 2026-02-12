@@ -16,7 +16,6 @@ class TestSlapOSManualAccountingScenarioMixin(TestSlapOSVirtualMasterScenarioMix
   def bootstrapManualAccountingTest(self, **kw):
     currency, accountant_organisation, bank_account, _, accountant_person = self.bootstrapVirtualMasterTest(**kw)
     self.tic()
-    self.logout()
     self.login(accountant_person.getUserId())
     return accountant_person, accountant_organisation, \
       bank_account, currency
@@ -45,7 +44,6 @@ class TestSlapOSManualAccountingScenarioMixin(TestSlapOSVirtualMasterScenarioMix
       title="Group for %s" % organisation.getTitle()
     )
 
-    self.logout()
     self.login(accountant.getUserId())
     organisation.setGroup(group.getId())
 
@@ -509,13 +507,12 @@ class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin
     # Register a deposit as a customer
     self.logout()
     owner_reference = 'owner-%s' % self.generateNewId()
-    self.joinSlapOS(self.web_site, owner_reference)
+    self.joinSlapOS(owner_reference)
     self.login()
     owner_person = self.portal.portal_catalog.getResultValue(
       portal_type="ERP5 Login",
       reference=owner_reference).getParentValue()
     self.tic()
-    self.logout()
     self.login(owner_person.getUserId())
     # Pre-input a reservation payment for a huge amount, to have enough amount.
     # to check if other services are ok
@@ -544,7 +541,6 @@ class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin
       argument_list=[owner_person, seller_organisation.getRelativeUrl(),
        total_price, currency.getRelativeUrl()])
     self.tic()
-    self.logout()
     self.login()
     # payzen interface will only stop the payment
     payment_transaction.stop()
@@ -554,7 +550,6 @@ class TestSlapOSManualAccountingScenario(TestSlapOSManualAccountingScenarioMixin
 
     ##########################################
     # Manually create and letter the bank transaction
-    self.logout()
     self.login(accountant_person.getUserId())
 
     bank_transaction = self.portal.accounting_module.newContent(

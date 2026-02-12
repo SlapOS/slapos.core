@@ -100,13 +100,15 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.admin_user = admin_user
 
   @changeSkin('Hal')
-  def joinSlapOS(self, web_site, reference):
+  def joinSlapOS(self, reference):
     def findMessage(email, body):
       for candidate in reversed(self.portal.MailHost.getMessageList()):
         if [q for q in candidate[1] if email in q] and body in candidate[2]:
           return candidate[2]
 
     user_agent = 'My super agent'
+    # Always logout to ensure you are annonyous
+    self.logout()
     ret = self.publish(
       self.web_site.slapos_master_panel.hateoas.connection.join_form.getPath() + '/'
     )
@@ -221,7 +223,12 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     compute_node = loads(str2bytes(requestXml))
     compute_node_id = getattr(compute_node, '_computer_id', None)
     self.assertNotEqual(None, compute_node_id)
-    return compute_node_id.encode('UTF-8')
+    node = self.portal.portal_catalog.getResultValue(
+      portal_type='Compute Node', reference=compute_node_id.encode('UTF-8'))
+    self.assertNotEqual(None, node)
+    self.setServerOpen(node)
+    node.generateCertificate()
+    return node
 
   def supplySoftware(self, server, url, state='available'):
     self.portal.portal_slap.supplySupply(url, server.getReference(), state)
@@ -241,9 +248,9 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       self.assertEqual('destroy_requested', software_installation.getSlapState())
 
   @changeSkin('RJS')
-  def setServerOpenPublic(self, server):
-    server.edit(
-        allocation_scope='open')
+  def setServerOpen(self, server):
+    self.setAccessToMemcached(server)
+    server.edit(allocation_scope='open')
     self.assertEqual('open', server.getAllocationScope())
     self.assertEqual('close', server.getCapacityScope())
     server.edit(capacity_scope='open')
@@ -741,7 +748,6 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
     person.REQUEST.set('Entity_addDepositPayment_%s' % person.getUid(), None)
     self.tic()
-    self.logout()
     self.login()
     payment_transaction = self.portal.portal_catalog.getResultValue(
       portal_type="Payment Transaction",

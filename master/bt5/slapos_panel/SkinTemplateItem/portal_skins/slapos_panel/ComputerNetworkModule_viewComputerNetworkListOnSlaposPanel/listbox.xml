@@ -216,7 +216,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: [(\'validation_state\', \'validated\'), (\'default_strict_allocation_scope_uid\', \'!=%s\' % context.getPortalObject().restrictedTraverse(\'portal_categories/allocation_scope/close/forever\').getUid())]</string> </value>
+            <value> <string>python: [(\'validation_state\', \'validated\')]</string> </value>
         </item>
       </dictionary>
     </pickle>

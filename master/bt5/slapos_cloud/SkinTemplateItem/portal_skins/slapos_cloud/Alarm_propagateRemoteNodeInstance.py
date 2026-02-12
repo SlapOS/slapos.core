@@ -26,13 +26,13 @@ if previous_run_date is not None:
   # with recently modified instance
   # It is needed to search all _remote_ instances
   portal.portal_catalog.searchAndActivate(
-    portal_type='Instance Tree',
+    portal_type=['Software Instance', 'Slave Instance'],
     title='\\_remote\\_%\\_%',
     indexation_timestamp=SimpleQuery(
       indexation_timestamp=previous_run_date,
       comparison_operator=">="
     ),
-    method_id='InstanceTree_propagateFromRemoteNode',
+    method_id='SoftwareInstance_propagateFromRemoteNode',
     method_kw={
       "activate_kw": activate_kw
     },

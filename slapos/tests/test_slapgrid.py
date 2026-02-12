@@ -2092,6 +2092,195 @@ echo %s; echo %s; exit 42""" % (line1, line2))
         self.assertTrue(os.path.exists(conf), conf + ' does not exist')
 
 
+  def test_process_script_unexpected_exit_code(self):
+    """
+    Test that a process in script directory exit with unexpected exit code
+    will report the error to master
+    """
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    instance = computer.instance_list[0]
+
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+      timestamp = str(int(time.time()))
+      instance.timestamp = timestamp
+      instance.software.setPeriodicity(1)
+
+      # Content of run wrapper
+      WRAPPER_CONTENT = textwrap.dedent("""#!/bin/sh
+          touch ./launched
+          touch ./crashed
+          echo Failing
+          sleep 1
+          exit 111
+      """)
+
+      BUILDOUT_RUN_CONTENT = textwrap.dedent("""#!/bin/sh
+          mkdir -p etc/run &&
+          echo "%s" > etc/run/script &&
+          chmod 755 etc/run/script &&
+          touch worked
+          """)
+
+      instance.software.setBuildout(BUILDOUT_RUN_CONTENT % WRAPPER_CONTENT)
+      instance.sequence = []
+      instance.header_list = []
+
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      time.sleep(2)
+      self.assertInstanceDirectoryListEqual(['0'])
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
+                            ['.slapgrid', '.timestamp', '.0_script.log', 'buildout.cfg',
+                             'etc', 'software_release', 'worked', '.slapos-retention-lock-delay',
+                             'launched', 'crashed'])
+
+      # partition error is not reported yet (no process info)
+      self.assertEqual(instance.sequence, ['/startedComputerPartition'])
+
+      WRAPPER_CONTENT = textwrap.dedent("""#!/bin/sh
+          rm ./crashed
+          touch ./launched
+          touch ./success
+          echo Worked
+          sleep 1
+      """)
+      instance.software.setBuildout(BUILDOUT_RUN_CONTENT % WRAPPER_CONTENT)
+      instance.sequence = []
+      instance.header_list = []
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      time.sleep(2)
+      self.assertInstanceDirectoryListEqual(['0'])
+      # timestamp file is removed
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
+                            ['.slapgrid', '.0_script.log', 'buildout.cfg',
+                             'etc', 'software_release', 'worked', '.slapos-retention-lock-delay',
+                             'launched', 'success'])
+      # partition error from previous run was reported
+      self.assertEqual(instance.sequence, ['/startedComputerPartition', '/softwareInstanceError'])
+      self.assertEqual(instance.error_log.strip(),
+                       "Process 'script' from partition 0 has unexpected exit code")
+
+      instance.sequence = []
+      instance.header_list = []
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      # No error reported now
+      self.assertEqual(instance.sequence, ['/startedComputerPartition'])
+      # timestamp file is present after success
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
+                            ['.slapgrid', '.timestamp', '.0_script.log', 'buildout.cfg',
+                             'etc', 'software_release', 'worked', '.slapos-retention-lock-delay',
+                             'launched', 'success'])
+
+  def test_process_script_unexpected_exit_code_many_fail(self):
+    """
+    More than one process in etc/run directory that fail
+    """
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    instance = computer.instance_list[0]
+
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+
+      # Content of run wrapper
+      WRAPPER_CONTENT = textwrap.dedent("""#!/bin/sh
+          touch ./launched
+          touch ./crashed
+          echo Failing
+          sleep 1
+          exit 111
+      """)
+
+      BUILDOUT_RUN_CONTENT = textwrap.dedent("""#!/bin/sh
+          mkdir -p etc/run &&
+          echo "%s" >> etc/run/script &&
+          chmod 755 etc/run/script &&
+          echo "%s" >> etc/run/script2 &&
+          chmod 755 etc/run/script2 &&
+          touch worked
+          """ % (WRAPPER_CONTENT, WRAPPER_CONTENT))
+
+      instance.software.setBuildout(BUILDOUT_RUN_CONTENT)
+      instance.sequence = []
+      instance.header_list = []
+
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      time.sleep(2)
+      self.assertEqual(instance.sequence, ['/startedComputerPartition'])
+
+      instance.sequence = []
+      instance.header_list = []
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      # partition error was reported
+      self.assertEqual(instance.sequence, ['/startedComputerPartition', '/softwareInstanceError'])
+      error_log = instance.error_log.strip().split('\n')
+      error_log.sort()
+      self.assertEqual(error_log,
+                       ["Process 'script' from partition 0 has unexpected exit code",
+                        "Process 'script2' from partition 0 has unexpected exit code"])
+
+  def test_process_script_unexpected_exit_code_buildout_fail(self):
+    """
+    Test that a process in script directory exit with unexpected exit code
+    will not report error to master if buildout is already failing
+    """
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    instance = computer.instance_list[0]
+
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+
+      # Content of run wrapper
+      WRAPPER_CONTENT = textwrap.dedent("""#!/bin/sh
+          touch ./launched
+          touch ./crashed
+          echo Failing
+          sleep 1
+          exit 111
+      """)
+
+      BUILDOUT_RUN_CONTENT = textwrap.dedent("""#!/bin/sh
+          mkdir -p etc/run &&
+          echo "%s" >> etc/run/script &&
+          chmod 755 etc/run/script
+          """ % WRAPPER_CONTENT)
+
+      instance.software.setBuildout(BUILDOUT_RUN_CONTENT)
+      instance.sequence = []
+      instance.header_list = []
+
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      time.sleep(1)
+
+      self.assertEqual(instance.sequence, ['/startedComputerPartition'])
+
+      BUILDOUT_RUN_CONTENT = textwrap.dedent("""#!/bin/sh
+          mkdir -p etc/run &&
+          echo "%s" >> etc/run/daemon &&
+          chmod 755 etc/run/daemon &&
+          touch failed
+          exit 1
+          """ % WRAPPER_CONTENT)
+
+      instance.software.setBuildout(BUILDOUT_RUN_CONTENT)
+      instance.sequence = []
+      instance.header_list = []
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_FAIL)
+      self.assertInstanceDirectoryListEqual(['0'])
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
+                            ['.slapgrid', '.0_script.log', 'buildout.cfg', '.slapgrid-0-error.log',
+                             'etc', 'software_release', 'failed', '.slapos-retention-lock-delay',
+                             'launched', 'crashed'])
+      # partition error was reported
+      self.assertEqual(instance.sequence, ['/softwareInstanceError'])
+      # the reported error is not about process in etc/run
+      self.assertTrue(
+        instance.error_log.strip().startswith(
+                       "Failed to run buildout profile in directory '%s':" % instance.partition_path)
+      )
+
 class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
   """
   Test suite about slapgrid-ur

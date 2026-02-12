@@ -296,6 +296,7 @@ class SlapOSInstanceSlapInterfaceMixin:
         default_specialise_uid=instance_tree.getUid(),
         path=NegatedQuery(Query(path=instance.getPath())),
         portal_type=["Slave Instance", "Software Instance"],
+        validation_state='validated',
         method_id='bang',
         method_kw={'bang_tree': False, 'comment': comment},
       )

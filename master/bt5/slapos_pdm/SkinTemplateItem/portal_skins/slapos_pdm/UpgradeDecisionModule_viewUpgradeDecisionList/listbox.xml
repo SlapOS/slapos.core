@@ -82,6 +82,10 @@
                           <string>modification_date</string>
                           <string>Modification Date</string>
                         </tuple>
+                        <tuple>
+                          <string>aggregate_short_title</string>
+                          <string>Short Title</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

@@ -295,7 +295,9 @@ class SlapOSInstanceSlapInterfaceMixin:
       portal.portal_catalog.searchAndActivate(
         default_specialise_uid=instance_tree.getUid(),
         path=NegatedQuery(Query(path=instance.getPath())),
-        portal_type=["Slave Instance", "Software Instance"],
+        # No need to bang Slaves, as it will not trigger any change
+        # on buildout side
+        portal_type="Software Instance",
         validation_state='validated',
         method_id='bang',
         method_kw={'bang_tree': False, 'comment': comment},

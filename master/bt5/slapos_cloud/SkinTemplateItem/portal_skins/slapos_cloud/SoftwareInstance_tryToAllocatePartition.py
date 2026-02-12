@@ -54,6 +54,7 @@ def assignComputePartition(software_instance, instance_tree):
       compute_partition_relative_url = None
     else:
 
+      need_instance_tree_serialize = False
       # "Each instance should be allocated to a different network." (i.e at most one instance of the tree per network)
       computer_network_query = None
       if sla_dict.get('mode', None) == 'unique_by_network':
@@ -95,7 +96,7 @@ def assignComputePartition(software_instance, instance_tree):
             ))
 
         computer_network_query = ComplexQuery(*computer_network_query_list)
-        instance_tree.serialize()
+        need_instance_tree_serialize = True
 
       elif sla_dict.get('mode'):
         computer_network_query = '-1'
@@ -108,6 +109,10 @@ def assignComputePartition(software_instance, instance_tree):
           software_instance.getPortalType(),
           sla_dict, computer_network_query
       )
+      # Ensure the serialize is done after calling Person_findPartition
+      # to prevent generating not needed activity conflicts
+      if need_instance_tree_serialize and (compute_partition_relative_url is not None):
+        instance_tree.serialize()
     return compute_partition_relative_url, tag
 
 software_instance = context

@@ -1097,6 +1097,54 @@ class TestComputerPartition(SlapMixin):
       connection_xml='<marshal><dictionary id="i2"><string>a</string>'
                      '<string>b</string></dictionary></marshal>')
 
+  def _test_error(self, error_log, slave_reference=None, expected_post_data=None):
+    with \
+        mock.patch.object(
+          slapos.slap.ComputerPartition, '__init__', return_value=None), \
+        mock.patch.object(
+          slapos.slap.ComputerPartition, 'getId',
+          return_value='PART-0'):
+      partition = slapos.slap.ComputerPartition()
+      partition._connection_helper = mock.Mock()
+      partition._computer_id = 'COMP-0'
+      partition._partition_id = 'PART-0'
+      partition._connection_helper.POST = mock.Mock()
+      partition.error(error_log, slave_reference=slave_reference)
+      if expected_post_data:
+        partition._connection_helper.POST.assert_called_with(
+          'softwareInstanceError',
+          data=expected_post_data)
+      else:
+        partition._connection_helper.POST.assert_not_called()
+
+  def test_error(self):
+    self._test_error(
+      'some error message',
+      expected_post_data={
+        'computer_id': 'COMP-0',
+        'computer_partition_id': 'PART-0',
+        'error_log': 'some error message'
+      })
+
+  def test_error_with_slave_reference(self):
+    self._test_error(
+      'some error message',
+      slave_reference='SLAVE-0',
+      expected_post_data={
+        'computer_id': 'COMP-0',
+        'computer_partition_id': 'PART-0',
+        'error_log': 'some error message',
+        'slave_reference': 'SLAVE-0'
+      })
+
+  def test_error_empty_message(self):
+    self._test_error(
+      '',
+      expected_post_data={
+        'computer_id': 'COMP-0',
+        'computer_partition_id': 'PART-0',
+        'error_log': ''
+      })
 
 
 class TestSoftwareRelease(SlapMixin):

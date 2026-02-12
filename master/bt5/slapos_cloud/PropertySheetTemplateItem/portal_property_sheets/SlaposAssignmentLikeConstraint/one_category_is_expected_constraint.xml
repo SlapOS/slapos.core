@@ -24,7 +24,7 @@
         </item>
         <item>
             <key> <string>expression</string> </key>
-            <value> <string>python: bool([x for x in context.getCategoryList() if not x.startswith(\'destination/\')])</string> </value>
+            <value> <string>python: bool([x for x in context.getCategoryList() if not x.startswith(\'destination_decision/\')])</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

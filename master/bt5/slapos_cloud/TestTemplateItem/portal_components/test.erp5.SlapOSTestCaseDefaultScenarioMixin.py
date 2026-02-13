@@ -202,13 +202,16 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         portal_type="ERP5 Login",
         reference=reference).getParentValue()
 
-  def _getCurrentInstanceTreeList(self):
-    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+  def _getCurrentInstanceTreeList(self, title=None, destination_section=None):
+    if destination_section is None:
+      destination_section = \
+        self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
-    if person is not None:
+    if destination_section is not None:
       return self.portal.portal_catalog(
         portal_type="Instance Tree",
-        default_destination_section_uid=person.getUid(),
+        title=title,
+        default_destination_section_uid=destination_section.getUid(),
         validation_state='validated')
 
     return []
@@ -441,9 +444,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings
-    instance_tree_list = [q.getObject() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title]
+    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
     self.assertEqual(1, len(instance_tree_list))
     instance_tree = instance_tree_list[0]
 
@@ -472,9 +473,9 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.login(person_user_id)
 
     # let's find instance of user
-    instance_tree_list = [q.getObject() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_tree_title]
+    instance_tree_list = self._getCurrentInstanceTreeList(
+      title=instance_tree_title)
+
     self.assertEqual(1, len(instance_tree_list))
     instance_tree = instance_tree_list[0]
 
@@ -558,9 +559,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     # XXX XXX self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings
-    instance_tree_list = [q.getObject() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title]
+    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
     self.assertEqual(1, len(instance_tree_list))
     instance_tree = instance_tree_list[0]
 
@@ -593,10 +592,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     )
 
     # let's find instances of user and check connection strings
-    instance_tree_list = [q.getObject() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title]
-
+    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
     self.assertEqual(0, len(instance_tree_list))
 
   def checkRemoteInstanceUnallocation(self, person_user_id,
@@ -636,10 +632,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     # now instantiate it on compute_node and set some nice connection dict
     self.simulateSlapgridUR(server)
 
-    # let's find instances of user and check connection strings
-    instance_tree_list = [q.getObject() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title]
+    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
     self.assertEqual(0, len(instance_tree_list))
 
   def checkServiceSubscriptionRequest(self, service, simulation_state='invalidated'):
@@ -689,9 +682,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings
-    instance_tree_list = [q.getObject() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title]
+    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
     self.assertEqual(1, len(instance_tree_list))
     instance_tree = instance_tree_list[0]
 
@@ -779,9 +770,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings
-    instance_tree_list = [q.getObject() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title]
+    instance_tree_list = self._getCurrentInstanceTreeList(
+        title=instance_title)
     self.assertEqual(1, len(instance_tree_list))
     instance_tree = instance_tree_list[0]
 

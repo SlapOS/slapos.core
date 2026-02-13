@@ -31,12 +31,8 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
     self.login(computer_owner.getUserId())
 
     server_title = 'Public Server for %s' % computer_owner.getReference()
-    server_id = self.requestComputeNode(server_title, project.getReference())
-    compute_node = self.portal.portal_catalog.getResultValue(
-        portal_type='Compute Node', reference=server_id)
-    self.setServerOpen(compute_node)
+    compute_node = self.requestComputeNode(server_title, project.getReference())
     self.assertNotEqual(None, compute_node)
-    compute_node.generateCertificate()
 
     self.supplySoftware(compute_node, software_release)
 
@@ -97,7 +93,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
   """ Minimal allocation specific test scenarios"""
 
   def test_software_instance_allocation_scenario(self):
-    project, owner_person = self.bootstrapVirtualMasterTestWithProject()    
+    project, owner_person = self.bootstrapVirtualMasterTestWithProject()
     self.logout()
 
     # and install some software on them
@@ -120,9 +116,8 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
     self.login(owner_person.getUserId())
 
     # let's find instances of user and check connection strings
-    software_instance = [q.getSuccessorValue() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title][0]
+    software_instance = self._getCurrentInstanceTreeList(
+      title=instance_title)[0].getSuccessorValue()
 
     parameter_dict = software_instance._asParameterDict()
     timestamp = parameter_dict['timestamp']
@@ -215,8 +210,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
 
     # let's find instances of user and check connection strings
     partition_reference = [q.getSuccessorValue().getAggregateReference() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title][0]
+        self._getCurrentInstanceTreeList(title=instance_title)][0]
 
     computer_information_dict = compute_node._getCacheComputeNodeInformation(None)
     # Ensure compute node gets the proper timestamp
@@ -331,8 +325,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
 
     # let's find instances of user and check connection strings
     partition_reference = [q.getSuccessorValue().getAggregateReference() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title][0]
+        self._getCurrentInstanceTreeList(title=instance_title)][0]
 
     computer_information_dict = compute_node._getCacheComputeNodeInformation(None)
     # Ensure compute node gets the proper timestamp

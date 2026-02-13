@@ -8,6 +8,10 @@ for action_category_name, action_list in action_dict.items():
       # hardcoding the 'view' action
       action['id'] = 'view'
       filtered_action_dict[action_category_name].append(action)
+    elif (action['id'].startswith('slapos_panel_workflow_')):
+      if 'workflow' not in filtered_action_dict:
+        filtered_action_dict['workflow'] = []
+      filtered_action_dict['workflow'].append(action)
     elif (('slapos' in action['id']) or
           (action['id'] == 'delete_document_list')):
       # Allow all slapos* action

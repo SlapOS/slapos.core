@@ -167,9 +167,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       )
 
       # let's find instances of user and check connection strings
-      instance_tree_list = [q.getObject() for q in
-          self._getCurrentInstanceTreeList()
-          if q.getTitle() == public_instance_title]
+      instance_tree_list = self._getCurrentInstanceTreeList(
+        title=public_instance_title)
 
       self.assertEqual(0, len(instance_tree_list))
 
@@ -377,12 +376,9 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.login(owner_person.getUserId())
 
       public_server_title = 'Public Server for %s' % owner_reference
-      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
-      public_server = self.portal.portal_catalog.getResultValue(
-          portal_type='Compute Node', reference=public_server_id)
+      public_server = self.requestComputeNode(public_server_title, project.getReference())
       self.assertNotEqual(None, public_server)
-      self.setServerOpen(public_server)
-      public_server.generateCertificate()
+
 
       self.addAllocationSupply("for compute node", public_server, software_product,
                                release_variation, type_variation)
@@ -526,9 +522,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings
-    instance_tree_list = [q.getObject() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title]
+    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
     self.assertEqual(1, len(instance_tree_list))
     instance_tree = instance_tree_list[0]
 
@@ -596,12 +590,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.login(owner_person.getUserId())
 
       public_server_title = 'Public Server for %s' % owner_reference
-      public_server_id = self.requestComputeNode(public_server_title, project.getReference())
-      public_server = self.portal.portal_catalog.getResultValue(
-          portal_type='Compute Node', reference=public_server_id)
+      public_server = self.requestComputeNode(public_server_title, project.getReference())
       self.assertNotEqual(None, public_server)
-      self.setServerOpen(public_server)
-      public_server.generateCertificate()
 
       self.addAllocationSupply("for compute node", public_server, software_product,
                                release_variation, type_variation)

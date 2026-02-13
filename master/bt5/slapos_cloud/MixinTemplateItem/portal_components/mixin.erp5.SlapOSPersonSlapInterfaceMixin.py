@@ -37,7 +37,7 @@ class SlapOSPersonSlapInterfaceMixin:
   security.declareProtected(Permissions.ModifyPortalContent, 'requestSoftwareInstance')
   def requestSoftwareInstance(self, software_release, software_title, software_type,
                       instance_xml, sla_xml, shared, state, project_reference,
-                      force_software_change=False):
+                      workgroup_reference=None, force_software_change=False):
     person = self
     portal = person.getPortalObject()
 
@@ -47,14 +47,14 @@ class SlapOSPersonSlapInterfaceMixin:
     software_release_url_string = software_release
     is_slave = shared
     root_state = state
+    requester = person
 
     if is_slave not in [True, False]:
       raise ValueError("shared should be a boolean")
 
     instance_tree_portal_type = "Instance Tree"
 
-    tag = "%s_%s_inProgress" % (person.getUid(),
-                                   software_title)
+    tag = "%s_%s_inProgress" % (person.getUid(), software_title)
 
     if (portal.portal_activities.countMessageWithTag(tag) > 0):
       # The software instance is already under creation but can not be fetched from catalog
@@ -63,28 +63,49 @@ class SlapOSPersonSlapInterfaceMixin:
 
     # Ensure project is correctly set
     assert project_reference, 'No project reference'
-    project_list = portal.portal_catalog(portal_type='Project', reference=project_reference,
-                                                        validation_state='validated', limit=2)
+    project_list = portal.portal_catalog(portal_type='Project',
+                                         reference=project_reference,
+                                         validation_state='validated',
+                                         limit=2)
     if len(project_list) != 1:
       raise NotImplementedError("%i projects '%s'" % (len(project_list), project_reference))
+
+    project = project_list[0]
+    requester = person
+
+    if workgroup_reference is not None:
+      # Is Person member of the workgroup?
+      workgroup = portal.portal_catalog.getResultValue(
+        portal_type='Workgroup',
+        validation_state='validated',
+        reference=workgroup_reference
+      )
+      if workgroup is None:
+        raise ValueError("Wrong workgroup Reference provided")
+
+      # Is workgroup member of the project?
+      if not workgroup.Workgroup_isProjectCustomer(project):
+        raise ValueError('Workgroup is not customer of this project')
+
+      requester = workgroup
 
     # Check if it already exists
     request_instance_tree_list = portal.portal_catalog(
       portal_type=instance_tree_portal_type,
       title={'query': software_title, 'key': 'ExactMatch'},
       validation_state="validated",
-      destination_section__uid=person.getUid(),
+      destination_section__uid=requester.getUid(),
       limit=2,
       )
     if len(request_instance_tree_list) > 1:
       raise NotImplementedError("Too many instance tree %s found %s" % (software_title, [x.path for x in request_instance_tree_list]))
     elif len(request_instance_tree_list) == 1:
       request_instance_tree = request_instance_tree_list[0].getObject()
-      assert request_instance_tree.getFollowUp() == project_list[0].getRelativeUrl()
+      assert request_instance_tree.getFollowUp() == project.getRelativeUrl()
       if (request_instance_tree.getSlapState() == "destroy_requested") or \
          (request_instance_tree.getTitle() != software_title) or \
          (request_instance_tree.getValidationState() != "validated") or \
-         (request_instance_tree.getDestinationSection() != person.getRelativeUrl()):
+         (request_instance_tree.getDestinationSection() != requester.getRelativeUrl()):
         raise NotImplementedError("The system was not able to get the expected instance tree")
       # Do not allow user to change the release/type/shared status
       # This is not compatible with invoicing the service
@@ -105,15 +126,16 @@ class SlapOSPersonSlapInterfaceMixin:
         portal_type=instance_tree_portal_type,
         reference=instance_tree_reference,
         title=software_title,
-        destination_section=person.getRelativeUrl(),
-        follow_up_value=project_list[0],
+        destination_section=requester.getRelativeUrl(),
+        follow_up_value=project,
         activate_kw={'tag': tag},
       )
       # Prevent 2 nodes to call request concurrently
-      person.serialize()
+      requester.serialize()
 
     request_instance_tree.InstanceTree_updateParameterAndRequest(
-      root_state, software_release_url_string, software_title, software_type, instance_xml, sla_xml, is_slave
+      root_state, software_release_url_string, software_title,
+      software_type, instance_xml, sla_xml, is_slave
     )
     self.REQUEST.set('request_instance_tree', request_instance_tree)
     if (root_state == "destroyed"):

@@ -42,7 +42,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_fast_invalidate</string> </value>
+            <value> <string>slapos_panel_workflow_fast_invalidate</string> </value>
         </item>
         <item>
             <key> <string>permissions</string> </key>
@@ -79,7 +79,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>string:${object_url}/SaleSupply_invalidateOnSlaposPanel</string> </value>
+            <value> <string>string:${object_url}/AllocationSupply_invalidateComputeNodeList</string> </value>
         </item>
       </dictionary>
     </pickle>
@@ -92,7 +92,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>python: (context.getValidationState() == \'validated\') and ((context.Base_hasSlapOSProjectUserGroup(manager=True, agent=True, project_relation=\'destination_project\')) or (context.Base_hasSlapOSProjectUserGroup(manager=True, agent=True, project_relation=\'source_project\')))</string> </value>
+            <value> <string>python: (context.getValidationState() == \'validated\') and (context.Base_hasSlapOSProjectUserGroup(manager=True, agent=True, project_relation=\'destination_project\'))</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -42,13 +42,13 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_request_hs_start</string> </value>
+            <value> <string>slapos_panel_workflow_suspend</string> </value>
         </item>
         <item>
             <key> <string>permissions</string> </key>
             <value>
               <tuple>
-                <string>Modify portal content</string>
+                <string>View</string>
               </tuple>
             </value>
         </item>
@@ -58,11 +58,11 @@
         </item>
         <item>
             <key> <string>priority</string> </key>
-            <value> <float>1.0</float> </value>
+            <value> <float>3.0</float> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Request Start</string> </value>
+            <value> <string>Suspend</string> </value>
         </item>
         <item>
             <key> <string>visible</string> </key>
@@ -79,7 +79,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>string:${object_url}/InstanceTree_requestStart</string> </value>
+            <value> <string>string:${object_url}/Ticket_viewSlapOSSuspendFastInputDialog</string> </value>
         </item>
       </dictionary>
     </pickle>
@@ -92,7 +92,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>python: context.getSlapState() == \'stop_requested\'</string> </value>
+            <value> <string>python: context.Base_hasSlapOSAccountingUserGroup(manager=True, agent=True) and context.getSimulationState() == \'validated\'</string> </value>
         </item>
       </dictionary>
     </pickle>

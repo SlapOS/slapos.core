@@ -120,9 +120,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
     self.login(owner_person.getUserId())
 
     # let's find instances of user and check connection strings
-    software_instance = [q.getSuccessorValue() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title][0]
+    software_instance = self._getCurrentInstanceTreeList(title=instance_title)
 
     parameter_dict = software_instance._asParameterDict()
     timestamp = parameter_dict['timestamp']
@@ -215,8 +213,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
 
     # let's find instances of user and check connection strings
     partition_reference = [q.getSuccessorValue().getAggregateReference() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title][0]
+        self._getCurrentInstanceTreeList(title=instance_title)][0]
 
     computer_information_dict = compute_node._getCacheComputeNodeInformation(None)
     # Ensure compute node gets the proper timestamp
@@ -331,8 +328,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
 
     # let's find instances of user and check connection strings
     partition_reference = [q.getSuccessorValue().getAggregateReference() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title][0]
+        self._getCurrentInstanceTreeList(title=instance_title)][0]
 
     computer_information_dict = compute_node._getCacheComputeNodeInformation(None)
     # Ensure compute node gets the proper timestamp

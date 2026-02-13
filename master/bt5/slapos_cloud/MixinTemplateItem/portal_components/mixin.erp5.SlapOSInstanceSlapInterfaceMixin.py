@@ -161,10 +161,6 @@ class SlapOSInstanceSlapInterfaceMixin:
         assert software_title not in [x.getTitle() for x in requester_instance.getSuccessorValueList() if x.getValidationState() == 'validated']
 
         # Create a new one
-        reference = "SOFTINST-%s" % portal.portal_ids.generateNewId(
-          id_group='slap_software_instance_reference',
-          id_generator='uid')
-
         if is_slave == True:
           software_instance_portal_type = "Slave Instance"
         else:
@@ -176,9 +172,9 @@ class SlapOSInstanceSlapInterfaceMixin:
           title=software_title,
           specialise_value=instance_tree,
           follow_up_value=instance_tree.getFollowUpValue(portal_type='Project'),
-          reference=reference,
           activate_kw={'tag': tag}
         )
+        request_software_instance.setReference("SOFTINST-%s" % request_software_instance.getId())
         if software_instance_portal_type == "Software Instance":
           request_software_instance.generateCertificate()
         request_software_instance.validate()

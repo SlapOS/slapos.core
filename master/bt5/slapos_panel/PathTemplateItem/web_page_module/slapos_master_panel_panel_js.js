@@ -85,7 +85,6 @@
       } else {
         display_workflow_list = asBoolean(options.display_workflow_list);
       }
-      display_workflow_list = false;
 
       if ((erp5_document !== undefined) && (jio_key !== undefined)) {
         group_mapping = mergeGlobalActionWithRawActionList(jio_key,

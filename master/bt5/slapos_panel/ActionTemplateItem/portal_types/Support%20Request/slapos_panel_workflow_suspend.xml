@@ -42,7 +42,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>suspend_slapos_support_request</string> </value>
+            <value> <string>slapos_panel_workflow_suspend</string> </value>
         </item>
         <item>
             <key> <string>permissions</string> </key>

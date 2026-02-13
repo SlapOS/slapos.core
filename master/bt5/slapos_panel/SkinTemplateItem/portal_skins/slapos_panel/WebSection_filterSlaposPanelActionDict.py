@@ -1,6 +1,7 @@
 filtered_action_dict = {}
+
 for action_category_name, action_list in action_dict.items():
-  filtered_action_dict[action_category_name] = []
+  filtered_action_dict.setdefault(action_category_name, [])
   for action in action_list:
     if action['id'] == 'slapos_panel_view':
       # Rename the webapp default view action to 'view',
@@ -8,6 +9,10 @@ for action_category_name, action_list in action_dict.items():
       # hardcoding the 'view' action
       action['id'] = 'view'
       filtered_action_dict[action_category_name].append(action)
+    elif (action['id'].startswith('slapos_panel_workflow_')):
+      # Consider some actions as fake workflow actions
+      # To separate them on the panel
+      filtered_action_dict.setdefault("workflow", []).append(action)
     elif (('slapos' in action['id']) or
           (action['id'] == 'delete_document_list')):
       # Allow all slapos* action

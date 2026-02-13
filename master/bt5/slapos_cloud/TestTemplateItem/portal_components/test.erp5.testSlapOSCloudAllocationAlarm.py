@@ -531,7 +531,11 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
       else:
         return self.serialize_call()
 
-    software_instance, _, _ = self.makeAllocableSoftwareInstance()
+    software_instance, compute_node, _ = self.makeAllocableSoftwareInstance()
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
+      computer_network = self._makeComputerNetwork()
+      compute_node.edit(subordination_value=computer_network)
+      self.tic()
     software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='mode'>unique_by_network</parameter>

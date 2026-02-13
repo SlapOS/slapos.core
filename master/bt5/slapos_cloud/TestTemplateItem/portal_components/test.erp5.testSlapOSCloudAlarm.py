@@ -1403,7 +1403,8 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
 
   def test_propagateRemoteNode_alarm_optimizedInstanceTree(self):
     instance_tree = self.addInstanceTree()
-    instance_tree.edit(
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.edit(
       title="_remote_FOO_%s" % instance_tree.getTitle()
     )
 
@@ -1425,12 +1426,12 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
     # the alarm does not browse it anymore
     self._test_alarm_not_visited(
       alarm,
-      instance_tree,
-      'InstanceTree_propagateFromRemoteNode',
+      software_instance,
+      'SoftwareInstance_propagateFromRemoteNode',
       sense_kw={'params': params}
     )
 
-    instance_tree.reindexObject()
+    software_instance.reindexObject()
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
                               fake_return=None, attribute=False):
       self.tic()
@@ -1438,8 +1439,8 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
     # But it is was reindexed, in this case, it is checked
     self._test_alarm(
       alarm,
-      instance_tree,
-      'InstanceTree_propagateFromRemoteNode',
+      software_instance,
+      'SoftwareInstance_propagateFromRemoteNode',
       sense_kw={'params': params}
     )
 
@@ -2116,13 +2117,13 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
     self.assertEqual(software_instance.getAccessStatus()['text'], "#error Can not propagate from inconsistent Remote Node")
 
   #################################################################
-  # InstanceTree_propagateFromRemoteNode
+  # SoftwareInstance_propagateFromRemoteNode
   #################################################################
   def test_propagateRemoteNode_InstanceTree_REQUEST_disallowed(self):
     instance_tree = self.addInstanceTree()
     self.assertRaises(
       Unauthorized,
-      instance_tree.InstanceTree_propagateFromRemoteNode,
+      instance_tree.SoftwareInstance_propagateFromRemoteNode,
       REQUEST={})
 
   def test_propagateRemoteNode_InstanceTree_script_createRemoteInstanceTree(self):
@@ -2134,7 +2135,7 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
                                software_instance.getReference())
     )
     with TemporaryAlarmScript(self.portal, 'SoftwareInstance_propagateRemoteNode', attribute='description'):
-      instance_tree.InstanceTree_propagateFromRemoteNode()
+      instance_tree.SoftwareInstance_propagateFromRemoteNode()
     self.assertEqual(software_instance.getDescription(), 'Visited by SoftwareInstance_propagateRemoteNode')
 
 

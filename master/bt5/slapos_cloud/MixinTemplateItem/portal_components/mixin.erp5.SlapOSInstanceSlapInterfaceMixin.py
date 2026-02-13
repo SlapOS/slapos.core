@@ -28,7 +28,6 @@
 from AccessControl import ClassSecurityInfo
 from Products.ERP5Type import Permissions
 from DateTime import DateTime
-from Products.ZSQLCatalog.SQLCatalog import Query, NegatedQuery
 
 
 class SlapOSInstanceSlapInterfaceMixin:
@@ -37,7 +36,7 @@ class SlapOSInstanceSlapInterfaceMixin:
   security = ClassSecurityInfo()
 
   security.declarePrivate('_bangRequesterInstance')
-  def _bangRequesterInstance(self):
+  def _bangRequesterInstance(self, comment, bang_tree):
     instance = self
     portal = instance.getPortalObject()
     for requester_instance in portal.portal_catalog(
@@ -45,8 +44,8 @@ class SlapOSInstanceSlapInterfaceMixin:
       successor__uid=instance.getUid()
     ):
       requester_instance.getObject().bang(
-        bang_tree=False,
-        comment="%s parameters changed" % instance.getRelativeUrl())
+        bang_tree=bang_tree,
+        comment=comment)
 
   security.declareProtected(Permissions.ModifyPortalContent, 'updateConnection')
   def updateConnection(self, connection_xml):
@@ -63,7 +62,10 @@ class SlapOSInstanceSlapInterfaceMixin:
     instance.setLastData(connection_xml)
 
     # Finally, inform requester instances of the change
-    instance._bangRequesterInstance()
+    instance._bangRequesterInstance(
+      "%s parameters changed" % instance.getRelativeUrl(),
+      False
+    )
 
   security.declareProtected(Permissions.ModifyPortalContent, 'requestInstance')
   def requestInstance(self, software_release, software_title, software_type,
@@ -291,12 +293,5 @@ class SlapOSInstanceSlapInterfaceMixin:
         )
 
     if bang_tree:
-      instance_tree = instance.getSpecialiseValue(portal_type="Instance Tree")
-      portal.portal_catalog.searchAndActivate(
-        default_specialise_uid=instance_tree.getUid(),
-        path=NegatedQuery(Query(path=instance.getPath())),
-        portal_type=["Slave Instance", "Software Instance"],
-        method_id='bang',
-        method_kw={'bang_tree': False, 'comment': comment},
-      )
+      instance._bangRequesterInstance(comment, True)
 

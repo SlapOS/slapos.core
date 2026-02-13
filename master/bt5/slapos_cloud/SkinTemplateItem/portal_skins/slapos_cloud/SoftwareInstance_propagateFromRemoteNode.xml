@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>InstanceTree_propagateFromRemoteNode</string> </value>
+            <value> <string>SoftwareInstance_propagateFromRemoteNode</string> </value>
         </item>
       </dictionary>
     </pickle>

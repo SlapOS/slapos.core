@@ -174,18 +174,32 @@ SQL_WINDOW_SIZE = 50
 # fetch at most 50 random Compute Partitions, and check if they are ok
 isTransitionPossible = portal.portal_workflow.isTransitionPossible
 result_count = portal.portal_catalog.countResults(**query_kw)[0][0]
+
+# Fetch at most 1000 sql results
+# Getting sql results is faster than zodb
 offset = max(0, result_count-1)
-if offset >= SQL_WINDOW_SIZE:
-  limit = (random.randint(0, offset), SQL_WINDOW_SIZE)
+if offset >= 1000:
+  limit = (random.randint(0, offset-1000), 1000)
 else:
-  limit = (0, SQL_WINDOW_SIZE)
+  limit = (0, 1000)
 
 compute_partition_candidate_list = [x for x in portal.portal_catalog(limit=limit, **query_kw)]
 # reduce risk of always allocating on the same node
 # (in case of slave instance for example)
+# Usually, nodes have less than 200 partitions
+# This should at least allow checking 5 nodes
 random.shuffle(compute_partition_candidate_list)
 
+check_partition_count = 0
 for compute_partition_candidate in compute_partition_candidate_list:
+
+  check_partition_count += 1
+  if SQL_WINDOW_SIZE < check_partition_count:
+    # Stop checking more than SQL_WINDOW_SIZE partitions
+    # to reduce the number of zodb object checked
+    # to prevent the script to be too slow
+    break
+
   compute_partition_candidate = compute_partition_candidate.getObject()
 
   if compute_partition_candidate.getParentValue().getCapacityScope() == "close":

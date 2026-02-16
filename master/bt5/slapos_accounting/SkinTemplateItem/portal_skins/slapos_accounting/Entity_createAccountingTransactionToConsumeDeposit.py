@@ -74,7 +74,10 @@ def returnOrCreatePaymentTransaction(global_payment_transaction):
     start_date=start_date,
     payment_mode=payment_mode,
     #specialise
-    ledger=first_invoice.getLedger(),
+    # Do not set the ledger, to give accountants the roles
+    # to change the workflow state
+    # This is not prevent automated grouping
+    #ledger=first_invoice.getLedger(),
     resource=first_invoice.getResource(),
     destination_administration=destination_administration,
     activate_kw=activate_kw
@@ -143,7 +146,11 @@ if len(received_deposit_amount_list):
           credit_note_line.edit(quantity=-credit_note_line.getQuantity() * ratio)
         credit_note_transaction.edit(
           title='Credit note for the invoice %s' % line.getReference(),
-          causality_value_list=[line, payment_transaction]
+          causality_value_list=[line, payment_transaction],
+          # Do not set the ledger, to give accountants the roles
+          # to change the workflow state
+          # This is not prevent automated grouping
+          ledger_value=None
         )
 
         consumed_deposit_price += line.total_price
@@ -190,6 +197,11 @@ if len(received_deposit_amount_list):
           source='account_module/deposit_received',
           destination='account_module/deposit_paid',
           quantity=-(consumed_deposit_price + received_deposit_amount.total_price),
+          # Set the ledger, to ensure the credit will be available
+          # for the same use case than the original deposit
+          # This is some kind of hack to set the ledger on the line
+          # but, I didn't find a better way for now
+          ledger=first_invoice.getLedger(),
           activate_kw=activate_kw,
         )
         consumed_deposit_price = 0

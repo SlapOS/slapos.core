@@ -43,32 +43,13 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     """
     with PinnedDateTime(self, DateTime('2024/01/31')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
-
-      self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
+      project_owner_person = self.joinSlapOS(project_owner_reference)
 
-      self.tic()
-      self.logout()
       self.login(sale_person.getUserId())
-
-      project_relative_url = self.addProject(
+      project = self.addDefaultProject(
         is_accountable=True, person=project_owner_person, currency=currency)
-
-      self.logout()
-
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
 
       public_server_software = self.generateNewSoftwareReleaseUrl()
       public_instance_type = 'public type'
@@ -77,7 +58,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
         "instance product", project, public_server_software, public_instance_type
       )
 
-      self.logout()
       self.login(sale_person.getUserId())
 
       self.tic()
@@ -93,15 +73,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       sale_supply.validate()
 
       self.tic()
-      # some preparation
-      self.logout()
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
-
+      owner_person = self.joinSlapOS(owner_reference)
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -123,7 +98,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
 
       self.tic()
-      self.logout()
       self.login()
       payment_transaction = self.portal.portal_catalog.getResultValue(
         portal_type="Payment Transaction",
@@ -143,14 +117,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
           currency.getUid(), ledger_uid=ledger.getUid())])
       self.assertEqual(0, amount)
 
-      self.logout()
-
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      public_person = self.joinSlapOS(self.web_site, public_reference)
-      self.login()
+      public_person = self.joinSlapOS(public_reference)
 
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
@@ -197,16 +167,14 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       )
 
       # let's find instances of user and check connection strings
-      instance_tree_list = [q.getObject() for q in
-          self._getCurrentInstanceTreeList()
-          if q.getTitle() == public_instance_title]
+      instance_tree_list = self._getCurrentInstanceTreeList(
+        title=public_instance_title)
 
       self.assertEqual(0, len(instance_tree_list))
 
       self.tic()
       subscription_request = self.checkServiceSubscriptionRequest(instance_tree, 'cancelled')
 
-      self.logout()
       self.login()
 
     # Check stock
@@ -255,39 +223,17 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     with PinnedDateTime(self, DateTime('2024/01/31')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
-      self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
+      project_owner_person = self.joinSlapOS(project_owner_reference)
 
-      self.tic()
-      self.logout()
       self.login(sale_person.getUserId())
-
-      project_relative_url = self.addProject(
+      project = self.addDefaultProject(
         is_accountable=True, person=project_owner_person, currency=currency)
-
-      self.logout()
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
-
-      self.logout()
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
-
+      owner_person = self.joinSlapOS(owner_reference)
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -348,30 +294,13 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     with PinnedDateTime(self, DateTime('2024/01/31')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
-      self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
+      project_owner_person = self.joinSlapOS(project_owner_reference)
 
-      self.tic()
-      self.logout()
       self.login(sale_person.getUserId())
-
-      project_relative_url = self.addProject(
+      project = self.addDefaultProject(
         is_accountable=True, person=project_owner_person, currency=currency)
-
-      self.logout()
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
 
       public_server_software = self.generateNewSoftwareReleaseUrl()
       public_instance_type = 'public type'
@@ -380,7 +309,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
         "instance product", project, public_server_software, public_instance_type
       )
 
-      self.logout()
       self.login(sale_person.getUserId())
 
       self.tic()
@@ -400,14 +328,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       sale_supply.validate()
 
       self.tic()
-      # some preparation
-      self.logout()
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
+      owner_person = self.joinSlapOS(owner_reference)
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -429,7 +353,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
 
       self.tic()
-      self.logout()
       self.login()
       payment_transaction = self.portal.portal_catalog.getResultValue(
         portal_type="Payment Transaction",
@@ -456,9 +379,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       public_server_id = self.requestComputeNode(public_server_title, project.getReference())
       public_server = self.portal.portal_catalog.getResultValue(
           portal_type='Compute Node', reference=public_server_id)
-      self.setAccessToMemcached(public_server)
       self.assertNotEqual(None, public_server)
-      self.setServerOpenPublic(public_server)
+      self.setServerOpen(public_server)
       public_server.generateCertificate()
 
       self.addAllocationSupply("for compute node", public_server, software_product,
@@ -563,7 +485,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     self.assertEqual(sum([i.total_price for i in outstanding_amount_list]), deposit_amount)
 
     # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    self.logout()
     self.login(sale_person.getUserId())
     #previous_trade_condition = subscription_request.getSpecialiseValue()
     subscription_request.SubscriptionRequest_changeFromPayableToFree(None)
@@ -576,7 +497,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     #outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
 
     self.tic()
-    self.logout()
     self.login()
     payment_transaction = self.portal.portal_catalog.getResultValue(
       portal_type="Payment Transaction",
@@ -605,9 +525,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings
-    instance_tree_list = [q.getObject() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title]
+    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
     self.assertEqual(1, len(instance_tree_list))
     instance_tree = instance_tree_list[0]
 
@@ -627,32 +545,14 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
-      self.logout()
       # lets join as slapos administrator, which will manager the project
       project_owner_reference = 'project-%s' % self.generateNewId()
-      project_owner_person = self.joinSlapOS(self.web_site, project_owner_reference)
+      project_owner_person = self.joinSlapOS(project_owner_reference)
 
-      self.login()
-      self.tic()
-      self.logout()
       self.login(sale_person.getUserId())
 
-      project_relative_url = self.addProject(
+      project = self.addDefaultProject(
         is_accountable=True, person=project_owner_person, currency=currency)
-
-      self.logout()
-
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
 
       public_server_software = self.generateNewSoftwareReleaseUrl()
       public_instance_type = 'public type'
@@ -661,7 +561,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
         "instance product", project, public_server_software, public_instance_type
       )
 
-      self.logout()
       self.login(sale_person.getUserId())
 
       self.tic()
@@ -681,14 +580,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       sale_supply.validate()
 
       self.tic()
-      # some preparation
-      self.logout()
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
+      owner_person = self.joinSlapOS(owner_reference)
       # first slapos administrator assignment can only be created by
       # the erp5 manager
       self.addProjectProductionManagerAssignment(owner_person, project)
@@ -701,9 +596,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       public_server_id = self.requestComputeNode(public_server_title, project.getReference())
       public_server = self.portal.portal_catalog.getResultValue(
           portal_type='Compute Node', reference=public_server_id)
-      self.setAccessToMemcached(public_server)
       self.assertNotEqual(None, public_server)
-      self.setServerOpenPublic(public_server)
+      self.setServerOpen(public_server)
       public_server.generateCertificate()
 
       self.addAllocationSupply("for compute node", public_server, software_product,
@@ -714,7 +608,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # format the compute_nodes
       self.formatComputeNode(public_server)
-      self.logout()
       self.login(project_owner_person.getUserId())
 
       # Pay deposit to validate virtual master + one computer
@@ -731,7 +624,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
 
       self.tic()
-      self.logout()
       self.login()
       payment_transaction = self.portal.portal_catalog.getResultValue(
         portal_type="Payment Transaction",
@@ -754,10 +646,8 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
       public_reference = 'public-%s' % self.generateNewId()
-      public_person = self.joinSlapOS(self.web_site, public_reference)
-      self.login()
+      public_person = self.joinSlapOS(public_reference)
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -782,7 +672,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
           project.getReference())
 
       # and uninstall some software on them
-      self.logout()
       self.login(owner_person.getUserId())
       self.supplySoftware(public_server, public_server_software,
                           state='destroyed')

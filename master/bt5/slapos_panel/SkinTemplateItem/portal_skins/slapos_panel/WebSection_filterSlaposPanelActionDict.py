@@ -9,13 +9,17 @@ for action_category_name, action_list in action_dict.items():
       action['id'] = 'view'
       filtered_action_dict[action_category_name].append(action)
     elif (action['id'].startswith('slapos_panel_workflow_')):
+      # Consider some actions as fake workflow actions
+      # To separate them on the panel
       if 'workflow' not in filtered_action_dict:
         filtered_action_dict['workflow'] = []
       filtered_action_dict['workflow'].append(action)
-    elif (('slapos' in action['id']) or
-          (action['id'] == 'delete_document_list')):
+    elif (
+      ('slapos' in action['id']) or
+      (action['id'] in ['delete_document_list', 'delete_document'])
+    ):
       # Allow all slapos* action
-      # Allow deleting sub documents
+      # Allow deleting documents
       filtered_action_dict[action_category_name].append(action)
 
   if not filtered_action_dict[action_category_name]:

@@ -508,12 +508,16 @@ class ComputerPartition(SlapRequester):
       'computer_partition_id': self.getId(),
       })
 
-  def error(self, error_log, logger=None):
+  def error(self, error_log, logger=None, slave_reference=None):
+    post_dict = {
+      'computer_id': self._computer_id,
+      'computer_partition_id': self.getId(),
+      'error_log': error_log
+    }
+    if slave_reference:
+      post_dict['slave_reference'] = slave_reference
     try:
-      self._connection_helper.POST('softwareInstanceError', data={
-        'computer_id': self._computer_id,
-        'computer_partition_id': self.getId(),
-        'error_log': error_log})
+      self._connection_helper.POST('softwareInstanceError', data=post_dict)
     except Exception:
       (logger or fallback_logger).exception('')
 

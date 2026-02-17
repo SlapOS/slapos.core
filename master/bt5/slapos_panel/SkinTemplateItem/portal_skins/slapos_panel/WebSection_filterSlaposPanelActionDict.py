@@ -16,10 +16,11 @@ for action_category_name, action_list in action_dict.items():
       filtered_action_dict['workflow'].append(action)
     elif (
       ('slapos' in action['id']) or
-      (action['id'] in ['delete_document_list', 'delete_document'])
+      (action['id'] in ['delete_document_list', 'delete_document', 'mass_workflow_jio'])
     ):
       # Allow all slapos* action
       # Allow deleting documents
+      # Allow mass workflow transition (see Module_listWorkflowTransitionItemList / Folder_modifyDocumentListStatus)
       filtered_action_dict[action_category_name].append(action)
 
   if not filtered_action_dict[action_category_name]:

@@ -7,6 +7,12 @@
     <pickle>
       <dictionary>
         <item>
+            <key> <string>_Cacheable__manager_id</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
             <key> <string>_bind_names</string> </key>
             <value>
               <object>
@@ -46,11 +52,19 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>batch=None, **kw</string> </value>
+            <value> <string>filter_portal_type_list=None</string> </value>
+        </item>
+        <item>
+            <key> <string>_proxy_roles</string> </key>
+            <value>
+              <tuple>
+                <string>Manager</string>
+              </tuple>
+            </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>UpgradeDecision_rejectOnSlaposPanel</string> </value>
+            <value> <string>Module_listWorkflowTransitionItemList</string> </value>
         </item>
       </dictionary>
     </pickle>

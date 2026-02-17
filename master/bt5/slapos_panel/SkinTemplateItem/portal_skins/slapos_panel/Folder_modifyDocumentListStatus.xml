@@ -46,11 +46,15 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>batch=None, **kw</string> </value>
+            <value> <string>form_id, dialog_id, mass_workflow_action, previous_mass_workflow_action=None, listbox_uid=None, workflow_form=None, update_method=None, **kwargs</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>UpgradeDecision_rejectOnSlaposPanel</string> </value>
+            <value> <string>Folder_modifyDocumentListStatus</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value> <string></string> </value>
         </item>
       </dictionary>
     </pickle>

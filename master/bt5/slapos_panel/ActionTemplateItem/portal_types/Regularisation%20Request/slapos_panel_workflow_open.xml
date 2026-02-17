@@ -42,13 +42,13 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_view_request_destroy</string> </value>
+            <value> <string>slapos_panel_workflow_open</string> </value>
         </item>
         <item>
             <key> <string>permissions</string> </key>
             <value>
               <tuple>
-                <string>Modify portal content</string>
+                <string>View</string>
               </tuple>
             </value>
         </item>
@@ -58,11 +58,11 @@
         </item>
         <item>
             <key> <string>priority</string> </key>
-            <value> <float>1.0</float> </value>
+            <value> <float>2.0</float> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Request Destroy</string> </value>
+            <value> <string>Open</string> </value>
         </item>
         <item>
             <key> <string>visible</string> </key>
@@ -79,7 +79,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>string:${object_url}/InstanceTree_viewRequestDestroyDialog</string> </value>
+            <value> <string>string:${object_url}/Ticket_viewSlapOSValidateFastInputDialog</string> </value>
         </item>
       </dictionary>
     </pickle>
@@ -92,7 +92,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>python: context.getSlapState() != \'destroy_requested\'</string> </value>
+            <value> <string>python: context.Base_hasSlapOSAccountingUserGroup(manager=True) and context.getSimulationState() == \'suspended\'</string> </value>
         </item>
       </dictionary>
     </pickle>

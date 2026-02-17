@@ -349,7 +349,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <unicode>zope</unicode> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -363,7 +363,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1019.38764.3456.56661</string> </value>
+                      <value> <string>1030.45985.42718.37853</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -379,7 +379,7 @@
                           <tuple/>
                           <state>
                             <tuple>
-                              <float>1727459321.74</float>
+                              <float>1771251158.26</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

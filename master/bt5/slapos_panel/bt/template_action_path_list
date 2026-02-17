@@ -18,6 +18,7 @@ Compute Node | request_slapos_certificate_action
 Compute Node | revoke_slapos_certificate
 Compute Node | slapos_panel_compute_node_usage
 Compute Node | slapos_panel_view
+Compute Node | slapos_panel_workflow_request_destroy
 Compute Node | supply_slapos
 Compute Partition | slapos_panel_view
 Computer Network Module | slapos_panel_view

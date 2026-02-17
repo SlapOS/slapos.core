@@ -242,6 +242,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/CertificateLogin_invalidateOnSlaposPanel',
         'slapos_panel/ComputeNode_confirmManualDestruction',
         'slapos_panel/ComputeNode_requestCertificate',
+        'slapos_panel/ComputeNode_requestDestroy',
         'slapos_panel/ComputeNode_revokeCertificate',
         'slapos_panel/ComputeNode_selectSupplySoftwareProduct',
         'slapos_panel/ComputeNode_selectSupplySoftwareRelease',

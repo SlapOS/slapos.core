@@ -16,6 +16,8 @@ Sale Trade Condition Change Request | edit_workflow
 Sale Trade Condition Change Request | slapos_accounting_interaction_workflow
 Sale Trade Condition Change Request | ticket_workflow
 Simulation Movement | slapos_simulation_interaction_workflow
+Slave Instance | slapos_accounting_interaction_workflow
+Software Instance | slapos_accounting_interaction_workflow
 Subscription Item Root Simulation Rule | edit_workflow
 Subscription Item Root Simulation Rule | rule_validation_workflow
 User Consumption HTML File | document_conversion_interaction_workflow

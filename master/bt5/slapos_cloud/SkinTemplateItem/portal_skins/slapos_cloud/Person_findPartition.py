@@ -1,7 +1,6 @@
 import random
 from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery
-person = context
-portal = person.getPortalObject()
+portal = context.getPortalObject()
 
 assert project_uid
 assert instance_tree.getFollowUpUid() == project_uid
@@ -52,7 +51,7 @@ if not allocation_cell_list:
 
 # Only partition with Instances from the same Instance Tree
 instance_tree_partition_value_list = [sql_obj.getAggregateValue() \
-    for sql_obj in context.getPortalObject().portal_catalog(
+    for sql_obj in portal.portal_catalog(
         portal_type=['Software Instance'],
         specialise__uid=instance_tree.getUid(),
     ) if ((sql_obj.getAggregateValue() is not None) and (sql_obj.getUrlString() == software_release_url) and (sql_obj.getSourceReference() == software_type))
@@ -152,7 +151,7 @@ for base_category in compute_node_base_category_list:
   if base_category in filter_kw:
     category_relative_url = "%s" % filter_kw.pop(base_category)
     # XXX Small protection to prevent entering strange strings
-    category = context.getPortalObject().portal_categories[base_category].restrictedTraverse(str(category_relative_url), None)
+    category = portal.portal_categories[base_category].restrictedTraverse(str(category_relative_url), None)
     if category is None:
       query_kw["uid"] = "-1"
     else:

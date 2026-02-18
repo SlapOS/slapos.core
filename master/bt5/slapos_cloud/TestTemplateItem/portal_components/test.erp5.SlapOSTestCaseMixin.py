@@ -150,6 +150,12 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         # Reset values set on script_ComputeNode_requestSoftwareReleaseChange
         self.portal.REQUEST.set(key, None)
 
+  def login(self, user_name=None, quiet=0):
+    # Login always logout, this prevent us call logout+login everywhere in this
+    # project.
+    self.logout()
+    testSlapOSMixin.login(self, user_name=user_name, quiet=quiet)
+
   @ensureConsistency
   def _addAssignment(self, person, function, project=None, **kw):
     assignment = person.newContent(
@@ -206,6 +212,19 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       is_accountable,
       currency_relative_url,
       batch=1).getRelativeUrl()
+
+  def addDefaultProject(self, organisation=None, currency=None, person=None, is_accountable=False):
+    project_relative_url = self.addProject(
+      organisation=organisation,
+      currency=currency,
+      person=person,
+      is_accountable=is_accountable)
+
+    self.login()
+    project = self.portal.restrictedTraverse(project_relative_url)
+    self.updateSystemPreference(project_relative_url)
+    return project
+
 
   @ensureConsistency
   def _addERP5Login(self, document, **kw):

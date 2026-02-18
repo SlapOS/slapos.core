@@ -16,13 +16,13 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>action_type/object_jio_action_raw</string>
+                <string>action_type/object_jio_print_raw</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>category</string> </key>
-            <value> <string>object_jio_action_raw</string> </value>
+            <value> <string>object_jio_print_raw</string> </value>
         </item>
         <item>
             <key> <string>condition</string> </key>
@@ -42,7 +42,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>display_panel_invoice</string> </value>
+            <value> <string>print_panel_invoice</string> </value>
         </item>
         <item>
             <key> <string>permissions</string> </key>
@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>priority</string> </key>
-            <value> <float>16.0</float> </value>
+            <value> <float>2.0</float> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

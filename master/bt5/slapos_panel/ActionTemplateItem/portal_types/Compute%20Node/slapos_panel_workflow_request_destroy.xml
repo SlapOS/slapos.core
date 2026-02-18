@@ -42,27 +42,23 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>suspend_slapos_support_request</string> </value>
+            <value> <string>slapos_panel_workflow_request_destroy</string> </value>
         </item>
         <item>
             <key> <string>permissions</string> </key>
             <value>
               <tuple>
-                <string>View</string>
+                <string>Modify portal content</string>
               </tuple>
             </value>
         </item>
         <item>
-            <key> <string>portal_type</string> </key>
-            <value> <string>Action Information</string> </value>
-        </item>
-        <item>
             <key> <string>priority</string> </key>
-            <value> <float>3.0</float> </value>
+            <value> <float>1.0</float> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Suspend</string> </value>
+            <value> <string>Request Destroy</string> </value>
         </item>
         <item>
             <key> <string>visible</string> </key>
@@ -79,7 +75,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>string:${object_url}/Ticket_viewSlapOSSuspendFastInputDialog</string> </value>
+            <value> <string>string:${object_url}/ComputeNode_viewRequestDestroyDialog</string> </value>
         </item>
       </dictionary>
     </pickle>
@@ -92,7 +88,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>python: context.Base_hasSlapOSProjectUserGroup(project_relation=\'source_project\', manager=True, agent=True) and (context.getSimulationState() == \'validated\')</string> </value>
+            <value> <string>python: context.getAllocationScope() != \'close/forever\'</string> </value>
         </item>
       </dictionary>
     </pickle>

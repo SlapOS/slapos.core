@@ -6,4 +6,5 @@ if context.getPortalType() == "Support Request" and \
     context.getSimulationState() != "invalidated":
   context.invalidate()
 
-return event.Base_redirect()
+if not batch:
+  return event.Base_redirect()

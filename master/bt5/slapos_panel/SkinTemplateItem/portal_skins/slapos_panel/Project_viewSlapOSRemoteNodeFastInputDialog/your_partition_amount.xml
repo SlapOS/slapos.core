@@ -10,6 +10,7 @@
             <key> <string>delegated_list</string> </key>
             <value>
               <list>
+                <string>default</string>
                 <string>display_width</string>
                 <string>input_type</string>
                 <string>required</string>
@@ -66,6 +67,10 @@
             <key> <string>values</string> </key>
             <value>
               <dictionary>
+                <item>
+                    <key> <string>default</string> </key>
+                    <value> <string>python: 0</string> </value>
+                </item>
                 <item>
                     <key> <string>display_width</string> </key>
                     <value> <int>20</int> </value>

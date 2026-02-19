@@ -42,13 +42,13 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_fast_validate</string> </value>
+            <value> <string>slapos_panel_workflow_validate_and_supply</string> </value>
         </item>
         <item>
             <key> <string>permissions</string> </key>
             <value>
               <tuple>
-                <string>View</string>
+                <string>Modify portal content</string>
               </tuple>
             </value>
         </item>
@@ -62,7 +62,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Validate</string> </value>
+            <value> <string>Validate and Supply</string> </value>
         </item>
         <item>
             <key> <string>visible</string> </key>
@@ -79,7 +79,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>string:${object_url}/SaleSupply_validateOnSlaposPanel</string> </value>
+            <value> <string>string:${object_url}/AllocationSupply_validateAndSupplyComputeNodeList</string> </value>
         </item>
       </dictionary>
     </pickle>
@@ -92,7 +92,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>python: (context.getValidationState() in (\'draft\', \'invalidated\')) and ((context.Base_hasSlapOSProjectUserGroup(manager=True, agent=True, project_relation=\'destination_project\')) or (context.Base_hasSlapOSProjectUserGroup(manager=True, agent=True, project_relation=\'source_project\')))</string> </value>
+            <value> <string>python: (context.getValidationState() in (\'draft\', \'invalidated\')) and (context.Base_hasSlapOSProjectUserGroup(manager=True, agent=True, project_relation=\'destination_project\'))</string> </value>
         </item>
       </dictionary>
     </pickle>

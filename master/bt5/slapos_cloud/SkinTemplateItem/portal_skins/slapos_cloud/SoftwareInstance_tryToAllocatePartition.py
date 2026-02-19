@@ -121,6 +121,12 @@ if software_instance.getValidationState() != 'validated' \
   or software_instance.getAggregateValue(portal_type='Compute Partition') is not None:
   return
 
+# Only allocate if the instance is correctly subscribed
+subscription_state = software_instance.Item_getSubscriptionStatus()
+if subscription_state in ('not_subscribed', 'nopaid'):
+  markHistory(software_instance, 'Allocation failed: instance not subscribed')
+  return
+
 instance_tree = software_instance.getSpecialiseValue()
 try:
   compute_partition_url, tag = assignComputePartition(software_instance,

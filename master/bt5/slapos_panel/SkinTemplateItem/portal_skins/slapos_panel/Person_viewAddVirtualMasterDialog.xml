@@ -101,6 +101,7 @@
                         <string>your_price_currency</string>
                         <string>your_is_compute_node_payable</string>
                         <string>your_is_instance_tree_payable</string>
+                        <string>your_is_software_instance_payable</string>
                       </list>
                     </value>
                 </item>

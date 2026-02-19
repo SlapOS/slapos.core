@@ -28,6 +28,14 @@
   <workflow>slapos_subscription_request_interaction_workflow</workflow>
  </chain>
  <chain>
+  <type>Slave Instance</type>
+  <workflow>slapos_subscription_request_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Software Instance</type>
+  <workflow>slapos_subscription_request_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Software Product</type>
   <workflow>slapos_subscription_request_interaction_workflow</workflow>
  </chain>

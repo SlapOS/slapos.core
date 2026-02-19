@@ -37,6 +37,8 @@
                 <string>Open Sale Order</string>
                 <string>Software Product</string>
                 <string>Sale Trade Condition</string>
+                <string>Software Instance</string>
+                <string>Slave Instance</string>
               </tuple>
             </value>
         </item>

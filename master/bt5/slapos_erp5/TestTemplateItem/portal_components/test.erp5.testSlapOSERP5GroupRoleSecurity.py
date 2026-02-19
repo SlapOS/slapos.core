@@ -266,6 +266,39 @@ class TestSaleInvoiceTransaction(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(product, 'SHADOW-%s' % person.getUserId(), ['Auditor'])
     self.assertRoles(product, self.user_id, ['Owner'])
 
+  def test_SaleInvoiceTransaction_UserLedger(self):
+    reference = 'TESTPERSON-%s' % self.generateNewId()
+    person = self.portal.person_module.newContent(portal_type='Person',
+        reference=reference)
+    product = self.portal.accounting_module.newContent(
+        portal_type='Sale Invoice Transaction')
+    product.edit(
+        destination_section_value=person,
+        ledger='automated'
+        )
+    self.assertSecurityGroup(product,
+        ['F-ACCOUNTING*', 'R-SHADOW-PERSON', self.user_id], False)
+    self.assertRoles(product, 'F-ACCOUNTING*', ['Auditor'])
+    self.assertRoles(product, 'R-SHADOW-PERSON', ['Assignee'])
+    self.assertRoles(product, self.user_id, ['Owner'])
+
+  def test_SaleInvoiceTransaction_OrganisationLedger(self):
+    organisation = self.portal.organisation_module.newContent(
+      portal_type='Organisation',
+      title='TESTORGA-%s' % self.generateNewId()
+    )
+    product = self.portal.accounting_module.newContent(
+        portal_type='Sale Invoice Transaction')
+    product.edit(
+        destination_section_value=organisation,
+        ledger='automated'
+        )
+    self.assertSecurityGroup(product,
+        ['F-ACCOUNTING*', 'R-SHADOW-PERSON', self.user_id ], False)
+    self.assertRoles(product, 'F-ACCOUNTING*', ['Auditor'])
+    self.assertRoles(product, 'R-SHADOW-PERSON', ['Assignee'])
+    self.assertRoles(product, self.user_id, ['Owner'])
+
 
 class TestAccountingTransaction(TestSlapOSGroupRoleSecurityMixin):
   def test_AccountingTransaction_LedgerNotAutomated(self):

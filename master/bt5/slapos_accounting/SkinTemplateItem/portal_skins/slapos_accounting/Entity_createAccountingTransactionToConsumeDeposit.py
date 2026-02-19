@@ -13,6 +13,11 @@ activate_kw = {
   'tag': payment_tag
 }
 
+shadow_person = portal.portal_membership.getAuthenticatedMember().getUserValue()
+def startAndStopWithShadow(transaction):
+  transaction.start()
+  transaction.stop()
+
 # Ensure all invoice use the same arrow and resource
 first_invoice = invoice_list[0]
 identical_dict = {
@@ -204,8 +209,12 @@ if len(received_deposit_amount_list):
 
     if len(payment_transaction.checkConsistency()) != 0:
       raise AssertionError(payment_transaction.checkConsistency()[0])
-    payment_transaction.start()
-    payment_transaction.stop()
+
+    shadow_person.Person_restrictMethodAsShadowUser(
+      shadow_document=shadow_person,
+      callable_object=startAndStopWithShadow,
+      argument_list=[payment_transaction]
+    )
   else:
     # No line has been created, the payment transaction must not be created
     assert payment_transaction is None
@@ -213,8 +222,11 @@ if len(received_deposit_amount_list):
 if credit_note_transaction is not None:
   if len(credit_note_transaction.checkConsistency()) != 0:
     raise AssertionError(credit_note_transaction.checkConsistency()[0])
-  credit_note_transaction.start()
-  credit_note_transaction.stop()
+  shadow_person.Person_restrictMethodAsShadowUser(
+    shadow_document=shadow_person,
+    callable_object=startAndStopWithShadow,
+    argument_list=[credit_note_transaction]
+  )
   assert credit_note_transaction.SaleInvoiceTransaction_isLettered()
 
 if create_credit_note:

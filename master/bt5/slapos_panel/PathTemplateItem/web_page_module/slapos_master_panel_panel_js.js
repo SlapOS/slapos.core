@@ -85,7 +85,6 @@
       } else {
         display_workflow_list = asBoolean(options.display_workflow_list);
       }
-      display_workflow_list = false;
 
       if ((erp5_document !== undefined) && (jio_key !== undefined)) {
         group_mapping = mergeGlobalActionWithRawActionList(jio_key,
@@ -258,8 +257,11 @@
 
         dl_fragment = document.createDocumentFragment();
         gadget.element.querySelector("dl").textContent = '';
-        if ((this.state.action_list !== undefined) ||
-            (this.state.jump_list !== undefined)) {
+        if ((this.state.view_list !== undefined) ||
+            (this.state.action_list !== undefined) ||
+            (this.state.clone_list !== undefined) ||
+            (this.state.jump_list !== undefined) ||
+            (this.state.workflow_list !== undefined)) {
           queue
             .push(function () {
               var parameter_list = [];

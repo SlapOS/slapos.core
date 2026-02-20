@@ -31,13 +31,8 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
     self.login(computer_owner.getUserId())
 
     server_title = 'Public Server for %s' % computer_owner.getReference()
-    server_id = self.requestComputeNode(server_title, project.getReference())
-    compute_node = self.portal.portal_catalog.getResultValue(
-        portal_type='Compute Node', reference=server_id)
-    self.setAccessToMemcached(compute_node)
-    self.setServerOpenPublic(compute_node)
+    compute_node = self.requestComputeNode(server_title, project.getReference())
     self.assertNotEqual(None, compute_node)
-    compute_node.generateCertificate()
 
     self.supplySoftware(compute_node, software_release)
 
@@ -51,7 +46,6 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
                              release_variation, type_variation)
 
     self.tic()
-    self.logout()
     self.login()
 
     self.checkServiceSubscriptionRequest(compute_node)
@@ -60,7 +54,6 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
   def removeSoftwareReleaseFromComputer(self, computer_owner, 
        compute_node, software_release):
     # and uninstall some software on them
-    self.logout()
     self.login(computer_owner.getUserId())
     self.supplySoftware(
       compute_node, software_release,
@@ -75,34 +68,23 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
   def bootstrapVirtualMasterTestWithProject(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
     self.tic()
-    self.logout()
     self.login()
     project_owner = self.joinSlapOSAsOwner()
 
-    self.logout()
     self.login(sale_person.getUserId())
 
     # create a default project
     project_relative_url = self.addProject(person=project_owner, currency=currency)
 
-    self.logout()
     self.login()
     project = self.portal.restrictedTraverse(project_relative_url)
-    preference = self.portal.portal_preferences.slapos_default_system_preference
-    preference.edit(
-      preferred_subscription_assignment_category_list=[
-        'function/customer',
-        'role/client',
-        'destination_project/%s' % project.getRelativeUrl()
-      ]
-    )
-    self.tic()
+    self.updateSystemPreference(project_relative_url)
     return project, project_owner
 
   def joinSlapOSAsOwner(self):
     # lets join as slapos administrator, which will own few compute_nodes
     owner_reference = 'owner-%s' % self.generateNewId()
-    owner_person = self.joinSlapOS(self.web_site, owner_reference)
+    owner_person = self.joinSlapOS(owner_reference)
     self.login()
     self.tic()
     return owner_person
@@ -111,7 +93,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
   """ Minimal allocation specific test scenarios"""
 
   def test_software_instance_allocation_scenario(self):
-    project, owner_person = self.bootstrapVirtualMasterTestWithProject()    
+    project, owner_person = self.bootstrapVirtualMasterTestWithProject()
     self.logout()
 
     # and install some software on them
@@ -134,9 +116,8 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
     self.login(owner_person.getUserId())
 
     # let's find instances of user and check connection strings
-    software_instance = [q.getSuccessorValue() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title][0]
+    software_instance = self._getCurrentInstanceTreeList(
+      title=instance_title)[0].getSuccessorValue()
 
     parameter_dict = software_instance._asParameterDict()
     timestamp = parameter_dict['timestamp']
@@ -229,8 +210,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
 
     # let's find instances of user and check connection strings
     partition_reference = [q.getSuccessorValue().getAggregateReference() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title][0]
+        self._getCurrentInstanceTreeList(title=instance_title)][0]
 
     computer_information_dict = compute_node._getCacheComputeNodeInformation(None)
     # Ensure compute node gets the proper timestamp
@@ -345,8 +325,7 @@ class TestSlapOSAllocationScenario(TestSlapOSAllocationScenarioMixin):
 
     # let's find instances of user and check connection strings
     partition_reference = [q.getSuccessorValue().getAggregateReference() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title][0]
+        self._getCurrentInstanceTreeList(title=instance_title)][0]
 
     computer_information_dict = compute_node._getCacheComputeNodeInformation(None)
     # Ensure compute node gets the proper timestamp

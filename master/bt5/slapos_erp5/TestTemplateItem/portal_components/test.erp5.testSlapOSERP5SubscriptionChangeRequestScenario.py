@@ -18,40 +18,18 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
   def test_subscription_change_request_change_instance_destination_without_accounting_scenario(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-
     self.tic()
-
-    self.logout()
 
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
 
-      self.login()
-      self.tic()
       # hooray, now it is time to create compute_nodes
-      self.logout()
       self.login(sale_person.getUserId())
 
       # create a default project
-      project_relative_url = self.addProject(person=owner_person, currency=currency)
-
-      self.logout()
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
-
-      self.tic()
-
-      self.logout()
+      project = self.addDefaultProject(person=owner_person, currency=currency)
       self.login(owner_person.getUserId())
 
       # and install some software on them
@@ -64,16 +42,14 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
       # join as the another visitor and request software instance on public
       # compute_node
-      self.logout()
 
     with PinnedDateTime(self, DateTime('2023/12/29')):
       public_reference = 'public-%s' % self.generateNewId()
-      public_person = self.joinSlapOS(self.web_site, public_reference)
-      self.logout()
+      public_person = self.joinSlapOS(public_reference)
+
     with PinnedDateTime(self, DateTime('2024/01/01')):
       public_reference2 = 'public2-%s' % self.generateNewId()
-      public_person2 = self.joinSlapOS(self.web_site, public_reference2)
-      self.logout()
+      public_person2 = self.joinSlapOS(public_reference2)
 
     self.login()
     person_user_id = public_person.getUserId()
@@ -110,7 +86,6 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       )
 
       self.tic()
-      self.logout()
       self.login()
       self.assertEqual(instance_tree.getDestinationSection(),
                         public_person2.getRelativeUrl())
@@ -176,55 +151,28 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
   def test_subscription_change_request_change_project_destination_without_accounting_scenario(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-
     self.tic()
-
-    self.logout()
 
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
-      self.tic()
+      owner_person = self.joinSlapOS(owner_reference)
       # hooray, now it is time to create compute_nodes
-      self.logout()
       self.login(sale_person.getUserId())
 
       # create a default project
-      project_relative_url = self.addProject(person=owner_person, currency=currency)
+      project = self.addDefaultProject(person=owner_person, currency=currency)
 
-      self.logout()
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
-
-      self.tic()
-
-      self.logout()
       self.login(owner_person.getUserId())
       public_server_title = 'Public Server for %s' % owner_reference
-      compute_node_id = self.requestComputeNode(public_server_title, project.getReference())
-      print(compute_node_id)
+      self.requestComputeNode(public_server_title, project.getReference())
       self.tic()
-      self.logout()
 
     with PinnedDateTime(self, DateTime('2024/01/01')):
       public_reference2 = 'public2-%s' % self.generateNewId()
-      public_person2 = self.joinSlapOS(self.web_site, public_reference2)
-      self.logout()
+      public_person2 = self.joinSlapOS(public_reference2)
 
-    self.login()
     person_user_id = owner_person.getUserId()
-
     self.login(person_user_id)
 
     with PinnedDateTime(self, DateTime('2024/01/10')):
@@ -239,7 +187,6 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       )
 
       self.tic()
-      self.logout()
       self.login()
       self.assertEqual(project.getDestination(),
                        public_person2.getRelativeUrl())
@@ -288,41 +235,20 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
   def test_subscription_change_request_change_project_destination_section_scenario(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
-
     self.tic()
-
-    self.logout()
 
     with PinnedDateTime(self, DateTime('2024/01/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
 
-      self.login()
-      self.tic()
       # hooray, now it is time to create compute_nodes
-      self.logout()
       self.login(sale_person.getUserId())
 
       # create a default project
-      project_relative_url = self.addProject(person=owner_person, currency=currency)
+      project = self.addDefaultProject(person=owner_person, currency=currency)
 
-      self.logout()
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
-
-      self.tic()
-
-      self.logout()
-      self.login(owner_person.getUserId())
+    self.login(owner_person.getUserId())
 
     with PinnedDateTime(self, DateTime('2024/02/25')):
       self.login(sale_person.getUserId())
@@ -341,7 +267,6 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
         None
       )
       self.tic()
-      self.logout()
       self.login()
 
       self.assertEqual(new_subscription_change_request.getDestination(),
@@ -389,24 +314,20 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
   def test_subscription_change_request_change_instance_destination_section_scenario(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-
     self.tic()
-
-    self.logout()
 
     with PinnedDateTime(self, DateTime('2024/01/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
 
-      self.login()
-      self.tic()
       # hooray, now it is time to create compute_nodes
-      self.logout()
       self.login(sale_person.getUserId())
 
       # create a default project
-      project_relative_url = self.addProject(person=owner_person, currency=currency, is_accountable=True)
+      project = self.addDefaultProject(
+        person=owner_person, currency=currency, is_accountable=True)
+      project_relative_url = project.getRelativeUrl()
       self.tic()
       sale_supply = self.portal.portal_catalog.getResultValue(
         portal_type='Sale Supply',
@@ -418,26 +339,12 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       )[0].edit(base_price=99)
       sale_supply.validate()
 
-      self.logout()
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
-
-      self.tic()
-
-      self.logout()
       self.login(owner_person.getUserId())
 
     with PinnedDateTime(self, DateTime('2024/02/25')):
       public_server_title = 'Public Server for %s' % owner_reference
-      compute_node_id = self.requestComputeNode(public_server_title, project.getReference())
+      compute_node = self.requestComputeNode(public_server_title, project.getReference())
+      compute_node_id = compute_node.getId()
       self.tic()
 
       self.login(sale_person.getUserId())
@@ -456,7 +363,6 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
         None
       )
       self.tic()
-      self.logout()
       self.login()
 
       self.assertEqual(new_subscription_change_request.getDestination(),
@@ -508,38 +414,18 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
   def test_subscription_change_request_change_free_project_to_payable_scenario(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-
     self.tic()
-
-    self.logout()
 
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
-
-      self.login()
-      self.tic()
+      owner_person = self.joinSlapOS(owner_reference)
       # hooray, now it is time to create compute_nodes
-      self.logout()
       self.login(sale_person.getUserId())
 
       # create a default project
-      project_relative_url = self.addProject(person=owner_person, currency=currency)
-
-      self.logout()
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
-
-      self.tic()
+      project = self.addDefaultProject(
+        person=owner_person, currency=currency)
 
     # XXX XXX XXX XXX '2024/02/25'
     with PinnedDateTime(self, DateTime('2024/02/27')):
@@ -567,7 +453,6 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       )
       payable_project_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
 
-    self.logout()
     self.login()
     with PinnedDateTime(self, DateTime('2024/05/01')):
       # Trigger alarm
@@ -620,38 +505,19 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
   def test_subscription_change_request_change_vat_scenario(self):
     currency, _, _, sale_person, accountant_person = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=True)
-
     self.tic()
-
-    self.logout()
 
     with PinnedDateTime(self, DateTime('2023/12/25')):
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(self.web_site, owner_reference)
+      owner_person = self.joinSlapOS(owner_reference)
 
-      self.login()
-      self.tic()
       # hooray, now it is time to create compute_nodes
-      self.logout()
       self.login(sale_person.getUserId())
 
       # create a default project
-      project_relative_url = self.addProject(person=owner_person, currency=currency)
-
-      self.logout()
-      self.login()
-      project = self.portal.restrictedTraverse(project_relative_url)
-      preference = self.portal.portal_preferences.slapos_default_system_preference
-      preference.edit(
-        preferred_subscription_assignment_category_list=[
-          'function/customer',
-          'role/client',
-          'destination_project/%s' % project.getRelativeUrl()
-        ]
-      )
-
-      self.tic()
+      project = self.addDefaultProject(
+        person=owner_person, currency=currency)
 
       #############################
       # Set a custom price, to ensure changing later the vat will keep the price
@@ -664,7 +530,6 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.tic()
 
     with PinnedDateTime(self, DateTime('2024/03/01')):
-      self.logout()
       self.login(accountant_person.getUserId())
       ledger = self.portal.portal_categories.ledger.automated
       outstanding_amount_list = owner_person.Entity_getOutstandingDepositAmountList(
@@ -675,7 +540,6 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     # XXX XXX XXX XXX '2024/02/25'
     with PinnedDateTime(self, DateTime('2024/04/01')):
-      self.logout()
       self.login(sale_person.getUserId())
 
       vat_trade_condition = self.portal.portal_catalog.getResultValue(
@@ -701,7 +565,6 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       new_vat_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
       self.tic()
 
-    self.logout()
     self.login()
     with PinnedDateTime(self, DateTime('2024/05/01')):
       # Trigger alarm

@@ -46,11 +46,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>batch=None, **kw</string> </value>
+            <value> <string>REQUEST=None, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>UpgradeDecision_rejectOnSlaposPanel</string> </value>
+            <value> <string>ComputeNode_requestDestroy</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -56,6 +56,7 @@ for sql_result in portal.portal_catalog(
 
     is_compute_node_payable = False
     is_instance_tree_payable = False
+    is_software_instance_payable = False
     # XXX hardcoded
     price_currency = 'currency_module/EUR'
     if project.getReference() in payable_project_guid_dict:
@@ -96,6 +97,7 @@ for sql_result in portal.portal_catalog(
     for is_payable, portal_type, trade_condition_type in [
       (is_compute_node_payable, 'Compute Node', "compute_node"),
       (is_instance_tree_payable, 'Instance Tree', "instance_tree"),
+      (is_software_instance_payable, 'Software Instance', "software_instance"),
     ]:
 
       if is_payable:

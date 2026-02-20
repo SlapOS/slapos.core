@@ -44,6 +44,12 @@ elif item.getPortalType() == 'Compute Node':
   project_value = item.getFollowUpValue(portal_type="Project")
   if project_value is not None:
     destination_decision_value = project_value.getDestinationValue(portal_type="Person")
+elif item.getPortalType() in ['Software Instance', 'Slave Instance']:
+  service = portal.restrictedTraverse('service_module/slapos_software_instance_subscription')
+  resource_vcl = None
+  project_value = item.getFollowUpValue(portal_type="Project")
+  if project_value is not None:
+    destination_decision_value = project_value.getDestinationValue(portal_type="Person")
 else:
   raise ValueError('Unsupported portal type: %s (%s)' % (item.getPortalType(), item.getRelativeUrl()))
 # service = self.portal.restrictedTraverse('service_module/slapos_virtual_master_subscription')

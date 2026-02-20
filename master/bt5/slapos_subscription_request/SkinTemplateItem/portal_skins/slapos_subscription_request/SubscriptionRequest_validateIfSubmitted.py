@@ -56,6 +56,11 @@ if subscription_change_request is not None:
     # If the buyer was changed, consider the system Sale Agents trust the new buyer
     is_deposit_check_needed = False
 
+if (subscription_request.getResource() == 'service_module/slapos_software_instance_subscription'):
+  # XXX instead of checking resource, check if this can be a resource category
+  is_deposit_check_needed = False
+
+
 if is_deposit_check_needed:
   # Accept the subscription only if user paid the security payment
   total_price = subscription_request.getTotalPrice()

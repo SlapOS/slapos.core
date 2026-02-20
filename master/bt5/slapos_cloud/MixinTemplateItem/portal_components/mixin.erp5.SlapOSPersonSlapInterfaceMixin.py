@@ -99,16 +99,14 @@ class SlapOSPersonSlapInterfaceMixin:
         # No need to create destroyed subscription.
         self.REQUEST.set('request_instance_tree', None)
         return
-      instance_tree_reference = "HOSTSUBS-%s" % portal.portal_ids\
-          .generateNewId(id_group='slap_hosting_subscription_reference', id_generator='uid')
       request_instance_tree = portal.getDefaultModule(portal_type=instance_tree_portal_type).newContent(
         portal_type=instance_tree_portal_type,
-        reference=instance_tree_reference,
         title=software_title,
         destination_section=person.getRelativeUrl(),
         follow_up_value=project_list[0],
         activate_kw={'tag': tag},
       )
+      request_instance_tree.setReference("HOSTSUBS-%s" % request_instance_tree.getId())
       # Prevent 2 nodes to call request concurrently
       person.serialize()
 
@@ -156,17 +154,14 @@ class SlapOSPersonSlapInterfaceMixin:
       assert compute_node.getFollowUp() == project_list[0].getRelativeUrl()
     else:
 
-      reference = "COMP-%s" % portal.portal_ids.generateNewId(
-        id_group='slap_computer_reference',
-        id_generator='uid')
       module = portal.getDefaultModule(portal_type=compute_node_portal_type)
       compute_node = module.newContent(
         portal_type=compute_node_portal_type,
         title=compute_node_title,
-        reference=reference,
         follow_up_value=project_list[0],
         activate_kw={'tag': tag}
       )
+      compute_node.setReference("COMP-%s" % compute_node.getId())
       compute_node.approveComputeNodeRegistration()
       # Prevent 2 nodes to call request concurrently
       person.serialize()

@@ -13,6 +13,7 @@ Person | create_slapos_deposit
 Person | create_slapos_payment_transaction
 Root Applied Rule Causality Causality Movement Group | view
 Sale Invoice Transaction | create_slapos_reversal
+Sale Invoice Transaction | print_panel_invoice
 Sale Packing List | jump_related_aggregated_packing_list
 Sale Trade Condition Change Request Module | view
 Sale Trade Condition Change Request | view

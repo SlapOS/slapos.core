@@ -1178,12 +1178,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
                            public_instance_tree_list[0].getSuccessorReference()),
         owner_software_instance.getTitle()
       )
-      connection_dict = owner_software_instance.getConnectionXmlAsDict()
-      self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-      self.assertSameSet(
-          ['http://%s/' % q.getIpAddress() for q in
-              owner_software_instance.getAggregateValue().contentValues(portal_type='Internet Protocol Address')],
-          connection_dict.values())
+      self.assertConnectionParameterFromInstance(owner_software_instance)
 
       self.checkRemoteInstanceAllocation(public_person.getUserId(),
           public_reference, public_instance_title,
@@ -1376,12 +1371,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
                            public_instance_tree_list[0].getSuccessorReference()),
         owner_software_instance.getTitle()
       )
-      connection_dict = owner_software_instance.getConnectionXmlAsDict()
-      self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-      self.assertSameSet(
-          ['http://%s/%s' % (q.getIpAddress(), owner_software_instance.getReference()) for q in
-              owner_software_instance.getAggregateValue().contentValues(portal_type='Internet Protocol Address')],
-          connection_dict.values())
+      self.assertConnectionParameterFromInstance(owner_software_instance)
 
       self.checkRemoteInstanceAllocation(public_person.getUserId(),
           public_reference, public_instance_title,

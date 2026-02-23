@@ -787,34 +787,3 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
             partition.contentValues(portal_type='Internet Protocol Address')],
         connection_dict.values())
 
-
-
-  def findMessage(self, email, body):
-    for candidate in reversed(self.portal.MailHost.getMessageList()):
-      if [q for q in candidate[1] if email in q] and body in candidate[2]:
-        return candidate[2]
-
-  def assertInvoiceNotification(self, person, is_email_expected=True):
-
-    if person.getLanguage() == "zh":
-      expected_message = self.expected_invoice_zh_notification_message
-    else:
-      expected_message = self.expected_invoice_en_notification_message 
-
-    to_click_message = self.findMessage(person.getDefaultEmailText(),
-                                        expected_message)
-    if is_email_expected:
-      self.assertNotEqual(None, to_click_message)
-    else:
-      self.assertEqual(None, to_click_message)
-
-  def requestInstance(self, person_user_id, instance_title,
-      software_release, software_type, project_reference):
-
-    self.login(person_user_id)
-    self.personRequestInstanceNotReady(
-      software_release=software_release,
-      software_type=software_type,
-      partition_reference=instance_title,
-      project_reference=project_reference
-    )

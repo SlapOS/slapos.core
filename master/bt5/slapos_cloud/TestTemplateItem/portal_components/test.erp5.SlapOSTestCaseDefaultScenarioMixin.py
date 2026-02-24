@@ -529,11 +529,16 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
   def checkRemoteInstanceAllocation(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server,
       project_reference, connection_dict_to_check=None,
-      slave=False):
+      slave=False, workgroup=None):
 
     shared_xml = '<marshal><bool>%i</bool></marshal>' % int(slave)
 
     self.login(person_user_id)
+    workgroup_reference = None
+    kw = {'title': instance_title }
+    if workgroup is not None:
+      workgroup_reference = workgroup.getReference()
+      kw['destination_section'] = workgroup
 
     if connection_dict_to_check is None:
       self.personRequestInstanceNotReady(
@@ -542,6 +547,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         partition_reference=instance_title,
         project_reference=project_reference,
         shared_xml=shared_xml,
+        workgroup_reference=workgroup_reference
       )
 
       # XXX search only for this user
@@ -561,13 +567,14 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       partition_reference=instance_title,
       project_reference=project_reference,
       shared_xml=shared_xml,
+      workgroup_reference=workgroup_reference
     )
 
     # now instantiate it on compute_node and set some nice connection dict
     # XXX XXX self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings
-    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
+    instance_tree_list = self._getCurrentInstanceTreeList(**kw)
     self.assertEqual(1, len(instance_tree_list))
     instance_tree = instance_tree_list[0]
 
@@ -589,13 +596,13 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       software_release, software_type, server,
       project_reference, workgroup=None):
 
+    self.login(person_user_id)
     workgroup_reference = None
     kw = {'title': instance_title }
     if workgroup is not None:
       workgroup_reference = workgroup.getReference()
       kw['destination_section'] = workgroup
 
-    self.login(person_user_id)
     self.personRequestInstanceNotReady(
       software_release=software_release,
       software_type=software_type,
@@ -606,26 +613,30 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       workgroup_reference=workgroup_reference
     )
 
-    # let's find instances of user and check connection strings
     instance_tree_list = self._getCurrentInstanceTreeList(**kw)
     self.assertEqual(0, len(instance_tree_list))
 
   def checkRemoteInstanceUnallocation(self, person_user_id,
       person_reference, instance_title,
       software_release, software_type, server,
-      project_reference):
+      project_reference, workgroup=None):
 
     self.login(person_user_id)
+    workgroup_reference = None
+    kw = {'title': instance_title }
+    if workgroup is not None:
+      workgroup_reference = workgroup.getReference()
+      kw['destination_section'] = workgroup
     self.personRequestInstanceNotReady(
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
       state='<marshal><string>destroyed</string></marshal>',
-      project_reference=project_reference
+      project_reference=project_reference,
+      workgroup_reference=workgroup_reference
     )
 
-    # let's find instances of user and check connection strings
-    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
+    instance_tree_list = self._getCurrentInstanceTreeList(**kw)
     self.assertEqual(0, len(instance_tree_list))
 
   def checkInstanceUnallocation(self, person_user_id,
@@ -633,13 +644,13 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       software_release, software_type, server, project_reference,
       workgroup=None):
 
+    self.login(person_user_id)
     workgroup_reference = None
     kw = {'title': instance_title }
     if workgroup is not None:
       workgroup_reference = workgroup.getReference()
       kw['destination_section'] = workgroup
 
-    self.login(person_user_id)
     self.personRequestInstanceNotReady(
       software_release=software_release,
       software_type=software_type,

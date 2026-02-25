@@ -1,0 +1,16 @@
+<local_roles_item>
+ <local_roles>
+  <role id='F-ACCOUNTING*'>
+   <item>Auditor</item>
+  </role>
+  <role id='F-SALE*'>
+   <item>Auditor</item>
+  </role>
+ </local_roles>
+ <local_role_group_ids>
+  <local_role_group_id id='function'>
+    <principal id='F-ACCOUNTING*'>Auditor</principal>
+    <principal id='F-SALE*'>Auditor</principal>
+  </local_role_group_id>
+ </local_role_group_ids>
+</local_roles_item>

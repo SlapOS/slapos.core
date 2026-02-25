@@ -457,6 +457,10 @@ class TestDefaultPaymentRule(SlapOSTestCaseMixin):
         .original_getSimulationState
 
 class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
+  _open_order_portal_type = 'Open Sale Order'
+  _open_order_line_portal_type = 'Open Sale Order Line'
+  _subscription_item_portal_type = 'Hosting Subscription'
+
   def _prepare(self):
     trade_condition = self.portal.sale_trade_condition_module.newContent(
       specialise_value=self.portal.business_process_module.slapos_sale_subscription_business_process
@@ -470,7 +474,7 @@ class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
     self.initial_date = DateTime('2011/02/16')
     stop_date = DateTime('2011/04/16')
 
-    open_order = self.portal.open_sale_order_module.newContent(
+    open_order = self.portal.getDefaultModule(portal_type=self._open_order_portal_type).newContent(
       specialise_value=trade_condition,
       destination_value=organisation,
       effective_date=self.initial_date,
@@ -479,8 +483,8 @@ class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
       stop_date=stop_date,
       ledger='automated'
     )
-    self.subscription = self.portal.hosting_subscription_module.newContent(
-      portal_type='Hosting Subscription',
+    self.subscription = self.portal.getDefaultModule(portal_type=self._subscription_item_portal_type).newContent(
+      portal_type=self._subscription_item_portal_type,
       periodicity_hour=0,
       periodicity_minute=0,
       periodicity_month_day=self.initial_date.day(),
@@ -489,7 +493,7 @@ class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
     self.subscription.validate()
 
     self.open_order_line = open_order.newContent(
-      portal_type='Open Sale Order Line',
+      portal_type=self._open_order_line_portal_type,
       resource_value=resource,
       aggregate_value=self.subscription,
       quantity=1
@@ -717,6 +721,12 @@ class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
     finally:
       SimulationMovement.isFrozen = SimulationMovement.originalIsFrozen
       delattr(SimulationMovement, 'originalIsFrozen')
+
+
+class TestConsumptionSubscriptionSimulation(TestHostingSubscriptionSimulation):
+  _open_order_portal_type = 'Open Internal Order'
+  _open_order_line_portal_type = 'Open Internal Order Line'
+  _subscription_item_portal_type = 'Consumption Subscription'
 
 class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
   def test_trade_model_simulation(self):

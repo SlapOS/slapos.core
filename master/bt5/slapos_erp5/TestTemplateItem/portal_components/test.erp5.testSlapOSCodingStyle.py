@@ -145,6 +145,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_pdm/UpgradeDecision_getResourceItemList',
         'slapos_pdm/UpgradeDecision_init',
         'slapos_pdm/UpgradeDecision_getAggregateUrlString',
+        'slapos_simulation/ConsumptionSubscription_getRuleReference',
         'slapos_simulation/DeliveryBuilder_selectSlapOSConfirmedInvoiceList',
         'slapos_simulation/DeliveryBuilder_selectSlapOSMovement',
         'slapos_simulation/HostingSubscription_getRuleReference',

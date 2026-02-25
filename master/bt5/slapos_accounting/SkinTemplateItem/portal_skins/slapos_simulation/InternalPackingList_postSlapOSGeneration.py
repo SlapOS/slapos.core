@@ -1,0 +1,1 @@
+return context.SalePackingList_postSlapOSGeneration(related_simulation_movement_path_list=related_simulation_movement_path_list)

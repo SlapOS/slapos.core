@@ -147,6 +147,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_simulation/DeliveryBuilder_selectSlapOSConfirmedInvoiceList',
         'slapos_simulation/DeliveryBuilder_selectSlapOSMovement',
         'slapos_simulation/HostingSubscription_getRuleReference',
+        'slapos_simulation/InternalPackingList_postSlapOSGeneration',
         'slapos_simulation/PackingList_getRuleReference',
         'slapos_simulation/PaymentTransaction_getRuleReference',
         'slapos_simulation/SaleInvoiceTransaction_postSlapOSGeneration',

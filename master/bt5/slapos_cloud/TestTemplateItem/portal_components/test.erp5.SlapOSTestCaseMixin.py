@@ -59,21 +59,6 @@ class Simulator:
       f.write(repr(l))
     return self.to_return
 
-def changeSkin(skin_name):
-  def decorator(func):
-    def wrapped(self, *args, **kwargs):
-      default_skin = self.portal.portal_skins.default_skin
-      self.portal.portal_skins.changeSkin(skin_name)
-      self.app.REQUEST.set('portal_skin', skin_name)
-      try:
-        v = func(self, *args, **kwargs)
-      finally:
-        self.portal.portal_skins.changeSkin(default_skin)
-        self.app.REQUEST.set('portal_skin', default_skin)
-      return v
-    return wrapped
-  return decorator
-
 def simulate(script_id, params_string, code_string):
   def upperWrap(f):
     @wraps(f)

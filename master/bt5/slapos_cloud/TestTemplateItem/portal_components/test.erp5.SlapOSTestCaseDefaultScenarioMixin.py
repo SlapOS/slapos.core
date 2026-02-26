@@ -24,7 +24,6 @@ import six.moves.urllib.parse
 from six.moves.urllib.parse import urlencode
 from io import BytesIO
 from erp5.component.test.testSlapOSCloudSecurityGroup import TestSlapOSSecurityMixin
-from erp5.component.test.SlapOSTestCaseMixin import changeSkin
 import re
 from slapos.util import dumps, loads
 from Products.ERP5Type.Utils import str2bytes, bytes2str
@@ -99,8 +98,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     self.admin_user = admin_user
 
-  @changeSkin('Hal')
   def joinSlapOS(self, reference):
+    self.changeSkin('Hal')
     def findMessage(email, body):
       for candidate in reversed(self.portal.MailHost.getMessageList()):
         if [q for q in candidate[1] if email in q] and body in candidate[2]:
@@ -197,6 +196,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertNotEqual(None, welcome_message)
 
     self.login()
+    self.changeSkin('View')
     # Fetch the user from login and return
     return self.portal.portal_catalog.getResultValue(
         portal_type="ERP5 Login",
@@ -250,7 +250,21 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     else:
       self.assertEqual('destroy_requested', software_installation.getSlapState())
 
-  @changeSkin('RJS')
+  def assertConnectionParameterFromInstance(self, instance):
+    # Sample of expected paremeter
+    connection_dict = instance.getConnectionXmlAsDict()
+    self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
+    self.login()
+    ip_list = instance.getAggregateValue().contentValues(
+      portal_type='Internet Protocol Address')
+    if instance.getPortalType() == "Slave Instance":
+      self.assertSameSet([
+        'http://%s/%s' % (q.getIpAddress(), instance.getReference()) for q in ip_list],
+          connection_dict.values())
+    else:
+      self.assertSameSet(['http://%s/' % q.getIpAddress() for q in ip_list],
+          connection_dict.values())
+
   def setServerOpen(self, server):
     self.setAccessToMemcached(server)
     server.edit(allocation_scope='open')
@@ -451,15 +465,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     software_instance = instance_tree.getSuccessorValue()
     self.assertEqual(software_instance.getTitle(),
         instance_tree.getTitle())
-    connection_dict = software_instance.getConnectionXmlAsDict()
-    self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-    self.login()
-    partition = software_instance.getAggregateValue()
-    self.assertSameSet(
-        ['http://%s/%s' % (q.getIpAddress(), software_instance.getReference())
-            for q in partition.contentValues(
-                portal_type='Internet Protocol Address')],
-        connection_dict.values())
+    self.assertConnectionParameterFromInstance(software_instance)
 
   def checkInstanceTreeSlaveInstanceAllocation(
     self,
@@ -507,16 +513,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     # let's find instances of user and check connection strings
     slave_instance = software_instance.getSuccessorValue()
-
-    connection_dict = slave_instance.getConnectionXmlAsDict()
-    self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-    self.login()
-    partition = slave_instance.getAggregateValue()
-    self.assertSameSet(
-        ['http://%s/%s' % (q.getIpAddress(), slave_instance.getReference())
-            for q in partition.contentValues(
-                portal_type='Internet Protocol Address')],
-        connection_dict.values())
+    self.assertConnectionParameterFromInstance(slave_instance)
 
   def checkRemoteInstanceAllocation(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server,
@@ -689,14 +686,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     software_instance = instance_tree.getSuccessorValue()
     self.assertEqual(software_instance.getTitle(),
         instance_tree.getTitle())
-    connection_dict = software_instance.getConnectionXmlAsDict()
-    self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-    self.login()
-    partition = software_instance.getAggregateValue()
-    self.assertSameSet(
-        ['http://%s/' % q.getIpAddress() for q in
-            partition.contentValues(portal_type='Internet Protocol Address')],
-        connection_dict.values())
+    self.assertConnectionParameterFromInstance(software_instance)
 
   def checkInstanceAllocationWithDeposit(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server,
@@ -778,43 +768,4 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     software_instance = instance_tree.getSuccessorValue()
     self.assertEqual(software_instance.getTitle(),
         instance_tree.getTitle())
-    connection_dict = software_instance.getConnectionXmlAsDict()
-    self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-    self.login()
-    partition = software_instance.getAggregateValue()
-    self.assertSameSet(
-        ['http://%s/' % q.getIpAddress() for q in
-            partition.contentValues(portal_type='Internet Protocol Address')],
-        connection_dict.values())
-
-
-
-  def findMessage(self, email, body):
-    for candidate in reversed(self.portal.MailHost.getMessageList()):
-      if [q for q in candidate[1] if email in q] and body in candidate[2]:
-        return candidate[2]
-
-  def assertInvoiceNotification(self, person, is_email_expected=True):
-
-    if person.getLanguage() == "zh":
-      expected_message = self.expected_invoice_zh_notification_message
-    else:
-      expected_message = self.expected_invoice_en_notification_message 
-
-    to_click_message = self.findMessage(person.getDefaultEmailText(),
-                                        expected_message)
-    if is_email_expected:
-      self.assertNotEqual(None, to_click_message)
-    else:
-      self.assertEqual(None, to_click_message)
-
-  def requestInstance(self, person_user_id, instance_title,
-      software_release, software_type, project_reference):
-
-    self.login(person_user_id)
-    self.personRequestInstanceNotReady(
-      software_release=software_release,
-      software_type=software_type,
-      partition_reference=instance_title,
-      project_reference=project_reference
-    )
+    self.assertConnectionParameterFromInstance(software_instance)

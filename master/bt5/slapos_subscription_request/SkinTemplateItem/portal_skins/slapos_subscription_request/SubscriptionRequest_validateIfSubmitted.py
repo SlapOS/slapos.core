@@ -63,7 +63,7 @@ if is_deposit_check_needed:
 
     customer = subscription_request.getDestinationSectionValue()
     if customer.getPortalType() == "Workgroup":
-       markHistory(subscription_request,
+      markHistory(subscription_request,
                   'Workgroup is cannot handle deposit or invoices payments.')
       return
 

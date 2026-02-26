@@ -24,7 +24,6 @@ import six.moves.urllib.parse
 from six.moves.urllib.parse import urlencode
 from io import BytesIO
 from erp5.component.test.testSlapOSCloudSecurityGroup import TestSlapOSSecurityMixin
-from erp5.component.test.SlapOSTestCaseMixin import changeSkin
 import re
 from slapos.util import dumps, loads
 from Products.ERP5Type.Utils import str2bytes, bytes2str
@@ -99,8 +98,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     self.admin_user = admin_user
 
-  @changeSkin('Hal')
   def joinSlapOS(self, reference):
+    self.changeSkin('Hal')
     def findMessage(email, body):
       for candidate in reversed(self.portal.MailHost.getMessageList()):
         if [q for q in candidate[1] if email in q] and body in candidate[2]:
@@ -197,6 +196,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertNotEqual(None, welcome_message)
 
     self.login()
+    self.changeSkin('View')
     # Fetch the user from login and return
     return self.portal.portal_catalog.getResultValue(
         portal_type="ERP5 Login",

@@ -3077,7 +3077,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
           'sla_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
           'software_type': 'req_type',
           'shared': True,
-          'project_reference': self.project.getReference()
+          'project_reference': self.project.getReference(),
+          'workgroup_reference': None
       })
     finally:
       if os.path.exists(self.instance_request_simulator):
@@ -3110,7 +3111,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
           'sla_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
           'software_type': 'req_type',
           'shared': False,
-          'project_reference': self.project.getReference()
+          'project_reference': self.project.getReference(),
+          'workgroup_reference': None
       })
     finally:
       if os.path.exists(self.instance_request_simulator):
@@ -3142,7 +3144,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
           'sla_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
           'software_type': 'req_type',
           'shared': False,
-          'project_reference': self.project.getReference()
+          'project_reference': self.project.getReference(),
+          'workgroup_reference': None
       })
     finally:
       if os.path.exists(self.instance_request_simulator):

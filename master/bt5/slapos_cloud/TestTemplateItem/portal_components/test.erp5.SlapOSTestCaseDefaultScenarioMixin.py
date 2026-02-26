@@ -250,6 +250,21 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     else:
       self.assertEqual('destroy_requested', software_installation.getSlapState())
 
+  def assertConnectionParameterFromInstance(self, instance):
+    # Sample of expected paremeter
+    connection_dict = instance.getConnectionXmlAsDict()
+    self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
+    self.login()
+    ip_list = instance.getAggregateValue().contentValues(
+      portal_type='Internet Protocol Address')
+    if instance.getPortalType() == "Slave Instance":
+      self.assertSameSet([
+        'http://%s/%s' % (q.getIpAddress(), instance.getReference()) for q in ip_list],
+          connection_dict.values())
+    else:
+      self.assertSameSet(['http://%s/' % q.getIpAddress() for q in ip_list],
+          connection_dict.values())
+
   @changeSkin('RJS')
   def setServerOpen(self, server):
     self.setAccessToMemcached(server)
@@ -410,7 +425,14 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
   def checkSlaveInstanceAllocation(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server,
-       project_reference):
+       project_reference, workgroup=None):
+
+    self.login(person_user_id)
+    workgroup_reference = None
+    kw = {'title': instance_title }
+    if workgroup is not None:
+      workgroup_reference = workgroup.getReference()
+      kw['destination_section'] = workgroup
 
     self.tic()
     self.login(person_user_id)
@@ -419,7 +441,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       software_type=software_type,
       partition_reference=instance_title,
       shared_xml='<marshal><bool>1</bool></marshal>',
-      project_reference=project_reference
+      project_reference=project_reference,
+      workgroup_reference=workgroup_reference
     )
 
     # XXX search only for this user
@@ -437,29 +460,22 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       software_type=software_type,
       partition_reference=instance_title,
       shared_xml='<marshal><bool>1</bool></marshal>',
-      project_reference=project_reference
+      project_reference=project_reference,
+      workgroup_reference=workgroup_reference
     )
 
     # now instantiate it on compute_node and set some nice connection dict
     self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings
-    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
+    instance_tree_list = self._getCurrentInstanceTreeList(**kw)
     self.assertEqual(1, len(instance_tree_list))
     instance_tree = instance_tree_list[0]
 
     software_instance = instance_tree.getSuccessorValue()
     self.assertEqual(software_instance.getTitle(),
         instance_tree.getTitle())
-    connection_dict = software_instance.getConnectionXmlAsDict()
-    self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-    self.login()
-    partition = software_instance.getAggregateValue()
-    self.assertSameSet(
-        ['http://%s/%s' % (q.getIpAddress(), software_instance.getReference())
-            for q in partition.contentValues(
-                portal_type='Internet Protocol Address')],
-        connection_dict.values())
+    self.assertConnectionParameterFromInstance(software_instance)
 
   def checkInstanceTreeSlaveInstanceAllocation(
     self,
@@ -467,7 +483,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     person_reference,
     instance_tree_title, instance_title, software_release, software_type,
     server,
-    project_reference
+    project_reference,
+    workgroup_reference=None
   ):
 
     self.login(person_user_id)
@@ -507,25 +524,21 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     # let's find instances of user and check connection strings
     slave_instance = software_instance.getSuccessorValue()
-
-    connection_dict = slave_instance.getConnectionXmlAsDict()
-    self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-    self.login()
-    partition = slave_instance.getAggregateValue()
-    self.assertSameSet(
-        ['http://%s/%s' % (q.getIpAddress(), slave_instance.getReference())
-            for q in partition.contentValues(
-                portal_type='Internet Protocol Address')],
-        connection_dict.values())
+    self.assertConnectionParameterFromInstance(slave_instance)
 
   def checkRemoteInstanceAllocation(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server,
       project_reference, connection_dict_to_check=None,
-      slave=False):
+      slave=False, workgroup=None):
 
     shared_xml = '<marshal><bool>%i</bool></marshal>' % int(slave)
 
     self.login(person_user_id)
+    workgroup_reference = None
+    kw = {'title': instance_title }
+    if workgroup is not None:
+      workgroup_reference = workgroup.getReference()
+      kw['destination_section'] = workgroup
 
     if connection_dict_to_check is None:
       self.personRequestInstanceNotReady(
@@ -534,6 +547,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         partition_reference=instance_title,
         project_reference=project_reference,
         shared_xml=shared_xml,
+        workgroup_reference=workgroup_reference
       )
 
       # XXX search only for this user
@@ -553,13 +567,14 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       partition_reference=instance_title,
       project_reference=project_reference,
       shared_xml=shared_xml,
+      workgroup_reference=workgroup_reference
     )
 
     # now instantiate it on compute_node and set some nice connection dict
     # XXX XXX self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings
-    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
+    instance_tree_list = self._getCurrentInstanceTreeList(**kw)
     self.assertEqual(1, len(instance_tree_list))
     instance_tree = instance_tree_list[0]
 
@@ -579,60 +594,76 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
   def checkSlaveInstanceUnallocation(self, person_user_id,
       person_reference, instance_title,
       software_release, software_type, server,
-      project_reference):
+      project_reference, workgroup=None):
 
     self.login(person_user_id)
+    workgroup_reference = None
+    kw = {'title': instance_title }
+    if workgroup is not None:
+      workgroup_reference = workgroup.getReference()
+      kw['destination_section'] = workgroup
+
     self.personRequestInstanceNotReady(
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
       shared_xml='<marshal><bool>1</bool></marshal>',
       state='<marshal><string>destroyed</string></marshal>',
-      project_reference=project_reference
+      project_reference=project_reference,
+      workgroup_reference=workgroup_reference
     )
 
-    # let's find instances of user and check connection strings
-    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
+    instance_tree_list = self._getCurrentInstanceTreeList(**kw)
     self.assertEqual(0, len(instance_tree_list))
 
   def checkRemoteInstanceUnallocation(self, person_user_id,
       person_reference, instance_title,
       software_release, software_type, server,
-      project_reference):
+      project_reference, workgroup=None):
 
     self.login(person_user_id)
+    workgroup_reference = None
+    kw = {'title': instance_title }
+    if workgroup is not None:
+      workgroup_reference = workgroup.getReference()
+      kw['destination_section'] = workgroup
     self.personRequestInstanceNotReady(
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
       state='<marshal><string>destroyed</string></marshal>',
-      project_reference=project_reference
+      project_reference=project_reference,
+      workgroup_reference=workgroup_reference
     )
 
-    # let's find instances of user and check connection strings
-    instance_tree_list = [q.getObject() for q in
-        self._getCurrentInstanceTreeList()
-        if q.getTitle() == instance_title]
-
+    instance_tree_list = self._getCurrentInstanceTreeList(**kw)
     self.assertEqual(0, len(instance_tree_list))
 
   def checkInstanceUnallocation(self, person_user_id,
       person_reference, instance_title,
-      software_release, software_type, server, project_reference):
+      software_release, software_type, server, project_reference,
+      workgroup=None):
 
     self.login(person_user_id)
+    workgroup_reference = None
+    kw = {'title': instance_title }
+    if workgroup is not None:
+      workgroup_reference = workgroup.getReference()
+      kw['destination_section'] = workgroup
+
     self.personRequestInstanceNotReady(
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
       state='<marshal><string>destroyed</string></marshal>',
-      project_reference=project_reference
+      project_reference=project_reference,
+      workgroup_reference=workgroup_reference
     )
 
     # now instantiate it on compute_node and set some nice connection dict
     self.simulateSlapgridUR(server)
 
-    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
+    instance_tree_list = self._getCurrentInstanceTreeList(**kw)
     self.assertEqual(0, len(instance_tree_list))
 
   def checkServiceSubscriptionRequest(self, service, simulation_state='invalidated'):
@@ -649,19 +680,24 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
   def checkInstanceAllocation(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server,
-      project_reference):
+      project_reference, workgroup=None):
 
     self.login(person_user_id)
+    workgroup_reference = None
+    kw = {'title': instance_title }
+    if workgroup is not None:
+      workgroup_reference = workgroup.getReference()
+      kw['destination_section'] = workgroup
 
     self.personRequestInstanceNotReady(
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
-      project_reference=project_reference
+      project_reference=project_reference,
+      workgroup_reference=workgroup_reference
     )
     self.tic()
 
-    # XXX search only for this user
     instance_tree = self.portal.portal_catalog.getResultValue(
       portal_type="Instance Tree",
       title=instance_title,
@@ -675,28 +711,22 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
-      project_reference=project_reference
+      project_reference=project_reference,
+      workgroup_reference=workgroup_reference
     )
 
     # now instantiate it on compute_node and set some nice connection dict
     self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings
-    instance_tree_list = self._getCurrentInstanceTreeList(title=instance_title)
+    instance_tree_list = self._getCurrentInstanceTreeList(**kw)
     self.assertEqual(1, len(instance_tree_list))
     instance_tree = instance_tree_list[0]
 
     software_instance = instance_tree.getSuccessorValue()
     self.assertEqual(software_instance.getTitle(),
         instance_tree.getTitle())
-    connection_dict = software_instance.getConnectionXmlAsDict()
-    self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-    self.login()
-    partition = software_instance.getAggregateValue()
-    self.assertSameSet(
-        ['http://%s/' % q.getIpAddress() for q in
-            partition.contentValues(portal_type='Internet Protocol Address')],
-        connection_dict.values())
+    self.assertConnectionParameterFromInstance(software_instance)
 
   def checkInstanceAllocationWithDeposit(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server,
@@ -778,43 +808,4 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     software_instance = instance_tree.getSuccessorValue()
     self.assertEqual(software_instance.getTitle(),
         instance_tree.getTitle())
-    connection_dict = software_instance.getConnectionXmlAsDict()
-    self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-    self.login()
-    partition = software_instance.getAggregateValue()
-    self.assertSameSet(
-        ['http://%s/' % q.getIpAddress() for q in
-            partition.contentValues(portal_type='Internet Protocol Address')],
-        connection_dict.values())
-
-
-
-  def findMessage(self, email, body):
-    for candidate in reversed(self.portal.MailHost.getMessageList()):
-      if [q for q in candidate[1] if email in q] and body in candidate[2]:
-        return candidate[2]
-
-  def assertInvoiceNotification(self, person, is_email_expected=True):
-
-    if person.getLanguage() == "zh":
-      expected_message = self.expected_invoice_zh_notification_message
-    else:
-      expected_message = self.expected_invoice_en_notification_message 
-
-    to_click_message = self.findMessage(person.getDefaultEmailText(),
-                                        expected_message)
-    if is_email_expected:
-      self.assertNotEqual(None, to_click_message)
-    else:
-      self.assertEqual(None, to_click_message)
-
-  def requestInstance(self, person_user_id, instance_title,
-      software_release, software_type, project_reference):
-
-    self.login(person_user_id)
-    self.personRequestInstanceNotReady(
-      software_release=software_release,
-      software_type=software_type,
-      partition_reference=instance_title,
-      project_reference=project_reference
-    )
+    self.assertConnectionParameterFromInstance(software_instance)

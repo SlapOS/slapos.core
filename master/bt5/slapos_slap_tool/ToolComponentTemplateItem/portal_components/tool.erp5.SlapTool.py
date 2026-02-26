@@ -616,7 +616,8 @@ class SlapTool(BaseTool):
   def requestComputerPartition(self, computer_id=None,
       computer_partition_id=None, software_release=None, software_type=None,
       partition_reference=None, partition_parameter_xml=None,
-      filter_xml=None, state=None, shared_xml=_MARKER, project_reference=None):
+      filter_xml=None, state=None, shared_xml=_MARKER, project_reference=None,
+      workgroup_reference=None):
     """
     Asynchronously requests creation of compute partition for assigned
     parameters
@@ -631,7 +632,7 @@ class SlapTool(BaseTool):
     return self._requestComputePartition(computer_id, computer_partition_id,
         software_release, software_type, partition_reference,
         shared_xml, partition_parameter_xml, filter_xml, state,
-        project_reference)
+        project_reference, workgroup_reference)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'useComputer')
@@ -926,13 +927,12 @@ class SlapTool(BaseTool):
       software_instance.updateConnection(
         connection_xml=connection_xml,
       )
-      
 
   @convertToREST
   def _requestComputePartition(self, compute_node_id, compute_partition_id,
         software_release, software_type, partition_reference,
         shared_xml, partition_parameter_xml, filter_xml, state,
-        project_reference):
+        project_reference, workgroup_reference):
     """
     Asynchronously requests creation of compute partition for assigned
     parameters
@@ -971,7 +971,8 @@ class SlapTool(BaseTool):
               shared=shared,
               sla_xml=dict2xml(filter_kw),
               state=state,
-              project_reference=project_reference)
+              project_reference=project_reference,
+              workgroup_reference=workgroup_reference)
 
     portal = self.getPortalObject()
     if compute_node_id and compute_partition_id:
@@ -1027,7 +1028,8 @@ class SlapTool(BaseTool):
             if len(network_list) == 1:
               kw['project_reference'] = network_list[0].getFollowUpReference()
 
-      key = '_'.join([requester.getRelativeUrl(), partition_reference])
+      key = '_'.join(
+        [requester.getRelativeUrl(), workgroup_reference or '', partition_reference])
 
     last_data = requester.getLastData(key)
     requested_software_instance = None
@@ -1044,6 +1046,7 @@ class SlapTool(BaseTool):
       requested_software_instance is None:
       if compute_node_id and compute_partition_id:
         kw.pop('project_reference')
+        kw.pop('workgroup_reference')
         requester.requestInstance(**kw)
       else:
         # requester is a person so we use another method

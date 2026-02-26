@@ -272,7 +272,6 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
 
   def bootstrapAccountingTest(self):
     currency, _, _, sale_person, accountant_person = self.bootstrapVirtualMasterTest()
-    self.tic()
 
     # lets join as slapos administrator, which will manager the project
     owner_reference = 'project-%s' % self.generateNewId()
@@ -313,18 +312,47 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     self.login()
     self.simulateSlapgridSR(compute_node)
 
+  def createWorkgroup(self, person, project=None):
+    self.login(person.getUserId())
+    workgroup = person.Person_createWorkgroup(
+      'Test workgroup for %s %s' % (person.getTitle(), self.generateNewId()),
+       batch=1)
+    self.tic()
+    self.assertEqual(workgroup.getValidationState(), 'validated')
+    if project is not None:
+      # We directly add assignment to make our life easier
+      self.login()
+      self.addProjectCustomerAssignment(workgroup, project)
+    self.tic()
+    return workgroup
+
 class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
-  def test_virtual_master_without_accounting_scenario(self):
+  # Workgroup scenarios
+  def test_virtual_master_without_accounting_workgroup_scenario(self):
+    self.test_virtual_master_without_accounting_scenario(scenario="workgroup")
+
+  def test_virtual_master_professional_account_with_accounting_workgroup_scenario(self):
+    self.test_virtual_master_professional_account_with_accounting_scenario(scenario='workgroup')
+
+  def test_virtual_master_slave_instance_on_remote_tree_without_accounting_workgroup_scenario(self):
+    self.test_virtual_master_slave_instance_on_remote_tree_without_accounting_scenario(scenario='workgroup')
+
+  def test_virtual_master_on_remote_tree_without_accounting_workgroup_scenario(self):
+    self.test_virtual_master_on_remote_tree_without_accounting_scenario(scenario='workgroup')
+
+  def test_virtual_master_slave_without_accounting_workgroup_scenario(self):
+    self.test_virtual_master_slave_without_accounting_scenario(scenario='workgroup')
+
+  # Default Scenarios
+  def test_virtual_master_without_accounting_scenario(self, scenario="default"):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-      self.tic()
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(owner_reference)
 
-      # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
 
       # create a default project
@@ -352,28 +380,28 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
                                release_variation, type_variation)
 
       self.tic()
-      self.login()
       self.checkServiceSubscriptionRequest(public_server)
 
       # join as the another visitor and request software instance on public
       # compute_node
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(public_reference)
+      workgroup = None
+      if scenario == 'workgroup':
+        # create workgroup and request using it
+        workgroup = self.createWorkgroup(public_person, project)
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
       self.checkInstanceAllocation(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type,
-          public_server, project.getReference())
+          public_server, project.getReference(), workgroup)
 
-      self.login(owner_person.getUserId())
-
-      # and the instances
       self.checkInstanceUnallocation(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type, public_server,
-          project.getReference())
+          project.getReference(), workgroup)
 
       self.removeSoftwareReleaseFromComputeNode(owner_person,
         public_server, public_server_software)
@@ -393,7 +421,12 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software instance
     # 1 software product
     # 3 subscription request
-    self.assertRelatedObjectCount(project, 32)
+    expected_object_count = 32
+    if scenario == 'workgroup':
+      # + 1 assignment
+      # + 1 assignment request
+      expected_object_count = 34
+    self.assertRelatedObjectCount(project, expected_object_count)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
       self.checkERP5StateBeforeExit()
@@ -459,8 +492,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
     self.checkERP5StateBeforeExit()
 
-
-  def test_virtual_master_professional_account_with_accounting_scenario(self):
+  def test_virtual_master_professional_account_with_accounting_scenario(self, scenario='default'):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, accountant_person = self.bootstrapVirtualMasterTest()
 
@@ -562,9 +594,15 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(public_reference)
-      public_person.setCareerSubordinationValue(customer_subordination_organisation)
+      workgroup = None
+      if scenario == "workgroup":
+        workgroup = self.createWorkgroup(public_person, project)
+        requester = workgroup
+      else:
+        public_person.setCareerSubordinationValue(customer_subordination_organisation)
+        requester = public_person
 
-      # XXX Instance will be paid by the organisation
+      # Instance will be paid by the organisation regardless if owned by person or workgroup
       instance_trade_condition = self.portal.portal_catalog.getResultValue(
         portal_type='Sale Trade Condition',
         source_project__relative_url=project.getRelativeUrl(),
@@ -573,9 +611,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       )
       dedicated_trade_condition = self.portal.sale_trade_condition_module.newContent(
         portal_type='Sale Trade Condition',
-        title='%s dedicated %s' % (instance_trade_condition.getTitle(), owner_person.getTitle()),
+        title='%s dedicated %s' % (instance_trade_condition.getTitle(), requester.getTitle()),
         source_project=instance_trade_condition.getSourceProject(),
-        destination_value=public_person,
+        destination_value=requester,
         destination_section_value=customer_section_organisation,
         specialise_value=instance_trade_condition,
         price_currency=instance_trade_condition.getPriceCurrency(),
@@ -614,28 +652,38 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.checkInstanceAllocation(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type,
-          public_server, project.getReference())
+          public_server, project.getReference(),
+          workgroup=workgroup)
 
-      self.login(owner_person.getUserId())
-      # and the instances
       self.checkInstanceUnallocation(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type, public_server,
-          project.getReference())
+          project.getReference(),
+          workgroup=workgroup)
 
       self.removeSoftwareReleaseFromComputeNode(owner_person,
         public_server, public_server_software)
 
-    # Check stock
-    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
+    inventory_query_kw = {
       'group_by_section': False,
       'group_by_node': True,
       'group_by_variation': True,
       'resource_uid': software_product.getUid(),
-      'node_uid': public_person.getUid(),
       'project_uid': None,
       'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
-    })
+    }
+    # Check stock for public person
+    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(
+      node_uid=public_person.getUid(), **inventory_query_kw)
+
+    if scenario == "workgroup":
+      # Inventory goes to the workgroup instead
+      self.assertEqual(len(inventory_list), 0)
+
+      # Check stock for workgroup instead public person
+      inventory_list = self.portal.portal_simulation.getCurrentInventoryList(
+      node_uid=workgroup.getUid(), **inventory_query_kw)
+
     self.assertEqual(len(inventory_list), 1)
     self.assertEqual(inventory_list[0].quantity, 1)
     resource_vcl = [
@@ -676,7 +724,12 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software instance
     # 1 software product
     # 3 subscription requests
-    self.assertRelatedObjectCount(project, 58)
+    expected_object_count = 58
+    if scenario == 'workgroup':
+      # + 1 assignment
+      # + 1 assignment request
+      expected_object_count += 2
+    self.assertRelatedObjectCount(project, expected_object_count)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
       self.checkERP5StateBeforeExit()
@@ -801,8 +854,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           public_server, project.getReference(),
           10.8, currency)
 
-      self.login(owner_person.getUserId())
-
       # and the instances
       self.checkInstanceUnallocation(public_person.getUserId(),
           public_reference, public_instance_title,
@@ -816,7 +867,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.removeSoftwareReleaseFromComputeNode(owner_person,
         public_server, public_server_software)
 
-      self.tic()
 
     # Check stock
     inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
@@ -876,7 +926,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.checkERP5StateBeforeExit()
 
 
-  def test_virtual_master_slave_without_accounting_scenario(self):
+
+  def test_virtual_master_slave_without_accounting_scenario(self, scenario='default'):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
 
@@ -891,15 +942,13 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # hooray, now it is time to create compute_nodes
       self.login(owner_person.getUserId())
-
-      public_server_title = 'Public Server for %s' % owner_reference
-      public_server = self.requestComputeNode(public_server_title, project.getReference())
+      public_server = self.requestComputeNode(
+        'Public Server for %s' % owner_reference, project.getReference())
 
       # and install some software on them
       public_server_software = self.generateNewSoftwareReleaseUrl()
       self.supplySoftware(public_server, public_server_software)
 
-      #software_product, release_variation, type_variation = self.addSoftwareProduct(
       public_instance_type = 'public type'
       software_product, software_release, software_type = self.addSoftwareProduct(
         "instance product", project, public_server_software, public_instance_type
@@ -917,6 +966,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       public_person = self.joinSlapOS(public_reference)
       shared_public_reference = 'shared_public-%s' % self.generateNewId()
       shared_public_person = self.joinSlapOS(shared_public_reference)
+      workgroup = None
+      if scenario == "workgroup":
+        workgroup = self.createWorkgroup(shared_public_person, project)
 
     with PinnedDateTime(self, DateTime('2024/02/17 00:05')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -927,12 +979,13 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
 
       # hooray, now it is time to create compute_nodes
       self.login(owner_person.getUserId())
-      instance_node_title = 'Shared Instance for %s' % owner_reference
+
       # Convert the Software Instance into an Instance Node
       # to explicitely mark it as accepting Slave Instance
       software_instance = self.portal.portal_catalog.getResultValue(
           portal_type='Software Instance', title=public_instance_title)
-      instance_node = self.addInstanceNode(instance_node_title, software_instance)
+      instance_node = self.addInstanceNode(
+        'Shared Instance for %s' % owner_reference, software_instance)
 
       slave_server_software = self.generateNewSoftwareReleaseUrl()
       slave_instance_type = 'slave type'
@@ -942,28 +995,24 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.addAllocationSupply("for instance node", instance_node, software_product,
                                software_release, software_type)
 
-      self.login()
-
       slave_instance_title = 'Slave title %s' % self.generateNewId()
       self.checkSlaveInstanceAllocation(shared_public_person.getUserId(),
           shared_public_reference, slave_instance_title,
           slave_server_software, slave_instance_type,
-          public_server, project.getReference())
-
-      self.login(owner_person.getUserId())
+          public_server, project.getReference(), workgroup)
 
       # and the instances
       self.checkSlaveInstanceUnallocation(shared_public_person.getUserId(),
           shared_public_reference, slave_instance_title,
           slave_server_software, slave_instance_type, public_server,
-          project.getReference())
+          project.getReference(), workgroup)
 
       self.removeSoftwareReleaseFromComputeNode(owner_person,
         public_server, public_server_software)
 
     # Ensure no unexpected object has been created
     # 6 allocation supply/line/cell
-    # 4 assignment request
+    # 5 assignment request (1 for workflow)
     # 2 compute/instance node
     # 2 credential request
     # 2 instance tree
@@ -976,7 +1025,12 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 2 software instance
     # 2 software product
     # 4 subscription request
-    self.assertRelatedObjectCount(project, 48)
+    expected_object_count = 48
+    if scenario == 'workgroup':
+      # + 1 assignment
+      # + 1 assignment request
+      expected_object_count = 50
+    self.assertRelatedObjectCount(project, expected_object_count)
 
     with PinnedDateTime(self, DateTime('2024/02/18 00:05')):
       self.checkERP5StateBeforeExit()
@@ -1005,7 +1059,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       public_server_software = self.generateNewSoftwareReleaseUrl()
       self.supplySoftware(public_server, public_server_software)
 
-      #software_product, release_variation, type_variation = self.addSoftwareProduct(
       public_instance_type = 'public type'
       software_product, software_release, software_type = self.addSoftwareProduct(
         "instance product", project, public_server_software, public_instance_type
@@ -1064,8 +1117,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     with PinnedDateTime(self, DateTime('2024/02/18 00:05')):
       self.checkERP5StateBeforeExit()
 
-
-  def test_virtual_master_on_remote_tree_without_accounting_scenario(self):
+  def test_virtual_master_on_remote_tree_without_accounting_scenario(self, scenario='default'):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
 
@@ -1081,8 +1133,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # hooray, now it is time to create compute_nodes
       self.login(remote_owner_person.getUserId())
 
-      remote_server_title = 'Remote Server for %s' % remote_owner_person
-      remote_server = self.requestComputeNode(remote_server_title, remote_project.getReference())
+      remote_server = self.requestComputeNode(
+        'Remote Server for %s' % remote_owner_person,
+        remote_project.getReference())
 
       # and install some software on them
       remote_server_software = self.generateNewSoftwareReleaseUrl()
@@ -1121,10 +1174,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       remote_compute_node = self.requestRemoteNode(project, remote_project,
                                              remote_public_person)
 
-      # and install some software on them
+      # and install some software on them (with same type)
       public_server_software = remote_server_software
-
-      #software_product, release_variation, type_variation = self.addSoftwareProduct(
       public_instance_type = remote_instance_type
       software_product, software_release, software_type = self.addSoftwareProduct(
         "instance product", project, public_server_software, public_instance_type
@@ -1138,19 +1189,23 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(public_reference)
+      workgroup = None
+      destination_section = public_person
+      if scenario == 'workgroup':
+        # create workgroup and request using it
+        workgroup = self.createWorkgroup(public_person, project)
+        destination_section = workgroup
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
       self.checkRemoteInstanceAllocation(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type,
-          remote_compute_node, project.getReference())
+          remote_compute_node, project.getReference(),
+          workgroup=workgroup)
 
-      # XXX Do this for every scenario tests
-      self.tic()
       # now instantiate it on compute_node and set some nice connection dict
       self.simulateSlapgridCP(remote_server)
-      self.tic()
       self.login()
 
       # owner_person should have one Instance Tree created by alarm
@@ -1169,7 +1224,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # public_person should have one Instance Tree
       public_instance_tree_list = self.portal.portal_catalog(
         portal_type='Instance Tree',
-        destination_section__uid=public_person.getUid()
+        destination_section__uid=destination_section.getUid()
       )
       self.assertEqual(1, len(public_instance_tree_list))
 
@@ -1178,24 +1233,21 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
                            public_instance_tree_list[0].getSuccessorReference()),
         owner_software_instance.getTitle()
       )
-      connection_dict = owner_software_instance.getConnectionXmlAsDict()
-      self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-      self.assertSameSet(
-          ['http://%s/' % q.getIpAddress() for q in
-              owner_software_instance.getAggregateValue().contentValues(portal_type='Internet Protocol Address')],
-          connection_dict.values())
+      self.assertConnectionParameterFromInstance(owner_software_instance)
 
       self.checkRemoteInstanceAllocation(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type,
           remote_compute_node, project.getReference(),
+          workgroup=workgroup,
           connection_dict_to_check=owner_software_instance.getConnectionXmlAsDict())
 
       # Destroy the instance, and ensure the remote one is destroyed too
       self.checkRemoteInstanceUnallocation(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type,
-          remote_compute_node, project.getReference())
+          remote_compute_node, project.getReference(),
+          workgroup=workgroup)
 
       self.login()
 
@@ -1237,13 +1289,18 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software instance
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 26)
+    expected_object_count = 26
+    if scenario == 'workgroup':
+      # + 1 assignment
+      # + 1 assignment request
+      expected_object_count = 28
+    self.assertRelatedObjectCount(project, expected_object_count)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
       self.checkERP5StateBeforeExit()
 
 
-  def test_virtual_master_slave_instance_on_remote_tree_without_accounting_scenario(self):
+  def test_virtual_master_slave_instance_on_remote_tree_without_accounting_scenario(self, scenario='default'):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
       # lets join as slapos administrator, which will own few compute_nodes
@@ -1251,7 +1308,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       remote_owner_person = self.joinSlapOS(remote_owner_reference)
 
       self.login(sale_person.getUserId())
-
       # create a default project
       remote_project = self.addDefaultProject(
         person=remote_owner_person, currency=currency)
@@ -1321,7 +1377,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # and install some software on them
       public_server_software = remote_server_software
 
-      #software_product, release_variation, type_variation = self.addSoftwareProduct(
       public_instance_type = remote_instance_type
       software_product, software_release, software_type = self.addSoftwareProduct(
         "instance product", project, public_server_software, public_instance_type
@@ -1335,6 +1390,12 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(public_reference)
+      workgroup = None
+      destination_section = public_person
+      if scenario == 'workgroup':
+        # create workgroup and request using it
+        workgroup = self.createWorkgroup(public_person, project)
+        destination_section = workgroup
 
       self.login()
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -1342,13 +1403,11 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           public_reference, public_instance_title,
           public_server_software, public_instance_type,
           remote_compute_node, project.getReference(),
+          workgroup=workgroup,
           slave=True)
 
-      # XXX Do this for every scenario tests
-      self.tic()
       # now instantiate it on compute_node and set some nice connection dict
       self.simulateSlapgridCP(remote_server)
-      self.tic()
 
       self.login()
       # owner_person should have one Instance Tree created by alarm
@@ -1367,7 +1426,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # public_person should have one Instance Tree
       public_instance_tree_list = self.portal.portal_catalog(
         portal_type='Instance Tree',
-        destination_section__uid=public_person.getUid()
+        destination_section__uid=destination_section.getUid()
       )
       self.assertEqual(1, len(public_instance_tree_list))
 
@@ -1376,17 +1435,13 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
                            public_instance_tree_list[0].getSuccessorReference()),
         owner_software_instance.getTitle()
       )
-      connection_dict = owner_software_instance.getConnectionXmlAsDict()
-      self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-      self.assertSameSet(
-          ['http://%s/%s' % (q.getIpAddress(), owner_software_instance.getReference()) for q in
-              owner_software_instance.getAggregateValue().contentValues(portal_type='Internet Protocol Address')],
-          connection_dict.values())
+      self.assertConnectionParameterFromInstance(owner_software_instance)
 
       self.checkRemoteInstanceAllocation(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type,
           remote_compute_node, project.getReference(),
+          workgroup=workgroup,
           connection_dict_to_check=owner_software_instance.getConnectionXmlAsDict(),
           slave=True)
 
@@ -1423,7 +1478,12 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # 1 software instance
       # 1 software product
       # 2 subscription requests
-      self.assertRelatedObjectCount(project, 26)
+      expected_object_count = 26
+      if scenario == 'workgroup':
+        # + 1 assignment
+        # + 1 assignment request
+        expected_object_count = 28
+      self.assertRelatedObjectCount(project, expected_object_count)
 
       self.checkERP5StateBeforeExit()
 

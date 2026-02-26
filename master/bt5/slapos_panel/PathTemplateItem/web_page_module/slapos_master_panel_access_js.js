@@ -19,6 +19,7 @@
           'Services',
           'Request',
           'Projects',
+          'Workgroups',
           'Servers',
           'Tickets',
           'Invoices',
@@ -43,6 +44,10 @@
             title: result_dict.translation_dict.Servers,
             jio_key: 'compute_node_module',
             erp5_action: 'slapos_panel_view_my_compute_node_list'
+          }, {
+            title: result_dict.translation_dict.Workgroups,
+            jio_key: 'workgroup_module',
+            erp5_action: 'slapos_panel_view_my_workgroup_list'
           }, {
             title: result_dict.translation_dict.Tickets,
             jio_key: 'support_request_module',

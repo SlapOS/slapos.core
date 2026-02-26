@@ -33,7 +33,6 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbo
   TemporaryAlarmScript, Simulator
 from unittest import expectedFailure
 from zExceptions import Unauthorized
-from erp5.component.test.SlapOSTestCaseMixin import Simulator
 
 import os
 import tempfile

@@ -29,9 +29,6 @@ from DateTime import DateTime
 import feedparser
 from time import sleep
 
-def getFakeSlapState():
-  return "destroy_requested"
-
 class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
   def afterSetUp(self):

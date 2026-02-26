@@ -29,57 +29,15 @@
 import transaction
 from functools import wraps
 from Products.ERP5Type.tests.utils import createZODBPythonScript
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort, TemporaryAlarmScript
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort, \
+  TemporaryAlarmScript, Simulator
 from unittest import expectedFailure
 from zExceptions import Unauthorized
-
+from erp5.component.test.SlapOSTestCaseMixin import Simulator
 
 import os
 import tempfile
 from DateTime import DateTime
-
-
-class Simulator:
-  def __init__(self, outfile, method, to_return=None):
-    self.outfile = outfile
-    open(self.outfile, 'w').write(repr([]))
-    self.method = method
-    self.to_return = to_return
-
-  def __call__(self, *args, **kwargs):
-    """Simulation Method"""
-    old = open(self.outfile, 'r').read()
-    if old:
-      l = eval(old) #pylint: disable=eval-used
-    else:
-      l = []
-    l.append({'recmethod': self.method,
-      'recargs': args,
-      'reckwargs': kwargs})
-    open(self.outfile, 'w').write(repr(l))
-    return self.to_return
-
-def simulateByEditWorkflowMark(script_name):
-  def wrapper(func):
-    @wraps(func)
-    def wrapped(self, *args, **kwargs):
-      if script_name in self.portal.portal_skins.custom.objectIds():
-        raise ValueError('Precondition failed: %s exists in custom' % script_name)
-      createZODBPythonScript(self.portal.portal_skins.custom,
-                          script_name,
-                          '*args, **kwargs',
-                          '# Script body\n'
-  """context.portal_workflow.doActionFor(context, action='edit_action', comment='Visited by %s') """ % script_name )
-      transaction.commit()
-      try:
-        result = func(self, *args, **kwargs)
-      finally:
-        if script_name in self.portal.portal_skins.custom.objectIds():
-          self.portal.portal_skins.custom.manage_delObjects(script_name)
-        transaction.commit()
-      return result
-    return wrapped
-  return wrapper
 
 def simulateByTitlewMark(script_name):
   def wrapper(func):

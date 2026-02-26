@@ -59,28 +59,6 @@ class Simulator:
     open(self.outfile, 'w').write(repr(l))
     return self.to_return
 
-def simulateByEditWorkflowMark(script_name):
-  def wrapper(func):
-    @wraps(func)
-    def wrapped(self, *args, **kwargs):
-      if script_name in self.portal.portal_skins.custom.objectIds():
-        raise ValueError('Precondition failed: %s exists in custom' % script_name)
-      createZODBPythonScript(self.portal.portal_skins.custom,
-                          script_name,
-                          '*args, **kwargs',
-                          '# Script body\n'
-  """context.portal_workflow.doActionFor(context, action='edit_action', comment='Visited by %s') """ % script_name )
-      transaction.commit()
-      try:
-        result = func(self, *args, **kwargs)
-      finally:
-        if script_name in self.portal.portal_skins.custom.objectIds():
-          self.portal.portal_skins.custom.manage_delObjects(script_name)
-        transaction.commit()
-      return result
-    return wrapped
-  return wrapper
-
 def simulateByTitlewMark(script_name):
   def wrapper(func):
     @wraps(func)

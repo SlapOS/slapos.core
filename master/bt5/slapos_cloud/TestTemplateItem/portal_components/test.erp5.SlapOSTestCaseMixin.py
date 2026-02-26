@@ -31,11 +31,33 @@ from Products.SlapOS.tests.testSlapOSMixin import \
 from DateTime import DateTime
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 from Products.ERP5Type.tests.ERP5TypeTestCase import TemporaryAlarmScript
+
 import transaction
 import functools
 from functools import wraps
 from zLOG import LOG, INFO
 import six
+
+class Simulator:
+  def __init__(self, outfile, method, to_return=None):
+    self.outfile = outfile
+    open(self.outfile, 'w').write(repr([]))
+    self.method = method
+    self.to_return = to_return
+
+  def __call__(self, *args, **kwargs):
+    """Simulation Method"""
+    old = open(self.outfile, 'r').read()
+    if old:
+      l = eval(old) #pylint: disable=eval-used
+    else:
+      l = []
+    l.append({'recmethod': self.method,
+      'recargs': args,
+      'reckwargs': kwargs})
+    with open(self.outfile, 'w') as f:
+      f.write(repr(l))
+    return self.to_return
 
 def changeSkin(skin_name):
   def decorator(func):

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, TemporaryAlarmScript
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, TemporaryAlarmScript, \
+  Simulator
 
 from DateTime import DateTime
 from App.Common import rfc1123_date
@@ -22,26 +23,6 @@ from Products.ERP5Type.Utils import str2unicode, str2bytes, bytes2str
 
 def hashData(data):
   return hexlify(hashlib.sha1(str2bytes(json.dumps(data, sort_keys=True))).digest())
-
-
-class Simulator:
-  def __init__(self, outfile, method):
-    self.outfile = outfile
-    self.method = method
-
-  def __call__(self, *args, **kwargs):
-    """Simulation Method"""
-    old = open(self.outfile, 'r').read()
-    if old:
-      l = eval(old) #pylint: disable=eval-used
-    else:
-      l = []
-    l.append({'recmethod': self.method,
-      'recargs': args,
-      'reckwargs': kwargs})
-    with open(self.outfile, 'w') as f:
-      f.write(repr(l))
-
 
 def canonical_xml(xml):
   return str2unicode(etree.tostring(

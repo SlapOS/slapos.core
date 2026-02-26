@@ -29,35 +29,14 @@
 import transaction
 from functools import wraps
 from Products.ERP5Type.tests.utils import createZODBPythonScript
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort, TemporaryAlarmScript
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort, \
+  TemporaryAlarmScript, Simulator
 from unittest import expectedFailure
 from zExceptions import Unauthorized
-
 
 import os
 import tempfile
 from DateTime import DateTime
-
-
-class Simulator:
-  def __init__(self, outfile, method, to_return=None):
-    self.outfile = outfile
-    open(self.outfile, 'w').write(repr([]))
-    self.method = method
-    self.to_return = to_return
-
-  def __call__(self, *args, **kwargs):
-    """Simulation Method"""
-    old = open(self.outfile, 'r').read()
-    if old:
-      l = eval(old) #pylint: disable=eval-used
-    else:
-      l = []
-    l.append({'recmethod': self.method,
-      'recargs': args,
-      'reckwargs': kwargs})
-    open(self.outfile, 'w').write(repr(l))
-    return self.to_return
 
 def simulateByTitlewMark(script_name):
   def wrapper(func):

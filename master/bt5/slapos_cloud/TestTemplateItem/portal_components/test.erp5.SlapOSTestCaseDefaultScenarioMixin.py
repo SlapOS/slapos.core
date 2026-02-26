@@ -265,7 +265,6 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       self.assertSameSet(['http://%s/' % q.getIpAddress() for q in ip_list],
           connection_dict.values())
 
-  @changeSkin('RJS')
   def setServerOpen(self, server):
     self.setAccessToMemcached(server)
     server.edit(allocation_scope='open')

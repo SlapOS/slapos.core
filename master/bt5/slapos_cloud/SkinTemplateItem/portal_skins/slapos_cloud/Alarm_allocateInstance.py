@@ -8,7 +8,9 @@ portal.portal_catalog.searchAndActivate(
 
   method_id='SoftwareInstance_tryToAllocatePartition',
   packet_size=1, # Separate calls to many transactions
-  activate_kw={'tag': tag, 'priority': 2}
+  activate_kw={'tag': tag, 'priority': 2},
+
+  **{"slapos_item.slap_state": ["start_requested"]}
 )
 
 context.activate(after_tag=tag).getId()

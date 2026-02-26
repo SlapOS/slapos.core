@@ -29,10 +29,6 @@ import os
 
 from zExceptions import Unauthorized
 
-
-def getFakeSlapState():
-  return "destroy_requested"
-
 class TestCRMSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
   def afterSetUp(self):

@@ -25,9 +25,6 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
   TemporaryAlarmScript, simulate
 import json
 
-def getFakeSlapState():
-  return "destroy_requested"
-
 class TestPanelSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
   def afterSetUp(self):

@@ -272,7 +272,6 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
 
   def bootstrapAccountingTest(self):
     currency, _, _, sale_person, accountant_person = self.bootstrapVirtualMasterTest()
-    self.tic()
 
     # lets join as slapos administrator, which will manager the project
     owner_reference = 'project-%s' % self.generateNewId()
@@ -318,7 +317,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
   def test_virtual_master_without_accounting_scenario(self):
     with PinnedDateTime(self, DateTime('2024/02/17')):
       currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
-      self.tic()
 
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
@@ -352,7 +350,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
                                release_variation, type_variation)
 
       self.tic()
-      self.login()
       self.checkServiceSubscriptionRequest(public_server)
 
       # join as the another visitor and request software instance on public
@@ -366,8 +363,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           public_reference, public_instance_title,
           public_server_software, public_instance_type,
           public_server, project.getReference())
-
-      self.login(owner_person.getUserId())
 
       # and the instances
       self.checkInstanceUnallocation(public_person.getUserId(),
@@ -616,8 +611,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           public_server_software, public_instance_type,
           public_server, project.getReference())
 
-      self.login(owner_person.getUserId())
-      # and the instances
       self.checkInstanceUnallocation(public_person.getUserId(),
           public_reference, public_instance_title,
           public_server_software, public_instance_type, public_server,
@@ -801,8 +794,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
           public_server, project.getReference(),
           10.8, currency)
 
-      self.login(owner_person.getUserId())
-
       # and the instances
       self.checkInstanceUnallocation(public_person.getUserId(),
           public_reference, public_instance_title,
@@ -816,7 +807,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.removeSoftwareReleaseFromComputeNode(owner_person,
         public_server, public_server_software)
 
-      self.tic()
 
     # Check stock
     inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
@@ -1178,12 +1168,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
                            public_instance_tree_list[0].getSuccessorReference()),
         owner_software_instance.getTitle()
       )
-      connection_dict = owner_software_instance.getConnectionXmlAsDict()
-      self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-      self.assertSameSet(
-          ['http://%s/' % q.getIpAddress() for q in
-              owner_software_instance.getAggregateValue().contentValues(portal_type='Internet Protocol Address')],
-          connection_dict.values())
+      self.assertConnectionParameterFromInstance(owner_software_instance)
 
       self.checkRemoteInstanceAllocation(public_person.getUserId(),
           public_reference, public_instance_title,
@@ -1376,12 +1361,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
                            public_instance_tree_list[0].getSuccessorReference()),
         owner_software_instance.getTitle()
       )
-      connection_dict = owner_software_instance.getConnectionXmlAsDict()
-      self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
-      self.assertSameSet(
-          ['http://%s/%s' % (q.getIpAddress(), owner_software_instance.getReference()) for q in
-              owner_software_instance.getAggregateValue().contentValues(portal_type='Internet Protocol Address')],
-          connection_dict.values())
+      self.assertConnectionParameterFromInstance(owner_software_instance)
 
       self.checkRemoteInstanceAllocation(public_person.getUserId(),
           public_reference, public_instance_title,

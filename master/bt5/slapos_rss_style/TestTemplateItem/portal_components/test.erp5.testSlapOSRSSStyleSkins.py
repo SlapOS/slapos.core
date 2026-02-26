@@ -29,9 +29,6 @@ from DateTime import DateTime
 import feedparser
 from time import sleep
 
-def getFakeSlapState():
-  return "destroy_requested"
-
 class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
   def afterSetUp(self):
@@ -56,7 +53,7 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
     return instance_tree
 
   def newUpgradeDecision(self, person, project, item):
-    self.portal.portal_skins.changeSkin('View')
+    self.changeSkin('View')
     destination_decision_value = None
     if person is None:
       destination_decision_value = self.makePerson(self.addProject())
@@ -89,11 +86,11 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
       content_type='text/plain'
     )
     self.tic()
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     return ticket
 
   def newRegularisationRequest(self, person):
-    self.portal.portal_skins.changeSkin('View')
+    self.changeSkin('View')
     ticket = self.portal.regularisation_request_module.newContent(
       portal_type='Regularisation Request',
       title="Test Reg. Req.%s" % self.new_id,
@@ -111,11 +108,11 @@ class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
     )
     ticket.submit()
     self.tic()
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     return ticket
 
   def newSupportRequest(self, person, causality_value):
-    self.portal.portal_skins.changeSkin('View')
+    self.changeSkin('View')
 
     support_request = person.Entity_createTicketFromTradeCondition(
       'service_module/slapos_crm_monitoring',
@@ -154,7 +151,7 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
     self.tic()
 
     self.login(person.getUserId())
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
     self.assertFalse(parsed.bozo)
     first_entry_id = [item.id for item in parsed.entries]
@@ -173,7 +170,7 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
     self.tic()
 
     self.login(person.getUserId())
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
     self.assertFalse(parsed.bozo)
     self.assertEqual([item.summary for item in parsed.entries],
@@ -198,7 +195,7 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
     self.tic()
 
     self.login(person.getUserId())
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
     self.assertFalse(parsed.bozo)
     first_entry_id = [item.id for item in parsed.entries]
@@ -216,7 +213,7 @@ class TestSlapOSSupportRequestRSS(TestRSSSyleSkinsMixin):
     self.tic()
 
     self.login(person.getUserId())
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
     self.assertFalse(parsed.bozo)
     self.assertEqual([item.summary for item in parsed.entries],
@@ -248,7 +245,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     person = self.makePerson(project, index=1, user=1)
     self.tic()
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     self.login(person.getUserId())
 
     self.login()
@@ -258,7 +255,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     event = ticket.getFollowUpRelatedValue()
     self.assertNotEqual(event, None)
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     self.assertTicketAndEvent(web_site.WebSection_getEventList(), event, 1)
     self.assertTicketAndEvent(web_site.WebSection_getEventList(
       user_restricted=1), event, 1)
@@ -268,7 +265,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     self.assertTicketAndEvent(web_site.WebSection_getEventList(), event, 1)
     self.assertTicketAndEvent(web_site.WebSection_getEventList(
       user_restricted=1), event, 1)
@@ -278,7 +275,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     self.assertTicketAndEvent(web_site.WebSection_getEventList(), event, 1)
     self.assertTicketAndEvent(web_site.WebSection_getEventList(
       user_restricted=1), event, 1)
@@ -288,7 +285,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     open_ticket_list = web_site.WebSection_getEventList()
     self.assertEqual(len(open_ticket_list), 1)
     # Extra checks
@@ -313,7 +310,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     event_rr = regularisation_request.getFollowUpRelatedValue()
     self.assertNotEqual(event_rr, None)
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     open_ticket_list = web_site.WebSection_getEventList()
     self.assertTicketAndEvent(open_ticket_list, event_rr, 2)
     # check if previous still the same
@@ -335,7 +332,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     self.assertTicketAndEvent(web_site.WebSection_getEventList(), event_rr, 2)
     self.assertTicketAndEvent(
       web_site.WebSection_getEventList(user_restricted=1), event_rr, 2)
@@ -345,7 +342,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     self.assertTicketAndEvent(web_site.WebSection_getEventList(), event_rr, 2)
     self.assertTicketAndEvent(
       web_site.WebSection_getEventList(user_restricted=1), event_rr, 2)
@@ -355,7 +352,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     open_ticket_list = web_site.WebSection_getEventList()
     self.assertEqual(len(open_ticket_list), 2)
     # Extra checks
@@ -379,7 +376,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
 
     event_ud = upgrade_decision.getFollowUpRelatedValue()
     self.assertNotEqual(event_ud, None)
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     open_ticket_list = web_site.WebSection_getEventList()
     self.assertEqual(len(open_ticket_list), 2)
 
@@ -388,7 +385,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     open_ticket_list = web_site.WebSection_getEventList()
     self.assertEqual(len(open_ticket_list), 2)
 
@@ -397,7 +394,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     open_ticket_list = web_site.WebSection_getEventList()
     self.assertEqual(len(open_ticket_list), 3)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -414,7 +411,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
       self.tic()
     self.login(person.getUserId())
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     open_ticket_list = web_site.WebSection_getEventList()
     self.assertEqual(len(open_ticket_list), 3)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -429,7 +426,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     open_ticket_list = web_site.WebSection_getEventList()
     self.assertEqual(len(open_ticket_list), 3)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -444,7 +441,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     self.tic()
     self.login(person.getUserId())
 
-    self.portal.portal_skins.changeSkin('RSS')
+    self.changeSkin('RSS')
     open_ticket_list = web_site.WebSection_getEventList()
     self.assertEqual(len(open_ticket_list), 3)
     self.assertNotEqual(open_ticket_list[0].pubDate, None)
@@ -476,7 +473,7 @@ class TestWebSection_getLegacyMessageList(TestRSSSyleSkinsMixin):
   def testWebSection_getLegacyMessageList(self):
     web_site = self.portal.web_site_module.slapos_master_panel.feed
     with PinnedDateTime(self, DateTime('2024/10/01')):
-      self.portal.portal_skins.changeSkin('RSS')
+      self.changeSkin('RSS')
       event_list = web_site.WebSection_getLegacyMessageList()
 
     self.assertEqual(len(event_list), 1)
@@ -493,7 +490,7 @@ class TestWebSection_getLegacyMessageList(TestRSSSyleSkinsMixin):
     web_site = self.portal.web_site_module.slapos_master_panel.Base_createCloneDocument(batch_mode=1)
     web_site.edit(configuration_slapos_master_web_url='https://localhost/')
     with PinnedDateTime(self, DateTime('2024/10/01')):
-      self.portal.portal_skins.changeSkin('RSS')
+      self.changeSkin('RSS')
       event_list = web_site.feed.WebSection_getLegacyMessageList()
 
     self.assertEqual(len(event_list), 1)
@@ -513,7 +510,7 @@ class TestWebSection_getLegacyMessageList(TestRSSSyleSkinsMixin):
       portal_type='Compute Node'
     )
     with PinnedDateTime(self, DateTime('2024/10/01')):
-      self.portal.portal_skins.changeSkin('RSS')
+      self.changeSkin('RSS')
       event_list = web_site.feed.compute_node_module[
         compute_node.getId()
       ].WebSection_getLegacyMessageList()
@@ -535,7 +532,7 @@ class TestWebSection_getLegacyMessageList(TestRSSSyleSkinsMixin):
       portal_type='Instance Tree'
     )
     with PinnedDateTime(self, DateTime('2024/10/01')):
-      self.portal.portal_skins.changeSkin('RSS')
+      self.changeSkin('RSS')
       event_list = web_site.feed.instance_tree_module[
         instance_tree.getId()
       ].WebSection_getLegacyMessageList()

@@ -925,7 +925,174 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     with PinnedDateTime(self, DateTime('2024/02/18 01:02')):
       self.checkERP5StateBeforeExit()
 
+  def test_virtual_master_with_accounting_workgroup_cannot_be_payer_scenario(self):
+    with PinnedDateTime(self, DateTime('2024/02/17')):
+      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
 
+      # lets join as slapos administrator, which will manager the project
+      project_owner_reference = 'project-%s' % self.generateNewId()
+      project_owner_person = self.joinSlapOS(project_owner_reference)
+
+      self.login(sale_person.getUserId())
+      project = self.addDefaultProject(
+        is_accountable=True, person=project_owner_person, currency=currency)
+
+      public_server_software = self.generateNewSoftwareReleaseUrl()
+      public_instance_type = 'public type'
+
+      software_product, release_variation, type_variation = self.addSoftwareProduct(
+        "instance product", project, public_server_software, public_instance_type
+      )
+
+      self.login(sale_person.getUserId())
+
+      self.tic()
+      sale_supply = self.portal.portal_catalog.getResultValue(
+        portal_type='Sale Supply',
+        source_project__uid=project.getUid()
+      )
+      sale_supply.searchFolder(
+        portal_type='Sale Supply Line',
+        resource__relative_url="service_module/slapos_compute_node_subscription"
+      )[0].edit(base_price=99)
+      sale_supply.newContent(
+        portal_type="Sale Supply Line",
+        base_price=9,
+        resource_value=software_product
+      )
+      sale_supply.validate()
+
+      self.tic()
+      # lets join as slapos administrator, which will own few compute_nodes
+      owner_reference = 'owner-%s' % self.generateNewId()
+      owner_person = self.joinSlapOS(owner_reference)
+
+      # first slapos administrator assignment can only be created by
+      # the erp5 manager
+      self.addProjectProductionManagerAssignment(owner_person, project)
+      self.tic()
+
+      # hooray, now it is time to create compute_nodes
+      self.login(owner_person.getUserId())
+
+      public_server_title = 'Public Server for %s' % owner_reference
+      public_server = self.requestComputeNode(public_server_title, project.getReference())
+
+      self.addAllocationSupply("for compute node", public_server, software_product,
+                               release_variation, type_variation)
+
+      # and install some software on them
+      self.supplySoftware(public_server, public_server_software)
+
+      # format the compute_nodes
+      self.formatComputeNode(public_server)
+      self.login(project_owner_person.getUserId())
+
+      # Pay deposit to validate virtual master + one computer
+      deposit_amount = 42.0 + 99.0
+      ledger = self.portal.portal_categories.ledger.automated
+
+      outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())
+      amount = sum([i.total_price for i in outstanding_amount_list])
+      self.assertEqual(amount, deposit_amount)
+
+      # Ensure to pay from the website
+      outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
+      outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
+
+      self.tic()
+      self.login()
+      payment_transaction = self.portal.portal_catalog.getResultValue(
+        portal_type="Payment Transaction",
+        destination_section_uid=project_owner_person.getUid(),
+        simulation_state="started"
+      )
+      self.assertEqual(payment_transaction.getSpecialiseValue().getTradeConditionType(), "deposit")
+      # payzen/wechat or accountant will only stop the payment
+      payment_transaction.stop()
+      self.tic()
+      self.assertNotEqual(None,
+        payment_transaction.receivable.getGroupingReference(None))
+      self.login(project_owner_person.getUserId())
+
+      amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
+          currency.getUid(), ledger_uid=ledger.getUid())])
+      self.assertEqual(0, amount)
+
+      # join as the another visitor and request software instance on public
+      # compute_node
+      public_reference = 'public-%s' % self.generateNewId()
+      public_person = self.joinSlapOS(public_reference)
+      workgroup = self.createWorkgroup(public_person, project)
+
+    with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
+      # Simulate access from compute_node, to open the capacity scope
+      self.login()
+      self.simulateSlapgridSR(public_server)
+      public_instance_title = 'Public title %s' % self.generateNewId()
+      self.checkInstanceAllocationWorkgroupCannotPay(public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type,
+          public_server, project.getReference(),
+          9.0, currency, workgroup=workgroup)
+
+      # Ensure we can destroy after the fact.
+      self.checkInstanceUnallocation(public_person.getUserId(),
+          public_reference, public_instance_title,
+          public_server_software, public_instance_type, public_server,
+          project.getReference(), workgroup=workgroup)
+
+      self.removeSoftwareReleaseFromComputeNode(owner_person,
+        public_server, public_server_software)
+
+
+    # Check stock
+    inventory_list = self.portal.portal_simulation.getCurrentInventoryList(**{
+      'group_by_section': False,
+      'group_by_node': True,
+      'group_by_variation': True,
+      'resource_uid': software_product.getUid(),
+      'node_uid': workgroup.getUid(),
+      'project_uid': None,
+      'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
+    })
+
+    self.assertEqual(len(inventory_list), 0)
+
+    # Check accounting
+    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
+                                     mirror_section_uid=public_person.getUid())
+
+    # No transaction is created for anyone
+    self.assertEqual(len(transaction_list), 0)
+    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
+                                     mirror_section_uid=workgroup.getUid())
+
+    # No transaction is created for anyone
+    self.assertEqual(len(transaction_list), 0)
+
+    self.login()
+
+    # Ensure no unexpected object has been created
+    # 3 allocation supply / line / cell
+    # 6 assignment request
+    # 1 compute node
+    # 2 credential request
+    # 2 event
+    # 2 instance tree
+    # 3 open sale order / line
+    # 5 (can reduce to 2) assignment
+    # 3 sale supply / line
+    # 2 sale trade condition
+    # 1 software installation
+    # 1 software product
+    # 3 subscription requests
+    # 1 workgroup assignment
+    self.assertRelatedObjectCount(project, 34)
+
+    with PinnedDateTime(self, DateTime('2024/02/18 01:02')):
+      self.checkERP5StateBeforeExit()
 
   def test_virtual_master_slave_without_accounting_scenario(self, scenario='default'):
     with PinnedDateTime(self, DateTime('2024/02/17')):

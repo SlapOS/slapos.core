@@ -901,6 +901,11 @@
                         "description": "Requested Project Reference", 
                         "title": "Requested Project"
                       }, 
+                      "workgroup_guid": {
+                        "type": "string",
+                        "description": "Requested Workgroup Reference",
+                        "title": "Requested Workgroup"
+                      },
                       "computer_guid": {
                         "type": "string", 
                         "description": "Requested Compute Node Reference, like COMP-1234", 

@@ -234,6 +234,11 @@
           "description": "Requested Project Reference",\n
           "type": "string"\n
         },\n
+        "workgroup_guid": {\n
+          "title": "Requested Workgroup",\n
+          "description": "Requested Workgroup Reference",\n
+          "type": "string"\n
+        },\n
         "instance_guid": {\n
           "title": "Requested Host Instance",\n
           "description": "Only applicable to shared instance. Requested Host Instance Reference, like SOFTINST-1234",\n

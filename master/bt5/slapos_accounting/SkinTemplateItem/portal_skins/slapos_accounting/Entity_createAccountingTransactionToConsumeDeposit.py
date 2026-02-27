@@ -144,7 +144,7 @@ if len(received_deposit_amount_list):
         # Ensure account stays do not stay on the same debit/credit
         assert 0 < ratio
         credit_note_transaction = line.Base_createCloneDocument(batch_mode=1)
-        for credit_note_line in credit_note_transaction.contentValues():
+        for credit_note_line in credit_note_transaction.getMovementList():
           credit_note_line.edit(quantity=-credit_note_line.getQuantity() * ratio)
         credit_note_transaction.edit(
           title='Credit note for the invoice %s' % line.getReference(),

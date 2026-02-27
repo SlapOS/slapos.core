@@ -25,6 +25,12 @@
   <item>SlapOSLedgerAccountingConstraint</item>
   <item>SlapOSVirtualMasterSourceProjectAccountingConstraint</item>
  </portal_type>
+ <portal_type id="Internal Packing List">
+  <item>SlapOSConsumptionInternalPackingListConstraint</item>
+ </portal_type>
+ <portal_type id="Internal Packing List Line">
+  <item>SlapOSConsumptionInternalPackingListLineConstraint</item>
+ </portal_type>
  <portal_type id="Invoice Line">
   <item>SlapOSMovementConstraint</item>
  </portal_type>

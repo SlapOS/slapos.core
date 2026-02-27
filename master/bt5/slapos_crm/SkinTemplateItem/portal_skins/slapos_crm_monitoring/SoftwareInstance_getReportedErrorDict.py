@@ -38,6 +38,12 @@ if compute_node.getPortalType() == "Compute Node" and \
   error_dict['ticket_description'] = error_dict['message']
   return error_dict
 
+if ((compute_node.getPortalType() == "Compute Node") and
+    (compute_node.getAllocationScope() == 'close/maintenance')):
+  error_dict['ticket_title'] = "Node is closed for maintenance"
+  error_dict['ticket_description'] = "Node is closed for maintenance. Instance is probably not functional."
+  return error_dict
+
 if context.getPortalType() == 'Slave Instance' and compute_node.getPortalType() == "Compute Node":
   software_instance = compute_partition.getAggregateRelated(portal_type='Software Instance')
   if software_instance is None:

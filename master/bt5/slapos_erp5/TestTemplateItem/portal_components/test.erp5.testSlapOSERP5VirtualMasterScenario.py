@@ -236,6 +236,16 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       base_price=42,
       resource="service_module/slapos_virtual_master_subscription"
     )
+    sale_supply.newContent(
+      portal_type="Sale Supply Line",
+      base_price=1,
+      resource="service_module/slapos_software_instance_subscription"
+    )
+    sale_supply.newContent(
+      portal_type="Sale Supply Line",
+      base_price=2,
+      resource="service_module/slapos_compute_node_subscription"
+    )
     sale_supply.validate()
 
     self.tic()

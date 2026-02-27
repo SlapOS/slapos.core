@@ -27,7 +27,6 @@ kw = dict(software_release=software_release,
 requester = portal.portal_membership.getAuthenticatedMember().getUserValue()
 if requester.getPortalType() == 'Software Instance':
   instance_tree = requester.getSpecialiseValue()
-  kw["project_reference"] = instance_tree.getFollowUpReference()
   # Speed up stop of all instances
   if instance_tree.getSlapState() == "stop_requested":
     kw['state'] = 'stopped'

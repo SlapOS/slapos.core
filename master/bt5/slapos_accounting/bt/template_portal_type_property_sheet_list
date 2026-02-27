@@ -10,6 +10,8 @@ Hosting Subscription | SlapOSAccountingHostingSubscriptionConstraint
 Hosting Subscription | SlapOSLedgerConstraint
 Internal Invoice Transaction | SlapOSLedgerAccountingConstraint
 Internal Invoice Transaction | SlapOSVirtualMasterSourceProjectAccountingConstraint
+Internal Packing List Line | SlapOSConsumptionInternalPackingListLineConstraint
+Internal Packing List | SlapOSConsumptionInternalPackingListConstraint
 Invoice Line | SlapOSMovementConstraint
 Open Sale Order Line | SlapOSAccountingOpenSaleOrderLineConstraint
 Open Sale Order Line | SlapOSMovementConstraint

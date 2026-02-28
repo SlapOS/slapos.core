@@ -62,6 +62,11 @@ if is_deposit_check_needed:
   if 0 < total_price:
 
     customer = subscription_request.getDestinationSectionValue()
+    if customer.getPortalType() == "Workgroup":
+      markHistory(subscription_request,
+                  'Workgroup is cannot handle deposit or invoices payments.')
+      return
+
     balance = customer.Entity_getDepositBalanceAmount([subscription_request])
 
     # XXX what is the guarantee deposit account_type?

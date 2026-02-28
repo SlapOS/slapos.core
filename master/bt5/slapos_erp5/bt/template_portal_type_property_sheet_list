@@ -6,3 +6,4 @@ Organisation | GeographicOrganisation
 Template Tool | TemplateToolBusinessApplicationModuleCategoryConstraint
 Template Tool | TemplateToolPASConsistencyConstraint
 Web Site Module | WebSiteModuleShacacheConstraint
+Workgroup | ERP5User

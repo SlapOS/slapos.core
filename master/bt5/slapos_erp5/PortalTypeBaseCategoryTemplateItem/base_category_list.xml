@@ -6,4 +6,10 @@
  <portal_type id="Invitation Token Module">
   <item>business_application</item>
  </portal_type>
+ <portal_type id="Workgroup">
+  <item>destination</item>
+ </portal_type>
+ <portal_type id="Workgroup Module">
+  <item>business_application</item>
+ </portal_type>
 </base_category_list>

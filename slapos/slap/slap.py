@@ -399,6 +399,8 @@ class Computer(SlapDocument):
   def __init__(self, computer_id, connection_helper=None, hateoas_navigator=None):
     SlapDocument.__init__(self, connection_helper, hateoas_navigator)
     self._computer_id = computer_id
+    self._software_release_list = None
+    self._computer_partition_list = None
 
   def __getinitargs__(self):
     return (self._computer_id, )
@@ -408,7 +410,7 @@ class Computer(SlapDocument):
     Returns the list of software release which has to be supplied by the
     computer.
     """
-    if getattr(self, '__software_release_list', None) is None:
+    if self._software_release_list is None:
       # Sync the software release list on demand
       allDocs_dict = self._connection_helper.callJsonRpcAPI(
         'slapos.allDocs.v0.compute_node_software_installation_list',
@@ -418,7 +420,7 @@ class Computer(SlapDocument):
       )
       # XXX check if full page
       # XXX use a yield instead
-      self.__software_release_list = []
+      self._software_release_list = []
       for result in allDocs_dict['result_list']:
         software_release_document = SoftwareRelease(
           software_release=result['software_release_uri'],
@@ -426,12 +428,12 @@ class Computer(SlapDocument):
         software_release_document._requested_state = result['state']
         software_release_document._connection_helper = self._connection_helper
         software_release_document._hateoas_navigator = self._hateoas_navigator
-        self.__software_release_list.append(software_release_document)
-    return self.__software_release_list
+        self._software_release_list.append(software_release_document)
+    return self._software_release_list
 
   def getComputerPartitionList(self):
     # type: (...) -> Sequence[ComputerPartition]
-    if getattr(self, '__computer_partition_list', None) is None:
+    if self._computer_partition_list is None:
       # Sync the computer partition list on demand
       allDocs_dict = self._connection_helper.callJsonRpcAPI(
         'slapos.allDocs.v0.compute_node_instance_list',
@@ -441,7 +443,7 @@ class Computer(SlapDocument):
       )
       # XXX check if full page
       # XXX use a yield instead
-      self.__computer_partition_list = []
+      self._computer_partition_list = []
       for result in allDocs_dict['result_list']:
         # XXX duplicated with registerComputerPartition
         computer_partition = ComputerPartition(
@@ -459,10 +461,10 @@ class Computer(SlapDocument):
           computer_guid=self._computer_id
         )
 
-        self.__computer_partition_list.append(computer_partition)
+        self._computer_partition_list.append(computer_partition)
 
     # Create a new list to prevent caller to change it
-    return [x for x in self.__computer_partition_list]
+    return [x for x in self._computer_partition_list]
 
   def reportUsage(self, computer_usage):
     if computer_usage == "":

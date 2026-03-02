@@ -209,7 +209,7 @@ class HateoasNavigator(object):
   def GET(self, uri, headers=None):
     connection_helper = ConnectionHelper(
         uri, self.key_file, self.cert_file, self.master_ca_file, self.timeout)
-    return connection_helper.GET(uri, headers=headers)
+    return connection_helper.do_request(requests.get, uri, headers=headers).text
 
   def hateoasGetLinkFromLinks(self, links, title):
     if type(links) == dict:

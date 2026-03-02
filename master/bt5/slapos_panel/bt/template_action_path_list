@@ -129,3 +129,4 @@ Upgrade Decision | slapos_panel_workflow_accept
 Upgrade Decision | slapos_panel_workflow_cancel
 Upgrade Decision | slapos_panel_workflow_reject
 Web Message | slapos_panel_view
+portal_actions | slapos_panel_mass_workflow_jio

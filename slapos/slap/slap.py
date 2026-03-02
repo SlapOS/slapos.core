@@ -150,18 +150,19 @@ class SlapRequester(SlapDocument):
   Abstract class that allow to factor method for subclasses that use "request()"
   """
   def _requestComputerPartition(self, request_dict):
+    state = loads(request_dict['state'])
+    request_data = {
+      'title': request_dict['partition_reference'],
+      'software_release_uri': request_dict['software_release'],
+      'software_type': request_dict['software_type'],
+      'parameters': loads(request_dict['partition_parameter_xml']),
+      'shared': loads(request_dict['shared_xml']),
+      'sla_parameters': loads(request_dict['filter_xml']),
+    }
+    if state is not None:
+      request_data['state'] = state
     result = self._connection_helper.callJsonRpcAPI(
-      'slapos.post.v0.software_instance',
-      {
-        'title': request_dict['partition_reference'],
-        'software_release_uri': request_dict['software_release'],
-        'software_type': request_dict['software_type'],
-        'state': loads(request_dict['state']),
-        'parameters': loads(request_dict['partition_parameter_xml']),
-        'shared': loads(request_dict['shared_xml']),
-        'sla_parameters': loads(request_dict['filter_xml']),
-      }
-    )
+      'slapos.post.v0.software_instance', request_data)
     if (result.get('status', None) == 102):
       return ComputerPartition(
         request_dict=request_dict,
@@ -410,6 +411,8 @@ class Computer(SlapDocument):
     Returns the list of software release which has to be supplied by the
     computer.
     """
+    if not self._computer_id:
+      raise NotFoundError('computer_guid has not been defined.')
     if self._software_release_list is None:
       # Sync the software release list on demand
       allDocs_dict = self._connection_helper.callJsonRpcAPI(
@@ -433,6 +436,8 @@ class Computer(SlapDocument):
 
   def getComputerPartitionList(self):
     # type: (...) -> Sequence[ComputerPartition]
+    if not self._computer_id:
+      raise NotFoundError('computer_guid has not been defined.')
     if self._computer_partition_list is None:
       # Sync the computer partition list on demand
       allDocs_dict = self._connection_helper.callJsonRpcAPI(
@@ -456,9 +461,10 @@ class Computer(SlapDocument):
         # XXX duplicated with fetchPartitionInfo
         computer_partition._instance_guid = result['instance_guid']
         computer_partition._requested_state = result['state']
-        computer_partition._software_release_document = SoftwareRelease(
-          software_release=result['software_release_uri'],
-          computer_guid=self._computer_id
+        sr_uri = result['software_release_uri']
+        computer_partition._software_release_document = (
+          SoftwareRelease(software_release=sr_uri, computer_guid=self._computer_id)
+          if sr_uri else None
         )
 
         self._computer_partition_list.append(computer_partition)
@@ -562,8 +568,7 @@ class ComputerPartition(SlapRequester):
     self._partition_id = partition_id
     self._request_dict = request_dict
 
-    # Just create an empty file (for nothing requested yet)
-    # self._updateTransactionFile(partition_reference=None)
+    self._updateTransactionFile(partition_reference=None)
 
   def __getinitargs__(self):
     return (self._computer_id, self._partition_id, self._request_dict)
@@ -655,20 +660,13 @@ class ComputerPartition(SlapRequester):
     )
 
   def error(self, error_log, logger=None, slave_reference=None):
-    post_dict = {
-      'computer_id': self._computer_id,
-      'computer_partition_id': self.getId(),
-      'error_log': error_log
-    }
-    if slave_reference:
-      post_dict['slave_reference'] = slave_reference
+    instance_guid = getattr(self, '_instance_guid', None)
+    if instance_guid is None:
+      return
     try:
       self._connection_helper.callJsonRpcAPI(
         'slapos.put.v0.software_instance_error',
-        {
-          "instance_guid": self.getInstanceGuid(),
-          "message": str(error_log)
-        }
+        {"instance_guid": instance_guid, "message": str(error_log)}
       )
     except (RequestException, ConnectionError):
       # Do not block the caller if the connection
@@ -726,12 +724,17 @@ class ComputerPartition(SlapRequester):
 
   def getId(self):
     # type: (...) -> str
+    if self._request_dict is not None or not self._partition_id:
+      raise ResourceNotReady()
     return self._partition_id
 
   def getInstanceGuid(self):
     """Return instance_guid. Raise ResourceNotReady if it doesn't exist."""
     if not hasattr(self, '_instance_guid'):
-      self._fetchComputerPartitionInformation()
+      try:
+        self._fetchComputerPartitionInformation()
+      except requests.HTTPError:
+        raise NotFoundError(self._partition_id)
     if self._instance_guid is None:
       raise ResourceNotReady()
     return self._instance_guid
@@ -764,18 +767,20 @@ class ComputerPartition(SlapRequester):
     computer_partition = self
     computer_partition._instance_guid = result['instance_guid']
     computer_partition._requested_state = result['state']
-    computer_partition._software_release_document = SoftwareRelease(
-      software_release=result['software_release_uri'],
-      computer_guid=self._computer_id
+    sr_uri = result['software_release_uri']
+    computer_partition._software_release_document = (
+      SoftwareRelease(software_release=sr_uri, computer_guid=self._computer_id)
+      if sr_uri else None
     )
     computer_partition._parameter_dict = LazyInstanceParameterDict(self)
     computer_partition._parameter_dict.update(result['parameters'])
     if result['processing_timestamp'] is not None:
       computer_partition._parameter_dict['timestamp'] = result['processing_timestamp']
-    # computer_partition._filter_dict = result['sla_parameters']
+    computer_partition._filter_dict = result.get('sla_parameters', {}) or {}
     computer_partition._connection_dict = result['connection_parameters']
     computer_partition._parameter_dict['ip_list'] = result['ip_list']
     computer_partition._parameter_dict['full_ip_list'] = result['full_ip_list']
+    computer_partition._parameter_dict['hosting_ip_list'] = result.get('hosting_ip_list', [])
 
     computer_partition._parameter_dict['instance_title'] = result['title']
     computer_partition._parameter_dict['root_instance_title'] = result['root_instance_title']
@@ -809,13 +814,16 @@ class ComputerPartition(SlapRequester):
     return slave_instance_list
 
   def _fetchComputerPartitionInformation(self):
-    result = self._connection_helper.callJsonRpcAPI(
-      'slapos.get.v0.compute_partition',
-      {
-        'computer_guid': self._computer_id,
-        'compute_partition_id': self.getId()
-      }
-    )
+    try:
+      result = self._connection_helper.callJsonRpcAPI(
+        'slapos.get.v0.compute_partition',
+        {
+          'computer_guid': self._computer_id,
+          'compute_partition_id': self.getId()
+        }
+      )
+    except requests.HTTPError:
+      raise NotFoundError(self._partition_id)
     self._updateComputerPartitionInformation(result)
 
   def getInstanceParameterDict(self):
@@ -892,19 +900,8 @@ class ComputerPartition(SlapRequester):
     return self.getAccessStatus()
 
   def getFullHostingIpAddressList(self):
-    raise NotImplementedError('getFullHostingIpAddressList')
-    """
-    if getattr(self, '_connection_dict', None) is None:
-      self._fetchComputerPartitionInformation()
-    return self._parameter_dict['full_ip_list']
-    xml = self._connection_helper.GET('getHostingSubscriptionIpList',
-            params={
-                'computer_id': self._computer_id,
-                'computer_partition_id': self._partition_id,
-                }
-            )
-    return loads(xml)
-"""
+    self._fetchComputerPartitionInformation()
+    return self._parameter_dict.get('hosting_ip_list', [])
   """
   def setComputerPartitionRelatedInstanceList(self, instance_reference_list):
     self._connection_helper.POST('updateComputerPartitionRelatedInstanceList',
@@ -926,6 +923,8 @@ class SlapConnectionHelper(ConnectionHelper):
     Retrieve from SlapOS Master Computer instance containing all needed
     informations (Software Releases, Computer Partitions, ...).
     """
+    if not computer_id:
+      raise NotFoundError('computer_guid has not been defined.')
     return Computer(computer_id)
 
 
@@ -1045,7 +1044,8 @@ class slap:
                              'software_release_url parameters are specified.')
       params['software_release_url'] = software_release_url
 
-    xml = self._connection_helper.GET(url, params=params)
+    xml = self._connection_helper.do_request(
+      requests.get, url, params=params).content
     result = loads(xml)
     assert(type(result) == list)
     return result

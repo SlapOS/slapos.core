@@ -1511,7 +1511,7 @@ stderr_logfile_backups=1
 
       # Handle connection loss at the next level
       except (RequestException, ConnectionError):
-        raise
+        raise NotConnectedToSlapOSMaster
 
       # Send log before exiting
       except (SystemExit, KeyboardInterrupt):

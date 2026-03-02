@@ -13,6 +13,9 @@ for action_category_name, action_list in action_dict.items():
       # Consider some actions as fake workflow actions
       # To separate them on the panel
       filtered_action_dict.setdefault("workflow", []).append(action)
+    elif (action['id'] == 'slapos_panel_mass_workflow_jio'):
+      # Surcharge the erp5 mass workflow action
+      filtered_action_dict.setdefault("object_list_action", []).append(action)
     elif (
       ('slapos' in action['id']) or
       (action['id'] in ['delete_document_list', 'delete_document'])

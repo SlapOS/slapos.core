@@ -144,7 +144,7 @@ if len(received_deposit_amount_list):
         # Ensure account stays do not stay on the same debit/credit
         assert 0 < ratio
         credit_note_transaction = line.Base_createCloneDocument(batch_mode=1)
-        for credit_note_line in credit_note_transaction.contentValues():
+        for credit_note_line in credit_note_transaction.getMovementList():
           credit_note_line.edit(quantity=-credit_note_line.getQuantity() * ratio)
         credit_note_transaction.edit(
           title='Credit note for the invoice %s' % line.getReference(),
@@ -207,26 +207,29 @@ if len(received_deposit_amount_list):
   if deposit_use_line_list:
     payment_transaction.edit(causality_uid_list=causality_uid_list)
 
-    if len(payment_transaction.checkConsistency()) != 0:
-      raise AssertionError(payment_transaction.checkConsistency()[0])
-
     shadow_person.Person_restrictMethodAsShadowUser(
       shadow_document=shadow_person,
       callable_object=startAndStopWithShadow,
       argument_list=[payment_transaction]
     )
+    # Check the consistency AFTER changing the workflow state
+    # as some contraints are not checked in draft
+    if len(payment_transaction.checkConsistency()) != 0:
+      raise AssertionError(payment_transaction.checkConsistency()[0])
   else:
     # No line has been created, the payment transaction must not be created
     assert payment_transaction is None
 
 if credit_note_transaction is not None:
-  if len(credit_note_transaction.checkConsistency()) != 0:
-    raise AssertionError(credit_note_transaction.checkConsistency()[0])
   shadow_person.Person_restrictMethodAsShadowUser(
     shadow_document=shadow_person,
     callable_object=startAndStopWithShadow,
     argument_list=[credit_note_transaction]
   )
+  # Check the consistency AFTER changing the workflow state
+  # as some contraints are not checked in draft
+  if len(credit_note_transaction.checkConsistency()) != 0:
+    raise AssertionError(credit_note_transaction.checkConsistency()[0])
   assert credit_note_transaction.SaleInvoiceTransaction_isLettered()
 
 if create_credit_note:

@@ -225,6 +225,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_administration/SoftwareInstance_renewCertificate',
         'slapos_core/ERP5Type_asSecurityGroupIdSet',
         'slapos_core/ERP5User_getUserSecurityCategoryValueList',
+        'slapos_base/Delivery_generateReference',
         'slapos_base/Login_getFastExpirationReferenceList',
         'slapos_base/Login_isLoginBlocked',
         'slapos_base/Login_isPasswordExpired',

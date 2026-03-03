@@ -585,7 +585,7 @@ class TestRequest(MasterMixin):
       return self.request('http://sr//', None, 'MyFirstInstance', 'slappart2')
     requested_at = time.time()
     partition = do_request()
-    self.assertLessEqual(float(str(requested_at)),
+    self.assertLessEqual(int(requested_at),
       float(partition._parameter_dict['timestamp']))
     time.sleep(.1) # check timestamp does not change for an identical request
     self.assertEqual(
@@ -604,7 +604,7 @@ class TestRequest(MasterMixin):
                          parent._partition_id)
     other = self.request('http://sr//', None, 'AnotherInstance')
     for partition in parent, child, other:
-      self.assertLessEqual(float(str(requested_at)),
+      self.assertLessEqual(int(requested_at),
         float(partition._parameter_dict['timestamp']))
     other_timestamp = other._parameter_dict['timestamp']
     def getTimestamp(partition):
@@ -618,9 +618,9 @@ class TestRequest(MasterMixin):
         'computer_partition_id': partition._partition_id,
         'message': self.id()})
       timestamp = getTimestamp(parent)
-      self.assertLessEqual(float(str(requested_at)), float(timestamp))
+      self.assertLessEqual(int(requested_at), float(timestamp))
       self.assertEqual(getTimestamp(child), timestamp)
-      self.assertEqual(getTimestamp(other), other_timestamp)
+      self.assertEqual(int(float(getTimestamp(other))), int(float(other_timestamp)))
 
   def test_request_propagate_partition_state(self):
     """
@@ -674,7 +674,7 @@ class TestRequest(MasterMixin):
     request1 = self.request('http://sr//', None, 'MyFirstInstance', 'slappart2',
                             partition_parameter_kw={'domain': wanted_domain1})
     requested_result1 = self.getPartitionInformation(request1._partition_id)
-    time.sleep(.1) # so that timestamp changes
+    time.sleep(1.1) # so that timestamp changes (integer timestamps need > 1s)
     request2 = self.request('http://sr//', 'Papa', 'MyFirstInstance', 'slappart2',
                             partition_parameter_kw={'domain': wanted_domain2})
     requested_result2 = self.getPartitionInformation(request2._partition_id)
@@ -698,8 +698,8 @@ class TestRequest(MasterMixin):
     t1 = request1._parameter_dict['timestamp']
     t2 = request2._parameter_dict['timestamp']
     self.assertLess(float(t1), float(t2))
-    self.assertEqual(t1, requested_result1._parameter_dict['timestamp'])
-    self.assertEqual(t2, requested_result2._parameter_dict['timestamp'])
+    self.assertEqual(int(float(t1)), int(float(requested_result1._parameter_dict['timestamp'])))
+    self.assertEqual(int(float(t2)), int(float(requested_result2._parameter_dict['timestamp'])))
 
   def test_two_requests_with_different_parameters_and_sr_url_but_same_reference(self):
     """

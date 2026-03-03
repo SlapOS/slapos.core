@@ -408,7 +408,7 @@ def post_software_instance():
   is_shared = request.json.get("shared", False)
   requested_state = request.json.get("state", "started")
   parsed_request_dict = {
-    'requester_id': None,
+    'requester_id': requester_partition_id or 'user',
     'requested_by': requested_by,
     'software_release': request.json["software_release_uri"],
     'software_type': request.json["software_type"],

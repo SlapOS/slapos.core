@@ -1,8 +1,13 @@
 Changes
 =======
 
+1.21.1 (2026-03-03)
+-------------------
+
+ * slap: error can now manage slaves
+
 1.21 (2026-02-12)
-------------------
+-----------------
 
  * slapos node prune: add --additional-software-directory option
  * slapgrid: make software building faster when retried
@@ -61,7 +66,6 @@ Changes
  * standalone: Explictly autostart instance supervisord.
  * testing/e2e: Cleanup unused call for compatibility with recent slapos server.
  * tests: more test coverage and compabitility with python 3.12
-
 
 1.16.2 (2025-03-14)
 -------------------

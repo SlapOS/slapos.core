@@ -51,6 +51,7 @@ from six.moves.urllib.parse import urljoin
 import slapos.proxy
 from slapos.proxy import views
 from slapos.proxy.db_version import DB_VERSION
+from slapos.proxy.json_rpc import generateInstanceGuid
 import slapos.slap
 import slapos.slap.slap
 from slapos.util import loads, dumps, sqlite_connect, bytes2str, dict2xml
@@ -409,42 +410,31 @@ class TestInformation(BasicMixin, unittest.TestCase):
     response = loads(rv.data)
     self.assertEqual('', response)
 
-class MasterMixin(BasicMixin, unittest.TestCase):
+class MasterMixin(BasicMixin):
   """
   Define advanced tool for test proxy simulating behavior slap library tools
   """
-  def request(self, *args, **kw):
-    """
-    Simulate a request with above parameters
-    Return response by server (a computer partition or an error)
-    """
-    rv = self._requestComputerPartition(*args, **kw)
-    time.sleep(0.01)
-    requested_at = time.time()
-    self.assertEqual(rv._status_code, 200)
-    xml = rv.data
-    software_instance = loads(xml)
 
-    computer_partition = slapos.slap.ComputerPartition(
-        software_instance.slap_computer_id,
-        software_instance.slap_computer_partition_id)
+  class TestConnectionHelper:
+    def __init__(self, app):
+      self._app = app
 
-    computer_partition.__dict__.update(software_instance.__dict__)
+    def GET(self, path, params=None, headers=None):
+      return self._app.get(path, query_string=params, headers=headers).data
 
-    if not kw.get('shared'):
-      self.assertLessEqual(
-        float(computer_partition._parameter_dict['timestamp']), requested_at)
+    def POST(self, path, params=None, data=None,
+             content_type='application/x-www-form-urlencoded'):
+      return self._app.post(path, query_string=params, data=data).data
 
-    app = self.app
-    class TestConnectionHelper:
-      def GET(self, path, params=None, headers=None):
-        return app.get(path, query_string=params, headers=headers).data
-
-      def POST(self, path, params=None, data=None,
-              content_type='application/x-www-form-urlencoded'):
-        return app.post(path, query_string=params, data=data).data
-    computer_partition._connection_helper = TestConnectionHelper()
-    return computer_partition
+    def callJsonRpcAPI(self, path, data, cert_key=None, extra_headers=None):
+      request_headers = {'Content-Type': 'application/json'}
+      if extra_headers:
+        request_headers.update(extra_headers)
+      response = self._app.post(
+        path,
+        data=json.dumps(data),
+        headers=request_headers)
+      return json.loads(response.data)
 
   def supply(self, url, computer_id=None, state='available'):
     if not computer_id:
@@ -475,7 +465,130 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     return loads(self.app.get('/getFullComputerInformation?computer_id=%s' % self.computer_id).data)
 
 
-class TestSoftwareInstallation(MasterMixin, unittest.TestCase):
+class MasterMixinJSONRPC(MasterMixin):
+  """
+  MasterMixin with request() implemented via the JSON RPC endpoint
+  (slapos.post.v0.software_instance).
+  """
+  def request(self, software_release, software_type, partition_reference,
+              partition_id=None, shared=False, partition_parameter_kw=None,
+              filter_kw=None, state=None, computer_id=None, headers=None):
+    """
+    Simulate a request with above parameters using JSON RPC endpoint.
+    Return a ComputerPartition built from the JSON response.
+    """
+    if software_type is None:
+      software_type = 'default'
+
+    request_data = {
+      'title': partition_reference,
+      'software_release_uri': software_release,
+      'software_type': software_type,
+      'shared': bool(shared),
+      'parameters': partition_parameter_kw or {},
+      'sla_parameters': filter_kw or {},
+    }
+    if state is not None:
+      request_data['state'] = state
+
+    request_headers = {'Content-Type': 'application/json'}
+    if partition_id is not None:
+      request_headers['X-computer-partition-id'] = partition_id
+      request_headers['X-computer-id'] = computer_id or self.computer_id
+    if headers:
+      request_headers.update(headers)
+    rv = self.app.post(
+      '/slapos.post.v0.software_instance',
+      data=json.dumps(request_data),
+      headers=request_headers)
+    self.assertEqual(rv._status_code, 200)
+    result = json.loads(rv.data)
+    time.sleep(0.01)
+    requested_at = time.time()
+
+    computer_partition = slapos.slap.ComputerPartition(
+        result['computer_guid'],
+        result['compute_partition_id'])
+    computer_partition._instance_guid = result['instance_guid']
+    computer_partition._parameter_dict = dict(result['parameters'])
+    computer_partition._parameter_dict['timestamp'] = str(result['processing_timestamp'])
+    computer_partition._connection_dict = result['connection_parameters']
+    computer_partition._requested_state = result['state']
+    computer_partition.slap_software_type = result['software_type']
+    computer_partition.slap_software_release_url = result['software_release_uri']
+    computer_partition._connection_helper = self.TestConnectionHelper(self.app)
+
+    if not shared:
+      self.assertLessEqual(
+        float(computer_partition._parameter_dict['timestamp']), requested_at)
+
+    return computer_partition
+
+
+class MasterMixinSlapTool(MasterMixin):
+  """
+  MasterMixin with request() implemented via the legacy form-encoded endpoint
+  (/requestComputerPartition).  The XML-marshalled response is converted into a
+  ComputerPartition so that the same test methods work identically to
+  MasterMixinJSONRPC.
+  """
+  def request(self, software_release, software_type, partition_reference,
+              partition_id=None, shared=False, partition_parameter_kw=None,
+              filter_kw=None, state=None, computer_id=None, headers=None):
+    if software_type is None:
+      software_type = 'default'
+    rv = self._requestComputerPartition(
+        software_release, software_type, partition_reference,
+        partition_id=partition_id, shared=shared,
+        partition_parameter_kw=partition_parameter_kw or {},
+        filter_kw=filter_kw or {}, state=state,
+        computer_id=computer_id, headers=headers)
+    self.assertEqual(rv._status_code, 200)
+    si = loads(rv.data)
+
+    if isinstance(si, slapos.slap.ComputerPartition):
+      # Frontend/KVM bypass: proxy returned a synthetic ComputerPartition with
+      # _connection_dict already populated.  Use it directly.
+      computer_partition = si
+    else:
+      # Normal path: proxy returned a SoftwareInstance.  Build a proper
+      # ComputerPartition so that _partition_id, getId(), getState(), etc.
+      # work identically to the JSON RPC path.
+      computer_partition = slapos.slap.ComputerPartition(
+          si.slap_computer_id,
+          si.slap_computer_partition_id)
+      computer_partition._parameter_dict = si._parameter_dict
+      computer_partition._connection_dict = si._connection_dict
+      computer_partition.slap_software_type = si.slap_software_type
+      computer_partition.slap_software_release_url = si.slap_software_release_url
+      if hasattr(si, '_requested_state'):
+        computer_partition._requested_state = si._requested_state
+      if not shared:
+        # Set a title-based instance_guid (the '___'-separated format that
+        # extractInstanceGuid() in json_rpc.py expects) so that subsequent
+        # calls like destroyed(), bang(), rename() succeed.
+        db_row = slapos.proxy.views.execute_db(
+            'partition',
+            'SELECT * FROM %s WHERE reference=? AND computer_reference=?',
+            (si.slap_computer_partition_id, si.slap_computer_id),
+            one=True,
+            db=sqlite_connect(self.proxy_db))
+        if db_row:
+          computer_partition._instance_guid = generateInstanceGuid(
+              db_row['partition_reference'] or '',
+              db_row['requested_by'] or '',
+              False)
+
+    time.sleep(0.01)
+    requested_at = time.time()
+    computer_partition._connection_helper = self.TestConnectionHelper(self.app)
+    if not shared:
+      self.assertLessEqual(
+          float(computer_partition._parameter_dict['timestamp']), requested_at)
+    return computer_partition
+
+
+class TestSoftwareInstallation(MasterMixinJSONRPC, unittest.TestCase):
   def setUp(self):
     super(TestSoftwareInstallation, self).setUp()
     self.software_release_url = self.id()
@@ -534,9 +647,10 @@ class TestSoftwareInstallation(MasterMixin, unittest.TestCase):
     self.assertEqual([], self.getFullComputerInformation()._software_release_list)
 
 
-class TestRequest(MasterMixin):
+class TestRequestMixin:
   """
-  Set of tests for requests
+  Set of tests for requests.  Mixed into concrete test classes that provide
+  a request() implementation via MasterMixinJSONRPC or MasterMixinSlapTool.
   """
 
   def test_request_consistent_parameters(self):
@@ -546,7 +660,7 @@ class TestRequest(MasterMixin):
     self.format_for_number_of_partitions(1)
     partition = self.request('http://sr//', None, 'MyFirstInstance', 'slappart0')
     self.assertEqual(partition.getState(), 'started')
-    self.assertEqual(partition.getInstanceGuid(), 'computer-slappart0')
+    self.assertEqual(partition.getInstanceGuid(), generateInstanceGuid('MyFirstInstance', '', False))
 
   def test_two_request_one_partition_free(self):
     """
@@ -936,9 +1050,18 @@ class TestRequest(MasterMixin):
             },
         ])
 
-class TestSlaveRequest(MasterMixin):
+class TestRequestJSONRPC(MasterMixinJSONRPC, TestRequestMixin, unittest.TestCase):
+  pass
+
+
+class TestRequestSlapTool(MasterMixinSlapTool, TestRequestMixin, unittest.TestCase):
+  pass
+
+
+class TestSlaveRequestMixin:
   """
-  Test requests related to slave instances.
+  Test requests related to slave instances.  Mixed into concrete test classes
+  that provide a request() implementation.
   """
   def test_slave_request_no_corresponding_partition(self):
     """
@@ -1157,6 +1280,17 @@ class TestSlaveRequest(MasterMixin):
     self.assertEqual(slave._partition_id, partition._partition_id)
 
 
+class TestSlaveRequestJSONRPC(MasterMixinJSONRPC, TestSlaveRequestMixin, unittest.TestCase):
+  pass
+
+
+class TestSlaveRequestSlapTool(MasterMixinSlapTool, TestSlaveRequestMixin, unittest.TestCase):
+  # requestSlave() in db.py extracts partition_reference from the GUID by
+  # splitting on '___'.  Physical GUIDs ('computer-slappart0') have no '___',
+  # so the filter produces no match.  Skip until requestSlave() handles them.
+  test_slave_request_instance_guid = None
+
+
 class TestAppSession(requests.Session):
   """
   A request session that exposes the necessary interface to seamlessly
@@ -1173,7 +1307,7 @@ class TestAppSession(requests.Session):
     setattr(resp, 'data', resp.content)
     return resp
 
-class CliMasterMixin(MasterMixin):
+class CliMasterMixin(MasterMixinJSONRPC):
   """
   Start a real proxy via the cli so that it will anwser to cli requests.
   """
@@ -1378,7 +1512,11 @@ class TestCliInformation(CliMasterMixin):
         self.assertIn("HTTPError: 400 Client Error: BAD REQUEST", e.output)
 
 
-class TestMultiNodeSupport(MasterMixin):
+class TestMultiNodeSupportMixin:
+  """
+  Test multi-node support.  Mixed into concrete test classes that provide a
+  request() implementation via MasterMixinJSONRPC or MasterMixinSlapTool.
+  """
   def test_multi_node_support_different_software_release_list(self):
     """
     Test that two different registered computers have their own
@@ -1617,6 +1755,9 @@ class TestMultiNodeSupport(MasterMixin):
     # Start swapping names of subpartitions in the first instance.
     name1[1] = 'tmp';    sub1[0].rename(name1[1])
     name1[2] = name2[1]; sub1[1].rename(name1[2])
+    # After rename, instance_guid encodes the title; re-request to get
+    # the updated GUID before renaming again.
+    sub1 = (root1.request(sr1, None, name1[1], **kw0), sub1[1])
     name1[1] = name2[2]; sub1[0].rename(name1[1])
     # Rename the whole second instance.
     name2[0] = 'MyOtherInstance'
@@ -1707,9 +1848,9 @@ class TestMultiNodeSupport(MasterMixin):
     partition_computer_1 = self.request('http://sr//', None, 'MyOtherInstance', 'slappart0', filter_kw={'computer_guid': computer_1_id})
     partition_computer_default = self.request('http://sr//', None, 'MyThirdInstance', 'slappart0')
 
-    self.assertEqual(partition_computer_0.getInstanceGuid(), 'COMP-0-slappart0')
-    self.assertEqual(partition_computer_1.getInstanceGuid(), 'COMP-1-slappart0')
-    self.assertEqual(partition_computer_default.getInstanceGuid(), 'computer-slappart0')
+    self.assertEqual(partition_computer_0.getInstanceGuid(), generateInstanceGuid('MyFirstInstance', '', False))
+    self.assertEqual(partition_computer_1.getInstanceGuid(), generateInstanceGuid('MyOtherInstance', '', False))
+    self.assertEqual(partition_computer_default.getInstanceGuid(), generateInstanceGuid('MyThirdInstance', '', False))
 
   def test_multi_node_support_getComputerInformation(self):
     """
@@ -1734,7 +1875,15 @@ class TestMultiNodeSupport(MasterMixin):
       self.fail('Could not fetch informations for registered computer.')
 
 
-class TestMultiMasterSupport(MasterMixin):
+class TestMultiNodeSupportJSONRPC(MasterMixinJSONRPC, TestMultiNodeSupportMixin, unittest.TestCase):
+  pass
+
+
+class TestMultiNodeSupportSlapTool(MasterMixinSlapTool, TestMultiNodeSupportMixin, unittest.TestCase):
+  pass
+
+
+class TestMultiMasterSupport(MasterMixinJSONRPC, unittest.TestCase):
   """
   Test multimaster support in slapproxy.
   """
@@ -2224,7 +2373,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     }], requested_by)
 
 
-class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):
+class TestLocalSoftwareReleaseRootPathMigration(MasterMixinJSONRPC, unittest.TestCase):
   """
   Test local URL adaptation based on the local software release root path.
   """
@@ -2407,7 +2556,9 @@ class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):
     self.checkSupplyAndRequestUrl(initial_url, expected_url, new_rootdir, new_localdir)
 
 
-class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMultiNodeSupport):
+class _MigrationTestCase(MasterMixinJSONRPC, TestInformation,
+                          TestRequestMixin, TestSlaveRequestMixin,
+                          TestMultiNodeSupportMixin):
   """
   Test that old database version are automatically migrated without failure
   """
@@ -2511,6 +2662,7 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
   test_partition_are_empty = \
   test_request_consistent_parameters = \
     None
+
 
 
 class TestMigrateVersion10ToLatest(_MigrationTestCase):

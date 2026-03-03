@@ -182,11 +182,14 @@ class ConnectionHelper:
       raise
     return req
 
-  def callJsonRpcAPI(self, path, data, cert_key=None):
+  def callJsonRpcAPI(self, path, data, cert_key=None, extra_headers=None):
+    headers = {'Content-type': 'application/json'}
+    if extra_headers:
+      headers.update(extra_headers)
     req = self.do_request(requests.post,
                           path=path,
                           data=json.dumps(data),
-                          headers={'Content-type': 'application/json'},
+                          headers=headers,
     )
     return json_loads_byteified(req.text)
 

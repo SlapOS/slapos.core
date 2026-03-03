@@ -515,7 +515,13 @@ class MasterMixinJSONRPC(MasterMixin):
     computer_partition._connection_dict = result['connection_parameters']
     computer_partition._requested_state = result['state']
     computer_partition.slap_software_type = result['software_type']
-    computer_partition.slap_software_release_url = result['software_release_uri']
+    sr_uri = result['software_release_uri']
+    computer_partition._software_release_document = (
+      slapos.slap.SoftwareRelease(
+        software_release=sr_uri, computer_guid=result['computer_guid'])
+      if sr_uri else None)
+    if result.get('master_url'):
+      computer_partition._master_url = result['master_url']
     computer_partition._connection_helper = self.TestConnectionHelper(self.app)
 
     if not shared:
@@ -702,9 +708,15 @@ class TestRequestMixin:
     self.assertLessEqual(int(requested_at),
       float(partition._parameter_dict['timestamp']))
     time.sleep(.1) # check timestamp does not change for an identical request
-    self.assertEqual(
-        dict(partition.__dict__, _connection_helper=None),
-        dict(do_request().__dict__, _connection_helper=None))
+    partition2 = do_request()
+    # Compare all attributes except _connection_helper (Flask client) and
+    # _software_release_document (object identity differs across calls).
+    def comparable(d):
+      result = dict(d, _connection_helper=None)
+      sr = result.pop('_software_release_document', None)
+      result['_software_release_uri'] = sr.getURI() if sr else None
+      return result
+    self.assertEqual(comparable(partition.__dict__), comparable(partition2.__dict__))
 
   def test_instance_bang(self):
     """
@@ -1946,11 +1958,8 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     while (attempts < 20):
       attempts = attempts + 1
       try:
-        response = self.external_proxy_slap._connection_helper.GET('/')
-      except slapos.slap.NotFoundError:
-        # Got a response
-        break
-      except (slapos.slap.ConnectionError, socket.error):
+        requests.get(self.external_master_url)
+      except (requests.exceptions.ConnectionError, socket.error):
         time.sleep(0.1 * attempts)
       else:
         # Got a response
@@ -1985,29 +1994,25 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     """
     if not computer_id:
       computer_id = self.external_computer_id
-    computer_dict = {
-        'reference': computer_id,
-        'address': '12.34.56.78',
-        'netmask': '255.255.255.255',
-        'partition_list': [],
-    }
-    for i in range(partition_amount):
-      partition_example = {
-          'reference': 'slappart%s' % i,
-          'address_list': [
-              {'addr': '1.2.3.4', 'netmask': '255.255.255.255'},
-              {'addr': '4.3.2.1', 'netmask': '255.255.255.255'}
-           ],
-           'tap': {'name': 'tap0'},
+    compute_partition_list = [
+      {
+        'partition_id': 'slappart%s' % i,
+        'ip_list': [
+          {'ip-address': '1.2.3.4', 'netmask': '255.255.255.255',
+           'network-interface': 'tap0'},
+          {'ip-address': '4.3.2.1', 'netmask': '255.255.255.255',
+           'network-interface': 'tap0'},
+        ],
       }
-      computer_dict['partition_list'].append(partition_example)
-
-    request_dict = {
-        'computer_id': self.computer_id,
-        'xml': dumps(computer_dict),
-    }
-    self.external_proxy_slap._connection_helper.POST('/loadComputerConfigurationFromXML',
-                                                     data=request_dict)
+      for i in range(partition_amount)
+    ]
+    self.external_proxy_slap._connection_helper.callJsonRpcAPI(
+      '/slapos.put.v0.compute_node_format',
+      {
+        'computer_guid': computer_id,
+        'compute_partition_list': compute_partition_list,
+      }
+    )
 
   def external_proxy_create_requested_partition(self):
     # type: () -> None
@@ -2025,8 +2030,8 @@ database_uri = %(rootdir)s/lib/external_proxy.db
         'instance',
     )
     # XXX this has to match what is set in slapos_multimaster.cfg.in
-    self.assertEqual(self.external_computer_id, partition.slap_computer_id)
-    self.assertEqual('slappart0', partition.slap_computer_partition_id)
+    self.assertEqual(self.external_computer_id, partition._computer_id)
+    self.assertEqual('slappart0', partition._partition_id)
 
   def _checkInstanceIsForwarded(self, name, requester, partition_parameter_kw, software_release):
     """
@@ -2096,11 +2101,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     external_slap = slapos.slap.slap()
     external_slap.initializeConnection(self.external_master_url)
     external_computer = external_slap.registerComputer(self.external_computer_id)
-    external_partition = external_computer.getComputerPartitionList()[0]
-    self.assertEqual(
-        external_partition._software_release_document,
-        None
-    )
+    self.assertEqual([], external_computer.getComputerPartitionList())
 
   def testForwardToMasterInList(self):
     """
@@ -2178,7 +2179,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     instance_parameter_dict = partition.getInstanceParameterDict()
     instance_parameter_dict.pop('timestamp')
     self.assertEqual(dummy_parameter_dict, instance_parameter_dict)
-    self.assertEqual(self.external_software_release, partition.getSoftwareRelease())
+    self.assertEqual(self.external_software_release, partition.getSoftwareRelease().getURI())
     self.assertEqual({}, partition.getConnectionParameterDict())
 
   def testForwardRequest_SoftwareReleaseList_NoDuplicates(self):
@@ -2204,7 +2205,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     instance_parameter_dict = partition.getInstanceParameterDict()
     instance_parameter_dict.pop('timestamp')
     self.assertEqual(dummy_parameter_dict, instance_parameter_dict)
-    self.assertEqual(self.external_software_release, partition.getSoftwareRelease())
+    self.assertEqual(self.external_software_release, partition.getSoftwareRelease().getURI())
     self.assertEqual({}, partition.getConnectionParameterDict())
 
   def testForwardRequestFromPartition(self):
@@ -2227,7 +2228,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     instance_parameter_dict = partition.getInstanceParameterDict()
     instance_parameter_dict.pop('timestamp')
     self.assertEqual(dummy_parameter_dict, instance_parameter_dict)
-    self.assertEqual(self.forwarded_software_release, partition.getSoftwareRelease())
+    self.assertEqual(self.forwarded_software_release, partition.getSoftwareRelease().getURI())
     self.assertEqual({}, partition.getConnectionParameterDict())
 
     with sqlite3.connect(os.path.join(
@@ -2340,7 +2341,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
       instance_parameter_dict = partition.getInstanceParameterDict()
       instance_parameter_dict.pop('timestamp')
       self.assertEqual(dummy_parameter_dict, instance_parameter_dict)
-      self.assertEqual(self.forwarded_software_release, partition.getSoftwareRelease())
+      self.assertEqual(self.forwarded_software_release, partition.getSoftwareRelease().getURI())
       self.assertEqual({}, partition.getConnectionParameterDict())
 
     with sqlite3.connect(os.path.join(

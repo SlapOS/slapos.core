@@ -911,15 +911,9 @@ class ComputerPartition(SlapRequester):
   def getFullHostingIpAddressList(self):
     self._fetchComputerPartitionInformation()
     return self._parameter_dict.get('hosting_ip_list', [])
-  """
+
   def setComputerPartitionRelatedInstanceList(self, instance_reference_list):
-    self._connection_helper.POST('updateComputerPartitionRelatedInstanceList',
-        data={
-          'computer_id': self._computer_id,
-          'computer_partition_id': self._partition_id,
-          'instance_reference_xml': dumps(instance_reference_list)
-          }
-        )"""
+    pass
 
 class SlapConnectionHelper(ConnectionHelper):
 

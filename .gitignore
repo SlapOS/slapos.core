@@ -1,6 +1,7 @@
 *pyc
 *swp
 *.example
+CLAUDE.md
 /.installed.cfg
 /bin/
 /build/
@@ -11,4 +12,5 @@
 /slapos.core.egg-info/
 /master/bt5/bt5list
 /*.egg
+/slapos.core.dist-info/
 

@@ -161,8 +161,17 @@ class SlapRequester(SlapDocument):
     }
     if state is not None:
       request_data['state'] = state
+    # Present only when a partition requests a sub-instance; lets the master
+    # identify the requester and set requested_by on the child partition.
+    extra_headers = {}
+    requester_computer_guid = request_dict.get('computer_id')
+    requester_partition_id = request_dict.get('computer_partition_id')
+    if requester_computer_guid and requester_partition_id:
+      extra_headers['X-computer-id'] = requester_computer_guid
+      extra_headers['X-computer-partition-id'] = requester_partition_id
     result = self._connection_helper.callJsonRpcAPI(
-      'slapos.post.v0.software_instance', request_data)
+      'slapos.post.v0.software_instance', request_data,
+      extra_headers=extra_headers or None)
     if (result.get('status', None) == 102):
       return ComputerPartition(
         request_dict=request_dict,

@@ -214,14 +214,9 @@ def requestSlave(software_release, software_type, partition_reference, requester
     q += ' AND software_type=?'
     a(software_type)
   if 'instance_guid' in filter_kw:
-    q += ' AND reference=?'
-    # instance_guid should be like: %s-%s % (requested_computer_id, partition_id)
-    # But code is convoluted here, so we check
-    instance_guid = filter_kw['instance_guid']
-    if instance_guid.startswith(requested_computer_id):
-      a(instance_guid[len(requested_computer_id) + 1:])
-    else:
-      a(instance_guid)
+    # instance_guid format: title___requested_by___is_shared
+    q += ' AND partition_reference=?'
+    a(filter_kw['instance_guid'].split('___', 1)[0])
 
   partition = execute_db('partition', q, args, one=True)
   if partition is None:

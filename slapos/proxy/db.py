@@ -1,5 +1,6 @@
 import time
 
+import requests
 import slapos
 from slapos.slap.slap import ComputerPartition, SoftwareInstance
 from slapos.util import loads, dumps
@@ -55,10 +56,9 @@ def checkIfMasterIsCurrentMaster(master_url):
     return True
 
   # Hack way: call ourself
-  slap = slapos.slap.slap()
-  slap.initializeConnection(master_url)
   try:
-    return current_app.config['run_id'] == bytes2str(slap._connection_helper.GET('/getRunId'))
+    run_id = requests.get(master_url.rstrip('/') + '/getRunId').text
+    return current_app.config['run_id'] == run_id
   except Exception:
     return False
 

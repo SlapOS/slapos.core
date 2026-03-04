@@ -205,14 +205,23 @@ def compute_node_instance_list():
   if len(computer_list) != 1:
     return abort(403, '%s is not registered.' % computer_id)
   instance_list = []
-  for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=? AND slap_state="busy"', [computer_id]):
-    instance_list.append({
-      "title": partition['partition_reference'],
-      "instance_guid": generateInstanceGuid(partition['partition_reference'], partition['requested_by'], False),
-      "state": partition['requested_state'],
-      "compute_partition_id": partition['reference'],
-      "software_release_uri": partition['software_release'],
-    })
+  for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=?', [computer_id]):
+    if partition['slap_state'] == 'free':
+      instance_list.append({
+        "title": partition['partition_reference'] or partition['reference'],
+        "instance_guid": '%s-%s' % (partition['computer_reference'], partition['reference']),
+        "state": "destroyed",
+        "compute_partition_id": partition['reference'],
+        "software_release_uri": '',
+      })
+    else:
+      instance_list.append({
+        "title": partition['partition_reference'],
+        "instance_guid": generateInstanceGuid(partition['partition_reference'], partition['requested_by'], False),
+        "state": partition['requested_state'],
+        "compute_partition_id": partition['reference'],
+        "software_release_uri": partition['software_release'],
+      })
   return validate_and_send_json_rpc_document({
     'result_list': instance_list
   })

@@ -2101,7 +2101,10 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     external_slap = slapos.slap.slap()
     external_slap.initializeConnection(self.external_master_url)
     external_computer = external_slap.registerComputer(self.external_computer_id)
-    self.assertEqual([], external_computer.getComputerPartitionList())
+    self.assertEqual([], [
+        cp for cp in external_computer.getComputerPartitionList()
+        if cp.getState() != 'destroyed'
+    ])
 
   def testForwardToMasterInList(self):
     """

@@ -97,7 +97,7 @@ def formatFromDB(computer_reference, partition_list,
         'partition_network',
         'INSERT OR REPLACE INTO %s (reference, partition_reference, computer_reference, address, netmask) values(?, ?, ?, ?, ?)',
         (ip['network-interface'], partition['partition_id'], computer_reference,
-         ip['ip-address'], ip['netmask'])
+         ip['ip-address'], ip.get('netmask', ''))
       )
 
 

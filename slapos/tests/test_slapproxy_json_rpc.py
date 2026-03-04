@@ -502,7 +502,6 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'compute_partition_id': 'Fake frontend for https://[::1]:123/my/path?my=query&string=value#myanchor',
         'processing_timestamp': 0,
         'access_status_message': "",
-        'master_url': ''
     }
     data_result = json.loads(response.data)
     assert data_result == expect_result_dict, response.data
@@ -543,7 +542,6 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'compute_partition_id': 'Fake frontend for https://[::1]:123/my/path?my=query&string=value#myanchor',
         'processing_timestamp': 0,
         'access_status_message': "",
-        'master_url': ''
     }
     data_result = json.loads(response.data)
     assert data_result == expect_result_dict, response.data

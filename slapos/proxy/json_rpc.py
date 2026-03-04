@@ -457,8 +457,6 @@ def post_software_instance():
       "processing_timestamp": 0,
       # This info is probably not available
       "access_status_message": '',
-      # Set when request was forwarded to an external master
-      "master_url": getattr(slap_instance, '_master_url', None) or '',
     })
 
   return abort(500, 'Can not export %s' % str(slap_instance))

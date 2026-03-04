@@ -520,8 +520,6 @@ class MasterMixinJSONRPC(MasterMixin):
       slapos.slap.SoftwareRelease(
         software_release=sr_uri, computer_guid=result['computer_guid'])
       if sr_uri else None)
-    if result.get('master_url'):
-      computer_partition._master_url = result['master_url']
     computer_partition._connection_helper = self.TestConnectionHelper(self.app)
 
     if not shared:
@@ -2121,10 +2119,6 @@ database_uri = %(rootdir)s/lib/external_proxy.db
                              filter_kw=filter_kw, partition_parameter_kw=dummy_parameter_dict)
 
     self._checkInstanceIsForwarded(instance_reference, 'slappart0', dummy_parameter_dict, self.software_release_not_in_list)
-    self.assertEqual(
-        partition._master_url,
-        self.external_master_url
-    )
 
   def testForwardToMasterInList_NoDuplicates(self):
     """
@@ -2147,10 +2141,6 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     self.assertEqual(len(entries), 1)
 
     self._checkInstanceIsForwarded(instance_reference, 'slappart0', dummy_parameter_dict, self.software_release_not_in_list)
-    self.assertEqual(
-        partition._master_url,
-        self.external_master_url
-    )
 
   def testForwardToMasterNotInList(self):
     """
@@ -2296,11 +2286,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     dummy_parameter_dict = {'foo': 'bar'}
 
     self.testForwardToMasterInList()
-    partition = self.request(self.software_release_not_in_list, None, 'MyFirstInstance', 'slappart0', partition_parameter_kw=dummy_parameter_dict)
-    self.assertEqual(
-        getattr(partition, '_master_url', None),
-        None
-    )
+    self.request(self.software_release_not_in_list, None, 'MyFirstInstance', 'slappart0', partition_parameter_kw=dummy_parameter_dict)
 
     # Test it has not been removed from local database (we keep track)
     forwarded_instance_list = slapos.proxy.views.execute_db('forwarded_partition_request', 'SELECT * from %s', db=self.db)

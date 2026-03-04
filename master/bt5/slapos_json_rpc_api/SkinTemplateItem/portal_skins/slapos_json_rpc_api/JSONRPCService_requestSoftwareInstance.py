@@ -27,7 +27,6 @@ kw = dict(software_release=software_release,
 requester = portal.portal_membership.getAuthenticatedMember().getUserValue()
 if requester.getPortalType() == 'Software Instance':
   instance_tree = requester.getSpecialiseValue()
-  kw["project_reference"] = instance_tree.getFollowUpReference()
   # Speed up stop of all instances
   if instance_tree.getSlapState() == "stop_requested":
     kw['state'] = 'stopped'
@@ -35,7 +34,6 @@ if requester.getPortalType() == 'Software Instance':
 else:
   # requested as root, so done by human
   requester = portal.portal_membership.getAuthenticatedMember().getUserValue()
-  key = '_'.join([requester.getRelativeUrl(), partition_reference])
 
   # Compatibility with the slapos console client
   # which does not send any project_reference parameter
@@ -77,6 +75,10 @@ else:
       if len(network_list) == 1:
         kw['project_reference'] = network_list[0].getFollowUpReference()
 
+  if 'workgroup_guid' in filter_kw:
+    kw['workgroup_reference'] = filter_kw['workgroup_guid']
+
+  key = '_'.join([requester.getRelativeUrl(), kw.get('workgroup_reference', ''), partition_reference])
 
 last_data = requester.getLastData(key)
 requested_software_instance = None
@@ -92,7 +94,8 @@ if last_data is None or not isinstance(last_data, type(value)) or \
   last_data.get('hash') != value['hash'] or \
   requested_software_instance is None:
   if requester.getPortalType() == 'Software Instance':
-    kw.pop('project_reference')
+    kw.pop('project_reference', None)
+    kw.pop('workgroup_reference', None)
     requester.requestInstance(**kw)
   else:
     # requester is a person so we use another method

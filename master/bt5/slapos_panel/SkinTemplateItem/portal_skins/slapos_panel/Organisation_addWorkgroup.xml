@@ -46,11 +46,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>title, batch=False, **kw</string> </value>
+            <value> <string>title, batch=0, activate_kw=None, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_createWorkgroup</string> </value>
+            <value> <string>Organisation_addWorkgroup</string> </value>
         </item>
       </dictionary>
     </pickle>

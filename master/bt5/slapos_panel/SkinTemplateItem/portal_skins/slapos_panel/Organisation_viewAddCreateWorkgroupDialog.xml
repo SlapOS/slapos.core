@@ -14,7 +14,7 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>Person_createWorkgroup</string> </value>
+            <value> <string>Organisation_addWorkgroup</string> </value>
         </item>
         <item>
             <key> <string>action_title</string> </key>
@@ -91,7 +91,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_viewCreateWorkgroupDialog</string> </value>
+            <value> <string>Organisation_viewAddCreateWorkgroupDialog</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -99,7 +99,7 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>Person_viewCreateWorkgroupDialog</string> </value>
+            <value> <string>Organisation_viewAddWorkgroupDialog</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>

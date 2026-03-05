@@ -2115,8 +2115,8 @@ class TestWorkgroupModule(TestSlapOSGroupRoleSecurityMixin):
         ['F-SALE*', 'F-ACCOUNTING*', 'F-CUSTOMER', 'F-PRODUCTION*',
          'R-SHADOW-PERSON', module.Base_getOwnerId()], False)
     self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
-    self.assertRoles(module, 'F-ACCOUNTING*', ['Auditor', 'Author'])
-    self.assertRoles(module, 'F-CUSTOMER', ['Auditor', 'Author'])
+    self.assertRoles(module, 'F-ACCOUNTING*', ['Auditor'])
+    self.assertRoles(module, 'F-CUSTOMER', ['Auditor'])
     self.assertRoles(module, 'R-SHADOW-PERSON', ['Auditor'])
     self.assertRoles(module, 'F-PRODUCTION*', ['Auditor'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
@@ -2136,8 +2136,8 @@ class TestWorkgroup(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(document, self.user_id, ['Owner'])
     self.assertRoles(document, 'F-SALEAGT', ['Assignee'])
     self.assertRoles(document, 'F-SALEMAN', ['Assignor'])
-    self.assertRoles(document, 'F-ACCMAN', ['Assignor'])
-    self.assertRoles(document, 'F-ACCAGT', ['Assignee'])
+    self.assertRoles(document, 'F-ACCMAN', ['Auditor'])
+    self.assertRoles(document, 'F-ACCAGT', ['Auditor'])
     self.assertRoles(document, document.getUserId(), ['Auditor'])
     # XXX RAFAEL: Remove SHADOW if this is not required
     self.assertRoles(document, 'SHADOW-%s' % document.getUserId(), ['Auditor'])

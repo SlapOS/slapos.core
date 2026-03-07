@@ -1220,7 +1220,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     if scenario == 'workgroup':
       # + 1 assignment
       # + 1 assignment request
-      expected_object_count = 50
+      # + 1 open order
+      expected_object_count = 51
     self.assertRelatedObjectCount(project, expected_object_count)
 
     with PinnedDateTime(self, DateTime('2024/02/18 00:05')):

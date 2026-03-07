@@ -30,7 +30,9 @@ if len(sql_project_list) != 1:
 project = sql_project_list[0].getObject()
 
 # Used as base calculation only
-resource = portal.restrictedTraverse("service_module/slapos_virtual_master_subscription")
+resource = portal.software_product_module.newContent(
+  portal_type="Software Product", follow_up_value=project,
+  temp_object=1)
 currency_value = portal.restrictedTraverse(price_currency)
 
 try:
@@ -45,10 +47,6 @@ except AssertionError as e:
     },
     abort_transaction=True,
   )
-specialise_value = subscription_request.getSpecialiseValue(portal_type="Sale Trade Condition")
-while ((specialise_value is not None) and
-    (len(specialise_value.contentValues(portal_type="Trade Model Line")) == 0)):
-  specialise_value = specialise_value.getSpecialiseValue(portal_type="Sale Trade Condition")
 
 # Create the assignment request
 portal.assignment_request_module.newContent(
@@ -65,11 +63,11 @@ sale_trade_condition = portal.sale_trade_condition_module.newContent(
   portal_type="Sale Trade Condition",
   title='%s-InstanceTree-%s' % (project.getReference(), workgroup.getReference()),
   trade_condition_type="instance_tree",
-  specialise_value=specialise_value,
+  specialise_value=subscription_request.getSpecialiseValue(),
   source_project_value=project,
   source_value=subscription_request.getSourceValue(),
   source_section_value=subscription_request.getSourceSectionValue(),
-  destination_section_value=workgroup.getDestinationSectioValue(),
+  destination_section_value=workgroup.getDestinationSectionValue(),
   destination_value=workgroup,
   price_currency_value=currency_value,
   activate_kw=activate_kw

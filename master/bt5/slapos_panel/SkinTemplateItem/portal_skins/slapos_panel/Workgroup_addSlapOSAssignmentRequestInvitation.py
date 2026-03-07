@@ -12,8 +12,11 @@ invitation_token = portal.invitation_token_module.newContent(
 invitation_token.validate()
 # Access the token after it has been validated, to ensure
 # current user has permission to see it
-# (user must be project manager)
+# (user must be project manager or a sale agent)
 invitation_token_reference = invitation_token.getId()
+
+if batch:
+  return invitation_token_reference
 
 return context.Base_renderForm(
   'Project_viewSlapOSAssignmentRequestInvitationDialog',

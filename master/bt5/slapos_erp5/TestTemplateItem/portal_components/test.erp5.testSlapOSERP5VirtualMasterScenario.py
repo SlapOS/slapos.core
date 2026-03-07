@@ -312,18 +312,34 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     self.login()
     self.simulateSlapgridSR(compute_node)
 
-  def createWorkgroup(self, person, project=None):
-    self.login(person.getUserId())
-    workgroup = person.Person_createWorkgroup(
-      'Test workgroup for %s %s' % (person.getTitle(), self.generateNewId()),
-       batch=1)
+  def createWorkgroup(self, person=None, project=None, currency=None, organisation=None):
+    if organisation is None:
+      organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        title='Test Organisation %s' % self.generateNewId(),
+        default_address_region='europe/west/france',
+        vat_code=self.generateNewId(),
+        # required email to send events
+        default_email_url_string='test@example.org')
+      organisation.validate()
+
+    workgroup = organisation.Organisation_addWorkgroup(
+      'Test workgroup for %s' % organisation.getTitle(), batch=1)
     self.tic()
     self.assertEqual(workgroup.getValidationState(), 'validated')
+    self.assertEqual(workgroup.getDestinationSectionValue(), organisation)
     if project is not None:
-      # We directly add assignment to make our life easier
-      self.login()
-      self.addProjectCustomerAssignment(workgroup, project)
+      workgroup.Workgroup_addAssignmentToProject(
+        reference=project.getReference(),
+        price_currency=currency.getRelativeUrl())
     self.tic()
+    if person is not None:
+      # Create a invitation token and invite the user.
+      invitation_token = workgroup.Workgroup_addSlapOSAssignmentRequestInvitation(batch=1)
+      self.tic()
+      self.login(person.getUserId())
+      person.Person_acceptSlapOSInvitationToken(invitation_token)
+      self.tic()
     return workgroup
 
 class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
@@ -388,8 +404,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       public_person = self.joinSlapOS(public_reference)
       workgroup = None
       if scenario == 'workgroup':
+        self.login(sale_person.getUserId())
         # create workgroup and request using it
-        workgroup = self.createWorkgroup(public_person, project)
+        workgroup = self.createWorkgroup(public_person, project=project,
+                                         currency=currency)
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -425,7 +443,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     if scenario == 'workgroup':
       # + 1 assignment
       # + 1 assignment request
-      expected_object_count = 34
+      # + 1 open sale order
+      expected_object_count = 35
     self.assertRelatedObjectCount(project, expected_object_count)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
@@ -596,7 +615,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       public_person = self.joinSlapOS(public_reference)
       workgroup = None
       if scenario == "workgroup":
-        workgroup = self.createWorkgroup(public_person, project)
+        self.login(sale_person.getUserId())
+        workgroup = self.createWorkgroup(public_person, project=project,
+                                         currency=currency)
         requester = workgroup
       else:
         public_person.setCareerSubordinationValue(customer_subordination_organisation)
@@ -1024,8 +1045,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # compute_node
       public_reference = 'public-%s' % self.generateNewId()
       public_person = self.joinSlapOS(public_reference)
-      workgroup = self.createWorkgroup(public_person, project)
-
+      self.login(sale_person.getUserId())
+      workgroup = self.createWorkgroup(public_person, project=project,
+                                       currency=currency)
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
       # Simulate access from compute_node, to open the capacity scope
       self.login()
@@ -1135,7 +1157,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       shared_public_person = self.joinSlapOS(shared_public_reference)
       workgroup = None
       if scenario == "workgroup":
-        workgroup = self.createWorkgroup(shared_public_person, project)
+        self.login(sale_person.getUserId())
+        workgroup = self.createWorkgroup(shared_public_person, project=project,
+                                         currency=currency)
 
     with PinnedDateTime(self, DateTime('2024/02/17 00:05')):
       public_instance_title = 'Public title %s' % self.generateNewId()
@@ -1359,8 +1383,9 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       workgroup = None
       destination_section = public_person
       if scenario == 'workgroup':
-        # create workgroup and request using it
-        workgroup = self.createWorkgroup(public_person, project)
+        self.login(sale_person.getUserId())
+        workgroup = self.createWorkgroup(public_person, project=project,
+                                         currency=currency)
         destination_section = workgroup
 
     with PinnedDateTime(self, DateTime('2024/02/17 01:01')):
@@ -1460,7 +1485,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     if scenario == 'workgroup':
       # + 1 assignment
       # + 1 assignment request
-      expected_object_count = 28
+      # + 1 open sale order
+      expected_object_count = 29
     self.assertRelatedObjectCount(project, expected_object_count)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
@@ -1560,8 +1586,10 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       workgroup = None
       destination_section = public_person
       if scenario == 'workgroup':
+        self.login(sale_person.getUserId())
         # create workgroup and request using it
-        workgroup = self.createWorkgroup(public_person, project)
+        workgroup = self.createWorkgroup(public_person, project=project,
+                                         currency=currency)
         destination_section = workgroup
 
       self.login()
@@ -1649,7 +1677,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       if scenario == 'workgroup':
         # + 1 assignment
         # + 1 assignment request
-        expected_object_count = 28
+        # + 1 open sale order
+        expected_object_count = 29
       self.assertRelatedObjectCount(project, expected_object_count)
 
       self.checkERP5StateBeforeExit()

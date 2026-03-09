@@ -6,6 +6,7 @@ Computer Consumption TioXML File | edit_workflow
 Consumption Subscription | edit_workflow
 Consumption Subscription | item_workflow
 Instance Tree | slapos_accounting_interaction_workflow
+Open Internal Order | slapos_simulation_interaction_workflow
 Open Sale Order | slapos_accounting_interaction_workflow
 Open Sale Order | slapos_simulation_interaction_workflow
 Payment Transaction | slapos_accounting_interaction_workflow

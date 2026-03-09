@@ -2,6 +2,20 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
+compute_partition = context.getAggregateValue(portal_type="Compute Partition")
+if compute_partition is not None:
+  compute_node = compute_partition.getParentValue()
+  if ((compute_node is not None) and
+      (compute_node.getPortalType() == 'Compute Node') and
+      (compute_node.getAllocationScope() == 'close/maintenance')):
+    return {
+      "portal_type": context.getPortalType(),
+      "reference": context.getReference(),
+      "user": "SlapOS Master",
+      "text": "#error Node %s is closed for maintenance" % compute_node.getReference(),
+      "monitor_url": context.Base_getStatusMonitorUrl()
+    }
+
 portal_type = context.getPortalType()
 if portal_type == "Slave Instance":
   return {

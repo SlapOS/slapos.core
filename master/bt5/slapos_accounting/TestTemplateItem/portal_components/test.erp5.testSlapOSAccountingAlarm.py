@@ -27,13 +27,168 @@
 ##############################################################################
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
-  TemporaryAlarmScript, Simulator, simulate
+  TemporaryAlarmScript, Simulator, simulate, PinnedDateTime
 from unittest import expectedFailure
 from zExceptions import Unauthorized
 
 import os
 import tempfile
 from DateTime import DateTime
+
+
+class TestSlapOSOpenInternalOrderCreationAlarm(SlapOSTestCaseMixin):
+
+  #################################################################
+  # slapos_subscription_request_create_from_orphaned_item
+  #################################################################
+  def _test_slapos_open_internal_order_create_from_orphaned_item(self, portal_type):
+    script_name = "Item_createOpenInternalOrder"
+    alarm = self.portal.portal_alarms.slapos_open_internal_order_create_from_orphaned_item
+
+    #####################################################
+    # Instance Tree without Open Internal Order
+    document = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title="Test %s no subscription %s" % (portal_type, self.new_id)
+    )
+    document.validate()
+    self.tic()
+    self._test_alarm(alarm, document, script_name)
+
+    #####################################################
+    # Instance Tree with Subscription Request
+    document = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title="Test %s no subscription %s" % (portal_type, self.new_id)
+    )
+    document.validate()
+    self.tic()
+    open_order = self.portal.open_internal_order_module.newContent(
+      portal_type='Open Internal Order',
+      title="Test Subscription Request %s" % self.new_id,
+    )
+    open_order.newContent(
+      portal_type='Open Internal Order Line',
+      aggregate_value=document
+    )
+    self.tic()
+    self._test_alarm_not_visited(alarm, document, script_name)
+    #####################################################
+    # Instance Tree aggregated to another portal type
+    document = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title="Test %s another portal type %s" % (portal_type, self.new_id)
+    )
+    document.validate()
+    self.tic()
+    self.portal.sale_packing_list_module.newContent(
+      portal_type='Sale Packing List',
+      title="Test Sale Packing List %s" % self.new_id,
+    ).newContent(
+      portal_type="Sale Packing List Line",
+      aggregate_value=document
+    )
+    self.tic()
+    self._test_alarm(alarm, document, script_name)
+
+  def test_Item_createOpenInternalOrder_alarm_fromOrphanedInstanceTree(self):
+    portal_type = 'Instance Tree'
+    script_name = "Item_createOpenInternalOrder"
+    alarm = self.portal.portal_alarms.slapos_open_internal_order_create_from_orphaned_item
+    document = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title="Test %s no subscription %s" % (portal_type, self.new_id)
+    )
+    self._test_alarm_not_visited(alarm, document, script_name)
+
+  def test_Item_createOpenInternalOrder_alarm_fromOrphanedProject(self):
+    portal_type = 'Project'
+    script_name = "Item_createOpenInternalOrder"
+    alarm = self.portal.portal_alarms.slapos_open_internal_order_create_from_orphaned_item
+    document = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title="Test %s no subscription %s" % (portal_type, self.new_id)
+    )
+    self._test_alarm_not_visited(alarm, document, script_name)
+
+  def test_Item_createOpenInternalOrder_alarm_fromOrphanedSoftwareInstance(self):
+    self._test_slapos_open_internal_order_create_from_orphaned_item("Software Instance")
+
+  def test_Item_createOpenInternalOrder_alarm_fromOrphanedSlaveInstance(self):
+    self._test_slapos_open_internal_order_create_from_orphaned_item("Slave Instance")
+
+  def test_Item_createOpenInternalOrder_alarm_fromOrphanedComputeNode(self):
+    self._test_slapos_open_internal_order_create_from_orphaned_item("Compute Node")
+
+  def test_Item_createOpenInternalOrder_script_REQUEST_disallowed(self):
+    self.assertRaises(
+      Unauthorized,
+      self.portal.Item_createOpenInternalOrder,
+      REQUEST={}
+    )
+
+  def test_Item_createOpenInternalOrder_script_fromOrphanedComputeNode(self):
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(
+      allocation_state='impossible'
+    )
+    project = instance_tree.getFollowUpValue()
+
+    with self.changeContextByDisablingPortalAlarm():
+      with PinnedDateTime(self, DateTime('2023/05/19')):
+        document, _ = self.addComputeNodeAndPartition(project=project)
+      with PinnedDateTime(self, DateTime('2026/03/22')):
+        self.tic()
+
+    open_sale_order = self.portal.portal_catalog.getResultValue(
+      portal_type=['Open Sale Order Line'],
+      aggregate__uid=project.getUid(),
+      validation_state='validated',
+    ).getParentValue()
+
+    with PinnedDateTime(self, DateTime('2026/03/25')):
+      open_order = document.Item_createOpenInternalOrder()
+    self.assertNotEqual(open_order, None)
+
+    self.assertEqual(open_order.getValidationState(), 'validated')
+    self.assertEqual(
+      open_order.getStartDate(),
+      DateTime('2026/03/19 00:00:00 UTC')
+    )
+    self.assertEqual(open_order.getStopDate(), open_order.getStartDate())
+    self.assertEqual(
+      open_order.getSpecialise(),
+      'business_process_module/slapos_internal_subscription_business_process'
+    )
+    self.assertEqual(
+      open_order.getDestination(-1),
+      open_sale_order.getSource(-2)
+    )
+    self.assertEqual(open_order.getDestinationSection(), None)
+    self.assertEqual(open_order.getSourceSection(), None)
+    self.assertEqual(open_order.getSource(), None)
+    self.assertEqual(open_order.getLedger(), 'automated')
+
+    open_order_line = open_order.contentValues(
+      portal_type="Open Internal Order Line",
+    )[0]
+    self.assertEqual(
+      open_order_line.getResource(),
+      'service_module/slapos_compute_node_subscription'
+    )
+    self.assertEqual(open_order_line.getQuantity(), 1)
+    self.assertEqual(open_order_line.getPrice(), 0)
+    self.assertTrue(
+      open_order_line.isMemberOf('aggregate/%s' % document.getRelativeUrl())
+    )
+
+    consumption_subscription = open_order_line.getAggregateValue(
+      portal_type='Consumption Subscription'
+    )
+    self.assertEqual(consumption_subscription.getLedger(), 'automated')
+    self.assertSameSet(consumption_subscription.getPeriodicityHourList(), [0])
+    self.assertSameSet(consumption_subscription.getPeriodicityMinuteList(), [0])
+    self.assertSameSet(consumption_subscription.getPeriodicityMonthDayList(), [19])
+
 
 class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
   #################################################################

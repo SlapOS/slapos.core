@@ -505,7 +505,7 @@
                 "put": "."
               },
               "your_instance_xml": {
-                "title": "Instance Parameter",
+                "title": "Instance Parameters",
                 "url": "gadget_erp5_page_slap_parameter_form.html",
                 "default": "",
                 "renderjs_extra": JSON.stringify({
@@ -735,7 +735,7 @@
                 "type": "StringField"
               },
               "your_instance_xml": {
-                "title": "Instance Parameter",
+                "title": "Instance Parameters",
                 "url": "gadget_erp5_page_slap_parameter_form.html",
                 "default": "",
                 "renderjs_extra": JSON.stringify({

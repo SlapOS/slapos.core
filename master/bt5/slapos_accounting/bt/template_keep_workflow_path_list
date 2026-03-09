@@ -30,5 +30,6 @@ service_module/slapos_instance_hosting
 service_module/slapos_instance_setup
 service_module/slapos_instance_subscription
 service_module/slapos_instance_update
+service_module/slapos_software_instance_subscription
 service_module/slapos_tax
 service_module/slapos_virtual_master_subscription

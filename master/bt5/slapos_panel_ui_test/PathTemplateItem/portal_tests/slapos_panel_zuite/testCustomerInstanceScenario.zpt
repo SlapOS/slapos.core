@@ -396,7 +396,7 @@
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
 
-      <tal:block tal:define="click_configuration python: {'text': 'Update Parameter'}">
+      <tal:block tal:define="click_configuration python: {'text': 'Update Parameters'}">
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />

@@ -47,7 +47,6 @@ Instance Tree | slaposjs_view
 Instance Tree | update_slapos_parameter
 Mail Message | slapos_panel_view
 Organisation | claim_slapos_subscription_request
-Organisation | create_slapos_workgroup
 Person | accept_slapos_invitation_token
 Person | claim_slapos_item_subscription
 Person | create_slapos_project

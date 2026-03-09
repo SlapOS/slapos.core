@@ -66,5 +66,6 @@ service_module/slapos_account_validation
 service_module/slapos_compute_node_subscription
 service_module/slapos_deposit
 service_module/slapos_discount
+service_module/slapos_software_instance_subscription
 service_module/slapos_tax
 service_module/slapos_virtual_master_subscription

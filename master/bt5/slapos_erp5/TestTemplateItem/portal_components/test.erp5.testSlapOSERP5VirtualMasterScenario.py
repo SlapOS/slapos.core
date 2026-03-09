@@ -313,26 +313,55 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     self.simulateSlapgridSR(compute_node)
 
   def createWorkgroup(self, person=None, project=None, currency=None, organisation=None):
+
+    new_id = self.generateNewId()
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type="Workgroup",
+      title='Test workgroup %s' % new_id
+    )
+    workgroup.validate()
+    self.tic()
+
+    if project is not None:
+      workgroup.Workgroup_addAssignmentRequest(reference=project.getReference())
+    self.tic()
+
+    assignment_list = workgroup.objectValues(portal_type="Assignment")
+    self.assertEqual(len(assignment_list), 1)
+    self.assertEqual(assignment_list[0].getDestinationProjectValue(), project)
+    self.assertEqual(assignment_list[0].getValidationState(), 'open')
+
     if organisation is None:
       organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',
-        title='Test Organisation %s' % self.generateNewId(),
+        title='Test Organisation %s for %s' % (new_id, workgroup.getTitle()),
         default_address_region='europe/west/france',
         vat_code=self.generateNewId(),
         # required email to send events
         default_email_url_string='test@example.org')
       organisation.validate()
 
-    workgroup = organisation.Organisation_addWorkgroup(
-      'Test workgroup for %s' % organisation.getTitle(), batch=1)
+    # Now we have to create Sale Trade Condition to the workgroup
     self.tic()
-    self.assertEqual(workgroup.getValidationState(), 'validated')
-    self.assertEqual(workgroup.getDestinationSectionValue(), organisation)
-    if project is not None:
-      workgroup.Workgroup_addAssignmentToProject(
-        reference=project.getReference(),
-        price_currency=currency.getRelativeUrl())
+    instance_tree_trade_condition = self.portal.portal_catalog.getResultValue(
+      portal_type='Sale Trade Condition',
+      trade_condition_type__uid=self.portal.portal_categories.trade_condition_type.instance_tree.getUid(),
+      price_currency__uid=currency.getUid(),
+      validation_state='validated'
+    )
+    dedicated_trade_condition = self.portal.sale_trade_condition_module.newContent(
+      portal_type='Sale Trade Condition',
+      title='%s dedicated %s' % (instance_tree_trade_condition.getTitle(), workgroup.getTitle()),
+      source_project=instance_tree_trade_condition.getSourceProject(),
+      destination_value=workgroup,
+      destination_section_value=organisation,
+      specialise_value=instance_tree_trade_condition,
+      price_currency=instance_tree_trade_condition.getPriceCurrency(),
+      trade_condition_type=instance_tree_trade_condition.getTradeConditionType()
+    )
+    dedicated_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
     self.tic()
+
     if person is not None:
       # Create a invitation token and invite the user.
       invitation_token = workgroup.Workgroup_addSlapOSAssignmentRequestInvitation(batch=1)
@@ -340,6 +369,7 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
       self.login(person.getUserId())
       person.Person_acceptSlapOSInvitationToken(invitation_token)
       self.tic()
+
     return workgroup
 
 class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
@@ -616,31 +646,34 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       workgroup = None
       if scenario == "workgroup":
         self.login(sale_person.getUserId())
-        workgroup = self.createWorkgroup(public_person, project=project,
+        workgroup = self.createWorkgroup(public_person,
+                                         project=project,
+                                         # Workgroup always create a STC
+                                         organisation=customer_section_organisation,
                                          currency=currency)
         requester = workgroup
       else:
         public_person.setCareerSubordinationValue(customer_subordination_organisation)
         requester = public_person
 
-      # Instance will be paid by the organisation regardless if owned by person or workgroup
-      instance_trade_condition = self.portal.portal_catalog.getResultValue(
-        portal_type='Sale Trade Condition',
-        source_project__relative_url=project.getRelativeUrl(),
-        trade_condition_type__uid=self.portal.portal_categories.trade_condition_type.instance_tree.getUid(),
-        validation_state='validated'
-      )
-      dedicated_trade_condition = self.portal.sale_trade_condition_module.newContent(
-        portal_type='Sale Trade Condition',
-        title='%s dedicated %s' % (instance_trade_condition.getTitle(), requester.getTitle()),
-        source_project=instance_trade_condition.getSourceProject(),
-        destination_value=requester,
-        destination_section_value=customer_section_organisation,
-        specialise_value=instance_trade_condition,
-        price_currency=instance_trade_condition.getPriceCurrency(),
-        trade_condition_type=instance_trade_condition.getTradeConditionType()
-      )
-      dedicated_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
+        # Instance will be paid by the organisation regardless if owned by person or workgroup
+        instance_trade_condition = self.portal.portal_catalog.getResultValue(
+          portal_type='Sale Trade Condition',
+          source_project__relative_url=project.getRelativeUrl(),
+          trade_condition_type__uid=self.portal.portal_categories.trade_condition_type.instance_tree.getUid(),
+          validation_state='validated'
+        )
+        dedicated_trade_condition = self.portal.sale_trade_condition_module.newContent(
+          portal_type='Sale Trade Condition',
+          title='%s dedicated %s' % (instance_trade_condition.getTitle(), requester.getTitle()),
+          source_project=instance_trade_condition.getSourceProject(),
+          destination_value=requester,
+          destination_section_value=customer_section_organisation,
+          specialise_value=instance_trade_condition,
+          price_currency=instance_trade_condition.getPriceCurrency(),
+          trade_condition_type=instance_trade_condition.getTradeConditionType()
+        )
+        dedicated_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
       self.tic()
 
       # Pay deposit to validate virtual master + one computer, for the organisation

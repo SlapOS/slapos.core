@@ -5,6 +5,12 @@
  <portal_type id="Consumption Document Module">
   <item>business_application</item>
  </portal_type>
+ <portal_type id="Consumption Subscription">
+  <item>follow_up</item>
+ </portal_type>
+ <portal_type id="Consumption Subscription Module">
+  <item>business_application</item>
+ </portal_type>
  <portal_type id="Hosting Subscription">
   <item>follow_up</item>
  </portal_type>

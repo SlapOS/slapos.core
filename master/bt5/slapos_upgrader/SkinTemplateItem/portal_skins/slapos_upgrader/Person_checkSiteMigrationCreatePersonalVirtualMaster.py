@@ -38,7 +38,6 @@ if project is None:
   # Create it
   project = person.Person_addVirtualMaster(
     title=virtual_master_title,
-    is_compute_node_payable=False,
     is_instance_tree_payable=False,
     # Hardcoded
     price_currency='currency_module/EUR',

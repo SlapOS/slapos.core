@@ -1139,12 +1139,12 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 open sale order / line
     # 5 (can reduce to 2) assignment
     # 3 sale supply / line
-    # 2 sale trade condition
+    # 3 sale trade condition
     # 1 software installation
     # 1 software product
     # 3 subscription requests
     # 1 workgroup assignment
-    self.assertRelatedObjectCount(project, 34)
+    self.assertRelatedObjectCount(project, 35)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:02')):
       self.checkERP5StateBeforeExit()

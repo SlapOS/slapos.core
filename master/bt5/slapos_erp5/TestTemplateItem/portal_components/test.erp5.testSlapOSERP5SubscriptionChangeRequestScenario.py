@@ -52,7 +52,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     with PinnedDateTime(self, DateTime('2024/01/01')):
       if entity_type == "Workgroup":
-        destination_entity = self.createWorkgroup(public_person, project)
+        destination_entity = self.createWorkgroup(public_person, project, currency)
       else:
         destination_entity = self.joinSlapOS('public2-%s' % self.generateNewId())
 
@@ -138,7 +138,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     # Ensure no unexpected object has been created
     # 4 assignment request
-    # 2 credential request (workgroup +1)
+    # 2 credential request (workgroup -1)
     # 1 instance tree
     # 7 open sale order
     # 4 assignment (-1 on person, +1 on workgroup)
@@ -149,10 +149,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 1 software product
     # 1 subscription change request
     # 3 subscription request
-    expected_amount = 37
-    if entity_type == 'Workgroup':
-      expected_amount = 36
-    self.assertRelatedObjectCount(project, expected_amount)
+    self.assertRelatedObjectCount(project, 37)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
@@ -185,7 +182,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       public_person = self.joinSlapOS(public_reference)
       destination_entity = public_person
       if entity_type == "Workgroup":
-        destination_entity = self.createWorkgroup(public_person, project)
+        destination_entity = self.createWorkgroup(public_person, project, currency)
 
     person_user_id = owner_person.getUserId()
     self.login(person_user_id)

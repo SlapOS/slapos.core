@@ -23,16 +23,16 @@
 
 import transaction
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort
+  SlapOSTestCaseMixin
 from Products.ERP5Type.tests.utils import FileUpload
 import os
 
 from zExceptions import Unauthorized
 
-class TestCRMSkinsMixin(SlapOSTestCaseMixinWithAbort):
+class TestCRMSkinsMixin(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
-    SlapOSTestCaseMixinWithAbort.afterSetUp(self)
+    SlapOSTestCaseMixin.afterSetUp(self)
     self.project = self.addProject()
     self.person = self.makePerson(self.project, new_id=self.new_id,
                                   index=0, user=0)

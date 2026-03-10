@@ -19,7 +19,7 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixin, TemporaryAlarmScript, SlapOSTestCaseMixinWithAbort
+  SlapOSTestCaseMixin, TemporaryAlarmScript
 import time
 from DateTime import DateTime
 from erp5.component.test.SlapOSTestCaseMixin import PinnedDateTime
@@ -140,7 +140,7 @@ class TestSlapOSSubscriptionChangeRequestValidateAlarm(SlapOSTestCaseMixin):
     self._test_alarm(alarm, subscription_request, script_name)
 
 
-class TestSlaposCrmCheckStoppedEventFromSubscriptionRequestToDeliver(SlapOSTestCaseMixinWithAbort):
+class TestSlaposCrmCheckStoppedEventFromSubscriptionRequestToDeliver(SlapOSTestCaseMixin):
 
   event_portal_type = 'Web Message'
 
@@ -246,7 +246,7 @@ class TestSlaposCrmCheckStoppedEventFromSubscriptionRequestToDeliver(SlapOSTestC
     self.assertEqual(subscription_request.getSimulationState(), "suspended")
 
 
-class TestSlaposSubscriptionGenerateSubscriptionChangeRequestForExpiredSaleTradeCondition(SlapOSTestCaseMixinWithAbort):
+class TestSlaposSubscriptionGenerateSubscriptionChangeRequestForExpiredSaleTradeCondition(SlapOSTestCaseMixin):
 
   def _createSaleTradeConditionToExpire(self):
     with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',

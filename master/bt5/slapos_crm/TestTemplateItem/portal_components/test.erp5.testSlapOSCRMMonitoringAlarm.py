@@ -21,11 +21,11 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixinWithAbort, simulate, PinnedDateTime, TemporaryAlarmScript
+  SlapOSTestCaseMixin, simulate, PinnedDateTime, TemporaryAlarmScript
 from DateTime import DateTime
 import time
 
-class TestSlapOSCrmMonitoringMixin(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCrmMonitoringMixin(SlapOSTestCaseMixin):
 
   def assertEventTicket(self, event, ticket, tree_or_node):
     self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())

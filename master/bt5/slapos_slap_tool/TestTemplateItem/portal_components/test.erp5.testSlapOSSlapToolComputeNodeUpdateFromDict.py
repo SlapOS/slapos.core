@@ -1,10 +1,10 @@
 # Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
-class TestSlapOSCoreComputeNodeUpdateFromDict(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCoreComputeNodeUpdateFromDict(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
-    SlapOSTestCaseMixinWithAbort.afterSetUp(self)
+    SlapOSTestCaseMixin.afterSetUp(self)
     self.compute_node = self.portal.compute_node_module\
         .newContent(portal_type="Compute Node")
     self.compute_node.edit(

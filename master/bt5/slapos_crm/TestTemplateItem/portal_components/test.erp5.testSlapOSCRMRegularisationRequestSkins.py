@@ -23,7 +23,7 @@
 
 import transaction
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort, simulate
+  SlapOSTestCaseMixin, simulate
 from zExceptions import Unauthorized
 from DateTime import DateTime
 
@@ -218,7 +218,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
 
 
 class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
-                                                          SlapOSTestCaseMixinWithAbort):
+                                                          SlapOSTestCaseMixin):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -418,7 +418,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
 
 
 class TestSlapOSInstanceTree_stopFromRegularisationRequest(
-                                                          SlapOSTestCaseMixinWithAbort):
+                                                          SlapOSTestCaseMixin):
 
   def createInstanceTree(self, project):
     new_id = self.generateNewId()
@@ -500,7 +500,7 @@ class TestSlapOSInstanceTree_stopFromRegularisationRequest(
 
 
 class TestSlapOSInstanceTree_deleteFromRegularisationRequest(
-                                                          SlapOSTestCaseMixinWithAbort):
+                                                          SlapOSTestCaseMixin):
 
   def createInstanceTree(self, project):
     new_id = self.generateNewId()

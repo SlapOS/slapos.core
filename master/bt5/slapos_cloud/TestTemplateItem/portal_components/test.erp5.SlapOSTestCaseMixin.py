@@ -68,15 +68,6 @@ def simulate(script_id, params_string, code_string):
     return decorated
   return upperWrap
 
-def withAbort(func):
-  @functools.wraps(func)
-  def wrapped(self, *args, **kwargs):
-    try:
-      func(self, *args, **kwargs)
-    finally:
-      self.abort()
-  return wrapped
-
 def ensureConsistency(func):
   @functools.wraps(func)
   def wrapped(self, *args, **kwargs):
@@ -1049,6 +1040,3 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
   def _test_alarm_not_visited(self, *args, **kw):
     return self.assertAlarmNotVisitingDocument(*args, **kw)
 
-
-class SlapOSTestCaseMixinWithAbort(SlapOSTestCaseMixin):
-  abort_transaction = 1

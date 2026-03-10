@@ -19,7 +19,7 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixinWithAbort, SlapOSTestCaseMixin
+  SlapOSTestCaseMixin
 from erp5.component.document.WechatService import WechatService
 
 
@@ -111,7 +111,7 @@ class TestSlapOSCurrency_getIntegrationMapping(TestSlapOSWechatMixin):
       currency.Currency_getIntegrationMapping)
 
 
-class TestSlapOSAccountingTransaction_updateStartDate(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSAccountingTransaction_updateStartDate(SlapOSTestCaseMixin):
 
   def test_date_changed(self):
     date = DateTime("2001/01/01")

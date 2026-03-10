@@ -29,7 +29,7 @@
 import transaction
 from functools import wraps
 from Products.ERP5Type.tests.utils import createZODBPythonScript
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort, \
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
   TemporaryAlarmScript, Simulator
 from unittest import expectedFailure
 from zExceptions import Unauthorized
@@ -107,7 +107,6 @@ class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
   #################################################################
   # SimulationMovement_buildSlapOS
   #################################################################
-  @withAbort
   def test_SimulationMovement_buildSlapOS_script_withoutDelivery(self):
     build_simulator = tempfile.mkstemp()[1]
     activate_simulator = tempfile.mkstemp()[1]
@@ -200,7 +199,6 @@ class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
       if os.path.exists(activate_simulator):
         os.unlink(activate_simulator)
 
-  @withAbort
   def test_SimulationMovement_buildSlapOS_script_withDelivery(self):
     build_simulator = tempfile.mkstemp()[1]
     activate_simulator = tempfile.mkstemp()[1]
@@ -300,7 +298,6 @@ class TestSlapOSManageBuildingCalculatingDeliveryAlarm(SlapOSTestCaseMixin):
   #################################################################
   # Delivery_manageBuildingCalculatingDelivery
   #################################################################
-  @withAbort
   def _test_Delivery_manageBuildingCalculatingDelivery(self, state, empty=False):
     updateCausalityState_simulator = tempfile.mkstemp()[1]
     updateSimulation_simulator = tempfile.mkstemp()[1]
@@ -419,7 +416,6 @@ class TestSlapOSStopConfirmedAggregatedSaleInvoiceTransactionAlarm(SlapOSTestCas
   #################################################################
   # Delivery_stopConfirmedAggregatedSaleInvoiceTransaction
   #################################################################
-  @withAbort
   def _test_script(self, simulation_state, causality_state, ledger,
         destination_state, consistency_failure=False):
     module = self.portal.getDefaultModule(portal_type=self.portal_type)

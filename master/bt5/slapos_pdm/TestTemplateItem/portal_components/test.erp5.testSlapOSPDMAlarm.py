@@ -1,6 +1,6 @@
 # Copyright (c) 2013 Nexedi SA and Contributors. All Rights Reserved.
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
-  TemporaryAlarmScript, SlapOSTestCaseMixinWithAbort
+  TemporaryAlarmScript
 import time
 
 class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
@@ -127,7 +127,7 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
       software_installation.workflow_history['edit_workflow'][-1]['comment'])
 
 
-class TestSlaposCrmCheckStoppedEventFromUpgradeDecisionToDeliver(SlapOSTestCaseMixinWithAbort):
+class TestSlaposCrmCheckStoppedEventFromUpgradeDecisionToDeliver(SlapOSTestCaseMixin):
 
   event_portal_type = 'Web Message'
 

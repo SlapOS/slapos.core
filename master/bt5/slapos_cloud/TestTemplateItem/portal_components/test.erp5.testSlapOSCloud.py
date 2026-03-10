@@ -29,8 +29,7 @@
 from Products.ERP5Type.Core.Workflow import ValidationFailed
 from Products.ERP5Type.Utils import str2bytes, str2unicode
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
-                                                    TemporaryAlarmScript, \
-                                                    SlapOSTestCaseMixinWithAbort
+                                                    TemporaryAlarmScript
 from DateTime import DateTime
 from App.Common import rfc1123_date
 import json
@@ -383,7 +382,7 @@ class TestSlapOSCloudSlapOSCacheMixin(
     self.assertEqual(False,
       installation.setBuildingStatus("TEST123 %s" % installation.getUid()))
 
-class TestBase_isValidXmlMarshaller(SlapOSTestCaseMixinWithAbort):
+class TestBase_isValidXmlMarshaller(SlapOSTestCaseMixin):
   def test_Base_isValidXmlMarshaller(self):
     self.assertTrue(self.portal.Base_isValidXmlMarshaller("""<instance/>"""))
     self.assertTrue(self.portal.Base_isValidXmlMarshaller("""<instance></instance>"""))
@@ -413,7 +412,7 @@ class TestBase_isValidXmlMarshaller(SlapOSTestCaseMixinWithAbort):
     self.assertRaises(ValueError,
       self.portal.Base_isValidXmlMarshaller, [BELL_CHAR, 1])
 
-class TestBase_isValidXml(SlapOSTestCaseMixinWithAbort):
+class TestBase_isValidXml(SlapOSTestCaseMixin):
 
   def test_Base_isValidXml(self):
     self.assertTrue(self.portal.Base_isValidXml("<instance/>"))

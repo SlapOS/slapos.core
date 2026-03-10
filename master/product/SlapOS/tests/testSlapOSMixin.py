@@ -26,7 +26,6 @@
 #
 ##############################################################################
 
-import transaction
 import unittest
 from Products.ERP5Type.tests.ERP5TypeTestCase import ERP5TypeTestCase
 from Products.ERP5Type.Utils import convertToUpperCase
@@ -41,7 +40,6 @@ config = getConfiguration()
 
 class testSlapOSMixin(ERP5TypeTestCase):
 
-  abort_transaction = 0
   require_certificate = 0
 
   def clearCache(self):
@@ -124,8 +122,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
     return 'TEST_CA_PATH' not in os.environ
 
   def beforeTearDown(self):
-    if self.abort_transaction:
-      transaction.abort()
+    self.abort()
 
   def setUpOnce(self):
     self.commit()

@@ -310,8 +310,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_web_renderjs_ui/WebSection_getLoginWarningMessage',
         'slapos_web_renderjs_ui/WebSection_validatePersonName',
         'slapos_web_renderjs_ui/WebSection_validateUserAgent',
-        'slapos_subscription_request/OpenSaleOrderCell_generateSubscriptionChangeRequestForProjectRelatedItem',
-        'slapos_subscription_request/Project_generateSubscriptionChangeRequestForProjectRelatedItem',
         'slapos_subscription_request/SubscriptionRequest_createOpenSaleOrder',
         'slapos_subscription_request/SubscriptionRequest_init',
         'slapos_subscription_request/OpenSaleOrderCell_createDiscountSalePackingList',

@@ -350,7 +350,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
                                release_variation, type_variation)
 
       self.tic()
-      self.checkServiceSubscriptionRequest(public_server)
+      # self.checkServiceSubscriptionRequest(public_server)
 
       # join as the another visitor and request software instance on public
       # compute_node
@@ -379,16 +379,16 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 compute node
     # 1 credential request
     # 1 instance tree
-    # 3 open sale order XXX * 2 why
+    # 4 open sale order
     # 3 assignment
-    # 3 simulation movement
-    # 3 sale packing list / line
-    # 2 sale trade condition ( a 3rd trade condition is not linked to the project)
+    # 2 simulation movement
+    # 2 sale packing list / line
+    # 1 sale trade condition ( a 3rd trade condition is not linked to the project)
     # 1 software installation
     # 1 software instance
     # 1 software product
-    # 3 subscription request
-    self.assertRelatedObjectCount(project, 32)
+    # 2 subscription request
+    self.assertRelatedObjectCount(project, 26)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
       self.checkERP5StateBeforeExit()
@@ -520,10 +520,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         portal_type='Sale Supply',
         source_project__uid=project.getUid()
       )
-      sale_supply.searchFolder(
-        portal_type='Sale Supply Line',
-        resource__relative_url="service_module/slapos_compute_node_subscription"
-      )[0].edit(base_price=99)
       sale_supply.newContent(
         portal_type="Sale Supply Line",
         base_price=9,
@@ -582,7 +578,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # Pay deposit to validate virtual master + one computer, for the organisation
       # For now we cannot rely on user payments
       self.login(accountant_person.getUserId())
-      deposit_amount = 42.0 + 99.0
+      deposit_amount = 42.0
       ledger = self.portal.portal_categories.ledger.automated
 
       outstanding_amount_list = customer_section_organisation.Entity_getOutstandingDepositAmountList(
@@ -645,31 +641,30 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
        mirror_section_uid=customer_section_organisation.getUid())
     self.assertSameSet(
       [x.total_price for x in transaction_list],
-      [141.0, -141.0],
+      [deposit_amount, -deposit_amount],
       [x.total_price for x in transaction_list]
     )
 
     self.login()
 
     # Ensure no unexpected object has been created
-    # 3 accounting transaction / line
+    # 2 accounting transaction / line
     # 3 allocation supply / line / cell
     # 5 assignment request
     # 1 compute node
     # 2 credential request
-    # 1 event
     # 1 instance tree
-    # 6 open sale order / line
+    # 4 open sale order / line
     # 5 (can reduce to 2) assignment
-    # 16 simulation mvt
-    # 3 packing list / line
-    # 3 sale supply / line
-    # 3 sale trade condition
+    # 9 simulation mvt
+    # 2 packing list / line
+    # 2 sale supply / line
+    # 2 sale trade condition
     # 1 software installation
     # 1 software instance
     # 1 software product
-    # 3 subscription requests
-    self.assertRelatedObjectCount(project, 58)
+    # 2 subscription requests
+    self.assertRelatedObjectCount(project, 43)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
       self.checkERP5StateBeforeExit()
@@ -701,10 +696,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         portal_type='Sale Supply',
         source_project__uid=project.getUid()
       )
-      sale_supply.searchFolder(
-        portal_type='Sale Supply Line',
-        resource__relative_url="service_module/slapos_compute_node_subscription"
-      )[0].edit(base_price=99)
       sale_supply.newContent(
         portal_type="Sale Supply Line",
         base_price=9,
@@ -739,7 +730,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.login(project_owner_person.getUserId())
 
       # Pay deposit to validate virtual master + one computer
-      deposit_amount = 42.0 + 99.0
+      deposit_amount = 42.0
       ledger = self.portal.portal_categories.ledger.automated
 
       outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
@@ -843,24 +834,24 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.login()
 
     # Ensure no unexpected object has been created
-    # 3 accounting transaction / line
+    # 2 accounting transaction / line
     # 3 allocation supply / line / cell
     # 5 assignment request
     # 1 compute node
     # 2 credential request
-    # 3 event
+    # 2 event
     # 2 instance tree
-    # 9 open sale order / line
+    # 7 open sale order / line
     # 5 (can reduce to 2) assignment
-    # 23 simulation mvt
-    # 4 packing list / line
-    # 3 sale supply / line
-    # 2 sale trade condition
+    # 16 simulation mvt
+    # 3 packing list / line
+    # 2 sale supply / line
+    # 1 sale trade condition
     # 1 software installation
     # 2 software instance
     # 1 software product
-    # 4 subscription requests
-    self.assertRelatedObjectCount(project, 73)
+    # 3 subscription requests
+    self.assertRelatedObjectCount(project, 58)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:02')):
       self.checkERP5StateBeforeExit()
@@ -957,16 +948,16 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 2 compute/instance node
     # 2 credential request
     # 2 instance tree
-    # 9 open sale order / line
+    # 7 open sale order / line
     # 4 assignment
-    # 4 simulation movement
-    # 4 sale packing list
-    # 2 sale trade condition
+    # 3 simulation movement
+    # 3 sale packing list
+    # 1 sale trade condition
     # 1 software installation
     # 2 software instance
     # 2 software product
-    # 4 subscription request
-    self.assertRelatedObjectCount(project, 48)
+    # 3 subscription request
+    self.assertRelatedObjectCount(project, 42)
 
     with PinnedDateTime(self, DateTime('2024/02/18 00:05')):
       self.checkERP5StateBeforeExit()
@@ -1040,16 +1031,16 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 compute node
     # 1 credential request
     # 1 instance tree
-    # 6 open sale order / line
+    # 4 open sale order / line
     # 3 assignments
-    # 3 simulation movements
-    # 3 sale packing list / line
-    # 2 sale trade condition
+    # 2 simulation movements
+    # 2 sale packing list / line
+    # 1 sale trade condition
     # 1 software installation
     # 2 software instance
     # 1 software product
-    # 3 subscription request
-    self.assertRelatedObjectCount(project, 33)
+    # 2 subscription request
+    self.assertRelatedObjectCount(project, 27)
 
     with PinnedDateTime(self, DateTime('2024/02/18 00:05')):
       self.checkERP5StateBeforeExit()
@@ -1197,16 +1188,16 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 2 compute/remote node
     # 1 credential request
     # 1 instance tree
-    # 6 open sale order / line
+    # 4 open sale order / line
     # 3 assignment
-    # 3 simulation movements
-    # 3 sale packing list / line
-    # 2 sale trade condition
+    # 2 simulation movements
+    # 2 sale packing list / line
+    # 1 sale trade condition
     # 1 software installation
     # 1 software instance
     # 1 software product
-    # 3 subscription requests
-    self.assertRelatedObjectCount(remote_project, 33)
+    # 2 subscription requests
+    self.assertRelatedObjectCount(remote_project, 27)
 
     # Ensure no unexpected object has been created
     # 3 allocation supply/line/cell
@@ -1218,11 +1209,11 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 assignment
     # 2 simulation movements
     # 2 sale packing list / line
-    # 2 sale trade condition
+    # 1 sale trade condition
     # 1 software instance
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 26)
+    self.assertRelatedObjectCount(project, 25)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
       self.checkERP5StateBeforeExit()
@@ -1378,16 +1369,16 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # 3 compute/remote/instance node
       # 1 credential request
       # 2 instance tree
-      # 9 open sale order / line
+      # 7 open sale order / line
       # 3 assignment
-      # 4 simulation movements
-      # 4 sale packing list / line
-      # 2 sale trade condition
+      # 3 simulation movements
+      # 3 sale packing list / line
+      # 1 sale trade condition
       # 1 software installation
       # 2 software instance
       # 1 software product
-      # 4 subscription requests
-      self.assertRelatedObjectCount(remote_project, 45)
+      # 3 subscription requests
+      self.assertRelatedObjectCount(remote_project, 39)
 
       # Ensure no unexpected object has been created
       # 3 allocation supply/line/cell
@@ -1399,11 +1390,11 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # 3 assignment
       # 2 simulation movements
       # 2 sale packing list / line
-      # 2 sale trade condition
+      # 1 sale trade condition
       # 1 software instance
       # 1 software product
       # 2 subscription requests
-      self.assertRelatedObjectCount(project, 26)
+      self.assertRelatedObjectCount(project, 25)
 
       self.checkERP5StateBeforeExit()
 

@@ -26,43 +26,14 @@
 #
 ##############################################################################
 
-import transaction
-from functools import wraps
-from Products.ERP5Type.tests.utils import createZODBPythonScript
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
-  TemporaryAlarmScript, Simulator
+  TemporaryAlarmScript, Simulator, simulate
 from unittest import expectedFailure
 from zExceptions import Unauthorized
 
 import os
 import tempfile
 from DateTime import DateTime
-
-def simulateByTitlewMark(script_name):
-  def wrapper(func):
-    @wraps(func)
-    def wrapped(self, *args, **kwargs):
-      if script_name in self.portal.portal_skins.custom.objectIds():
-        raise ValueError('Precondition failed: %s exists in custom' % script_name)
-      createZODBPythonScript(self.portal.portal_skins.custom,
-                          script_name,
-                          '*args, **kwargs',
-                          '# Script body\n'
-"""
-if context.getTitle() == 'Not visited by %s':
-  context.setTitle('Visited by %s')
-""" %(script_name, script_name))
-      transaction.commit()
-      try:
-        result = func(self, *args, **kwargs)
-      finally:
-        if script_name in self.portal.portal_skins.custom.objectIds():
-          self.portal.portal_skins.custom.manage_delObjects(script_name)
-        transaction.commit()
-      return result
-    return wrapped
-  return wrapper
-
 
 class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
   #################################################################
@@ -372,7 +343,10 @@ class TestSlapOSStopConfirmedAggregatedSaleInvoiceTransactionAlarm(SlapOSTestCas
   def _test(self, simulation_state, causality_state, ledger, positive,
       delivery_date=DateTime('2012/04/22'),
       accounting_date=DateTime('2012/04/28')):
-    @simulateByTitlewMark(self.script)
+
+    @simulate(self.script,  '*args, **kwargs', """
+if context.getTitle() == 'Not visited by %s':
+  context.setTitle('Visited by %s') """ % (self.script, self.script))
     def _real(self, simulation_state, causality_state, ledger, positive,
           delivery_date,
           accounting_date):

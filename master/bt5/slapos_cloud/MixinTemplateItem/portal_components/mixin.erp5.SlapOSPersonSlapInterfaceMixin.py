@@ -81,7 +81,7 @@ class SlapOSPersonSlapInterfaceMixin:
         reference=workgroup_reference
       )
       if workgroup is None:
-        raise ValueError("Wrong workgroup Reference provided")
+        raise ValueError("Wrong workgroup Reference provided: %s" % workgroup_reference)
 
       # Is workgroup member of the project?
       if not workgroup.Workgroup_isProjectCustomer(project):

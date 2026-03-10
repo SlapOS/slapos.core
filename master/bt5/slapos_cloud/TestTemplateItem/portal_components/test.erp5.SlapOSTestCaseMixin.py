@@ -29,8 +29,8 @@ from Products.SlapOS.tests.testSlapOSMixin import \
   testSlapOSMixin
 
 from DateTime import DateTime
-from Products.ERP5Type.tests.utils import createZODBPythonScript
-from Products.ERP5Type.tests.ERP5TypeTestCase import TemporaryAlarmScript
+from Products.ERP5Type.tests.utils import TemporaryAlarmScript, \
+  TemporaryPythonScript
 
 import transaction
 import functools
@@ -63,18 +63,8 @@ def simulate(script_id, params_string, code_string):
   def upperWrap(f):
     @wraps(f)
     def decorated(self, *args, **kw):
-      if script_id in self.portal.portal_skins.custom.objectIds():
-        raise ValueError('Precondition failed: %s exists in custom' % script_id)
-      createZODBPythonScript(self.portal.portal_skins.custom,
-                          script_id, params_string, code_string)
-      transaction.commit()
-      try:
-        result = f(self, *args, **kw)
-      finally:
-        if script_id in self.portal.portal_skins.custom.objectIds():
-          self.portal.portal_skins.custom.manage_delObjects(script_id)
-        transaction.commit()
-      return result
+      with TemporaryPythonScript(self.portal, script_id, params_string, code_string):
+        return f(self, *args, **kw)
     return decorated
   return upperWrap
 

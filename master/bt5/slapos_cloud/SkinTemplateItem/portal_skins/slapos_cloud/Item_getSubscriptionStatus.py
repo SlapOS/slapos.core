@@ -8,10 +8,15 @@ portal = context.getPortalObject()
 if item.getValidationState() in ['invalidated', 'archived']:
   return 'todestroy'
 
+if item.getPortalType() == 'Compute Node':
+  subscribed_item = item.getFollowUpValue(portal_type='Project')
+else:
+  subscribed_item = item
+
 # If no open order, subscription must be approved
 open_sale_order_movement_list = portal.portal_catalog(
   portal_type=['Open Sale Order Line', 'Open Sale Order Cell'],
-  aggregate__uid=item.getUid(),
+  aggregate__uid=subscribed_item.getUid(),
   validation_state='validated',
   limit=1
 )

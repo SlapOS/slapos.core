@@ -33,13 +33,6 @@ for sql_software_product in software_product_list:
     resource_value=sql_software_product.getObject()
   )
 
-compute_node_service = portal.restrictedTraverse('service_module/slapos_compute_node_subscription')
-sale_supply.newContent(
-  portal_type="Sale Supply Line",
-  title=compute_node_service.getTitle(),
-  resource_value=compute_node_service
-)
-
 return sale_supply.Base_redirect(
   keep_items={'portal_status_message': translateString('New Sale Supply created.')}
 )

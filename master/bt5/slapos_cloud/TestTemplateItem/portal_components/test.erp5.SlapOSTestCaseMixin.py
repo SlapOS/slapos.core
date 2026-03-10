@@ -197,7 +197,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     return person.Person_addVirtualMaster(
       'project-%s' % self.generateNewId(),
       is_accountable,
-      is_accountable,
       currency_relative_url,
       batch=1).getRelativeUrl()
 
@@ -860,10 +859,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         partition.markBusy()
 
     # create fake open order, to bypass Service_getSubscriptionStatus
-    subscrible_item_list = [instance_tree]
-    if (partition is not None) and \
-            (partition.getParentValue().getPortalType() =='Compute Node'):
-      subscrible_item_list.append(partition.getParentValue())
+    subscrible_item_list = [instance_tree, project]
     for item in subscrible_item_list:
       open_order = self.portal.open_sale_order_module.newContent(
         portal_type="Open Sale Order",

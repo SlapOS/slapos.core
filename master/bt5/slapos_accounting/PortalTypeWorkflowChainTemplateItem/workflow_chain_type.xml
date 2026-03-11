@@ -24,6 +24,10 @@
   <workflow>slapos_accounting_interaction_workflow</workflow>
  </chain>
  <chain>
+  <type>Internal Packing List</type>
+  <workflow>slapos_accounting_interaction_workflow, slapos_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Open Internal Order</type>
   <workflow>slapos_simulation_interaction_workflow</workflow>
  </chain>

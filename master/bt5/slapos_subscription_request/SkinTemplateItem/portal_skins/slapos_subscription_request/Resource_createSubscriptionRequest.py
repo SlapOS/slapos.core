@@ -169,9 +169,4 @@ if temp_object:
 if not temp_object:
   subscription_request.submit()
 
-# Don't create inconsistent Subscription Request
-if subscription_request.checkConsistency():
-  raise ValueError(
-    str(subscription_request.checkConsistency()[0].getTranslatedMessage()))
-
 return subscription_request

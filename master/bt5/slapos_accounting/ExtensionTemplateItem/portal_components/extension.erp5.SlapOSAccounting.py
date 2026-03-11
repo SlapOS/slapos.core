@@ -29,6 +29,8 @@ from lxml import etree
 from zExceptions import Unauthorized
 import pkg_resources
 from io import BytesIO
+
+from DateTime import DateTime
 from Products.ERP5Type.Utils import str2bytes, unicode2str
 
 def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
@@ -61,6 +63,8 @@ def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
       tree.find('transaction').find('title').text or ""
   title = unicode2str(title)
 
+  start_date = DateTime(tree.find('transaction').find('start_date').text)
+  stop_date = DateTime(tree.find('transaction').find('stop_date').text)
   movement_list = []
   for movement in tree.find('transaction').findall('movement'):
     movement_list.append({
@@ -73,5 +77,7 @@ def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
 
   return {
     'title': title,
+    'start_date': start_date,
+    'stop_date': stop_date,
     'movement': movement_list,
   }

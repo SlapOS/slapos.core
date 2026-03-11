@@ -350,7 +350,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
                                release_variation, type_variation)
 
       self.tic()
-      # self.checkServiceSubscriptionRequest(public_server)
+      self.checkServiceOpenInternalOrder(public_server)
 
       # join as the another visitor and request software instance on public
       # compute_node

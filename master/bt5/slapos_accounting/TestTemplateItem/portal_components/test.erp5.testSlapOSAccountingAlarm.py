@@ -235,15 +235,18 @@ class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
       if os.path.exists(activate_simulator):
         os.unlink(activate_simulator)
 
-class TestSlapOSManageBuildingCalculatingDeliveryAlarm(SlapOSTestCaseMixin):
+
+class TestSlapOSManageBuildingCalculatingSalePackingListAlarm(SlapOSTestCaseMixin):
+  __delivery_portal_type = 'Sale Packing List'
+
   #################################################################
   # slapos_manage_building_calculating_delivery
   #################################################################
   def _test(self, state, test_function):
-    delivery = self.portal.sale_packing_list_module.newContent(
+    delivery = self.portal.getDefaultModule(portal_type=self.__delivery_portal_type).newContent(
         title='Not visited by Delivery_manageBuildingCalculatingDelivery',
         ledger='automated',
-        portal_type='Sale Packing List')
+        portal_type=self.__delivery_portal_type)
     self.portal.portal_workflow._jumpToStateFor(delivery, state)
     with TemporaryAlarmScript(self.portal, 'Delivery_manageBuildingCalculatingDelivery', "''", attribute='title'):
       self.tic()
@@ -273,9 +276,9 @@ class TestSlapOSManageBuildingCalculatingDeliveryAlarm(SlapOSTestCaseMixin):
     updateCausalityState_simulator = tempfile.mkstemp()[1]
     updateSimulation_simulator = tempfile.mkstemp()[1]
 
-    delivery = self.portal.sale_packing_list_module.newContent(
+    delivery = self.portal.getDefaultModule(portal_type=self.__delivery_portal_type).newContent(
         title='Not visited by Delivery_manageBuildingCalculatingDelivery',
-        portal_type='Sale Packing List')
+        portal_type=self.__delivery_portal_type)
     self.portal.portal_workflow._jumpToStateFor(delivery, state)
 
     try:
@@ -329,6 +332,10 @@ class TestSlapOSManageBuildingCalculatingDeliveryAlarm(SlapOSTestCaseMixin):
 
   def test_Delivery_manageBuildingCalculatingDelivery_script_diverged(self):
     self._test_Delivery_manageBuildingCalculatingDelivery('diverged', True)
+
+
+class TestSlapOSManageBuildingCalculatingInternalPackingListAlarm(TestSlapOSManageBuildingCalculatingSalePackingListAlarm):
+  __delivery_portal_type = 'Internal Packing List'
 
 
 class TestSlapOSStopConfirmedAggregatedSaleInvoiceTransactionAlarm(SlapOSTestCaseMixin):

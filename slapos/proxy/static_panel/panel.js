@@ -308,7 +308,7 @@
                 "default": domsugar('button', {
                   type: 'button',
                   // XXX TODO move to the left panel
-                  text: "Update Parameter",
+                  text: "Update Parameters",
                   'data-display_step': DISPLAY_INSTANCE_TREE_UPDATE_DIALOG,
                   'data-instance_guid': json_response.instance_guid,
                   'class': 'ui-btn-icon-left ui-icon-sliders'
@@ -505,7 +505,7 @@
                 "put": "."
               },
               "your_instance_xml": {
-                "title": "Instance Parameter",
+                "title": "Instance Parameters",
                 "url": "gadget_erp5_page_slap_parameter_form.html",
                 "default": "",
                 "renderjs_extra": JSON.stringify({
@@ -735,7 +735,7 @@
                 "type": "StringField"
               },
               "your_instance_xml": {
-                "title": "Instance Parameter",
+                "title": "Instance Parameters",
                 "url": "gadget_erp5_page_slap_parameter_form.html",
                 "default": "",
                 "renderjs_extra": JSON.stringify({

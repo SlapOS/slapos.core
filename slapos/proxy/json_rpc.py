@@ -170,7 +170,9 @@ def compute_node_software_installation_list():
   computer_id = request.json["computer_guid"]
   computer_list = execute_db('computer', 'SELECT * FROM %s WHERE reference=?', [computer_id])
   if len(computer_list) != 1:
-    return abort(403, '%s is not registered.' % computer_id)
+    # Backward compatibility
+    if computer_id != current_app.config['computer_id']:
+      return abort(403, '%s is not registered.' % computer_id)
   software_release_list = []
   for sr in execute_db('software', 'select * from %s WHERE computer_reference=?', [computer_id]):
     software_release_list.append({
@@ -203,7 +205,9 @@ def compute_node_instance_list():
   computer_id = request.json["computer_guid"]
   computer_list = execute_db('computer', 'SELECT * FROM %s WHERE reference=?', [computer_id])
   if len(computer_list) != 1:
-    return abort(403, '%s is not registered.' % computer_id)
+    # Backward compatibility
+    if computer_id != current_app.config['computer_id']:
+      return abort(403, '%s is not registered.' % computer_id)
   instance_list = []
   for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=?', [computer_id]):
     if partition['slap_state'] == 'free':

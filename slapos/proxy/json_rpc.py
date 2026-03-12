@@ -205,14 +205,23 @@ def compute_node_instance_list():
   if len(computer_list) != 1:
     return abort(403, '%s is not registered.' % computer_id)
   instance_list = []
-  for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=? AND slap_state="busy"', [computer_id]):
-    instance_list.append({
-      "title": partition['partition_reference'],
-      "instance_guid": generateInstanceGuid(partition['partition_reference'], partition['requested_by'], False),
-      "state": partition['requested_state'],
-      "compute_partition_id": partition['reference'],
-      "software_release_uri": partition['software_release'],
-    })
+  for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=?', [computer_id]):
+    if partition['slap_state'] == 'free':
+      instance_list.append({
+        "title": partition['partition_reference'] or partition['reference'],
+        "instance_guid": '%s-%s' % (partition['computer_reference'], partition['reference']),
+        "state": "destroyed",
+        "compute_partition_id": partition['reference'],
+        "software_release_uri": '',
+      })
+    else:
+      instance_list.append({
+        "title": partition['partition_reference'],
+        "instance_guid": generateInstanceGuid(partition['partition_reference'], partition['requested_by'], False),
+        "state": partition['requested_state'],
+        "compute_partition_id": partition['reference'],
+        "software_release_uri": partition['software_release'],
+      })
   return validate_and_send_json_rpc_document({
     'result_list': instance_list
   })
@@ -397,12 +406,18 @@ def get_compute_partition():
 @json_rpc_blueprint.route('/slapos.post.v0.software_instance', methods=['POST'])
 def post_software_instance():
   title = request.json["title"]
-  requested_by = ''# XXX getRequesterFromForm(form) or '',
+  requested_by = ''
+  requester_partition_id = request.headers.get('X-computer-partition-id')
+  requester_computer_guid = request.headers.get('X-computer-id')
+  if requester_partition_id and requester_computer_guid:
+    requester = getPartitionFromDB(requester_partition_id, requester_computer_guid)
+    if requester:
+      requested_by = requester['requested_by'] or requester['partition_reference'] or ''
   parameters = request.json.get("parameters", {})
   is_shared = request.json.get("shared", False)
   requested_state = request.json.get("state", "started")
   parsed_request_dict = {
-    'requester_id': None,
+    'requester_id': requester_partition_id or 'user',
     'requested_by': requested_by,
     'software_release': request.json["software_release_uri"],
     'software_type': request.json["software_type"],
@@ -441,7 +456,7 @@ def post_software_instance():
       "compute_partition_id": slap_instance._partition_id,
       "processing_timestamp": 0,
       # This info is probably not available
-      "access_status_message": ''
+      "access_status_message": '',
     })
 
   return abort(500, 'Can not export %s' % str(slap_instance))
@@ -562,6 +577,10 @@ def put_software_instance_title():
     query = 'UPDATE %s SET partition_reference=? WHERE partition_reference=? AND requested_by=?'
     argument_list = [new_title, partition_reference, requested_by]
     execute_db('partition', query, argument_list)
+    # Cascade rename to direct children (their requested_by points to old title)
+    execute_db('partition',
+      'UPDATE %s SET requested_by=? WHERE requested_by=?',
+      [new_title, partition_reference])
 
   return validate_and_send_json_rpc_document({
     'type': 'success',

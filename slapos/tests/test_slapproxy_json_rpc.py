@@ -501,7 +501,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'computer_guid': '',
         'compute_partition_id': 'Fake frontend for https://[::1]:123/my/path?my=query&string=value#myanchor',
         'processing_timestamp': 0,
-        'access_status_message': ""
+        'access_status_message': "",
     }
     data_result = json.loads(response.data)
     assert data_result == expect_result_dict, response.data
@@ -541,7 +541,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'computer_guid': '',
         'compute_partition_id': 'Fake frontend for https://[::1]:123/my/path?my=query&string=value#myanchor',
         'processing_timestamp': 0,
-        'access_status_message': ""
+        'access_status_message': "",
     }
     data_result = json.loads(response.data)
     assert data_result == expect_result_dict, response.data
@@ -957,6 +957,24 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         "title": "No free computer partition found for: MyFirstInstance"
     }
     assert json.loads(response.data) == expect_result_dict, response.data
+
+  def test_put_v0_compute_node_format_no_netmask(self):
+    """ip_list entries from address_list have no netmask — must not crash."""
+    response = self.app.post(
+      '/slapos.put.v0.compute_node_format',
+      json={
+        'computer_guid': self.computer_id,
+        'compute_partition_list': [{
+          'partition_id': 'slappart0',
+          'ip_list': [
+            {'ip-address': '10.0.1.1', 'network-interface': 'lo'},
+            {'ip-address': '::1',      'network-interface': 'lo'},
+          ]
+        }]
+      }
+    )
+    assert response.status_code == 200, response.data
+    assert json.loads(response.data) == {'type': 'success', 'title': 'Formatted'}
 
   def test_put_v0_compute_node_format_new_partition(self):
     response = self.app.post(

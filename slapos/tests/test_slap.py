@@ -251,14 +251,7 @@ class TestSlap(SlapMixin):
     partition_id = self.id()
 
     def handler(url, req):
-      qs = parse.parse_qs(url.query)
-      if url.path == '/registerComputerPartition' and qs == {
-              'computer_reference': [computer_guid],
-              'computer_partition_reference': [partition_id]
-              }:
-        return {'status_code': 404}
-      else:
-        return {'status_code': 0}
+      return {'status_code': 404}
 
     partition = self.slap.registerComputerPartition(computer_guid, partition_id)
     with httmock.HTTMock(handler):
@@ -410,11 +403,10 @@ class TestSlap(SlapMixin):
     """
     hateoas_url = 'foo'
     def handler(url, req):
-      qs = parse.parse_qs(url.query)
-      if url.path == '/getHateoasUrl':
+      if url.path == '/slapos.get.v0.hateoas_url':
         return {
                 'status_code': 200,
-                'content': hateoas_url
+                'content': json.dumps({'hateoas_url': hateoas_url})
                 }
 
     with httmock.HTTMock(handler):
@@ -475,27 +467,11 @@ class TestComputer(SlapMixin):
     slap.initializeConnection(self.server_url)
 
     def handler(url, req):
-      qs = parse.parse_qs(url.query)
-      if url.path == '/registerComputerPartition' and \
-          'computer_reference' in qs and \
-          'computer_partition_reference' in qs:
-        slap_partition = slapos.slap.ComputerPartition(
-            qs['computer_reference'][0],
-            qs['computer_partition_reference'][0])
+      if url.path == '/slapos.allDocs.v0.compute_node_instance_list':
         return {
-                'status_code': 200,
-                'content': dumps(slap_partition)
-                }
-      elif url.path == '/getFullComputerInformation' and 'computer_id' in qs:
-        slap_computer = slapos.slap.Computer(qs['computer_id'][0])
-        slap_computer._software_release_list = []
-        slap_computer._computer_partition_list = []
-        return {
-                'status_code': 200,
-                'content': dumps(slap_computer)
-                }
-      elif url.path == '/requestComputerPartition':
-        return {'status_code': 408}
+          'status_code': 200,
+          'content': json.dumps({'result_list': []})
+        }
       else:
         return {'status_code': 404}
 
@@ -544,25 +520,13 @@ class TestComputer(SlapMixin):
     self.slap.initializeConnection(self.server_url)
 
     def handler(url, req):
-      qs = parse.parse_qs(url.query)
-      if url.path == '/registerComputerPartition' and qs == {
-                'computer_reference': [self.computer_guid],
-                'computer_partition_reference': [partition_id]
-                }:
-        partition = slapos.slap.ComputerPartition(self.computer_guid, partition_id)
+      if url.path == '/slapos.allDocs.v0.compute_node_instance_list':
         return {
-                'status_code': 200,
-                'content': dumps(partition)
-                }
-      elif url.path == '/getFullComputerInformation' and 'computer_id' in qs:
-        slap_computer = slapos.slap.Computer(qs['computer_id'][0])
-        slap_computer._computer_partition_list = []
-        return {
-                'status_code': 200,
-                'content': dumps(slap_computer)
-                }
+          'status_code': 200,
+          'content': json.dumps({'result_list': []})
+        }
       else:
-        return {'status_code': 400}
+        return {'status_code': 404}
 
     with httmock.HTTMock(handler):
       self.computer = self.slap.registerComputer(self.computer_guid)
@@ -646,7 +610,7 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_computer)
                 }
-      elif url.path == '/requestComputerPartition':
+      elif url.path == '/slapos.post.v0.software_instance':
         raise RequestWasCalled
       else:
         return {
@@ -690,8 +654,11 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_computer)
                 }
-      elif url.path == '/requestComputerPartition':
-        return {'status_code': 408}
+      elif url.path == '/slapos.post.v0.software_instance':
+        return {
+          'status_code': 200,
+          'content': json.dumps({"status": 102, "message": "processing", "name": "processing"})
+        }
       else:
         return {'status_code': 404}
 
@@ -733,8 +700,11 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_computer)
                 }
-      elif url.path == '/requestComputerPartition':
-        return {'status_code': 408}
+      elif url.path == '/slapos.post.v0.software_instance':
+        return {
+          'status_code': 200,
+          'content': json.dumps({"status": 102, "message": "processing", "name": "processing"})
+        }
       else:
         return {'status_code': 404}
 
@@ -781,15 +751,28 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_computer)
                 }
-      elif url.path == '/requestComputerPartition':
-        from slapos.slap.slap import SoftwareInstance
-        slap_partition = SoftwareInstance(
-            slap_computer_id=computer_guid,
-            slap_computer_partition_id=requested_partition_id)
+      elif url.path == '/slapos.post.v0.software_instance':
         return {
-                'status_code': 200,
-                'content': dumps(slap_partition)
-                }
+          'status_code': 200,
+          'content': json.dumps({
+            'computer_guid': computer_guid,
+            'compute_partition_id': requested_partition_id,
+            'instance_guid': 'myref______0',
+            'title': 'myref',
+            'software_release_uri': 'http://server/new/testrequest',
+            'software_type': 'software_type',
+            'state': 'started',
+            'connection_parameters': {},
+            'parameters': {},
+            'shared': False,
+            'root_instance_title': 'myref',
+            'ip_list': [],
+            'full_ip_list': [],
+            'sla_parameters': {},
+            'processing_timestamp': 0,
+            'access_status_message': '',
+          })
+        }
       else:
         return {'status_code': 404}
 
@@ -842,7 +825,7 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_computer)
                 }
-      elif url.path == '/requestComputerPartition':
+      elif url.path == '/slapos.post.v0.software_instance':
         raise RequestWasCalled
       else:
         return {
@@ -982,36 +965,34 @@ class TestComputerPartition(SlapMixin):
       hostname = os.environ['SLAPOS_TEST_IPV4']
       class RequestHandler(BaseHTTPRequestHandler):
         log_message = self.logger.info
-        def do_GET(self):
-          if self.path != '/registerComputerPartition?computer_reference=COMP123&computer_partition_reference=slappart456':
+        def do_POST(self):
+          if self.path != '/slapos.get.v0.compute_partition':
             self.send_response(404)
             self.end_headers()
             self.wfile.write(b"Not Found")
             return
-
           self.send_response(200)
           for k, v in cache_headers:
             self.send_header(k, v)
-          response = '''
-            <marshal>
-              <object id="i2" module="slapos.slap.slap" class="ComputerPartition">
-                <tuple>
-                  <string>COMP123</string>
-                  <string>slappart345</string>
-                  <none/>
-                </tuple>
-                <dictionary id="i3">
-                  <string>_computer_id</string>
-                  <string>COMP123</string>
-                  <string>_parameter_dict</string>
-                  <dictionary id="i5">
-                    <string>foo</string>
-                    <string>bar</string>
-                  </dictionary>
-                </dictionary>
-              </object>
-            </marshal>
-          '''.encode('utf-8')
+          self.send_header('Content-type', 'application/json')
+          response = json.dumps({
+            'computer_guid': 'COMP123',
+            'compute_partition_id': 'slappart456',
+            'instance_guid': 'COMP123___slappart456___0',
+            'title': 'test',
+            'software_release_uri': 'http://test',
+            'software_type': 'default',
+            'state': 'started',
+            'connection_parameters': {},
+            'parameters': {'foo': 'bar'},
+            'shared': False,
+            'root_instance_title': 'test',
+            'ip_list': [],
+            'full_ip_list': [],
+            'sla_parameters': {},
+            'processing_timestamp': 0,
+            'access_status_message': '',
+          }).encode('utf-8')
           self.end_headers()
           self.wfile.write(response)
 
@@ -1024,7 +1005,7 @@ class TestComputerPartition(SlapMixin):
 
     computer_partition = self.slap.registerComputerPartition('COMP123', 'slappart456')
     parameter_dict = computer_partition.getInstanceParameterDict()
-    self.assertEqual(parameter_dict, {'foo': 'bar'})
+    self.assertEqual(parameter_dict.get('foo'), 'bar')
 
   def test_getInstanceParameterDict_cache(self):
     self._test_getInstanceParameterDict_cache((('Cache-Control', 'public, max-age=3600'),))
@@ -1032,119 +1013,56 @@ class TestComputerPartition(SlapMixin):
   def test_getInstanceParameterDict_no_cache(self):
     self._test_getInstanceParameterDict_cache((('Cache-Control', 'no-store, no-cache, must-revalidate'),))
 
-  def _test_setConnectionDict(
-    self, connection_dict, slave_reference=None, connection_xml=None,
-    getConnectionParameterDict=None):
-    getInstanceParameter = []
-    with \
-        mock.patch.object(
-          slapos.slap.ComputerPartition, '__init__', return_value=None), \
-        mock.patch.object(
-          slapos.slap.ComputerPartition, 'getConnectionParameterDict',
-          return_value=getConnectionParameterDict or {}), \
-        mock.patch.object(
-          slapos.slap.ComputerPartition, 'getInstanceParameter',
-          return_value=getInstanceParameter):
+  def _test_setConnectionDict(self, connection_dict, slave_reference=None):
+    with mock.patch.object(
+        slapos.slap.ComputerPartition, '__init__', return_value=None):
       partition = slapos.slap.ComputerPartition()
       partition._connection_helper = mock.Mock()
       partition._computer_id = 'COMP-0'
       partition._partition_id = 'PART-0'
-      partition._connection_helper.POST = mock.Mock()
-      partition.setConnectionDict(
-        connection_dict, slave_reference=slave_reference)
-      if connection_xml:
-        connection_xml = connection_xml.encode() if PY3 else connection_xml
-        partition._connection_helper.POST.assert_called_with(
-          'setComputerPartitionConnectionXml',
-          data={
-            'slave_reference': slave_reference,
-            'connection_xml': connection_xml,
-            'computer_partition_id': 'PART-0',
-            'computer_id': 'COMP-0'})
-      else:
-        partition._connection_helper.POST.assert_not_called()
+      partition._instance_guid = 'COMP-0___PART-0___0'
+      partition.setConnectionDict(connection_dict, slave_reference=slave_reference)
+      expected_guid = slave_reference if slave_reference is not None else 'COMP-0___PART-0___0'
+      partition._connection_helper.callJsonRpcAPI.assert_called_with(
+        'slapos.put.v0.software_instance_connection_parameter',
+        {'instance_guid': expected_guid, 'connection_parameter_dict': connection_dict})
 
   def test_setConnectionDict(self):
-    self._test_setConnectionDict(
-      {'a': 'b'},
-      connection_xml='<marshal><dictionary id="i2"><string>a</string>'
-                     '<string>b</string></dictionary></marshal>')
+    self._test_setConnectionDict({'a': 'b'})
 
   def test_setConnectionDict_optimised(self):
-    self._test_setConnectionDict(
-      {'a': 'b'},
-      getConnectionParameterDict={'a': 'b'},
-      connection_xml='<marshal><dictionary id="i2"><string>a</string>'
-                     '<string>b</string></dictionary></marshal>')
+    self._test_setConnectionDict({'a': 'b'})
 
   def test_setConnectionDict_optimised_tricky(self):
-    self._test_setConnectionDict(
-      {u'a': u'b', 'b': '', 'c': None},
-      getConnectionParameterDict={'a': 'b', 'b': None, 'c': 'None'},
-      connection_xml='<marshal><dictionary id="i2"><string>a</string><string>b</string><string>b</string><string></string><string>c</string><none/></dictionary></marshal>')
+    self._test_setConnectionDict({u'a': u'b', 'b': '', 'c': None})
 
   def test_setConnectionDict_update(self):
-    self._test_setConnectionDict(
-      {'a': 'b'},
-      getConnectionParameterDict={'b': 'b'},
-      connection_xml='<marshal><dictionary id="i2"><string>a</string>'
-                     '<string>b</string></dictionary></marshal>')
+    self._test_setConnectionDict({'a': 'b'})
 
   def test_setConnectionDict_slave(self):
-    self._test_setConnectionDict(
-      {'a': 'b'},
-      slave_reference='SLAVE-0',
-      connection_xml='<marshal><dictionary id="i2"><string>a</string>'
-                     '<string>b</string></dictionary></marshal>')
+    self._test_setConnectionDict({'a': 'b'}, slave_reference='SLAVE-0')
 
-  def _test_error(self, error_log, slave_reference=None, expected_post_data=None):
-    with \
-        mock.patch.object(
-          slapos.slap.ComputerPartition, '__init__', return_value=None), \
-        mock.patch.object(
-          slapos.slap.ComputerPartition, 'getId',
-          return_value='PART-0'):
+  def _test_error(self, error_log, slave_reference=None):
+    with mock.patch.object(
+        slapos.slap.ComputerPartition, '__init__', return_value=None):
       partition = slapos.slap.ComputerPartition()
       partition._connection_helper = mock.Mock()
       partition._computer_id = 'COMP-0'
       partition._partition_id = 'PART-0'
-      partition._connection_helper.POST = mock.Mock()
+      partition._instance_guid = 'COMP-0___PART-0___0'
       partition.error(error_log, slave_reference=slave_reference)
-      if expected_post_data:
-        partition._connection_helper.POST.assert_called_with(
-          'softwareInstanceError',
-          data=expected_post_data)
-      else:
-        partition._connection_helper.POST.assert_not_called()
+      partition._connection_helper.callJsonRpcAPI.assert_called_with(
+        'slapos.put.v0.software_instance_error',
+        {'instance_guid': 'COMP-0___PART-0___0', 'message': str(error_log)})
 
   def test_error(self):
-    self._test_error(
-      'some error message',
-      expected_post_data={
-        'computer_id': 'COMP-0',
-        'computer_partition_id': 'PART-0',
-        'error_log': 'some error message'
-      })
+    self._test_error('some error message')
 
   def test_error_with_slave_reference(self):
-    self._test_error(
-      'some error message',
-      slave_reference='SLAVE-0',
-      expected_post_data={
-        'computer_id': 'COMP-0',
-        'computer_partition_id': 'PART-0',
-        'error_log': 'some error message',
-        'slave_reference': 'SLAVE-0'
-      })
+    self._test_error('some error message', slave_reference='SLAVE-0')
 
   def test_error_empty_message(self):
-    self._test_error(
-      '',
-      expected_post_data={
-        'computer_id': 'COMP-0',
-        'computer_partition_id': 'PART-0',
-        'error_log': ''
-      })
+    self._test_error('')
 
 
 class TestSoftwareRelease(SlapMixin):
@@ -1215,7 +1133,7 @@ class TestOpenOrder(SlapMixin):
     open_order = self.slap.registerOpenOrder()
 
     def handler(url, req):
-      if url.path == '/requestComputerPartition':
+      if url.path == '/slapos.post.v0.software_instance':
         raise RequestWasCalled
 
     with httmock.HTTMock(handler):
@@ -1248,7 +1166,10 @@ class TestOpenOrder(SlapMixin):
     open_order = self.slap.registerOpenOrder()
 
     def handler(url, req):
-      return {'status_code': 408}
+      return {
+        'status_code': 200,
+        'content': json.dumps({"status": 102, "message": "processing", "name": "processing"})
+      }
 
     with httmock.HTTMock(handler):
       computer_partition = open_order.request(software_release_uri, 'myrefe')
@@ -1267,14 +1188,27 @@ class TestOpenOrder(SlapMixin):
     requested_partition_id = self.id()
 
     def handler(url, req):
-      from slapos.slap.slap import SoftwareInstance
-      slap_partition = SoftwareInstance(
-          slap_computer_id=computer_guid,
-          slap_computer_partition_id=requested_partition_id)
       return {
-              'status_code': 200,
-              'content': dumps(slap_partition)
-              }
+        'status_code': 200,
+        'content': json.dumps({
+          'computer_guid': computer_guid,
+          'compute_partition_id': requested_partition_id,
+          'instance_guid': 'myrefe______0',
+          'title': 'myrefe',
+          'software_release_uri': software_release_uri,
+          'software_type': 'RootSoftwareInstance',
+          'state': 'started',
+          'connection_parameters': {},
+          'parameters': {},
+          'shared': False,
+          'root_instance_title': 'myrefe',
+          'ip_list': [],
+          'full_ip_list': [],
+          'sla_parameters': {},
+          'processing_timestamp': 0,
+          'access_status_message': '',
+        })
+      }
 
     with httmock.HTTMock(handler):
       computer_partition = open_order.request(software_release_uri, 'myrefe')
@@ -1293,16 +1227,27 @@ class TestOpenOrder(SlapMixin):
     requested_partition_id = self.id()
 
     def handler(url, req):
-      from slapos.slap.slap import SoftwareInstance
-      slap_partition = SoftwareInstance(
-          _connection_dict = {"url": 'URL_CONNECTION_PARAMETER'},
-          slap_computer_id=computer_guid,
-          slap_computer_partition_id=requested_partition_id)
       return {
-              'status_code': 200,
-              'content': dumps(slap_partition)
-              }
-
+        'status_code': 200,
+        'content': json.dumps({
+          'computer_guid': computer_guid,
+          'compute_partition_id': requested_partition_id,
+          'instance_guid': 'myrefe______0',
+          'title': 'myrefe',
+          'software_release_uri': software_release_uri,
+          'software_type': 'RootSoftwareInstance',
+          'state': 'started',
+          'connection_parameters': {'url': 'URL_CONNECTION_PARAMETER'},
+          'parameters': {},
+          'shared': False,
+          'root_instance_title': 'myrefe',
+          'ip_list': [],
+          'full_ip_list': [],
+          'sla_parameters': {},
+          'processing_timestamp': 0,
+          'access_status_message': '',
+        })
+      }
 
     with httmock.HTTMock(handler):
       computer_partition = open_order.request(software_release_uri, 'myrefe')
@@ -1323,18 +1268,27 @@ class TestOpenOrder(SlapMixin):
     requested_partition_id = self.id()
 
     def handler(url, req):
-      from slapos.slap.slap import SoftwareInstance
-      slap_partition = SoftwareInstance(
-          connection_xml="""<?xml version='1.0' encoding='utf-8'?>
-<instance>
-  <parameter id="url">URL_CONNECTION_PARAMETER</parameter>
-</instance>""",
-          slap_computer_id=computer_guid,
-          slap_computer_partition_id=requested_partition_id)
       return {
-              'status_code': 200,
-              'content': dumps(slap_partition)
-              }
+        'status_code': 200,
+        'content': json.dumps({
+          'computer_guid': computer_guid,
+          'compute_partition_id': requested_partition_id,
+          'instance_guid': 'myrefe______0',
+          'title': 'myrefe',
+          'software_release_uri': software_release_uri,
+          'software_type': 'RootSoftwareInstance',
+          'state': 'started',
+          'connection_parameters': {'url': 'URL_CONNECTION_PARAMETER'},
+          'parameters': {},
+          'shared': False,
+          'root_instance_title': 'myrefe',
+          'ip_list': [],
+          'full_ip_list': [],
+          'sla_parameters': {},
+          'processing_timestamp': 0,
+          'access_status_message': '',
+        })
+      }
 
     with httmock.HTTMock(handler):
       computer_partition = open_order.request(software_release_uri, 'myrefe')
@@ -1449,10 +1403,10 @@ class TestOpenOrder(SlapMixin):
     hateoas_url = "/custom_hateoas_url"
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if url.path == '/getHateoasUrl':
+      if url.path == '/slapos.get.v0.hateoas_url':
         return {
             'status_code': 200,
-            'content': "http://localhost" + hateoas_url
+            'content': json.dumps({'hateoas_url': "http://localhost" + hateoas_url})
             }
       elif url.path == hateoas_url:
         return {

@@ -322,8 +322,12 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
     workgroup.validate()
     self.tic()
 
+    project_kw = {}
     if project is not None:
       workgroup.Workgroup_addAssignmentRequest(reference=project.getReference())
+      # Ensure you are going to fetch the proper Sale trade Condition for the
+      # project.
+      project_kw['default_source_project_uid'] = project.getUid()
     self.tic()
 
     assignment_list = workgroup.objectValues(portal_type="Assignment")
@@ -340,14 +344,15 @@ class TestSlapOSVirtualMasterScenarioMixin(DefaultScenarioMixin):
         # required email to send events
         default_email_url_string='test@example.org')
       organisation.validate()
+      self.tic()
 
     # Now we have to create Sale Trade Condition to the workgroup
-    self.tic()
     instance_tree_trade_condition = self.portal.portal_catalog.getResultValue(
       portal_type='Sale Trade Condition',
       trade_condition_type__uid=self.portal.portal_categories.trade_condition_type.instance_tree.getUid(),
       price_currency__uid=currency.getUid(),
-      validation_state='validated'
+      validation_state='validated',
+      **project_kw
     )
     dedicated_trade_condition = self.portal.sale_trade_condition_module.newContent(
       portal_type='Sale Trade Condition',

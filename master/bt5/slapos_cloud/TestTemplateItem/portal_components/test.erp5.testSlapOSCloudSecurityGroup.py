@@ -323,7 +323,9 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
                         '%s_F-PRODMAN' % project2.getReference(),
                         project3.getReference(),
                         '%s_F-PRODMAN' % project3.getReference(),
-                        workgroup.getUserId()], user.getGroups())
+                        workgroup.getUserId(),
+                        '%s_%s_F-PRODMAN' % (workgroup.getReference(), project3.getReference()),
+                       ], user.getGroups())
 
   def test_inactive(self, login_portal_type="Certificate Login"):
     reference = self._generateRandomUniqueReference('Person')
@@ -354,8 +356,6 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
   def test_inactive_erp5_login(self):
     self.test_inactive(login_portal_type="ERP5 Login")
 
-
-    
 def test_suite():
   suite = unittest.TestSuite()
   suite.addTest(unittest.makeSuite(TestSlapOSComputeNodeSecurity))

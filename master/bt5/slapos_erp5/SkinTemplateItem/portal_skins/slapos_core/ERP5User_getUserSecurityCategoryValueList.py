@@ -2,6 +2,7 @@
 # on what this script outputs.
 from DateTime import DateTime
 now = DateTime()
+from Products.ERP5Type.Document import newTempBase
 
 portal_type = context.getPortalType()
 if portal_type == 'Person':
@@ -13,15 +14,29 @@ if portal_type == 'Person':
     ) and (
       not assignment_value.hasStopDate() or assignment_value.getStopDate() >= now
     ):
-      category_list.extend(
-        assignment_value.getDestinationValue().ERP5User_getSecurityCategoryValueFromAssignment(
+      workgroup = assignment_value.getDestinationValue(portal_type="Workgroup")
+      workgroup_category_list = workgroup.ERP5User_getSecurityCategoryValueFromAssignment(
         rule_dict={
           ('function',): ((), ('function',)),
           ('destination_project',): ((), ),
           ('destination_project', 'function'): ((), ),
         },
-       )
       )
+      category_list.extend(workgroup_category_list)
+      for entry in workgroup_category_list:
+        if list(entry) == ['destination_project', 'function']:
+          # Append Workgroup entry as a marker so we don't
+          # need to browser the roles to know where the project+function
+          # comes from. Use newTempBase since workgroup directly don't work.
+          wg = newTempBase(context, workgroup.getId(), reference=workgroup.getReference())
+          category_list.append(
+            ({
+              'destination': ((wg, False),),
+              'destination_project': entry['destination_project'],
+              'function': entry['function'],
+            })
+          )
+          break
   category_list.extend(
     context.ERP5User_getSecurityCategoryValueFromAssignment(
     rule_dict={

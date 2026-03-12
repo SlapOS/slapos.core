@@ -22,7 +22,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>interaction_ComputeNode_validate</string> </value>
+            <value> <string>interaction_InstanceTree_validate</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -32,7 +32,6 @@
             <key> <string>portal_type_filter</string> </key>
             <value>
               <tuple>
-                <string>Compute Node</string>
                 <string>Instance Tree</string>
                 <string>Open Sale Order</string>
                 <string>Software Product</string>
@@ -52,7 +51,9 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>ComputeNode_validate</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>trigger_method_id</string> </key>

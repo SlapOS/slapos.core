@@ -1753,3 +1753,52 @@ class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
         }]
     }
     assert json.loads(response.data) == expect_result_dict, response.data
+
+  #######################################################
+  # Backward compat: unregistered default computer
+  #######################################################
+  def test_compute_node_software_installation_list_unregistered_default(self):
+    # Default computer_id should get an empty list even without format
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_software_installation_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    assert json.loads(response.data) == {'result_list': []}, response.data
+
+  def test_compute_node_software_installation_list_unregistered_other(self):
+    # Non-default computer_id should get 403 when not registered
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_software_installation_list',
+      json={
+        'computer_guid': 'other'
+      }
+    )
+    assert response.status_code == 403, response.status_code
+
+  def test_compute_node_instance_list_unregistered_default(self):
+    # Default computer_id should get an empty list even without format
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_instance_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    assert json.loads(response.data)['result_list'] == [], response.data
+
+  def test_compute_node_instance_list_unregistered_other(self):
+    # Non-default computer_id should get 403 when not registered
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_instance_list',
+      json={
+        'computer_guid': 'other'
+      }
+    )
+    assert response.status_code == 403, response.status_code

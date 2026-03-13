@@ -427,10 +427,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
        project_reference, workgroup=None):
 
     self.login(person_user_id)
-    workgroup_reference = None
     kw = {'title': instance_title }
     if workgroup is not None:
-      workgroup_reference = workgroup.getReference()
       kw['destination_section'] = workgroup
 
     self.tic()
@@ -440,8 +438,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       software_type=software_type,
       partition_reference=instance_title,
       shared_xml='<marshal><bool>1</bool></marshal>',
-      project_reference=project_reference,
-      workgroup_reference=workgroup_reference
+      project_reference=project_reference
     )
 
     # XXX search only for this user
@@ -459,8 +456,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       software_type=software_type,
       partition_reference=instance_title,
       shared_xml='<marshal><bool>1</bool></marshal>',
-      project_reference=project_reference,
-      workgroup_reference=workgroup_reference
+      project_reference=project_reference
     )
 
     # now instantiate it on compute_node and set some nice connection dict
@@ -482,8 +478,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     person_reference,
     instance_tree_title, instance_title, software_release, software_type,
     server,
-    project_reference,
-    workgroup_reference=None
+    project_reference
   ):
 
     self.login(person_user_id)
@@ -533,10 +528,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     shared_xml = '<marshal><bool>%i</bool></marshal>' % int(slave)
 
     self.login(person_user_id)
-    workgroup_reference = None
     kw = {'title': instance_title }
     if workgroup is not None:
-      workgroup_reference = workgroup.getReference()
       kw['destination_section'] = workgroup
 
     if connection_dict_to_check is None:
@@ -545,8 +538,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         software_type=software_type,
         partition_reference=instance_title,
         project_reference=project_reference,
-        shared_xml=shared_xml,
-        workgroup_reference=workgroup_reference
+        shared_xml=shared_xml
       )
 
       # XXX search only for this user
@@ -565,8 +557,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       software_type=software_type,
       partition_reference=instance_title,
       project_reference=project_reference,
-      shared_xml=shared_xml,
-      workgroup_reference=workgroup_reference
+      shared_xml=shared_xml
     )
 
     # now instantiate it on compute_node and set some nice connection dict
@@ -596,10 +587,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       project_reference, workgroup=None):
 
     self.login(person_user_id)
-    workgroup_reference = None
     kw = {'title': instance_title }
     if workgroup is not None:
-      workgroup_reference = workgroup.getReference()
       kw['destination_section'] = workgroup
 
     self.personRequestInstanceNotReady(
@@ -608,8 +597,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       partition_reference=instance_title,
       shared_xml='<marshal><bool>1</bool></marshal>',
       state='<marshal><string>destroyed</string></marshal>',
-      project_reference=project_reference,
-      workgroup_reference=workgroup_reference
+      project_reference=project_reference
     )
 
     instance_tree_list = self._getCurrentInstanceTreeList(**kw)
@@ -621,18 +609,15 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       project_reference, workgroup=None):
 
     self.login(person_user_id)
-    workgroup_reference = None
     kw = {'title': instance_title }
     if workgroup is not None:
-      workgroup_reference = workgroup.getReference()
       kw['destination_section'] = workgroup
     self.personRequestInstanceNotReady(
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
       state='<marshal><string>destroyed</string></marshal>',
-      project_reference=project_reference,
-      workgroup_reference=workgroup_reference
+      project_reference=project_reference
     )
 
     instance_tree_list = self._getCurrentInstanceTreeList(**kw)
@@ -644,10 +629,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       workgroup=None):
 
     self.login(person_user_id)
-    workgroup_reference = None
     kw = {'title': instance_title }
     if workgroup is not None:
-      workgroup_reference = workgroup.getReference()
       kw['destination_section'] = workgroup
 
     self.personRequestInstanceNotReady(
@@ -655,8 +638,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       software_type=software_type,
       partition_reference=instance_title,
       state='<marshal><string>destroyed</string></marshal>',
-      project_reference=project_reference,
-      workgroup_reference=workgroup_reference
+      project_reference=project_reference
     )
 
     # now instantiate it on compute_node and set some nice connection dict
@@ -682,18 +664,15 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       project_reference, workgroup=None):
 
     self.login(person_user_id)
-    workgroup_reference = None
     kw = {'title': instance_title }
     if workgroup is not None:
-      workgroup_reference = workgroup.getReference()
       kw['destination_section'] = workgroup
 
     self.personRequestInstanceNotReady(
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
-      project_reference=project_reference,
-      workgroup_reference=workgroup_reference
+      project_reference=project_reference
     )
     self.tic()
 
@@ -710,8 +689,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
-      project_reference=project_reference,
-      workgroup_reference=workgroup_reference
+      project_reference=project_reference
     )
 
     # now instantiate it on compute_node and set some nice connection dict
@@ -814,17 +792,15 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       project_reference, deposit_amount, currency, workgroup):
 
     self.login(person_user_id)
-    workgroup_reference = None
     kw = {'title': instance_title,
-          'destination_section': workgroup}
-    workgroup_reference = workgroup.getReference()
+          'destination_section': workgroup
+         }
 
     self.personRequestInstanceNotReady(
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
-      project_reference=project_reference,
-      workgroup_reference=workgroup_reference
+      project_reference=project_reference
     )
     self.tic()
 
@@ -851,8 +827,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
-      project_reference=project_reference,
-      workgroup_reference=workgroup_reference
+      project_reference=project_reference
     )
 
     # now instantiate it on compute_node and set some nice connection dict

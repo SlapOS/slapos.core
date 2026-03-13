@@ -37,7 +37,7 @@ class SlapOSPersonSlapInterfaceMixin:
   security.declareProtected(Permissions.ModifyPortalContent, 'requestSoftwareInstance')
   def requestSoftwareInstance(self, software_release, software_title, software_type,
                       instance_xml, sla_xml, shared, state, project_reference,
-                      workgroup_reference=None, force_software_change=False):
+                      force_software_change=False):
     person = self
     portal = person.getPortalObject()
 
@@ -73,20 +73,8 @@ class SlapOSPersonSlapInterfaceMixin:
     project = project_list[0]
     requester = person
 
-    if workgroup_reference is not None:
-      # Is Person member of the workgroup?
-      workgroup = portal.portal_catalog.getResultValue(
-        portal_type='Workgroup',
-        validation_state='validated',
-        reference=workgroup_reference
-      )
-      if workgroup is None:
-        raise ValueError("Wrong workgroup Reference provided: %s" % workgroup_reference)
-
-      # Is workgroup member of the project?
-      if not workgroup.Workgroup_isProjectCustomer(project):
-        raise ValueError('Workgroup is not customer of this project')
-
+    workgroup = project.Project_getUserWorkgroup()
+    if workgroup is not None:
       requester = workgroup
 
     # Check if it already exists

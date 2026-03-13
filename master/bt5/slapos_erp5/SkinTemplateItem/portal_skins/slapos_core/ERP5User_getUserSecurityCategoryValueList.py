@@ -28,7 +28,7 @@ if portal_type == 'Person':
           # Append Workgroup entry as a marker so we don't
           # need to browser the roles to know where the project+function
           # comes from. Use newTempBase since workgroup directly don't work.
-          wg = newTempBase(context, workgroup.getId(), reference=workgroup.getReference())
+          wg = newTempBase(context, workgroup.getId(), reference=workgroup.getUserId())
           category_list.append(
             ({
               'destination': ((wg, False),),

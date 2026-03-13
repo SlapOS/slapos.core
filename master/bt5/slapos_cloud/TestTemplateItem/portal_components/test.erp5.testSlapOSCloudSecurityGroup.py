@@ -324,7 +324,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
                         project3.getReference(),
                         '%s_F-PRODMAN' % project3.getReference(),
                         workgroup.getUserId(),
-                        '%s_%s_F-PRODMAN' % (workgroup.getReference(), project3.getReference()),
+                        '%s_%s_F-PRODMAN' % (workgroup.getUserId(), project3.getReference()),
                        ], user.getGroups())
 
   def test_inactive(self, login_portal_type="Certificate Login"):

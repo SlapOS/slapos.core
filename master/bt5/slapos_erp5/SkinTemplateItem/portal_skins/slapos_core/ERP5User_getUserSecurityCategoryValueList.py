@@ -24,7 +24,7 @@ if portal_type == 'Person':
       )
       category_list.extend(workgroup_category_list)
       for entry in workgroup_category_list:
-        if list(entry) == ['destination_project', 'function']:
+        if set(entry) == set(['destination_project', 'function']):
           # Append Workgroup entry as a marker so we don't
           # need to browser the roles to know where the project+function
           # comes from. Use newTempBase since workgroup directly don't work.

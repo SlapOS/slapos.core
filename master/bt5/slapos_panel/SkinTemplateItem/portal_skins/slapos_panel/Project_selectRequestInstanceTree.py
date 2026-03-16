@@ -33,8 +33,7 @@ request_kw.update(
   sla_xml="",
   shared=shared,
   state="started",
-  project_reference=context.getReference(),
-  workgroup_reference=workgroup_reference
+  project_reference=context.getReference()
 )
 
 for sla_category_id, sla_category in [

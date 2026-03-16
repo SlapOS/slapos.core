@@ -46,11 +46,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>url_string, title, text_content="", software_type=None, shared=False, computer_guid=None, sla_xml="", **kw</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Project_selectRequestInstanceTree</string> </value>
+            <value> <string>Project_getUserWorkgroupInformation</string> </value>
         </item>
       </dictionary>
     </pickle>

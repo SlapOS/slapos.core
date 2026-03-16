@@ -29,7 +29,7 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
     raise ValueError('Unsupported bootstrap step: %s' % step)
 
   if scenario not in ['accounting', 'customer', 'customer_shared',
-                      'customer_remote']:
+                      'customer_remote', 'workgroup']:
     raise ValueError('Unsupported bootstrap scenario: %s' % scenario)
 
   portal = self.getPortalObject()
@@ -169,8 +169,8 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
       ).validate()
       customer_person.validate()
 
-      if scenario == 'customer_remote':
-        # Bootstrap one customer user for the remote project
+      if scenario in ['customer_remote', 'workgroup']:
+        # Bootstrap one customer user for the remote project or workgroup
         remote_customer_person = portal.person_module.newContent(
           portal_type='Person',
           first_name='Manual test Remote Project Customer',
@@ -233,7 +233,7 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
           function='customer'
         ).open()
 
-      if scenario == 'customer_remote':
+      if scenario in ['customer_remote', 'workgroup']:
         remote_project = customer_person.Person_addVirtualMaster(
           'Test Remote Project',
           scenario == 'accounting',
@@ -247,9 +247,63 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
           function='customer'
         ).open()
 
+      if scenario == 'workgroup':
+        workgroup_organisation = portal.organisation_module.newContent(
+          portal_type="Organisation",
+          title="test-org-workgroup-%s" % self.generateNewId(),
+          vat_code = self.generateNewId(),
+          default_address_region='europe/west/france'
+        )
+        workgroup_organisation.validate()
+        workgroup = portal.workgroup_module.newContent(
+          portal_type="Workgroup",
+          title="Workgroup for %s" % manager_login
+        )
+        workgroup.validate()
 
+        # Add assignment to the project
+        # Workgroup_addAssignmentRequest requires that project is indexed.
+        # Create the assignment request
+        assignment_request = portal.assignment_request_module.newContent(
+          portal_type='Assignment Request',
+          destination_decision_value=workgroup,
+          title="Client for %s: %s" % (project.getReference(), workgroup.getTitle()) ,
+          destination_project_value=project,
+          function='customer')
+        assignment_request.submit()
+
+        # Wait for indexation of the sale trade conditions.
+        workgroup.activate().Workgroup_createTestSaleTradeConditionForProject(
+          project.getUid(), currency.getUid(), workgroup_organisation.getRelativeUrl()
+        )
+
+        invitation_token = workgroup.Workgroup_addSlapOSAssignmentRequestInvitation(batch=1)
+        # Invite first user
+        manager_person.Person_acceptSlapOSInvitationToken(invitation_token, batch=1)
     finally:
       setSecurityManager(sm)
-
   return "Done."
+
+
+def Workgroup_createTestSaleTradeConditionForProject(self, project_uid, currency_uid, organisation):
+  portal = self.getPortalObject()
+  # Trade condition not returned yet.
+  instance_tree_trade_condition = portal.portal_catalog.getResultValue(
+    portal_type='Sale Trade Condition',
+    trade_condition_type__uid=portal.portal_categories.trade_condition_type.instance_tree.getUid(),
+    price_currency__uid=currency_uid,
+    validation_state='validated',
+    default_source_project_uid=project_uid
+  )
+  dedicated_trade_condition = portal.sale_trade_condition_module.newContent(
+    portal_type='Sale Trade Condition',
+    title='%s dedicated %s' % (instance_tree_trade_condition.getTitle(), self.getTitle()),
+    source_project=instance_tree_trade_condition.getSourceProject(),
+    destination_value=self,
+    destination_section=organisation,
+    specialise_value=instance_tree_trade_condition,
+    price_currency=instance_tree_trade_condition.getPriceCurrency(),
+    trade_condition_type=instance_tree_trade_condition.getTradeConditionType()
+  )
+  dedicated_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
 

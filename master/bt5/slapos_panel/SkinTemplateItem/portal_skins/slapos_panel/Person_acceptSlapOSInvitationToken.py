@@ -41,6 +41,8 @@ if len(assignment_request.checkConsistency()) != 0:
 
 assignment_request.submit(comment='Created Invitation Token: %s' % invitation_token.getRelativeUrl())
 invitation_token.invalidate(comment='Created by Assignment Request: %s' % assignment_request.getRelativeUrl())
+if batch:
+  return person
 return person.Base_redirect(
   'view',
   keep_items={

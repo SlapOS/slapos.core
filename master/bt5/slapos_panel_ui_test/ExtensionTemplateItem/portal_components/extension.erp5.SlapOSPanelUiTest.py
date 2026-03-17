@@ -273,8 +273,9 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
         assignment_request.submit()
 
         # Wait for indexation of the sale trade conditions.
-        workgroup.activate().Workgroup_createTestSaleTradeConditionForProject(
-          project.getUid(), currency.getUid(), workgroup_organisation.getRelativeUrl()
+        workgroup.activate(
+          after_path=project.getPath()).Workgroup_createTestSaleTradeConditionForProject(
+            project.getUid(), currency.getUid(), workgroup_organisation.getRelativeUrl()
         )
 
         invitation_token = workgroup.Workgroup_addSlapOSAssignmentRequestInvitation(batch=1)
@@ -295,6 +296,8 @@ def Workgroup_createTestSaleTradeConditionForProject(self, project_uid, currency
     validation_state='validated',
     default_source_project_uid=project_uid
   )
+  if instance_tree_trade_condition is None:
+    raise ValueError("Trade condition not found.")
   dedicated_trade_condition = portal.sale_trade_condition_module.newContent(
     portal_type='Sale Trade Condition',
     title='%s dedicated %s' % (instance_tree_trade_condition.getTitle(), self.getTitle()),

@@ -94,6 +94,8 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.login()
       self.assertEqual(instance_tree.getDestinationSection(),
                         destination_entity.getRelativeUrl())
+      self.assertEqual('validated',
+        subscription_change_request.getSimulationState())
 
     self.checkServiceSubscriptionRequest(instance_tree)
     # Total of quantity should be zero
@@ -153,6 +155,86 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
+
+  def test_subscription_change_request_change_instance_destination_cannot_transfer_from_workgroup_scenario(self, entity_type='Person'):
+    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+    self.tic()
+
+    with PinnedDateTime(self, DateTime('2023/12/25')):
+      # lets join as slapos administrator, which will own few compute_nodes
+      owner_reference = 'owner-%s' % self.generateNewId()
+      owner_person = self.joinSlapOS(owner_reference)
+
+      # hooray, now it is time to create compute_nodes
+      self.login(sale_person.getUserId())
+
+      # create a default project
+      project = self.addDefaultProject(person=owner_person, currency=currency)
+      self.login(owner_person.getUserId())
+
+      # and install some software on them
+      public_server_software = self.generateNewSoftwareReleaseUrl()
+      public_instance_type = 'public type'
+
+      self.addSoftwareProduct(
+        "instance product", project, public_server_software, public_instance_type
+      )
+
+      # join as the another visitor and request software instance on public
+      # compute_node
+
+    with PinnedDateTime(self, DateTime('2023/12/29')):
+      public_reference = 'public-%s' % self.generateNewId()
+      public_person = self.joinSlapOS(public_reference)
+
+    with PinnedDateTime(self, DateTime('2024/01/01')):
+      self.login(sale_person.getUserId())
+      workgroup = self.createWorkgroup(public_person, project, currency)
+
+    self.login()
+    self.assertTrue(
+      self.portal.Base_isPersonFromWorkgroup(public_person, workgroup))
+    person_user_id = public_person.getUserId()
+    software_release = public_server_software
+    software_type = public_instance_type
+    project_reference = project.getReference()
+
+    public_instance_title = 'Public title %s' % self.generateNewId()
+    self.login(person_user_id)
+
+    with PinnedDateTime(self, DateTime('2024/01/10')):
+      self.personRequestInstanceNotReady(
+        software_release=software_release,
+        software_type=software_type,
+        partition_reference=public_instance_title,
+        project_reference=project_reference
+      )
+      self.tic()
+
+      # XXX search only for this user
+      instance_tree = self.portal.portal_catalog.getResultValue(
+        portal_type="Instance Tree",
+        title=public_instance_title,
+        follow_up__reference=project_reference
+      )
+      self.checkServiceSubscriptionRequest(instance_tree)
+      self.tic()
+      # Instance is owned by the workgroup
+      self.assertEqual(instance_tree.getDestinationSection(),
+                       workgroup.getRelativeUrl())
+
+    with PinnedDateTime(self, DateTime('2024/02/25')):
+      self.login(sale_person.getUserId())
+      # Try now transfer to public person from the workgroup
+      subscription_change_request = public_person.Person_claimSlaposItemSubscription(
+        instance_tree.getReference(), None)
+
+      self.tic()
+      self.login()
+      self.assertEqual(instance_tree.getDestinationSection(),
+                        workgroup.getRelativeUrl())
+      self.assertEqual('cancelled',
+                       subscription_change_request.getSimulationState())
 
 
   def test_subscription_change_request_change_project_destination_to_workgroup_without_accounting_scenario(self):

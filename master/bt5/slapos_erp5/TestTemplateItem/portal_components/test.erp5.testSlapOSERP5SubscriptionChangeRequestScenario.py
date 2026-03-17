@@ -52,7 +52,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     with PinnedDateTime(self, DateTime('2024/01/01')):
       if entity_type == "Workgroup":
-        destination_entity = self.createWorkgroup(public_person, project, currency)
+        destination_entity = self.createWorkgroup(None, project, currency)
       else:
         destination_entity = self.joinSlapOS('public2-%s' % self.generateNewId())
 

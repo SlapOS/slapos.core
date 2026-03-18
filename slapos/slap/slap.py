@@ -811,15 +811,20 @@ class ComputerPartition(SlapRequester):
     slave_instance_list = []
     for shared_item in allDocs_shared_dict['result_list']:
       if shared_item['state'] == 'started':
-        slave_instance_list.append({
+        slave_dict = {
           'slave_title': shared_item['title'],
           'slap_software_type': shared_item['software_type'],
           'slave_reference': shared_item['instance_guid'],
           #'timestamp': shared_item['processing_timestamp'],
           'xml': dumps(shared_item['parameters']),
+          'parameters': shared_item['parameters'],
           # unused?
           # 'connection_xml': dumps(shared_result['connection_parameters'])
-        })
+        }
+        # flatten user parameters for backward compatibility with recipes
+        # that access them directly (e.g. slave['type'], slave['domain'])
+        slave_dict.update(shared_item['parameters'])
+        slave_instance_list.append(slave_dict)
     return slave_instance_list
 
   def _fetchComputerPartitionInformation(self):

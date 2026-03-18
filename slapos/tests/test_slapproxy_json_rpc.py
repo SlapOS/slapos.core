@@ -1802,3 +1802,50 @@ class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
       }
     )
     assert response.status_code == 403, response.status_code
+
+  def test_getSlaveInstanceList_flattens_parameters(self):
+    from slapos.tests.test_slapproxy import MasterMixinJSONRPC
+    self.format_for_number_of_partitions(2)
+    # request a master instance
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MasterInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {}
+      }
+    )
+    # request a shared instance hosted on the master
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'SharedInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'type': 'pull', 'name': 'test-backup'},
+        'shared': True
+      }
+    )
+    # build a ComputerPartition with a TestConnectionHelper
+    import slapos.slap
+    computer_partition = slapos.slap.ComputerPartition(
+      'computer', 'slappart0')
+    computer_partition._instance_guid = 'MasterInstance______0'
+    computer_partition._connection_helper = \
+      MasterMixinJSONRPC.TestConnectionHelper(self.app)
+
+    slave_list = computer_partition.getSlaveInstanceList()
+    assert len(slave_list) == 1, slave_list
+    slave = slave_list[0]
+    # metadata keys
+    assert slave['slave_title'] == 'SharedInstance', slave
+    assert slave['slap_software_type'] == 'foobar', slave
+    assert slave['slave_reference'] == 'SharedInstance______1', slave
+    assert 'xml' in slave, slave
+    # flattened parameter keys (backward compatibility)
+    assert slave['type'] == 'pull', slave
+    assert slave['name'] == 'test-backup', slave
+    # native parameters dict
+    assert slave['parameters'] == {'type': 'pull', 'name': 'test-backup'}, \
+      slave

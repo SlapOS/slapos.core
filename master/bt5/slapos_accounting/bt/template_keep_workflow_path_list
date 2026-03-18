@@ -23,6 +23,7 @@ portal_rules/slapos_trade_model_simulation_rule
 quantity_unit_conversion_module/slapos_time_month
 quantity_unit_conversion_module/slapos_time_month/**
 service_module/slapos_account_validation
+service_module/slapos_compute_node_subscription
 service_module/slapos_deposit
 service_module/slapos_discount
 service_module/slapos_instance_cleanup

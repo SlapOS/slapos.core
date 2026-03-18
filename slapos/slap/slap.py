@@ -642,13 +642,19 @@ class ComputerPartition(SlapRequester):
     return self._requestComputerPartition(request_dict)
 
   def destroyed(self):
-    self._connection_helper.callJsonRpcAPI(
-      'slapos.put.v0.software_instance_reported_state',
-      {
-        "instance_guid": self.getInstanceGuid(),
-        "reported_state": "destroyed"
-      }
-    )
+    try:
+      self._connection_helper.callJsonRpcAPI(
+        'slapos.put.v0.software_instance_reported_state',
+        {
+          "instance_guid": self.getInstanceGuid(),
+          "reported_state": "destroyed"
+        }
+      )
+    except requests.HTTPError as e:
+      # partition may already be free — destroying is idempotent
+      if e.response is not None and e.response.status_code in (403, 404):
+        return
+      raise
 
   def started(self):
     self._connection_helper.callJsonRpcAPI(

@@ -40,6 +40,7 @@ service_module/cpu_load_percent
 service_module/disk_used
 service_module/memory_used
 service_module/slapos_account_validation
+service_module/slapos_compute_node_subscription
 service_module/slapos_deposit
 service_module/slapos_instance_cleanup
 service_module/slapos_instance_hosting

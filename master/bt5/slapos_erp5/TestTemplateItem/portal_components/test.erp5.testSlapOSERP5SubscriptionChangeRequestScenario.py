@@ -94,7 +94,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.login()
       self.assertEqual(instance_tree.getDestinationSection(),
                         destination_entity.getRelativeUrl())
-      self.assertEqual('validated',
+      self.assertEqual('invalidated',
         subscription_change_request.getSimulationState())
 
     self.checkServiceSubscriptionRequest(instance_tree)

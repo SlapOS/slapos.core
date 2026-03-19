@@ -46,7 +46,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>related_simulation_movement_path_list=None</string> </value>
+            <value> <string>movement_list=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

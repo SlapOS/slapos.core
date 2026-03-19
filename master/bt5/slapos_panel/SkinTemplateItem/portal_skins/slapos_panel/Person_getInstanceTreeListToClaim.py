@@ -1,6 +1,19 @@
 portal = context.getPortalObject()
 person = context
-assert workgroup.getPortalType() == 'Workgroup'
+
+invitation_token = portal.invitation_token_module.restrictedTraverse(
+  invitation_token
+)
+
+if (invitation_token is None) or (invitation_token.getValidationState() != 'validated'):
+  return []
+
+assert invitation_token.getPortalType() == 'Invitation Token'
+
+workgroup = invitation_token.getFollowUpValue(portal_type="Workgroup")
+
+if workgroup is None:
+  return []
 
 assignment_request_list = portal.portal_catalog(
     portal_type='Assignment Request',

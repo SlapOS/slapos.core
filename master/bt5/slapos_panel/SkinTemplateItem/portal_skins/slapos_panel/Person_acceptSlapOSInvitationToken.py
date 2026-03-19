@@ -20,12 +20,13 @@ follow_up_value = invitation_token.getFollowUpValue()
 category = 'destination_project'
 if follow_up_value.getPortalType() == 'Workgroup':
   category = 'destination'
-  if not accept_claim and person.Person_getInstanceTreeListToClaim(follow_up_value):
+  if not accept_claim and person.Person_getInstanceTreeListToClaim(invitation_token.getId()):
     return person.Base_redirect(
-      'view',
+      'Person_viewAcceptSlapOSInvitationTokenWithClaimDialog',
       keep_items={
-        'portal_status_message': "User has instances to be claimed",
-        'portal_status_level': 'error'
+        'portal_status_message': "User has instances to be claimed.",
+        'portal_status_level': 'error',
+        'invitation_token': invitation_token.getId()
       }
     )
 

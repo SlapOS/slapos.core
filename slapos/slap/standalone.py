@@ -816,7 +816,7 @@ class StandaloneSlapOS(object):
       raise RuntimeError(
           "Could not terminate some processes: {}".format(alive))
 
-  def waitForSoftware(self, max_retry=0, debug=False, error_lines=30, install_all=False):
+  def waitForSoftware(self, max_retry=0, debug=False, error_lines=50, install_all=False):
     """Synchronously install or uninstall all softwares previously supplied/removed.
 
     This method retries on errors. If after `max_retry` times there's

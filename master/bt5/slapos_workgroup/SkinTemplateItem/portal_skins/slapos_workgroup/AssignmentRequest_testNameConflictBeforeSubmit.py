@@ -9,7 +9,7 @@ person = assignment_request.getDestinationDecisionValue(portal_type='Person')
 no_conflict_comment = "%s (No Conflict)" % comment
 
 if workgroup is None or person is None:
-  assignment_request.submit(comment=no_conflict_comment)
+  return assignment_request.submit(comment=no_conflict_comment)
 
 workgroup_assignment_request_list = portal.portal_catalog(
     portal_type='Assignment Request',
@@ -19,7 +19,7 @@ workgroup_assignment_request_list = portal.portal_catalog(
   )
 
 if not len(workgroup_assignment_request_list):
-  assignment_request.submit(comment=no_conflict_comment)
+  return assignment_request.submit(comment=no_conflict_comment)
 
 project_uid_list = [
   x.getDestinationProjectUid() for x in workgroup_assignment_request_list
@@ -31,19 +31,19 @@ query_kw = {
   'follow_up__uid': project_uid_list
 }
 
-person_instance_tree_title_list = portal.portal_catalog(
-     destination_section_uid=person.getUid(), **query_kw)
+person_instance_tree_title_list = [i.title for i in portal.portal_catalog(
+     destination_section__uid=person.getUid(), **query_kw)]
 
 if not person_instance_tree_title_list:
-  assignment_request.submit(comment=no_conflict_comment)
+  return assignment_request.submit(comment=no_conflict_comment)
 
 instance_with_name_conflict = portal.portal_catalog(
-     destination_section_uid=workgroup.getUid(),
+     destination_section__uid=workgroup.getUid(),
      title=person_instance_tree_title_list,
      limit=5, **query_kw)
 
 if not len(instance_with_name_conflict):
-  assignment_request.submit(comment=no_conflict_comment)
+  return assignment_request.submit(comment=no_conflict_comment)
 
 comment += ' (Conflict detected on %s)' % (', '.join([i.title for i in instance_with_name_conflict]))
 last_workflow_item = portal.portal_workflow.getInfoFor(ob=assignment_request,

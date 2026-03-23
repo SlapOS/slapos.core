@@ -49,6 +49,14 @@
             <value> <string>comment="", REQUEST=None, **kw</string> </value>
         </item>
         <item>
+            <key> <string>_proxy_roles</string> </key>
+            <value>
+              <tuple>
+                <string>Assignor</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>id</string> </key>
             <value> <string>AssignmentRequest_testNameConflictBeforeSubmit</string> </value>
         </item>

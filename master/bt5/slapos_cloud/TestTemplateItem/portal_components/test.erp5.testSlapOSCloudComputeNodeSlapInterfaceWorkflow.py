@@ -594,9 +594,6 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_release_url=software_release)
 
   def test_supply_available_createdSoftwareInstallation(self):
-    previous_id = self.getPortalObject().portal_ids\
-        .generateNewId(id_group='slap_software_installation_reference',
-                       id_generator='uid')
     software_release = self.generateNewSoftwareReleaseUrl()
 
     self.compute_node.requestSoftwareRelease(state="available",
@@ -614,13 +611,10 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getPortalType())
     self.assertEqual('validated', software_installation.getValidationState())
     self.assertEqual('start_requested', software_installation.getSlapState())
-    self.assertEqual('SOFTINSTALL-%s' % (previous_id+1),
+    self.assertEqual('SOFTINSTALL-%s' % software_installation.getId(),
         software_installation.getReference())
 
   def test_multiple_supply_available_createdSoftwareInstallation(self):
-    previous_id = self.getPortalObject().portal_ids\
-        .generateNewId(id_group='slap_software_installation_reference',
-                       id_generator='uid')
     software_release = self.generateNewSoftwareReleaseUrl()
 
     self.compute_node.requestSoftwareRelease(state="available",
@@ -638,7 +632,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getPortalType())
     self.assertEqual('validated', software_installation.getValidationState())
     self.assertEqual('start_requested', software_installation.getSlapState())
-    self.assertEqual('SOFTINSTALL-%s' % (previous_id+1),
+    self.assertEqual('SOFTINSTALL-%s' % software_installation.getId(),
         software_installation.getReference())
 
     self.tic()
@@ -651,9 +645,6 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
     self.assertEqual(software_installation_url, software_installation_url2)
 
   def test_supply_available_destroyed(self):
-    previous_id = self.getPortalObject().portal_ids\
-        .generateNewId(id_group='slap_software_installation_reference',
-                       id_generator='uid')
     software_release = self.generateNewSoftwareReleaseUrl()
 
     self.compute_node.requestSoftwareRelease(state="available",
@@ -671,7 +662,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getPortalType())
     self.assertEqual('validated', software_installation.getValidationState())
     self.assertEqual('start_requested', software_installation.getSlapState())
-    self.assertEqual('SOFTINSTALL-%s' % (previous_id+1),
+    self.assertEqual('SOFTINSTALL-%s' % software_installation.getId(),
         software_installation.getReference())
 
     self.tic()
@@ -689,13 +680,10 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getPortalType())
     self.assertEqual('validated', software_installation.getValidationState())
     self.assertEqual('destroy_requested', software_installation.getSlapState())
-    self.assertEqual('SOFTINSTALL-%s' % (previous_id+1),
+    self.assertEqual('SOFTINSTALL-%s' % software_installation.getId(),
         software_installation.getReference())
 
   def test_supply_available_destroyed_available(self):
-    previous_id = self.getPortalObject().portal_ids\
-        .generateNewId(id_group='slap_software_installation_reference',
-                       id_generator='uid')
     software_release = self.generateNewSoftwareReleaseUrl()
 
     self.compute_node.requestSoftwareRelease(state="available",
@@ -713,7 +701,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getPortalType())
     self.assertEqual('validated', software_installation.getValidationState())
     self.assertEqual('start_requested', software_installation.getSlapState())
-    self.assertEqual('SOFTINSTALL-%s' % (previous_id+1),
+    self.assertEqual('SOFTINSTALL-%s' % software_installation.getId(),
         software_installation.getReference())
 
     self.tic()
@@ -731,7 +719,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getPortalType())
     self.assertEqual('validated', software_installation.getValidationState())
     self.assertEqual('destroy_requested', software_installation.getSlapState())
-    self.assertEqual('SOFTINSTALL-%s' % (previous_id+1),
+    self.assertEqual('SOFTINSTALL-%s' % software_installation.getId(),
         software_installation.getReference())
 
     self.tic()
@@ -741,9 +729,6 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_release_url=software_release)
 
   def test_supply_available_destroyed_finalised_available(self):
-    previous_id = self.getPortalObject().portal_ids\
-        .generateNewId(id_group='slap_software_installation_reference',
-                       id_generator='uid')
     software_release = self.generateNewSoftwareReleaseUrl()
 
     self.compute_node.requestSoftwareRelease(state="available",
@@ -761,7 +746,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getPortalType())
     self.assertEqual('validated', software_installation.getValidationState())
     self.assertEqual('start_requested', software_installation.getSlapState())
-    self.assertEqual('SOFTINSTALL-%s' % (previous_id+1),
+    self.assertEqual('SOFTINSTALL-%s' % software_installation.getId(),
         software_installation.getReference())
 
     self.tic()
@@ -779,7 +764,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getPortalType())
     self.assertEqual('validated', software_installation.getValidationState())
     self.assertEqual('destroy_requested', software_installation.getSlapState())
-    self.assertEqual('SOFTINSTALL-%s' % (previous_id+1),
+    self.assertEqual('SOFTINSTALL-%s' % software_installation.getId(),
         software_installation.getReference())
 
     software_installation.invalidate()
@@ -795,5 +780,5 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getPortalType())
     self.assertEqual('validated', software_installation.getValidationState())
     self.assertEqual('start_requested', software_installation.getSlapState())
-    self.assertEqual('SOFTINSTALL-%s' % (previous_id+2),
+    self.assertEqual('SOFTINSTALL-%s' % software_installation.getId(),
         software_installation.getReference())

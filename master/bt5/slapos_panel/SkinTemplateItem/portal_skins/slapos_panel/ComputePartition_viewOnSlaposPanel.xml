@@ -99,6 +99,7 @@
                       <list>
                         <string>my_title</string>
                         <string>my_reference</string>
+                        <string>my_subject_list</string>
                       </list>
                     </value>
                 </item>

@@ -1694,7 +1694,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
   #######################################################
   # getComputerPartitionList with free partitions
   #######################################################
-  def test_getComputerPartitionList_free_partition_attributes(self):
+  def test_getComputerPartitionList_skips_free_partitions(self):
     from slapos.tests.test_slapproxy import MasterMixinJSONRPC
     import slapos.slap
     # create 2 partitions, allocate an instance on only one
@@ -1713,23 +1713,9 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
       self.computer_id,
       connection_helper=MasterMixinJSONRPC.TestConnectionHelper(self.app))
     partition_list = computer.getComputerPartitionList()
-    assert len(partition_list) == 2, partition_list
-
-    # find allocated and free partitions
-    allocated = [p for p in partition_list
-                 if p._software_release_document is not None]
-    free = [p for p in partition_list
-            if p._software_release_document is None]
-    assert len(allocated) == 1
-    assert len(free) == 1
-
-    free_partition = free[0]
-    # free partition returns empty dicts without making API calls
-    assert free_partition.getConnectionParameterDict() == {}
-    assert free_partition.getInstanceParameterDict() == {}
-    # getSoftwareRelease raises NotFoundError for free partitions
-    with self.assertRaises(slapos.slap.NotFoundError):
-      free_partition.getSoftwareRelease()
+    # free partitions are filtered out, only allocated ones are returned
+    assert len(partition_list) == 1, partition_list
+    assert partition_list[0]._software_release_document is not None
 
 
 class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):

@@ -46,7 +46,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>invitation_token, batch=0, accept_claim=False, **kw</string> </value>
+            <value> <string>invitation_token, **kw</string> </value>
         </item>
         <item>
             <key> <string>_proxy_roles</string> </key>
@@ -59,7 +59,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_acceptSlapOSInvitationToken</string> </value>
+            <value> <string>Person_getInstanceTreeListToClaim</string> </value>
         </item>
       </dictionary>
     </pickle>

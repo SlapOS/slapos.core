@@ -315,6 +315,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/UpgradeDecision_cancelOnSlaposPanel',
         'slapos_panel_compatibility/Base_getComputerToken',
         'slapos_panel/WebSection_filterSlaposPanelActionDict',
+        'slapos_panel/Workgroup_addSlapOSAssignmentRequestInvitation',
         'slapos_parameter_editor/SoftwareProductModule_updateParameterEditorTestDialog',
         'slapos_parameter_editor/SoftwareProductModule_validateParameterEditorTestDialog',
         'slapos_parameter_editor/SoftwareProductModule_validateSoftwareReleaseForParameterEditorTestDialog',
@@ -377,7 +378,11 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_upgrader/SupportRequest_triggerObjectMigrationToVirtualMaster',
         'slapos_upgrader/WebMessage_triggerObjectMigrationToVirtualMaster',
         'slapos_configurator/BusinessConfiguration_runPostUpgradeConsistency',
-        'slapos_configurator/BusinessConfiguration_setupSlapOSMasterStandardBT5'
+        'slapos_configurator/BusinessConfiguration_setupSlapOSMasterStandardBT5',
+        'slapos_workgroup/Workgroup_afterClone',
+        'slapos_workgroup/Workgroup_init',
+        'slapos_workgroup/Workgroup_isProjectCustomer',
+        'slapos_workgroup/Workgroup_validateIfSubmitted'
       ]
 
       SlapOSTestCaseMixin.afterSetUp(self)

@@ -7,27 +7,6 @@
     <pickle>
       <dictionary>
         <item>
-            <key> <string>_bind_names</string> </key>
-            <value>
-              <object>
-                <klass>
-                  <global name="NameAssignments" module="Shared.DC.Scripts.Bindings"/>
-                </klass>
-                <tuple/>
-                <state>
-                  <dictionary>
-                    <item>
-                        <key> <string>_asgns</string> </key>
-                        <value>
-                          <dictionary/>
-                        </value>
-                    </item>
-                  </dictionary>
-                </state>
-              </object>
-            </value>
-        </item>
-        <item>
             <key> <string>_objects</string> </key>
             <value>
               <tuple/>
@@ -35,7 +14,7 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>Project_selectRequestInstanceTree</string> </value>
+            <value> <string>Person_acceptSlapOSInvitationToken</string> </value>
         </item>
         <item>
             <key> <string>action_title</string> </key>
@@ -57,7 +36,7 @@
         </item>
         <item>
             <key> <string>enctype</string> </key>
-            <value> <string>multipart/form-data</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>group_list</string> </key>
@@ -78,16 +57,15 @@
                 <item>
                     <key> <string>bottom</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>listbox</string>
+                      </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>center</string> </key>
                     <value>
-                      <list>
-                        <string>your_text_content</string>
-                        <string>your_computer_guid</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -100,10 +78,8 @@
                     <key> <string>left</string> </key>
                     <value>
                       <list>
-                        <string>your_url_string</string>
-                        <string>your_title</string>
-                        <string>your_price_information</string>
-                        <string>your_workgroup_information</string>
+                        <string>your_invitation_token</string>
+                        <string>your_accept_claim</string>
                       </list>
                     </value>
                 </item>
@@ -118,7 +94,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Project_viewRequestInstanceTreeDialog</string> </value>
+            <value> <string>Person_viewAcceptSlapOSInvitationTokenWithClaimDialog</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -126,7 +102,7 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>Project_viewRequestInstanceTreeDialog</string> </value>
+            <value> <string>Person_viewAcceptSlapOSInvitationTokenDialog</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
@@ -142,7 +118,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Request</string> </value>
+            <value> <string>Accept Invitation Token</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

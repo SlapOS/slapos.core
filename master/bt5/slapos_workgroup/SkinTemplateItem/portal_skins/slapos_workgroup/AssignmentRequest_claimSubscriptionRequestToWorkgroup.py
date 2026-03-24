@@ -47,10 +47,14 @@ instance_tree_to_claim = portal.portal_catalog(
   follow_up__uid=project_uid_list)
 
 activate_kw = {
+  'activity': 'SQLQueue',
   'tag': "auto_claim_%s_%s" % (workgroup.getId(), person.getId())
 }
 for instance in instance_tree_to_claim:
-  workgroup.activate(**activate_kw).Person_claimSlaposItemSubscription(
+  activate_kw = {'tag': "auto_claim_%s_%s_%s" % (workgroup.getId(),
+                                  person.getId(),
+                                  instance.getReference())}
+  workgroup.activate(activity='SQLQueue', **activate_kw).Person_claimSlaposItemSubscription(
     reference=instance.getReference(),
     dialog_id=None,
     activate_kw=activate_kw

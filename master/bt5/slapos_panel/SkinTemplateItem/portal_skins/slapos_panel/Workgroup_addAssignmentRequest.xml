@@ -46,20 +46,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>invitation_token, batch=0, accept_claim=False, **kw</string> </value>
-        </item>
-        <item>
-            <key> <string>_proxy_roles</string> </key>
-            <value>
-              <tuple>
-                <string>Assignor</string>
-                <string>Manager</string>
-              </tuple>
-            </value>
+            <value> <string>reference, dialog_id=None, activate_kw=None, REQUEST=None, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_acceptSlapOSInvitationToken</string> </value>
+            <value> <string>Workgroup_addAssignmentRequest</string> </value>
         </item>
       </dictionary>
     </pickle>

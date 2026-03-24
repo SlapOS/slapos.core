@@ -1,5 +1,4 @@
 from zExceptions import Unauthorized
-
 portal = context.getPortalObject()
 
 if shared in ["true", "1", 1]:
@@ -11,18 +10,6 @@ if shared in ["false", "", 0, "0", None]:
 if "{uid}" in title:
   uid_ = portal.portal_ids.generateNewId(id_group=("vifib", "kvm"), default=1)
   title = title.replace("{uid}", str(uid_))
-"""
-instance_tree = portal.portal_catalog.getResultValue(
-  portal_type='Instance Tree',
-  validation_state="validated",
-
-  title={'query': title, 'key': 'ExactMatch'}
-  )
-
-if instance_tree is not None:
-  response.setStatus(409)
-  return "Instance with this name already exists"
-"""
 
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
@@ -46,7 +33,8 @@ request_kw.update(
   sla_xml="",
   shared=shared,
   state="started",
-  project_reference=context.getReference()
+  project_reference=context.getReference(),
+  workgroup_reference=workgroup_reference
 )
 
 for sla_category_id, sla_category in [

@@ -35,7 +35,7 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>Project_selectRequestInstanceTree</string> </value>
+            <value> <string>Base_edit</string> </value>
         </item>
         <item>
             <key> <string>action_title</string> </key>
@@ -57,7 +57,7 @@
         </item>
         <item>
             <key> <string>enctype</string> </key>
-            <value> <string>multipart/form-data</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>group_list</string> </key>
@@ -78,32 +78,32 @@
                 <item>
                     <key> <string>bottom</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>listbox</string>
+                      </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>center</string> </key>
                     <value>
-                      <list>
-                        <string>your_text_content</string>
-                        <string>your_computer_guid</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
                     <key> <string>hidden</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>listbox_list_image</string>
+                        <string>listbox_status</string>
+                      </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>left</string> </key>
                     <value>
                       <list>
-                        <string>your_url_string</string>
-                        <string>your_title</string>
-                        <string>your_price_information</string>
-                        <string>your_workgroup_information</string>
+                        <string>my_title</string>
+                        <string>my_reference</string>
                       </list>
                     </value>
                 </item>
@@ -118,7 +118,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Project_viewRequestInstanceTreeDialog</string> </value>
+            <value> <string>Workgroup_viewOnSlaposPanel</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -126,11 +126,11 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>Project_viewRequestInstanceTreeDialog</string> </value>
+            <value> <string>Workgroup_viewOnSlaposPanel</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
-            <value> <string>form_dialog</string> </value>
+            <value> <string>form_view</string> </value>
         </item>
         <item>
             <key> <string>row_length</string> </key>
@@ -142,7 +142,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Request</string> </value>
+            <value> <string>Workgroup</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

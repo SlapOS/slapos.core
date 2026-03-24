@@ -43,6 +43,7 @@ person_module
 portal_integrations
 project_module
 regularisation_request_module
+remote_node_change_request_module
 sale_packing_list_module
 sale_supply_module
 sale_trade_condition_change_request_module
@@ -72,3 +73,4 @@ support_request_module
 system_event_module
 upgrade_decision_module
 web_page_module
+workgroup_module

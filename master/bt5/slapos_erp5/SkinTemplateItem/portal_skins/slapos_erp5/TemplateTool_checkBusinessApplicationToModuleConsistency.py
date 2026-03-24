@@ -42,6 +42,7 @@ for business_application_id, module_name_list in [
           "software_instance_module",
           "subscription_request_module",
           "subscription_change_request_module",
+          "workgroup_module",
       ]],
       ["crm", [  # Customer Relation Management
           "campaign_module",

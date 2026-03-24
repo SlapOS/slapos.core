@@ -22,7 +22,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>interaction_AssignmentRequest_edit</string> </value>
+            <value> <string>interaction_Workgroup_setUserId</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -32,7 +32,7 @@
             <key> <string>portal_type_filter</string> </key>
             <value>
               <tuple>
-                <string>Assignment Request</string>
+                <string>Workgroup</string>
               </tuple>
             </value>
         </item>
@@ -47,18 +47,10 @@
             <value> <int>1</int> </value>
         </item>
         <item>
-            <key> <string>title</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>trigger_method_id</string> </key>
             <value>
               <tuple>
-                <string>_setDestinationProject.*</string>
-                <string>_setDestination.*</string>
-                <string>setCategoryList</string>
+                <string>_setUserId.*</string>
               </tuple>
             </value>
         </item>

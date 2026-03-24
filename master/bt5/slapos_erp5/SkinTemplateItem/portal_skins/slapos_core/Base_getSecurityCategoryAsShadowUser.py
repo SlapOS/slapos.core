@@ -34,7 +34,8 @@ if not base_category_list:
 # We only need the first
 base_category = base_category_list[0]
 
-person_list = [i for i in obj.getValueList(base_category) if i.getPortalType() == "Person"]
+person_list = [i for i in obj.getValueList(base_category)
+                 if i.getPortalType() in ["Person", "Workgroup"]]
 
 if not person_list:
   return []
@@ -43,5 +44,5 @@ if not person_list:
 person_shadow_id = "SHADOW-%s" % person_list[0].getUserId()
 
 # Return all usecased so the role filter on upper level
-return {"Assignee": [person_shadow_id], 
+return {"Assignee": [person_shadow_id],
         "Auditor": [person_shadow_id]}

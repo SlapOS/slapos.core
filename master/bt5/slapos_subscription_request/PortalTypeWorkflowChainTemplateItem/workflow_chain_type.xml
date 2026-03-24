@@ -1,5 +1,9 @@
 <workflow_chain>
  <chain>
+  <type>Assignment Request</type>
+  <workflow>slapos_subscription_request_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Compute Node</type>
   <workflow>slapos_subscription_request_interaction_workflow</workflow>
  </chain>

@@ -228,6 +228,7 @@ erp5_web_hal_json
 erp5_web_renderjs_ui
 %(slapos_folder_list)s
 erp5_knowledge_pad
+erp5_workgroup
 erp5_simulation
 erp5_workgroup
 erp5_dms_base

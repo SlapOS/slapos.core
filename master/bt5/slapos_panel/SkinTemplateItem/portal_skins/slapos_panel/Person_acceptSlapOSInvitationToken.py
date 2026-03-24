@@ -16,18 +16,42 @@ if (invitation_token is None) or (invitation_token.getValidationState() != 'vali
   )
 
 assert invitation_token.getPortalType() == 'Invitation Token'
+follow_up_value = invitation_token.getFollowUpValue()
+category = 'destination_project'
+if follow_up_value.getPortalType() == 'Workgroup':
+  category = 'destination'
+  if not accept_claim and person.Person_getInstanceTreeListToClaim(invitation_token.getId()):
+    return person.Base_redirect(
+      'Person_viewAcceptSlapOSInvitationTokenWithClaimDialog',
+      keep_items={
+        'portal_status_message': "User has instances to be claimed.",
+        'portal_status_level': 'error',
+        'invitation_token': invitation_token.getId()
+      }
+    )
+
+title = person.getTitle()
+if invitation_token.getFunction() is not None:
+  title = '%s: %s' % (invitation_token.getFunctionTitle(), title)
+
+assignment_request_kw = {
+  "title": title,
+  "destination_decision_value" : person,
+  "function" : invitation_token.getFunction(),
+  category: follow_up_value.getRelativeUrl()
+}
+
 assignment_request = portal.assignment_request_module.newContent(
   portal_type='Assignment Request',
-  title='%s: %s' % (invitation_token.getFunctionTitle(), person.getTitle()),
-  destination_decision_value=person,
-  function=invitation_token.getFunction(),
-  destination_project=invitation_token.getFollowUp()
+  **assignment_request_kw
 )
 if len(assignment_request.checkConsistency()) != 0:
   raise AssertionError(assignment_request.checkConsistency()[0])
 
 assignment_request.submit(comment='Created Invitation Token: %s' % invitation_token.getRelativeUrl())
 invitation_token.invalidate(comment='Created by Assignment Request: %s' % assignment_request.getRelativeUrl())
+if batch:
+  return person
 return person.Base_redirect(
   'view',
   keep_items={

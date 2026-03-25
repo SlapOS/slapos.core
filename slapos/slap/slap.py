@@ -475,10 +475,11 @@ class Computer(SlapDocument):
           SoftwareRelease(software_release=sr_uri, computer_guid=self._computer_id)
           if sr_uri else None
         )
-        # skip free partitions (no software release assigned) to match
-        # the old XML-RPC getFullComputerInformation behavior
+        # pre-populate lazy-loaded attributes for free partitions so
+        # they do not trigger a separate API call that would fail
         if not sr_uri:
-          continue
+          computer_partition._parameter_dict = {}
+          computer_partition._connection_dict = {}
 
         self._computer_partition_list.append(computer_partition)
 

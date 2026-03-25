@@ -267,10 +267,9 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/InstanceTree_updateParameter',
         'slapos_panel/Module_listWorkflowTransitionItemList',
         'slapos_panel/PaymentTransaction_redirectToManualPayment',
-        'slapos_panel/Person_acceptSlapOSInvitationToken',
         'slapos_panel/Person_addSlapOSCredentialToken',
+        'slapos_panel/Person_getInstanceTreeListToClaim',
         'slapos_panel/Project_addSlapOSAllocationSupply',
-        'slapos_panel/Project_addSlapOSAssignmentRequestInvitation',
         'slapos_panel/Project_addSlapOSComputeNode',
         'slapos_panel/Project_addSlapOSComputeNodeToken',
         'slapos_panel/Project_addSlapOSComputerNetwork',
@@ -281,6 +280,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/Project_getPayableSoftwareProductPredicateList',
         'slapos_panel/Project_getSoftwareProductPriceInformationText',
         'slapos_panel/Project_getSoftwareReleaseSchemaUrl',
+        'slapos_panel/Project_getUserWorkgroupInformation',
         'slapos_panel/Project_redirectSlapOSComputeNodeCertificate',
         'slapos_panel/Project_selectRequestInstanceTree',
         'slapos_panel/Project_selectRequestSoftwareRelease',
@@ -376,7 +376,14 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_upgrader/SupportRequest_triggerObjectMigrationToVirtualMaster',
         'slapos_upgrader/WebMessage_triggerObjectMigrationToVirtualMaster',
         'slapos_configurator/BusinessConfiguration_runPostUpgradeConsistency',
-        'slapos_configurator/BusinessConfiguration_setupSlapOSMasterStandardBT5'
+        'slapos_configurator/BusinessConfiguration_setupSlapOSMasterStandardBT5',
+        'slapos_workgroup/Workgroup_afterClone',
+        'slapos_workgroup/Workgroup_init',
+        'slapos_workgroup/AssignmentRequest_claimSubscriptionRequestToWorkgroup',
+        'slapos_workgroup/AssignmentRequest_suspendDuplicatedAssignmentRequest',
+        'slapos_workgroup/AssignmentRequest_testNameConflictBeforeSubmit',
+        'slapos_workgroup/Person_getAssigmentPlaceholderEntityUidList',
+        'slapos_workgroup/Project_getUserWorkgroup'
       ]
 
       SlapOSTestCaseMixin.afterSetUp(self)

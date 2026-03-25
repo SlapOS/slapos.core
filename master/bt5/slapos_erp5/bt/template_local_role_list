@@ -82,3 +82,4 @@ support_request_module
 system_event_module
 upgrade_decision_module
 web_page_module
+workgroup_module

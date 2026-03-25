@@ -51,8 +51,9 @@ for instance in instance_list:
       software_release=software_release,
       software_type=software_type)
     if allocable_compute_node is None:
-      # Such case is not expected
-      raise ValueError('No allocable_compute_node found for %s' % instance_tree_context.getRelativeUrl())
+      # Such case occurs if a previous allocation supply
+      # has been invalidated
+      allocable_compute_node, allocation_cell_list = compute_node, []
 
   if not allocation_cell_list:
     # Sampling of the structure

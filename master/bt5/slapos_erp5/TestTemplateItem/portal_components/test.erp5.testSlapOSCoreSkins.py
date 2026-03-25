@@ -20,13 +20,13 @@
 # See https://www.nexedi.com/licensing for rationale and options.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 from AccessControl import getSecurityManager
 
-class TestSlapOSCoreMixin(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCoreMixin(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
-    SlapOSTestCaseMixinWithAbort.afterSetUp(self)
+    SlapOSTestCaseMixin.afterSetUp(self)
     self.user_id = getSecurityManager().getUser().getId()
 
   def createPerson(self):

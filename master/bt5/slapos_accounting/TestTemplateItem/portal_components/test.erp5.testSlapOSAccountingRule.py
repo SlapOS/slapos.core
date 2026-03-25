@@ -4,7 +4,7 @@
 # Copyright (c) 2012 Nexedi SA and Contributors. All Rights Reserved.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort, TemporaryAlarmScript
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, TemporaryAlarmScript
 
 from DateTime import DateTime
 from erp5.component.module.DateUtils import addToDate
@@ -30,7 +30,6 @@ def getSimulationStatePlannedDelivered(self, *args, **kwargs):
 class TestDefaultInvoiceTransactionRule(SlapOSTestCaseMixin):
   require_certificate = 1
 
-  @withAbort
   def test_simulation(self):
     SimulationMovement.original_getSimulationState = SimulationMovement\
         .getSimulationState
@@ -173,7 +172,6 @@ class TestDefaultInvoiceTransactionRule(SlapOSTestCaseMixin):
 class TestDefaultInvoiceRule(SlapOSTestCaseMixin):
   require_certificate = 1
 
-  @withAbort
   def test_simulation(self):
     SimulationMovement.original_getSimulationState = SimulationMovement\
         .getSimulationState
@@ -255,7 +253,6 @@ class TestDefaultInvoiceRule(SlapOSTestCaseMixin):
 class TestDefaultInvoicingRule(SlapOSTestCaseMixin):
   require_certificate = 1
 
-  @withAbort
   def test_simulation(self):
     SimulationMovement.original_getSimulationState = SimulationMovement\
         .getSimulationState
@@ -389,7 +386,6 @@ class TestDefaultInvoicingRule(SlapOSTestCaseMixin):
 class TestDefaultPaymentRule(SlapOSTestCaseMixin):
   require_certificate = 1
 
-  @withAbort
   def test_simulation(self):
     SimulationMovement.original_getSimulationState = SimulationMovement\
         .getSimulationState
@@ -723,7 +719,6 @@ class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
       delattr(SimulationMovement, 'originalIsFrozen')
 
 class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
-  @withAbort
   def test_trade_model_simulation(self):
     SimulationMovement.original_getSimulationState = SimulationMovement\
         .getSimulationState

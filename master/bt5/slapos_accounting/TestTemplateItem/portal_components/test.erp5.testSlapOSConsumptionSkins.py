@@ -6,13 +6,13 @@
 ##############################################################################
 
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixinWithAbort, SlapOSTestCaseMixin, simulate
+  SlapOSTestCaseMixin, simulate
 
 from Products.ERP5Type.Utils import str2bytes, bytes2str
 from zExceptions import Unauthorized
 from unittest import expectedFailure
 
-class TestSlapOSComputeNode_reportComputeNodeConsumption(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSComputeNode_reportComputeNodeConsumption(SlapOSTestCaseMixin):
 
   def createComputeNode(self):
     new_id = self.generateNewId()
@@ -127,7 +127,7 @@ class TestSlapOSComputeNode_reportComputeNodeConsumption(SlapOSTestCaseMixinWith
     self.assertEqual(document2.getValidationState(), "submitted")
     self.assertEqual(document2.getContributor(), compute_node.getRelativeUrl())
 
-class TestSlapOSComputerConsumptionTioXMLFile_parseXml(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSComputerConsumptionTioXMLFile_parseXml(SlapOSTestCaseMixin):
 
   def createTioXMLFile(self):
     document = self.portal.consumption_document_module.newContent(

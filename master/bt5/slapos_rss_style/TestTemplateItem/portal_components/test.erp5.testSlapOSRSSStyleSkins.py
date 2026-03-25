@@ -21,7 +21,7 @@
 #
 ##############################################################################
 
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort,\
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin,\
   TemporaryAlarmScript, PinnedDateTime
 
 from Products.ERP5Type.Utils import unicode2str
@@ -29,10 +29,10 @@ from DateTime import DateTime
 import feedparser
 from time import sleep
 
-class TestRSSSyleSkinsMixin(SlapOSTestCaseMixinWithAbort):
+class TestRSSSyleSkinsMixin(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
-    SlapOSTestCaseMixinWithAbort.afterSetUp(self)
+    SlapOSTestCaseMixin.afterSetUp(self)
     self.person = self.makePerson(self.addProject(), new_id=self.new_id, index=0, user=0)
     self.clearCache()
 

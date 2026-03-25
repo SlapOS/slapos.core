@@ -21,7 +21,7 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixinWithAbort, simulate
+  SlapOSTestCaseMixin, simulate
 from zExceptions import Unauthorized
 from App.Common import rfc1123_date
 from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
@@ -39,7 +39,7 @@ def fakeStopRequestedSlapState():
 def fakeDestroyRequestedSlapState():
   return "destroy_requested"
 
-class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixin):
 
   def getMonitorUrl(self, context, instance_tree_title =None):
     base_url = 'https://monitor.app.officejs.com/#/?page=ojsm_landing'
@@ -58,7 +58,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
   
   maxDiff = None
   def afterSetUp(self):
-    SlapOSTestCaseMixinWithAbort.afterSetUp(self)
+    SlapOSTestCaseMixin.afterSetUp(self)
     d = DateTime()
     self.pinDateTime(d)
 
@@ -67,7 +67,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
 
 
   def beforeTearDown(self):
-    SlapOSTestCaseMixinWithAbort.beforeTearDown(self)
+    SlapOSTestCaseMixin.beforeTearDown(self)
     self.unpinDateTime()
 
   def _logFakeAccess(self, document, text="#access OK", state='start_requested'):
@@ -116,7 +116,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     return instance
 
   def _makeComputeNode(self, owner=None, allocation_scope='open/public'):
-    _, partition0 =SlapOSTestCaseMixinWithAbort._makeComputeNode(
+    _, partition0 =SlapOSTestCaseMixin._makeComputeNode(
       self, owner=owner, allocation_scope=allocation_scope
     )
     

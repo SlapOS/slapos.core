@@ -6,7 +6,6 @@
 ##############################################################################
 from erp5.component.test.testSlapOSCloudConstraint import TestSlapOSConstraintMixin
 from Products.ERP5Type.Base import WorkflowMethod
-from erp5.component.test.SlapOSTestCaseMixin import withAbort
 from unittest import skip
 
 import transaction
@@ -100,7 +99,6 @@ class TestHostingSubscription(TestSlapOSConstraintMixin):
       template % 'periodicity_month_day', empty_string=False)
 
 class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
-  @withAbort
   def _test_currency(self, invoice, setter, message):
     self.assertIn(message, self.getMessageList(invoice))
 
@@ -127,7 +125,6 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
         "('Currency',), arity is equal to 0 but should be between 1 and 1"
     self._test_currency(invoice, invoice.setResource, message)
 
-  @withAbort
   def test_sale_invoice_specialise_sale_trade_condition_constraint(self):
     invoice = self.portal.accounting_module.newContent(
         portal_type='Sale Invoice Transaction')
@@ -153,7 +150,6 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
     setter(purchase_condition.getRelativeUrl())
     self.assertIn(message, self.getMessageList(invoice))
 
-  @withAbort
   def test_specialise_value(self):
     invoice = self.portal.accounting_module.newContent(
         portal_type='Sale Invoice Transaction')
@@ -171,7 +167,6 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
     invoice.setSpecialise(sale_condition.getRelativeUrl())
     self.assertNotIn(message, self.getMessageList(invoice))
 
-  @withAbort
   def test_total_price_equal_accounting(self):
     message = "Total price of invoice does not match accounting"
     invoice = self.portal.accounting_module.newContent(
@@ -187,7 +182,6 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
     invoice.income.setQuantity(1.0)
     self.assertNotIn(message, self.getMessageList(invoice))
 
-  @withAbort
   def test_trade_model_match_lines(self):
     message = "Defined Trade Model does not match Lines definition"
     currency = self.portal.currency_module.EUR
@@ -233,7 +227,6 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
         )
     self.assertNotIn(message, self.getMessageList(invoice))
 
-  @withAbort
   def test_use_trade_sale_total_price_matches_delivery_constraint(self):
     message = "Total price does not match related Sale Packing List"
     currency = self.portal.currency_module.EUR
@@ -285,7 +278,6 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
     self.assertNotIn(message, self.getMessageList(invoice))
 
 class TestSalePackingList(TestSlapOSConstraintMixin):
-  @withAbort
   def test_lines(self):
     message = 'Sale Packing List Line is not defined'
     delivery = self.portal.sale_packing_list_module.newContent(
@@ -295,7 +287,6 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
     delivery.newContent(portal_type='Sale Packing List Line')
     self.assertNotIn(message, self.getMessageList(delivery))
 
-  @withAbort
   def test_reference_not_empty(self):
     message = 'Reference must be defined'
     delivery = self.portal.sale_packing_list_module.newContent(
@@ -305,7 +296,6 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
     delivery.setReference(None)
     self.assertIn(message, self.getMessageList(delivery))
 
-  @withAbort
   def test_price_currency(self):
     message = 'Exactly one Currency shall be selected'
     delivery = self.portal.sale_packing_list_module.newContent(
@@ -325,7 +315,6 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
     delivery.setPriceCurrency(currency_1.getRelativeUrl())
     self.assertNotIn(message, self.getMessageList(delivery))
 
-  @withAbort
   def _test_category_arrow(self, category):
     message = "Arity Error for Relation ['%s'] and Type ('Organisation', "\
         "'Person'), arity is equal to 0 but should be between 1 and 1" % category
@@ -365,7 +354,6 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
   def test_source(self):
     self._test_category_arrow('source')
 
-  @withAbort
   def test_specialise(self):
     category = 'specialise'
     message = "Arity Error for Relation ['%s'] and Type ('Sale Trade Condition"\
@@ -391,7 +379,6 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
     self.assertNotIn(message, self.getMessageList(delivery))
     self.assertNotIn(message_2, self.getMessageList(delivery))
 
-  @withAbort
   def test_start_date(self):
     message = 'Property start_date must be defined'
     delivery = self.portal.sale_packing_list_module.newContent(
@@ -401,7 +388,6 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
     self.assertNotIn(message, self.getMessageList(delivery))
 
 class TestSalePackingListLine(TestSlapOSConstraintMixin):
-  @withAbort
   def test_property_existence(self):
     message_quantity = 'No quantity defined'
     delivery_line = self.portal.sale_packing_list_module.newContent(
@@ -411,7 +397,6 @@ class TestSalePackingListLine(TestSlapOSConstraintMixin):
     delivery_line.setQuantity(1.0)
     self.assertNotIn(message_quantity, self.getMessageList(delivery_line))
 
-  @withAbort
   def test_resource_arity(self):
     category = 'resource'
     message = "Arity Error for Relation ['%s'] and Type ('Data Operation', 'Service', 'Software Product'), arity is"\
@@ -439,7 +424,6 @@ class TestSalePackingListLine(TestSlapOSConstraintMixin):
     self.assertNotIn(message_2, self.getMessageList(delivery_line))
 
 class TestSalePackingListLineConsumption(TestSlapOSConstraintMixin):
-  @withAbort
   def _test_aggregate(self, message, aggregate_1, aggregate_2):
     category = 'aggregate'
     delivery = self.portal.sale_packing_list_module.newContent(
@@ -505,7 +489,6 @@ class TestSalePackingListAggregated(TestSlapOSConstraintMixin):
 
 
 class TestSaleTradeConditionConsumption(TestSlapOSConstraintMixin):
-  @withAbort
   def test_sale_trade_condition_non_empty_reference(self):
     # Testing: SaleTradeCondition_checkEmptyReferenceMigrationConsistency
     trade_condition = self.portal.sale_trade_condition_module.newContent(
@@ -519,7 +502,6 @@ class TestSaleTradeConditionConsumption(TestSlapOSConstraintMixin):
     trade_condition.edit(reference='foo')
     self.assertIn(message, self.getMessageList(trade_condition))
 
-  @withAbort
   def test_sale_trade_condition_non_empty_reference_migration(self):
     # Testing: SaleTradeCondition_checkEmptyReferenceMigrationConsistency
     trade_condition = self.portal.sale_trade_condition_module.newContent(

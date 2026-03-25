@@ -20,11 +20,11 @@
 # See https://www.nexedi.com/licensing for rationale and options.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 from AccessControl import getSecurityManager
 import transaction
 
-class TestSlapOSGroupRoleSecurityCoverage(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSGroupRoleSecurityCoverage(SlapOSTestCaseMixin):
   maxDiff = None
 
   def testCoverage(self):
@@ -67,10 +67,10 @@ class TestSlapOSGroupRoleSecurityCoverage(SlapOSTestCaseMixinWithAbort):
     test_list.sort()
     self.assertEqual(test_list, [])
 
-class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
-    SlapOSTestCaseMixinWithAbort.afterSetUp(self)
+    SlapOSTestCaseMixin.afterSetUp(self)
     self.user_id = getSecurityManager().getUser().getId()
 
   def _getLocalRoles(self, context):

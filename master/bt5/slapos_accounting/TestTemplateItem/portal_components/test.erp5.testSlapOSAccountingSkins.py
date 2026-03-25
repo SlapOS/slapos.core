@@ -26,7 +26,7 @@
 #
 ##############################################################################
 
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
 from DateTime import DateTime
 from zExceptions import Unauthorized
@@ -163,14 +163,12 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
   #################################################################
   # SaleInvoiceTransaction_createReversalSaleInvoiceTransaction
   #################################################################
-  @withAbort
   def test_createReversalSaleInvoiceTransaction_bad_portal_type(self):
     self.assertRaises(
       AssertionError,
       self.portal.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
       batch_mode=1)
 
-  @withAbort
   def test_createReversalSaleInvoiceTransaction_zero_price(self, payment_mode='payzen'):
     invoice = self.createSaleInvoiceTransactionForReversal(payment_mode=payment_mode)
     invoice.manage_delObjects(invoice.contentIds())
@@ -180,7 +178,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
       batch_mode=1)
 
-  @withAbort
   def test_createReversalSaleInvoiceTransaction_paid(self, payment_mode='payzen'):
     invoice = self.createSaleInvoiceTransactionForReversal(payment_mode=payment_mode)
     line = invoice.contentValues(portal_type="Sale Invoice Transaction Line")[0]
@@ -191,7 +188,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
       batch_mode=1)
 
-  @withAbort
   def test_createReversalSaleInvoiceTransaction_registered_payment(self, payment_mode='payzen'):
     invoice = self.createSaleInvoiceTransactionForReversal(payment_mode=payment_mode)
     payment = self.portal.accounting_module.newContent(
@@ -226,7 +222,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
         older_integration_site
       )
 
-  @withAbort
   def test_createReversalSaleInvoiceTransaction_ok(self, payment_mode='payzen'):
     invoice = self.createSaleInvoiceTransactionForReversal(payment_mode=payment_mode)
     self.tic()
@@ -279,7 +274,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
 
     self.tic()
 
-  @withAbort
   def test_createReversalSaleInvoiceTransaction_ok_dont_autocancel(self, payment_mode='payzen'):
     invoice = self.createSaleInvoiceTransactionForReversal(payment_mode=payment_mode)
     payment = self.portal.accounting_module.newContent(
@@ -298,15 +292,12 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
       batch_mode=1)
 
-  @withAbort
   def test_createReversalSaleInvoiceTransaction_wechat_zero_price(self):
     self.test_createReversalSaleInvoiceTransaction_zero_price(payment_mode='wechat')
 
-  @withAbort
   def test_createReversalSaleInvoiceTransaction_wechat_paid(self):
     self.test_createReversalSaleInvoiceTransaction_paid(payment_mode='wechat')
 
-  @withAbort
   def test_createReversalSaleInvoiceTransaction_wechat_registered_payment(self):
     invoice = self.createSaleInvoiceTransactionForReversal(payment_mode='wechat')
     payment = self.portal.accounting_module.newContent(
@@ -341,54 +332,45 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
         older_integration_site
       )
 
-  @withAbort
   def test_createReversalSaleInvoiceTransaction_wechat_ok(self):
     self.test_createReversalSaleInvoiceTransaction_ok(payment_mode='wechat')
 
-  @withAbort
   def test_createReversalSaleInvoiceTransaction_wechat_ok_dont_autocancel(self):
     self.test_createReversalSaleInvoiceTransaction_ok_dont_autocancel(payment_mode='wechat')
 
   #################################################################
   # AccountingTransaction_getPaymentState
   #################################################################
-  @withAbort
   def test_AccountingTransaction_getPaymentState_draft_payment(self):
     invoice = self.createSaleInvoiceTransaction()
     self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
 
-  @withAbort
   def test_AccountingTransaction_getPaymentState_deleted_payment(self):
     invoice = self.createSaleInvoiceTransaction()
     invoice.delete()
     self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
 
-  @withAbort
   def test_AccountingTransaction_getPaymentState_cancelled_payment(self):
     invoice = self.createSaleInvoiceTransaction()
     invoice.cancel()
     self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
 
-  @withAbort
   def test_AccountingTransaction_getPaymentState_planned_payment(self):
     invoice = self.createSaleInvoiceTransaction()
     invoice.plan()
     self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
 
-  @withAbort
   def test_AccountingTransaction_getPaymentState_confirmed_payment(self):
     invoice = self.createSaleInvoiceTransaction()
     invoice.setStartDate(DateTime())
     invoice.confirm()
     self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
 
-  @withAbort
   def test_AccountingTransaction_getPaymentState_started_payment(self):
     invoice = self.createSaleInvoiceTransaction()
     invoice.start()
     self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
 
-  @withAbort
   def test_AccountingTransaction_getPaymentState_payzen_reversed_payment(self):
     invoice =  self.createStoppedSaleInvoiceTransaction()
     self.tic()
@@ -401,7 +383,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.assertTrue(invoice.SaleInvoiceTransaction_isLettered())
     self.assertTrue(reversal.SaleInvoiceTransaction_isLettered())
 
-  @withAbort
   def test_AccountingTransaction_getPaymentState_wechat_reversed_payment(self):
     invoice =  self.createStoppedSaleInvoiceTransaction(payment_mode='wechat')
     self.tic()
@@ -592,14 +573,12 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
     return delivery, line
 
-  @withAbort
   def test_fixBaseContributionTaxableRate_unauthorized(self):
     self.assertRaises(
       Unauthorized,
       self.portal.Delivery_fixBaseContributionTaxableRate,
       REQUEST=1)
 
-  @withAbort
   def test_fixBaseContributionTaxableRate_noSourceOrganisation(self):
     delivery, line = self._createSalePackingListForVatCalculation(
       self._createEntityForVatCalculation(portal_type='Person',
@@ -611,7 +590,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     # No change
     self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
 
-  @withAbort
   def test_fixBaseContributionTaxableRate_noSourceRegion(self):
     delivery, line = self._createSalePackingListForVatCalculation(
       self._createEntityForVatCalculation(portal_type='Organisation'),
@@ -622,7 +600,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     # No change
     self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
 
-  @withAbort
   def test_fixBaseContributionTaxableRate_notManagedSourceRegion(self):
     delivery, line = self._createSalePackingListForVatCalculation(
       self._createEntityForVatCalculation(portal_type='Organisation',
@@ -634,7 +611,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     # No change
     self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
 
-  @withAbort
   def test_fixBaseContributionTaxableRate_franceNotDestinationRegion(self):
     delivery, line = self._createSalePackingListForVatCalculation(
       self._createEntityForVatCalculation(portal_type='Organisation',
@@ -645,7 +621,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     # No change
     self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
 
-  @withAbort
   def test_fixBaseContributionTaxableRate_franceToFrancePerson(self):
     delivery, line = self._createSalePackingListForVatCalculation(
       self._createEntityForVatCalculation(portal_type='Organisation',
@@ -657,7 +632,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     # No change
     self.assertTrue('base_amount/invoicing/taxable/vat/normal_rate' in line.getBaseContributionList())
 
-  @withAbort
   def test_fixBaseContributionTaxableRate_franceToFranceOrganisation(self):
     delivery, line = self._createSalePackingListForVatCalculation(
       self._createEntityForVatCalculation(portal_type='Organisation',
@@ -670,7 +644,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     # No change
     self.assertTrue('base_amount/invoicing/taxable/vat/normal_rate' in line.getBaseContributionList())
 
-  @withAbort
   def test_fixBaseContributionTaxableRate_franceToFranceOrganisationWithoutVatCode(self):
     delivery, line = self._createSalePackingListForVatCalculation(
       self._createEntityForVatCalculation(portal_type='Organisation',
@@ -682,7 +655,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     # No change
     self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
 
-  @withAbort
   def test_fixBaseContributionTaxableRate_franceToEuropePerson(self):
     delivery, line = self._createSalePackingListForVatCalculation(
       self._createEntityForVatCalculation(portal_type='Organisation',
@@ -694,7 +666,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     # No change
     self.assertTrue('base_amount/invoicing/taxable/vat/normal_rate' in line.getBaseContributionList())
 
-  @withAbort
   def test_fixBaseContributionTaxableRate_franceToEuropeOrganisation(self):
     delivery, line = self._createSalePackingListForVatCalculation(
       self._createEntityForVatCalculation(portal_type='Organisation',
@@ -707,7 +678,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     # No change
     self.assertTrue('base_amount/invoicing/taxable/vat/zero_rate' in line.getBaseContributionList())
 
-  @withAbort
   def test_fixBaseContributionTaxableRate_franceToEuropeOrganisationWithoutVatCode(self):
     delivery, line = self._createSalePackingListForVatCalculation(
       self._createEntityForVatCalculation(portal_type='Organisation',
@@ -719,7 +689,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     # No change
     self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
 
-  @withAbort
   def test_fixBaseContributionTaxableRate_franceToWorldPerson(self):
     delivery, line = self._createSalePackingListForVatCalculation(
       self._createEntityForVatCalculation(portal_type='Organisation',
@@ -731,7 +700,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     # No change
     self.assertTrue('base_amount/invoicing/taxable/vat/zero_rate' in line.getBaseContributionList())
 
-  @withAbort
   def test_fixBaseContributionTaxableRate_franceToWorldOrganisation(self):
     delivery, line = self._createSalePackingListForVatCalculation(
       self._createEntityForVatCalculation(portal_type='Organisation',

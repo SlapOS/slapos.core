@@ -21,7 +21,7 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixin, SlapOSTestCaseMixinWithAbort, simulate, TemporaryAlarmScript, PinnedDateTime
+  SlapOSTestCaseMixin, simulate, TemporaryAlarmScript, PinnedDateTime
 from DateTime import DateTime
 import time
 import difflib
@@ -505,7 +505,7 @@ Administrator
     self.assertEqual(ticket.getSimulationState(), 'suspended')
 
 
-class TestSlapOSCrmTriggerEscalationOnAcknowledgmentRegularisationRequest(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCrmTriggerEscalationOnAcknowledgmentRegularisationRequest(SlapOSTestCaseMixin):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -594,7 +594,7 @@ Administrator
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
 
-class TestSlapOSCrmTriggerEscalationOnStopReminderRegularisationRequest(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCrmTriggerEscalationOnStopReminderRegularisationRequest(SlapOSTestCaseMixin):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -682,7 +682,7 @@ Administrator
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
 
-class TestSlapOSCrmTriggerEscalationOnStopAcknowledgmentRegularisationRequest(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCrmTriggerEscalationOnStopAcknowledgmentRegularisationRequest(SlapOSTestCaseMixin):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -770,7 +770,7 @@ Administrator
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
 
-class TestSlapOSCrmTriggerEscalationOnDeleteReminderRegularisationRequest(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCrmTriggerEscalationOnDeleteReminderRegularisationRequest(SlapOSTestCaseMixin):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -855,7 +855,7 @@ Administrator
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
 
-class TestSlapOSCrmStopInstanceTree(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCrmStopInstanceTree(SlapOSTestCaseMixin):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -1141,7 +1141,7 @@ class TestSlapOSCrmStopInstanceTree(SlapOSTestCaseMixinWithAbort):
     self.tic()
 
 
-class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixin):
   require_certificate = 1
 
   def createRegularisationRequest(self):
@@ -1364,7 +1364,7 @@ class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
     self.tic()
 
 
-class TestSlaposCrmCheckStoppedEventFromRegularisationRequestToDeliver(SlapOSTestCaseMixinWithAbort):
+class TestSlaposCrmCheckStoppedEventFromRegularisationRequestToDeliver(SlapOSTestCaseMixin):
 
   ticket_portal_type = 'Regularisation Request'
   event_portal_type = 'Web Message'
@@ -1516,7 +1516,7 @@ class TestSlaposCrmCheckStoppedEventFromRegularisationRequestToDeliver(SlapOSTes
     self.assertEqual(event.getSimulationState(), "stopped")
     self.assertEqual(ticket.getSimulationState(), "suspended")
 
-class TestSlaposCrmCloseInactiveSuspendedSupportRequest(SlapOSTestCaseMixinWithAbort):
+class TestSlaposCrmCloseInactiveSuspendedSupportRequest(SlapOSTestCaseMixin):
 
   def _makeSupportRequest(self):
     person = self.portal.person_module\

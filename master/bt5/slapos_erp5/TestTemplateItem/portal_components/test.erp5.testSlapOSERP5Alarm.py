@@ -1,10 +1,10 @@
 # Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
 from DateTime import DateTime
 from zExceptions import Unauthorized
 
-class TestSlapOSERP5CleanupActiveProcess(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSERP5CleanupActiveProcess(SlapOSTestCaseMixin):
 
   def check_cleanup_active_process_alarm(self, date, test_method):
     def verify_getCreationDate_call(*args, **kwargs):
@@ -52,7 +52,7 @@ class TestSlapOSERP5CleanupActiveProcess(SlapOSTestCaseMixinWithAbort):
     self.check_cleanup_active_process_alarm(DateTime() - 20, self._test_alarm_not_visited)
 
 
-class TestSlapOSERP5ActiveProcess_deleteSelf(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSERP5ActiveProcess_deleteSelf(SlapOSTestCaseMixin):
 
   def createActiveProcess(self):
     new_id = self.generateNewId()

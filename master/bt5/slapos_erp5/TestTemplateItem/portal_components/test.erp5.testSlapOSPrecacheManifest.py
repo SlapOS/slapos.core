@@ -21,10 +21,10 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixinWithAbort
+  SlapOSTestCaseMixin
 
 
-class TestSlapOSPanelPrecacheManifestList(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPanelPrecacheManifestList(SlapOSTestCaseMixin):
 
   manifest_script_id = 'WebSection_getPanelPrecacheManifestList'
 

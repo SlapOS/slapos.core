@@ -19,8 +19,7 @@
 #
 ##############################################################################
 
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort, \
-  SlapOSTestCaseMixin, simulate
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, simulate
 
 from DateTime import DateTime
 from zExceptions import Unauthorized
@@ -107,7 +106,7 @@ class TestSlapOSCurrency_getIntegrationMapping(TestSlapOSPayzenMixin):
       currency.Currency_getIntegrationMapping)
 
 
-class TestSlapOSAccountingTransaction_updateStartDate(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSAccountingTransaction_updateStartDate(SlapOSTestCaseMixin):
 
   def test_date_changed(self):
     date = DateTime("2001/01/01")
@@ -253,7 +252,7 @@ class TestSlapOSPaymentTransaction_createPayzenEvent(TestSlapOSPayzenMixin):
     self.assertEqual(payzen_event.getTitle(), "foo")
 
 
-class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixin):
 
   def test_processUpdate_REQUEST_disallowed(self):
     event = self.createPayzenEvent()

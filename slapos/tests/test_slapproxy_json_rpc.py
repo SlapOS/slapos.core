@@ -1691,6 +1691,37 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     }
     assert json.loads(response.data) == expect_result_dict, response.data
 
+  #######################################################
+  # getComputerPartitionList with free partitions
+  #######################################################
+  def test_getComputerPartitionList_free_partition_attributes(self):
+    from slapos.tests.test_slapproxy import MasterMixinJSONRPC
+    import slapos.slap
+    # create 2 partitions, allocate an instance on only one
+    self.format_for_number_of_partitions(2)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'AllocatedInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'key': 'value'}
+      }
+    )
+    # build a Computer and call getComputerPartitionList
+    computer = slapos.slap.Computer(
+      self.computer_id,
+      connection_helper=MasterMixinJSONRPC.TestConnectionHelper(self.app))
+    partition_list = computer.getComputerPartitionList()
+    # all partitions are returned, including free ones
+    assert len(partition_list) == 2, partition_list
+    free = [p for p in partition_list
+            if p._software_release_document is None]
+    assert len(free) == 1, free
+    # free partitions have pre-populated empty dicts
+    assert free[0]._parameter_dict == {}
+    assert free[0]._connection_dict == {}
+
 
 class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
   #######################################################

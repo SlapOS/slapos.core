@@ -418,7 +418,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       })
     self.assertEqual(response.getStatus(), 200)
 
-    self.tic()
+    with self.changeContextByDisablingPortalAlarm():
+      self.tic()
     tioxml_file = self.compute_node.getContributorRelatedValue(
       portal_type='Computer Consumption TioXML File'
     )
@@ -477,7 +478,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
       })
     self.assertEqual(response.getStatus(), 200)
 
-    self.tic()
+    with self.changeContextByDisablingPortalAlarm():
+      self.tic()
     tioxml_file = self.compute_node.getContributorRelatedValue(
       portal_type='Computer Consumption TioXML File'
     )

@@ -7,12 +7,6 @@
     <pickle>
       <dictionary>
         <item>
-            <key> <string>_Cacheable__manager_id</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>_bind_names</string> </key>
             <value>
               <object>
@@ -52,19 +46,15 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>filter_portal_type_list=None</string> </value>
-        </item>
-        <item>
-            <key> <string>_proxy_roles</string> </key>
-            <value>
-              <tuple>
-                <string>Manager</string>
-              </tuple>
-            </value>
+            <value> <string>form_id, dialog_id, mass_workflow_action, previous_mass_workflow_action=None, listbox_uid=None, workflow_form=None, update_method=None, **kwargs</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Module_listWorkflowTransitionItemList</string> </value>
+            <value> <string>Folder_modifyDocumentListStatusFromSlaposPanel</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value> <string></string> </value>
         </item>
       </dictionary>
     </pickle>

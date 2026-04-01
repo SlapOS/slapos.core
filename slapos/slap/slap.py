@@ -486,6 +486,11 @@ class Computer(SlapDocument):
     # Create a new list to prevent caller to change it
     return [x for x in self._computer_partition_list]
 
+  def invalidateCache(self):
+    """Reset the cached partition list so the next getComputerPartitionList()
+    call fetches up-to-date data from the API."""
+    self._computer_partition_list = None
+
   def reportUsage(self, computer_usage):
     if computer_usage == "":
       return

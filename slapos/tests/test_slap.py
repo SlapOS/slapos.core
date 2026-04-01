@@ -575,6 +575,36 @@ class TestComputer(SlapMixin):
                       bad_partition_dtd_xml)
 
 
+  def test_computer_getComputerPartitionList_invalidateCache(self):
+    """
+    Asserts that invalidateCache() causes the next getComputerPartitionList()
+    to fetch fresh data from the API instead of returning the cached list.
+    """
+    computer_guid = self._getTestComputerId()
+    slap = self.slap
+    slap.initializeConnection(self.server_url)
+    call_count = [0]
+
+    def handler(url, req):
+      if url.path == '/slapos.allDocs.v0.compute_node_instance_list':
+        call_count[0] += 1
+        return {
+          'status_code': 200,
+          'content': json.dumps({'result_list': []}),
+        }
+      return {'status_code': 404}
+
+    with httmock.HTTMock(handler):
+      computer = self.slap.registerComputer(computer_guid)
+      computer.getComputerPartitionList()  # first call: populates cache
+      self.assertEqual(call_count[0], 1)
+      computer.getComputerPartitionList()  # second call: uses cache
+      self.assertEqual(call_count[0], 1)
+      computer.invalidateCache()
+      computer.getComputerPartitionList()  # third call: fetches fresh
+      self.assertEqual(call_count[0], 2)
+
+
 class RequestWasCalled(Exception):
   pass
 

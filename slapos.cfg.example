@@ -9,7 +9,7 @@ certificate_repository_path = /etc/opt/slapos/ssl/partition_pki
 software_root = /opt/slapgrid
 instance_root = /srv/slapgrid
 # A list of directories containing shared parts for slapos.recipe.cmmi.
-# Only the last one is used to install new parts, other ones can have
+# Only the first writable one is used to install new parts, other ones can have
 # already installed parts.
 #shared_part_list =
 #  /opt/slapgrid/read_only_shared

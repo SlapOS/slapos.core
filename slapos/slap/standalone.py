@@ -962,7 +962,8 @@ class StandaloneSlapOS(object):
           except psutil.NoSuchProcess:
             pass
           else:
-            if process.name() == 'supervisord':
+            if process.name() == 'supervisord' or \
+                any('supervisord' in arg for arg in process.cmdline()):
               # OK looks already running
               self._logger.debug("Supervisor running with pid %s", pid)
               return

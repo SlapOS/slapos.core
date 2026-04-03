@@ -116,8 +116,11 @@ if (remote_instance_tree is None) or \
 if (requested_software_instance is not None) and \
   (requested_software_instance.getConnectionXml() != local_instance.getConnectionXml()):
   # Try to no trigger the script again on this object
-  local_instance.edit(
+  # calling updateConnection is needed to ensure successor instance is updated too
+  local_instance.updateConnection(
     connection_xml=requested_software_instance.getConnectionXml(),
+  )
+  local_instance.reindexObject(
     activate_kw=activate_kw
   )
   local_instance.setAccessStatus('ok')

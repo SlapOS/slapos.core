@@ -1,4 +1,3 @@
-Compute Node | jump_to_consumption_report_view
 Computer Consumption TioXML File | download
 Computer Consumption TioXML File | view
 Consumption Document Module | view
@@ -17,9 +16,6 @@ Sale Packing List | jump_related_aggregated_packing_list
 Sale Trade Condition Change Request Module | view
 Sale Trade Condition Change Request | view
 Sale Trade Condition | submit_slapos_sale_trade_condition
-SlapOS Accounting Quantity Updating Order Builder | view
-SlapOS Accounting Quantity Updating Order Builder | view_predicate_group
-SlapOS Accounting Quantity Updating Order Builder | view_profile
 Subscription Item Root Simulation Rule | view
 User Consumption HTML File | download
 User Consumption HTML File | view

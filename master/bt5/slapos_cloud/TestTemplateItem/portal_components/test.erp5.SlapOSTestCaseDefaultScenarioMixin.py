@@ -203,6 +203,10 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         reference=reference).getParentValue()
 
   def _getCurrentInstanceTreeList(self, title=None, destination_section=None):
+    search_kw = {}
+    if title is not None:
+      search_kw['title'] = {'query': title, 'key': 'ExactMatch'}
+
     if destination_section is None:
       destination_section = \
         self.portal.portal_membership.getAuthenticatedMember().getUserValue()
@@ -210,9 +214,10 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     if destination_section is not None:
       return self.portal.portal_catalog(
         portal_type="Instance Tree",
-        title=title,
-        default_destination_section_uid=destination_section.getUid(),
-        validation_state='validated')
+        destination_section__uid=destination_section.getUid(),
+        validation_state='validated',
+        **search_kw
+      )
 
     return []
 

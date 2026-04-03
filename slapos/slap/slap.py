@@ -92,7 +92,7 @@ class LazyInstanceParameterDict(dict):
   Created to keep compatibility with the slapconfiguration recipe
   """
   def __init__(self, instance, *args, **kw):
-    super().__init__(*args, **kw)
+    super(LazyInstanceParameterDict, self).__init__(*args, **kw)
     self.__instance = instance
     self.__slave_instance_list_calculated = False
 
@@ -100,25 +100,25 @@ class LazyInstanceParameterDict(dict):
     if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
       self.__slave_instance_list_calculated = True
       return self.__instance.getSlaveInstanceList()
-    return super().pop(key, *args, **kw)
+    return super(LazyInstanceParameterDict, self).pop(key, *args, **kw)
 
   def __getitem__(self, key, *args, **kw):
     if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
       self.__slave_instance_list_calculated = True
       self[key] = self.__instance.getSlaveInstanceList()
-    return super().__getitem__(key, *args, **kw)
+    return super(LazyInstanceParameterDict, self).__getitem__(key, *args, **kw)
 
   def __contains__(self, key, *args, **kw):
     if (key == 'slave_instance_list') and (not self.__slave_instance_list_calculated):
       self.__slave_instance_list_calculated = True
       self[key] = self.__instance.getSlaveInstanceList()
-    return super().__contains__(key, *args, **kw)
+    return super(LazyInstanceParameterDict, self).__contains__(key, *args, **kw)
 
   def __iter__(self):
     if (not self.__slave_instance_list_calculated):
       self.__slave_instance_list_calculated = True
       self['slave_instance_list'] = self.__instance.getSlaveInstanceList()
-    return super().__iter__()
+    return super(LazyInstanceParameterDict, self).__iter__()
 
   """
   def __len__(self):

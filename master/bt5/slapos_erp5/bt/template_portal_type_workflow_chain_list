@@ -44,6 +44,7 @@ Sale Packing List | -immobilisation_movement_interaction_workflow
 Sale Packing List | local_permission_slapos_interaction_workflow
 Sale Supply | local_permission_slapos_interaction_workflow
 Sale Trade Condition | local_permission_slapos_interaction_workflow
+Service | local_permission_slapos_interaction_workflow
 Slave Instance | local_permission_slapos_interaction_workflow
 Software Installation | local_permission_slapos_interaction_workflow
 Software Instance | local_permission_slapos_interaction_workflow

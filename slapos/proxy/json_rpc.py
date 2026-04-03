@@ -551,6 +551,13 @@ def put_software_instance_bang():
     return abort(403, 'NotImplemented')
   else:
     bangInstanceFromDB(partition_reference, requested_by)
+    # Propagate bang to the root instance (identified by requested_by) so
+    # slapgrid re-processes it. This is necessary after a rename: the bang
+    # carries a stale instance_guid, so the direct bang above may match
+    # nothing, but banging the root (requested_by) triggers it to re-request
+    # all its children and update their software types accordingly.
+    if requested_by:
+      bangInstanceFromDB(requested_by, '')
 
   return validate_and_send_json_rpc_document({
     'type': 'success',

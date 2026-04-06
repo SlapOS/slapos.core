@@ -437,7 +437,14 @@ def post_software_instance():
   try:
     slap_instance = requestInstanceFromDB(**parsed_request_dict)
   except AllocationFailure as e:
-    return abort(403, str(e))
+    # Signal the client to retry later, matching the HATEOAS 408 → ResourceNotReady
+    # → placeholder ComputerPartition pattern. The client checks result['status'] == 102
+    # and returns a placeholder partition; slapgrid will retry on the next run.
+    return validate_and_send_json_rpc_document({
+      'status': 102,
+      'name': 'Processing',
+      'message': str(e),
+    })
   if isinstance(slap_instance, SoftwareInstance):
     return send_json_rpc_slap_instance(title, requested_by, is_shared, slap_instance)
 

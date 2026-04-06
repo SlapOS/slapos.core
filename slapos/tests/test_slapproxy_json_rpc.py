@@ -262,15 +262,14 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
       }
     )
 
-    assert response.status_code == 403, response.status_code
+    assert response.status_code == 200, response.status_code
     assert response.content_type == 'application/json', \
         response.content_type
-    expect_result_dict = {
-        "status": 403,
-        "type": "Forbidden",
-        "title": "No free computer partition found for: foo"
-    }
-    assert json.loads(response.data) == expect_result_dict, response.data
+    result = json.loads(response.data)
+    assert result['status'] == 102, response.data
+    assert result['name'] == 'Processing', response.data
+    assert 'No free computer partition found for: foo' in result['message'], \
+        response.data
 
   def test_post_v0_software_instance__first_allocation(self):
     self.format_for_number_of_partitions(1)
@@ -950,13 +949,11 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'software_type': 'foobar'
       }
     )
-    assert response.status_code == 403, response.status_code
-    expect_result_dict = {
-        "status": 403,
-        "type": "Forbidden",
-        "title": "No free computer partition found for: MyFirstInstance"
-    }
-    assert json.loads(response.data) == expect_result_dict, response.data
+    assert response.status_code == 200, response.status_code
+    result = json.loads(response.data)
+    assert result['status'] == 102, response.data
+    assert 'No free computer partition found for: MyFirstInstance' in result['message'], \
+        response.data
 
   def test_put_v0_compute_node_format_no_netmask(self):
     """ip_list entries from address_list have no netmask -- must not crash."""

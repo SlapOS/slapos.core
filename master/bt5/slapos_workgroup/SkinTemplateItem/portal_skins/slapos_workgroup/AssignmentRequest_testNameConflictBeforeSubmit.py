@@ -15,7 +15,7 @@ workgroup_assignment_request_list = portal.portal_catalog(
     portal_type='Assignment Request',
     simulation_state='validated',
     destination_decision__uid=workgroup.getUid(),
-    function__uid=portal.portal_categories.function.production.customer.getUid()
+    function__uid=portal.portal_categories.function.production.getUid()
   )
 
 if not len(workgroup_assignment_request_list):

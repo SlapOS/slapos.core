@@ -15,7 +15,7 @@ workgroup_assignment_request_list = portal.portal_catalog(
     portal_type='Assignment Request',
     simulation_state='validated',
     destination_decision__uid=workgroup.getUid(),
-    function__uid=portal.portal_categories.function.production.customer.getUid()
+    function__uid=portal.portal_categories.function.customer.getUid()
   )
 
 if not len(workgroup_assignment_request_list):
@@ -33,7 +33,7 @@ query_kw = {
   'simulation_state': 'validated',
   'destination_project__uid': project_uid_list,
   'destination_decision__uid': person.getUid(),
-  'function__uid': portal.portal_categories.function.production.customer.getUid()
+  'function__uid': portal.portal_categories.function.customer.getUid()
 }
 if len(portal.portal_catalog(**query_kw)) > 0:
   # User still have open 'Assignment Request' seems too early to

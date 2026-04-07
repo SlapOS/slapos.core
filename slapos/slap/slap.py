@@ -805,7 +805,10 @@ class ComputerPartition(SlapRequester):
     computer_partition._connection_dict = result['connection_parameters']
     computer_partition._parameter_dict['ip_list'] = result['ip_list']
     computer_partition._parameter_dict['full_ip_list'] = result['full_ip_list']
-    computer_partition._parameter_dict['hosting_ip_list'] = result.get('hosting_ip_list', [])
+    # Store outside _parameter_dict so it is not exposed to buildout recipes
+    # (slapconfiguration validates _parameter_dict against a JSON schema and
+    # would reject unknown keys such as hosting_ip_list).
+    computer_partition._hosting_ip_list = result.get('hosting_ip_list', [])
 
     computer_partition._parameter_dict['instance_title'] = result['title']
     computer_partition._parameter_dict['root_instance_title'] = result['root_instance_title']
@@ -931,7 +934,7 @@ class ComputerPartition(SlapRequester):
 
   def getFullHostingIpAddressList(self):
     self._fetchComputerPartitionInformation()
-    return self._parameter_dict.get('hosting_ip_list', [])
+    return getattr(self, '_hosting_ip_list', [])
 
   def setComputerPartitionRelatedInstanceList(self, instance_reference_list):
     pass

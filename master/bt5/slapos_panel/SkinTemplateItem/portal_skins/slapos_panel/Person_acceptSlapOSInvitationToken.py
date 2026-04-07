@@ -7,10 +7,13 @@ invitation_token = portal.invitation_token_module.restrictedTraverse(
 )
 
 if (invitation_token is None) or (invitation_token.getValidationState() != 'validated'):
+  msg = 'The invitation token can not be activated'
+  if batch:
+    raise ValueError(msg)
   return person.Base_redirect(
     'view',
     keep_items={
-      'portal_status_message': translate('The invitation token can not be activated'),
+      'portal_status_message': translate(msg),
       'portal_status_level': 'error'
     }
   )
@@ -23,10 +26,13 @@ if follow_up_value.getPortalType() == 'Workgroup':
   category = 'destination'
   instance_to_claim_list = person.Person_getInstanceTreeListToClaim(invitation_token.getId())
   if not accept_claim and len(instance_to_claim_list) > 0:
+    msg = 'User has instances to be claimed.'
+    if batch:
+      raise ValueError(msg)
     return person.Base_redirect(
       'Person_viewAcceptSlapOSInvitationTokenWithClaimDialog',
       keep_items={
-        'portal_status_message': "User has instances to be claimed.",
+        'portal_status_message': translate(msg),
         'portal_status_level': 'error',
         'invitation_token': invitation_token.getId()
       }
@@ -56,6 +62,8 @@ if len(instance_to_claim_list) == 0:
 else:
   assignment_request.activate().AssignmentRequest_testNameConflictBeforeSubmit(
     comment='Created Invitation Token: %s' % invitation_token.getRelativeUrl())
+  if batch:
+    return assignment_request
   return person.Base_redirect(
     'view',
     keep_items={
@@ -65,7 +73,7 @@ else:
 
 invitation_token.invalidate(comment='Created by Assignment Request: %s' % assignment_request.getRelativeUrl())
 if batch:
-  return person
+  return assignment_request
 return person.Base_redirect(
   'view',
   keep_items={

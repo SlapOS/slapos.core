@@ -1,6 +1,6 @@
 <module>
  <category_list>
-  <category>business_application/slapos</category>
+  <category>business_application/login</category>
  </category_list>
  <id>workgroup_module</id>
  <permission_list>

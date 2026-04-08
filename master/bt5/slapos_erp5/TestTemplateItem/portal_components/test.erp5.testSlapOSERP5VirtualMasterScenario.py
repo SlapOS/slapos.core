@@ -373,6 +373,8 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.removeSoftwareReleaseFromComputeNode(owner_person,
         public_server, public_server_software)
 
+      self.tic()
+
     # Ensure no unexpected object has been created
     # 3 allocation supply, line, cell
     # 3 assignment request
@@ -389,6 +391,23 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software product
     # 2 subscription request
     self.assertRelatedObjectCount(project, 26)
+
+    # 1 allocation supply
+    # 1 internal packing list
+    # 1 open internal order line
+    # 1 simulation movement
+    # 1 software installation
+    self.assertRelatedObjectCount(public_server, 5)
+
+    software_instance = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      follow_up__uid=project.getUid()
+    ).getSuccessorValue(portal_type='Software Instance')
+    # 1 instance tree
+    # 1 internal packing list
+    # 1 open internal order
+    # 1 simulation movement
+    self.assertRelatedObjectCount(software_instance, 4)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
       self.checkERP5StateBeforeExit()
@@ -666,6 +685,23 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 2 subscription requests
     self.assertRelatedObjectCount(project, 43)
 
+    # 1 allocation supply
+    # 1 internal packing list
+    # 1 open internal order
+    # 1 simulation movement
+    # 1 software installation
+    self.assertRelatedObjectCount(public_server, 5)
+
+    software_instance = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      follow_up__uid=project.getUid()
+    ).getSuccessorValue(portal_type='Software Instance')
+    # 1 instance tree
+    # 1 internal packing list
+    # 1 open internal order
+    # 1 simulation movement
+    self.assertRelatedObjectCount(software_instance, 4)
+
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
       self.checkERP5StateBeforeExit()
 
@@ -853,6 +889,23 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 subscription requests
     self.assertRelatedObjectCount(project, 58)
 
+    # 1 allocation supply
+    # 1 internal packing list
+    # 1 open internal order
+    # 1 simulation movement
+    # 1 software installation
+    self.assertRelatedObjectCount(public_server, 5)
+
+    software_instance = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      follow_up__uid=project.getUid()
+    ).getSuccessorValue(portal_type='Software Instance')
+    # 1 instance tree
+    # 1 internal packing list
+    # 1 open internal order
+    # 1 simulation movement
+    self.assertRelatedObjectCount(software_instance, 4)
+
     with PinnedDateTime(self, DateTime('2024/02/18 01:02')):
       self.checkERP5StateBeforeExit()
 
@@ -959,6 +1012,23 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 3 subscription request
     self.assertRelatedObjectCount(project, 42)
 
+    # 1 allocation supply
+    # 1 internal packing list
+    # 1 open internal order
+    # 1 simulation movement
+    # 1 software installation
+    self.assertRelatedObjectCount(public_server, 5)
+
+    software_instance = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      follow_up__uid=project.getUid()
+    ).getSuccessorValue(portal_type='Slave Instance')
+    # 1 instance tree
+    # 1 internal packing list
+    # 1 open internal order
+    # 1 simulation movement
+    self.assertRelatedObjectCount(software_instance, 4)
+
     with PinnedDateTime(self, DateTime('2024/02/18 00:05')):
       self.checkERP5StateBeforeExit()
 
@@ -1041,6 +1111,24 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software product
     # 2 subscription request
     self.assertRelatedObjectCount(project, 27)
+
+    # 1 allocation supply
+    # 1 internal packing list
+    # 1 open internal order
+    # 1 simulation movement
+    # 1 software installation
+    self.assertRelatedObjectCount(public_server, 5)
+
+    software_instance = self.portal.portal_catalog.getResultValue(
+      portal_type='Slave Instance',
+      title=slave_instance_title,
+      follow_up__uid=project.getUid()
+    )
+    # 1 internal packing list
+    # 1 open internal order
+    # 1 simulation movement
+    # 1 software instance
+    self.assertRelatedObjectCount(software_instance, 4)
 
     with PinnedDateTime(self, DateTime('2024/02/18 00:05')):
       self.checkERP5StateBeforeExit()
@@ -1199,6 +1287,19 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 2 subscription requests
     self.assertRelatedObjectCount(remote_project, 27)
 
+    # 1 allocation supply
+    self.assertRelatedObjectCount(remote_compute_node, 1)
+
+    software_instance = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      follow_up__uid=remote_project.getUid()
+    ).getSuccessorValue(portal_type='Software Instance')
+    # 1 instance tree
+    # 1 internal packing list
+    # 1 open internal order
+    # 1 simulation movement
+    self.assertRelatedObjectCount(software_instance, 4)
+
     # Ensure no unexpected object has been created
     # 3 allocation supply/line/cell
     # 3 assignment request
@@ -1214,6 +1315,23 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software product
     # 2 subscription requests
     self.assertRelatedObjectCount(project, 25)
+
+    # 1 allocation supply
+    # 1 internal packing list
+    # 1 open internal order
+    # 1 simulation movement
+    # 1 software installation
+    self.assertRelatedObjectCount(remote_server, 5)
+
+    software_instance = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      follow_up__uid=project.getUid()
+    ).getSuccessorValue(portal_type='Software Instance')
+    # 1 instance tree
+    # 1 internal packing list
+    # 1 open internal order
+    # 1 simulation movement
+    self.assertRelatedObjectCount(software_instance, 4)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
       self.checkERP5StateBeforeExit()
@@ -1380,6 +1498,24 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # 3 subscription requests
       self.assertRelatedObjectCount(remote_project, 39)
 
+      # 1 allocation supply
+      # 1 internal packing list
+      # 1 open internal order
+      # 1 simulation movement
+      # 1 software installation
+      self.assertRelatedObjectCount(remote_server, 5)
+
+      software_instance = self.portal.portal_catalog.getResultValue(
+        portal_type='Instance Tree',
+        follow_up__uid=remote_project.getUid()
+      ).getSuccessorValue(portal_type='Software Instance')
+      # 1 remote node
+      # 1 instance tree
+      # 1 internal packing list
+      # 1 open internal order
+      # 1 simulation movement
+      self.assertRelatedObjectCount(software_instance, 5)
+
       # Ensure no unexpected object has been created
       # 3 allocation supply/line/cell
       # 3 assignment request
@@ -1395,6 +1531,15 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # 1 software product
       # 2 subscription requests
       self.assertRelatedObjectCount(project, 25)
+
+      # 1 allocation supply
+      self.assertRelatedObjectCount(remote_compute_node, 1)
+
+      # 1 instance tree
+      # 1 internal packing list
+      # 1 open internal order
+      # 1 simulation movement
+      self.assertRelatedObjectCount(owner_software_instance, 4)
 
       self.checkERP5StateBeforeExit()
 

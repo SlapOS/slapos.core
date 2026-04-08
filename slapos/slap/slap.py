@@ -835,7 +835,7 @@ class ComputerPartition(SlapRequester):
           'slap_software_type': shared_item['software_type'],
           'slave_reference': shared_item['instance_guid'],
           #'timestamp': shared_item['processing_timestamp'],
-          'xml': dumps(shared_item['parameters']),
+          'xml': bytes2str(dumps(shared_item['parameters'])),
           'parameters': shared_item['parameters'],
           # unused?
           # 'connection_xml': dumps(shared_result['connection_parameters'])

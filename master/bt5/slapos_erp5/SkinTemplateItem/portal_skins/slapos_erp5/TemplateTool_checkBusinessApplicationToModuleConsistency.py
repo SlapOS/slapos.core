@@ -24,6 +24,7 @@ for business_application_id, module_name_list in [
           "credential_recovery_module",
           "credential_update_module",
           "system_event_module",
+          "workgroup_module",
       ]],
       ["slapos", [  # SlapOS
           "allocation_supply_module",
@@ -42,7 +43,6 @@ for business_application_id, module_name_list in [
           "software_instance_module",
           "subscription_request_module",
           "subscription_change_request_module",
-          "workgroup_module",
       ]],
       ["crm", [  # Customer Relation Management
           "campaign_module",

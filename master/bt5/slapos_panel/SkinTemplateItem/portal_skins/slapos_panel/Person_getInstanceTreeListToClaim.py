@@ -19,7 +19,7 @@ assignment_request_list = portal.portal_catalog(
     portal_type='Assignment Request',
     simulation_state='validated',
     destination_decision__uid=workgroup.getUid(),
-    function__uid=portal.portal_categories.function.production.customer.getUid()
+    function__uid=portal.portal_categories.function.customer.getUid()
   )
 if len(assignment_request_list):
   project_uid_list = [

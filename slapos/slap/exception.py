@@ -31,23 +31,26 @@
 from zope.interface import implementer
 from .interface import slap as interface
 
+class SlapException(Exception):
+  pass
+
 """Exposed exceptions"""
 @implementer(interface.IResourceNotReady)
-class ResourceNotReady(Exception):
+class ResourceNotReady(SlapException):
   pass
 
 @implementer(interface.IServerError)
-class ServerError(Exception):
+class ServerError(SlapException):
   pass
 
 @implementer(interface.INotFoundError)
-class NotFoundError(Exception):
+class NotFoundError(SlapException):
   pass
 
-class AuthenticationError(Exception):
+class AuthenticationError(SlapException):
   pass
 
 @implementer(interface.IConnectionError)
-class ConnectionError(Exception):
+class ConnectionError(SlapException):
   pass
 

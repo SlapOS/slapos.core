@@ -28,6 +28,7 @@ from __future__ import unicode_literals
 import logging
 import os
 import psutil
+import shutil
 import sys
 import tempfile
 import textwrap
@@ -402,7 +403,6 @@ class SlapPopenTestCase(unittest.TestCase):
     # the pid is logged "live"
     logger.info.assert_called_once_with(str(pid))
 
-
 class DummySystemExit(Exception):
   """Dummy exception raised instead of SystemExit so that if something goes
   wrong with TestSetRunning we don't exit the test program.
@@ -499,3 +499,64 @@ class TestGetPythonExecutableFromBinBuildout(unittest.TestCase):
       self.assertEqual(
         slapos.grid.utils.getPythonExecutableFromSoftwarePath(d),
         python)
+
+
+class RotateLogTestCase(unittest.TestCase):
+  def setUp(self):
+    self.test_dir = tempfile.mkdtemp()
+
+  def tearDown(self):
+    shutil.rmtree(self.test_dir)
+
+  def create_file(self, name, size):
+    with open(name, "wb") as f:
+        f.write(b"a" * size)
+
+  def test_rotate_log(self):
+    log_file = os.path.join(self.test_dir, 'instance.log')
+    # create a file with size 2 Mo
+    self.create_file(log_file, 2 * 1024 * 1024)
+
+    # rotate if size is >= 1Mo
+    slapos.grid.utils.rotateLog(log_file, max_size=1)
+
+    self.assertTrue(os.path.exists(log_file))
+    self.assertEqual(os.path.getsize(log_file), 0)
+    self.assertTrue(os.path.exists(log_file + '.1'))
+
+    # testing log shifting
+    self.create_file(log_file, 3 * 1024 * 1024)
+
+    slapos.grid.utils.rotateLog(log_file, max_size=1)
+    self.assertTrue(os.path.exists(log_file + '.1'))
+    # instance.log is now instance.log.1
+    self.assertEqual(os.path.getsize(log_file), 0)
+    self.assertEqual(os.path.getsize(log_file + '.1'), 3 * 1024 * 1024)
+
+  def test_no_rotation_size_small(self):
+    log_file = os.path.join(self.test_dir, 'instance.log')
+    # create a file with size 19Mo
+    self.create_file(log_file, 19 * 1024 * 1024)
+
+    # rotate if size is >= 20Mo
+    slapos.grid.utils.rotateLog(log_file)
+
+    self.assertTrue(os.path.exists(log_file))
+    self.assertFalse(os.path.exists(log_file + '.1'))
+    self.assertEqual(os.path.getsize(log_file), 19 * 1024 * 1024)
+
+  def test_rotation_log_file_no_exist(self):
+    log_file = os.path.join(self.test_dir, 'instance.log')
+
+    # rotate if size is >= 20Mo
+    slapos.grid.utils.rotateLog(log_file)
+
+    self.assertFalse(os.path.exists(log_file))
+    self.assertFalse(os.path.exists(log_file + '.1'))
+
+    # create a file with size 19Mo
+    self.create_file(log_file, 20 * 1024 * 1024)
+    slapos.grid.utils.rotateLog(log_file)
+    self.assertTrue(os.path.exists(log_file))
+    self.assertTrue(os.path.exists(log_file + '.1'))
+    self.assertEqual(os.path.getsize(log_file + '.1'), 20 * 1024 * 1024)

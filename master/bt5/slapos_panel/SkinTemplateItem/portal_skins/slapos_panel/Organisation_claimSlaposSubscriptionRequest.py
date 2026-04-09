@@ -27,7 +27,7 @@ if len(sql_subscription_request_list) != 1:
     'portal_status_message': Base_translateString('Unknown reference')
   }
   if batch:
-    raise ValueError(keep_items['portal_status_message'] + str(len(sql_subscription_request_list)))
+    raise ValueError(keep_items['portal_status_message'] + ' ' + str(len(sql_subscription_request_list)) + ' ' + reference)
   return context.Base_renderForm(dialog_id, keep_items=keep_items)
 
 subscription_request = sql_subscription_request_list[0].getObject()

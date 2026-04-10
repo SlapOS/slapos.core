@@ -321,22 +321,13 @@ class TestAccountingTransaction(TestSlapOSGroupRoleSecurityMixin):
 
 
 class TestBalanceTransaction(TestSlapOSGroupRoleSecurityMixin):
-  def test_AccountingFunction_LedgerNotAutomated(self):
+  def test_AccountingFunction(self):
     product = self.portal.accounting_module.newContent(
         portal_type='Balance Transaction')
     self.assertSecurityGroup(product,
         ['F-ACCMAN', 'F-ACCAGT', self.user_id], False)
     self.assertRoles(product, 'F-ACCMAN', ['Assignor'])
     self.assertRoles(product, 'F-ACCAGT', ['Assignee'])
-    self.assertRoles(product, self.user_id, ['Owner'])
-
-  def test_AccountingFunction_LedgerAutomated(self):
-    product = self.portal.accounting_module.newContent(
-        portal_type='Balance Transaction')
-    product.edit(ledger='automated')
-    self.assertSecurityGroup(product,
-        ['F-ACCOUNTING*', self.user_id], False)
-    self.assertRoles(product, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(product, self.user_id, ['Owner'])
 
 

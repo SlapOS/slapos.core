@@ -71,7 +71,7 @@ It only contains instances to destroy.
 
 If you could, please run slapos node format to trigger the deletion of all user data.
 
-Then, please change its allocation scope to 'close/forever' to definitely drop its access to the system.
+Then, please destroy the node from the panel to definitely drop its access to the system.
 
 Thanks in advance.
 """ % (compute_node.getTitle(), compute_node.getReference())
@@ -83,7 +83,7 @@ else:
   ticket_title = 'Compute Node %s seems outdated' % compute_node.getReference()
   ticket_description = """The empty Compute Node "%s" (%s) is not contacting the SlapOS master.
 
-If not used anymore, could you please change its allocation scope to 'close/forever' to definitely drop its access to the system?
+If not used anymore, could you please destroy it from the panel to definitely drop its access to the system?
 
 Thanks in advance.
 """ % (compute_node.getTitle(), compute_node.getReference())

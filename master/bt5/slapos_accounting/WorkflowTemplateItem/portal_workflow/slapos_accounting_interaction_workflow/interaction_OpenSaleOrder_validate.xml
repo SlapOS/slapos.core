@@ -33,6 +33,7 @@
             <value>
               <tuple>
                 <string>Open Sale Order</string>
+                <string>Open Internal Order</string>
               </tuple>
             </value>
         </item>
@@ -60,7 +61,7 @@
         </item>
         <item>
             <key> <string>trigger_once_per_transaction</string> </key>
-            <value> <int>1</int> </value>
+            <value> <int>0</int> </value>
         </item>
         <item>
             <key> <string>trigger_type</string> </key>

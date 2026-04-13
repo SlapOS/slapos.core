@@ -647,27 +647,27 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     release_variation = software_product.contentValues(portal_type='Software Product Release Variation')[0]
     type_variation = software_product.contentValues(portal_type='Software Product Type Variation')[0]
 
+    currency = self.portal.currency_module.newContent(
+      portal_type="Currency",
+      title="test %s" % self.generateNewId()
+    )
+    currency.validate()
+    seller_organisation = self.portal.organisation_module.newContent(
+      portal_type="Organisation",
+      title="seller-%s" % self.generateNewId(),
+      # required to generate accounting report
+      price_currency_value=currency,
+      # required to calculate the vat
+      default_address_region='europe/west/france'
+    )
+    seller_bank_account = seller_organisation.newContent(
+      portal_type="Bank Account",
+      title="test_bank_account_%s" % self.generateNewId(),
+      price_currency_value=currency
+    )
+    seller_bank_account.validate()
+    seller_organisation.validate()
     if is_accountable:
-      currency = self.portal.currency_module.newContent(
-        portal_type="Currency",
-        title="test %s" % self.generateNewId()
-      )
-      currency.validate()
-      seller_organisation = self.portal.organisation_module.newContent(
-        portal_type="Organisation",
-        title="seller-%s" % self.generateNewId(),
-        # required to generate accounting report
-        price_currency_value=currency,
-        # required to calculate the vat
-        default_address_region='europe/west/france'
-      )
-      seller_bank_account = seller_organisation.newContent(
-        portal_type="Bank Account",
-        title="test_bank_account_%s" % self.generateNewId(),
-        price_currency_value=currency
-      )
-      seller_bank_account.validate()
-      seller_organisation.validate()
       sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
         portal_type="Sale Trade Condition",
         trade_condition_type="instance_tree",
@@ -868,6 +868,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       open_order = self.portal.open_sale_order_module.newContent(
         portal_type="Open Sale Order",
         ledger="automated",
+        source_value=seller_organisation,
         destination_section_value=person
       )
       open_order.newContent(

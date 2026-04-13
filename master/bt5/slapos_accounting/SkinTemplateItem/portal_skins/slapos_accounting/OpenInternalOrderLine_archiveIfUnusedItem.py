@@ -29,7 +29,7 @@ for open_order_line in open_internal_order.contentValues(
       # Do not touch if the item is not clean yet
       return
 
-    hosting_subscription.archive(comment='No item in used anymore')
+    hosting_subscription.invalidate(comment='No item in used anymore')
 
 # if the script didn't return before, we can archive the open sale order
 now = DateTime()

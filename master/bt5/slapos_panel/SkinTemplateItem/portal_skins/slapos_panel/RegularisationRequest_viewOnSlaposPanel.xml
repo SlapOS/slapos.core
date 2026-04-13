@@ -80,6 +80,7 @@
                     <value>
                       <list>
                         <string>discussion_thread</string>
+                        <string>listbox</string>
                       </list>
                     </value>
                 </item>
@@ -92,7 +93,9 @@
                 <item>
                     <key> <string>hidden</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>listbox_stop_date</string>
+                      </list>
                     </value>
                 </item>
                 <item>

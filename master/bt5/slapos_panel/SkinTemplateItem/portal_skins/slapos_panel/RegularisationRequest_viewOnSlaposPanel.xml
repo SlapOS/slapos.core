@@ -80,6 +80,7 @@
                     <value>
                       <list>
                         <string>discussion_thread</string>
+                        <string>listbox</string>
                       </list>
                     </value>
                 </item>

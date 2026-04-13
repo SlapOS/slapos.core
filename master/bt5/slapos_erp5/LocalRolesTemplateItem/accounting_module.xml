@@ -10,6 +10,9 @@
   <role id='F-PRODUCTION*'>
    <item>Auditor</item>
   </role>
+  <role id='F-SALEMAN'>
+   <item>Auditor</item>
+  </role>
   <role id='R-SHADOW-PERSON'>
    <item>Author</item>
   </role>
@@ -20,6 +23,7 @@
     <principal id='F-ACCOUNTING*'>Author</principal>
     <principal id='F-CUSTOMER'>Auditor</principal>
     <principal id='F-PRODUCTION*'>Auditor</principal>
+    <principal id='F-SALEMAN'>Auditor</principal>
   </local_role_group_id>
   <local_role_group_id id='shadow'>
     <principal id='R-SHADOW-PERSON'>Author</principal>

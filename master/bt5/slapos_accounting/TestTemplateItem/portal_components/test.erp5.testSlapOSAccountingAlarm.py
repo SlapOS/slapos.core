@@ -1199,3 +1199,75 @@ class TestSlapOSOpenSaleOrderInvalidationAlarm(SlapOSTestCaseMixin):
     self.assertEquals(open_order.getStopDate(), fake_now)
     self.assertEquals(hosting_subscription.getValidationState(), 'archived')
 
+
+class TestSlapOSOpenInternalOrderInvalidationAlarm(SlapOSTestCaseMixin):
+
+  #################################################################
+  # slapos_archive_open_internal_order_with_unused_item
+  #################################################################
+  def _createValidatedItemAndOpenInternalOrderLine(self, portal_type='Compute Node'):
+    subscription_item = self.portal.consumption_subscription_module.newContent(
+      portal_type='Consumption Subscription',
+    )
+    subscription_item.validate()
+    project = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+    )
+    project.validate()
+    open_order = self.portal.open_internal_order_module.newContent(
+      portal_type='Open Internal Order',
+      title="Test no subscription %s" % (self.new_id, ),
+      ledger='automated',
+    )
+    open_order_line = open_order.newContent(
+      portal_type='Open Internal Order Line',
+      aggregate_value=[project, subscription_item],
+    )
+    open_order.plan()
+    open_order.validate()
+    return project, open_order_line
+
+  def test_OpenInternalOrderLine_archiveIfUnusedItem_alarm_fromInvalidatedProject(self):
+    script_name = "OpenInternalOrderLine_archiveIfUnusedItem"
+    alarm = self.portal.portal_alarms.slapos_archive_open_internal_order_with_unused_item
+
+    project, open_order_line = self._createValidatedItemAndOpenInternalOrderLine()
+    project.invalidate()
+    self._test_alarm(alarm, open_order_line, script_name)
+
+  def test_OpenInternalOrderLine_archiveIfUnusedItem_alarm_fromValidatedProject(self):
+    script_name = "OpenInternalOrderLine_archiveIfUnusedItem"
+    alarm = self.portal.portal_alarms.slapos_archive_open_internal_order_with_unused_item
+
+    _, open_order_line = self._createValidatedItemAndOpenInternalOrderLine()
+    self._test_alarm_not_visited(alarm, open_order_line, script_name)
+
+  def test_OpenInternalOrderLine_archiveIfUnusedItem_alarm_fromInvalidatedProjectAndOrder(self):
+    script_name = "OpenInternalOrderLine_archiveIfUnusedItem"
+    alarm = self.portal.portal_alarms.slapos_archive_open_internal_order_with_unused_item
+
+    project, open_order_line = self._createValidatedItemAndOpenInternalOrderLine()
+    project.invalidate()
+    open_order_line.getParentValue().invalidate()
+    self._test_alarm_not_visited(alarm, open_order_line, script_name)
+
+  def test_OpenInternalOrderLine_archiveIfUnusedItem_script_REQUEST_disallowed(self):
+    self.assertRaises(
+      Unauthorized,
+      self.portal.OpenInternalOrderLine_archiveIfUnusedItem,
+      REQUEST={}
+    )
+
+  def test_OpenInternalOrderLine_archiveIfUnusedItem_script_invalidateOpenInternalOrder(self):
+    project, open_order_line = self._createValidatedItemAndOpenInternalOrderLine()
+    project.invalidate()
+    open_order = open_order_line.getParentValue()
+    hosting_subscription = open_order_line.getAggregateValue(portal_type='Consumption Subscription')
+    fake_now = DateTime('2023/05/19')
+    with PinnedDateTime(self, fake_now):
+      result = open_order_line.OpenInternalOrderLine_archiveIfUnusedItem()
+    self.assertEquals(result, open_order)
+    self.assertEquals(open_order.getValidationState(), 'archived')
+    self.assertEquals(open_order.getStopDate(), fake_now)
+    self.assertEquals(hosting_subscription.getValidationState(), 'invalidated')
+

@@ -1615,3 +1615,147 @@ class TestSlaposCrmCloseInactiveSuspendedSupportRequest(SlapOSTestCaseMixinWithA
       closing_event = support_request.SupportRequest_closeIfInactiveForAMonth()
     self.assertEqual(support_request.getSimulationState(), "invalidated")
     self.assertIsNotNone(closing_event)
+
+
+class TestRegularisationRequest_getInvoiceList(SlapOSTestCaseMixin):
+
+  def createFinalInvoice(self, person, grouping_reference=None,
+                         ledger="automated",
+                         source="account_module/receivable",
+                         is_stopped=True,
+                         start_date=None):
+    if start_date is None:
+      start_date = DateTime('2019/10/20')
+    current_invoice = self.portal.accounting_module.newContent(
+      portal_type="Sale Invoice Transaction",
+      destination_value=person,
+      destination_section_value=person,
+      start_date=start_date,
+      stop_date=start_date,
+      title='Fake Invoice for Demo User Functional',
+      resource="currency_module/EUR",
+      reference='TESTINV-%s' % self.generateNewId(),
+      ledger=ledger)
+    current_invoice.receivable.edit(
+      source=source,
+      quantity=1,
+      price=1,
+      grouping_reference=grouping_reference
+    )
+    current_invoice.plan()
+    current_invoice.confirm()
+    if is_stopped:
+      current_invoice.stop()
+
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              "'disabled'", attribute='comment'):
+      self.tic()
+    return current_invoice
+
+  def test_two_users_invoice_isolation(self):
+    project = self.addProject()
+    person_a = self.makePerson(project, user=1)
+    person_b = self.makePerson(project, user=1)
+
+    # Create invoices for each person with different dates
+    invoice_a1 = self.createFinalInvoice(person_a,
+                                         start_date=DateTime('2024/06/01'))
+    invoice_a2 = self.createFinalInvoice(person_a,
+                                         start_date=DateTime('2024/01/01'))
+    invoice_b1 = self.createFinalInvoice(person_b,
+                                         start_date=DateTime('2024/03/01'))
+
+    # Create regularisation requests
+    reg_a = self.portal.regularisation_request_module.newContent(
+        portal_type='Regularisation Request',
+        destination_value=person_a)
+    reg_b = self.portal.regularisation_request_module.newContent(
+        portal_type='Regularisation Request',
+        destination_value=person_b)
+
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              "'disabled'", attribute='comment'):
+      self.tic()
+
+    # Person A sees only their invoices, sorted by descending date
+    result_a = reg_a.RegularisationRequest_getInvoiceList()
+    self.assertEqual(len(result_a), 2)
+    self.assertEqual(result_a[0].uid, invoice_a1.getUid())  # 2024/06 first
+    self.assertEqual(result_a[1].uid, invoice_a2.getUid())  # 2024/01 second
+
+    # Person B sees only their invoice
+    result_b = reg_b.RegularisationRequest_getInvoiceList()
+    self.assertEqual(len(result_b), 1)
+    self.assertEqual(result_b[0].uid, invoice_b1.getUid())
+
+    # Count methods don't raise
+    reg_a.RegularisationRequest_countInvoiceList()
+    reg_b.RegularisationRequest_countInvoiceList()
+
+  def test_filters_paid_invoices(self):
+    project = self.addProject()
+    person = self.makePerson(project, user=1)
+
+    unpaid_invoice = self.createFinalInvoice(person)
+    self.createFinalInvoice(person, grouping_reference="foobar")  # paid
+
+    reg_request = self.portal.regularisation_request_module.newContent(
+        portal_type='Regularisation Request',
+        destination_value=person)
+
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              "'disabled'", attribute='comment'):
+      self.tic()
+
+    result = reg_request.RegularisationRequest_getInvoiceList()
+    self.assertEqual(len(result), 1)
+    self.assertEqual(result[0].uid, unpaid_invoice.getUid())
+
+  def test_only_automated_ledger(self):
+    project = self.addProject()
+    person = self.makePerson(project, user=1)
+
+    automated_invoice = self.createFinalInvoice(person, ledger="automated")
+    self.createFinalInvoice(person, ledger=None)  # no ledger
+
+    reg_request = self.portal.regularisation_request_module.newContent(
+        portal_type='Regularisation Request',
+        destination_value=person)
+
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              "'disabled'", attribute='comment'):
+      self.tic()
+
+    result = reg_request.RegularisationRequest_getInvoiceList()
+    self.assertEqual(len(result), 1)
+    self.assertEqual(result[0].uid, automated_invoice.getUid())
+
+  def test_only_stopped_delivered(self):
+    project = self.addProject()
+    person = self.makePerson(project, user=1)
+
+    stopped_invoice = self.createFinalInvoice(person, is_stopped=True)
+    self.createFinalInvoice(person, is_stopped=False)  # confirmed, not stopped
+
+    reg_request = self.portal.regularisation_request_module.newContent(
+        portal_type='Regularisation Request',
+        destination_value=person)
+
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              "'disabled'", attribute='comment'):
+      self.tic()
+
+    result = reg_request.RegularisationRequest_getInvoiceList()
+    self.assertEqual(len(result), 1)
+    self.assertEqual(result[0].uid, stopped_invoice.getUid())
+
+  def test_empty_destination(self):
+    reg_request = self.portal.regularisation_request_module.newContent(
+        portal_type='Regularisation Request')
+
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                              "'disabled'", attribute='comment'):
+      self.tic()
+
+    result = reg_request.RegularisationRequest_getInvoiceList()
+    self.assertEqual(len(result), 0)

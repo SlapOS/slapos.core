@@ -1,3 +1,7 @@
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
+
 open_sale_order = context
 
 if open_sale_order.getValidationState() != 'validated':

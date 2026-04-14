@@ -3,6 +3,9 @@
   <item>SlapOSLedgerAccountingConstraint</item>
   <item>SlapOSVirtualMasterSourceProjectAccountingConstraint</item>
  </portal_type>
+ <portal_type id="Alarm Tool">
+  <item>SlapOSAccountingMasterUpgradeConstraint</item>
+ </portal_type>
  <portal_type id="Amortisation Transaction">
   <item>SlapOSLedgerAccountingConstraint</item>
   <item>SlapOSVirtualMasterSourceProjectAccountingConstraint</item>
@@ -14,6 +17,9 @@
  <portal_type id="Computer Consumption TioXML File">
   <item>SortIndex</item>
  </portal_type>
+ <portal_type id="Consumption Subscription">
+  <item>SlapOSLedgerConstraint</item>
+ </portal_type>
  <portal_type id="Hosting Subscription">
   <item>SlapOSAccountingHostingSubscriptionConstraint</item>
   <item>SlapOSLedgerConstraint</item>
@@ -21,6 +27,12 @@
  <portal_type id="Internal Invoice Transaction">
   <item>SlapOSLedgerAccountingConstraint</item>
   <item>SlapOSVirtualMasterSourceProjectAccountingConstraint</item>
+ </portal_type>
+ <portal_type id="Internal Packing List">
+  <item>SlapOSConsumptionInternalPackingListConstraint</item>
+ </portal_type>
+ <portal_type id="Internal Packing List Line">
+  <item>SlapOSConsumptionInternalPackingListLineConstraint</item>
  </portal_type>
  <portal_type id="Invoice Line">
   <item>SlapOSMovementConstraint</item>

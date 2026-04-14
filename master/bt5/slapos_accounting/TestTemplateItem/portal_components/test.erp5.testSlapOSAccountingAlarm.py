@@ -967,6 +967,78 @@ class TestSlapOSSaleTradeConditionChangeRequestValidateAlarm(SlapOSTestCaseMixin
     self.assertEqual(result, sale_trade_condition)
 
 
+class TestSlapOSOpenSaleOrderInvalidationAlarm(SlapOSTestCaseMixin):
+
+  #################################################################
+  # slapos_archive_open_sale_order_with_unused_item
+  #################################################################
+  def _createValidatedItemAndOpenSaleOrderLine(self, portal_type='Project'):
+    subscription_item = self.portal.hosting_subscription_module.newContent(
+      portal_type='Hosting Subscription',
+    )
+    subscription_item.validate()
+    project = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+    )
+    project.validate()
+    open_order = self.portal.open_sale_order_module.newContent(
+      portal_type='Open Sale Order',
+      title="Test no subscription %s" % (self.new_id, ),
+      ledger='automated',
+    )
+    open_order_line = open_order.newContent(
+      portal_type='Open Sale Order Line',
+      aggregate_value=[project, subscription_item],
+    )
+    open_order.plan()
+    open_order.validate()
+    return project, open_order_line
+
+  def test_OpenSaleOrderLine_archiveIfUnusedItem_alarm_fromInvalidatedProject(self):
+    script_name = "OpenSaleOrderLine_archiveIfUnusedItem"
+    alarm = self.portal.portal_alarms.slapos_archive_open_sale_order_with_unused_item
+
+    project, open_order_line = self._createValidatedItemAndOpenSaleOrderLine()
+    project.invalidate()
+    self._test_alarm(alarm, open_order_line, script_name)
+
+  def test_OpenSaleOrderLine_archiveIfUnusedItem_alarm_fromValidatedProject(self):
+    script_name = "OpenSaleOrderLine_archiveIfUnusedItem"
+    alarm = self.portal.portal_alarms.slapos_archive_open_sale_order_with_unused_item
+
+    _, open_order_line = self._createValidatedItemAndOpenSaleOrderLine()
+    self._test_alarm_not_visited(alarm, open_order_line, script_name)
+
+  def test_OpenSaleOrderLine_archiveIfUnusedItem_alarm_fromInvalidatedProjectAndOrder(self):
+    script_name = "OpenSaleOrderLine_archiveIfUnusedItem"
+    alarm = self.portal.portal_alarms.slapos_archive_open_sale_order_with_unused_item
+
+    project, open_order_line = self._createValidatedItemAndOpenSaleOrderLine()
+    project.invalidate()
+    open_order_line.getParentValue().invalidate()
+    self._test_alarm_not_visited(alarm, open_order_line, script_name)
+
+  def test_OpenSaleOrderLine_archiveIfUnusedItem_script_REQUEST_disallowed(self):
+    self.assertRaises(
+      Unauthorized,
+      self.portal.OpenSaleOrderLine_archiveIfUnusedItem,
+      REQUEST={}
+    )
+
+  def test_OpenSaleOrderLine_archiveIfUnusedItem_script_invalidateOpenSaleOrder(self):
+    project, open_order_line = self._createValidatedItemAndOpenSaleOrderLine()
+    project.invalidate()
+    open_order = open_order_line.getParentValue()
+    hosting_subscription = open_order_line.getAggregateValue(portal_type='Hosting Subscription')
+    fake_now = DateTime('2023/05/19')
+    with PinnedDateTime(self, fake_now):
+      result = open_order_line.OpenSaleOrderLine_archiveIfUnusedItem()
+    self.assertEqual(result, open_order)
+    self.assertEqual(open_order.getValidationState(), 'archived')
+    self.assertEqual(open_order.getStopDate(), fake_now)
+    self.assertEqual(hosting_subscription.getValidationState(), 'archived')
+
+
 class TestSlapODeliverAutomatedAccountingTransactionAlarm(SlapOSTestCaseMixin):
 
   #################################################################

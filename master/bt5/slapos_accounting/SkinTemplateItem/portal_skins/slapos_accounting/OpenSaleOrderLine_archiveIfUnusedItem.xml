@@ -46,11 +46,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>REQUEST=None, check_unused_item=True</string> </value>
+            <value> <string>REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>OpenSaleOrder_archiveIfUnusedItem</string> </value>
+            <value> <string>OpenSaleOrderLine_archiveIfUnusedItem</string> </value>
         </item>
       </dictionary>
     </pickle>

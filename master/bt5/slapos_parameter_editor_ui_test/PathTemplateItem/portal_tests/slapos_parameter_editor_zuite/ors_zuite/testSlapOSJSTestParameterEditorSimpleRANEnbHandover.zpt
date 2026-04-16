@@ -1,0 +1,115 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test eNB/gNB with Handover Parameters</title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test eNB/gNB with Handover Parameters</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
+                       software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/-/raw/%s/software/simpleran/software.cfg' % context.ERP5Site_getSoftwareReleaseTagVersion()">
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block tal:define="software_type python:'eNB/gNB'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/select_software_type_custom" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[enb_id]'; value python: '0x10012'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[gnb_id]'; value python: '0x54321'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[gtp_addr]'; value python: 'Automatic'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[gps_sync]'; value python: 'true'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root.mme_list'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/json_add_object_array" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[mme_list][0][mme_addr]'; value python: '127.0.1.100'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root.plmn_list'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/json_add_object_array" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[plmn_list][0][plmn]'; value python: '31415'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[handover_a1_rsrp]'; value python: '-70'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[handover_a1_hysteresis]'; value python: '0'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[handover_a1_time_to_trigger]'; value python: '640'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[handover_a2_rsrp]'; value python: '-80'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[handover_meas_gap_config]'; value python: 'Gap Pattern 1'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_raw_parameter" />
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'handover')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'handover')]</td>
+        <td></td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
+
+      <tal:block tal:define="name python:'root[handover_a1_rsrp]'; value python: '-70'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_input_text" />
+      </tal:block>
+
+      <tal:block tal:define="parameter_hash string:0b3d63384cc410344b3c6341bc5bce74">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
+      </tal:block>
+    </tbody>
+  </table>
+</body>
+
+</html>

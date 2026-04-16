@@ -2,46 +2,38 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>Test Core eNB/gNB  </title>
+  <title>Test Test Model</title>
 </head>
 
 <body>
   <table cellpadding="1" cellspacing="1" border="1">
     <thead>
       <tr>
-        <td rowspan="1" colspan="3">Test Core eNB/gNB</td>
+        <td rowspan="1" colspan="3">Test Model Instance</td>
       </tr>
     </thead>
     <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
-                       software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/-/raw/cb3cd7a7286f141e355b734deea101b6c5373d7b/software/ors-amarisoft/software.cfg'">
-                             
+                       software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/-/raw/%s/software/simpleran/software.cfg' % context.ERP5Site_getSoftwareReleaseTagVersion()">
+
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
-      <tal:block tal:define="software_type python:'eNB/gNB'">
+      <tal:block tal:define="software_type python:'Test Model'">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/select_software_type_custom" />
       </tal:block>
 
-      <tal:block tal:define="name python:'root[enb_id]'; value python: '0x10012'">
-        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      <tal:block tal:define="name python:'root[nodeb][gps_sync]'; value python: 'true'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
       </tal:block>
 
-      <tal:block tal:define="name python:'root[gnb_id]'; value python: '0x54321'">
-        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      <tal:block tal:define="name python:'root[cell1][enable_cell]'; value python: 'true'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
       </tal:block>
 
-      <tal:block tal:define="name python:'root.mme_list'; value python: '1'">
-        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/json_add_property" />
+      <tal:block tal:define="name python:'root[cell1][file]'; value python: 'LTE Test Mode 31  - 20 MHz  - FDD'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
       </tal:block>
 
-      <tal:block tal:define="name python:'root[mme_list][1][mme_addr]'; value python: '::1'">
-        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
-      </tal:block>
-
-      <tal:block tal:define="name python:'root.plmn_list'; value python: '1'">
-        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/json_add_property" />
-      </tal:block>
-
-      <tal:block tal:define="name python:'root[plmn_list][1][plmn]'; value python: '31415'">
+      <tal:block tal:define="name python:'root[cell1][tx_gain]'; value python: '40'">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
       </tal:block>
 
@@ -61,23 +53,23 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//textarea[@name="text_content" and contains(text(), 'plmn')]</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'file')]</td>
         <td></td>
       </tr>
 
       <tr>
         <td>assertElementPresent</td>
-        <td>//textarea[@name="text_content" and contains(text(), 'plmn')]</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'file')]</td>
         <td></td>
       </tr>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
 
-      <tal:block tal:define="name python:'root[plmn_list][1][plmn]'; value python: '31415'">
+      <tal:block tal:define="name python:'root[cell1][tx_gain]'; value python: '40'">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_input_text" />
       </tal:block>
 
-      <tal:block tal:define="parameter_hash string:92f9924aa667d26617e7fe52d4549e07">
+      <tal:block tal:define="parameter_hash string:fb9a9f04cb4959aaa48866080b61fc33">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
       </tal:block>
     </tbody>

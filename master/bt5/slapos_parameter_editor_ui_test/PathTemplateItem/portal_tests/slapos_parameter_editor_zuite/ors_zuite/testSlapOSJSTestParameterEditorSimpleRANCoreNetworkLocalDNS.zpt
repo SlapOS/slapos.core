@@ -2,31 +2,39 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>Test Core Network Instance  </title>
+  <title>Test Core Network | Local DNS Entry</title>
 </head>
 
 <body>
   <table cellpadding="1" cellspacing="1" border="1">
     <thead>
       <tr>
-        <td rowspan="1" colspan="3">Test Core Network Instance</td>
+        <td rowspan="1" colspan="3">Test Core Network | Local DNS Entry</td>
       </tr>
     </thead>
     <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
-                       software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/-/raw/cb3cd7a7286f141e355b734deea101b6c5373d7b/software/ors-amarisoft/software.cfg'">
-                             
+                       software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/-/raw/%s/software/simpleran/software.cfg' % context.ERP5Site_getSoftwareReleaseTagVersion()">
+
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
-      <tal:block tal:define="software_type python:'Core Network'">
+      <tal:block tal:define="software_type python:'→ Core Network | Sim Card / Local DNS Entry'">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/select_software_type_custom" />
       </tal:block>
 
-      <tal:block tal:define="name python:'root[core_network_plmn]'; value python: '31415'">
+      <tal:block tal:define="name python:'rootswitcher'; value python: 'Local DNS Entry'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select_switcher" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[name]'; value python: 'test-host'">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
       </tal:block>
 
-      <tal:block tal:define="name python:'root[external_enb_gnb]'; value python: 'true'">
-        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      <tal:block tal:define="name python:'root[ip]'; value python: '192.168.1.100'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[subdomain]'; value python: 'test'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
       </tal:block>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_raw_parameter" />
@@ -45,23 +53,23 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//textarea[@name="text_content" and contains(text(), 'core_network_plmn')]</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'subdomain')]</td>
         <td></td>
       </tr>
 
       <tr>
         <td>assertElementPresent</td>
-        <td>//textarea[@name="text_content" and contains(text(), 'core_network_plmn')]</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'subdomain')]</td>
         <td></td>
       </tr>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
 
-      <tal:block tal:define="name python:'root[core_network_plmn]'; value python: '31415'">
+      <tal:block tal:define="name python:'root[ip]'; value python: '192.168.1.100'">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_input_text" />
       </tal:block>
 
-      <tal:block tal:define="parameter_hash string:fdb246f254cfeaec8dd329c08716fb16">
+      <tal:block tal:define="parameter_hash string:6aca715d4461cbe34ac894fcd8c8031d">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
       </tal:block>
     </tbody>

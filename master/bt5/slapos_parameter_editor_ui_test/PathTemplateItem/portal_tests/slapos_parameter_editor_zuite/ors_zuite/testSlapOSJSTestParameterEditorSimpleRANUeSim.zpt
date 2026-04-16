@@ -2,19 +2,19 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>Test Core eNB/gNB  </title>
+  <title>Test UEsim | LTE Cell </title>
 </head>
 
 <body>
   <table cellpadding="1" cellspacing="1" border="1">
     <thead>
       <tr>
-        <td rowspan="1" colspan="3">Test Core eNB/gNB</td>
+        <td rowspan="1" colspan="3">Test UEsim with LTE Cell</td>
       </tr>
     </thead>
     <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
-                       software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/-/raw/cb3cd7a7286f141e355b734deea101b6c5373d7b/software/ors-amarisoft/software.cfg'">
-                             
+                       software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/-/raw/%s/software/simpleran/software.cfg' % context.ERP5Site_getSoftwareReleaseTagVersion()">
+
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
 
@@ -35,7 +35,7 @@
       <tr>
         <td>select</td>
         <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
-        <td>→ UEsim | Radio Unit / UE / UE Cell</td>
+        <td>&rarr; UEsim | Radio Unit / UE / UE Cell</td>
       </tr>
   
       <tr>
@@ -100,6 +100,9 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
       </tal:block>
 
+      <tal:block tal:define="name python:'root[ul_earfcn]'; value python: '18300'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
 
       <tal:block tal:define="name python:'root[ru][ru_type]'; value python: 'ru_ref'">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
@@ -135,6 +138,18 @@
         <td></td>
       </tr>
 
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'ul_earfcn')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'ul_earfcn')]</td>
+        <td></td>
+      </tr>
+
       <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
 
       <tal:block tal:define="name python:'root[rf_mode]'">
@@ -147,7 +162,11 @@
         <td>fdd</td>
       </tr>
 
-      <tal:block tal:define="parameter_hash string:1c396575a15211930ee6db52219fb521">
+      <tal:block tal:define="name python:'root[ul_earfcn]'; value python: '18300'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_input_text" />
+      </tal:block>
+
+      <tal:block tal:define="parameter_hash string:502a816e882f1b40f2e40eb8298ba379">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
       </tal:block>
     </tbody>

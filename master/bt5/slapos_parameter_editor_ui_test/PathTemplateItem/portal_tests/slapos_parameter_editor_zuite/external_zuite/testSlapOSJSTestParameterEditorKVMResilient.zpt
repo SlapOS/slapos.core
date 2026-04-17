@@ -9,7 +9,7 @@
   <table cellpadding="1" cellspacing="1" border="1">
     <thead>
       <tr>
-        <td rowspan="1" colspan="3">Test Parameter editor For KVM (resilient) Software Release (expected failure)</td>
+        <td rowspan="1" colspan="3">Test Parameter editor For KVM (resilient) Software Release </td>
       </tr>
     </thead>
 

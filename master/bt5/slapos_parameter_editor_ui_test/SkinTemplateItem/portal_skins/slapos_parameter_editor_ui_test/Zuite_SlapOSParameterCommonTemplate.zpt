@@ -417,6 +417,28 @@
     </tr>
   </tal:block>
 
+  <tal:block metal:define-macro="input_select_switcher">
+    <!-- It uses ID rather then Name in this case -->
+    <tr>
+      <td colspan="3"><b tal:content="python: 'Select on %s' % name"></b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//select[@id=\'%s\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//select[@id=\'%s\']' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>select</td>
+      <td tal:content="python: '//select[@id=\'%s\']' % name"></td>
+      <td tal:content="python: value"></td>
+    </tr>
+  </tal:block>
+
   <tal:block metal:define-macro="input_select">
     <tr>
       <td colspan="3"><b tal:content="python: 'Select on %s' % name"></b></td>
@@ -568,6 +590,28 @@
     <tr>
       <td>click</td>
       <td tal:content="python: '//div[@data-schemapath=\'%s\']/span/button[contains(@class, \'json-editor-btn-edit_properties\')]' % name"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="json_add_object_array">
+    <tr>
+      <td colspan="3"><b tal:content="python: 'Add one entry on the array %s' % name"></b></td>
+    </tr>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//button[contains(@class, \'json-editor-btn-add\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//button[contains(@class, \'json-editor-btn-add\')]' % name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[@data-schemapath=\'%s\']//button[contains(@class, \'json-editor-btn-add\')]' % name"></td>
       <td></td>
     </tr>
   </tal:block>

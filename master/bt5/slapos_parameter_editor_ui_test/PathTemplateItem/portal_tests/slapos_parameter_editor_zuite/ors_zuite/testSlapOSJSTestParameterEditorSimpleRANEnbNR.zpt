@@ -1,0 +1,166 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test eNB/gNB | NR Cell</title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test eNB/gNB with NR (5G) Cell Parameters</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
+                       software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/-/raw/%s/software/simpleran/software.cfg' % context.ERP5Site_getSoftwareReleaseTagVersion()">
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/wait_software_type_selection" />
+      <tr>
+        <td colspan="3"><b>Change Software type:&rarr; eNB/gNB | Radio Unit / Cell / Peer / Peer Cell </b></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[contains(text(), "eNB/gNB | Radio Unit / Cell / Peer / Peer Cell")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[contains(text(), "eNB/gNB | Radio Unit / Cell / Peer / Peer Cell")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>select</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
+        <td>&rarr; eNB/gNB | Radio Unit / Cell / Peer / Peer Cell</td>
+      </tr>
+
+      <tr>
+        <td colspan="3"><b>Select Cell - NR Cell </b></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="Cell"]//parent::select</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="Cell"]//parent::select</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>select</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="Cell"]//parent::select</td>
+        <td>Cell</td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="NR Cell"]//parent::select</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="NR Cell"]//parent::select</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>select</td>
+        <td>//div[@data-schemaid="root"]//select[@id="rootswitcher"]//option[@value="NR Cell"]//parent::select</td>
+        <td>NR Cell</td>
+      </tr>
+
+      <tal:block tal:define="name python:'root[cell_type]'; value python: 'nr'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[cell_kind]'; value python: 'enb'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[rf_mode]'; value python: 'tdd'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[bandwidth]'; value python: '20'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[dl_nr_arfcn]'; value python: '520000'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[nr_band]'; value python: '78'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[pci]'; value python: '1'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[ssb_pos_bitmap]'; value python: '10000000'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[tdd_ul_dl_config]'; value python: 'DDDDDDDSUU (5ms,   7DL/2UL), S-slot=6DL:4GP:4UL, default'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[subcarrier_spacing]'; value python: '30'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[ru][ru_type]'; value python: 'ru_ref'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[ru][ru_ref]'; value python: '0000'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_raw_parameter" />
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'dl_nr_arfcn')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'dl_nr_arfcn')]</td>
+        <td></td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
+
+      <tal:block tal:define="name python:'root[dl_nr_arfcn]'; value python: '520000'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_input_text" />
+      </tal:block>
+
+      <tal:block tal:define="parameter_hash string:26204a1448e3a4b88446298c651ff8ef">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
+      </tal:block>
+    </tbody>
+  </table>
+</body>
+
+</html>

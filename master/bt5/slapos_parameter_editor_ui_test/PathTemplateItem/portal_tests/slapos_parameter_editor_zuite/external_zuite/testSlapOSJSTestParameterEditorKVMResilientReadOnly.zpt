@@ -9,7 +9,7 @@
   <table cellpadding="1" cellspacing="1" border="1">
     <thead>
       <tr>
-        <td rowspan="1" colspan="3">Test Read Only Parameter editor For KVM (resilient) Software Release (expected failure)</td>
+        <td rowspan="1" colspan="3">Test Read Only Parameter editor For KVM (resilient) Software Release</td>
       </tr>
     </thead>
     <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
@@ -19,7 +19,7 @@
       <tr>
         <td>type</td>
         <td>//textarea[@name='field_your_text_content']</td>
-        <td tal:content="python: '<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><instance><parameter id=&quot;ram-size&quot;>4096</parameter><parameter id=&quot;cpu-count&quot;>3</parameter><parameter id=&quot;-sla-0-computer_guid&quot;>COMP-0</parameter></instance>'"></td>
+        <td tal:content="python: '<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?><instance><parameter id=&quot;_&quot;>{&quot;ram-size&quot;: 4096, &quot;cpu-count&quot;: 3, &quot;-sla-0-computer_guid&quot;: &quot;COMP-0&quot;}</parameter></instance>'"></td>
       </tr>
       <tr>
         <td>type</td>

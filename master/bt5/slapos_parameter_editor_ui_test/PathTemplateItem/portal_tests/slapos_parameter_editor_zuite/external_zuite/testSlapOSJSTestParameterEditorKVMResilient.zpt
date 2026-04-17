@@ -9,7 +9,7 @@
   <table cellpadding="1" cellspacing="1" border="1">
     <thead>
       <tr>
-        <td rowspan="1" colspan="3">Test Parameter editor For KVM (resilient) Software Release (expected failure)</td>
+        <td rowspan="1" colspan="3">Test Parameter editor For KVM (resilient) Software Release</td>
       </tr>
     </thead>
 
@@ -73,7 +73,7 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_not_invalid_feedback" />
       </tal:block>
 
-      <tal:block tal:define="parameter_hash string:6d0f439b10760e8d8ceb0a3c71ae31fe">
+      <tal:block tal:define="parameter_hash string:cc9dd8921da535ea9e98a03a148d6c17">
         <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
       </tal:block>
 

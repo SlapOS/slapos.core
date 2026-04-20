@@ -1,0 +1,103 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test Core Network | Sim Card (Milenage)</title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test Core Network | Sim Card with Milenage Algorithm</td>
+      </tr>
+    </thead>
+    <tbody tal:define="user_configuration python: context.ERP5Site_generateTestUserConfiguration();
+                       software_release_url python: 'https://lab.nexedi.com/nexedi/slapos/-/raw/%s/software/simpleran/software.cfg' % context.ERP5Site_getSoftwareReleaseTagVersion()">
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/init" />
+      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/submit_dialog" />
+      <tal:block tal:define="software_type python:'→ Core Network | Sim Card / Local DNS Entry'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/select_software_type_custom" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[sim_algo]'; value python: 'milenage'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[plmn]'; value python: '31415'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[msin]'; value python: '0000000001'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[opc]'; value python: '00112233445566778899aabbccddeeff'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[k]'; value python: '00112233445566778899aabbccddeeff'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[amf]'; value python: '0x9001'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[sqn]'; value python: '000000000000'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[impu]'; value python: 'sip:00123456789'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[impi]'; value python: '00123456789@test.local'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_text" />
+      </tal:block>
+
+      <tal:block tal:define="name python:'root[authent_type]'; value python: 'AKAv1'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/input_select" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_raw_parameter" />
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), '&lt;instance&gt;')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'sim_algo')]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content" and contains(text(), 'sim_algo')]</td>
+        <td></td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/show_form_parameter" />
+
+      <tal:block tal:define="name python:'root[plmn]'; value python: '31415'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/assert_input_text" />
+      </tal:block>
+
+      <tal:block tal:define="parameter_hash string:56bb34ebb7253e0cbac1f3a2d976b0e5">
+        <tal:block metal:use-macro="here/Zuite_SlapOSParameterCommonTemplate/macros/submit_dialog_and_assert_hash" />
+      </tal:block>
+    </tbody>
+  </table>
+</body>
+
+</html>

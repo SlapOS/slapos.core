@@ -896,7 +896,8 @@ class ComputerPartition(SlapRequester):
     json_dict = {
       'instance_guid': slave_reference,
       'connection_parameter_dict': {
-        k: bytes2str(v) for k, v in connection_dict.items()
+        k: bytes2str(v) if isinstance(v, bytes) else v
+        for k, v in connection_dict.items()
       }
     }
 

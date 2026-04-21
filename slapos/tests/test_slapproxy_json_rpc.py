@@ -262,15 +262,14 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
       }
     )
 
-    assert response.status_code == 403, response.status_code
+    assert response.status_code == 200, response.status_code
     assert response.content_type == 'application/json', \
         response.content_type
-    expect_result_dict = {
-        "status": 403,
-        "type": "Forbidden",
-        "title": "No free computer partition found for: foo"
-    }
-    assert json.loads(response.data) == expect_result_dict, response.data
+    result = json.loads(response.data)
+    assert result['status'] == 102, response.data
+    assert result['name'] == 'Processing', response.data
+    assert 'No free computer partition found for: foo' in result['message'], \
+        response.data
 
   def test_post_v0_software_instance__first_allocation(self):
     self.format_for_number_of_partitions(1)
@@ -501,7 +500,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'computer_guid': '',
         'compute_partition_id': 'Fake frontend for https://[::1]:123/my/path?my=query&string=value#myanchor',
         'processing_timestamp': 0,
-        'access_status_message': ""
+        'access_status_message': "",
     }
     data_result = json.loads(response.data)
     assert data_result == expect_result_dict, response.data
@@ -541,7 +540,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'computer_guid': '',
         'compute_partition_id': 'Fake frontend for https://[::1]:123/my/path?my=query&string=value#myanchor',
         'processing_timestamp': 0,
-        'access_status_message': ""
+        'access_status_message': "",
     }
     data_result = json.loads(response.data)
     assert data_result == expect_result_dict, response.data
@@ -950,13 +949,29 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'software_type': 'foobar'
       }
     )
-    assert response.status_code == 403, response.status_code
-    expect_result_dict = {
-        "status": 403,
-        "type": "Forbidden",
-        "title": "No free computer partition found for: MyFirstInstance"
-    }
-    assert json.loads(response.data) == expect_result_dict, response.data
+    assert response.status_code == 200, response.status_code
+    result = json.loads(response.data)
+    assert result['status'] == 102, response.data
+    assert 'No free computer partition found for: MyFirstInstance' in result['message'], \
+        response.data
+
+  def test_put_v0_compute_node_format_no_netmask(self):
+    """ip_list entries from address_list have no netmask — must not crash."""
+    response = self.app.post(
+      '/slapos.put.v0.compute_node_format',
+      json={
+        'computer_guid': self.computer_id,
+        'compute_partition_list': [{
+          'partition_id': 'slappart0',
+          'ip_list': [
+            {'ip-address': '10.0.1.1', 'network-interface': 'lo'},
+            {'ip-address': '::1',      'network-interface': 'lo'},
+          ]
+        }]
+      }
+    )
+    assert response.status_code == 200, response.data
+    assert json.loads(response.data) == {'type': 'success', 'title': 'Formatted'}
 
   def test_put_v0_compute_node_format_new_partition(self):
     response = self.app.post(
@@ -1673,6 +1688,37 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     }
     assert json.loads(response.data) == expect_result_dict, response.data
 
+  #######################################################
+  # getComputerPartitionList with free partitions
+  #######################################################
+  def test_getComputerPartitionList_free_partition_attributes(self):
+    from slapos.tests.test_slapproxy import MasterMixinJSONRPC
+    import slapos.slap
+    # create 2 partitions, allocate an instance on only one
+    self.format_for_number_of_partitions(2)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'AllocatedInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'key': 'value'}
+      }
+    )
+    # build a Computer and call getComputerPartitionList
+    computer = slapos.slap.Computer(
+      self.computer_id,
+      connection_helper=MasterMixinJSONRPC.TestConnectionHelper(self.app))
+    partition_list = computer.getComputerPartitionList()
+    # all partitions are returned, including free ones
+    assert len(partition_list) == 2, partition_list
+    free = [p for p in partition_list
+            if p._software_release_document is None]
+    assert len(free) == 1, free
+    # free partitions have pre-populated empty dicts
+    assert free[0]._parameter_dict == {}
+    assert free[0]._connection_dict == {}
+
 
 class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
   #######################################################
@@ -1735,3 +1781,99 @@ class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
         }]
     }
     assert json.loads(response.data) == expect_result_dict, response.data
+
+  #######################################################
+  # Backward compat: unregistered default computer
+  #######################################################
+  def test_compute_node_software_installation_list_unregistered_default(self):
+    # Default computer_id should get an empty list even without format
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_software_installation_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    assert json.loads(response.data) == {'result_list': []}, response.data
+
+  def test_compute_node_software_installation_list_unregistered_other(self):
+    # Non-default computer_id should get 403 when not registered
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_software_installation_list',
+      json={
+        'computer_guid': 'other'
+      }
+    )
+    assert response.status_code == 403, response.status_code
+
+  def test_compute_node_instance_list_unregistered_default(self):
+    # Default computer_id should get an empty list even without format
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_instance_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    assert json.loads(response.data)['result_list'] == [], response.data
+
+  def test_compute_node_instance_list_unregistered_other(self):
+    # Non-default computer_id should get 403 when not registered
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_instance_list',
+      json={
+        'computer_guid': 'other'
+      }
+    )
+    assert response.status_code == 403, response.status_code
+
+  def test_getSlaveInstanceList_flattens_parameters(self):
+    from slapos.tests.test_slapproxy import MasterMixinJSONRPC
+    self.format_for_number_of_partitions(2)
+    # request a master instance
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MasterInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {}
+      }
+    )
+    # request a shared instance hosted on the master
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'SharedInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'type': 'pull', 'name': 'test-backup'},
+        'shared': True
+      }
+    )
+    # build a ComputerPartition with a TestConnectionHelper
+    import slapos.slap
+    computer_partition = slapos.slap.ComputerPartition(
+      'computer', 'slappart0')
+    computer_partition._instance_guid = 'MasterInstance______0'
+    computer_partition._connection_helper = \
+      MasterMixinJSONRPC.TestConnectionHelper(self.app)
+
+    slave_list = computer_partition.getSlaveInstanceList()
+    assert len(slave_list) == 1, slave_list
+    slave = slave_list[0]
+    # metadata keys
+    assert slave['slave_title'] == 'SharedInstance', slave
+    assert slave['slap_software_type'] == 'foobar', slave
+    assert slave['slave_reference'] == 'SharedInstance______1', slave
+    assert 'xml' in slave, slave
+    # flattened parameter keys (backward compatibility)
+    assert slave['type'] == 'pull', slave
+    assert slave['name'] == 'test-backup', slave
+    # native parameters dict
+    assert slave['parameters'] == {'type': 'pull', 'name': 'test-backup'}, \
+      slave

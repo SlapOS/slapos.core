@@ -22,14 +22,17 @@
 ##############################################################################
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin,\
-  TemporaryAlarmScript, simulate
+  SlapOSTestCaseMixinWithAbort, TemporaryAlarmScript, simulate
 from DateTime import DateTime
 import json
 
-class TestPanelSkinsMixin(SlapOSTestCaseMixin):
+def getFakeSlapState():
+  return "destroy_requested"
+
+class TestPanelSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
   def afterSetUp(self):
-    SlapOSTestCaseMixin.afterSetUp(self)
+    SlapOSTestCaseMixinWithAbort.afterSetUp(self)
     self.project = self.addProject()
 
   def getDocumentOnPanelContext(self, document):
@@ -597,8 +600,15 @@ class TestRegularisationRequest_getInvoiceList(SlapOSTestCaseMixin):
                          start_date=None):
     if start_date is None:
       start_date = DateTime('2019/10/20')
+    source_organisation = getattr(self, '_test_source_organisation', None)
+    if source_organisation is None:
+      source_organisation = self.portal.organisation_module.newContent(
+        portal_type="Organisation",
+        title='Test Source Org')
+      self._test_source_organisation = source_organisation
     current_invoice = self.portal.accounting_module.newContent(
       portal_type="Sale Invoice Transaction",
+      source_section_value=source_organisation,
       destination_value=person,
       destination_section_value=person,
       start_date=start_date,
@@ -646,24 +656,24 @@ class TestRegularisationRequest_getInvoiceList(SlapOSTestCaseMixin):
                               "'disabled'", attribute='comment'):
       self.tic()
 
+    # Person A sees only their invoices
     result_a = reg_a.RegularisationRequest_getInvoiceList()
     self.assertEqual(len(result_a), 2)
-    self.assertEqual(result_a[0].uid, invoice_a1.getUid())
-    self.assertEqual(result_a[1].uid, invoice_a2.getUid())
+    self.assertEqual(
+      sorted(r.getRelativeUrl() for r in result_a),
+      sorted([invoice_a1.getRelativeUrl(), invoice_a2.getRelativeUrl()]))
 
+    # Person B sees only their invoice
     result_b = reg_b.RegularisationRequest_getInvoiceList()
     self.assertEqual(len(result_b), 1)
-    self.assertEqual(result_b[0].uid, invoice_b1.getUid())
-
-    reg_a.RegularisationRequest_countInvoiceList()
-    reg_b.RegularisationRequest_countInvoiceList()
+    self.assertEqual(result_b[0].getRelativeUrl(), invoice_b1.getRelativeUrl())
 
   def test_RegularisationRequest_getInvoiceList_filters_paid(self):
     project = self.addProject()
     person = self.makePerson(project, user=1)
 
     unpaid_invoice = self.createFinalInvoice(person)
-    self.createFinalInvoice(person, grouping_reference="foobar")
+    self.createFinalInvoice(person, grouping_reference="foobar")  # paid
 
     reg_request = self.portal.regularisation_request_module.newContent(
         portal_type='Regularisation Request',
@@ -675,14 +685,14 @@ class TestRegularisationRequest_getInvoiceList(SlapOSTestCaseMixin):
 
     result = reg_request.RegularisationRequest_getInvoiceList()
     self.assertEqual(len(result), 1)
-    self.assertEqual(result[0].uid, unpaid_invoice.getUid())
+    self.assertEqual(result[0].getRelativeUrl(), unpaid_invoice.getRelativeUrl())
 
   def test_RegularisationRequest_getInvoiceList_only_automated_ledger(self):
     project = self.addProject()
     person = self.makePerson(project, user=1)
 
     automated_invoice = self.createFinalInvoice(person, ledger="automated")
-    self.createFinalInvoice(person, ledger=None)
+    self.createFinalInvoice(person, ledger=None)  # no ledger
 
     reg_request = self.portal.regularisation_request_module.newContent(
         portal_type='Regularisation Request',
@@ -694,7 +704,7 @@ class TestRegularisationRequest_getInvoiceList(SlapOSTestCaseMixin):
 
     result = reg_request.RegularisationRequest_getInvoiceList()
     self.assertEqual(len(result), 1)
-    self.assertEqual(result[0].uid, automated_invoice.getUid())
+    self.assertEqual(result[0].getRelativeUrl(), automated_invoice.getRelativeUrl())
 
   def test_RegularisationRequest_getInvoiceList_only_stopped_delivered(self):
     project = self.addProject()
@@ -713,7 +723,7 @@ class TestRegularisationRequest_getInvoiceList(SlapOSTestCaseMixin):
 
     result = reg_request.RegularisationRequest_getInvoiceList()
     self.assertEqual(len(result), 1)
-    self.assertEqual(result[0].uid, stopped_invoice.getUid())
+    self.assertEqual(result[0].getRelativeUrl(), stopped_invoice.getRelativeUrl())
 
   def test_RegularisationRequest_getInvoiceList_empty_destination(self):
     reg_request = self.portal.regularisation_request_module.newContent(
@@ -725,3 +735,4 @@ class TestRegularisationRequest_getInvoiceList(SlapOSTestCaseMixin):
 
     result = reg_request.RegularisationRequest_getInvoiceList()
     self.assertEqual(len(result), 0)
+

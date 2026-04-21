@@ -10,6 +10,7 @@ Payment Transaction | related_payzen_event
 Person | create_slapos_credit_note_sale_invoice_transaction
 Person | create_slapos_deposit
 Person | create_slapos_payment_transaction
+Project | jump_to_related_sale_trade_condition
 Root Applied Rule Causality Causality Movement Group | view
 Sale Invoice Transaction | create_slapos_reversal
 Sale Packing List | jump_related_aggregated_packing_list

@@ -94,7 +94,7 @@
                           <string>Reference</string>
                         </tuple>
                         <tuple>
-                          <string>operation_date</string>
+                          <string>stop_date</string>
                           <string>Date</string>
                         </tuple>
                         <tuple>
@@ -145,16 +145,7 @@
                 <item>
                     <key> <string>editable_columns</string> </key>
                     <value>
-                      <list>
-                        <tuple>
-                          <string>operation_date</string>
-                          <string>Date</string>
-                        </tuple>
-                        <tuple>
-                          <string>total_price</string>
-                          <string>Price</string>
-                        </tuple>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -217,7 +208,7 @@
                           <string>SaleInvoiceTransaction_getInvoicePrintoutUrl</string>
                         </tuple>
                         <tuple>
-                          <string>operation_date</string>
+                          <string>stop_date</string>
                           <string>SaleInvoiceTransaction_getInvoicePrintoutUrl</string>
                         </tuple>
                         <tuple>

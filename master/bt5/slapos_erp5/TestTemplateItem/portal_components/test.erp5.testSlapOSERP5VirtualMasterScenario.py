@@ -392,6 +392,12 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
   def test_virtual_master_on_remote_tree_without_accounting_workgroup_scenario(self):
     self.test_virtual_master_on_remote_tree_without_accounting_scenario(scenario='workgroup')
 
+  def test_virtual_master_slave_instance_on_remote_tree_without_accounting_remote_workgroup_scenario(self):
+    self.test_virtual_master_slave_instance_on_remote_tree_without_accounting_scenario(scenario='remote_workgroup')
+
+  def test_virtual_master_on_remote_tree_without_accounting_remote_workgroup_scenario(self):
+    self.test_virtual_master_on_remote_tree_without_accounting_scenario(scenario='remote_workgroup')
+
   def test_virtual_master_slave_without_accounting_workgroup_scenario(self):
     self.test_virtual_master_slave_without_accounting_scenario(scenario='workgroup')
 
@@ -1388,6 +1394,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       remote_public_reference = 'remote-public-%s' % self.generateNewId()
       remote_public_person = self.joinSlapOS(remote_public_reference)
 
+
       ####################################
       # Create a local project
       ####################################
@@ -1397,12 +1404,19 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         person=remote_public_person, currency=currency)
 
       owner_person = remote_public_person
+      remote_entity = remote_public_person
+      if scenario == "remote_workgroup":
+        self.login(sale_person.getUserId())
+        workgroup = self.createWorkgroup(remote_public_person,
+                                         project=remote_project,
+                                         currency=currency)
+        remote_entity = workgroup
 
       # hooray, now it is time to create compute_nodes
       self.login(owner_person.getUserId())
 
       remote_compute_node = self.requestRemoteNode(project, remote_project,
-                                             remote_public_person)
+                                             remote_entity)
 
       # and install some software on them (with same type)
       public_server_software = remote_server_software
@@ -1442,7 +1456,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # owner_person should have one Instance Tree created by alarm
       owner_instance_tree_list = self.portal.portal_catalog(
         portal_type='Instance Tree',
-        destination_section__uid=owner_person.getUid()
+        destination_section__uid=remote_entity.getUid()
       )
       self.assertEqual(1, len(owner_instance_tree_list))
       owner_software_instance = owner_instance_tree_list[0].getSuccessorValue()
@@ -1504,7 +1518,13 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 software instance
     # 1 software product
     # 3 subscription requests
-    self.assertRelatedObjectCount(remote_project, 33)
+    expected_object_count = 33
+    if scenario == 'remote_workgroup':
+      # + 1 assignment
+      # + 1 assignment request
+      # + 1 open sale order
+      expected_object_count = 36
+    self.assertRelatedObjectCount(remote_project, expected_object_count)
 
     # Ensure no unexpected object has been created
     # 3 allocation supply/line/cell
@@ -1600,11 +1620,19 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
         currency=currency)
 
       owner_person = remote_public_person
+      remote_entity = remote_public_person
+      if scenario == "remote_workgroup":
+        self.login(sale_person.getUserId())
+        workgroup = self.createWorkgroup(remote_public_person,
+                                         project=remote_project,
+                                         currency=currency)
+        remote_entity = workgroup
+
       # hooray, now it is time to create compute_nodes
       self.login(owner_person.getUserId())
 
       remote_compute_node = self.requestRemoteNode(project, remote_project,
-                                             remote_public_person)
+                                             remote_entity)
 
       # and install some software on them
       public_server_software = remote_server_software
@@ -1647,7 +1675,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # owner_person should have one Instance Tree created by alarm
       owner_instance_tree_list = self.portal.portal_catalog(
         portal_type='Instance Tree',
-        destination_section__uid=owner_person.getUid()
+        destination_section__uid=remote_entity.getUid()
       )
       self.assertEqual(1, len(owner_instance_tree_list))
       owner_software_instance = owner_instance_tree_list[0].getSuccessorValue()
@@ -1696,7 +1724,13 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
       # 2 software instance
       # 1 software product
       # 4 subscription requests
-      self.assertRelatedObjectCount(remote_project, 45)
+      expected_object_count = 45
+      if scenario == 'remote_workgroup':
+        # + 1 assignment
+        # + 1 assignment request
+        # + 1 open sale order
+        expected_object_count = 48
+      self.assertRelatedObjectCount(remote_project, expected_object_count)
 
       # Ensure no unexpected object has been created
       # 3 allocation supply/line/cell

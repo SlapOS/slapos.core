@@ -46,11 +46,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>fallback_user=None</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Project_getUserWorkgroup</string> </value>
+            <value> <string>Workgroup_getValidMemberValue</string> </value>
         </item>
       </dictionary>
     </pickle>

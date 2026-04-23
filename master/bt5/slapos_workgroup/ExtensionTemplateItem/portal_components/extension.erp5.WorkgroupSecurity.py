@@ -24,6 +24,9 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
+from AccessControl.SecurityManagement import getSecurityManager, \
+             setSecurityManager, newSecurityManager
+from AccessControl import Unauthorized
 
 
 def isPersonFromWorkgroup(self, person, workgroup):
@@ -37,3 +40,24 @@ def isPersonFromWorkgroup(self, person, workgroup):
   if user_id is not None:
     acl_users = self.getPortalObject().acl_users
     return workgroup.getUserId() in acl_users.getUserById(user_id).__of__(acl_users).getGroups()
+
+def isEntityProjectCustomer(self, entity, project):
+  assert entity.getPortalType() in ['Person', 'Workgroup']
+  assert project.getPortalType() == 'Project'
+
+  person = entity
+  if entity.getPortalType() == 'Workgroup':
+    person = entity.Workgroup_getValidMemberValue()
+
+  acl_users = self.getPortalObject().acl_users
+
+  sm = getSecurityManager()
+  user = acl_users.getUserById(person.getUserId())
+  if user is None:
+    raise Unauthorized('%s is not loggable user' % person.getRelativeUrl())
+  newSecurityManager(None, user)
+  try:
+    return project.Base_hasSlapOSProjectUserGroup(customer=True)
+  finally:
+    # Restore the original user.
+    setSecurityManager(sm)

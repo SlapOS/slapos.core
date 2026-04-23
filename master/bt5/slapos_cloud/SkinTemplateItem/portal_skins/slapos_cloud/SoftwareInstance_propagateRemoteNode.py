@@ -13,7 +13,11 @@ remote_node = compute_partition.getParentValue()
 assert remote_node.getPortalType() == 'Remote Node'
 
 remote_project = remote_node.getDestinationProjectValue(portal_type='Project')
-remote_person = remote_node.getDestinationSectionValue(portal_type='Person')
+remote_person = remote_node.getDestinationSectionValue(portal_type=portal.getPortalActorTypeList())
+if remote_person.getPortalType() == 'Person':
+  remote_actor = remote_person.Person_getSlaposActorRequester(remote_project)
+else:
+  remote_actor = remote_person
 
 # If local instance destruction has been propagated, do nothing
 if local_instance.getValidationState() != 'validated':
@@ -25,7 +29,9 @@ if local_instance.getValidationState() != 'validated':
 remote_instance_tree = portal.portal_catalog.getResultValue(
   portal_type='Instance Tree',
   validation_state='validated',
-  destination_section__uid=remote_person.getUid(),
+  # Search instance trees from person and workgroup
+  # to allow compatibility so that a person can update its existing services
+  destination_section__uid=[remote_actor.getUid(), remote_person.getUid()],
   follow_up__uid=remote_project.getUid(),
   title={'query': '_remote_%s_%s' % (local_instance.getFollowUpReference(),
                                      local_instance.getReference()),

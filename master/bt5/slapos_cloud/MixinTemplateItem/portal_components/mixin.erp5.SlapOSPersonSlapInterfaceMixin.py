@@ -73,7 +73,8 @@ class SlapOSPersonSlapInterfaceMixin:
     project = project_list[0]
     requester = person
 
-    workgroup = project.Project_getUserWorkgroup()
+    # Use fallback in case this is called as Manager.
+    workgroup = project.Project_getUserWorkgroup(fallback_user=person)
     if workgroup is not None:
       requester = workgroup
 

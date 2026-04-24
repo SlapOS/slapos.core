@@ -472,4 +472,85 @@ class TestSlapOSLinkConsumptionToCustomerAlarm(TestSlapOSVirtualMasterScenarioMi
     self.assertEqual(len(ongoing_invoice.getCausalityList()), 3)
     self.assertEqual(len(ongoing_invoice.contentValues(portal_type='Invoice Line')), 5)
 
+  #################################################################
+  # slapos_accounting_link_consumption_to_customer
+  # tioxml
+  #################################################################
+  def test_createSPLAggregateByCustomer(self):
+    user_dict = self.bootstrapComsumptionTest(
+      DateTime(MAIN_TRADE_CONDITION_CREATION_DATE),
+      is_virtual_master_accountable=False,
+      new_document_day_delay_count=1,
+      manager_count=1,
+      manager_project_count=1,
+      project_node_count=1,
+      project_customer_count=1,
+      customer_instance_count=1,
+    )
 
+    customer_person = user_dict['customer_list'][0]
+    self.login()
+
+    # Ensure no unexpected object has been created
+    # 1 assignment request
+    # 1 credential request
+    # 1 event
+    # 1 instance tree
+    # 3 open sale order / line
+    # 1 simulation movement
+    # 2 sale packing list
+    # 1 subscription request
+    self.assertRelatedObjectCount(customer_person, 11)
+    """
+    previous_sale_packing_list_uid_list = [x.getUid() for x in self.portal.portal_catalog(
+      portal_type='Sale Packing List',
+      destination__uid=customer_person.getUid()
+    )]
+"""
+    # This valid date is the manager creation date (max 28) minus 1
+    with PinnedDateTime(self, DateTime('2026/05/01')):
+      for _ in range(2):
+        # Run twice, to ensure packing list have a grouping reference
+        alarm = self.portal.portal_alarms.slapos_accounting_link_consumption_to_customer
+        alarm.activeSense()
+        self.tic()
+
+    # one new sale packing list created
+    self.assertRelatedObjectCount(customer_person, 11)
+    """
+    aggregated_sale_packinglist = self.portal.portal_catalog.getResultValue(
+      portal_type='Sale Packing List',
+      destination__uid=customer_person.getUid(),
+      uid=NegatedQuery(SimpleQuery(uid=previous_sale_packing_list_uid_list)),
+    )
+    self.assertEqual(aggregated_sale_packinglist.getPortalType(), "Sale Packing List")
+    self.assertEqual(aggregated_sale_packinglist.getSourceSection(), None)
+    self.assertEqual(aggregated_sale_packinglist.getSourceValue().getPortalType(), "Organisation")
+    self.assertEqual(aggregated_sale_packinglist.getDestination(), customer_person.getRelativeUrl())
+    self.assertEqual(aggregated_sale_packinglist.getDestinationDecision(), customer_person.getRelativeUrl())
+    self.assertEqual(aggregated_sale_packinglist.getDestinationSection(), customer_person.getRelativeUrl())
+    self.assertEqual(aggregated_sale_packinglist.getStartDate(), DateTime('2026/03/28 00:00:00 UTC'))
+    self.assertEqual(aggregated_sale_packinglist.getStopDate(), DateTime('2026/04/28 00:00:00 UTC'))
+    self.assertTrue(aggregated_sale_packinglist.getReference(), aggregated_sale_packinglist.getReference())
+    self.assertEqual(aggregated_sale_packinglist.getSimulationState(), "delivered")
+    self.assertEqual(aggregated_sale_packinglist.getCausalityState(), "solved")
+    self.assertEqual(aggregated_sale_packinglist.getSpecialiseValue().getPortalType(), 'Sale Trade Condition')
+    self.assertEqual(aggregated_sale_packinglist.getSourceProject(), None)
+    self.assertEqual(aggregated_sale_packinglist.getDestinationProject(), None)
+    self.assertEqual(aggregated_sale_packinglist.getLedger(), 'automated')
+    self.assertEqual(aggregated_sale_packinglist.getPriceCurrencyValue().getPortalType(), 'Currency')
+
+    self.assertEqual(len(aggregated_sale_packinglist.contentIds()), 1)
+    sale_packing_list_line = aggregated_sale_packinglist.contentValues()[0]
+    self.assertEqual(sale_packing_list_line.getResource(), 'service_module/slapos_compute_node_subscription')
+    self.assertEqual(sale_packing_list_line.getQuantityUnit(), 'time/month')
+    self.assertEqual(sale_packing_list_line.getQuantity(), 1)
+    self.assertEqual(sale_packing_list_line.getPrice(), 0)
+    self.assertEqual(sale_packing_list_line.getGroupingReference(), aggregated_sale_packinglist.getReference())
+
+    # check matching internal packing list line
+    self.assertEqual(self.portal.portal_catalog.countResults(
+      portal_type='Internal Packing List Line',
+      grouping_reference=sale_packing_list_line.getGroupingReference()
+    )[0][0], 1)
+"""

@@ -180,6 +180,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_accounting/SalePackingList_jumpToRelatedAggregatedSalePackingList',
         'slapos_accounting/SaleSupplyCell_asPredicate',
         'slapos_accounting/SaleSupplyLine_asPredicate',
+        'slapos_consumption/ConsumptionSupplyLine_asPredicate',
         'slapos_wechat/Base_queryWechatOrderStatusByTradeNo',
         'slapos_wechat/ERP5Site_receiveWechatPaymentCallback',
         'slapos_payzen/PayzenEvent_isPaymentExpired',

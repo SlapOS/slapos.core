@@ -332,7 +332,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       setSecurityManager(sm)
     self.tic()
 
-  def simulateSlapgridUR(self, compute_node):
+  def simulateSlapgridUR(self, compute_node, consumption_xml_report=None):
     sm = getSecurityManager()
     compute_node_user_id = compute_node.getUserId()
     try:
@@ -340,9 +340,22 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       compute_node_xml = self.portal.portal_slap.getFullComputerInformation(
           computer_id=compute_node.getReference())
       if not isinstance(compute_node_xml, str):
+        # Ensure it succeed
+        self.assertEqual(200, compute_node_xml.status)
         compute_node_xml = compute_node_xml.getBody()
-      slap_compute_node = loads(str2bytes(compute_node_xml))
+      if isinstance(compute_node_xml, str):
+        slap_compute_node = loads(str2bytes(compute_node_xml))
+      else:
+        slap_compute_node = loads(compute_node_xml)
       self.assertEqual('Computer', slap_compute_node.__class__.__name__)
+
+      if consumption_xml_report is not None:
+        response = self.portal.portal_slap.useComputer(
+           compute_node.getReference(), consumption_xml_report)
+        # Ensure it succeed
+        self.assertEqual(200, response.status)
+        self.assertEqual("OK", response.body)
+
       destroyed_partition_id_list = []
       for partition in slap_compute_node._computer_partition_list:
         if partition._requested_state == 'destroyed' \

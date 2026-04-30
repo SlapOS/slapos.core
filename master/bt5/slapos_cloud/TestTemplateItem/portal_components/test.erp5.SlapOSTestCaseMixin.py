@@ -956,6 +956,42 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       allocation_supply.validate()
     return allocation_supply
 
+  def addConsumptionService(self):
+    # Create a new service to sell.
+    service_new_id = self.generateNewId()
+    consumption_service = self.portal.service_module.newContent(
+      title="Resource for Consumption %s" % service_new_id,
+      reference='IRESOURCEFORCONSUMPTION-%s' % service_new_id,
+      quantity_unit='unit/piece',  # Probaly wrong
+      base_contribution=[
+        'base_amount/invoicing/discounted',
+        'base_amount/invoicing/taxable',
+      ],
+      use='trade/sale',
+      product_line='cloud/usage'
+    )
+    self.assertEqual(consumption_service.checkConsistency(), [])
+    consumption_service.validate()
+    return consumption_service
+
+  def addConsumptionSupply(self, title, node, consumption_service,
+                           destination_value=None):
+    consumption_supply = self.portal.consumption_supply_module.newContent(
+      portal_type="Consumption Supply",
+      title=title,
+      aggregate_value=node,
+      destination_value=destination_value,
+      destination_project_value=node.getFollowUpValue(),
+    )
+
+    consumption_supply.newContent(
+      portal_type="Consumption Supply Line",
+      resource_value=consumption_service,
+    )
+
+    consumption_supply.validate()
+    return consumption_supply
+
   def generateNewSoftwareReleaseUrl(self):
     return 'http://example.org/têst%s.cfg' % self.generateNewId()
 

@@ -197,7 +197,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     return person.Person_addVirtualMaster(
       'project-%s' % self.generateNewId(),
       is_accountable,
-      is_accountable,
       currency_relative_url,
       batch=1).getRelativeUrl()
 
@@ -647,27 +646,27 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     release_variation = software_product.contentValues(portal_type='Software Product Release Variation')[0]
     type_variation = software_product.contentValues(portal_type='Software Product Type Variation')[0]
 
+    currency = self.portal.currency_module.newContent(
+      portal_type="Currency",
+      title="test %s" % self.generateNewId()
+    )
+    currency.validate()
+    seller_organisation = self.portal.organisation_module.newContent(
+      portal_type="Organisation",
+      title="seller-%s" % self.generateNewId(),
+      # required to generate accounting report
+      price_currency_value=currency,
+      # required to calculate the vat
+      default_address_region='europe/west/france'
+    )
+    seller_bank_account = seller_organisation.newContent(
+      portal_type="Bank Account",
+      title="test_bank_account_%s" % self.generateNewId(),
+      price_currency_value=currency
+    )
+    seller_bank_account.validate()
+    seller_organisation.validate()
     if is_accountable:
-      currency = self.portal.currency_module.newContent(
-        portal_type="Currency",
-        title="test %s" % self.generateNewId()
-      )
-      currency.validate()
-      seller_organisation = self.portal.organisation_module.newContent(
-        portal_type="Organisation",
-        title="seller-%s" % self.generateNewId(),
-        # required to generate accounting report
-        price_currency_value=currency,
-        # required to calculate the vat
-        default_address_region='europe/west/france'
-      )
-      seller_bank_account = seller_organisation.newContent(
-        portal_type="Bank Account",
-        title="test_bank_account_%s" % self.generateNewId(),
-        price_currency_value=currency
-      )
-      seller_bank_account.validate()
-      seller_organisation.validate()
       sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
         portal_type="Sale Trade Condition",
         trade_condition_type="instance_tree",
@@ -860,13 +859,30 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         partition.markBusy()
 
     # create fake open order, to bypass Service_getSubscriptionStatus
-    subscrible_item_list = [instance_tree]
+    subscrible_item_list = [instance_tree, project]
+    consumption_item_list = []
+
+    if (instance_tree.getSuccessorValue() is not None):
+      consumption_item_list.append(instance_tree.getSuccessorValue())
     if (partition is not None) and \
             (partition.getParentValue().getPortalType() =='Compute Node'):
-      subscrible_item_list.append(partition.getParentValue())
+      consumption_item_list.append(partition.getParentValue())
+
     for item in subscrible_item_list:
       open_order = self.portal.open_sale_order_module.newContent(
         portal_type="Open Sale Order",
+        ledger="automated",
+        source_value=seller_organisation,
+        destination_section_value=person
+      )
+      open_order.newContent(
+        aggregate_value=item
+      )
+      self.portal.portal_workflow._jumpToStateFor(open_order, 'validated')
+
+    for item in consumption_item_list:
+      open_order = self.portal.open_internal_order_module.newContent(
+        portal_type="Open Internal Order",
         ledger="automated",
         destination_section_value=person
       )
@@ -939,6 +955,42 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     else:
       allocation_supply.validate()
     return allocation_supply
+
+  def addConsumptionService(self):
+    # Create a new service to sell.
+    service_new_id = self.generateNewId()
+    consumption_service = self.portal.service_module.newContent(
+      title="Resource for Consumption %s" % service_new_id,
+      reference='IRESOURCEFORCONSUMPTION-%s' % service_new_id,
+      quantity_unit='unit/piece',  # Probaly wrong
+      base_contribution=[
+        'base_amount/invoicing/discounted',
+        'base_amount/invoicing/taxable',
+      ],
+      use='trade/sale',
+      product_line='cloud/usage'
+    )
+    self.assertEqual(consumption_service.checkConsistency(), [])
+    consumption_service.validate()
+    return consumption_service
+
+  def addConsumptionSupply(self, title, node, consumption_service,
+                           destination_value=None):
+    consumption_supply = self.portal.consumption_supply_module.newContent(
+      portal_type="Consumption Supply",
+      title=title,
+      aggregate_value=node,
+      destination_value=destination_value,
+      destination_project_value=node.getFollowUpValue(),
+    )
+
+    consumption_supply.newContent(
+      portal_type="Consumption Supply Line",
+      resource_value=consumption_service,
+    )
+
+    consumption_supply.validate()
+    return consumption_supply
 
   def generateNewSoftwareReleaseUrl(self):
     return 'http://example.org/têst%s.cfg' % self.generateNewId()

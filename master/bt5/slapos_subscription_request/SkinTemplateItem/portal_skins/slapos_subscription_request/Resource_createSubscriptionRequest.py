@@ -21,17 +21,8 @@ if resource.getPortalType() == "Software Product":
     assert item_value.getPortalType() == 'Instance Tree'
 
 elif resource.getPortalType() == "Service":
-  if resource.getRelativeUrl() == "service_module/slapos_compute_node_subscription":
-    if project_value is None:
-      raise AssertionError('A project is required for %s %s' % (resource.getRelativeUrl(), project_value))
-    source_project_value = project_value
 
-    trade_condition_type = "compute_node"
-    if not temp_object:
-      assert item_value is not None
-      assert item_value.getPortalType() == 'Compute Node'
-
-  elif resource.getRelativeUrl() == "service_module/slapos_virtual_master_subscription":
+  if resource.getRelativeUrl() == "service_module/slapos_virtual_master_subscription":
     if project_value is None:
       raise AssertionError('Project is required for %s %s' % (resource.getRelativeUrl(), project_value))
     if item_value is not None:

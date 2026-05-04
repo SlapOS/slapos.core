@@ -1,5 +1,6 @@
 import time
 
+import requests
 import slapos
 from slapos.slap.slap import ComputerPartition, SoftwareInstance
 from slapos.util import loads, dumps
@@ -55,10 +56,9 @@ def checkIfMasterIsCurrentMaster(master_url):
     return True
 
   # Hack way: call ourself
-  slap = slapos.slap.slap()
-  slap.initializeConnection(master_url)
   try:
-    return current_app.config['run_id'] == bytes2str(slap._connection_helper.GET('/getRunId'))
+    run_id = requests.get(master_url.rstrip('/') + '/getRunId').text
+    return current_app.config['run_id'] == run_id
   except Exception:
     return False
 
@@ -97,7 +97,7 @@ def formatFromDB(computer_reference, partition_list,
         'partition_network',
         'INSERT OR REPLACE INTO %s (reference, partition_reference, computer_reference, address, netmask) values(?, ?, ?, ?, ?)',
         (ip['network-interface'], partition['partition_id'], computer_reference,
-         ip['ip-address'], ip['netmask'])
+         ip['ip-address'], ip.get('netmask', ''))
       )
 
 
@@ -214,14 +214,9 @@ def requestSlave(software_release, software_type, partition_reference, requester
     q += ' AND software_type=?'
     a(software_type)
   if 'instance_guid' in filter_kw:
-    q += ' AND reference=?'
-    # instance_guid should be like: %s-%s % (requested_computer_id, partition_id)
-    # But code is convoluted here, so we check
-    instance_guid = filter_kw['instance_guid']
-    if instance_guid.startswith(requested_computer_id):
-      a(instance_guid[len(requested_computer_id) + 1:])
-    else:
-      a(instance_guid)
+    # instance_guid format: title___requested_by___is_shared
+    q += ' AND partition_reference=?'
+    a(filter_kw['instance_guid'].split('___', 1)[0])
 
   partition = execute_db('partition', q, args, one=True)
   if partition is None:

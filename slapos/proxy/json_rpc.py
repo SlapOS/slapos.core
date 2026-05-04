@@ -170,7 +170,9 @@ def compute_node_software_installation_list():
   computer_id = request.json["computer_guid"]
   computer_list = execute_db('computer', 'SELECT * FROM %s WHERE reference=?', [computer_id])
   if len(computer_list) != 1:
-    return abort(403, '%s is not registered.' % computer_id)
+    # Backward compatibility
+    if computer_id != current_app.config['computer_id']:
+      return abort(403, '%s is not registered.' % computer_id)
   software_release_list = []
   for sr in execute_db('software', 'select * from %s WHERE computer_reference=?', [computer_id]):
     software_release_list.append({
@@ -203,16 +205,27 @@ def compute_node_instance_list():
   computer_id = request.json["computer_guid"]
   computer_list = execute_db('computer', 'SELECT * FROM %s WHERE reference=?', [computer_id])
   if len(computer_list) != 1:
-    return abort(403, '%s is not registered.' % computer_id)
+    # Backward compatibility
+    if computer_id != current_app.config['computer_id']:
+      return abort(403, '%s is not registered.' % computer_id)
   instance_list = []
-  for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=? AND slap_state="busy"', [computer_id]):
-    instance_list.append({
-      "title": partition['partition_reference'],
-      "instance_guid": generateInstanceGuid(partition['partition_reference'], partition['requested_by'], False),
-      "state": partition['requested_state'],
-      "compute_partition_id": partition['reference'],
-      "software_release_uri": partition['software_release'],
-    })
+  for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=?', [computer_id]):
+    if partition['slap_state'] == 'free':
+      instance_list.append({
+        "title": partition['partition_reference'] or partition['reference'],
+        "instance_guid": '%s-%s' % (partition['computer_reference'], partition['reference']),
+        "state": "destroyed",
+        "compute_partition_id": partition['reference'],
+        "software_release_uri": '',
+      })
+    else:
+      instance_list.append({
+        "title": partition['partition_reference'],
+        "instance_guid": generateInstanceGuid(partition['partition_reference'], partition['requested_by'], False),
+        "state": partition['requested_state'],
+        "compute_partition_id": partition['reference'],
+        "software_release_uri": partition['software_release'],
+      })
   return validate_and_send_json_rpc_document({
     'result_list': instance_list
   })
@@ -397,12 +410,18 @@ def get_compute_partition():
 @json_rpc_blueprint.route('/slapos.post.v0.software_instance', methods=['POST'])
 def post_software_instance():
   title = request.json["title"]
-  requested_by = ''# XXX getRequesterFromForm(form) or '',
+  requested_by = ''
+  requester_partition_id = request.headers.get('X-computer-partition-id')
+  requester_computer_guid = request.headers.get('X-computer-id')
+  if requester_partition_id and requester_computer_guid:
+    requester = getPartitionFromDB(requester_partition_id, requester_computer_guid)
+    if requester:
+      requested_by = requester['requested_by'] or requester['partition_reference'] or ''
   parameters = request.json.get("parameters", {})
   is_shared = request.json.get("shared", False)
   requested_state = request.json.get("state", "started")
   parsed_request_dict = {
-    'requester_id': None,
+    'requester_id': requester_partition_id or 'user',
     'requested_by': requested_by,
     'software_release': request.json["software_release_uri"],
     'software_type': request.json["software_type"],
@@ -418,7 +437,14 @@ def post_software_instance():
   try:
     slap_instance = requestInstanceFromDB(**parsed_request_dict)
   except AllocationFailure as e:
-    return abort(403, str(e))
+    # Signal the client to retry later, matching the HATEOAS 408 → ResourceNotReady
+    # → placeholder ComputerPartition pattern. The client checks result['status'] == 102
+    # and returns a placeholder partition; slapgrid will retry on the next run.
+    return validate_and_send_json_rpc_document({
+      'status': 102,
+      'name': 'Processing',
+      'message': str(e),
+    })
   if isinstance(slap_instance, SoftwareInstance):
     return send_json_rpc_slap_instance(title, requested_by, is_shared, slap_instance)
 
@@ -532,6 +558,13 @@ def put_software_instance_bang():
     return abort(403, 'NotImplemented')
   else:
     bangInstanceFromDB(partition_reference, requested_by)
+    # Propagate bang to the root instance (identified by requested_by) so
+    # slapgrid re-processes it. This is necessary after a rename: the bang
+    # carries a stale instance_guid, so the direct bang above may match
+    # nothing, but banging the root (requested_by) triggers it to re-request
+    # all its children and update their software types accordingly.
+    if requested_by:
+      bangInstanceFromDB(requested_by, '')
 
   return validate_and_send_json_rpc_document({
     'type': 'success',
@@ -562,6 +595,10 @@ def put_software_instance_title():
     query = 'UPDATE %s SET partition_reference=? WHERE partition_reference=? AND requested_by=?'
     argument_list = [new_title, partition_reference, requested_by]
     execute_db('partition', query, argument_list)
+    # Cascade rename to direct children (their requested_by points to old title)
+    execute_db('partition',
+      'UPDATE %s SET requested_by=? WHERE requested_by=?',
+      [new_title, partition_reference])
 
   return validate_and_send_json_rpc_document({
     'type': 'success',

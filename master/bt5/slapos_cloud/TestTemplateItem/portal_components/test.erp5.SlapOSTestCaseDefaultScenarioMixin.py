@@ -332,7 +332,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       setSecurityManager(sm)
     self.tic()
 
-  def simulateSlapgridUR(self, compute_node):
+  def simulateSlapgridUR(self, compute_node, consumption_xml_report=None):
     sm = getSecurityManager()
     compute_node_user_id = compute_node.getUserId()
     try:
@@ -343,6 +343,12 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         compute_node_xml = compute_node_xml.getBody()
       slap_compute_node = loads(str2bytes(compute_node_xml))
       self.assertEqual('Computer', slap_compute_node.__class__.__name__)
+      if consumption_xml_report is not None:
+        response = self.portal.portal_slap.useComputer(
+           compute_node.getReference(), consumption_xml_report)
+        # Ensure it succeed
+        self.assertEqual(200, response.status)
+        self.assertEqual("OK", response.body)
       destroyed_partition_id_list = []
       for partition in slap_compute_node._computer_partition_list:
         if partition._requested_state == 'destroyed' \
@@ -648,6 +654,18 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertNotEqual(subscription_request, None,
       "Not found subscription request for %s" % service.getRelativeUrl())
     return subscription_request
+
+  def checkServiceOpenInternalOrder(self, service):
+    self.login()
+
+    open_order_line = self.portal.portal_catalog.getResultValue(
+      portal_type="Open Internal Order Line",
+      aggregate__uid=service.getUid(),
+      parent__simulation_state='validated'
+    )
+    self.assertNotEqual(open_order_line, None,
+      "Not found internal open order for %s" % service.getRelativeUrl())
+    return open_order_line.getParentValue()
 
   def checkInstanceAllocation(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server,

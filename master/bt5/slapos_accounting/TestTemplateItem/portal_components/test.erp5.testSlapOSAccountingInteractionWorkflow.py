@@ -85,3 +85,9 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by D
     portal_type = "Sale Invoice Transaction"
     self._test_calculate(new_id, newContent, portal_type=portal_type,
         start_date='2011/01/01')
+
+  def test_InternalPackingList_calculate(self):
+    new_id = self.generateNewId()
+    newContent = self.portal.internal_packing_list_module.newContent
+    portal_type = "Internal Packing List"
+    self._test_calculate(new_id, newContent, portal_type=portal_type)

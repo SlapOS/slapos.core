@@ -160,6 +160,11 @@ for base_category in compute_node_base_category_list:
 if 'capability' in filter_kw:
   capability = filter_kw.pop('capability')
   query_kw['subject'] = {'query': capability, 'key': 'ExactMatch'}
+else:
+  # Do not allocate on a partition with a capability
+  # (if a partition was marked with it, it means it should
+  # only be used for services with this exact capability sla)
+  query_kw['versioning.subject_set_uid'] = None
 
 if filter_kw.keys():
   # XXX Drop all unexpected keys

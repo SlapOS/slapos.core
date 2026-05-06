@@ -14,6 +14,24 @@ upgrade_decision = context.InstanceTree_createUpgradeDecision(
 )
 
 if upgrade_decision is None:
-  return context.Base_renderForm(dialog_id, Base_translateString('Can not propose an upgrade to this release'), level='error')
+  upgrade_decision = portal.portal_catalog.getResultValue(
+    portal_type='Upgrade Decision',
+    aggregate__uid=instance_tree.getUid(),
+    simulation_state=['started', 'stopped', 'planned', 'confirmed']
+  )
+  if upgrade_decision is not None:
+    # There is already a upgrade decision, do nothing
+    return upgrade_decision.Base_redirect(
+      dialog_id,
+      keep_items={
+        'portal_status_message': Base_translateString('There is already a pending Upgrade Decision'),
+        'portal_status_level': 'error'
+      }
+    )
+  return context.Base_renderForm(
+    dialog_id,
+    Base_translateString('Can not propose an upgrade to this release'),
+    level='error'
+  )
 else:
   return upgrade_decision.Base_redirect()

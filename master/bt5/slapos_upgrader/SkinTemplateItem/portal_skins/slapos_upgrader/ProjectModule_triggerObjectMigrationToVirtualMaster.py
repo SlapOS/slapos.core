@@ -54,7 +54,6 @@ for sql_result in portal.portal_catalog(
       destination_decision_value=None
     )
 
-    is_compute_node_payable = False
     is_instance_tree_payable = False
     # XXX hardcoded
     price_currency = 'currency_module/EUR'
@@ -94,7 +93,6 @@ for sql_result in portal.portal_catalog(
     ).open()
 
     for is_payable, portal_type, trade_condition_type in [
-      (is_compute_node_payable, 'Compute Node', "compute_node"),
       (is_instance_tree_payable, 'Instance Tree', "instance_tree"),
     ]:
 

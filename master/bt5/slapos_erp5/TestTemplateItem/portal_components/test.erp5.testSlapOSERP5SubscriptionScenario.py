@@ -207,11 +207,11 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 5 (can reduce to 2) assignment
     # 4 simulation mvt
     # 2 packing list / line
-    # 3 sale supply / line
-    # 2 sale trade condition
+    # 2 sale supply / line
+    # 1 sale trade condition
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 31)
+    self.assertRelatedObjectCount(project, 29)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
       self.checkERP5StateBeforeExit()
@@ -280,171 +280,10 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 4 assignment request
     # 1 credential request
     # 4 assignment
-    # 2 Sale Supply + Line
-    # 2 Sale Trade condition
+    # 1 Sale Supply + Line
+    # 1 Sale Trade condition
     # 1 subscription request
-    self.assertRelatedObjectCount(project, 14)
-    with PinnedDateTime(self, DateTime('2024/02/01')):
-      self.checkERP5StateBeforeExit()
-
-  def test_subscription_request_cancel_after_compute_node_is_invalidated(self):
-    """ It is only tested with is_virtual_master_accountable enabled since the
-      subscription request is automatically validated/invalidated if price is 0.
-    """
-    with PinnedDateTime(self, DateTime('2024/01/31')):
-      currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest()
-
-      # lets join as slapos administrator, which will manager the project
-      project_owner_reference = 'project-%s' % self.generateNewId()
-      project_owner_person = self.joinSlapOS(project_owner_reference)
-
-      self.login(sale_person.getUserId())
-      project = self.addDefaultProject(
-        is_accountable=True, person=project_owner_person, currency=currency)
-
-      public_server_software = self.generateNewSoftwareReleaseUrl()
-      public_instance_type = 'public type'
-
-      software_product, release_variation, type_variation = self.addSoftwareProduct(
-        "instance product", project, public_server_software, public_instance_type
-      )
-
-      self.login(sale_person.getUserId())
-
-      self.tic()
-      sale_supply = self.portal.portal_catalog.getResultValue(
-        portal_type='Sale Supply',
-        source_project__uid=project.getUid()
-      )
-      sale_supply.searchFolder(
-        portal_type='Sale Supply Line',
-        resource__relative_url="service_module/slapos_compute_node_subscription"
-      )[0].edit(base_price=99)
-      sale_supply.newContent(
-        portal_type="Sale Supply Line",
-        base_price=9,
-        resource_value=software_product
-      )
-      sale_supply.validate()
-
-      self.tic()
-
-      # lets join as slapos administrator, which will own few compute_nodes
-      owner_reference = 'owner-%s' % self.generateNewId()
-      owner_person = self.joinSlapOS(owner_reference)
-      # first slapos administrator assignment can only be created by
-      # the erp5 manager
-      self.addProjectProductionManagerAssignment(owner_person, project)
-      self.tic()
-
-      self.login(project_owner_person.getUserId())
-
-      # Pay deposit to validate virtual master
-      deposit_amount = 42.0
-      ledger = self.portal.portal_categories.ledger.automated
-
-      outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
-          currency.getUid(), ledger_uid=ledger.getUid())
-      amount = sum([i.total_price for i in outstanding_amount_list])
-      self.assertEqual(amount, deposit_amount)
-
-      # Ensure to pay from the website
-      outstanding_amount = self.web_site.restrictedTraverse(outstanding_amount_list[0].getRelativeUrl())
-      outstanding_amount.Base_createExternalPaymentTransactionFromOutstandingAmountAndRedirect()
-
-      self.tic()
-      self.login()
-      payment_transaction = self.portal.portal_catalog.getResultValue(
-        portal_type="Payment Transaction",
-        destination_section_uid=project_owner_person.getUid(),
-        simulation_state="started"
-      )
-      self.assertEqual(payment_transaction.getSpecialiseValue().getTradeConditionType(), "deposit")
-      # payzen/wechat or accountant will only stop the payment
-      payment_transaction.stop()
-      self.tic()
-      self.assertNotEqual(None,
-                      payment_transaction.receivable.getGroupingReference(None))
-      self.login(project_owner_person.getUserId())
-      amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
-          currency.getUid(), ledger_uid=ledger.getUid())])
-      self.assertEqual(0, amount)
-
-      self.logout()
-
-      # hooray, now it is time to create compute_nodes
-      self.login(owner_person.getUserId())
-
-      public_server_title = 'Public Server for %s' % owner_reference
-      public_server = self.requestComputeNode(public_server_title, project.getReference())
-      self.assertNotEqual(None, public_server)
-
-
-      self.addAllocationSupply("for compute node", public_server, software_product,
-                               release_variation, type_variation)
-
-      # and install some software on them
-      self.supplySoftware(public_server, public_server_software)
-
-      # format the compute_nodes
-      self.formatComputeNode(public_server)
-      self.logout()
-
-      self.tic()
-      self.login(project_owner_person.getUserId())
-
-      # Pay deposit to validate virtual master
-      deposit_amount = 102.36
-      ledger = self.portal.portal_categories.ledger.automated
-
-      outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
-          currency.getUid(), ledger_uid=ledger.getUid())
-      amount = sum([i.total_price for i in outstanding_amount_list])
-      self.assertAlmostEqual(amount, deposit_amount)
-
-      self.login()
-
-      # Invalidate Public Computer to cancel subscription we would like to ensure 
-      # it works, once the action is implemented.
-      public_server.invalidate()
-
-      self.tic()
-      self.login()
-
-      self.checkServiceSubscriptionRequest(public_server, 'cancelled')
-      self.login(project_owner_person.getUserId())
-
-      amount = sum([i.total_price for i in project_owner_person.Entity_getOutstandingDepositAmountList(
-          currency.getUid(), ledger_uid=ledger.getUid())])
-      self.assertEqual(0, amount)
-
-      self.logout()
-
-    self.login()
-
-    # Check accounting
-    transaction_list = self.portal.account_module.receivable.Account_getAccountingTransactionList(
-      mirror_section_uid=project_owner_person.getUid())
-    self.assertEqual(len(transaction_list),  2)
-
-    # Ensure no unexpected object has been created
-    # 2 accounting transaction / line
-    # 3 allocation supply / Line / Cell
-    # 4 assignment request
-    # 1 compute node
-    # 1 credential request
-    # 1 event
-    # 1 open sale order / line
-    # 4  assignment
-    # 4 simulation mvt
-    # 2 packing list / line
-    # 3 sale supply / line
-    # 2 sale trade condition
-    # 1 software installation
-    # 1 software product
-    # 2 subscription requests
-    self.assertRelatedObjectCount(project, 32)
-
+    self.assertRelatedObjectCount(project, 12)
     with PinnedDateTime(self, DateTime('2024/02/01')):
       self.checkERP5StateBeforeExit()
 
@@ -565,10 +404,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
         portal_type='Sale Supply',
         source_project__uid=project.getUid()
       )
-      sale_supply.searchFolder(
-        portal_type='Sale Supply Line',
-        resource__relative_url="service_module/slapos_compute_node_subscription"
-      )[0].edit(base_price=99)
       sale_supply.newContent(
         portal_type="Sale Supply Line",
         base_price=9,
@@ -604,7 +439,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
       self.login(project_owner_person.getUserId())
 
       # Pay deposit to validate virtual master + one computer
-      deposit_amount = 42.0 + 99.0
+      deposit_amount = 42.0
       ledger = self.portal.portal_categories.ledger.automated
 
       outstanding_amount_list = project_owner_person.Entity_getOutstandingDepositAmountList(
@@ -705,25 +540,25 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     self.login()
 
     # Ensure no unexpected object has been created
-    # 2 accounting transaction / line
+    # 1 accounting transaction / line
     # 3 allocation supply / line / cell
     # 5 assignment request
     # 1 compute node
     # 2 credential request
-    # 2 event
+    # 1 event
     # 1 instance tree
-    # 6 open sale order / line
+    # 4 open sale order / line
     # 5 (can reduce to 2) assignment
-    # 10 simulation mvt
-    # 3 packing list / line
-    # 3 sale supply / line
-    # 3 sale trade condition
+    # 3 simulation mvt
+    # 2 packing list / line
+    # 2 sale supply / line
+    # 2 sale trade condition
     # 1 software installation
     # 1 software instance
     # 1 software product
     # 1 subscription change request
-    # 4 subscription requests
-    self.assertRelatedObjectCount(project, 54)
+    # 3 subscription requests
+    self.assertRelatedObjectCount(project, 39)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
       self.checkERP5StateBeforeExit()

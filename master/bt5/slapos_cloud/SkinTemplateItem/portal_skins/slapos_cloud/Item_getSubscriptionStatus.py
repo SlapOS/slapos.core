@@ -8,32 +8,36 @@ portal = context.getPortalObject()
 if item.getValidationState() in ['invalidated', 'archived']:
   return 'todestroy'
 
+# Get the linked entity
+entity_uid = None
+open_order_movement_portal_type = -1
+item_portal_type = item.getPortalType()
+if item_portal_type == 'Instance Tree':
+  entity_uid = item.getDestinationSectionUid()
+  open_order_movement_portal_type = ['Open Sale Order Line', 'Open Sale Order Cell']
+elif item_portal_type == 'Project':
+  entity_uid = item.getDestinationUid()
+  open_order_movement_portal_type = ['Open Sale Order Line', 'Open Sale Order Cell']
+elif item_portal_type in ['Compute Node', 'Software Instance', 'Slave Instance']:
+  project = item.getFollowUpValue()
+  if project is not None:
+    entity_uid = project.getDestinationUid()
+  open_order_movement_portal_type = ['Open Internal Order Line', 'Open Internal Order Cell']
+else:
+  raise NotImplementedError('Unsupported item %s' % item.getRelativeUrl())
+
 # If no open order, subscription must be approved
-open_sale_order_movement_list = portal.portal_catalog(
-  portal_type=['Open Sale Order Line', 'Open Sale Order Cell'],
+open_order_movement_list = portal.portal_catalog(
+  portal_type=open_order_movement_portal_type,
   aggregate__uid=item.getUid(),
   validation_state='validated',
   limit=1
 )
-
-if len(open_sale_order_movement_list) == 0:
+if len(open_order_movement_list) == 0:
   return "not_subscribed"
 
 # Check if there are some ongoing Regularisation Request
 # if so, return to_pay
-entity_uid = None
-item_portal_type = item.getPortalType()
-if item_portal_type == 'Instance Tree':
-  entity_uid = item.getDestinationSectionUid()
-elif item_portal_type == 'Project':
-  entity_uid = item.getDestinationUid()
-elif item_portal_type == 'Compute Node':
-  project = item.getFollowUpValue()
-  if project is not None:
-    entity_uid = project.getDestinationUid()
-else:
-  raise NotImplementedError('Unsupported item %s' % item.getRelativeUrl())
-
 regularisation_request_list = portal.portal_catalog(
   portal_type='Regularisation Request',
   destination__uid=entity_uid or -1,

@@ -417,7 +417,7 @@ class TestSlapOSERP5WorkgroupClaimScenarion(TestSlapOSERP5WorkgroupClaimScenario
         parent_uid=public_person.getUid(),
         portal_type='Assignment',
         destination_project__uid=project.getUid(),
-        function__uid=self.portal.portal_categories.function.production.getUid()
+        function__uid=self.portal.portal_categories.function.customer.getUid()
       )
       self.assertNotEqual(None, project_assignment)
       self.assertEqual('closed',

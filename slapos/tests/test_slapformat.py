@@ -347,6 +347,39 @@ class TestComputer(SlapformatMixin):
       netmask='255.255.255.255')
     self.assertEqual(computer.getAddress(), {'addr': '10.0.129.120', 'netmask': '255.255.255.255'})
 
+  def test_getAddress_after_parse_computer_definition_no_alter_network(self):
+    """Regression: do_format calls computer.getAddress() after
+    parse_computer_definition.  When alter_network=False the computer has no
+    interface; getAddress() must not raise
+    AttributeError: 'NoneType' object has no attribute 'getAddress'.
+    """
+    import tempfile
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.cfg', delete=False) as f:
+      f.write('[computer]\naddress = 2a01:e35:2e27::1/ffff:ffff:ffff:ffff::\n')
+      def_path = f.name
+    try:
+      conf = FakeConfig()
+      conf.logger = self.logger
+      conf.alter_network = False
+      conf.computer_id = 'COMP-TEST'
+      conf.software_root = '/tmp/sw'
+      conf.instance_root = '/tmp/inst'
+      conf.partition_amount = '0'
+      conf.ipv6_interface = None
+      conf.partition_has_ipv6_range = False
+      conf.tap_gateway_interface = None
+      conf.tap_ipv6 = False
+      conf.create_tun = False
+
+      computer = slapos.format.parse_computer_definition(conf, def_path)
+      self.assertIsNone(computer.interface)
+      # Mirrors the do_format call; must not raise AttributeError
+      address = computer.getAddress()
+      self.assertEqual(address['addr'], '2a01:e35:2e27::1')
+      self.assertEqual(address['netmask'], 'ffff:ffff:ffff:ffff::')
+    finally:
+      os.unlink(def_path)
+
 
   @unittest.skip("Not implemented")
   def test_construct_empty(self):

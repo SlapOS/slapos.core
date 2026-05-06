@@ -1620,7 +1620,7 @@ def do_format(conf):
     computer.instance_storage_home = conf.instance_storage_home
     conf.logger.info('Updating computer')
     # Make sure the computer.address still exists on interface
-    address = computer.interface.getAddress(pref_addr=computer.address)
+    address = computer.getAddress()
     computer.address = address['addr']
     # Normalize netmask due to netiface netmasks like ffff::/16
     computer.netmask = address['netmask'] and address['netmask'].split('/')[0]

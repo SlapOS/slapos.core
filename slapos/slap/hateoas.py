@@ -58,6 +58,42 @@ ALLOWED_JIO_FIELD_LIST = [
   "FloatField",
   "TextAreaField"]
 
+
+# https://stackoverflow.com/a/33571117
+def _byteify(data, ignore_dicts = False):
+  if isinstance(data, str):
+    return data
+
+  # if this is a list of values, return list of byteified values
+  if isinstance(data, list):
+    return [ _byteify(item, ignore_dicts=True) for item in data ]
+  # if this is a dictionary, return dictionary of byteified keys and values
+  # but only if we haven't already byteified it
+  if isinstance(data, dict) and not ignore_dicts:
+    return {
+      _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
+      for key, value in data.items() # changed to .items() for python 2.7/3
+    }
+
+  # python 3 compatible duck-typing
+  # if this is a unicode string, return its string representation
+  if str(type(data)) == "<type 'unicode'>":
+    return data.encode('utf-8')
+
+  # if it's anything else, return it in its original form
+  return data
+
+
+def json_loads_byteified(json_text):
+  """
+  Encode string when loading JSON
+  """
+  return _byteify(
+    json.loads(json_text, object_hook=_byteify),
+    ignore_dicts=True
+  )
+
+
 class TempDocument(object):
   def __init__(self, **kw):
     """
@@ -89,42 +125,29 @@ class ConnectionHelper:
       path = path[1:]
 #      raise ValueError('method path should be relative: %s' % path)
 
+    if url.startswith('https'):
+      cert = (self.cert_file, self.key_file)
+    else:
+      cert = None
+
     try:
-      if url.startswith('https'):
-        cert = (self.cert_file, self.key_file)
-      else:
-        cert = None
-
-      # XXX TODO: handle host cert verify
-
-      # Old behavior was to pass empty parameters as "None" value.
-      # Behavior kept for compatibility with old slapproxies (< v1.3.3).
-      # Can be removed when old slapproxies are no longer in use.
-      if data:
-        for k, v in six.iteritems(data):
-          if v is None:
-            data[k] = 'None'
-
       req = method(url=url,
                    params=params,
                    cert=cert,
+                   # XXX TODO: handle host cert verify
                    verify=False,
                    data=data,
                    headers=headers,
                    timeout=self.timeout)
-      try:
-        req.raise_for_status()
-      except TypeError:
-        # In Py3, a comparison between NoneType and int can occur if req has no
-        # status_code (= None).
-        pass
-
     except (requests.Timeout, requests.ConnectionError) as exc:
       raise ConnectionError("Couldn't connect to the server. Please "
                             "double check given master-url argument, and make sure that IPv6 is "
                             "enabled on your machine and that the server is available. The "
                             "original error was:\n%s" % exc)
     except requests.HTTPError as exc:
+      raise
+      # XXX Desactivated by Romain, to get ride of custom slaptool behaviour
+      """
       if exc.response.status_code == requests.status_codes.codes.not_found:
         msg = url
         if params:
@@ -136,7 +159,8 @@ class ConnectionHelper:
         # XXX TODO test request timeout and resource not found
       else:
         # we don't know how or don't want to handle these (including Unauthorized)
-        req.raise_for_status()
+        raise
+      """
     except requests.exceptions.SSLError as exc:
       raise AuthenticationError("%s\nCouldn't authenticate computer. Please "
                                 "check that certificate and key exist and are valid." % exc)
@@ -148,23 +172,27 @@ class ConnectionHelper:
 #                                     path)
 #      raise ServerError(message)
 
+    try:
+      req.raise_for_status()
+    except TypeError:
+      # In Py3, a comparison between NoneType and int can occur if req has no
+      # status_code (= None).
+      # pass
+      # XXX Desactivated by Romain, as we expect a status code
+      raise
     return req
 
-  def GET(self, path, params=None, headers=None):
-    req = self.do_request(requests.get,
-                          path=path,
-                          params=params,
-                          headers=headers)
-    return req.text.encode('utf-8')
-
-  def POST(self, path, params=None, data=None,
-           content_type='application/x-www-form-urlencoded'):
+  def callJsonRpcAPI(self, path, data, cert_key=None, extra_headers=None):
+    headers = {'Content-type': 'application/json'}
+    if extra_headers:
+      headers.update(extra_headers)
     req = self.do_request(requests.post,
                           path=path,
-                          params=params,
-                          data=data,
-                          headers={'Content-type': content_type})
-    return req.text.encode('utf-8')
+                          data=json.dumps(data),
+                          headers=headers,
+    )
+    return json_loads_byteified(req.text)
+
 
 class HateoasNavigator(object):
   """
@@ -184,7 +212,7 @@ class HateoasNavigator(object):
   def GET(self, uri, headers=None):
     connection_helper = ConnectionHelper(
         uri, self.key_file, self.cert_file, self.master_ca_file, self.timeout)
-    return connection_helper.GET(uri, headers=headers)
+    return connection_helper.do_request(requests.get, uri, headers=headers).text
 
   def hateoasGetLinkFromLinks(self, links, title):
     if type(links) == dict:

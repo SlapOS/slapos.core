@@ -527,13 +527,15 @@ class TestRemoteNode(TestSlapOSGroupRoleSecurityMixin):
   def test_RemoteNode_userId(self):
     compute_node = self.portal.compute_node_module.newContent(portal_type='Remote Node')
     self.assertSecurityGroup(compute_node,
-        [self.user_id], False)
+        [self.user_id, 'F-SALE*'], False)
     self.assertRoles(compute_node, self.user_id, ['Owner'])
+    self.assertRoles(compute_node, 'F-SALE*', ['Auditor'])
 
     compute_node.edit(user_id=None)
     self.assertSecurityGroup(compute_node,
-        [self.user_id], False)
+        [self.user_id, 'F-SALE*'], False)
     self.assertRoles(compute_node, self.user_id, ['Owner'])
+    self.assertRoles(compute_node, 'F-SALE*', ['Auditor'])
 
   def test_RemoteNode_ProjectMember(self):
     project = self.addProject()
@@ -544,12 +546,14 @@ class TestRemoteNode(TestSlapOSGroupRoleSecurityMixin):
 
     self.assertSecurityGroup(compute_node, [
       self.user_id,
+      'F-SALE*',
       '%s_F-PRODAGNT' % project.getReference(),
       '%s_F-PRODMAN' % project.getReference(),
       '%s_F-CUSTOMER' % project.getReference(),
       '%s_R-INSTANCE' % project.getReference(),
     ], False)
     self.assertRoles(compute_node, self.user_id, ['Owner'])
+    self.assertRoles(compute_node, 'F-SALE*', ['Auditor'])
     self.assertRoles(compute_node, '%s_F-PRODAGNT' % project.getReference(), ['Assignee'])
     self.assertRoles(compute_node, '%s_F-PRODMAN' % project.getReference(), ['Assignor'])
     self.assertRoles(compute_node, '%s_F-CUSTOMER' % project.getReference(), ['Auditor'])

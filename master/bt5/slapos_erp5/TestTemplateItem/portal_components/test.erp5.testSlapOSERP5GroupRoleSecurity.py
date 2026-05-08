@@ -1962,6 +1962,25 @@ class TestSubscriptionChangeRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'F-SALEMAN', ['Auditor'])
 
 
+class TestRemoteNodeChangeRequestModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_RemoteNodeChangeRequestModule(self):
+    module = self.portal.remote_node_change_request_module
+    self.assertSecurityGroup(module,
+        ['F-SALE*', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
+    self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
+
+
+class TestRemoteNodeChangeRequest(TestSlapOSGroupRoleSecurityMixin):
+  def test_RemoteNodeChangeRequest_default(self):
+    delivery = self.portal.remote_node_change_request_module.newContent(
+        portal_type='Remote Node Change Request')
+    self.assertSecurityGroup(delivery,
+        [self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
+    self.assertRoles(delivery, 'F-SALEAGT', ['Auditor'])
+    self.assertRoles(delivery, 'F-SALEMAN', ['Auditor'])
+
 class TestOrganisationModule(TestSlapOSGroupRoleSecurityMixin):
   def test_OrganisationModule(self):
     module = self.portal.organisation_module

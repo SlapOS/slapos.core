@@ -1,4 +1,7 @@
 <allowed_content_type_list>
+ <portal_type id="Remote Node Change Request Module">
+  <item>Remote Node Change Request</item>
+ </portal_type>
  <portal_type id="Subscription Change Request Module">
   <item>Subscription Change Request</item>
  </portal_type>

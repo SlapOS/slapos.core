@@ -3,7 +3,11 @@
   Returns all ticket related events for RSS
 """
 from Products.PythonScripts.standard import Object
+from Products.ZSQLCatalog.SQLCatalog import SimpleQuery
+from DateTime import DateTime
+from erp5.component.module.DateUtils import addToDate
 portal = context.getPortalObject()
+now = DateTime()
 
 # for safety, we limit at 100 lines
 list_lines = min(list_lines, 100)
@@ -64,7 +68,17 @@ for brain in portal.portal_simulation.getMovementHistoryList(
     sort_on=(('stock.date', 'desc'),
              ('uid', 'desc')),
     follow_up__simulation_state=follow_up_simulation_state,
-    follow_up__portal_type=follow_up_portal_type):
+    follow_up__portal_type=follow_up_portal_type,
+    # Limit the number of checked entries
+    # to speed up the sorting
+    # 1 month, because some tickets are automatically closed after 1 month
+    **{
+      'stock.date': SimpleQuery(
+        indexation_timestamp=addToDate(now, {'month': -1}),
+        comparison_operator=">="
+      )
+    }
+):
   event = brain.getObject()
 
   (ticket_title,

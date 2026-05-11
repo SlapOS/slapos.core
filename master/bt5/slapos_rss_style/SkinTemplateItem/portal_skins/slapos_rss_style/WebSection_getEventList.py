@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
   Returns all ticket related events for RSS
 """
@@ -21,11 +22,23 @@ def getTicketInfo(event, web_site):
     if ticket is None:
       # For corner cases where user has an event for which he cannot access the ticket,
       # we don't raise error so that others events are visible.
-      return event.getTitle(), '', ''
+      return event.getTitle(), '', '', ''
+
+    if ticket.getSimulationState() == 'suspended':
+      ticket_emoji = '❓ '
+    elif ticket.getSimulationState() in ['delivered', 'invalidated']:
+      ticket_emoji = ''
+    elif (ticket.getSimulationState() in ['submitted']) and (ticket.getResource('') != 'service_module/slapos_crm_monitoring'):
+      # Display a bell for submitted ticket created by customers
+      ticket_emoji = '🔔 '
+    else:
+      ticket_emoji = '🚧 '
     getTicket_memo[follow_up] = (
       ticket.getTitle(),
-      ticket.getResourceTranslatedTitle() or '',
+      # Do not show monitoring resource, to reduce the text density
+      ticket.getResourceTranslatedTitle() or '' if (ticket.getResource('') != 'service_module/slapos_crm_monitoring') else '',
       web_site.absolute_url() + "/#/" + ticket.getRelativeUrl(),
+      ticket_emoji
     )
     return getTicket_memo[follow_up]
 
@@ -56,12 +69,13 @@ for brain in portal.portal_simulation.getMovementHistoryList(
 
   (ticket_title,
    ticket_category,
-   ticket_link) = getTicketInfo(event, web_site)
+   ticket_link,
+   ticket_emoji) = getTicketInfo(event, web_site)
 
   data_list.append(
       Object(**{
         'title': context.Base_convertToSafeXML(
-          "[%s] %s" % (ticket_category.upper(), ticket_title)),
+          "%s%s%s" % (ticket_emoji, '[%s] ' % ticket_category.upper() if ticket_category else '', ticket_title)),
         'category': ticket_category,
         'author':  context.Base_convertToSafeXML(
           event.getSourceTitle(checked_permission="View")),

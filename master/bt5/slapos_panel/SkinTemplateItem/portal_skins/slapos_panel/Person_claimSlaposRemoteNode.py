@@ -27,55 +27,20 @@ if len(sql_node_list) != 1:
     raise ValueError(keep_items['portal_status_message'] + str(len(sql_node_list)))
   return context.Base_renderForm(dialog_id, keep_items=keep_items)
 
-subscription_change_request_list = []
 remote_node = sql_node_list[0].getObject()
 
-remote_project = remote_node.getDestinationProjectValue(portal_type='Project')
-# XXX Ensure that user is customer on destination project, else no claim should be done.
-
-remote_entity = remote_node.getDestinationSectionValue(portal_type=['Person', 'Workgroup'])
-
-search_kw = dict(
-  portal_type=['Slave Instance', 'Software Instance'],
-  aggregate__uid=[p.uid for p in remote_node.contentValues(portal_type='Compute Partition')],
-  validation_state='validated'
+remote_node_change_request = portal.remote_node_change_request_module.newContent(
+  portal_type="Remote Node Change Request",
+  destination_section_value=context,
+  # Repeat other values for now
+  destination_project=remote_node.getDestinationProject(),
+  follow_up=remote_node.getFollowUp(),
+  causality_value=remote_node
 )
-
-for local_instance in portal.portal_catalog(**search_kw):
-  remote_instance_tree_list = portal.portal_catalog(
-    portal_type='Instance Tree',
-    validation_state='validated',
-    destination_section__uid=remote_entity.getUid(),
-    follow_up__uid=remote_project.getUid(),
-    title={'query': '_remote_%s_%s' % (local_instance.getFollowUpReference(),
-                                     local_instance.getReference()),
-           'key': 'ExactMatch'},
-    limit=2)
-  assert len(remote_instance_tree_list) == 1, "Invalid amount of Instance Tree"
-  remote_instance_tree_reference = remote_instance_tree_list[0].reference
-  subscription_change_request_list.append(
-    context.Person_claimSlaposItemSubscription(
-      reference=remote_instance_tree_reference,
-      activate_kw=activate_kw)
-  )
-
-remote_node.setDestinationSectionValue(context)
-if batch:
-  return subscription_change_request_list
-
-if len(subscription_change_request_list) == 0:
-  keep_items = {
-    'portal_status_message': Base_translateString('Remote Node claimed.')
-  }
-  return remote_node.Base_redirect(keep_items=keep_items)
-
-if len(subscription_change_request_list) == 1:
-  keep_items = {
-    'portal_status_message': Base_translateString('Remote Node claimed and Subscription Change created.')
-  }
-  return subscription_change_request_list[0].Base_redirect(keep_items=keep_items)
-
+remote_node_change_request.submit()
 keep_items = {
-  'portal_status_message': Base_translateString('Remote Node claimed and Several Subscription Change Request created.')
+  'portal_status_message': Base_translateString('Remote Node Change Request Created.')
 }
-return context.Base_redirect(keep_items=keep_items)
+if batch:
+  return remote_node_change_request
+return remote_node_change_request.Base_redirect(keep_items=keep_items)

@@ -110,7 +110,20 @@
                 <item>
                     <key> <string>all_columns</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <tuple>
+                          <string>translated_slap_state_title</string>
+                          <string>State</string>
+                        </tuple>
+                        <tuple>
+                          <string>url_string</string>
+                          <string>Software Release</string>
+                        </tuple>
+                        <tuple>
+                          <string>source_reference</string>
+                          <string>Software Type</string>
+                        </tuple>
+                      </list>
                     </value>
                 </item>
                 <item>

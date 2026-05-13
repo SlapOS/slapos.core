@@ -1,5 +1,9 @@
 <workflow_chain>
  <chain>
+  <type>Accounting Period</type>
+  <workflow>slapos_accounting_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Applied Rule</type>
   <workflow>slapos_simulation_interaction_workflow</workflow>
  </chain>

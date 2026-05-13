@@ -1,3 +1,4 @@
+Accounting Period | slapos_accounting_interaction_workflow
 Applied Rule | slapos_simulation_interaction_workflow
 Compute Node | slapos_accounting_interaction_workflow
 Computer Consumption TioXML File | document_conversion_interaction_workflow

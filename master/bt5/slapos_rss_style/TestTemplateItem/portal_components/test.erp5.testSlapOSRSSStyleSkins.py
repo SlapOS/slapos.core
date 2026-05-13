@@ -297,7 +297,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
       '{}-{}'.format(event.getFollowUp(),
                      event.getRelativeUrl()))
     self.assertEqual(unicode2str(open_ticket_list[0].title),
-      '[MONITORING] %s' % ticket.getTitle())
+      ticket.getTitle())
     self.assertIn("%s/#/" % web_site.absolute_url(),
       open_ticket_list[0].link)
 
@@ -463,7 +463,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
       open_ticket_list[1].link)
 
     self.assertEqual(unicode2str(open_ticket_list[2].title),
-      '[MONITORING] %s' % ticket.getTitle())
+      ticket.getTitle())
 
     self.assertIn("%s/#/" % web_site.absolute_url(),
       open_ticket_list[2].link)

@@ -631,7 +631,7 @@
             status = (element.status || element.category),
             item_signature_dict = {};
 
-          if (element.type === 'global') {
+          if (element.portal_type === 'Software Instance') {
             updateInstanceTreeState(instance_tree, element);
             instance_tree.instance_amount += 1;
             if (element.aggregate_reference === undefined) {

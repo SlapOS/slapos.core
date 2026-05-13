@@ -1,8 +1,10 @@
 from Products.ERP5Type.Message import translateString
 
 upgrade_decision = context
+portal = context.getPortalObject()
 
-upgrade_decision.start()
+if portal.portal_workflow.isTransitionPossible(upgrade_decision, 'start'):
+  upgrade_decision.start()
 
 if not batch:
   return upgrade_decision.Base_redirect(

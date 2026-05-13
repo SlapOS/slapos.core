@@ -9,11 +9,31 @@
  </chain>
  <chain>
   <type>Computer Consumption TioXML File</type>
-  <workflow>document_conversion_interaction_workflow, document_publication_workflow, edit_workflow</workflow>
+  <workflow>edit_workflow, slapos_accounting_interaction_workflow, slapos_consumption_document_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Consumption Subscription</type>
+  <workflow>edit_workflow, item_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Consumption Supply</type>
+  <workflow>edit_workflow, validation_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Consumption Supply Line</type>
+  <workflow>edit_workflow, reindex_object_interaction_workflow, supply_line_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Instance Tree</type>
   <workflow>slapos_accounting_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Internal Packing List</type>
+  <workflow>slapos_accounting_interaction_workflow, slapos_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Open Internal Order</type>
+  <workflow>slapos_accounting_interaction_workflow, slapos_simulation_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Open Sale Order</type>
@@ -42,6 +62,14 @@
  <chain>
   <type>Simulation Movement</type>
   <workflow>slapos_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Slave Instance</type>
+  <workflow>slapos_accounting_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Software Instance</type>
+  <workflow>slapos_accounting_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Subscription Item Root Simulation Rule</type>

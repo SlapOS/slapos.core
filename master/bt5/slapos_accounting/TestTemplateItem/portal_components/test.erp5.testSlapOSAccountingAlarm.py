@@ -27,13 +27,167 @@
 ##############################################################################
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
-  TemporaryAlarmScript, Simulator, simulate
-from unittest import expectedFailure
+  TemporaryAlarmScript, Simulator, simulate, PinnedDateTime
 from zExceptions import Unauthorized
 
 import os
 import tempfile
 from DateTime import DateTime
+
+
+class TestSlapOSOpenInternalOrderCreationAlarm(SlapOSTestCaseMixin):
+
+  #################################################################
+  # slapos_subscription_request_create_from_orphaned_item
+  #################################################################
+  def _test_slapos_open_internal_order_create_from_orphaned_item(self, portal_type):
+    script_name = "Item_createOpenInternalOrder"
+    alarm = self.portal.portal_alarms.slapos_open_internal_order_create_from_orphaned_item
+
+    #####################################################
+    # Instance Tree without Open Internal Order
+    document = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title="Test %s no subscription %s" % (portal_type, self.new_id)
+    )
+    document.validate()
+    self.tic()
+    self._test_alarm(alarm, document, script_name)
+
+    #####################################################
+    # Instance Tree with Subscription Request
+    document = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title="Test %s no subscription %s" % (portal_type, self.new_id)
+    )
+    document.validate()
+    self.tic()
+    open_order = self.portal.open_internal_order_module.newContent(
+      portal_type='Open Internal Order',
+      title="Test Subscription Request %s" % self.new_id,
+    )
+    open_order.newContent(
+      portal_type='Open Internal Order Line',
+      aggregate_value=document
+    )
+    self.tic()
+    self._test_alarm_not_visited(alarm, document, script_name)
+    #####################################################
+    # Instance Tree aggregated to another portal type
+    document = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title="Test %s another portal type %s" % (portal_type, self.new_id)
+    )
+    document.validate()
+    self.tic()
+    self.portal.sale_packing_list_module.newContent(
+      portal_type='Sale Packing List',
+      title="Test Sale Packing List %s" % self.new_id,
+    ).newContent(
+      portal_type="Sale Packing List Line",
+      aggregate_value=document
+    )
+    self.tic()
+    self._test_alarm(alarm, document, script_name)
+
+  def test_Item_createOpenInternalOrder_alarm_fromOrphanedInstanceTree(self):
+    portal_type = 'Instance Tree'
+    script_name = "Item_createOpenInternalOrder"
+    alarm = self.portal.portal_alarms.slapos_open_internal_order_create_from_orphaned_item
+    document = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title="Test %s no subscription %s" % (portal_type, self.new_id)
+    )
+    self._test_alarm_not_visited(alarm, document, script_name)
+
+  def test_Item_createOpenInternalOrder_alarm_fromOrphanedProject(self):
+    portal_type = 'Project'
+    script_name = "Item_createOpenInternalOrder"
+    alarm = self.portal.portal_alarms.slapos_open_internal_order_create_from_orphaned_item
+    document = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title="Test %s no subscription %s" % (portal_type, self.new_id)
+    )
+    self._test_alarm_not_visited(alarm, document, script_name)
+
+  def test_Item_createOpenInternalOrder_alarm_fromOrphanedSoftwareInstance(self):
+    self._test_slapos_open_internal_order_create_from_orphaned_item("Software Instance")
+
+  def test_Item_createOpenInternalOrder_alarm_fromOrphanedSlaveInstance(self):
+    self._test_slapos_open_internal_order_create_from_orphaned_item("Slave Instance")
+
+  def test_Item_createOpenInternalOrder_alarm_fromOrphanedComputeNode(self):
+    self._test_slapos_open_internal_order_create_from_orphaned_item("Compute Node")
+
+  def test_Item_createOpenInternalOrder_script_REQUEST_disallowed(self):
+    self.assertRaises(
+      Unauthorized,
+      self.portal.Item_createOpenInternalOrder,
+      REQUEST={}
+    )
+
+  def test_Item_createOpenInternalOrder_script_fromOrphanedComputeNode(self):
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(
+      allocation_state='impossible'
+    )
+    project = instance_tree.getFollowUpValue()
+
+    with self.changeContextByDisablingPortalAlarm():
+      with PinnedDateTime(self, DateTime('2023/05/19')):
+        document, _ = self.addComputeNodeAndPartition(project=project)
+      with PinnedDateTime(self, DateTime('2026/03/22')):
+        self.tic()
+
+    open_sale_order = self.portal.portal_catalog.getResultValue(
+      portal_type=['Open Sale Order Line'],
+      aggregate__uid=project.getUid(),
+      validation_state='validated',
+    ).getParentValue()
+
+    with PinnedDateTime(self, DateTime('2026/03/25')):
+      open_order = document.Item_createOpenInternalOrder()
+    self.assertNotEqual(open_order, None)
+
+    self.assertEqual(open_order.getValidationState(), 'validated')
+    self.assertEqual(
+      open_order.getStartDate(),
+      DateTime('2026/03/19 00:00:00 UTC')
+    )
+    self.assertEqual(open_order.getStopDate(), open_order.getStartDate())
+    self.assertEqual(
+      open_order.getSpecialise(),
+      'business_process_module/slapos_internal_subscription_business_process'
+    )
+    self.assertEqual(
+      open_order.getDestination(-1),
+      open_sale_order.getSource(-2)
+    )
+    self.assertEqual(open_order.getDestinationSection(), None)
+    self.assertEqual(open_order.getSourceSection(), None)
+    self.assertEqual(open_order.getSource(), None)
+    self.assertEqual(open_order.getLedger(), 'automated')
+
+    open_order_line = open_order.contentValues(
+      portal_type="Open Internal Order Line",
+    )[0]
+    self.assertEqual(
+      open_order_line.getResource(),
+      'service_module/slapos_compute_node_subscription'
+    )
+    self.assertEqual(open_order_line.getQuantity(), 1)
+    self.assertEqual(open_order_line.getPrice(), 0)
+    self.assertTrue(
+      open_order_line.isMemberOf('aggregate/%s' % document.getRelativeUrl())
+    )
+
+    consumption_subscription = open_order_line.getAggregateValue(
+      portal_type='Consumption Subscription'
+    )
+    self.assertEqual(consumption_subscription.getLedger(), 'automated')
+    self.assertSameSet(consumption_subscription.getPeriodicityHourList(), [0])
+    self.assertSameSet(consumption_subscription.getPeriodicityMinuteList(), [0])
+    self.assertSameSet(consumption_subscription.getPeriodicityMonthDayList(), [19])
+
 
 class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
   #################################################################
@@ -235,15 +389,18 @@ class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
       if os.path.exists(activate_simulator):
         os.unlink(activate_simulator)
 
-class TestSlapOSManageBuildingCalculatingDeliveryAlarm(SlapOSTestCaseMixin):
+
+class TestSlapOSManageBuildingCalculatingSalePackingListAlarm(SlapOSTestCaseMixin):
+  _delivery_portal_type = 'Sale Packing List'
+
   #################################################################
   # slapos_manage_building_calculating_delivery
   #################################################################
   def _test(self, state, test_function):
-    delivery = self.portal.sale_packing_list_module.newContent(
+    delivery = self.portal.getDefaultModule(portal_type=self._delivery_portal_type).newContent(
         title='Not visited by Delivery_manageBuildingCalculatingDelivery',
         ledger='automated',
-        portal_type='Sale Packing List')
+        portal_type=self._delivery_portal_type)
     self.portal.portal_workflow._jumpToStateFor(delivery, state)
     with TemporaryAlarmScript(self.portal, 'Delivery_manageBuildingCalculatingDelivery', "''", attribute='title'):
       self.tic()
@@ -273,9 +430,9 @@ class TestSlapOSManageBuildingCalculatingDeliveryAlarm(SlapOSTestCaseMixin):
     updateCausalityState_simulator = tempfile.mkstemp()[1]
     updateSimulation_simulator = tempfile.mkstemp()[1]
 
-    delivery = self.portal.sale_packing_list_module.newContent(
+    delivery = self.portal.getDefaultModule(portal_type=self._delivery_portal_type).newContent(
         title='Not visited by Delivery_manageBuildingCalculatingDelivery',
-        portal_type='Sale Packing List')
+        portal_type=self._delivery_portal_type)
     self.portal.portal_workflow._jumpToStateFor(delivery, state)
 
     try:
@@ -329,6 +486,10 @@ class TestSlapOSManageBuildingCalculatingDeliveryAlarm(SlapOSTestCaseMixin):
 
   def test_Delivery_manageBuildingCalculatingDelivery_script_diverged(self):
     self._test_Delivery_manageBuildingCalculatingDelivery('diverged', True)
+
+
+class TestSlapOSManageBuildingCalculatingInternalPackingListAlarm(TestSlapOSManageBuildingCalculatingSalePackingListAlarm):
+  _delivery_portal_type = 'Internal Packing List'
 
 
 class TestSlapOSStopConfirmedAggregatedSaleInvoiceTransactionAlarm(SlapOSTestCaseMixin):
@@ -447,14 +608,15 @@ class TestSlapOSGeneratePackingListFromTioXML(SlapOSTestCaseMixin):
     document = self.portal.consumption_document_module.newContent(
       title=self.generateNewId(),
       reference="TESTTIOCONS-%s" % self.generateNewId(),
+      portal_type="Computer Consumption TioXML File"
     )
     return document
 
-  @expectedFailure
   def test_ComputerConsumptionTioXMLFile_solveInvoicingGeneration_alarm(self):
-    document = self.createTioXMLFile()
-    document.submit()
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      document = self.createTioXMLFile()
+      document.submit()
+      self.tic()
 
     script_name = "ComputerConsumptionTioXMLFile_solveInvoicingGeneration"
     alarm = self.portal.portal_alarms.slapos_accounting_generate_packing_list_from_tioxml
@@ -463,9 +625,10 @@ class TestSlapOSGeneratePackingListFromTioXML(SlapOSTestCaseMixin):
       alarm, document, script_name)
 
   def test_ComputerConsumptionTioXMLFile_solveInvoicingGeneration_alarm_not_submitted(self):
-    document = self.createTioXMLFile()
-    self.tic()
-    
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      document = self.createTioXMLFile()
+      self.tic()
+
     script_name = "ComputerConsumptionTioXMLFile_solveInvoicingGeneration"
     alarm = self.portal.portal_alarms.slapos_accounting_generate_packing_list_from_tioxml
 
@@ -965,4 +1128,148 @@ class TestSlapOSSaleTradeConditionChangeRequestValidateAlarm(SlapOSTestCaseMixin
     self.assertEqual(sale_trade_condition.getEffectiveDate(), first_sale_trade_condition.getExpirationDate())
     self.assertTrue(sale_trade_condition.getExpirationDate() is None)
     self.assertEqual(result, sale_trade_condition)
+
+
+class TestSlapOSOpenSaleOrderInvalidationAlarm(SlapOSTestCaseMixin):
+
+  #################################################################
+  # slapos_archive_open_sale_order_with_unused_item
+  #################################################################
+  def _createValidatedItemAndOpenSaleOrderLine(self, portal_type='Project'):
+    subscription_item = self.portal.hosting_subscription_module.newContent(
+      portal_type='Hosting Subscription',
+    )
+    subscription_item.validate()
+    project = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+    )
+    project.validate()
+    open_order = self.portal.open_sale_order_module.newContent(
+      portal_type='Open Sale Order',
+      title="Test no subscription %s" % (self.new_id, ),
+      ledger='automated',
+    )
+    open_order_line = open_order.newContent(
+      portal_type='Open Sale Order Line',
+      aggregate_value=[project, subscription_item],
+    )
+    open_order.plan()
+    open_order.validate()
+    return project, open_order_line
+
+  def test_OpenSaleOrderLine_archiveIfUnusedItem_alarm_fromInvalidatedProject(self):
+    script_name = "OpenSaleOrderLine_archiveIfUnusedItem"
+    alarm = self.portal.portal_alarms.slapos_archive_open_sale_order_with_unused_item
+
+    project, open_order_line = self._createValidatedItemAndOpenSaleOrderLine()
+    project.invalidate()
+    self._test_alarm(alarm, open_order_line, script_name)
+
+  def test_OpenSaleOrderLine_archiveIfUnusedItem_alarm_fromValidatedProject(self):
+    script_name = "OpenSaleOrderLine_archiveIfUnusedItem"
+    alarm = self.portal.portal_alarms.slapos_archive_open_sale_order_with_unused_item
+
+    _, open_order_line = self._createValidatedItemAndOpenSaleOrderLine()
+    self._test_alarm_not_visited(alarm, open_order_line, script_name)
+
+  def test_OpenSaleOrderLine_archiveIfUnusedItem_alarm_fromInvalidatedProjectAndOrder(self):
+    script_name = "OpenSaleOrderLine_archiveIfUnusedItem"
+    alarm = self.portal.portal_alarms.slapos_archive_open_sale_order_with_unused_item
+
+    project, open_order_line = self._createValidatedItemAndOpenSaleOrderLine()
+    project.invalidate()
+    open_order_line.getParentValue().invalidate()
+    self._test_alarm_not_visited(alarm, open_order_line, script_name)
+
+  def test_OpenSaleOrderLine_archiveIfUnusedItem_script_REQUEST_disallowed(self):
+    self.assertRaises(
+      Unauthorized,
+      self.portal.OpenSaleOrderLine_archiveIfUnusedItem,
+      REQUEST={}
+    )
+
+  def test_OpenSaleOrderLine_archiveIfUnusedItem_script_invalidateOpenSaleOrder(self):
+    project, open_order_line = self._createValidatedItemAndOpenSaleOrderLine()
+    project.invalidate()
+    open_order = open_order_line.getParentValue()
+    hosting_subscription = open_order_line.getAggregateValue(portal_type='Hosting Subscription')
+    fake_now = DateTime('2023/05/19')
+    with PinnedDateTime(self, fake_now):
+      result = open_order_line.OpenSaleOrderLine_archiveIfUnusedItem()
+    self.assertEqual(result, open_order)
+    self.assertEqual(open_order.getValidationState(), 'archived')
+    self.assertEqual(open_order.getStopDate(), fake_now)
+    self.assertEqual(hosting_subscription.getValidationState(), 'archived')
+
+
+class TestSlapOSOpenInternalOrderInvalidationAlarm(SlapOSTestCaseMixin):
+
+  #################################################################
+  # slapos_archive_open_internal_order_with_unused_item
+  #################################################################
+  def _createValidatedItemAndOpenInternalOrderLine(self, portal_type='Compute Node'):
+    subscription_item = self.portal.consumption_subscription_module.newContent(
+      portal_type='Consumption Subscription',
+    )
+    subscription_item.validate()
+    project = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+    )
+    project.validate()
+    open_order = self.portal.open_internal_order_module.newContent(
+      portal_type='Open Internal Order',
+      title="Test no subscription %s" % (self.new_id, ),
+      ledger='automated',
+    )
+    open_order_line = open_order.newContent(
+      portal_type='Open Internal Order Line',
+      aggregate_value=[project, subscription_item],
+    )
+    open_order.plan()
+    open_order.validate()
+    return project, open_order_line
+
+  def test_OpenInternalOrderLine_archiveIfUnusedItem_alarm_fromInvalidatedProject(self):
+    script_name = "OpenInternalOrderLine_archiveIfUnusedItem"
+    alarm = self.portal.portal_alarms.slapos_archive_open_internal_order_with_unused_item
+
+    project, open_order_line = self._createValidatedItemAndOpenInternalOrderLine()
+    project.invalidate()
+    self._test_alarm(alarm, open_order_line, script_name)
+
+  def test_OpenInternalOrderLine_archiveIfUnusedItem_alarm_fromValidatedProject(self):
+    script_name = "OpenInternalOrderLine_archiveIfUnusedItem"
+    alarm = self.portal.portal_alarms.slapos_archive_open_internal_order_with_unused_item
+
+    _, open_order_line = self._createValidatedItemAndOpenInternalOrderLine()
+    self._test_alarm_not_visited(alarm, open_order_line, script_name)
+
+  def test_OpenInternalOrderLine_archiveIfUnusedItem_alarm_fromInvalidatedProjectAndOrder(self):
+    script_name = "OpenInternalOrderLine_archiveIfUnusedItem"
+    alarm = self.portal.portal_alarms.slapos_archive_open_internal_order_with_unused_item
+
+    project, open_order_line = self._createValidatedItemAndOpenInternalOrderLine()
+    project.invalidate()
+    open_order_line.getParentValue().invalidate()
+    self._test_alarm_not_visited(alarm, open_order_line, script_name)
+
+  def test_OpenInternalOrderLine_archiveIfUnusedItem_script_REQUEST_disallowed(self):
+    self.assertRaises(
+      Unauthorized,
+      self.portal.OpenInternalOrderLine_archiveIfUnusedItem,
+      REQUEST={}
+    )
+
+  def test_OpenInternalOrderLine_archiveIfUnusedItem_script_invalidateOpenInternalOrder(self):
+    project, open_order_line = self._createValidatedItemAndOpenInternalOrderLine()
+    project.invalidate()
+    open_order = open_order_line.getParentValue()
+    hosting_subscription = open_order_line.getAggregateValue(portal_type='Consumption Subscription')
+    fake_now = DateTime('2023/05/19')
+    with PinnedDateTime(self, fake_now):
+      result = open_order_line.OpenInternalOrderLine_archiveIfUnusedItem()
+    self.assertEqual(result, open_order)
+    self.assertEqual(open_order.getValidationState(), 'archived')
+    self.assertEqual(open_order.getStopDate(), fake_now)
+    self.assertEqual(hosting_subscription.getValidationState(), 'invalidated')
 

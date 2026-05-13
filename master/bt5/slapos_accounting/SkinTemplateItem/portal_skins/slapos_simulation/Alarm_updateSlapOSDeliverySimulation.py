@@ -27,7 +27,9 @@ portal.portal_catalog.searchAndActivate(
     'Payment Transaction',
     # Discount Sale Packing List
     'Subscription Request',
-    'Subscription Change Request'
+    'Subscription Change Request',
+    # Consumption Packing List created by Internal Packing List aggregation
+    'Open Sale Order',
   ],
   **kw
 )

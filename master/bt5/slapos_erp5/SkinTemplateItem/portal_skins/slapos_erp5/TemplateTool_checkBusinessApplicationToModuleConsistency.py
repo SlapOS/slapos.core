@@ -31,7 +31,6 @@ for business_application_id, module_name_list in [
           "computer_module",
           "computer_model_module",
           "computer_network_module",
-          "consumption_document_module",
           "data_set_module",
           "hosting_subscription_module",
           "instance_tree_module",
@@ -84,6 +83,14 @@ for business_application_id, module_name_list in [
           "sale_packing_list_module",
           "sale_supply_module",
           "sale_trade_condition_module",
+        ]],
+      ["consumption", [  # Consumption
+          "consumption_document_module",
+          "consumption_subscription_module",
+          "consumption_supply_module",
+          "internal_packing_list_module",
+          "open_internal_order_module",
+          "consumption_subscription_module",
         ]],
     ]:
   for module_name in module_name_list:

@@ -28,6 +28,7 @@ from __future__ import unicode_literals
 import logging
 import os
 import psutil
+import shutil
 import sys
 import tempfile
 import textwrap
@@ -402,7 +403,6 @@ class SlapPopenTestCase(unittest.TestCase):
     # the pid is logged "live"
     logger.info.assert_called_once_with(str(pid))
 
-
 class DummySystemExit(Exception):
   """Dummy exception raised instead of SystemExit so that if something goes
   wrong with TestSetRunning we don't exit the test program.
@@ -499,3 +499,92 @@ class TestGetPythonExecutableFromBinBuildout(unittest.TestCase):
       self.assertEqual(
         slapos.grid.utils.getPythonExecutableFromSoftwarePath(d),
         python)
+
+
+class RotateLogTestCase(unittest.TestCase):
+  def setUp(self):
+    self.test_dir = tempfile.mkdtemp()
+
+  def tearDown(self):
+    shutil.rmtree(self.test_dir)
+
+  def create_file(self, name, size=1024):
+    with open(name, "wb") as f:
+        f.write(b"a" * size)
+
+  def set_timestamp(self, log_file, age_seconds):
+    timestamp = time.time() - age_seconds
+    timestamp_file = '%s.timestamp' % log_file
+    with open(timestamp_file, 'w') as f:
+      f.write(str(timestamp))
+
+  def test_rotate_log(self):
+    log_file = os.path.join(self.test_dir, 'instance.log')
+    # create a file with age 1000s
+    self.create_file(log_file)
+    self.set_timestamp(log_file, 86500)
+
+    # rotate if age is >= 86400
+    slapos.grid.utils.rotateLog(log_file)
+
+    self.assertTrue(os.path.exists(log_file))
+    self.assertEqual(os.path.getsize(log_file), 0)
+    self.assertTrue(os.path.exists(log_file + '.1'))
+    self.assertTrue(os.path.exists(log_file + '.timestamp'))
+
+    # testing log shifting
+    self.create_file(log_file, 3 * 1024)
+    self.set_timestamp(log_file, 86500)
+
+    slapos.grid.utils.rotateLog(log_file)
+    self.assertTrue(os.path.exists(log_file + '.1'))
+    self.assertEqual(os.path.getsize(log_file), 0)
+    # instance.log is now instance.log.1
+    self.assertEqual(os.path.getsize(log_file + '.1'), 3 * 1024)
+
+
+  def test_no_rotation_age_recent(self):
+    log_file = os.path.join(self.test_dir, 'instance.log')
+    # create a file with age < 86400
+    self.create_file(log_file)
+    self.set_timestamp(log_file, 6400)
+
+    # rotate if age >= 86400s
+    slapos.grid.utils.rotateLog(log_file)
+
+    self.assertTrue(os.path.exists(log_file))
+    self.assertFalse(os.path.exists(log_file + '.1'))
+
+  def test_rotation_timestamp_is_created(self):
+    log_file = os.path.join(self.test_dir, 'instance.log')
+    self.create_file(log_file)
+
+    slapos.grid.utils.rotateLog(log_file)
+
+    self.assertTrue(os.path.exists(log_file))
+    self.assertFalse(os.path.exists(log_file + '.1'))
+    # timestamp file is created
+    self.assertTrue(os.path.exists(log_file + '.timestamp'))
+
+    self.set_timestamp(log_file, 86400)
+    slapos.grid.utils.rotateLog(log_file)
+    self.assertTrue(os.path.exists(log_file))
+    self.assertEqual(os.path.getsize(log_file), 0)
+    self.assertTrue(os.path.exists(log_file + '.1'))
+
+  def test_rotation_broken_timestamp(self):
+    log_file = os.path.join(self.test_dir, 'instance.log')
+    self.create_file(log_file)
+    with open(log_file+'.timestamp', 'w') as f:
+      f.write('89e')
+
+    slapos.grid.utils.rotateLog(log_file)
+
+    self.assertTrue(os.path.exists(log_file))
+    self.assertEqual(os.path.getsize(log_file), 1024)
+    self.assertFalse(os.path.exists(log_file + '.1'))
+    # timestamp file is recreated
+    self.assertTrue(os.path.exists(log_file + '.timestamp'))
+    with open(log_file+'.timestamp') as f:
+      # no raise, timestamp now is valid
+      ctime = float(f.read())

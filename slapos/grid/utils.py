@@ -525,3 +525,42 @@ def killProcessTree(pid, logger):
       logger.debug("Process kill: %s" % e)
 
   return process_list
+
+def rotateLog(log_path):
+  """
+    Rotate a log file file.log to file.log.1 if the log age is higher that 1 day
+  """
+  max_age=86400
+  timestamp_file = "%s.timestamp" % log_path
+
+  if not os.path.exists(log_path):
+    return
+
+  stat = os.stat(log_path)
+  file_size = stat.st_size
+  log_ctime = 0
+  if os.path.exists(timestamp_file):
+    with open(timestamp_file) as f:
+      try:
+        log_ctime = float(f.read())
+      except ValueError:
+        # bad value in timestamp file
+        pass
+  if log_ctime == 0:
+    log_ctime = stat.st_mtime
+    with open(timestamp_file, 'w') as f:
+      f.write(str(log_ctime))
+  log_age = time.time() - log_ctime
+
+  if log_age >= max_age:
+    # Drop oldest log file
+    old_log_path = '{}.1'.format(log_path)
+    if os.path.exists(old_log_path):
+      os.remove(old_log_path)
+
+    # current file become file.1
+    os.rename(log_path, old_log_path)
+
+    open(log_path, "w").close()
+    with open(timestamp_file, 'w') as f:
+      f.write(str(time.time()))

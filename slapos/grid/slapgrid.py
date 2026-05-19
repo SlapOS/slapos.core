@@ -80,7 +80,8 @@ from slapos.grid.utils import (md5digest,
                               dropPrivileges,
                               SlapPopen,
                               updateFile,
-                              getCleanEnvironment)
+                              getCleanEnvironment,
+                              rotateLog)
 from slapos.grid.promise import PromiseLauncher, PromiseError
 from slapos.grid.promise.generic import PROMISE_LOG_FOLDER_NAME
 from slapos.human import human2bytes
@@ -1292,9 +1293,13 @@ stderr_logfile_backups=1
     formatter = logging.Formatter(
        '[%(asctime)s] %(levelname)-8s %(name)s %(message)s')
 
+    instance_log_path = "%s/instance.log" % (log_folder_path)
+    # rotate will move instance.log to instance.log.1 every days
+    rotateLog(instance_log_path)
+
     # this partition_file_handler will be cleaned up after this try: block
     partition_file_handler = logging.FileHandler(
-                filename="%s/instance.log" % (log_folder_path)
+                filename=instance_log_path
             )
     partition_file_handler.setFormatter(formatter)
     self.logger.addHandler(partition_file_handler)

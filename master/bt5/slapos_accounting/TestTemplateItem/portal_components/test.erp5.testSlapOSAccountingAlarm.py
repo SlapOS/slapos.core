@@ -966,3 +966,89 @@ class TestSlapOSSaleTradeConditionChangeRequestValidateAlarm(SlapOSTestCaseMixin
     self.assertTrue(sale_trade_condition.getExpirationDate() is None)
     self.assertEqual(result, sale_trade_condition)
 
+
+class TestSlapODeliverAutomatedAccountingTransactionAlarm(SlapOSTestCaseMixin):
+
+  #################################################################
+  # slapos_accounting_deliver_automated_accounting_transaction
+  #################################################################
+  def _createStoppedAccountingTransaction(self):
+    currency = self.portal.currency_module.newContent(
+      portal_type='Currency',
+    )
+    project = self.portal.project_module.newContent(
+      portal_type='Project',
+    )
+    project.validate()
+    organisation = self.portal.organisation_module.newContent(
+      portal_type='Organisation',
+    )
+    accounting_period = organisation.newContent(
+      portal_type='Accounting Period',
+      start_date=DateTime('2024/01/01'),
+      stop_date=DateTime('2025/01/01')
+    )
+    accounting_period.start()
+    accounting_period.Base_checkConsistency()
+
+    accounting_transaction = self.portal.accounting_module.newContent(
+      portal_type='Accounting Transaction',
+      resource_value=currency,
+      start_date=DateTime('2024/02/02'),
+      source_section_value=organisation,
+      source_project_value=project,
+      ledger='automated',
+    )
+    accounting_transaction.contentValues()[0].edit(
+      source_value=self.portal.portal_catalog(portal_type='Account')[0],
+      quantity=1
+    )
+    accounting_transaction.contentValues()[1].edit(
+      source_value=self.portal.portal_catalog(portal_type='Account')[1],
+      quantity=-1
+    )
+    accounting_transaction.stop()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+    return accounting_transaction
+
+  def test_Alarm_deliverAutomatedAccountingTransactionList_alarm_expectedCase(self):
+    accounting_transaction = self._createStoppedAccountingTransaction()
+    assert accounting_transaction.getSimulationState() == 'stopped', accounting_transaction.getSimulationState()
+
+    self.portal.portal_alarms.slapos_accounting_deliver_automated_accounting_transaction.activeSense()
+    self.tic()
+    assert accounting_transaction.getSimulationState() == 'delivered', accounting_transaction.getSimulationState()
+
+  def test_Alarm_deliverAutomatedAccountingTransactionList_alarm_notMatchingPeriod(self):
+    accounting_transaction = self._createStoppedAccountingTransaction()
+    accounting_transaction.edit(start_date=DateTime('2020/02/02'))
+    self.tic()
+    assert accounting_transaction.getSimulationState() == 'stopped', accounting_transaction.getSimulationState()
+
+    self.portal.portal_alarms.slapos_accounting_deliver_automated_accounting_transaction.activeSense()
+    self.tic()
+    assert accounting_transaction.getSimulationState() == 'stopped', accounting_transaction.getSimulationState()
+
+  def test_Alarm_deliverAutomatedAccountingTransactionList_alarm_notMatchingOrganisation(self):
+    accounting_transaction = self._createStoppedAccountingTransaction()
+    accounting_transaction.edit(source_section_value=self.portal.organisation_module.newContent(
+      portal_type='Organisation',
+    ))
+    self.tic()
+    assert accounting_transaction.getSimulationState() == 'stopped', accounting_transaction.getSimulationState()
+
+    self.portal.portal_alarms.slapos_accounting_deliver_automated_accounting_transaction.activeSense()
+    self.tic()
+    assert accounting_transaction.getSimulationState() == 'stopped', accounting_transaction.getSimulationState()
+
+  def test_Alarm_deliverAutomatedAccountingTransactionList_alarm_alreadyDelivered(self):
+    accounting_transaction = self._createStoppedAccountingTransaction()
+    accounting_transaction.deliver()
+    self.tic()
+    assert accounting_transaction.getSimulationState() == 'delivered', accounting_transaction.getSimulationState()
+
+    self.portal.portal_alarms.slapos_accounting_deliver_automated_accounting_transaction.activeSense()
+    self.tic()
+    assert accounting_transaction.getSimulationState() == 'delivered', accounting_transaction.getSimulationState()
+

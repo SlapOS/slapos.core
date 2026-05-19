@@ -80,6 +80,7 @@
                     <value>
                       <list>
                         <string>my_rss_link</string>
+                        <string>your_feed_view</string>
                       </list>
                     </value>
                 </item>

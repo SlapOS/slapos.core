@@ -80,6 +80,7 @@
                     <value>
                       <list>
                         <string>my_rss_link</string>
+                        <string>your_feed_view</string>
                       </list>
                     </value>
                 </item>
@@ -136,7 +137,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Ticket RSS Feed</string> </value>
+            <value> <string>News</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

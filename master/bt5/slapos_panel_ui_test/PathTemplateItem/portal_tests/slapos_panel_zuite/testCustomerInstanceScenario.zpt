@@ -189,7 +189,6 @@
       <tr>
         <td colspan="3"><b>Add an instance tree</b></td>
       </tr>
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
       <tal:block tal:define="click_configuration python: {'text': 'Request'}">
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
       </tal:block>
@@ -312,26 +311,30 @@
 
 
       <tr>
-        <td colspan="3"><b>Go to the project page</b></td>
+        <td colspan="3"><b>Go to the news page</b></td>
       </tr>
-      <tal:block tal:define="click_configuration python: {'text': 'Projects'}">
+      <tal:block tal:define="click_configuration python: {'text': 'News'}">
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
-      <tal:block tal:define="click_configuration python: {'text': user_configuration['project_title']}">
-        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_page_link" />
-      </tal:block>
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
-
-
 
       <tr>
-        <td colspan="3"><b>Jump to support request</b></td>
+        <td>waitForTextPresent</td>
+        <td>Why I can not use my instance yet?</td>
+        <td></td>
       </tr>
-      <tal:block tal:define="click_configuration python: {'text': 'Support Requests'}">
-        <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
-      </tal:block>
+      <tr>
+        <td>assertTextPresent</td>
+        <td>Why I can not use my instance yet?</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>click</td>
+        <td>//div[contains(@data-gadget-scope, 'm')]//small[text()='Why I can not use my instance yet?']</td>
+        <td></td>
+      </tr>
+
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
 
       <tr>

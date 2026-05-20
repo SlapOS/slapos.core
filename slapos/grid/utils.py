@@ -525,3 +525,23 @@ def killProcessTree(pid, logger):
       logger.debug("Process kill: %s" % e)
 
   return process_list
+
+def rotateLog(log_path, max_size=20):
+  """
+    Rotate a log file file.log to file.log.X base on max_size threshold.
+    If the file size < max_size (Mo) file is not rotated else file.log is moved
+    to file.log.1.
+  """
+  max_log_size = max_size * 1024 * 1024  # max_size Mo
+  if not os.path.exists(log_path):
+    return
+
+  stat = os.stat(log_path)
+  file_size = stat.st_size
+
+  if file_size >= max_log_size:
+    old_log_path = '{}.1'.format(log_path)
+    # current logfile become logfile.1
+    os.rename(log_path, old_log_path)
+    # create an empty original log file
+    open(log_path, "w").close()

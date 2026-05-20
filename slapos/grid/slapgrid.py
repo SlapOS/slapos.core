@@ -1294,9 +1294,8 @@ stderr_logfile_backups=1
        '[%(asctime)s] %(levelname)-8s %(name)s %(message)s')
 
     instance_log_path = "%s/instance.log" % (log_folder_path)
-    # rotate will create instance.log.1 .2 instance.log.3 ...
-    # every days or more with log max_size ~5Mo
-    rotateLog(instance_log_path, max_age=86400, max_size=5, max_rotation=5)
+    # rotate will move instance.log to instance.log.1 if the size >= 20Mo
+    rotateLog(instance_log_path, max_size=20)
 
     # this partition_file_handler will be cleaned up after this try: block
     partition_file_handler = logging.FileHandler(

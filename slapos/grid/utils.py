@@ -526,55 +526,27 @@ def killProcessTree(pid, logger):
 
   return process_list
 
-def rotateLog(log_path, max_age=86400, max_size=5, max_rotation=2):
+def rotateLog(log_path, max_size=20):
   """
-    Rotate a log file file.log to file.log.X if the log age is higher that max_age seconds
-    and the size greater than max_size.
-    If the file age > max_age (seconds) and file size < max_size (Mo) file is not rotated
-    If max_rotation = 2, then file.log.1 and file.log.2 can be created. Next rotation
-    will delete file.log.2 and shift.
+    Rotate a log file file.log to file.log.X base on max_size threshold.
+    If the file size < max_size (Mo) file is not rotated else file.log is moved
+    to file.log.1. Next rotation will delete file.log.1 and move again.
   """
   max_log_size = max_size * 1024 * 1024  # max_size Mo
-  timestamp_file = "%s.timestamp" % log_path
 
   if not os.path.exists(log_path):
     return
 
   stat = os.stat(log_path)
   file_size = stat.st_size
-  log_ctime = 0
-  if os.path.exists(timestamp_file):
-    with open(timestamp_file) as f:
-      try:
-        log_ctime = float(f.read())
-      except ValueError:
-        # bad value in timestamp file
-        pass
-  if log_ctime == 0:
-    log_ctime = stat.st_mtime
-    with open(timestamp_file, 'w') as f:
-      f.write(str(log_ctime))
-  log_age = time.time() - log_ctime
 
-  if log_age < max_age:
-    return
   if file_size >= max_log_size:
-    # Drop oldest log file
-    oldest_log_path = '{}.{}'.format(log_path, max_rotation)
-    if os.path.exists(oldest_log_path):
-      os.remove(oldest_log_path)
+    # Drop logfile.1
+    old_log_path = '{}.1'.format(log_path)
+    if os.path.exists(old_log_path):
+      os.remove(old_log_path)
 
-    # shift all log files: .2 -> .3, .1 -> .2
-    for i in range(max_rotation - 1, 0, -1):
-      src = '{}.{}'.format(log_path, i)
-      dst = '{}.{}'.format(log_path, i + 1)
-
-      if os.path.exists(src):
-        os.rename(src, dst)
-
-    # current file become file.1
-    os.rename(log_path, '{}.1'.format(log_path))
-    # keep original file empty so it will exists
+    # current logfile become logfile.1
+    os.rename(log_path, old_log_path)
+    # create an empty original log file
     open(log_path, "w").close()
-    with open(timestamp_file, 'w') as f:
-      f.write(str(time.time()))

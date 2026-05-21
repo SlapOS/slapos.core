@@ -35,6 +35,7 @@ query_kw = {
   'destination_decision__uid': person.getUid(),
   'function__uid': portal.portal_categories.function.customer.getUid()
 }
+
 if len(portal.portal_catalog(**query_kw)) > 0:
   # User still have open 'Assignment Request' seems too early to
   # suspend it, await a bit longer.
@@ -51,11 +52,30 @@ activate_kw = {
   'tag': "auto_claim_%s_%s" % (workgroup.getId(), person.getId())
 }
 for instance in instance_tree_to_claim:
+  if instance.getTitle().startswith("_remote_"):
+    # Do not claim remote, use a Remote Node Change Request to claim this use case.
+    continue
   activate_kw = {'tag': "auto_claim_%s_%s_%s" % (workgroup.getId(),
                                   person.getId(),
                                   instance.getReference())}
   workgroup.activate(activity='SQLQueue', **activate_kw).Person_claimSlaposItemSubscription(
     reference=instance.getReference(),
+    dialog_id=None,
+    activate_kw=activate_kw
+  )
+
+remote_node_to_claim = portal.portal_catalog(
+  portal_type='Remote Node',
+  validation_state='validated',
+  destination_section__uid=person.getUid(),
+  destination_project__uid=project_uid_list)
+
+for remote_node in remote_node_to_claim:
+  activate_kw = {'tag': "auto_claim_%s_%s_%s" % (workgroup.getId(),
+                                  person.getId(),
+                                  remote_node.getReference())}
+  workgroup.activate(activity='SQLQueue', **activate_kw).Person_claimSlaposRemoteNode(
+    reference=remote_node.getReference(),
     dialog_id=None,
     activate_kw=activate_kw
   )

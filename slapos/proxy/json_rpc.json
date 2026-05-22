@@ -208,6 +208,188 @@
         }
       }
     }, 
+    "/slapos.get.v0.instance_tree": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Instance Tree",
+                "title": "Instance Tree",
+                "$id": "software-instance-base-schema.json",
+                "required": [
+                  "title"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "title": "Title",
+                    "type": "string",
+                    "description": "Unique Name of the Software Instance",
+                    "maxLength": 200
+                  }
+                }
+              }
+            }
+          },
+          "description": "Instance Tree"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "required": [
+                        "computer_guid",
+                        "instance_guid",
+                        "root_instance_title",
+                        "title",
+                        "state",
+                        "compute_partition_id",
+                        "software_release_uri",
+                        "software_type",
+                        "shared",
+                        "processing_timestamp",
+                        "access_status_message",
+                        "parameters",
+                        "sla_parameters",
+                        "connection_parameters",
+                        "ip_list",
+                        "full_ip_list"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "message",
+                        "name",
+                        "status"
+                      ]
+                    }
+                  ],
+                  "description": "Response when the software instance is requested",
+                  "title": "Software Instance Requested",
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#",
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer",
+                      "title": "Status"
+                    },
+                    "software_release_uri": {
+                      "type": "string",
+                      "description": "URL of the software release used by the software instance",
+                      "title": "Software Release URI"
+                    },
+                    "full_ip_list": {
+                      "items": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "All elements to describe the interface",
+                        "title": "Internet Protocol Address"
+                      },
+                      "type": "array",
+                      "description": "List of IPs usable by the Software Instance on the partition.",
+                      "title": "Full IP List"
+                    },
+                    "name": {
+                      "type": "string",
+                      "title": "Name"
+                    },
+                    "root_instance_title": {
+                      "type": "string",
+                      "title": "Title of the Root Instance"
+                    },
+                    "title": {
+                      "type": "string",
+                      "title": "Unique Title of the Instance"
+                    },
+                    "instance_guid": {
+                      "type": "string",
+                      "description": "Unique identifier of the Software Instance",
+                      "title": "Software Instance Reference"
+                    },
+                    "compute_partition_id": {
+                      "type": "string",
+                      "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance",
+                      "title": "Compute Partition Id"
+                    },
+                    "access_status_message": {
+                      "type": "string",
+                      "title": "Access Status Message"
+                    },
+                    "state": {
+                      "enum": [
+                        "started",
+                        "stopped",
+                        "destroyed"
+                      ],
+                      "type": "string",
+                      "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance.",
+                      "title": "Requested State"
+                    },
+                    "sla_parameters": {
+                      "type": "object",
+                      "title": "SLA Parameters"
+                    },
+                    "computer_guid": {
+                      "type": "string",
+                      "description": "Id Of the Requesting Compute Node, used by Slap Client when an instance is requesting an instance",
+                      "title": "Compute Node Id"
+                    },
+                    "connection_parameters": {
+                      "type": "object",
+                      "title": "Connection Parameters"
+                    },
+                    "software_type": {
+                      "type": "string",
+                      "title": "Software Type"
+                    },
+                    "processing_timestamp": {
+                      "type": "integer",
+                      "title": "Processing Timestamp"
+                    },
+                    "shared": {
+                      "type": "boolean",
+                      "description": "Is it a shared instance",
+                      "title": "Shared"
+                    },
+                    "message": {
+                      "type": "string",
+                      "title": "Message"
+                    },
+                    "parameters": {
+                      "type": "object",
+                      "title": "Parameters"
+                    },
+                    "ip_list": {
+                      "items": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "All elements to describe the interface",
+                        "title": "Internet Protocol Address"
+                      },
+                      "type": "array",
+                      "description": "List of IPs usable by the Software Instance on the partition.",
+                      "title": "IP List"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Response when the software instance is requested"
+          }
+        }
+      }
+    },
     "/slapos.put.v0.software_installation_error": {
       "post": {
         "requestBody": {

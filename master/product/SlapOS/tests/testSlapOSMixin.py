@@ -205,6 +205,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'erp5_payzen_secure_payment',
       'erp5_wechat_secure_payment',
       'erp5_ooo_import',
+      'erp5_ooo_import_core',
       'erp5_odt_style',
       'erp5_ods_style',
       'erp5_jquery',

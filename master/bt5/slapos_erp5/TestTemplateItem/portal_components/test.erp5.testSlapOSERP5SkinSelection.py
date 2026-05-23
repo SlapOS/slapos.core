@@ -92,13 +92,14 @@ erp5_json_form
 erp5_json_rpc_api
 erp5_json_type
 erp5_monaco_editor
+erp5_mysql_innodb
 erp5_notebook
 erp5_oauth
 erp5_oauth_facebook_login
 erp5_oauth_google_login
 erp5_ods_core
 erp5_odt_core
-erp5_ooo_import
+erp5_ooo_import_core
 erp5_open_api
 erp5_open_trade
 erp5_payzen_secure_payment

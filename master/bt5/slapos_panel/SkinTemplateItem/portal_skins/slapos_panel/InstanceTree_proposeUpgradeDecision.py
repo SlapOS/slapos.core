@@ -17,7 +17,7 @@ if upgrade_decision is None:
   upgrade_decision = portal.portal_catalog.getResultValue(
     portal_type='Upgrade Decision',
     aggregate__uid=instance_tree.getUid(),
-    simulation_state=['started', 'stopped', 'planned', 'confirmed']
+    simulation_state=['rejected', 'started', 'stopped', 'planned', 'confirmed']
   )
   if upgrade_decision is not None:
     # There is already a upgrade decision, do nothing

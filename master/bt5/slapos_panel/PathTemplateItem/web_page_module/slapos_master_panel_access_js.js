@@ -23,11 +23,15 @@
           'Tickets',
           'Invoices',
           'Pay',
-          'RSS'
+          'News'
         ])
       }))
         .push(function (result_dict) {
           return result_dict.access_gadget.render(options, [{
+            title: result_dict.translation_dict.News,
+            jio_key: 'support_request_module',
+            erp5_action: 'slapos_panel_view_my_rss_feed_link'
+          }, {
             title: result_dict.translation_dict.Services,
             jio_key: 'instance_tree_module',
             erp5_action: 'slapos_panel_view_my_instance_tree_list'
@@ -43,10 +47,12 @@
             title: result_dict.translation_dict.Servers,
             jio_key: 'compute_node_module',
             erp5_action: 'slapos_panel_view_my_compute_node_list'
+/*
           }, {
             title: result_dict.translation_dict.Tickets,
             jio_key: 'support_request_module',
             erp5_action: 'slapos_panel_view_my_ticket_list'
+*/
           }, {
             title: result_dict.translation_dict.Invoices,
             jio_key: 'accounting_module',
@@ -55,10 +61,6 @@
             title: result_dict.translation_dict.Pay,
             jio_key: 'accounting_module',
             erp5_action: 'pay_my_slapos_sale_invoice_transaction'
-          }, {
-            title: result_dict.translation_dict.RSS,
-            jio_key: 'support_request_module',
-            erp5_action: 'slapos_panel_view_my_rss_feed_link'
           }]);
         });
     });

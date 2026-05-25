@@ -645,4 +645,4 @@ def getRootSharedList(title=None):
   return execute_db('slave', query, args)
 
 def getInstanceTreeList(title=None):
-  return [getRootPartitionList(), getRootSharedList()]
+  return [getRootPartitionList(title=title), getRootSharedList(title=title)]

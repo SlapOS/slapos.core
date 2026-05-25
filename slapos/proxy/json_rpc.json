@@ -543,8 +543,8 @@
           "content": {
             "application/json": {
               "schema": {
-                "description": "Get Compute Partition informations", 
-                "title": "Get Compute Partition informations", 
+                "description": "Get Compute Partition information",
+                "title": "Get Compute Partition information",
                 "required": [
                   "computer_guid", 
                   "compute_partition_id"
@@ -567,15 +567,15 @@
               }
             }
           }, 
-          "description": "Get Compute Partition informations"
+          "description": "Get Compute Partition information"
         }, 
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "Instance informations", 
-                  "title": "Instance informations", 
+                  "description": "Instance information",
+                  "title": "Instance information",
                   "required": [
                     "computer_guid", 
                     "instance_guid", 
@@ -623,7 +623,7 @@
                     }, 
                     "root_instance_title": {
                       "type": "string", 
-                      "title": "Title of the Roor Instance"
+                      "title": "Title of the Root Instance"
                     }, 
                     "title": {
                       "type": "string", 
@@ -695,7 +695,7 @@
                 }
               }
             }, 
-            "description": "Instance informations"
+            "description": "Instance information"
           }
         }
       }
@@ -922,7 +922,7 @@
                         "title": "Retention Delay"
                       }
                     }, 
-                    "description": "Also known as SLA parameters. Used to pick where an how the instance is to be deployed"
+                    "description": "Also known as SLA parameters. Used to pick where and how the instance is to be deployed"
                   }, 
                   "software_type": {
                     "type": "string", 
@@ -1009,7 +1009,7 @@
                     }, 
                     "root_instance_title": {
                       "type": "string", 
-                      "title": "Title of the Roor Instance"
+                      "title": "Title of the Root Instance"
                     }, 
                     "title": {
                       "type": "string", 
@@ -1266,8 +1266,8 @@
           "content": {
             "application/json": {
               "schema": {
-                "description": "Get Instance informations", 
-                "title": "Get Instance informations", 
+                "description": "Get Instance information",
+                "title": "Get Instance information",
                 "required": [
                   "instance_guid"
                 ], 
@@ -1284,15 +1284,15 @@
               }
             }
           }, 
-          "description": "Get Instance informations"
+          "description": "Get Instance information"
         }, 
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "Instance informations", 
-                  "title": "Instance informations", 
+                  "description": "Instance information",
+                  "title": "Instance information",
                   "required": [
                     "computer_guid", 
                     "instance_guid", 
@@ -1340,7 +1340,7 @@
                     }, 
                     "root_instance_title": {
                       "type": "string", 
-                      "title": "Title of the Roor Instance"
+                      "title": "Title of the Root Instance"
                     }, 
                     "title": {
                       "type": "string", 
@@ -1412,7 +1412,7 @@
                 }
               }
             }, 
-            "description": "Instance informations"
+            "description": "Instance information"
           }
         }
       }

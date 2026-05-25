@@ -1,6 +1,15 @@
 Changes
 =======
 
+1.22.0 (2026-05-25)
+-------------------
+
+ * slapos.promise: cleanup and remove promise history and statistics from slapos.core
+ * slapos/proxy: Follow up upstream change (auto-collapse)
+ * testing: add monitoring_mixin class
+ * slap/standalone: capture more lines in case of error building software
+ * slapos/proxy: improve the panel UI (mainly fix typos)
+
 1.21.1 (2026-03-03)
 -------------------
 

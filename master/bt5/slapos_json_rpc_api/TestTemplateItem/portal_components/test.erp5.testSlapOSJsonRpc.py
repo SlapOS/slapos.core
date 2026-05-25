@@ -1919,3 +1919,85 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
         )
         self.assertEqual(response.getStatus(), 200)
 
+  def test_PersonAccess_43_getInstanceTreeNoInstance(self):
+    with PinnedDateTime(self, DateTime()):
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree()
+      person = instance_tree.getDestinationSectionValue()
+      person_user_id = person.getUserId()
+      instance = instance_tree.getSuccessorValue()
+      instance.edit(title=instance.getTitle() + 'FOOBAR')
+
+    response = self.callJsonRpcWebService(
+      "slapos.get.v0.instance_tree",
+      {
+        "title": instance_tree.getTitle()
+      },
+      person_user_id
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'message': 'Software Instance Not Ready',
+      'name': 'SoftwareInstanceNotReady',
+      'status': 102
+    }, loadJson(response.getBody()))
+
+  def test_PersonAccess_44_getInstanceTreeAllocated(self):
+    with PinnedDateTime(self, DateTime()):
+      _, _, _, _, partition, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+      person = instance_tree.getDestinationSectionValue()
+      person_user_id = person.getUserId()
+      instance = instance_tree.getSuccessorValue()
+
+      response = self.callJsonRpcWebService("slapos.get.v0.instance_tree", {
+        "title": instance_tree.getTitle()
+      },
+      person_user_id)
+
+      # Check Data is correct
+      # partition = instance.getAggregateValue(portal_type="Compute Partition")
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual({
+        "title": instance.getTitle(),
+        "instance_guid": instance.getReference(),
+        "software_release_uri": instance.getUrlString(),
+        "software_type": instance.getSourceReference(),
+        "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+        "connection_parameters": instance.getConnectionXmlAsDict(),
+        "parameters": instance.getInstanceXmlAsDict(),
+        "shared": False,
+        "root_instance_title": instance.getSpecialiseValue().getTitle(),
+        "ip_list": [
+          [
+            x.getNetworkInterface(''),
+            x.getIpAddress()
+          ] for x in partition.contentValues(portal_type='Internet Protocol Address')
+        ],
+        "full_ip_list": [],
+        "sla_parameters": instance.getSlaXmlAsDict(),
+        "computer_guid": partition.getParentValue().getReference(),
+        "compute_partition_id": partition.getReference(),
+        "processing_timestamp": instance.getSlapTimestamp(),
+        "access_status_message": instance.getTextAccessStatus(),
+      }, loadJson(response.getBody()))
+      self.assertEqual(response.getStatus(), 200)
+
+  def test_PersonAccess_45_getInstanceTreeNonExisting(self):
+    with PinnedDateTime(self, DateTime()):
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree()
+      person = instance_tree.getDestinationSectionValue()
+      person_user_id = person.getUserId()
+
+    response = self.callJsonRpcWebService(
+      "slapos.get.v0.instance_tree",
+      {
+        "title": instance_tree.getTitle() + 'FOOBAR'
+      },
+      person_user_id
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'title': 'No instance tree found with title: test treeFOOBAR',
+      'type': 'INSTANCE-TREE-NOT-FOUND',
+      'status': 403
+    }, loadJson(response.getBody()))
+

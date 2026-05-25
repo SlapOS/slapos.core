@@ -126,6 +126,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_json_rpc_api/JSONRPCService_formatComputeNodeFromAPIDict',
         'slapos_json_rpc_api/JSONRPCService_getComputeNodeStatusFromDict',
         'slapos_json_rpc_api/JSONRPCService_getHateoasUrlFromDict',
+        'slapos_json_rpc_api/JSONRPCService_getInstanceTree',
         'slapos_json_rpc_api/JSONRPCService_getObjectFromData',
         'slapos_json_rpc_api/JSONRPCService_getSoftwareInstanceCertificatesAsJSON',
         'slapos_json_rpc_api/JSONRPCService_removeComputeNodeCertificateRecordFromDict',

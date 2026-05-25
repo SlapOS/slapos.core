@@ -1673,6 +1673,128 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     }
     assert json.loads(response.data) == expect_result_dict, response.data
 
+  #######################################################
+  # get instance tree
+  #######################################################
+  def test_get_v0_instance_tree_not_found(self):
+    response = self.app.post(
+      '/slapos.get.v0.instance_tree',
+      json={
+        'title': 'FOO'
+      }
+    )
+
+    assert response.status_code == 403, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        "status": 403,
+        "type": "Forbidden",
+        "title": "No instance tree FOO found."
+    }
+    assert json.loads(response.data) == expect_result_dict, response.data
+
+  def test_get_v0_instance_tree_software_instance(self):
+    self.format_for_number_of_partitions(1)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar'
+      }
+    )
+    response = self.app.post(
+      '/slapos.get.v0.instance_tree',
+      json={
+        'title': 'MyFirstShared'
+      }
+    )
+
+    response = self.app.post(
+      '/slapos.get.v0.instance_tree',
+      json={
+        'title': 'MyFirstInstance'
+      }
+    )
+
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'title': 'MyFirstInstance',
+        'instance_guid': 'MyFirstInstance______0',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'state': 'started',
+        'connection_parameters': {},
+        'parameters': {},
+        'shared': False,
+        'root_instance_title': 'MyFirstInstance',
+        'ip_list': [["tap0", "1.2.3.4"], ["tap0", "4.3.2.1"]],
+        'full_ip_list': [],
+        'sla_parameters': {},
+        'computer_guid': 'computer',
+        'compute_partition_id': 'slappart0',
+        'processing_timestamp': None,
+        'access_status_message': ""
+    }
+    data_result = json.loads(response.data)
+    expect_result_dict['processing_timestamp'] = data_result.get('processing_timestamp', 'unknown')
+    assert data_result == expect_result_dict, response.data
+
+  def test_get_v0_instance_tree_shared_instance(self):
+    self.format_for_number_of_partitions(1)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar'
+      }
+    )
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstShared',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'shared': True
+      }
+    )
+
+    response = self.app.post(
+      '/slapos.get.v0.instance_tree',
+      json={
+        'title': 'MyFirstShared'
+      }
+    )
+
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'title': 'MyFirstShared',
+        'instance_guid': 'MyFirstShared______1',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'state': 'started',
+        'connection_parameters': {},
+        'parameters': {},
+        'shared': True,
+        'root_instance_title': 'MyFirstShared',
+        'ip_list': [],
+        'full_ip_list': [],
+        'sla_parameters': {},
+        'computer_guid': 'computer',
+        'compute_partition_id': 'slappart0',
+        'processing_timestamp': None,
+        'access_status_message': ""
+    }
+    data_result = json.loads(response.data)
+    expect_result_dict['processing_timestamp'] = data_result.get('processing_timestamp', 'unknown')
+    assert data_result == expect_result_dict, response.data
+
 
 class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
   #######################################################

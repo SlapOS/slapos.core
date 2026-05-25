@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Web Script" module="erp5.portal_type"/>
+      <global name="Web Page" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -63,17 +63,15 @@
         </item>
         <item>
             <key> <string>content_md5</string> </key>
-            <value> <string>cda27552b933d6cc66375d4f8118755d</string> </value>
+            <value> <string>df43b3a499820f31128ffea31db4ef2c</string> </value>
         </item>
         <item>
             <key> <string>content_type</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>text/html</string> </value>
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>slapos_master_panel_access.js</string> </value>
+            <value> <string>slapos_master_panel_feed_reader.html</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -83,17 +81,15 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_master_panel_access_js</string> </value>
+            <value> <string>slapos_master_panel_feed_reader_html</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>en</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Web Script</string> </value>
+            <value> <string>Web Page</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
@@ -103,13 +99,11 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>slapos_master_panel_access_js</string> </value>
+            <value> <string>SlapOS Master Panel Feed Reader</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>001</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -191,7 +185,7 @@
                           <tuple/>
                           <state>
                             <tuple>
-                              <float>1660642152.7</float>
+                              <float>1779200809.97</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -240,7 +234,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1033.2415.19469.49186</string> </value>
+                      <value> <string>1033.2338.54595.46865</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -256,7 +250,7 @@
                           <tuple/>
                           <state>
                             <tuple>
-                              <float>1779205463.36</float>
+                              <float>1779202021.05</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -283,9 +277,7 @@
                 <dictionary>
                   <item>
                       <key> <string>action</string> </key>
-                      <value>
-                        <none/>
-                      </value>
+                      <value> <string>detect_converted_file</string> </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
@@ -301,7 +293,7 @@
                   </item>
                   <item>
                       <key> <string>external_processing_state</string> </key>
-                      <value> <string>empty</string> </value>
+                      <value> <string>converted</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
@@ -317,7 +309,7 @@
                           <tuple/>
                           <state>
                             <tuple>
-                              <float>1660639770.63</float>
+                              <float>1779200677.85</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

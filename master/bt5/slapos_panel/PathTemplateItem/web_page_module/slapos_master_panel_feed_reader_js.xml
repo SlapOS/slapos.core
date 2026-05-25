@@ -63,7 +63,7 @@
         </item>
         <item>
             <key> <string>content_md5</string> </key>
-            <value> <string>cda27552b933d6cc66375d4f8118755d</string> </value>
+            <value> <string>7bb78e1bc1870b8ff66e7acd540a747b</string> </value>
         </item>
         <item>
             <key> <string>content_type</string> </key>
@@ -73,7 +73,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>slapos_master_panel_access.js</string> </value>
+            <value> <string>slapos_master_panel_feed_reader.js</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -83,7 +83,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_master_panel_access_js</string> </value>
+            <value> <string>slapos_master_panel_feed_reader_js</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -103,7 +103,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>slapos_master_panel_access_js</string> </value>
+            <value> <string>SlapOS Master Panel Feed Reader JS</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -191,7 +191,7 @@
                           <tuple/>
                           <state>
                             <tuple>
-                              <float>1660642152.7</float>
+                              <float>1779200821.65</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -240,7 +240,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1033.2415.19469.49186</string> </value>
+                      <value> <string>1033.2348.63839.26692</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -256,7 +256,7 @@
                           <tuple/>
                           <state>
                             <tuple>
-                              <float>1779205463.36</float>
+                              <float>1779201445.99</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -283,9 +283,7 @@
                 <dictionary>
                   <item>
                       <key> <string>action</string> </key>
-                      <value>
-                        <none/>
-                      </value>
+                      <value> <string>detect_converted_file</string> </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
@@ -301,7 +299,7 @@
                   </item>
                   <item>
                       <key> <string>external_processing_state</string> </key>
-                      <value> <string>empty</string> </value>
+                      <value> <string>converted</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
@@ -317,7 +315,7 @@
                           <tuple/>
                           <state>
                             <tuple>
-                              <float>1660639770.63</float>
+                              <float>1779200104.34</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

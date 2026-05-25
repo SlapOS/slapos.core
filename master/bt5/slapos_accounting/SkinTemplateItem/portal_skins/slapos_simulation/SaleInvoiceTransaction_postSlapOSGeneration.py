@@ -4,10 +4,8 @@ the new Invoice.
 from Products.ERP5Type.Message import translateString
 from DateTime import DateTime
 
-portal = context.getPortalObject()
-
-if related_simulation_movement_path_list is None:
-  raise RuntimeError('related_simulation_movement_path_list is missing. Update ERP5 Product.')
+if movement_list is None:
+  raise RuntimeError('movement_list is missing. Update ERP5 Product.')
 
 invoice = context
 price_currency = invoice.getPriceCurrency()
@@ -17,12 +15,7 @@ if invoice.getResource() != price_currency:
 # Extend the invoice causality with the parent simulation movement explanation
 # usually, Sale Packing List
 causality_list = invoice.getCausalityList()
-for simulation_movement in related_simulation_movement_path_list:
-  simulation_movement = portal.restrictedTraverse(simulation_movement)
-  if not simulation_movement.getExplanation().startswith(invoice.getRelativeUrl()):
-    # Beware, the simulation movement may be not used to build the invoice
-    # related_simulation_movement_path_list is the movement_list used by the builder
-    continue
+for simulation_movement in movement_list:
   applied_rule = simulation_movement.getParentValue()
   if applied_rule.getParentId() != 'portal_simulation':
     causality = applied_rule.getParentValue().getExplanationValue()

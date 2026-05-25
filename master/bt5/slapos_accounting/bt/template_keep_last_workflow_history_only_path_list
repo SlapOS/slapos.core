@@ -1,3 +1,4 @@
+business_process_module/slapos_internal_subscription_business_process
 business_process_module/slapos_manual_accounting_business_process
 business_process_module/slapos_sale_subscription_business_process
 currency_module/CNY
@@ -6,4 +7,5 @@ quantity_unit_conversion_module/slapos_time_month
 quantity_unit_conversion_module/slapos_time_month/**
 service_module/slapos_compute_node_subscription
 service_module/slapos_deposit
+service_module/slapos_software_instance_subscription
 service_module/slapos_virtual_master_subscription

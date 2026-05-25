@@ -446,6 +446,26 @@ def post_software_instance():
 
   return abort(500, 'Can not export %s' % str(slap_instance))
 
+@json_rpc_blueprint.route('/slapos.get.v0.instance_tree', methods=['POST'])
+def get_instance_tree():
+  partition_and_shared_list = getInstanceTreeList(title=request.json["title"])
+
+  if (len(partition_and_shared_list[0]) == 1) and (not partition_and_shared_list[1]):
+    return send_json_rpc_sql_partition(partition_and_shared_list[0][0])
+
+  if not(partition_and_shared_list[0]) and (len(partition_and_shared_list[1]) == 1):
+    shared = partition_and_shared_list[1][0]
+    # XXX Copied from db.getAllocatedSlaveInstance
+    # Get the matching partition
+    partition = execute_db('partition',
+      'SELECT * FROM %s WHERE computer_reference=? AND reference=?',
+      (shared['computer_reference'], shared['hosted_by']), one=True)
+    if not partition:
+      return abort(403, 'No partition hosting %s found.' % request.json["title"])
+    return send_json_rpc_sql_shared(shared, partition)
+
+  return abort(403, 'No instance tree %s found.' % request.json["title"])
+
 @json_rpc_blueprint.route('/slapos.put.v0.compute_node_format', methods=['POST'])
 def put_compute_node_format():
   formatFromDB(request.json["computer_guid"],

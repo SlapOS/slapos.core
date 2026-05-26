@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.22.1 (2026-05-26)
+-------------------
+
+ * slapproxy: add new JSON API entry point (slapos.get.v0.instance_tree)
+ * slapproxy: update json_rpc.json latest changes
+
 1.22.0 (2026-05-25)
 -------------------
 

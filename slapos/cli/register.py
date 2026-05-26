@@ -50,8 +50,8 @@ class RegisterCommand(ConfigCommand):
     The files at /etc/opt/slapos (by default):
 
       - /etc/opt/slapos/slapos.cfg: The configuration of your SlapOS Node
-      - /etc/opt/slapos/ssl/certificate : Your server SSL Cetificate
-      - /etc/opt/slapos/ssl/key: Your server SSL Private Key
+      - /etc/opt/slapos/ssl/computer.crt: Your server SSL Cetificate
+      - /etc/opt/slapos/ssl/computer.key: Your server SSL Private Key
 
     """
     command_group = 'node'
@@ -249,8 +249,8 @@ def slapconfig(conf):
         if not dry_run:
             os.mkdir(user_certificate_repository_path, 0o711)
 
-    key_file = os.path.join(user_certificate_repository_path, 'key')
-    cert_file = os.path.join(user_certificate_repository_path, 'certificate')
+    key_file = os.path.join(user_certificate_repository_path, 'computer.key')
+    cert_file = os.path.join(user_certificate_repository_path, 'computer.crt')
 
     for src, dst in [(conf.key, key_file), (conf.certificate, cert_file)]:
         conf.logger.info('Copying to %r, and setting minimum privileges', dst)

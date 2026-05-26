@@ -315,38 +315,9 @@ class Computer(object):
     return (self.reference, self.interface)
 
   def getAddress(self):
-    """
-    Return a list of the interface address not attributed to any partition (which
-    are therefore free for the computer itself).
-
-    Returns:
-      False if the interface isn't available, else the list of the free addresses.
-    """
     if self.interface is None:
       return {'addr': self.address, 'netmask': self.netmask}
-
-    computer_partition_address_list = []
-    for partition in self.partition_list:
-      for address in partition.address_list:
-        if netaddr.valid_ipv6(address['addr']):
-          computer_partition_address_list.append(address['addr'])
-    # Going through addresses of the computer's interface
-    available_address_list = self.interface.getGlobalScopeAddressList()
-    # First scan: prefer the existing address, as the available_address_list
-    #             might be sorted differently
-    for address_dict in available_address_list:
-      if self.address == address_dict['addr']:
-        if self.address not in computer_partition_address_list:
-          return address_dict
-
-    # Second scan: take first not occupied address
-    for address_dict in available_address_list:
-      # Comparing with computer's partition addresses
-      if address_dict['addr'] not in computer_partition_address_list:
-        return address_dict
-
-    # Can't find address
-    raise NoAddressOnInterface('No valid IPv6 found on %s.' % self.interface.name)
+    return self.interface.getAddress(pref_addr=self.address)
 
   def update(self):
     """Collect environmental hardware/network information."""
@@ -676,7 +647,7 @@ class Computer(object):
                         tap=partition.tap)
 
               # construct ipv6_network (16 bit more than the computer network)
-              prefixlen = lenNetmaskIpv6(self.interface.getGlobalScopeAddressList()[0]['netmask']) + 16
+              prefixlen = lenNetmaskIpv6(self.interface.getAddress()['netmask']) + 16
               gateway_addr = getIpv6RangeFirstAddr(partition.tap.ipv6_addr, prefixlen)
               partition.tap.ipv6_gateway = gateway_addr
               partition.tap.ipv6_network = "{}/{}".format(gateway_addr, prefixlen)
@@ -1260,6 +1231,25 @@ class Interface(object):
       + suffix * (128 - prefixlen))
     return dict(addr=addr, prefixlen=prefixlen, netmask=netmaskFromLenIPv6(prefixlen))
 
+  def getAddress(self, pref_addr=None):
+    """Return the preferred global-scope interface address.
+
+    If pref_addr is given, return the interface address whose network contains
+    pref_addr (works whether pref_addr is the computer's own address or a
+    partition address derived from it).
+    Falls back to the address with the largest subnetwork (smallest masklen).
+    """
+    address_list = self.getGlobalScopeAddressList()
+    if pref_addr is not None:
+      for a in address_list:
+        try:
+          if netaddr.IPAddress(pref_addr) in netaddr.IPNetwork(
+              '%s/%s' % (a['addr'], lenNetmaskIpv6(a['netmask']))):
+            return a
+        except (netaddr.AddrFormatError, ValueError):
+          pass
+    return min(address_list, key=lambda a: lenNetmaskIpv6(a['netmask']))
+
   def addIPv6Address(self, partition_index, addr=None, netmask=None, tap=None):
     """
     Adds IPv6 address to interface.
@@ -1289,9 +1279,7 @@ class Interface(object):
     """
     interface_name = self.ipv6_interface
 
-    # Getting one address of the interface as base of the next addresses
-    interface_addr_list = self.getGlobalScopeAddressList()
-    address_dict = interface_addr_list[0]
+    address_dict = self.getAddress(pref_addr=addr)
 
     if addr is not None:
       # support netifaces which returns netmask and netmask/len
@@ -1304,7 +1292,7 @@ class Interface(object):
         dict_addr_netmask_without_len = dict(addr=addr, netmask=netmask)
         dict_addr_netmask_with_len = dict(addr=addr, netmask='%s/%s' % (netmask, lenNetmaskIpv6(netmask)))
       for dict_addr_netmask in [dict_addr_netmask_with_len, dict_addr_netmask_without_len]:
-        if dict_addr_netmask in interface_addr_list or \
+        if dict_addr_netmask in self.getGlobalScopeAddressList() or \
            (tap and dict_addr_netmask in self.getGlobalScopeAddressList(tap=tap)):
           # confirmed to be configured
           # return without len to keep format stable, as the first time len is not included
@@ -1390,8 +1378,7 @@ class Interface(object):
     interface_name = self.ipv6_interface or self.name
 
     # Getting one address of the interface as base of the next addresses
-    interface_addr_list = self.getGlobalScopeAddressList()
-    address_dict = interface_addr_list[0]
+    address_dict = self.getAddress()
     address_dict['prefixlen'] = lenNetmaskIpv6(address_dict['netmask'])
     if tun:
       ipv6_range = getTunIpv6Range(address_dict, i, self.ipv6_prefixshift)
@@ -1632,6 +1619,7 @@ def do_format(conf):
 
     computer.instance_storage_home = conf.instance_storage_home
     conf.logger.info('Updating computer')
+    # Make sure the computer.address still exists on interface
     address = computer.getAddress()
     computer.address = address['addr']
     # Normalize netmask due to netiface netmasks like ffff::/16

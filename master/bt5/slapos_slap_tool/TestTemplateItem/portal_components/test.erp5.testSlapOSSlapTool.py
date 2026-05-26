@@ -1002,7 +1002,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   def test_useComputer_wrong_xml(self):
     self.login(self.compute_node_user_id)
     response = self.portal_slap.useComputer(
-        self.compute_node_id, str2bytes("foobar"))
+        self.compute_node_id, "foobar")
     self.assertEqual(400, response.status)
     self.assertEqual(str2bytes(""), response.body)
 
@@ -1049,11 +1049,11 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
 </journal>"""
 
       response = self.portal_slap.useComputer(
-        self.compute_node_id, str2bytes(consumption_xml))
+        self.compute_node_id, consumption_xml)
       self.assertEqual(200, response.status)
       self.assertEqual(str2bytes("OK"), response.body)
       self.assertReportComputeNodeConsumption(
-        (str2bytes("testusagé"), str2bytes(consumption_xml),), {})
+        ("testusagé", consumption_xml,), {})
     finally:
       if os.path.exists(self.compute_node_use_compute_node_simulator):
         os.unlink(self.compute_node_use_compute_node_simulator)
@@ -1093,11 +1093,11 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
 </journal>"""
 
       response = self.portal_slap.useComputer(
-        self.compute_node_id, str2bytes(consumption_xml))
+        self.compute_node_id, consumption_xml)
       self.assertEqual(200, response.status)
       self.assertEqual(str2bytes("OK"), response.body)
       self.assertReportComputeNodeConsumption(
-        (str2bytes(""), str2bytes(consumption_xml),), {})
+        ("", consumption_xml,), {})
     finally:
       if os.path.exists(self.compute_node_use_compute_node_simulator):
         os.unlink(self.compute_node_use_compute_node_simulator)

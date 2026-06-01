@@ -206,3 +206,10 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
         template_title_list=bt5_to_resolve,
         with_test_dependency_list=True)]
     self.assertSameSet(expected_business_template_list, bt5_list)
+
+  def testConfiguratedNoBusinessTemplateIsReplaced(self):
+    """ Make sure no business template is in replaced state after installation. """
+    replaced_bt5_list = [bt.getTitle()
+       for bt in self.portal.portal_templates.objectValues()
+         if bt.getInstallationState() == 'replace']
+    self.assertEqual(replaced_bt5_list, [])

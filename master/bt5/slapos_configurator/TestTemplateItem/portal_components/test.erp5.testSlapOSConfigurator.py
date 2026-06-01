@@ -204,7 +204,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
 
     bt5_list = [i[1] for i in self.portal.portal_templates.resolveBusinessTemplateListDependency(
         template_title_list=bt5_to_resolve,
-        with_test_dependency_list=True)]
+        with_test_dependency_list=False)]
     self.assertSameSet(expected_business_template_list, bt5_list)
 
   def testConfiguratedNoBusinessTemplateIsReplaced(self):

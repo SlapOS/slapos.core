@@ -97,7 +97,6 @@ else:
       # Create a single project for every single remaining compute node
       project = source_administration_value.Person_addVirtualMaster(
         title='Migrated shared for %s' % compute_node.getReference(),
-        is_compute_node_payable=False,
         is_instance_tree_payable=False,
         # Hardcoded
         price_currency='currency_module/EUR',

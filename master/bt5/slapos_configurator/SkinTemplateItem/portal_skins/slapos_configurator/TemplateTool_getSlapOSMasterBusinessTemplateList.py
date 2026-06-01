@@ -1,7 +1,15 @@
 """ Simple place for keep the list of business template to install on this project
 """
-bt5_installation_list = ('slapos_erp5',)
-bt5_update_catalog_list = bt5_installation_list
+bt5_update_catalog_list = (
+   # The orders matters, before install form this list no dependency should
+   # update catalog prior. Least dependencies lead to less redexation.
+   'erp5_ingestion_mysql_innodb_catalog',
+   'slapos_mysql_innodb_catalog',
+   'erp5_web_shadir',
+   'erp5_syncml',
+   'erp5_wendelin',
+)
+bt5_installation_list = bt5_update_catalog_list + ('slapos_erp5',)
 
 keep_bt5_id_list = ['erp5_ui_test',
                     'erp5_ui_test_core',

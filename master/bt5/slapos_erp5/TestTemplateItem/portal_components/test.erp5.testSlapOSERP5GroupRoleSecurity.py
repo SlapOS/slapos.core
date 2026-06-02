@@ -1589,6 +1589,26 @@ class TestSalePackingList(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
 
 
+class TestConsumptionSupplyModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_ConsumptionSupplyModule(self):
+    module = self.portal.consumption_supply_module
+    self.assertSecurityGroup(module,
+        ['F-SALE*', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
+    self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
+
+
+class TestConsumptionSupply(TestSlapOSGroupRoleSecurityMixin):
+  def test_ConsumptionSupply_default(self):
+    supply = self.portal.consumption_supply_module.newContent(
+        portal_type='Consumption Supply')
+    self.assertSecurityGroup(supply,
+        ['F-SALEAGT', 'F-SALEMAN', self.user_id], False)
+    self.assertRoles(supply, self.user_id, ['Owner'])
+    self.assertRoles(supply, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(supply, 'F-SALEAGT', ['Assignee'])
+
+
 class TestOpenSaleOrderModule(TestSlapOSGroupRoleSecurityMixin):
   def test_OpenSaleOrderModule(self):
     module = self.portal.open_sale_order_module

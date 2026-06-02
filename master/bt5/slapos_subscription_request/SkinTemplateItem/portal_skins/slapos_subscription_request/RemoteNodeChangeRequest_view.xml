@@ -80,6 +80,7 @@
                       <list>
                         <string>my_title</string>
                         <string>my_reference</string>
+                        <string>my_causality_title</string>
                       </list>
                     </value>
                 </item>

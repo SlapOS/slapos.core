@@ -5,7 +5,7 @@ if REQUEST is not None:
 portal = context.getPortalObject()
 resource = context
 
-if (subscriber_person_value is None) or (subscriber_person_value.getPortalType() != 'Person'):
+if (subscriber_person_value is None) or (subscriber_person_value.getPortalType() not in ('Person', 'Workgroup')):
   raise AssertionError('%s is not a person profile' % subscriber_person_value)
 
 source_project_value = None

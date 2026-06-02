@@ -334,6 +334,53 @@ class TestComputer(SlapformatMixin):
     computer = slapos.format.Computer('computer', instance_root='/instance_root', software_root='software_root')
     self.assertEqual(computer.getAddress(), {'netmask': None, 'addr': None})
 
+  def test_getAddress_no_interface_with_address(self):
+    """When computer is built from a definition file it has addr/netmask but
+    no interface (interface=None).  getAddress() must return the stored address
+    without trying to call interface.getAddress(), which would raise
+    AttributeError: 'NoneType' object has no attribute 'getAddress'.
+    """
+    computer = slapos.format.Computer('computer',
+      instance_root='/instance_root',
+      software_root='/software_root',
+      addr='10.0.129.120',
+      netmask='255.255.255.255')
+    self.assertEqual(computer.getAddress(), {'addr': '10.0.129.120', 'netmask': '255.255.255.255'})
+
+  def test_getAddress_after_parse_computer_definition_no_alter_network(self):
+    """Regression: do_format calls computer.getAddress() after
+    parse_computer_definition.  When alter_network=False the computer has no
+    interface; getAddress() must not raise
+    AttributeError: 'NoneType' object has no attribute 'getAddress'.
+    """
+    import tempfile
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.cfg', delete=False) as f:
+      f.write('[computer]\naddress = 2a01:e35:2e27::1/ffff:ffff:ffff:ffff::\n')
+      def_path = f.name
+    try:
+      conf = FakeConfig()
+      conf.logger = self.logger
+      conf.alter_network = False
+      conf.computer_id = 'COMP-TEST'
+      conf.software_root = '/tmp/sw'
+      conf.instance_root = '/tmp/inst'
+      conf.partition_amount = '0'
+      conf.ipv6_interface = None
+      conf.partition_has_ipv6_range = False
+      conf.tap_gateway_interface = None
+      conf.tap_ipv6 = False
+      conf.create_tun = False
+
+      computer = slapos.format.parse_computer_definition(conf, def_path)
+      self.assertIsNone(computer.interface)
+      # Mirrors the do_format call; must not raise AttributeError
+      address = computer.getAddress()
+      self.assertEqual(address['addr'], '2a01:e35:2e27::1')
+      self.assertEqual(address['netmask'], 'ffff:ffff:ffff:ffff::')
+    finally:
+      os.unlink(def_path)
+
+
   @unittest.skip("Not implemented")
   def test_construct_empty(self):
     computer = slapos.format.Computer('computer', instance_root='/instance_root', software_root='software_root')
@@ -948,6 +995,51 @@ class TestFormatConfig(SlapformatMixin):
     self.assertTrue(conf.alter_user)
 
   # TODO add more tests with config file
+
+
+class TestInterface(SlapformatMixin):
+
+  def test_getAddress_picks_smallest_masklen(self):
+    """getAddress() with no pref_addr must return the address with the smallest
+    masklen (largest subnetwork) regardless of list order."""
+    global INTERFACE_DICT
+    INTERFACE_DICT['myinterface'] = {
+      socket.AF_INET6: [
+        {'addr': '2a01:e35:1234::1', 'netmask': 'ffff:ffff:ffff:ffff:ffff:ffff::'},  # /96
+        {'addr': '2a01:e35:2e27::1', 'netmask': 'ffff:ffff:ffff:ffff::'},             # /64
+        {'addr': '2a01:e35:5678::1', 'netmask': 'ffff:ffff:ffff:ffff:ffff::'},        # /80
+      ]
+    }
+    iface = slapos.format.Interface(
+      logger=self.logger, name='myinterface', ipv4_local_network='127.0.0.1/16')
+    self.assertEqual('2a01:e35:2e27::1', iface.getAddress()['addr'])
+
+  def test_getAddress_prefers_pref_addr_among_same_masklen(self):
+    """getAddress(pref_addr=...) must return the preferred address when two
+    addresses share the same masklen, and fall back to min-masklen otherwise."""
+    global INTERFACE_DICT
+    INTERFACE_DICT['myinterface'] = {
+      socket.AF_INET6: [
+        # two /64 addresses — new one listed first
+        {'addr': '2a01:e35:abcd::1', 'netmask': 'ffff:ffff:ffff:ffff::'},
+        {'addr': '2a01:e35:2e27::1', 'netmask': 'ffff:ffff:ffff:ffff::'},
+      ]
+    }
+    iface = slapos.format.Interface(
+      logger=self.logger, name='myinterface', ipv4_local_network='127.0.0.1/16')
+
+    # With pref_addr the original /64 must be returned even though it is listed second.
+    self.assertEqual('2a01:e35:2e27::1',
+      iface.getAddress(pref_addr='2a01:e35:2e27::1')['addr'])
+
+    # addIPv6Address must keep the partition address derived from that /64;
+    # addr itself is sufficient to identify the right base network.
+    result = iface.addIPv6Address(
+      partition_index=0,
+      addr='2a01:e35:2e27::2',
+      netmask='ffff:ffff:ffff:ffff::')
+    self.assertEqual('2a01:e35:2e27::2', result['addr'])
+    self.assertEqual('ffff:ffff:ffff:ffff::', result['netmask'])
 
 
 class TestCallAndRead(unittest.TestCase):

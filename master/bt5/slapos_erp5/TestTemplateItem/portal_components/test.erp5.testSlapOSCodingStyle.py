@@ -363,14 +363,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_upgrader/SupportRequest_triggerObjectMigrationToVirtualMaster',
         'slapos_upgrader/WebMessage_triggerObjectMigrationToVirtualMaster',
         'slapos_configurator/BusinessConfiguration_runPostUpgradeConsistency',
-        'slapos_configurator/BusinessConfiguration_setupSlapOSMasterStandardBT5',
-        'slapos_workgroup/Workgroup_afterClone',
-        'slapos_workgroup/Workgroup_init',
-        'slapos_workgroup/AssignmentRequest_claimSubscriptionRequestToWorkgroup',
-        'slapos_workgroup/AssignmentRequest_suspendDuplicatedAssignmentRequest',
-        'slapos_workgroup/AssignmentRequest_testNameConflictBeforeSubmit',
-        'slapos_workgroup/Person_getAssigmentPlaceholderEntityUidList',
-        'slapos_workgroup/Project_getUserWorkgroup'
+        'slapos_configurator/BusinessConfiguration_setupSlapOSMasterStandardBT5'
       ]
 
       SlapOSTestCaseMixin.afterSetUp(self)

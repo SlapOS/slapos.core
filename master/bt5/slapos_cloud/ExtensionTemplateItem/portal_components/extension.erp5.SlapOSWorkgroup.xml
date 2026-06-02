@@ -8,7 +8,13 @@
       <dictionary>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>WorkgroupSecurity</string> </value>
+            <value> <string>SlapOSWorkgroup</string> </value>
+        </item>
+        <item>
+            <key> <string>default_source_reference</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -18,7 +24,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>extension.erp5.WorkgroupSecurity</string> </value>
+            <value> <string>extension.erp5.SlapOSWorkgroup</string> </value>
         </item>
         <item>
             <key> <string>sid</string> </key>

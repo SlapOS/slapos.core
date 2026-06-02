@@ -25,7 +25,6 @@ import difflib
 slapos_folder_list = """slapos_erp5
 slapos_upgrader
 slapos_abyss
-slapos_workgroup
 slapos_base
 slapos_json_rpc_api
 slapos_subscription_request
@@ -125,7 +124,8 @@ erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
 erp5_wendelin
-erp5_wendelin_notebook"""
+erp5_wendelin_notebook
+"""
 
 class TestSlaposSkinSelectionMixin(SlapOSTestCaseMixin):
   # Ignore these bt5 as they might be present on development instances
@@ -163,6 +163,7 @@ erp5_web_hal_json
 erp5_web_redirect_assist
 erp5_knowledge_pad
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 %(common2_folder_list)s
@@ -189,6 +190,7 @@ erp5_web_hal_json
 %(slapos_folder_list)s
 erp5_knowledge_pad
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 %(common2_folder_list)s
@@ -227,7 +229,9 @@ erp5_web_hal_json
 erp5_web_renderjs_ui
 %(slapos_folder_list)s
 erp5_knowledge_pad
+erp5_workgroup
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 %(common2_folder_list)s
@@ -254,6 +258,7 @@ erp5_web_hal_json
 erp5_xhtml_disabled
 erp5_knowledge_pad
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 %(common2_folder_list)s
@@ -283,6 +288,7 @@ erp5_web_hal_json
 erp5_commerce_multiflex_layout
 erp5_knowledge_pad
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 %(common2_folder_list)s
@@ -309,6 +315,7 @@ erp5_web_hal_json
 erp5_web_download_theme
 erp5_knowledge_pad
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 %(common2_folder_list)s
@@ -335,6 +342,7 @@ erp5_web_hal_json
 %(slapos_folder_list)s
 erp5_knowledge_pad
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 erp5_ods_style
@@ -361,6 +369,7 @@ erp5_web_hal_json
 %(slapos_folder_list)s
 erp5_knowledge_pad
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 erp5_odt_style
@@ -389,6 +398,7 @@ slapos_rss_style
 erp5_rss_style
 erp5_knowledge_pad
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 %(common2_folder_list)s
@@ -416,6 +426,7 @@ erp5_web_shadir
 erp5_web_download_theme
 erp5_knowledge_pad
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 %(common2_folder_list)s
@@ -444,6 +455,7 @@ erp5_web_shacache
 erp5_web_download_theme
 erp5_knowledge_pad
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 %(common2_folder_list)s
@@ -472,6 +484,7 @@ erp5_web_renderjs_ui
 %(slapos_folder_list)s
 erp5_knowledge_pad
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 %(common2_folder_list)s
@@ -500,6 +513,7 @@ erp5_web_hal_json
 %(slapos_folder_list)s
 erp5_knowledge_pad
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 %(common2_folder_list)s
@@ -527,6 +541,7 @@ erp5_slideshow_style
 slapos_configurator
 erp5_knowledge_pad
 erp5_simulation
+erp5_workgroup
 erp5_dms_base
 erp5_dms_web
 %(common2_folder_list)s

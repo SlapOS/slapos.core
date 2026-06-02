@@ -28,7 +28,6 @@ from AccessControl.SecurityManagement import getSecurityManager, \
              setSecurityManager, newSecurityManager
 from AccessControl import Unauthorized
 
-
 def isPersonFromWorkgroup(self, person, workgroup):
   """
   Get list of local roles for user.

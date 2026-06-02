@@ -2,7 +2,6 @@ Accounting Transaction | local_permission_slapos_interaction_workflow
 Acknowledgement | local_permission_slapos_interaction_workflow
 Allocation Supply | local_permission_slapos_interaction_workflow
 Assignment Request | local_permission_slapos_interaction_workflow
-Assignment Request | slapos_workgroup_interaction_workflow
 Balance Transaction | local_permission_slapos_interaction_workflow
 Compute Node | local_permission_slapos_interaction_workflow
 Compute Node | slapos_erp5_interaction_workflow

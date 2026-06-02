@@ -25,7 +25,6 @@ import difflib
 slapos_folder_list = """slapos_erp5
 slapos_upgrader
 slapos_abyss
-slapos_workgroup
 slapos_base
 slapos_json_rpc_api
 slapos_subscription_request
@@ -125,7 +124,8 @@ erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
 erp5_wendelin
-erp5_wendelin_notebook"""
+erp5_wendelin_notebook
+erp5_workgroup"""
 
 class TestSlaposSkinSelectionMixin(SlapOSTestCaseMixin):
   # Ignore these bt5 as they might be present on development instances

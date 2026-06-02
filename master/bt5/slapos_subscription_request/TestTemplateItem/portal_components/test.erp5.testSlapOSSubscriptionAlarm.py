@@ -81,7 +81,14 @@ class TestSlapOSSubscriptionRequestProcessAlarm(SlapOSTestCaseMixin):
     self._test_alarm_slapos_subscription_request_create_from_orphaned_item("Instance Tree")
 
   def test_Item_createSubscriptionRequest_alarm_fromOrphanedComputeNode(self):
-    self._test_alarm_slapos_subscription_request_create_from_orphaned_item("Compute Node")
+    portal_type = 'Compute Node'
+    script_name = "Item_createSubscriptionRequest"
+    alarm = self.portal.portal_alarms.slapos_subscription_request_create_from_orphaned_item
+    document = self.portal.getDefaultModule(portal_type).newContent(
+        portal_type=portal_type,
+        title="Test %s no subscription %s" % (portal_type, self.new_id)
+    )
+    self._test_alarm_not_visited(alarm, document, script_name)
 
   def test_Item_createSubscriptionRequest_alarm_fromOrphanedProject(self):
     portal_type = 'Project'

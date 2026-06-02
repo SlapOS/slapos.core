@@ -22,10 +22,10 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Ensure no unexpected object has been created
     # 2 assignment request
     # 2 assignment
-    # 2 sale supply + line
-    # 2 sale trade condition
+    # 1 sale supply + line
+    # 1 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 9)
+    self.assertRelatedObjectCount(project, 7)
 
     self.assertFalse(owner_person.Entity_hasOutstandingAmount(include_planned=True))
     self.assertFalse(owner_person.Entity_hasOutstandingAmount())
@@ -79,11 +79,11 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 open order
     # 2 assignment
     # 4 simulation movements
-    # 2 sale supply + line
+    # 1 sale supply + line
     # 2 sale packing list
-    # 2 sale trade condition
+    # 1 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 18)
+    self.assertRelatedObjectCount(project, 16)
 
     with PinnedDateTime(self, DateTime('2024/07/05')):
       self.portal.portal_alarms.update_open_order_simulation.activeSense()
@@ -104,11 +104,11 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 open order
     # 2 assignment
     # 10 simulation movements
-    # 2 sale supply + line
+    # 1 sale supply + line
     # 5 sale packing list
-    # 2 sale trade condition
+    # 1 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 30)
+    self.assertRelatedObjectCount(project, 28)
 
     # Try to pay previous period
     with PinnedDateTime(self, DateTime('2024/07/06')):
@@ -135,7 +135,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertEqual(amount_list[0].total_price, 50.4)
       self.assertTrue(first_invoice.SaleInvoiceTransaction_isLettered())
       # Ensure no unexpected object has been created
-      self.assertRelatedObjectCount(project, 30)
+      self.assertRelatedObjectCount(project, 28)
 
       payment_tag = "Entity_createPaymentTransaction_%s" % owner_person.getUid()
       owner_person.REQUEST.set(payment_tag, None)
@@ -159,7 +159,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       amount_list = owner_person.Entity_getOutstandingAmountList()
       self.assertEqual(len(amount_list), 0)
       # Ensure no unexpected object has been created
-      self.assertRelatedObjectCount(project, 30)
+      self.assertRelatedObjectCount(project, 28)
 
     with PinnedDateTime(self, DateTime('2024/07/06')):
       self.checkERP5StateBeforeExit()
@@ -185,10 +185,6 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
         portal_type='Sale Supply',
         source_project__uid=project.getUid()
       )
-      sale_supply.searchFolder(
-        portal_type='Sale Supply Line',
-        resource__relative_url="service_module/slapos_compute_node_subscription"
-      )[0].edit(base_price=7)
       sale_supply.newContent(
         portal_type="Sale Supply Line",
         base_price=6,
@@ -199,11 +195,11 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Ensure no unexpected object has been created
     # 2 assignment request
     # 2 assignment
-    # 2 sale trade condition
-    # 1 subscription requests
+    # 2 sale supply + lines
+    # 1 sale trade condition
     # 1 software product
-    # 3 sale supply + lines
-    self.assertRelatedObjectCount(project, 11)
+    # 1 subscription requests
+    self.assertRelatedObjectCount(project, 9)
 
     ##################################################
     # Create other users
@@ -268,13 +264,12 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       # Execute activities for all services
       # To try detection bad activity tag dependencies
       self.tic()
-      # 1 invoice for the compute node
       # per user:
       # 1 monthly invoice for products
       self.assertEqual(self.portal.portal_catalog.countResults(
         portal_type='Sale Invoice Transaction',
         source_project__uid=project.getUid()
-      )[0][0], 1 + len(person_list))
+      )[0][0], len(person_list))
 
     ##################################################
     # Add new batch of service, which must be aggregated on the
@@ -297,7 +292,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertEqual(self.portal.portal_catalog.countResults(
         portal_type='Sale Invoice Transaction',
         source_project__uid=project.getUid()
-      )[0][0], 1 + len(person_list))
+      )[0][0], len(person_list))
 
     ##################################################
     # Ensure new monthly invoices are created
@@ -308,7 +303,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       self.assertEqual(self.portal.portal_catalog.countResults(
         portal_type='Sale Invoice Transaction',
         source_project__uid=project.getUid()
-      )[0][0], (1 + len(person_list)) * 3)
+      )[0][0], (len(person_list)) * 3)
 
     with PinnedDateTime(self, creation_date + 5):
       self.checkERP5StateBeforeExit()
@@ -325,10 +320,10 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Ensure no unexpected object has been created
     # 2 assignment request
     # 2 assignment
-    # 2 sale supply + line
-    # 2 sale trade condition
+    # 1 sale supply + line
+    # 1 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 9)
+    self.assertRelatedObjectCount(project, 7)
 
     ##################################################
     # Add deposit (0.1 to prevent discount generation)
@@ -373,11 +368,11 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
       # 1 open order
       # 2 assignment
       # 4 simulation movements
-      # 2 sale supply + line
+      # 1 sale supply + line
       # 2 sale packing lists
-      # 2 sale trade condition
+      # 1 sale trade condition
       # 1 subscription requests
-      self.assertRelatedObjectCount(project, 18)
+      self.assertRelatedObjectCount(project, 16)
 
       self.checkERP5StateBeforeExit()
 
@@ -392,10 +387,10 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Ensure no unexpected object has been created
     # 2 assignment request
     # 2 assignment
-    # 2 sale supply + line
-    # 2 sale trade condition
+    # 1 sale supply + line
+    # 1 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 9)
+    self.assertRelatedObjectCount(project, 7)
 
     self.assertFalse(owner_person.Entity_hasOutstandingAmount(include_planned=True))
     self.assertFalse(owner_person.Entity_hasOutstandingAmount())
@@ -450,11 +445,11 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 open order
     # 4 assignment
     # 2 simulation movements
-    # 2 sale supply + line
+    # 1 sale supply + line
     # 2 sale packing list
-    # 2 sale trade condition
+    # 1 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 18)
+    self.assertRelatedObjectCount(project, 16)
 
     with PinnedDateTime(self, addToDate(creation_date, to_add={'day': 17})):
       # invalidate the product, in order to stop the subscription
@@ -479,11 +474,11 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 open order
     # 4 assignment
     # 2 simulation movements
-    # 2 sale supply + line
+    # 1 sale supply + line
     # 2 sale packing list
-    # 2 sale trade condition
+    # 1 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 18)
+    self.assertRelatedObjectCount(project, 16)
 
     self.logout()
     self.login(accountant_person.getUserId())
@@ -516,7 +511,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
                                    .contentValues(portal_type='Accounting Transaction Line'):
       self.assertTrue(line.hasGroupingReference(), line.getRelativeUrl())
     # Ensure no unexpected object has been created
-    self.assertRelatedObjectCount(project, 18)
+    self.assertRelatedObjectCount(project, 16)
     # Check remaining deposit (42 - 24.192)
     self.assertAlmostEqual(owner_person.Entity_getDepositBalanceAmount([subscription_request]), 17.808)
 
@@ -535,10 +530,10 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Ensure no unexpected object has been created
     # 2 assignment request
     # 2 assignment
-    # 2 sale supply + line
-    # 2 sale trade condition
+    # 1 sale supply + line
+    # 1 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 9)
+    self.assertRelatedObjectCount(project, 7)
 
     self.assertFalse(owner_person.Entity_hasOutstandingAmount(include_planned=True))
     self.assertFalse(owner_person.Entity_hasOutstandingAmount())
@@ -593,11 +588,11 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 open order
     # 2 assignment
     # 4 simulation movements
-    # 2 sale supply + line
-    # 1 sale packing list
-    # 2 sale trade condition
+    # 2 sale packing list
+    # 1 sale supply + line
+    # 1 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 18)
+    self.assertRelatedObjectCount(project, 16)
 
     with PinnedDateTime(self, addToDate(creation_date, to_add={'day': 16})):
       # invalidate the product, in order to stop the subscription
@@ -617,16 +612,16 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
     self.assertAlmostEqual(amount_list[0].total_price, 48.888)
     self.assertEqual(first_invoice.getSimulationState(), "stopped")
     # Ensure no unexpected object has been created
-    # 2 accounting transactions
+    # 2 accounting transaction
     # 2 assignment request
     # 1 open order
     # 2 assignment
     # 4 simulation movements
-    # 2 sale supply + line
     # 2 sale packing list
-    # 2 sale trade condition
+    # 1 sale supply + line
+    # 1 sale trade condition
     # 1 subscription requests
-    self.assertRelatedObjectCount(project, 18)
+    self.assertRelatedObjectCount(project, 16)
 
     self.logout()
     self.login(accountant_person.getUserId())
@@ -660,7 +655,7 @@ class TestSlapOSAccountingScenario(TestSlapOSVirtualMasterScenarioMixin):
                                    .contentValues(portal_type='Accounting Transaction Line'):
       self.assertTrue(line.hasGroupingReference(), line.getRelativeUrl())
     # 2 partial mirror transaction have been created
-    self.assertRelatedObjectCount(project, 20)
+    self.assertRelatedObjectCount(project, 18)
     # Check remaining deposit
     self.assertAlmostEqual(owner_person.Entity_getDepositBalanceAmount([subscription_request]), 0)
 

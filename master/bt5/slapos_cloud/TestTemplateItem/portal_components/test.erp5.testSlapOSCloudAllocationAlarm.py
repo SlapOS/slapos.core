@@ -741,6 +741,17 @@ class TestSlapOSAllocation(SlapOSTestCaseMixin):
     self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
 
+    # Ensure instance without capability are not allocated on
+    # partition with a capability
+    software_instance.SoftwareInstance_tryToAllocatePartition()
+    try:
+      allocated_partition = software_instance.getAggregate(
+          portal_type='Compute Partition')
+      self.assertEqual(None, allocated_partition)
+    except AssertionError:
+      raise AssertionError("Allocated instance without sla on %s with capability %s" % (
+          allocated_partition, capability))
+
     for bad_capability in bad_capability_list:
       software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
           <instance>

@@ -10,6 +10,7 @@
             <key> <string>delegated_list</string> </key>
             <value>
               <list>
+                <string>first_item</string>
                 <string>items</string>
                 <string>required</string>
                 <string>title</string>
@@ -55,6 +56,10 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>first_item</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>form_id</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -63,6 +68,10 @@
                     <value>
                       <persistent> <bytes encoding="base64">AAAAAAAAAAI=</bytes> </persistent>
                     </value>
+                </item>
+                <item>
+                    <key> <string>required</string> </key>
+                    <value> <string></string> </value>
                 </item>
                 <item>
                     <key> <string>title</string> </key>
@@ -78,6 +87,10 @@
                 <item>
                     <key> <string>field_id</string> </key>
                     <value> <string>my_dialog_mode_category</string> </value>
+                </item>
+                <item>
+                    <key> <string>first_item</string> </key>
+                    <value> <int>1</int> </value>
                 </item>
                 <item>
                     <key> <string>form_id</string> </key>
@@ -111,7 +124,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: here.Ticket_getResourceItemList(portal_type="Support Request", include_context=False)</string> </value>
+            <value> <string>python: here.Ticket_getResourceItemList(portal_type="Support Request", include_context=False, empty_item=False)</string> </value>
         </item>
       </dictionary>
     </pickle>

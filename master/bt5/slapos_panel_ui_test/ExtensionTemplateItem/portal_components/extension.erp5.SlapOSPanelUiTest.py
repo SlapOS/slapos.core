@@ -194,7 +194,6 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
       project = manager_person.Person_addVirtualMaster(
         project_title,
         scenario == 'accounting',
-        scenario == 'accounting',
         currency.getRelativeUrl(),
         batch=1)
 
@@ -236,7 +235,6 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
       if scenario == 'customer_remote':
         remote_project = customer_person.Person_addVirtualMaster(
           'Test Remote Project',
-          scenario == 'accounting',
           scenario == 'accounting',
           currency.getRelativeUrl(),
           batch=1)

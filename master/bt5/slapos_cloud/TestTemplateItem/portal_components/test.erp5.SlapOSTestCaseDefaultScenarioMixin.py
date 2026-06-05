@@ -649,6 +649,18 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       "Not found subscription request for %s" % service.getRelativeUrl())
     return subscription_request
 
+  def checkServiceOpenInternalOrder(self, service):
+    self.login()
+
+    open_order_line = self.portal.portal_catalog.getResultValue(
+      portal_type="Open Internal Order Line",
+      aggregate__uid=service.getUid(),
+      parent__simulation_state='validated'
+    )
+    self.assertNotEqual(open_order_line, None,
+      "Not found internal open order for %s" % service.getRelativeUrl())
+    return open_order_line.getParentValue()
+
   def checkInstanceAllocation(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server,
       project_reference):

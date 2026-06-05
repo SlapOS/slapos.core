@@ -63,6 +63,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_cloud/ComputeNode_invalidateIfEmpty',
         'slapos_cloud/AllocationSupplyCell_asPredicate',
         'slapos_cloud/AllocationSupplyLine_asPredicate',
+        'slapos_cloud/AllocationSupply_invalidateIfInconsistent',
         'slapos_cloud/InstanceTree_getDefaultImageAbsoluteUrl',
         'slapos_cloud/InstanceTree_getSoftwareProduct',
         'slapos_cloud/InstanceTree_requestParameterChange',

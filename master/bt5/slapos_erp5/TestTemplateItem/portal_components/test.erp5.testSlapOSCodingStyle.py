@@ -220,6 +220,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel_compatibility/Base_getComputerToken',
         'slapos_panel_compatibility/Person_requestComputer',
         'slapos_panel/AllocationSupply_invalidateComputeNodeList',
+        'slapos_panel/AllocationSupply_switchPrivacy',
         'slapos_panel/AllocationSupply_validateAndSupplyComputeNodeList',
         'slapos_panel/Base_addSlapOSSupportRequest',
         'slapos_panel/Base_getAuthenticatedPersonUid',

@@ -124,7 +124,8 @@ erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
 erp5_wendelin
-erp5_wendelin_notebook"""
+erp5_wendelin_notebook
+erp5_workgroup"""
 
 class TestSlaposSkinSelectionMixin(SlapOSTestCaseMixin):
   # Ignore these bt5 as they might be present on development instances

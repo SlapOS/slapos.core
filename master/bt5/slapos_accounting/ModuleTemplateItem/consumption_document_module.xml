@@ -1,6 +1,6 @@
 <module>
  <category_list>
-  <category>business_application/slapos</category>
+  <category>business_application/consumption</category>
  </category_list>
  <id>consumption_document_module</id>
  <permission_list>

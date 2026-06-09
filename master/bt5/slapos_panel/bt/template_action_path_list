@@ -2,6 +2,7 @@ Accounting Transaction Module | pay_my_slapos_sale_invoice_transaction
 Accounting Transaction Module | slapos_panel_view_my_invoice_list
 Allocation Supply Line | slapos_panel_view
 Allocation Supply Module | slapos_panel_view
+Allocation Supply | slapos_panel_switch_private
 Allocation Supply | slapos_panel_view
 Allocation Supply | slapos_panel_workflow_fast_invalidate
 Allocation Supply | slapos_panel_workflow_validate_and_supply

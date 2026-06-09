@@ -18,6 +18,13 @@ for compute_node in allocation_supply.getAggregateValueList(portal_type="Compute
       state='available'
     )
 
+# Keep installation event if consistency is not good
+# to not wait to compile
+if len(allocation_supply.checkConsistency()) != 0:
+  return allocation_supply.Base_redirect(keep_items={
+    'portal_status_level': 'error',
+    'portal_status_message': str(allocation_supply.checkConsistency()[0].getMessage())
+  })
 allocation_supply.validate()
 
 return allocation_supply.Base_redirect(

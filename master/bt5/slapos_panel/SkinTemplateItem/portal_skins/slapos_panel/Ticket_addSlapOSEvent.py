@@ -11,8 +11,13 @@ if int(REQUEST.getHeader('Content-Length', 0)) > 3145728:
   REQUEST.RESPONSE.setStatus(413)
   return ""
 
-if person_relative_url == ticket.getDestination():
+event_kw = {}
+if person_relative_url == ticket.getDestination(portal_type='Person'):
   direction = 'incoming'
+elif ticket.getDestination(portal_type="Workgroup"):
+  direction = 'incoming'
+  # Destination is preserved as Workgroup.
+  event_kw['destination'] = ticket.getDestination(portal_type="Workgroup")
 else:
   direction = 'outgoing'
 
@@ -25,7 +30,8 @@ event = ticket.Ticket_createProjectEvent(
   text_content=text_content,
   content_type='text/plain',
   attachment=attachment,
-  source=person_relative_url
+  source=person_relative_url,
+  **event_kw
 )
 
 if ticket.getPortalType() == 'Support Request':

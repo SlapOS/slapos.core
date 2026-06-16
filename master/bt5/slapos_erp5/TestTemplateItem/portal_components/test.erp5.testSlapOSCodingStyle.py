@@ -225,6 +225,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/Base_getNewsDictFromComputeNodeList',
         'slapos_panel/Base_getPaymentModeForCurrency',
         'slapos_panel/Base_getStatusMonitorUrl',
+        'slapos_panel/Base_validateRequestBodySize',
         'slapos_panel/CertificateLogin_invalidateOnSlaposPanel',
         'slapos_panel/ComputeNode_confirmManualDestruction',
         'slapos_panel/ComputeNode_requestCertificate',

@@ -378,7 +378,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
     self.assertNotEqual(event_ud, None)
     self.changeSkin('RSS')
     open_ticket_list = web_site.WebSection_getEventList()
-    self.assertEqual(len(open_ticket_list), 2)
+    self.assertEqual(len(open_ticket_list), 3)
 
     self.login()
     upgrade_decision.plan()
@@ -387,7 +387,7 @@ class TestSlapOSWebSection_getEventList(TestRSSSyleSkinsMixin):
 
     self.changeSkin('RSS')
     open_ticket_list = web_site.WebSection_getEventList()
-    self.assertEqual(len(open_ticket_list), 2)
+    self.assertEqual(len(open_ticket_list), 3)
 
     self.login()
     upgrade_decision.confirm()

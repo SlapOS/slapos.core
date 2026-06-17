@@ -49,33 +49,22 @@ def getTicketInfo(event, web_site):
 follow_up_portal_type = ['Support Request', 'Regularisation Request',
                          'Upgrade Decision', 'Subscription Request']
 
-follow_up_simulation_state = [
-  'validated','submitted', 'suspended', 'invalidated',
-  # Unfortunally Upgrade decision uses diferent states.
-  'confirmed', 'started', 'stopped', 'delivered'
-]
-
 data_list = []
-for brain in portal.portal_simulation.getMovementHistoryList(
-    security_query=portal.portal_catalog.getSecurityQuery(),
+for brain in portal.portal_catalog(
     # Limit only to listable portal types
     portal_type=['Web Message', 'Mail Message'],
-    # Prevent getting the same event twice in the result
-    group_by_list=['uid'],
-    only_accountable=False,
     simulation_state=('started', 'stopped', 'delivered'),
     limit=list_lines,
-    sort_on=(('stock.date', 'desc'),
+    sort_on=(('delivery.start_date', 'desc'),
              ('uid', 'desc')),
-    follow_up__simulation_state=follow_up_simulation_state,
     follow_up__portal_type=follow_up_portal_type,
     # Limit the number of checked entries
     # to speed up the sorting
     # 1 month, because some tickets are automatically closed after 1 month
     **{
-      'stock.date': SimpleQuery(
-        indexation_timestamp=addToDate(now, {'month': -1}),
-        comparison_operator=">="
+      'delivery.start_date': SimpleQuery(
+        comparison_operator=">=",
+        **{'delivery.start_date': addToDate(now, {'month': -1})}
       )
     }
 ):

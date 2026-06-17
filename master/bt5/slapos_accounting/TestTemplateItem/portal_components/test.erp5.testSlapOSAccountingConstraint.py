@@ -6,8 +6,6 @@
 ##############################################################################
 from erp5.component.test.testSlapOSCloudConstraint import TestSlapOSConstraintMixin
 from Products.ERP5Type.Base import WorkflowMethod
-from unittest import skip
-
 import transaction
 
 
@@ -277,20 +275,24 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
         price=1.)
     self.assertNotIn(message, self.getMessageList(invoice))
 
+
 class TestSalePackingList(TestSlapOSConstraintMixin):
+  _portal_type = 'Sale Packing List'
+  _line_portal_type = 'Sale Packing List Line'
+
   def test_lines(self):
     message = 'Sale Packing List Line is not defined'
-    delivery = self.portal.sale_packing_list_module.newContent(
-        portal_type='Sale Packing List')
+    delivery = self.portal.getDefaultModule(self._portal_type).newContent(
+        portal_type=self._portal_type)
 
     self.assertIn(message, self.getMessageList(delivery))
-    delivery.newContent(portal_type='Sale Packing List Line')
+    delivery.newContent(portal_type=self._line_portal_type)
     self.assertNotIn(message, self.getMessageList(delivery))
 
   def test_reference_not_empty(self):
     message = 'Reference must be defined'
-    delivery = self.portal.sale_packing_list_module.newContent(
-        portal_type='Sale Packing List')
+    delivery = self.portal.getDefaultModule(self._portal_type).newContent(
+        portal_type=self._portal_type)
 
     self.assertNotIn(message, self.getMessageList(delivery))
     delivery.setReference(None)
@@ -298,8 +300,8 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
 
   def test_price_currency(self):
     message = 'Exactly one Currency shall be selected'
-    delivery = self.portal.sale_packing_list_module.newContent(
-        portal_type='Sale Packing List')
+    delivery = self.portal.getDefaultModule(self._portal_type).newContent(
+        portal_type=self._portal_type)
     self.assertIn(message, self.getMessageList(delivery))
 
     resource = self.portal.service_module.newContent(portal_type='Service')
@@ -320,8 +322,8 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
         "'Person'), arity is equal to 0 but should be between 1 and 1" % category
     message_2 = "Arity Error for Relation ['%s'] and Type ('Organisation', "\
         "'Person'), arity is equal to 2 but should be between 1 and 1" % category
-    delivery = self.portal.sale_packing_list_module.newContent(
-        portal_type='Sale Packing List')
+    delivery = self.portal.getDefaultModule(self._portal_type).newContent(
+        portal_type=self._portal_type)
     resource = self.portal.service_module.newContent(
         portal_type='Service').getRelativeUrl()
     person = self.portal.person_module.newContent(
@@ -360,8 +362,8 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
         "',), arity is equal to 0 but should be between 1 and 1" % category
     message_2 = "Arity Error for Relation ['%s'] and Type ('Sale Trade Condition"\
         "',), arity is equal to 2 but should be between 1 and 1" % category
-    delivery = self.portal.sale_packing_list_module.newContent(
-        portal_type='Sale Packing List')
+    delivery = self.portal.getDefaultModule(self._portal_type).newContent(
+        portal_type=self._portal_type)
     resource = self.portal.service_module.newContent(
         portal_type='Service').getRelativeUrl()
     stc_1 = self.portal.sale_trade_condition_module.newContent(
@@ -381,18 +383,21 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
 
   def test_start_date(self):
     message = 'Property start_date must be defined'
-    delivery = self.portal.sale_packing_list_module.newContent(
-        portal_type='Sale Packing List')
+    delivery = self.portal.getDefaultModule(self._portal_type).newContent(
+        portal_type=self._portal_type)
     self.assertIn(message, self.getMessageList(delivery))
     delivery.setStartDate('2012/01/01')
     self.assertNotIn(message, self.getMessageList(delivery))
 
 class TestSalePackingListLine(TestSlapOSConstraintMixin):
+  _portal_type = 'Sale Packing List'
+  _line_portal_type = 'Sale Packing List Line'
+
   def test_property_existence(self):
     message_quantity = 'No quantity defined'
-    delivery_line = self.portal.sale_packing_list_module.newContent(
-        portal_type='Sale Packing List').newContent(
-        portal_type='Sale Packing List Line')
+    delivery_line = self.portal.getDefaultModule(self._portal_type).newContent(
+        portal_type=self._portal_type).newContent(
+        portal_type=self._line_portal_type)
     self.assertIn(message_quantity, self.getMessageList(delivery_line))
     delivery_line.setQuantity(1.0)
     self.assertNotIn(message_quantity, self.getMessageList(delivery_line))
@@ -403,9 +408,9 @@ class TestSalePackingListLine(TestSlapOSConstraintMixin):
         " equal to 0 but should be between 1 and 1" % category
     message_2 = "Arity Error for Relation ['%s'] and Type ('Data Operation', 'Service', 'Software Product'), arity is"\
         " equal to 2 but should be between 1 and 1" % category
-    delivery_line = self.portal.sale_packing_list_module.newContent(
-        portal_type='Sale Packing List').newContent(
-        portal_type='Sale Packing List Line')
+    delivery_line = self.portal.getDefaultModule(self._portal_type).newContent(
+        portal_type=self._portal_type).newContent(
+        portal_type=self._line_portal_type)
     product = self.portal.product_module.newContent(
         portal_type='Product').getRelativeUrl()
     service_1 = self.portal.service_module.newContent(
@@ -423,69 +428,128 @@ class TestSalePackingListLine(TestSlapOSConstraintMixin):
     self.assertNotIn(message, self.getMessageList(delivery_line))
     self.assertNotIn(message_2, self.getMessageList(delivery_line))
 
-class TestSalePackingListLineConsumption(TestSlapOSConstraintMixin):
-  def _test_aggregate(self, message, aggregate_1, aggregate_2):
-    category = 'aggregate'
-    delivery = self.portal.sale_packing_list_module.newContent(
-        portal_type='Sale Packing List')
-    delivery_line = delivery.newContent(portal_type='Sale Packing List Line')
-    product = self.portal.product_module.newContent(
-        portal_type='Product').getRelativeUrl()
+
+class TestConsumptionInternalPackingList(TestSalePackingList):
+  _portal_type = 'Internal Packing List'
+  _line_portal_type = 'Internal Packing List Line'
+
+  def test_lines(self):
+    message = 'Internal Packing List Line is not defined'
+    delivery = self.portal.getDefaultModule(self._portal_type).newContent(
+        portal_type=self._portal_type)
+
+    self.assertIn(message, self.getMessageList(delivery))
+    delivery.newContent(portal_type=self._line_portal_type)
+    self.assertNotIn(message, self.getMessageList(delivery))
+
+  def test_price_currency(self):
+    message = 'No Currency shall be selected'
+    delivery = self.portal.getDefaultModule(self._portal_type).newContent(
+        portal_type=self._portal_type)
+    self.assertNotIn(message, self.getMessageList(delivery))
+
+    resource = self.portal.service_module.newContent(portal_type='Service')
+    delivery.setPriceCurrency(resource.getRelativeUrl())
+    self.assertNotIn(message, self.getMessageList(delivery))
+
+    currency_1 = self.portal.currency_module.newContent(portal_type='Currency')
+    currency_2 = self.portal.currency_module.newContent(portal_type='Currency')
+    delivery.setPriceCurrencyList([currency_1.getRelativeUrl(),
+      currency_2.getRelativeUrl()])
+    self.assertIn(message, self.getMessageList(delivery))
+
+    delivery.setPriceCurrency(currency_1.getRelativeUrl())
+    self.assertIn(message, self.getMessageList(delivery))
+
+  def _test_category_arrow(self, category):
+    message = "Arity Error for Relation ['%s'] and Type ('Organisation',"\
+        "), arity is equal to 0 but should be between 1 and 1" % category
+    delivery = self.portal.getDefaultModule(self._portal_type).newContent(
+        portal_type=self._portal_type)
+    resource = self.portal.service_module.newContent(
+        portal_type='Service').getRelativeUrl()
+    person = self.portal.person_module.newContent(
+        portal_type='Person').getRelativeUrl()
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation').getRelativeUrl()
 
     key = '%s_list' % category
-    self.assertNotIn(message, self.getMessageList(delivery_line))
-    delivery.edit(specialise='sale_trade_condition_module/slapos_consumption_trade_condition')
-    self.assertIn(message, self.getMessageList(delivery_line))
-    delivery_line.edit(**{key: [product]})
-    self.assertIn(message, self.getMessageList(delivery_line))
-    delivery_line.edit(**{key: [aggregate_1, aggregate_2]})
-    self.assertIn(message, self.getMessageList(delivery_line))
-    delivery_line.edit(**{key: [aggregate_1]})
-    self.assertNotIn(message, self.getMessageList(delivery_line))
+    self.assertIn(message, self.getMessageList(delivery))
+    delivery.edit(**{key: [resource]})
+    self.assertIn(message, self.getMessageList(delivery))
+    delivery.edit(**{key: [person]})
+    self.assertIn(message, self.getMessageList(delivery))
+    delivery.edit(**{key: [organisation]})
+    self.assertNotIn(message, self.getMessageList(delivery))
 
-  def test_aggregate_instance_tree(self):
-    self._test_aggregate("There should be one Instance Tree related",
-      self.portal.instance_tree_module.newContent(
-        portal_type='Instance Tree').getRelativeUrl(),
-      self.portal.instance_tree_module.newContent(
-        portal_type='Instance Tree').getRelativeUrl())
+  def _test_no_category_arrow(self, category):
+    message = "Arity Error for Relation ['%s']"\
+        ", arity is equal to 1 but should be between 0 and 0" % category
+    delivery = self.portal.getDefaultModule(self._portal_type).newContent(
+        portal_type=self._portal_type)
+    resource = self.portal.service_module.newContent(
+        portal_type='Service').getRelativeUrl()
+    person = self.portal.person_module.newContent(
+        portal_type='Person').getRelativeUrl()
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation').getRelativeUrl()
 
-  def test_aggregate_software_instance(self):
-    self._test_aggregate("There should be one Software or Slave Instance related",
-      self.portal.software_instance_module.newContent(
-        portal_type='Software Instance').getRelativeUrl(),
-      self.portal.software_instance_module.newContent(
-        portal_type='Software Instance').getRelativeUrl())
-    self._test_aggregate("There should be one Software or Slave Instance related",
-      self.portal.software_instance_module.newContent(
-        portal_type='Slave Instance').getRelativeUrl(),
-      self.portal.software_instance_module.newContent(
-        portal_type='Slave Instance').getRelativeUrl())
+    key = '%s_list' % category
+    self.assertNotIn(message, self.getMessageList(delivery))
+    delivery.edit(**{key: [resource]})
+    self.assertIn(message, self.getMessageList(delivery))
+    delivery.edit(**{key: [person]})
+    self.assertIn(message, self.getMessageList(delivery))
+    delivery.edit(**{key: [organisation]})
+    self.assertIn(message, self.getMessageList(delivery))
 
-class TestSalePackingListConsumption(TestSlapOSConstraintMixin):
-  @skip('Not critical')
-  def test(self):
-    raise NotImplementedError
+  def test_destination(self):
+    self._test_category_arrow('destination')
 
-class TestSalePackingListLineSubscription(TestSlapOSConstraintMixin):
-  @skip('Not critical')
-  def test(self):
-    raise NotImplementedError
+  def test_destination_section(self):
+    self._test_no_category_arrow('destination_section')
 
-class TestSalePackingListLineAggregated(TestSlapOSConstraintMixin):
-  @skip('Not critical')
-  def test(self):
-    raise NotImplementedError
+  def test_destination_decision(self):
+    self._test_no_category_arrow('destination_decision')
 
-class TestSalePackingListSubscription(TestSlapOSConstraintMixin):
-  @skip('Not critical')
-  def test(self):
-    raise NotImplementedError
+  def test_source(self):
+    self._test_no_category_arrow('source')
 
-class TestSalePackingListAggregated(TestSlapOSConstraintMixin):
-  @skip('Not critical')
-  def test(self):
-    raise NotImplementedError
+  def test_source_section(self):
+    self._test_no_category_arrow('source_section')
+
+  def test_specialise(self):
+    category = 'specialise'
+    message = "Arity Error for Relation ['%s'] and Type ('Business Process"\
+        "',), arity is equal to 0 but should be between 1 and 1" % category
+    message_2 = "Arity Error for Relation ['%s'] and Type ('Business Process"\
+        "',), arity is equal to 2 but should be between 1 and 1" % category
+    delivery = self.portal.getDefaultModule(self._portal_type).newContent(
+        portal_type=self._portal_type)
+    resource = self.portal.service_module.newContent(
+        portal_type='Service').getRelativeUrl()
+    stc_1 = self.portal.sale_trade_condition_module.newContent(
+        portal_type='Sale Trade Condition').getRelativeUrl()
+    stc_2 = self.portal.sale_trade_condition_module.newContent(
+        portal_type='Sale Trade Condition').getRelativeUrl()
+
+    key = '%s_list' % category
+    self.assertIn(message, self.getMessageList(delivery))
+    delivery.edit(**{key: [resource]})
+    self.assertIn(message, self.getMessageList(delivery))
+    delivery.edit(**{key: [stc_1, stc_2]})
+    self.assertNotIn(message_2, self.getMessageList(delivery))
+    delivery.edit(**{key: [stc_1]})
+    self.assertIn(message, self.getMessageList(delivery))
+    self.assertNotIn(message_2, self.getMessageList(delivery))
+    delivery.edit(**{key: ['business_process_module/slapos_internal_subscription_business_process']})
+    self.assertNotIn(message, self.getMessageList(delivery))
+    self.assertNotIn(message_2, self.getMessageList(delivery))
+
+
+class TestConsumptionInternalPackingListLine(TestSalePackingListLine):
+  _portal_type = 'Internal Packing List'
+  _line_portal_type = 'Internal Packing List Line'
 
 
 class TestSaleTradeConditionConsumption(TestSlapOSConstraintMixin):

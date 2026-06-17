@@ -42,10 +42,6 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
         portal_type='Sale Supply',
         source_project__uid=project.getUid()
       )
-      sale_supply.searchFolder(
-        portal_type='Sale Supply Line',
-        resource__relative_url="service_module/slapos_compute_node_subscription"
-      )[0].edit(base_price=7)
       # Create supply to buy services
       sale_supply.newContent(
         portal_type="Sale Supply Line",
@@ -57,11 +53,11 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
     # Ensure no unexpected object has been created
     # 2 assignment request
     # 2 assignment
-    # 2 sale trade condition
+    # 1 sale trade condition
     # 1 subscription requests
     # 1 software product
-    # 3 sale supply + lines
-    self.assertRelatedObjectCount(project, 11)
+    # 2 sale supply + lines
+    self.assertRelatedObjectCount(project, 9)
 
     ##################################################
     # Add deposit
@@ -182,7 +178,7 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       destination_section__uid=owner_person.getUid()
     )
     hosting_subscription_list = []
-    self.assertEqual(len(open_order_list), 3)
+    self.assertEqual(len(open_order_list), 2)
     for open_order in open_order_list:
       self.assertEqual(open_order.getValidationState(), 'archived')
       self.assertNotEqual(open_order.getStopDate(), open_order.getStartDate())
@@ -198,7 +194,7 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
         if tmp is not None:
           hosting_subscription_list.append(tmp)
 
-    self.assertEqual(len(hosting_subscription_list), 3)
+    self.assertEqual(len(hosting_subscription_list), 2)
     for hosting_subscription in hosting_subscription_list:
       self.assertEqual(hosting_subscription.getValidationState(), 'archived')
 
@@ -212,7 +208,7 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       ledger_uid=ledger_uid
     )
     self.assertEqual(len(outstanding_amount_list), 1)
-    self.assertEqual(outstanding_amount_list[0].total_price, 132)
+    self.assertEqual(outstanding_amount_list[0].total_price, 115.2)
 
     planned_outstanding_amount_list = owner_person.Entity_getOutstandingAmountList(
       ledger_uid=ledger_uid,
@@ -293,7 +289,7 @@ class TestSlapOSCRMScenario(TestSlapOSVirtualMasterScenarioMixin):
       portal_type='Open Sale Order',
       destination_section__uid=owner_person.getUid()
     )
-    self.assertEqual(len(open_order_list), 3)
+    self.assertEqual(len(open_order_list), 2)
     for open_order in open_order_list:
       self.assertEqual(open_order.getValidationState(), 'validated')
 

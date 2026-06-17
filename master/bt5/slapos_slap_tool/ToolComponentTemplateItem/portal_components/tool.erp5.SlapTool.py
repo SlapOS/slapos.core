@@ -1039,9 +1039,12 @@ class SlapTool(BaseTool):
       requested_software_instance = self.restrictedTraverse(
           last_data.get('request_instance'), None)
 
-    if last_data is None or not isinstance(last_data, type(value)) or \
-      last_data.get('hash') != value['hash'] or \
-      requested_software_instance is None:
+    if ((last_data is None) or
+        (not isinstance(last_data, type(value))) or
+        (last_data.get('hash') != value['hash']) or
+        (requested_software_instance is None) or
+        (requested_software_instance.getSlapState() != state)
+       ):
       if compute_node_id and compute_partition_id:
         kw.pop('project_reference')
         requester.requestInstance(**kw)

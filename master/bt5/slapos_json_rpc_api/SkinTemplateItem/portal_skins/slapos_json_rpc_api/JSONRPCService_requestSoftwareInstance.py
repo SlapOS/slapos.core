@@ -88,9 +88,11 @@ if last_data is not None and isinstance(last_data, type(value)):
   requested_software_instance = portal.restrictedTraverse(
       last_data.get('request_instance'), None)
 
-if last_data is None or not isinstance(last_data, type(value)) or \
-  last_data.get('hash') != value['hash'] or \
-  requested_software_instance is None:
+if ((last_data is None) or
+    (not isinstance(last_data, type(value))) or
+    (last_data.get('hash') != value['hash']) or
+    (requested_software_instance is None) or
+    ((requested_software_instance.getSlapState() != kw['state']))):
   if requester.getPortalType() == 'Software Instance':
     kw.pop('project_reference')
     requester.requestInstance(**kw)

@@ -1216,6 +1216,70 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSJsonRpcMixin):
       self.assertEqual(response.getStatus(), 200)
       self.assertTrue(requested_instance.getRelativeUrl() in instance.getSuccessorList())
 
+  def test_InstanceAccess_22_request_startedWithManuallyStoppedInstance(self):
+    _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+    project = instance_tree.getFollowUpValue()
+    instance = instance_tree.getSuccessorValue()
+
+    #partition_id = instance.getAggregateValue(portal_type='Compute Partition').getReference()
+    with PinnedDateTime(self, DateTime()):
+      response = self.callJsonRpcWebService(
+        "slapos.post.v0.software_instance",
+        {
+          "software_release_uri": "req_release",
+          "software_type": "req_type",
+          "title": "req_reference",
+          "state": "started",
+          "shared": False
+        },
+        instance.getUserId()
+      )
+      self.assertEqual('application/json', response.headers.get('content-type'))
+
+      self.tic()
+      requested_instance = self.portal.portal_catalog.getResultValue(
+        portal_type='Software Instance',
+        title='req_reference',
+        follow_up__uid=project.getUid()
+      )
+
+      # Change the instance slap_state, without touching the memcached entries
+      self.portal.portal_workflow._jumpToStateFor(requested_instance, 'stop_requested')
+
+      # And request again. State must change
+      response = self.callJsonRpcWebService(
+        "slapos.post.v0.software_instance",
+        {
+          "software_release_uri": "req_release",
+          "software_type": "req_type",
+          "title": "req_reference",
+          "state": "started",
+          "shared": False
+        },
+        instance.getUserId()
+      )
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual({
+        'access_status_message': '#error no data found for %s' % requested_instance.getReference(),
+        'computer_guid': '',
+        'compute_partition_id': '',
+        'connection_parameters': {},
+        'full_ip_list': [],
+        'ip_list': [],
+        'parameters': {},
+        'processing_timestamp': requested_instance.getSlapTimestamp(),
+        'instance_guid': requested_instance.getReference(),
+        'root_instance_title': '',
+        'shared': False,
+        'sla_parameters': {},
+        'software_release_uri': 'req_release',
+        'software_type': 'req_type',
+        'state': 'started',
+        'title': 'req_reference'
+      }, loadJson(response.getBody()))
+      self.assertEqual(response.getStatus(), 200)
+      self.assertTrue(requested_instance.getRelativeUrl() in instance.getSuccessorList())
+
   def test_InstanceAccess_26_stoppedComputePartition(self):
     with PinnedDateTime(self, DateTime('2020/05/19')):
       _, _, _, _, partition, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')

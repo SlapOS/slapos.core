@@ -28,7 +28,7 @@
 #
 ##############################################################################
 
-from Products.ERP5Type.Utils import str2unicode, bytes2str, str2bytes
+from Products.ERP5Type.Utils import str2unicode, bytes2str, str2bytes, unicode2str
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
 from OFS.Traversable import NotFound
@@ -644,12 +644,13 @@ class SlapTool(BaseTool):
         'slapos.slap',
         'doc/computer_consumption.xsd')
 
-    if self._validateXML(use_string, compute_node_consumption_model):
+    use_bytes = str2bytes(use_string)
+    if self._validateXML(use_bytes, compute_node_consumption_model):
       compute_node = self.portal_catalog.getComputeNodeObject(computer_id)
-      tree = etree.fromstring(use_string)
+      tree = etree.fromstring(use_bytes)
       source_reference = \
           tree.find('transaction').find('reference').text or ""
-      source_reference = source_reference.encode("UTF-8")
+      source_reference = unicode2str(source_reference)
       compute_node.ComputeNode_reportComputeNodeConsumption(
         source_reference,
         use_string)

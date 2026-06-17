@@ -105,6 +105,94 @@ class TestSlapOSBuilderMixin(SlapOSTestCaseMixin):
       delivery.getCategoryList())
 
 
+class TestSlapOSInternalPackingListBuilder(TestSlapOSBuilderMixin):
+
+  def test_internal_packing_list_builder(self):
+    resource, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(is_accountable=True)
+    project = instance_tree.getFollowUpValue()
+    trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
+    currency = trade_condition.getPriceCurrencyValue()
+    source = trade_condition.getSourceSectionValue()
+    destination = instance_tree.getDestinationSectionValue()
+    business_process = trade_condition.getSpecialiseValue()
+    business_process = self.portal.restrictedTraverse('business_process_module/slapos_internal_subscription_business_process')
+
+    applied_rule = self.portal.portal_simulation.newContent(
+      portal_type='Applied Rule',
+      causality=instance_tree.getRelativeUrl(),
+      specialise='portal_rules/slapos_subscription_item_rule'
+    )
+
+    simulation_movement_kw = dict(
+        portal_type='Simulation Movement',
+        aggregate_value=instance_tree,
+        base_contribution=['base_amount/invoicing/discounted',
+            'base_amount/invoicing/taxable'],
+        causality=[
+          '%s/deliver' % business_process.getRelativeUrl(),
+          '%s/delivery_path' % business_process.getRelativeUrl()
+        ],
+        destination_value=destination,
+        destination_decision_value=destination,
+        destination_section_value=destination,
+        destination_project_value=project,
+        price_currency_value=currency,
+        quantity_unit=resource.getQuantityUnit(),
+        resource_value=resource,
+        source_value=source,
+        source_section_value=source,
+        specialise_value=trade_condition,
+        ledger='automated',
+        trade_phase='slapos/delivery',
+        use='trade/sale',
+    )
+    simulation_movement_1 = applied_rule.newContent(
+        quantity=1.2,
+        price=3.4,
+        start_date=DateTime('2012/01/01'),
+        stop_date=DateTime('2012/02/01'),
+        **simulation_movement_kw
+    )
+    simulation_movement_2 = applied_rule.newContent(
+        quantity=5.6,
+        price=7.8,
+        start_date=DateTime('2012/03/01'),
+        stop_date=DateTime('2012/04/01'),
+        **simulation_movement_kw
+    )
+
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+      self.portal.portal_deliveries.slapos_internal_packing_list_builder.build(
+          path='%s/%%' % applied_rule.getPath())
+      self.tic()
+
+    self.checkSimulationMovement(simulation_movement_1)
+    self.checkSimulationMovement(simulation_movement_2)
+
+    delivery_line_1 = simulation_movement_1.getDeliveryValue()
+    delivery_line_2 = simulation_movement_2.getDeliveryValue()
+    self.assertNotEqual(delivery_line_1.getRelativeUrl(),
+        delivery_line_2.getRelativeUrl())
+
+    line_kw = dict(line_portal_type='Internal Packing List Line',
+        cell_portal_type='Internal Packing List Cell')
+    self.checkDeliveryLine(simulation_movement_1, delivery_line_1, **line_kw)
+    self.checkDeliveryLine(simulation_movement_2, delivery_line_2, **line_kw)
+
+    delivery_1 = delivery_line_1.getParentValue()
+    delivery_2 = delivery_line_2.getParentValue()
+
+    self.assertNotEqual(delivery_1.getRelativeUrl(),
+        delivery_2.getRelativeUrl())
+
+    delivery_kw = dict(delivery_portal_type='Internal Packing List',
+        category_list=convertCategoryList('causality',
+          simulation_movement_1.getParentValue().getCausalityList()))
+    self.checkDelivery(simulation_movement_1, delivery_1, **delivery_kw)
+    self.checkDelivery(simulation_movement_2, delivery_2, **delivery_kw)
+
+
 class TestSlapOSSalePackingListBuilder(TestSlapOSBuilderMixin):
 
   def test_sale_packing_list_builder(self):

@@ -1,5 +1,5 @@
-if related_simulation_movement_path_list is None:
-  raise RuntimeError('related_simulation_movement_path_list is missing. Update ERP5 Product.')
+if movement_list is None:
+  raise RuntimeError('movement_list is missing. Update ERP5 Product.')
 
 packing_list = context
 

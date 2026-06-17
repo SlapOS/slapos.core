@@ -1,4 +1,10 @@
 <base_category_list>
+ <portal_type id="Remote Node Change Request">
+  <item>destination_project</item>
+  <item>destination_section</item>
+  <item>follow_up</item>
+  <item>specialise</item>
+ </portal_type>
  <portal_type id="Subscription Change Request Module">
   <item>business_application</item>
  </portal_type>
@@ -14,5 +20,8 @@
  </portal_type>
  <portal_type id="Subscription Request Module">
   <item>business_application</item>
+ </portal_type>
+ <portal_type id="Workgroup">
+  <item>destination_section</item>
  </portal_type>
 </base_category_list>

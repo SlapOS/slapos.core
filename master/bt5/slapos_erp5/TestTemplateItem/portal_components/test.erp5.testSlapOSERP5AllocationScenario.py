@@ -48,7 +48,7 @@ class TestSlapOSAllocationScenarioMixin(TestSlapOSVirtualMasterScenarioMixin):
     self.tic()
     self.login()
 
-    self.checkServiceSubscriptionRequest(compute_node)
+    self.checkServiceOpenInternalOrder(compute_node)
     return compute_node
 
   def bootstrapVirtualMasterTestWithProject(self):

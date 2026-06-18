@@ -139,12 +139,12 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 4 assignment
     # 4 simulation movement
     # 7 sale packing list / line
-    # 2 sale trade condition ( a 3rd trade condition is not linked to the project)
+    # 1 sale trade condition ( a 3rd trade condition is not linked to the project)
     # 1 software instance
     # 1 software product
     # 1 subscription change request
     # 3 subscription request
-    self.assertRelatedObjectCount(project, 37)
+    self.assertRelatedObjectCount(project, 36)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
@@ -164,8 +164,27 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       project = self.addDefaultProject(person=owner_person, currency=currency)
 
       self.login(owner_person.getUserId())
+      # and install some software on them
+      public_server_software = self.generateNewSoftwareReleaseUrl()
+      public_instance_type = 'public type'
+
+      self.addSoftwareProduct(
+        "instance product", project, public_server_software, public_instance_type
+      )
+
+      project_reference = project.getReference()
+
+      public_instance_title = 'Public title %s' % self.generateNewId()
+      self.personRequestInstanceNotReady(
+        software_release=public_server_software,
+        software_type=public_instance_type,
+        partition_reference=public_instance_title,
+        project_reference=project_reference
+      )
+      self.tic()
+
       public_server_title = 'Public Server for %s' % owner_reference
-      self.requestComputeNode(public_server_title, project.getReference())
+      self.requestComputeNode(public_server_title, project_reference)
       self.tic()
 
     with PinnedDateTime(self, DateTime('2024/01/01')):
@@ -221,14 +240,17 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 4 assignment request
     # 1 compute node
     # 1 credential request
-    # 6 open sale order
+    # 1 instance tree
+    # 5 open sale order
     # 4 assignment
-    # 6 simulation movement
-    # 10 sale packing list / line
-    # 2 sale trade condition
-    # 2 subscription change request
-    # 4 subscription request
-    self.assertRelatedObjectCount(project, 40)
+    # 5 simulation movement
+    # 7 sale packing list / line
+    # 1 sale trade condition
+    # 1 software instance
+    # 1 software product
+    # 1 subscription change request
+    # 3 subscription request
+    self.assertRelatedObjectCount(project, 35)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
@@ -303,10 +325,10 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # Ensure no unexpected object has been created
     # 2 assignment request
     # 2 assignment
-    # 2 sale trade condition
+    # 1 sale trade condition
     # 1 subscription change request
     # 2 subscription request
-    self.assertRelatedObjectCount(project, 9)
+    self.assertRelatedObjectCount(project, 8)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
@@ -329,28 +351,56 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
         person=owner_person, currency=currency, is_accountable=True)
       project_relative_url = project.getRelativeUrl()
       self.tic()
+
+      public_server_software = 'XXX'
+      public_instance_type = 'YYY'
+      software_product = self.portal.software_product_module.newContent(
+        portal_type="Software Product",
+        title='test SR',
+        follow_up_value=project,
+      )
+      software_product.newContent(
+        portal_type="Software Product Release Variation",
+        title="my current release",
+        url_string=public_server_software
+      )
+      software_product.newContent(
+        portal_type="Software Product Type Variation",
+        title=public_instance_type
+      )
+      software_product.validate()
+
       sale_supply = self.portal.portal_catalog.getResultValue(
         portal_type='Sale Supply',
         source_project__relative_url=project_relative_url
       )
-      sale_supply.searchFolder(
+      sale_supply.newContent(
         portal_type='Sale Supply Line',
-        resource__relative_url="service_module/slapos_compute_node_subscription"
-      )[0].edit(base_price=99)
+        resource_value=software_product,
+        base_price=789
+      )
       sale_supply.validate()
+      self.tic()
 
       self.login(owner_person.getUserId())
 
     with PinnedDateTime(self, DateTime('2024/02/25')):
-      public_server_title = 'Public Server for %s' % owner_reference
-      compute_node = self.requestComputeNode(public_server_title, project.getReference())
-      compute_node_id = compute_node.getReference()
+      self.personRequestInstanceNotReady(
+        software_release=public_server_software,
+        software_type=public_instance_type,
+        partition_reference='test IT',
+        project_reference=project.getReference()
+      )
       self.tic()
 
       self.login(sale_person.getUserId())
+
       subscription_request = self.portal.portal_catalog.getResultValue(
         portal_type='Subscription Request',
-        aggregate__reference=compute_node_id
+        source_project__uid=project.getUid(),
+        destination_section__uid=owner_person.getUid(),
+        aggregate__portal_type='Instance Tree',
+        simulation_state='submitted'
       )
       owner_organisation = self.portal.organisation_module.newContent(
         title='Test Owner Organisation',
@@ -377,7 +427,9 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
       new_subscription_request = self.portal.portal_catalog.getResultValue(
         portal_type='Subscription Request',
-        aggregate__reference=compute_node_id,
+        source_project__uid=project.getUid(),
+        destination_section__uid=owner_organisation.getUid(),
+        aggregate__portal_type='Instance Tree',
         simulation_state='submitted'
       )
       self.assertEqual(new_subscription_request.getDestination(),
@@ -494,10 +546,10 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 2 assignment
     # 9 simulation movement
     # 8 sale packing list / line
-    # 2 sale trade condition
+    # 1 sale trade condition
     # 1 subscription change request
     # 2 subscription request
-    self.assertRelatedObjectCount(project, 30)
+    self.assertRelatedObjectCount(project, 29)
 
     with PinnedDateTime(self, DateTime('2024/06/01')):
       self.checkERP5StateBeforeExit()
@@ -609,11 +661,11 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 2 open sale order
     # 2 assignment
     # 12 simulation movement
-    # 6 sale packing list / line
-    # 4 sale trade condition
+    # 5 sale packing list / line
+    # 3 sale trade condition
     # 1 subscription change request
     # 2 subscription request
-    self.assertRelatedObjectCount(project, 37)
+    self.assertRelatedObjectCount(project, 35)
 
     with PinnedDateTime(self, DateTime('2024/06/01')):
       self.checkERP5StateBeforeExit()

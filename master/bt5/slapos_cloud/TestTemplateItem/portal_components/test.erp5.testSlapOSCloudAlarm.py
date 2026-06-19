@@ -2198,3 +2198,70 @@ class TestERP5InvitationTokenAlarm(SlapOSTestCaseMixin):
 
     self.assertEqual('draft', invitation_token.getValidationState())
 
+
+class TestERP5GarbageCollectAllocationSupplyLineAlarm(SlapOSTestCaseMixin):
+  #################################################################
+  # slapos_cloud_garbage_collect_allocation_supply_line
+  #################################################################
+  def test_garbageCollectAllocationSupplyLine_alarm_toDelete(self):
+    allocation_supply = self.portal.allocation_supply_module.newContent(
+      portal_type="Allocation Supply",
+    )
+    allocation_supply_line = allocation_supply.newContent(
+      portal_type="Allocation Supply Line"
+    )
+
+    self.portal.portal_workflow._jumpToStateFor(allocation_supply, 'deleted')
+    self.tic()
+
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_cloud_garbage_collect_allocation_supply_line,
+      allocation_supply_line,
+      'AllocationSupplyLine_tryToGarbageCollect'
+    )
+
+  def test_garbageCollectAllocationSupplyLine_alarm_toKeep(self):
+    allocation_supply = self.portal.allocation_supply_module.newContent(
+      portal_type="Allocation Supply",
+    )
+    allocation_supply_line = allocation_supply.newContent(
+      portal_type="Allocation Supply Line"
+    )
+    self.tic()
+
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_cloud_garbage_collect_allocation_supply_line,
+      allocation_supply_line,
+      'AllocationSupplyLine_tryToGarbageCollect'
+    )
+
+  #################################################################
+  # AllocationSupplyLine_tryToGarbageCollect
+  #################################################################
+  def test_garbageCollectAllocationSupplyLine_script_toDelete(self):
+    allocation_supply = self.portal.allocation_supply_module.newContent(
+      portal_type="Allocation Supply",
+    )
+    allocation_supply_line = allocation_supply.newContent(
+      portal_type="Allocation Supply Line"
+    )
+    allocation_supply.newContent(
+      portal_type="Allocation Supply Line"
+    )
+
+    self.portal.portal_workflow._jumpToStateFor(allocation_supply, 'deleted')
+
+    allocation_supply_line.AllocationSupplyLine_tryToGarbageCollect()
+    self.assertSameSet([], [x for x in allocation_supply.contentValues()])
+
+  def test_garbageCollectAllocationSupplyLine_script_assertDeleted(self):
+    allocation_supply = self.portal.allocation_supply_module.newContent(
+      portal_type="Allocation Supply",
+    )
+    allocation_supply_line = allocation_supply.newContent(
+      portal_type="Allocation Supply Line"
+    )
+    self.assertRaises(
+      AssertionError,
+      allocation_supply_line.AllocationSupplyLine_tryToGarbageCollect,
+    )

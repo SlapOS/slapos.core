@@ -46,11 +46,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>batch=0, **kw</string> </value>
+            <value> <string>tag, fixit, params</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>AllocationSupply_invalidateComputeNodeList</string> </value>
+            <value> <string>Alarm_garbageCollectAllocationSupplyLine</string> </value>
         </item>
       </dictionary>
     </pickle>

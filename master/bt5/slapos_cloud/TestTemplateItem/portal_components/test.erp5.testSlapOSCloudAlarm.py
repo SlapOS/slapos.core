@@ -2265,3 +2265,103 @@ class TestERP5GarbageCollectAllocationSupplyLineAlarm(SlapOSTestCaseMixin):
       AssertionError,
       allocation_supply_line.AllocationSupplyLine_tryToGarbageCollect,
     )
+
+
+class TestERP5GarbageCollectInvalidatedNodeFromAllocationSupplyAlarm(SlapOSTestCaseMixin):
+  #################################################################
+  # slapos_cloud_garbage_collect_invalidated_node_from_allocation_supply
+  #################################################################
+  def test_garbageCollectInvalidatedNodeFromAllocationSupply_alarm_toRemove(self):
+    node = self.portal.compute_node_module.newContent(
+      portal_type="Compute Node"
+    )
+    allocation_supply = self.portal.allocation_supply_module.newContent(
+      portal_type="Allocation Supply",
+      aggregate_value=node
+    )
+
+    self.portal.portal_workflow._jumpToStateFor(node, 'invalidated')
+    self.tic()
+
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_cloud_garbage_collect_invalidated_node_from_allocation_supply,
+      allocation_supply,
+      'AllocationSupply_tryToGarbageCollectInvalidatedNode'
+    )
+
+  def test_garbageCollectInvalidatedNodeFromAllocationSupply_alarm_toKeep(self):
+    node = self.portal.compute_node_module.newContent(
+      portal_type="Compute Node"
+    )
+    allocation_supply = self.portal.allocation_supply_module.newContent(
+      portal_type="Allocation Supply",
+      aggregate_value=node
+    )
+
+    self.tic()
+
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_cloud_garbage_collect_invalidated_node_from_allocation_supply,
+      allocation_supply,
+      'AllocationSupply_tryToGarbageCollectInvalidatedNode'
+    )
+
+  #################################################################
+  # AllocationSupply_tryToGarbageCollectInvalidatedNode
+  #################################################################
+  def test_garbageCollectInvalidatedNodeFromAllocationSupply_script_oneToRemove(self):
+    node1 = self.portal.compute_node_module.newContent(
+      portal_type="Compute Node"
+    )
+    node2 = self.portal.compute_node_module.newContent(
+      portal_type="Compute Node"
+    )
+    allocation_supply = self.portal.allocation_supply_module.newContent(
+      portal_type="Allocation Supply",
+      aggregate_value_list=[node1, node2]
+    )
+
+    self.portal.portal_workflow._jumpToStateFor(allocation_supply, 'validated')
+    self.portal.portal_workflow._jumpToStateFor(node1, 'invalidated')
+
+    allocation_supply.AllocationSupply_tryToGarbageCollectInvalidatedNode()
+    self.assertSameSet([node2.getId()], allocation_supply.getAggregateIdList())
+    self.assertEquals(allocation_supply.getValidationState(), 'validated')
+
+  def test_garbageCollectInvalidatedNodeFromAllocationSupply_script_allToRemove(self):
+    node1 = self.portal.compute_node_module.newContent(
+      portal_type="Compute Node"
+    )
+    node2 = self.portal.compute_node_module.newContent(
+      portal_type="Compute Node"
+    )
+    allocation_supply = self.portal.allocation_supply_module.newContent(
+      portal_type="Allocation Supply",
+      aggregate_value_list=[node1, node2]
+    )
+
+    self.portal.portal_workflow._jumpToStateFor(allocation_supply, 'validated')
+    self.portal.portal_workflow._jumpToStateFor(node1, 'invalidated')
+    self.portal.portal_workflow._jumpToStateFor(node2, 'invalidated')
+
+    allocation_supply.AllocationSupply_tryToGarbageCollectInvalidatedNode()
+    self.assertSameSet([], allocation_supply.getAggregateIdList())
+    self.assertEquals(allocation_supply.getValidationState(), 'invalidated')
+
+  def test_garbageCollectInvalidatedNodeFromAllocationSupply_script_noneToRemove(self):
+    node1 = self.portal.compute_node_module.newContent(
+      portal_type="Compute Node"
+    )
+    node2 = self.portal.compute_node_module.newContent(
+      portal_type="Compute Node"
+    )
+    allocation_supply = self.portal.allocation_supply_module.newContent(
+      portal_type="Allocation Supply",
+      aggregate_value_list=[node1, node2]
+    )
+
+    self.portal.portal_workflow._jumpToStateFor(allocation_supply, 'validated')
+
+    allocation_supply.AllocationSupply_tryToGarbageCollectInvalidatedNode()
+    self.assertSameSet([node1.getId(), node2.getId()], allocation_supply.getAggregateIdList())
+    self.assertEquals(allocation_supply.getValidationState(), 'validated')

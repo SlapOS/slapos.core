@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-# Copyright (c) 2022 Nexedi SA and Contributors. All Rights Reserved.
+# Copyright (c) 2026 Nexedi SA and Contributors. All Rights Reserved.
 #
 ##############################################################################
 
@@ -146,7 +146,7 @@ class TestSlapOSERP5WorkgroupClaimScenarion(TestSlapOSERP5WorkgroupClaimScenario
     # 1 credential request
     # 1 instance tree
     # 7 open sale order
-    # 4 assignment
+    # 3 assignment
     # 4 simulation movement
     # 7 sale packing list / line
     # 3 sale trade condition ( a 3rd trade condition is not linked to the project)
@@ -154,7 +154,7 @@ class TestSlapOSERP5WorkgroupClaimScenarion(TestSlapOSERP5WorkgroupClaimScenario
     # 1 software product
     # 1 subscription change request
     # 2 subscription request
-    self.assertRelatedObjectCount(project, 37)
+    self.assertRelatedObjectCount(project, 36)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
@@ -359,7 +359,7 @@ class TestSlapOSERP5WorkgroupClaimScenarion(TestSlapOSERP5WorkgroupClaimScenario
     self.assertEqual(4, len(inventory_list))
 
     # Ensure no unexpected object has been created
-    # 5 assignment request
+    # 7 assignment request
     # 2 credential request
     # 2 instance tree
     # 1 invitation token
@@ -367,16 +367,16 @@ class TestSlapOSERP5WorkgroupClaimScenarion(TestSlapOSERP5WorkgroupClaimScenario
     # 4 assignment
     # 7 simulation movement
     # 13 sale packing list / line
-    # 3 sale trade condition ( a 3rd trade condition is not linked to the project)
+    # 2 sale trade condition ( a 3rd trade condition is not linked to the project)
     # 2 software instance
     # 1 software product
     # 2 subscription change request
     # 5 subscription request
-    self.assertRelatedObjectCount(project, 61)
+    # 1 workgroup
+    self.assertRelatedObjectCount(project, 60)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
-
 
   def test_workgroup_cannot_join_due_instance_name_confict_scenario(self):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)

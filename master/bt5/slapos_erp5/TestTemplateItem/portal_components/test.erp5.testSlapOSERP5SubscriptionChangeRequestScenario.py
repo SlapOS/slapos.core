@@ -315,24 +315,6 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
           trade_condition_type=project_trade_condition.getTradeConditionType()
         )
         dedicated_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
-
-        node_trade_condition = self.portal.portal_catalog.getResultValue(
-          portal_type='Sale Trade Condition',
-          trade_condition_type__uid=self.portal.portal_categories.trade_condition_type.compute_node.getUid(),
-          price_currency__uid=currency.getUid(),
-          validation_state='validated'
-        )
-        dedicated_trade_condition = self.portal.sale_trade_condition_module.newContent(
-          portal_type='Sale Trade Condition',
-          title='%s dedicated %s' % (node_trade_condition.getTitle(), destination_entity.getTitle()),
-          source_project=node_trade_condition.getSourceProject(),
-          destination_value=destination_entity,
-          destination_section_value=organisation,
-          specialise_value=node_trade_condition,
-          price_currency=node_trade_condition.getPriceCurrency(),
-          trade_condition_type=node_trade_condition.getTradeConditionType()
-        )
-        dedicated_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
         self.tic()
 
     person_user_id = owner_person.getUserId()
@@ -384,19 +366,23 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     self.assertAlmostEqual(-1.17, inventory_list[0].total_quantity)
 
     # Ensure no unexpected object has been created
-    # 4 assignment request (+ 1 for workgroup)
+    # 4 assignment request
     # 1 compute node
     # 1 credential request
     # 5 open sale order
-    # 4 assignment (+ 1 for workgroup)
+    # 4 assignment
     # 6 simulation movement
-    # 10 sale packing list / line
-    # 2 sale trade condition (+2 for workgroup)
-    # 2 subscription change request
+    # 7 sale packing list / line
+    # 1 sale trade condition
+    # 1 software instance
+    # 1 subscription change request
     # 4 subscription request
-    expected_amount = 40
+    expected_amount = 35
     if entity_type == 'Workgroup':
-      expected_amount = 44
+      # + 1 assignment request
+      # + 1 assignment
+      # + 1 sale trade condition
+      expected_amount = 38
     self.assertRelatedObjectCount(project, expected_amount)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):

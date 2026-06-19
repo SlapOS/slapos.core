@@ -103,9 +103,9 @@ class TestSlapOSRemoteNodeChangeRequestScenario(TestSlapOSRemoteNodeChangeReques
     # 1 open sale order
     # 3 assignment
     # 1 remote node change request
-    # 2 sale trade condition
+    # 1 sale trade condition
     # 1 subscription request
-    expected_amount = 13
+    expected_amount = 12
     if scenario == 'remote_workgroup':
       # +1 assignment request
       # +1 sale trade condition
@@ -120,9 +120,9 @@ class TestSlapOSRemoteNodeChangeRequestScenario(TestSlapOSRemoteNodeChangeReques
     # 1 open sale order
     # 3 assignment
     # 1 remote node change request
-    # 2 sale trade condition
+    # 1 sale trade condition
     # 1 subscription request
-    expected_amount = 13
+    expected_amount = 12
     if scenario == 'workgroup':
       # +1 assignment request
       # +1 sale trade condition
@@ -313,21 +313,21 @@ class TestSlapOSRemoteNodeChangeRequestScenario(TestSlapOSRemoteNodeChangeReques
     # Ensure no unexpected object has been created
     # 3 allocation supply
     # 3 assignment request
-    # 1 compute node
+    # 2 compute node
     # 1 credential request
     # 1 instance tree
-    # 9 open sale order
+    # 7 open sale order
     # 3 assignment
-    # 4 simulation mvts
+    # 3 simulation mvts
     # 1 remote node change request
-    # 5 packing list
+    # 4 packing list
     # 2 sale trade condition
     # 1 software installation
     # 1 software instance
     # 1 software product
     # 1 subscription change request
     # 4 subscription request
-    expected_amount = 42
+    expected_amount = 36
     if scenario == 'remote_workgroup':
       # +1 assignment request
       # +1 sale trade condition
@@ -343,13 +343,14 @@ class TestSlapOSRemoteNodeChangeRequestScenario(TestSlapOSRemoteNodeChangeReques
     # 1 instance tree
     # 4 open sale order
     # 4 assignment
+    # 2 simulation mvt
     # 1 remote node change request
     # 2 packing list
-    # 2 sale trade condition
+    # 1 sale trade condition
     # 1 software instance
     # 1 software product
     # 2 subscription request
-    expected_amount = 30
+    expected_amount = 29
     if scenario == 'workgroup':
       # +1 assignment request
       # +1 sale trade condition

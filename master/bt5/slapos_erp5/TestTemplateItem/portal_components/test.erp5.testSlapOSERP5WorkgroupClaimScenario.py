@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-# Copyright (c) 2022 Nexedi SA and Contributors. All Rights Reserved.
+# Copyright (c) 2026 Nexedi SA and Contributors. All Rights Reserved.
 #
 ##############################################################################
 
@@ -146,7 +146,7 @@ class TestSlapOSERP5WorkgroupClaimScenarion(TestSlapOSERP5WorkgroupClaimScenario
     # 1 credential request
     # 1 instance tree
     # 7 open sale order
-    # 4 assignment
+    # 3 assignment
     # 4 simulation movement
     # 7 sale packing list / line
     # 3 sale trade condition ( a 3rd trade condition is not linked to the project)
@@ -154,7 +154,7 @@ class TestSlapOSERP5WorkgroupClaimScenarion(TestSlapOSERP5WorkgroupClaimScenario
     # 1 software product
     # 1 subscription change request
     # 2 subscription request
-    self.assertRelatedObjectCount(project, 37)
+    self.assertRelatedObjectCount(project, 36)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
@@ -359,7 +359,7 @@ class TestSlapOSERP5WorkgroupClaimScenarion(TestSlapOSERP5WorkgroupClaimScenario
     self.assertEqual(4, len(inventory_list))
 
     # Ensure no unexpected object has been created
-    # 5 assignment request
+    # 7 assignment request
     # 2 credential request
     # 2 instance tree
     # 1 invitation token
@@ -367,12 +367,13 @@ class TestSlapOSERP5WorkgroupClaimScenarion(TestSlapOSERP5WorkgroupClaimScenario
     # 4 assignment
     # 7 simulation movement
     # 13 sale packing list / line
-    # 3 sale trade condition ( a 3rd trade condition is not linked to the project)
+    # 2 sale trade condition ( a 3rd trade condition is not linked to the project)
     # 2 software instance
     # 1 software product
     # 2 subscription change request
     # 5 subscription request
-    self.assertRelatedObjectCount(project, 61)
+    # 1 workgroup
+    self.assertRelatedObjectCount(project, 60)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
@@ -603,24 +604,24 @@ class TestSlapOSERP5WorkgroupClaimScenarion(TestSlapOSERP5WorkgroupClaimScenario
     # 1 credential request
     # 1 event
     # 1 instance tree
-    # 6 open sale order
+    # 4 open sale order
     # 1 invitation token
     # 3 assignment
-    # 4 simulation mvts
+    # 2 simulation mvts
     # 1 remote node change request
-    # 5 packing list
-    # 2 sale trade condition
+    # 3 packing list
+    # 1 sale trade condition
     # 1 subscription change request
-    # 4 subscription request
+    # 3 subscription request
     # 1 workgroup
-    expected_amount = 41
+    expected_amount = 35
     self.assertRelatedObjectCount(remote_project, expected_amount)
 
     # Ensure no unexpected object has been created
     # 3 allocation supply
     # 4 assignment request
     # 1 remote node
-    # 2 credential request
+    # 1 credential request
     # 1 instance tree
     # 4 open sale order
     # 3 assignment
@@ -628,12 +629,12 @@ class TestSlapOSERP5WorkgroupClaimScenarion(TestSlapOSERP5WorkgroupClaimScenario
     # 2 simulation mvt
     # 1 remote node
     # 2 packing list
-    # 4 sale trade condition
+    # 3 sale trade condition
     # 1 software instance
     # 1 software product
     # 2 subscription request
     # 1 workgroup
-    expected_amount = 31
+    expected_amount = 30
     self.assertRelatedObjectCount(project, expected_amount)
 
 
@@ -870,24 +871,26 @@ class TestSlapOSERP5WorkgroupClaimScenarion(TestSlapOSERP5WorkgroupClaimScenario
     # 1 credential request
     # 1 event
     # 1 instance tree
-    # 6 open sale order
+    # 4 open sale order
     # 1 invitation token
     # 3 assignment
-    # 4 simulation mvts
+    # 2 simulation mvts
     # 1 remote node change request
-    # 5 packing list
+    # 3 packing list
     # 2 sale trade condition
     # 1 subscription change request
-    # 4 subscription request
+    # 1 instance tree module
+    # 1 software product
+    # 3 subscription request
     # 1 workgroup
-    expected_amount = 41
+    expected_amount = 35
     self.assertRelatedObjectCount(remote_project, expected_amount)
 
     # Ensure no unexpected object has been created
     # 3 allocation supply
     # 4 assignment request
     # 1 remote node
-    # 2 credential request
+    # 1 credential request
     # 1 instance tree
     # 4 open sale order
     # 3 assignment
@@ -895,12 +898,12 @@ class TestSlapOSERP5WorkgroupClaimScenarion(TestSlapOSERP5WorkgroupClaimScenario
     # 2 simulation mvt
     # 1 remote node
     # 2 packing list
-    # 4 sale trade condition
+    # 3 sale trade condition
     # 1 software instance
     # 1 software product
     # 2 subscription request
     # 1 workgroup
-    expected_amount = 31
+    expected_amount = 30
     self.assertRelatedObjectCount(project, expected_amount)
 
 

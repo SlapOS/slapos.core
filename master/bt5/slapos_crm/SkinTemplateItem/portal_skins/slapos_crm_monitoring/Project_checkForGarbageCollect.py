@@ -137,3 +137,21 @@ portal.portal_catalog.searchAndActivate(
 
   **select_dict
 )
+
+####################################
+# Check allocation supply to garbage collect
+# Allocation Supply without any Node
+####################################
+select_dict= {'aggregate__uid': None}
+portal.portal_catalog.searchAndActivate(
+  portal_type='Allocation Supply',
+  validation_state=['draft', 'invalidated', 'validated'],
+  destination_project__uid=project.getUid(),
+  left_join_list=select_dict.keys(),
+
+  method_id='AllocationSupply_checkForGarbageCollect',
+  method_kw={'activate_kw': activate_kw},
+  activate_kw=activate_kw,
+
+  **select_dict
+)

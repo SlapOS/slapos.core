@@ -2365,3 +2365,63 @@ class TestERP5GarbageCollectInvalidatedNodeFromAllocationSupplyAlarm(SlapOSTestC
     allocation_supply.AllocationSupply_tryToGarbageCollectInvalidatedNode()
     self.assertSameSet([node1.getId(), node2.getId()], allocation_supply.getAggregateIdList())
     self.assertEqual(allocation_supply.getValidationState(), 'validated')
+
+
+class TestERP5GarbageCollectOneTimeVirtualMasterAccessTokenAlarm(SlapOSTestCaseMixin):
+
+  def test_garbageCollectOneTimeVirtualMasterAccessToken_alarm_old(self):
+    access_token = self.portal.access_token_module.newContent(
+      portal_type="One Time Virtual Master Access Token",
+    )
+    access_token.workflow_history['edit_workflow'] = [{
+        'comment':'Fake history',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'state': 'current',
+        'time': DateTime('2012/11/15 11:11'),
+        'action': 'foo_action'
+        }]
+    self.portal.portal_workflow._jumpToStateFor(access_token, 'validated')
+    self.tic()
+
+    self.portal.portal_alarms.\
+      slapos_cloud_garbage_collect_one_time_virtual_master_access_token.activeSense()
+    self.tic()
+
+    self.assertEqual('invalidated', access_token.getValidationState())
+    self.assertEqual(
+        'Unused for 1 day.',
+        access_token.workflow_history['validation_workflow'][-1]['comment'])
+
+  def test_garbageCollectOneTimeVirtualMasterAccessToken_alarm_recent(self):
+    access_token = self.portal.access_token_module.newContent(
+      portal_type="One Time Virtual Master Access Token",
+    )
+    self.portal.portal_workflow._jumpToStateFor(access_token, 'validated')
+    self.tic()
+
+    self.portal.portal_alarms.\
+      slapos_cloud_garbage_collect_one_time_virtual_master_access_token.activeSense()
+    self.tic()
+
+    self.assertEqual('validated', access_token.getValidationState())
+
+  def test_garbageCollectOneTimeVirtualMasterAccessToken_alarm_oldNonValidated(self):
+    access_token = self.portal.access_token_module.newContent(
+      portal_type="One Time Virtual Master Access Token",
+    )
+    access_token.workflow_history['edit_workflow'] = [{
+        'comment':'Fake history',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'state': 'current',
+        'time': DateTime('2012/11/15 11:11'),
+        'action': 'foo_action'
+        }]
+    self.tic()
+
+    self.portal.portal_alarms.\
+      slapos_cloud_garbage_collect_one_time_virtual_master_access_token.activeSense()
+    self.tic()
+
+    self.assertEqual('draft', access_token.getValidationState())

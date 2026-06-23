@@ -17,21 +17,8 @@ allocation_supply = portal.allocation_supply_module.newContent(
   start_date_range_min=DateTime(),
   aggregate_list=[x.getRelativeUrl() for x in compute_node_list]
 )
-
-software_product_list = portal.portal_catalog(
-  portal_type="Software Product",
-  validation_state=['validated', 'published'],
-  follow_up__uid=project.getUid(),
-)
-for sql_software_product in software_product_list:
-  allocation_supply_line = allocation_supply.newContent(
-    portal_type="Allocation Supply Line",
-    title=sql_software_product.getTitle(),
-    resource_value=sql_software_product.getObject()
-  )
-  allocation_supply_line.edit(
-    p_variation_base_category_list=allocation_supply_line.getVariationRangeBaseCategoryList()
-  )
+# immediately invalidate to generate all possible lines
+allocation_supply.AllocationSupply_invalidateComputeNodeList(batch=1)
 
 return allocation_supply.Base_redirect(
   keep_items={'portal_status_message': translateString('New Allocation Supply created.')}

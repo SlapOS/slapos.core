@@ -2575,3 +2575,57 @@ class TestSlapOSCrmGarbageCollectProject(TestSlapOSCrmMonitoringMixin):
 
     self.assertIn("This instance tree's Software Release / Type is not allowed in this project.", event.getTextContent())
     self.assertEqual(ticket.getSimulationState(), "submitted")
+
+
+  ##########################################################################
+  # slapos_crm_garbage_collect_project > AllocationSupply_checkForGarbageCollect
+  ##########################################################################
+  def addAllocationSupplyToNotGarbageCollect(self, project):
+    node = self.portal.compute_node_module.newContent(
+      portal_type='Compute Node',
+      reference=self.generateNewId(),
+      follow_up_value=project
+    )
+    node.validate()
+    allocation_supply = self.portal.allocation_supply_module.newContent(
+      portal_type='Allocation Supply',
+      title=self.generateNewId(),
+      destination_project_value=project,
+      aggregate_value=node
+    )
+    allocation_supply.validate()
+
+    return allocation_supply
+
+  def test_AllocationSupply_checkForGarbageCollect_alarm_toKeep(self):
+    with PinnedDateTime(self, DateTime() - 32):
+      allocation_supply = self.addAllocationSupplyToNotGarbageCollect(self.addProject())
+      self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, allocation_supply, "AllocationSupply_checkForGarbageCollect")
+
+  def test_AllocationSupply_checkForGarbageCollect_alarm_toDelete(self):
+    with PinnedDateTime(self, DateTime() - 32):
+      allocation_supply = self.addAllocationSupplyToNotGarbageCollect(self.addProject())
+      allocation_supply.edit(aggregate=None)
+      self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm(alarm, allocation_supply, "AllocationSupply_checkForGarbageCollect")
+
+  def test_AllocationSupply_checkForGarbageCollect_script_oldNotSubscribedInstanceTree(self):
+    allocation_supply = self.addAllocationSupplyToNotGarbageCollect(self.addProject())
+    allocation_supply.edit(aggregate=None)
+
+    ticket = allocation_supply.AllocationSupply_checkForGarbageCollect()
+
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), 'Allocation Supply %s is not linked to any node' % allocation_supply.getTitle())
+    self.assertEqual(ticket.getCausality(), allocation_supply.getRelativeUrl())
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn("This allocation supply has no linked Node.", event.getTextContent())
+    self.assertEqual(ticket.getSimulationState(), "submitted")

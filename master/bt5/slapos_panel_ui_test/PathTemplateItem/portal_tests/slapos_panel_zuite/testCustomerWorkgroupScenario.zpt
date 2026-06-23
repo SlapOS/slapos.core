@@ -170,7 +170,6 @@
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
 
       <tr>
         <td colspan="3"><b>Go to the Workgroup page</b></td>
@@ -215,7 +214,6 @@
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
 
       <tr>
         <td colspan="3"><b>Go to the Workgroup page</b></td>
@@ -259,12 +257,10 @@
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
 
       <tr>
         <td colspan="3"><b>Add an instance tree</b></td>
       </tr>
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
       <tal:block tal:define="click_configuration python: {'text': 'Request'}">
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
       </tal:block>
@@ -450,7 +446,6 @@
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
 
       <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/logout" />
       <tal:block tal:define="login_configuration python: {'user': user_configuration['remote_customer_login'], 'password': user_configuration['passwd']}">
@@ -589,7 +584,6 @@
       <tr>
         <td colspan="3"><b>Add an instance tree</b></td>
       </tr>
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
       <tal:block tal:define="click_configuration python: {'text': 'Request'}">
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
       </tal:block>
@@ -667,7 +661,6 @@
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
 
       <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/logout" />
       <tal:block tal:define="login_configuration python: {'user': user_configuration['customer_login'], 'password': user_configuration['passwd']}">
@@ -755,7 +748,6 @@
         <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_content_loaded" />
-      <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_listbox_loaded" />
 
       <tal:block metal:use-macro="here/Zuite_SlapOSPanelTemplate/macros/logout" />
       <tal:block tal:define="login_configuration python: {'user': user_configuration['customer_login'], 'password': user_configuration['passwd']}">

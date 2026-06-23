@@ -50,11 +50,19 @@
             <value>
               <dictionary>
                 <item>
+                    <key> <string>editable</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>field_id</string> </key>
                     <value> <string></string> </value>
                 </item>
                 <item>
                     <key> <string>form_id</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>title</string> </key>
                     <value> <string></string> </value>
                 </item>
               </dictionary>
@@ -78,7 +86,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Your Invitation Token</string> </value>
+                    <value> <string>Your Invitation Token (valid for 7 days)</string> </value>
                 </item>
               </dictionary>
             </value>

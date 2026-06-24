@@ -1,5 +1,7 @@
 Instance Tree | jump_to_related_subscription_request
 Person | jump_to_subscription_request
+Remote Node Change Request Module | view
+Remote Node Change Request | view
 Sale Invoice Transaction | jump_to_related_subscription_request
 Subscription Change Request Module | view
 Subscription Change Request | view

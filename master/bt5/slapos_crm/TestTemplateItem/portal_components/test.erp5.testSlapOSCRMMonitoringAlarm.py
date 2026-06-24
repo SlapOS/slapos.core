@@ -2322,6 +2322,71 @@ class TestSlapOSCrmGarbageCollectProject(TestSlapOSCrmMonitoringMixin):
 
 
   ##########################################################################
+  # slapos_crm_garbage_collect_project > ComputeNode_checkForMaintenance
+  ##########################################################################
+  def test_ComputeNode_checkForMaintenance_alarm_newComputeNode(self):
+    compute_node, _ = self._makeComputeNode(self.addProject())
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, compute_node, "ComputeNode_checkForMaintenance")
+
+  def test_ComputeNode_checkForMaintenance_alarm_oldComputeNode(self):
+    with PinnedDateTime(self, DateTime() - 91):
+      compute_node, _ = self._makeComputeNode(self.addProject())
+      self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm(alarm, compute_node, "ComputeNode_checkForMaintenance")
+
+  def test_ComputeNode_checkForMaintenance_alarm_oldMaintenanceComputeNode(self):
+    with PinnedDateTime(self, DateTime() - 91):
+      compute_node, _ = self._makeComputeNode(self.addProject())
+      compute_node.setAllocationScope('close/maintenance')
+      self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, compute_node, "ComputeNode_checkForMaintenance")
+
+  def test_ComputeNode_checkForMaintenance_alarm_oldComputeNodeWithSupply(self):
+    with PinnedDateTime(self, DateTime() - 91):
+      compute_node = self.addAllocationSupplyToNotGarbageCollect(self.addProject()).getAggregateValue()
+      self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_garbage_collect_project
+    self._test_alarm_not_visited(alarm, compute_node, "ComputeNode_checkForMaintenance")
+
+  def test_ComputeNode_checkForMaintenance_script_computeNodeWithoutSupply(self):
+    compute_node, _ = self._makeComputeNode(self.addProject())
+    ticket = compute_node.ComputeNode_checkForMaintenance()
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), 'Compute Node %s has no allocation supply' % compute_node.getReference())
+    self.assertEqual(ticket.getCausality(), compute_node.getRelativeUrl())
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn(
+      'The Compute Node "%s" (%s) has no related Allocation Supply.' % (
+        compute_node.getTitle(),
+        compute_node.getReference()
+      ),
+      event.getTextContent()
+    )
+    self.assertEqual(ticket.getSimulationState(), "submitted")
+
+  def test_ComputeNode_checkForMaintenance_script_computeNodeInMaintenance(self):
+    compute_node, _ = self._makeComputeNode(self.addProject())
+    compute_node.setAllocationScope('close/maintenance')
+    ticket = compute_node.ComputeNode_checkForMaintenance()
+    self.assertEqual(ticket, None)
+
+  def test_ComputeNode_checkForMaintenance_script_computeNodeWithSupply(self):
+    compute_node = self.addAllocationSupplyToNotGarbageCollect(self.addProject()).getAggregateValue()
+    self.tic()
+    ticket = compute_node.ComputeNode_checkForMaintenance()
+    self.assertEqual(ticket, None)
+
+
+  ##########################################################################
   # slapos_crm_garbage_collect_project > AssignmentRequest_checkForGarbageCollect
   ##########################################################################
   def addAssignmentRequest(self, project):

@@ -30,7 +30,7 @@ def getTicketInfo(event, web_site):
 
     if ticket.getSimulationState() == 'suspended':
       ticket_emoji = '❓ '
-    elif ticket.getSimulationState() in ['delivered', 'invalidated']:
+    elif ticket.getSimulationState() in ['delivered', 'invalidated', 'cancelled', 'accepted', 'rejected']:
       ticket_emoji = ''
     elif (ticket.getSimulationState() in ['submitted']) and (ticket.getResource('') != 'service_module/slapos_crm_monitoring'):
       # Display a bell for submitted ticket created by customers

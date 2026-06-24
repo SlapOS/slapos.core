@@ -4,7 +4,7 @@ project = allocation_supply.getDestinationProjectValue()
 
 if allocation_supply.getPortalType() != "Allocation Supply":
   return
-if allocation_supply.getValidationState() == ['deleted']:
+if allocation_supply.getValidationState() == 'deleted':
   # If already deleted, nothing to do
   return
 if allocation_supply.getAggregate(None) is not None:

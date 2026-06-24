@@ -50,11 +50,19 @@
             <value>
               <dictionary>
                 <item>
+                    <key> <string>editable</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>field_id</string> </key>
                     <value> <string></string> </value>
                 </item>
                 <item>
                     <key> <string>form_id</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>title</string> </key>
                     <value> <string></string> </value>
                 </item>
               </dictionary>
@@ -78,7 +86,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Your Token</string> </value>
+                    <value> <string>Your Token (valid for 24 hours)</string> </value>
                 </item>
               </dictionary>
             </value>

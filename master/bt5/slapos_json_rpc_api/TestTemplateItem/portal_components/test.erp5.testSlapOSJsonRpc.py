@@ -78,7 +78,10 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSJsonRpcMixin):
     instance_4 = self.compute_node.partition4.getAggregateRelatedValue(portal_type='Software Instance')
 
     # This is the expected instance list, it is sorted by api_revision
+    def sortByReference(x):
+      return x.getReference()
     instance_list = [instance_1, instance_2, instance_3, instance_4]
+    instance_list.sort(key=sortByReference)
 
     # Check result_list match instance_list=
     expected_instance_list = []

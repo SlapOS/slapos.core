@@ -30,7 +30,7 @@
 from AccessControl import ClassSecurityInfo
 from Products.ERP5Type import Permissions
 from DateTime import DateTime
-from App.Common import rfc1123_date
+from zope.datetime import rfc1123_date
 from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
 from erp5.component.module.JsonUtils import loadJson
 

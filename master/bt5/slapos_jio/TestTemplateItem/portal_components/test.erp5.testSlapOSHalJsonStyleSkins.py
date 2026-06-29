@@ -23,7 +23,7 @@
 from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixin, simulate
 from zExceptions import Unauthorized
-from App.Common import rfc1123_date
+from zope.datetime import rfc1123_date
 from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
 from DateTime import DateTime
 import json

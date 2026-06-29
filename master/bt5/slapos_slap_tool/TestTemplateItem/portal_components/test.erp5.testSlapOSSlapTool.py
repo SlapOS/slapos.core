@@ -4,7 +4,7 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, Tempora
   Simulator
 
 from DateTime import DateTime
-from App.Common import rfc1123_date
+from zope.datetime import rfc1123_date
 
 import six
 import os

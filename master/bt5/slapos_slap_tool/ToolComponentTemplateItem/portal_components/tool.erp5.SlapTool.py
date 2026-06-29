@@ -78,7 +78,7 @@ from zLOG import LOG, INFO
 import six
 import pkg_resources
 from DateTime import DateTime
-from App.Common import rfc1123_date
+from zope.datetime import rfc1123_date
 class SoftwareInstanceNotReady(Exception):
   pass
 

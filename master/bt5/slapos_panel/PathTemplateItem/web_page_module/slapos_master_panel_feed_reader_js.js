@@ -274,19 +274,31 @@
             // and let user click to see the details displayed in a cleaner way
             if (news_list[i].hasOwnProperty('link')) {
               if (!news_link_dict.hasOwnProperty(news_list[i].link)) {
-                // Drop if there if already linked
-
-                news_link_dict[news_list[i].link] = true;
                 second_news_list.push(news_list[i]);
-                href_promise_list.push({
-                  command: 'push_history',
-                  options: {
-                    // XXX probably a hack
-                    // Assume all links uses erp5js router logic
-                    jio_key: (new URL(news_list[i].link)).hash
-                              .split('?')[0].split('#/', 2)[1]
-                  }
-                });
+
+                if (news_list[i].link) {
+                  // Drop if there if already linked
+                  news_link_dict[news_list[i].link] = true;
+                  href_promise_list.push({
+                    command: 'push_history',
+                    options: {
+                      // XXX probably a hack
+                      // Assume all links uses erp5js router logic
+                      jio_key: (new URL(news_list[i].link)).hash
+                                .split('?')[0].split('#/', 2)[1]
+                    }
+                  });
+                } else {
+                  // No link was provided by the backend
+                  // As getUrlForList probably does not support no command info
+                  // (this leads to the error command)
+                  // reload the page by default
+                  // This is probably confusing for end user,
+                  // but we expect this case to not occurs often
+                  href_promise_list.push({
+                    command: 'reload'
+                  });
+                }
               }
             }
           }

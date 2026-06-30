@@ -41,5 +41,5 @@ class TestSlapOSPanelStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
 
 def test_suite():
   suite = unittest.TestSuite()
-  suite.addTest(unittest.makeSuite(TestSlapOSPanelStyle))
+  suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestSlapOSPanelStyle))
   return suite

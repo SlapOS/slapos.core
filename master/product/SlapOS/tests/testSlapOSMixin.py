@@ -333,5 +333,5 @@ class TestSlapOSDummy(testSlapOSMixin):
 
 def test_suite():
   suite = unittest.TestSuite()
-  suite.addTest(unittest.makeSuite(TestSlapOSDummy))
+  suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestSlapOSDummy))
   return suite

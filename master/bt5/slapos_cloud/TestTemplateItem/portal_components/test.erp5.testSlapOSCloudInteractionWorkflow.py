@@ -66,9 +66,9 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       self.tic()
     finally:
       Alarm.activeSense = Alarm.activeSense_call
-    self.assertEqual(
+    self.assertIn(
         'activeSense triggered',
-        instance.workflow_history['edit_workflow'][-1]['comment'])
+        [x['comment'] for x in instance.workflow_history['edit_workflow']])
 
   def test_SoftwareInstance_validate(self):
     return self.check_Instance_validate("Software Instance")

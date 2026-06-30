@@ -31,7 +31,7 @@ from Products.ERP5Type.Utils import str2bytes, str2unicode
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
                                                     TemporaryAlarmScript
 from DateTime import DateTime
-from App.Common import rfc1123_date
+from zope.datetime import rfc1123_date
 import json
 import hashlib
 from binascii import hexlify

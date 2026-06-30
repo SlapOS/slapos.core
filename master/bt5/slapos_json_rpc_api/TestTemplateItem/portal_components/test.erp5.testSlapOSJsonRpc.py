@@ -30,7 +30,7 @@ from Products.ERP5Type.Utils import str2bytes, bytes2str
 from erp5.component.module.JsonUtils import loadJson
 
 from DateTime import DateTime
-from App.Common import rfc1123_date
+from zope.datetime import rfc1123_date
 
 import json
 import io

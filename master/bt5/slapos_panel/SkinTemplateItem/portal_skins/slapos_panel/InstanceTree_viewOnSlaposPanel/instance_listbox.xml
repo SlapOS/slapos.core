@@ -154,10 +154,6 @@
                           <string>Node</string>
                         </tuple>
                         <tuple>
-                          <string>SoftwareInstance_getReportedState</string>
-                          <string>State</string>
-                        </tuple>
-                        <tuple>
                           <string>status</string>
                           <string>Status</string>
                         </tuple>

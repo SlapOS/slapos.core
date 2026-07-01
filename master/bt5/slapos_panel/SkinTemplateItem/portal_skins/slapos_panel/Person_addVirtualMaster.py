@@ -58,36 +58,6 @@ portal.assignment_request_module.newContent(
   activate_kw=activate_kw
 ).submit()
 
-# Compute Node trade condition
-if is_compute_node_payable:
-  source_section_value = subscription_request.getSourceSectionValue(
-    default=subscription_request.getSourceValue(default=None, portal_type='Organisation'),
-    portal_type='Organisation'
-  )
-  if source_section_value is None:
-    raise AssertionError('No source section found to generate the invoices')
-else:
-  source_section_value = None
-
-destination_section_value = None
-if subscription_request.getDestinationSectionUid() != customer.getUid():
-  destination_section_value = subscription_request.getDestinationSectionValue()
-sale_trade_condition = portal.sale_trade_condition_module.newContent(
-  portal_type="Sale Trade Condition",
-  title='%s-ComputeNode' % project.getReference(),
-  trade_condition_type="compute_node",
-  specialise_value=specialise_value,
-  source_project_value=project,
-  source_value=subscription_request.getSourceValue(),
-  source_section_value=source_section_value,
-  #source_payment_value=seller_bank_account,
-  # The person will pay for all compute node
-  destination_section_value=destination_section_value,
-  price_currency_value=currency_value,
-  activate_kw=activate_kw
-)
-sale_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
-
 # Instance Tree trade condition
 if is_instance_tree_payable:
   source_section_value = subscription_request.getSourceSectionValue(
@@ -112,21 +82,16 @@ sale_trade_condition = portal.sale_trade_condition_module.newContent(
 )
 sale_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate(activate_kw=activate_kw)
 
-if is_compute_node_payable or is_instance_tree_payable:
-  # Create a draft sale supply to buy nodes / instances
+if is_instance_tree_payable:
+  # Create a draft sale supply to buy instances
   # Sale Manager must manually enter the prices on it and validate
-  sale_supply = portal.sale_supply_module.newContent(
+  portal.sale_supply_module.newContent(
     portal_type="Sale Supply",
     title="Project Prices for %s" % project.getReference(),
     source_project_value=project,
     price_currency_value=currency_value,
     activate_kw=activate_kw
   )
-  if is_compute_node_payable:
-    sale_supply.newContent(
-      portal_type="Sale Supply Line",
-      resource="service_module/slapos_compute_node_subscription"
-    )
 
 if batch:
   return project

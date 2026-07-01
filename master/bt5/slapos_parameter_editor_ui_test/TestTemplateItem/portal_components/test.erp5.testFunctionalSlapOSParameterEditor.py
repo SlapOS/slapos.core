@@ -40,5 +40,5 @@ class TestSlapOSParameterEditor(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase)
 
 def test_suite():
   suite = unittest.TestSuite()
-  suite.addTest(unittest.makeSuite(TestSlapOSParameterEditor))
+  suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestSlapOSParameterEditor))
   return suite

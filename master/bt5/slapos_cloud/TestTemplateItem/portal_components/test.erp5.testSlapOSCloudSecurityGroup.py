@@ -316,7 +316,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
 
 def test_suite():
   suite = unittest.TestSuite()
-  suite.addTest(unittest.makeSuite(TestSlapOSComputeNodeSecurity))
-  suite.addTest(unittest.makeSuite(TestSlapOSSoftwareInstanceSecurity))
-  suite.addTest(unittest.makeSuite(TestSlapOSPersonSecurity))
+  suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestSlapOSComputeNodeSecurity))
+  suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestSlapOSSoftwareInstanceSecurity))
+  suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestSlapOSPersonSecurity))
   return suite

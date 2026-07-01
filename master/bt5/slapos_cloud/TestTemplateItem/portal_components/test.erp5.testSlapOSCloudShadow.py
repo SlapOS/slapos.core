@@ -155,7 +155,7 @@ class TestSlapOSShadowSoftwareInstance(TestSlapOSSecurityMixin):
 
 def test_suite():
   suite = unittest.TestSuite()
-  suite.addTest(unittest.makeSuite(TestSlapOSShadowPerson))
-  suite.addTest(unittest.makeSuite(TestSlapOSShadowComputeNode))
-  suite.addTest(unittest.makeSuite(TestSlapOSShadowSoftwareInstance))
+  suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestSlapOSShadowPerson))
+  suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestSlapOSShadowComputeNode))
+  suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestSlapOSShadowSoftwareInstance))
   return suite

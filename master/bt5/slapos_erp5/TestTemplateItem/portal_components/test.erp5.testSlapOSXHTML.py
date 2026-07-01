@@ -48,5 +48,5 @@ def test_suite():
     bt5_list)
 
   suite = unittest.TestSuite()
-  suite.addTest(unittest.makeSuite(TestSlapOSXHTML))
+  suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestSlapOSXHTML))
   return suite

@@ -63,15 +63,6 @@ class SlapOSCatalogToolCacheMixin(object):
 
   @UnrestrictedMethod
   def _getComputeNodeUid(self, reference):
-    """
-    Get the validated compute_node with this reference.
-    """
-    return CachingMethod(self._getNonCachedComputeNodeUid,
-        id='_getNonCachedComputeNodeUid',
-        cache_factory='slap_cache_factory')(reference)
-
-  @UnrestrictedMethod
-  def _getNonCachedComputeNodeUid(self, reference):
     return self.unrestrictedSearchResults(
       portal_type=['Compute Node', 'Remote Node'], reference=reference,
       validation_state="validated")[0].UID
@@ -85,7 +76,7 @@ class SlapOSCatalogToolCacheMixin(object):
     compute_partition_list = self.unrestrictedSearchResults(limit=2,
       portal_type='Compute Partition',
       reference=compute_partition_reference,
-      parent_uid=self._getNonCachedComputeNodeUid(
+      parent_uid=self._getComputeNodeUid(
           compute_node_reference))
     if len(compute_partition_list) != 1:
       raise NotFound("No document found with parameters: %s %s" % \

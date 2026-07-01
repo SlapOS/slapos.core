@@ -24,19 +24,20 @@ for compute_node in allocation_supply.getAggregateValueList(portal_type="Compute
       state='available'
     )
 
-# Keep installation event if consistency is not good
-# to not wait to compile
-if len(allocation_supply.checkConsistency()) != 0:
-  return allocation_supply.Base_redirect(keep_items={
-    'portal_status_level': 'error',
-    'portal_status_message': str(allocation_supply.checkConsistency()[0].getMessage())
-  })
+allocation_supply.validate()
 
 if allocation_supply_line_to_delete_id_list:
   # Delete the lines to improve visible of the supply logic
   allocation_supply.manage_delObjects(allocation_supply_line_to_delete_id_list)
 
-allocation_supply.validate()
+consistency_list = allocation_supply.checkConsistency()
+if len(consistency_list) != 0:
+  # immediately invalidate to generate all possible lines
+  allocation_supply.AllocationSupply_invalidateComputeNodeList(batch=1)
+  return allocation_supply.Base_redirect(keep_items={
+    'portal_status_level': 'error',
+    'portal_status_message': str(consistency_list[0].getMessage())
+  })
 
 return allocation_supply.Base_redirect(
   keep_items={'portal_status_message': translateString('Allocation Supply validated.')}

@@ -23,7 +23,8 @@ support_request = project.Project_createTicketWithCausality(
   'Support Request',
   ticket_title,
   ticket_description,
-  causality=allocation_supply.getRelativeUrl(),
+  # Do not link the ticket to the allocation supply, as it prevents it to be deleted
+  causality=project.getRelativeUrl(),
   destination_decision=project.getDestination()
 )
 

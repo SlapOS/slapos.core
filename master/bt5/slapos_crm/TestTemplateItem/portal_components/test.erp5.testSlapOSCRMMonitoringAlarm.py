@@ -2685,7 +2685,7 @@ class TestSlapOSCrmGarbageCollectProject(TestSlapOSCrmMonitoringMixin):
 
     self.assertNotEqual(ticket, None)
     self.assertEqual(ticket.getTitle(), 'Allocation Supply %s is not linked to any node' % allocation_supply.getTitle())
-    self.assertEqual(ticket.getCausality(), allocation_supply.getRelativeUrl())
+    self.assertEqual(ticket.getCausality(), allocation_supply.getDestinationProject())
 
     self.tic()
     event_list = ticket.getFollowUpRelatedValueList()

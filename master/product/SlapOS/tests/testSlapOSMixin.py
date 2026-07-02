@@ -272,6 +272,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'slapos_json_rpc_api',
       'erp5_open_api',
       'erp5_json_form',
+      'erp5_workgroup',
       'slapos_mysql_innodb_catalog',
       'slapos_parameter_editor',
       'slapos_cloud',

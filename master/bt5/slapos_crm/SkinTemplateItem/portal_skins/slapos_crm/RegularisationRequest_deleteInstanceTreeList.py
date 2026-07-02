@@ -2,14 +2,14 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
+portal = context.getPortalObject()
 ticket = context
 state = ticket.getSimulationState()
-entity = ticket.getDestinationDecisionValue(portal_type=["Person", "Organisation"])
+entity = ticket.getDestinationDecisionValue(portal_type=portal.getPortalEntityTypeList())
 if (state == 'suspended') and \
    (entity is not None) and \
    (ticket.getResource() == 'service_module/slapos_crm_delete_acknowledgement'):
 
-  portal = context.getPortalObject()
   subscribed_item_list = []
 
   ledger_uid = portal.portal_categories.ledger.automated.getUid()

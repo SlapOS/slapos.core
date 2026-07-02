@@ -75,7 +75,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_cloud/AlarmTool_checkPredecessorToSuccessorMigrationConsistency',
         'slapos_cloud/ComputeNode_applyComputerModel',
         'slapos_cloud/ComputeNode_getFreeComputePartitionCount',
-        'slapos_cloud/ComputeNode_getSoftwareReleaseList',
         'slapos_cloud/ComputeNode_getSoftwareReleaseUrlStringList',
         'slapos_cloud/ComputeNode_getSoftwareReleaseUsage',
         'slapos_cloud/ComputeNode_getUsageReportUrl',

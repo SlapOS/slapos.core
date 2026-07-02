@@ -3,15 +3,15 @@ if REQUEST is not None:
   raise Unauthorized
 
 ticket = context
+portal = context.getPortalObject()
 state = ticket.getSimulationState()
-entity = ticket.getDestinationDecisionValue(portal_type=["Person", "Organisation"])
+entity = ticket.getDestinationDecisionValue(portal_type=portal.getPortalEntityTypeList())
 if (state == 'suspended') and \
    (entity is not None) and \
    (ticket.getResource() in ['service_module/slapos_crm_stop_acknowledgement',
                              'service_module/slapos_crm_delete_reminder',
                              'service_module/slapos_crm_delete_acknowledgement']):
 
-  portal = context.getPortalObject()
 
   ledger_uid = portal.portal_categories.ledger.automated.getUid()
   # Gather the list of not paid services

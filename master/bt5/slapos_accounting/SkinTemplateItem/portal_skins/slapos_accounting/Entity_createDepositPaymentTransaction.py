@@ -7,8 +7,7 @@ from Products.ERP5Type.Message import translateString
 
 portal = context.getPortalObject()
 
-# Only Person and Organisation can create make deposit
-assert context.getPortalType() in ['Person', 'Organisation']
+assert context.getPortalType() in portal.getPortalEntityTypeList()
 
 if not subscription_list:
   raise ValueError('You need to provide at least one Subscription Request')

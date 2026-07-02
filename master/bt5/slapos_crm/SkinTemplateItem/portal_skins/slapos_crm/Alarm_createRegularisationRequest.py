@@ -10,13 +10,13 @@ for (_, brain) in enumerate(portal.portal_simulation.getInventoryList(
     grouping_reference=None
 )):
 
-  section_uid = brain.getDestinationSectionUid(portal_type=["Person", "Organisation"])
+  section_uid = brain.getDestinationSectionUid(portal_type=portal.getPortalEntityTypeList())
   if section_uid is not None:
     entity_uid_list.append(section_uid)
 
 if entity_uid_list:
   portal.portal_catalog.searchAndActivate(
-    portal_type=["Person", "Organisation"],
+    portal_type=portal.getPortalEntityTypeList(),
     validation_state="validated",
     uid=entity_uid_list,
     method_id='Entity_checkToCreateRegularisationRequest',

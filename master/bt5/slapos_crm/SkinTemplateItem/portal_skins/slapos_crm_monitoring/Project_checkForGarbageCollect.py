@@ -178,7 +178,10 @@ portal.portal_catalog.searchAndActivate(
     comparison_operator="<"
   ),
   validation_state='validated',
-  strict__allocation_scope__uid=NegatedQuery(SimpleQuery(strict__allocation_scope__uid=portal.portal_categories.allocation_scope.close.maintenance.getUid())),
+  strict__allocation_scope__uid=NegatedQuery(SimpleQuery(strict__allocation_scope__uid=[
+    portal.portal_categories.allocation_scope.close.maintenance.getUid(),
+    portal.portal_categories.allocation_scope.close.forever.getUid(),
+  ])),
   uid=NegatedQuery(SimpleQuery(uid=configured_node_uid_list)),
   method_id='ComputeNode_checkForMaintenance',
   method_kw={'activate_kw': activate_kw},

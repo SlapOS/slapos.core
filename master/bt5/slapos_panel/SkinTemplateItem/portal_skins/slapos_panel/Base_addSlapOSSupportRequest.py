@@ -1,6 +1,6 @@
 portal = context.getPortalObject()
 REQUEST = context.REQUEST
-person = portal.portal_membership.getAuthenticatedMember().getUserValue()
+entity = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
 # Max ~3Mb
 if int(REQUEST.getHeader('Content-Length', 0)) > 3145728:
@@ -12,7 +12,13 @@ if context.getPortalType() == 'Project':
 else:
   project = context.getFollowUpValue()
 
-support_request = person.Entity_createTicketFromTradeCondition(
+if context.getPortalType() == "Instance Tree":
+  workgroup = context.getDestinationSection(
+    portal_type='Workgroup', checked_permission='View')
+  if workgroup is not None:
+    entity = context.getDestinationSectionValue(portal_type='Workgroup')
+
+support_request = entity.Entity_createTicketFromTradeCondition(
   resource,
   title,
   description,

@@ -54,13 +54,6 @@ class SlapOSPersonSlapInterfaceMixin:
 
     instance_tree_portal_type = "Instance Tree"
 
-    tag = "%s_%s_inProgress" % (person.getUid(), software_title)
-
-    if (portal.portal_activities.countMessageWithTag(tag) > 0):
-      # The software instance is already under creation but can not be fetched from catalog
-      # As it is not possible to fetch informations, it is better to raise an error
-      raise NotImplementedError(tag)
-
     # Ensure project is correctly set
     assert project_reference, 'No project reference'
     project_list = portal.portal_catalog(portal_type='Project',
@@ -77,6 +70,14 @@ class SlapOSPersonSlapInterfaceMixin:
     workgroup = project.Project_getUserWorkgroup(fallback_user=person)
     if workgroup is not None:
       requester = workgroup
+
+    tag = "%s_%s_inProgress" % (requester.getUid(), software_title)
+
+    if (portal.portal_activities.countMessageWithTag(tag) > 0):
+      # The software instance is already under creation but can not be fetched from catalog
+      # As it is not possible to fetch informations, it is better to raise an error
+      raise NotImplementedError(tag)
+
 
     # Check if it already exists
     request_instance_tree_list = portal.portal_catalog(

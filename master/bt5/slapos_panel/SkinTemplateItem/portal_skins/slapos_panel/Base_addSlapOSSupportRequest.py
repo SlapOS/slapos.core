@@ -13,9 +13,10 @@ else:
   project = context.getFollowUpValue()
 
 if context.getPortalType() == "Instance Tree":
-  workgroup = context.getDestinationSectionValue(portal_type='Workgroup')
+  workgroup = context.getDestinationSection(
+    portal_type='Workgroup', checked_permission='View')
   if workgroup is not None:
-    entity = workgroup
+    entity = context.getDestinationSectionValue(portal_type='Workgroup')
 
 support_request = entity.Entity_createTicketFromTradeCondition(
   resource,

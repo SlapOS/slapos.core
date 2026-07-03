@@ -87,7 +87,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_cloud/ComputePartition_getSoftwareType',
         'slapos_cloud/ComputePartition_isFreeForRequest',
         'slapos_cloud/ComputerNetwork_getSoftwareInstanceAmount',
-        'slapos_cloud/Organisation_init',
         'slapos_cloud/Person_findPartition',
         'slapos_cloud/Project_getComputeNodeReferenceList',
         'slapos_cloud/Project_init',

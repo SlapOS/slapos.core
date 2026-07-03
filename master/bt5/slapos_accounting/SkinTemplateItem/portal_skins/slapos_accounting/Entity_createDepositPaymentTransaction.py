@@ -7,6 +7,8 @@ from Products.ERP5Type.Message import translateString
 
 portal = context.getPortalObject()
 
+assert context.getPortalType() in portal.getPortalEntityTypeList()
+
 if not subscription_list:
   raise ValueError('You need to provide at least one Subscription Request')
 

@@ -69,7 +69,6 @@ class TestInstanceNode_afterClone(TestSlapOSCloudSkinsMixin):
 
     reference = instance_node.getReference()
     new_instance_node = instance_node.Base_createCloneDocument(batch_mode=1)
-    instance_node.InstanceNode_afterClone()
     self.assertTrue(new_instance_node.getReference().startswith("SHARED-"))
     self.assertNotEqual(new_instance_node.getReference(), reference)
 
@@ -123,16 +122,15 @@ class TestComputeNetwork_afterClone(TestSlapOSCloudSkinsMixin):
     computer_network = self.portal.computer_network_module.newContent(
       portal_type="Computer Network",
       title="TESTNET-%s" % self.generateNewId())
-    computer_network.validate()
+    computer_network.approveRegistration()
 
     reference = computer_network.getReference()
     computer_network.ComputerNetwork_afterClone()
-    self.assertTrue(computer_network.getReference().startswith("NET-"))
-    self.assertNotEqual(computer_network.getReference(), reference)
+    self.assertTrue(reference.startswith("NET-"))
+    # afterClone dont change already validated computer_network
+    self.assertEqual(computer_network.getReference(), reference)
 
-    reference = computer_network.getReference()
     new_computer_network = computer_network.Base_createCloneDocument(batch_mode=1)
-    computer_network.InstanceNode_afterClone()
-    self.assertTrue(new_computer_network.getReference().startswith("NET-"))
+    self.assertEqual(new_computer_network.getReference(), None)
     self.assertNotEqual(new_computer_network.getReference(), reference)
 

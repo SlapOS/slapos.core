@@ -178,16 +178,14 @@ class SlapOSComputeNodeSlapInterfaceMixin:
       if (state == "destroyed"):
         # No need to create destroyed subscription.
         return
-      software_installation_reference = "SOFTINSTALL-%s" % portal.portal_ids\
-          .generateNewId(id_group='slap_software_installation_reference', id_generator='uid')
       software_installation = portal.getDefaultModule(portal_type=software_installation_portal_type).newContent(
         portal_type=software_installation_portal_type,
-        reference=software_installation_reference,
         url_string=software_release_url,
         aggregate=compute_node.getRelativeUrl(),
         follow_up_value=compute_node.getFollowUpValue(),
         activate_kw={'tag': tag}
       )
+      software_installation.setReference("SOFTINSTALL-%s" % software_installation.getId())
       compute_node.REQUEST.set(tag, tag)
       # Prevent concurrent creation
       compute_node.serialize()

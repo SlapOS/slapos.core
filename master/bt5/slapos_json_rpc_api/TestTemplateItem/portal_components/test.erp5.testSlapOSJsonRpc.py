@@ -2065,3 +2065,23 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       'status': 403
     }, loadJson(response.getBody()))
 
+  def test_PersonAccess_46_searchInstanceTreeList(self):
+    with PinnedDateTime(self, DateTime()):
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree()
+      person = instance_tree.getDestinationSectionValue()
+      person_user_id = person.getUserId()
+
+    response = self.callJsonRpcWebService(
+      "slapos.allDocs.v0.instance_tree_list",
+      {},
+      person_user_id
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    instance_tree_list_response = loadJson(response.getBody())
+    self.assertEqual(
+      instance_tree_list_response,
+      {
+        'result_list': [{'title': instance_tree.getTitle()}]
+      })
+    self.assertEqual(response.getStatus(), 200)
+

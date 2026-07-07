@@ -625,21 +625,18 @@ def put_software_installation_error():
     'title': 'Ignored'
   })
 
-
-@json_rpc_experimental_blueprint.route('/slapos.allDocs.WIP.instance_tree_list', methods=['POST'])
+@json_rpc_blueprint.route('/slapos.allDocs.v0.instance_tree_list', methods=['POST'])
 def instance_tree_list():
   partition_and_shared_list = getInstanceTreeList()
   result_list = []
   for partition in partition_and_shared_list[0]:
     result_list.append({
-      "instance_guid": generateInstanceGuid(partition['partition_reference'], '', False),
       "title": partition['partition_reference']
     })
   for shared in partition_and_shared_list[1]:
     title, asked_by = extractDBSlaveReference(shared['reference'])
     assert asked_by == shared['asked_by']
     result_list.append({
-      "instance_guid": generateInstanceGuid(title, '', True),
       "title": title
     })
   return validate_and_send_json_rpc_document({

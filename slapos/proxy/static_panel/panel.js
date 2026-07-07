@@ -163,7 +163,7 @@
         text = 'Instance Tree';
         dataset = {
           'data-display_step': DISPLAY_INSTANCE_TREE,
-          'data-instance_guid': gadget.state.instance_guid
+          'data-instance_tree_title': gadget.state.instance_tree_title
         };
       } else if ((gadget.state.display_step === DISPLAY_SELECT_SOFTWARE_RELEASE_REQUEST_DIALOG) ||
                  (gadget.state.display_step === DISPLAY_REQUEST_DIALOG)) {
@@ -209,7 +209,7 @@
   //////////////////////////////////////////////////////
   function renderInstanceTreeList(gadget, translation_dict) {
 
-    return callJsonRpcEntryPoint('/slapos.allDocs.WIP.instance_tree_list')
+    return callJsonRpcEntryPoint('/slapos.allDocs.v0.instance_tree_list')
       .push(function (json_response) {
         var instance_tree_list = json_response.result_list,
           element_list = [],
@@ -222,7 +222,7 @@
                 type: 'button',
                 text: instance_tree_list[i].title,
                 'data-display_step': DISPLAY_INSTANCE_TREE,
-                'data-instance_guid': instance_tree_list[i].instance_guid
+                'data-instance_tree_title': instance_tree_list[i].title
               })
             ])
           ]));
@@ -254,9 +254,9 @@
     return new RSVP.Queue(RSVP.hash({
       form_view_gadget: gadget.declareGadget('external/gadget_erp5_form.html'),
       json_response: callJsonRpcEntryPoint(
-        '/slapos.get.v0.software_instance',
+        '/slapos.get.v0.instance_tree',
         {
-          instance_guid: gadget.state.instance_guid
+          title: gadget.state.instance_tree_title
         }
       )
     }))
@@ -310,7 +310,7 @@
                   // XXX TODO move to the left panel
                   text: "Update Parameters",
                   'data-display_step': DISPLAY_INSTANCE_TREE_UPDATE_DIALOG,
-                  'data-instance_guid': json_response.instance_guid,
+                  'data-instance_tree_title': json_response.title,
                   'class': 'ui-btn-icon-left ui-icon-sliders'
                 }).outerHTML,
                 "required": 1,
@@ -387,9 +387,9 @@
 
   function searchConnectionParameterList(gadget) {
     return callJsonRpcEntryPoint(
-      '/slapos.get.v0.software_instance',
+      '/slapos.get.v0.instance_tree',
       {
-        instance_guid: gadget.state.instance_guid
+        title: gadget.state.instance_tree_title
       }
     )
       .push(function (json_response) {
@@ -458,9 +458,9 @@
     return new RSVP.Queue(RSVP.hash({
       form_dialog_gadget: gadget.declareGadget('external/gadget_erp5_pt_form_dialog.html'),
       json_response: callJsonRpcEntryPoint(
-        '/slapos.get.v0.software_instance',
+        '/slapos.get.v0.instance_tree',
         {
-          instance_guid: gadget.state.instance_guid
+          title: gadget.state.instance_tree_title
         }
       )
     }))
@@ -548,9 +548,9 @@
 
   function submitInstanceTreeUpdateDialog(gadget, translation_dict, data) {
     return callJsonRpcEntryPoint(
-      '/slapos.get.v0.software_instance',
+      '/slapos.get.v0.instance_tree',
       {
-        instance_guid: gadget.state.instance_guid
+        title: gadget.state.instance_tree_title
       }
     )
       .push(function (json_response) {
@@ -800,7 +800,7 @@
       .push(function (response) {
         return gadget.redirectChangeState({
           display_step: DISPLAY_INSTANCE_TREE,
-          instance_guid: response.instance_guid
+          instance_tree_title: data.title
         });
       }, function (error) {
         if (error.target instanceof XMLHttpRequest) {

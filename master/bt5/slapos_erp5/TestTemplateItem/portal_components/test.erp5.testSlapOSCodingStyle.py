@@ -136,6 +136,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_json_rpc_api/JSONRPCService_searchComputeNodeSoftwareInstallationFromDict',
         'slapos_json_rpc_api/JSONRPCService_searchComputeNodeSoftwareInstanceFromDict',
         'slapos_json_rpc_api/JSONRPCService_searchInstanceNodeSlaveInstanceFromDict',
+        'slapos_json_rpc_api/JSONRPCService_searchInstanceTreeFromDict',
         'slapos_json_rpc_api/JSONRPCService_updateSoftwareInstallationErrorStateFromDict',
         'slapos_json_rpc_api/JSONRPCService_updateSoftwareInstallationReportStateFromDict',
         'slapos_json_rpc_api/JSONRPCService_updateSoftwareInstanceConnectionParameterFromDict',

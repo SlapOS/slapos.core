@@ -1,6 +1,6 @@
 {
   "info": {
-    "version": "0.0.2", 
+    "version": "0.0.3",
     "description": "", 
     "title": "slapos master api"
   }, 
@@ -81,6 +81,64 @@
         }
       }
     }, 
+    "/slapos.allDocs.v0.instance_tree_list": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "description": "Get the user Instance Tree list",
+                "title": "Get the user Instance Tree list"
+              }
+            }
+          },
+          "description": "Get the user Instance Tree list"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Payload returned by allDocs method.",
+                  "title": "allDocs: Response Payload",
+                  "required": [
+                    "result_list"
+                  ],
+                  "additionalProperties": false,
+                  "$schema": "http://json-schema.org/draft-07/schema#",
+                  "type": "object",
+                  "properties": {
+                    "result_list": {
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title"
+                        ],
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "title": "Unique Title of the Instance Tree"
+                          }
+                        },
+                        "title": "Instance Tree"
+                      },
+                      "type": "array",
+                      "description": "Contains a representation of the items",
+                      "title": "Result List"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Payload returned by allDocs method."
+          }
+        }
+      }
+    },
     "/slapos.get.v0.software_instance_certificate": {
       "post": {
         "requestBody": {

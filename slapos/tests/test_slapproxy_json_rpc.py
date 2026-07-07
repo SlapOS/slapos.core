@@ -1795,12 +1795,10 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     expect_result_dict['processing_timestamp'] = data_result.get('processing_timestamp', 'unknown')
     assert data_result == expect_result_dict, response.data
 
-
-class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
   #######################################################
   # Get instance tree list
   #######################################################
-  def test_allDocs_WIP_instance_tree_list(self):
+  def test_allDocs_instance_tree_list(self):
     self.format_for_number_of_partitions(1)
     self.app.post(
       '/slapos.post.v0.software_instance',
@@ -1821,7 +1819,7 @@ class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
     )
 
     response = self.app.post(
-      '/slapos.allDocs.WIP.instance_tree_list',
+      '/slapos.allDocs.v0.instance_tree_list',
       json={}
     )
     assert response.status_code == 200, response.status_code
@@ -1829,15 +1827,15 @@ class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'result_list': [{
-          'title': 'MyFirstInstance',
-          'instance_guid': 'MyFirstInstance______0'
+          'title': 'MyFirstInstance'
         }, {
-          'title': 'MyFirstShared',
-          'instance_guid': 'MyFirstShared______1'
+          'title': 'MyFirstShared'
         }]
     }
     assert json.loads(response.data) == expect_result_dict, response.data
 
+
+class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
   #######################################################
   # Get compute node list
   #######################################################

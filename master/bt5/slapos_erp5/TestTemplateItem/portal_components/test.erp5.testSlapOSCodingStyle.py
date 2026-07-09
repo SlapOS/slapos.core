@@ -78,23 +78,18 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_cloud/ComputeNode_getSoftwareReleaseUrlStringList',
         'slapos_cloud/ComputeNode_getSoftwareReleaseUsage',
         'slapos_cloud/ComputeNode_getUsageReportUrl',
-        'slapos_cloud/ComputeNode_init',
-        'slapos_cloud/InstanceNode_init',
         'slapos_cloud/InstanceTree_getRootInstance',
         'slapos_cloud/InstanceTree_updateParameterAndRequest',
-        'slapos_cloud/RemoteNode_init',
         'slapos_cloud/ComputePartition_getAvailableSoftwareReleaseUrlStringList',
         'slapos_cloud/ComputePartition_getSoftwareType',
         'slapos_cloud/ComputePartition_isFreeForRequest',
         'slapos_cloud/ComputerNetwork_getSoftwareInstanceAmount',
         'slapos_cloud/Person_findPartition',
         'slapos_cloud/Project_getComputeNodeReferenceList',
-        'slapos_cloud/Project_init',
         'slapos_cloud/Resource_zGetTrackingList',
         'slapos_cloud/SoftwareInstance_checkPredecessorToSuccessorMigrationConsistency',
         'slapos_cloud/SoftwareInstance_getComputePartitionIPv6',
         'slapos_cloud/SoftwareInstance_getDefaultImageAbsoluteUrl',
-        'slapos_cloud/SoftwareInstance_init',
         'slapos_cloud/SoftwareInstance_renameAndRequestStopAction',
         'slapos_cloud/SoftwareRelease_getRelatedNetworkList',
         'slapos_cloud/SoftwareRelease_getUsableComputeNodeList',
@@ -105,7 +100,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_crm_monitoring/SupportRequest_afterNewEvent',
         'slapos_crm/RegularisationRequest_afterClone',
         'slapos_crm/RegularisationRequest_getResourceItemList',
-        'slapos_crm/RegularisationRequest_init',
         'slapos_erp5/CategoryTool_checkRegionMigrationConsistency',
         'slapos_erp5/Category_updateRelatedRegionAndExpire',
         'slapos_json_rpc_api/JSONRPCService_asJSON',
@@ -134,7 +128,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_json_rpc_api/JSONRPCService_updateSoftwareInstanceTitleFromDict',
         'slapos_pdm/UpgradeDecision_afterClone',
         'slapos_pdm/UpgradeDecision_getResourceItemList',
-        'slapos_pdm/UpgradeDecision_init',
         'slapos_simulation/ConsumptionSubscription_getRuleReference',
         'slapos_simulation/DeliveryBuilder_selectSlapOSConfirmedInvoiceList',
         'slapos_simulation/DeliveryBuilder_selectSlapOSMovement',
@@ -163,7 +156,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_accounting/PaymentTransaction_acceptDepositPayment',
         'slapos_accounting/PaymentTransaction_getExternalPaymentId',
         'slapos_accounting/SaleInvoiceTransaction_getBaseCategoryDictForPrintout',
-        'slapos_accounting/SaleInvoiceTransaction_init',
         'slapos_accounting/SaleInvoiceTransaction_isTotalPriceEqualAccounting',
         'slapos_accounting/SaleInvoiceTransaction_isTotalPriceMatchingSalePackingList',
         'slapos_accounting/SaleInvoiceTransaction_isTradeModelCorrect',
@@ -302,9 +294,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_web_renderjs_ui/WebSection_validatePersonName',
         'slapos_web_renderjs_ui/WebSection_validateUserAgent',
         'slapos_subscription_request/SubscriptionRequest_createOpenSaleOrder',
-        'slapos_subscription_request/SubscriptionRequest_init',
         'slapos_subscription_request/OpenSaleOrderCell_createDiscountSalePackingList',
-        'slapos_subscription_request/SubscriptionChangeRequest_init',
         'slapos_subscription_request/Resource_createSubscriptionRequest',
         'slapos_upgrader/Base_activateObjectMigrationToRemoteVirtualMaster',
         'slapos_upgrader/Base_activateObjectMigrationToVirtualMaster',
@@ -416,14 +406,20 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
   
       # Test skins
       portal_skins = self.portal.portal_skins
+      ignore_script_list = [i.getTypeInitScriptId() for i in 
+             self.portal.portal_types.objectValues() if i.getTypeInitScriptId()]
+
+      ignore_script_list.extend([i.getActiveSenseMethodId() for i in
+             self.portal.portal_alarms.objectValues() if i.getActiveSenseMethodId()])
       for skin_id in skin_id_set:
         skin = portal_skins[skin_id]
         for _, document in skin.ZopeFind(
             skin,
             obj_metatypes=('Script (Python)', 'Z SQL Method', ),
             search_sub=True):
-          if document.getId().startswith("Alarm_"):
-            # Alarms are tested directly, so we can safely skip
+
+          if document.getId() in ignore_script_list:
+            # Init scripts are not tested individually
             continue
 
           found = 0

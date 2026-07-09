@@ -72,18 +72,18 @@ class TestUpgradeDecision_afterClone(SlapOSTestCaseMixin):
 
   def test_UpgradeDecision_afterClone(self):
     upgrade_decision = self.portal.upgrade_decision_module.newContent(
-      portal_type="Regularisation Request",
-      title="TESTRR-%s" % self.generateNewId())
+      portal_type="Upgrade Decision",
+      title="TESTUD-%s" % self.generateNewId())
 
     reference = upgrade_decision.getReference()
-    self.assertTrue(reference.startswith("RR-"))
+    self.assertTrue(reference.startswith("UD-"))
     upgrade_decision.UpgradeDecision_afterClone()
     self.assertNotEqual(upgrade_decision.getReference(), reference)
     reference = upgrade_decision.getReference()
-    self.assertTrue(reference.startswith("RR-"))
+    self.assertTrue(reference.startswith("UD-"))
 
     new_upgrade_decision = upgrade_decision.Base_createCloneDocument(batch_mode=1)
     self.assertNotEqual(new_upgrade_decision.getReference(), reference)
     reference = new_upgrade_decision.getReference()
-    self.assertTrue(reference.startswith("RR-"))
+    self.assertTrue(reference.startswith("UD-"))
 

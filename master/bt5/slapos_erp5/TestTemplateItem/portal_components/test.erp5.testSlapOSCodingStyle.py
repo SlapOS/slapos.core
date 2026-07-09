@@ -181,7 +181,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_administration/ERP5Site_getSecurityUidStat',
         'slapos_administration/TemplateTool_deleteObsoleteTemplateList',
         'slapos_administration/TemplateTool_unindexDeletedObjectList',
-        'slapos_administration/WebPage_updateGadgetId',
         'slapos_administration/z_delete_security_uid_set_from_roles_and_users',
         'slapos_administration/z_get_used_computer_security_uid_list',
         'slapos_administration/z_get_used_group_security_uid_list',

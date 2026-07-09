@@ -66,3 +66,24 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
                         instance_tree.getUrlString())
     self.assertEqual('destroy_requested', instance_tree.getSlapState())
     self.assertEqual('rejected', upgrade_decision.getSimulationState())
+
+
+class TestUpgradeDecision_afterClone(SlapOSTestCaseMixin):
+
+  def test_UpgradeDecision_afterClone(self):
+    upgrade_decision = self.portal.upgrade_decision_module.newContent(
+      portal_type="Regularisation Request",
+      title="TESTRR-%s" % self.generateNewId())
+
+    reference = upgrade_decision.getReference()
+    self.assertTrue(reference.startswith("RR-"))
+    upgrade_decision.UpgradeDecision_afterClone()
+    self.assertNotEqual(upgrade_decision.getReference(), reference)
+    reference = upgrade_decision.getReference()
+    self.assertTrue(reference.startswith("RR-"))
+
+    new_upgrade_decision = upgrade_decision.Base_createCloneDocument(batch_mode=1)
+    self.assertNotEqual(new_upgrade_decision.getReference(), reference)
+    reference = new_upgrade_decision.getReference()
+    self.assertTrue(reference.startswith("RR-"))
+

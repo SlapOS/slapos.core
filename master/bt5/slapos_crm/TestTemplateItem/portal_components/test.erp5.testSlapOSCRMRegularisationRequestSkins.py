@@ -612,3 +612,22 @@ class TestSlapOSInstanceTree_deleteFromRegularisationRequest(
       instance_tree.InstanceTree_deleteFromRegularisationRequest,
       'foobar')
 
+class TestRegularisationRequest_afterClone(SlapOSTestCaseMixin):
+
+  def test_RegularisationRequest_afterClone(self):
+    regularisation_request = self.portal.regularisation_request_module.newContent(
+      portal_type="Regularisation Request",
+      title="TESTRR-%s" % self.generateNewId())
+
+    reference = regularisation_request.getReference()
+    self.assertTrue(reference.startswith("RR-"))
+    regularisation_request.RegularisationRequest_afterClone()
+    self.assertNotEqual(regularisation_request.getReference(), reference)
+    reference = regularisation_request.getReference()
+    self.assertTrue(reference.startswith("RR-"))
+
+    new_regularisation_request = regularisation_request.Base_createCloneDocument(batch_mode=1)
+    self.assertNotEqual(new_regularisation_request.getReference(), reference)
+    reference = new_regularisation_request.getReference()
+    self.assertTrue(reference.startswith("RR-"))
+

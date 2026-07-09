@@ -47,44 +47,55 @@ class SlapOSPersonSlapInterfaceMixin:
     software_release_url_string = software_release
     is_slave = shared
     root_state = state
+    requester = person
 
     if is_slave not in [True, False]:
       raise ValueError("shared should be a boolean")
 
     instance_tree_portal_type = "Instance Tree"
 
-    tag = "%s_%s_inProgress" % (person.getUid(),
-                                   software_title)
+    # Ensure project is correctly set
+    assert project_reference, 'No project reference'
+    project_list = portal.portal_catalog(portal_type='Project',
+                                         reference=project_reference,
+                                         validation_state='validated',
+                                         limit=2)
+    if len(project_list) != 1:
+      raise NotImplementedError("%i projects '%s'" % (len(project_list), project_reference))
+
+    project = project_list[0]
+    requester = person
+
+    # Use fallback in case this is called as Manager.
+    workgroup = project.Project_getUserWorkgroup(fallback_user=person)
+    if workgroup is not None:
+      requester = workgroup
+
+    tag = "%s_%s_inProgress" % (requester.getUid(), software_title)
 
     if (portal.portal_activities.countMessageWithTag(tag) > 0):
       # The software instance is already under creation but can not be fetched from catalog
       # As it is not possible to fetch informations, it is better to raise an error
       raise NotImplementedError(tag)
 
-    # Ensure project is correctly set
-    assert project_reference, 'No project reference'
-    project_list = portal.portal_catalog(portal_type='Project', reference=project_reference,
-                                                        validation_state='validated', limit=2)
-    if len(project_list) != 1:
-      raise NotImplementedError("%i projects '%s'" % (len(project_list), project_reference))
 
     # Check if it already exists
     request_instance_tree_list = portal.portal_catalog(
       portal_type=instance_tree_portal_type,
       title={'query': software_title, 'key': 'ExactMatch'},
       validation_state="validated",
-      destination_section__uid=person.getUid(),
+      destination_section__uid=requester.getUid(),
       limit=2,
       )
     if len(request_instance_tree_list) > 1:
       raise NotImplementedError("Too many instance tree %s found %s" % (software_title, [x.path for x in request_instance_tree_list]))
     elif len(request_instance_tree_list) == 1:
       request_instance_tree = request_instance_tree_list[0].getObject()
-      assert request_instance_tree.getFollowUp() == project_list[0].getRelativeUrl()
+      assert request_instance_tree.getFollowUp() == project.getRelativeUrl()
       if (request_instance_tree.getSlapState() == "destroy_requested") or \
          (request_instance_tree.getTitle() != software_title) or \
          (request_instance_tree.getValidationState() != "validated") or \
-         (request_instance_tree.getDestinationSection() != person.getRelativeUrl()):
+         (request_instance_tree.getDestinationSection() != requester.getRelativeUrl()):
         raise NotImplementedError("The system was not able to get the expected instance tree")
       # Do not allow user to change the release/type/shared status
       # This is not compatible with invoicing the service
@@ -105,15 +116,16 @@ class SlapOSPersonSlapInterfaceMixin:
         portal_type=instance_tree_portal_type,
         reference=instance_tree_reference,
         title=software_title,
-        destination_section=person.getRelativeUrl(),
-        follow_up_value=project_list[0],
+        destination_section=requester.getRelativeUrl(),
+        follow_up_value=project,
         activate_kw={'tag': tag},
       )
       # Prevent 2 nodes to call request concurrently
-      person.serialize()
+      requester.serialize()
 
     request_instance_tree.InstanceTree_updateParameterAndRequest(
-      root_state, software_release_url_string, software_title, software_type, instance_xml, sla_xml, is_slave
+      root_state, software_release_url_string, software_title,
+      software_type, instance_xml, sla_xml, is_slave
     )
     self.REQUEST.set('request_instance_tree', request_instance_tree)
     if (root_state == "destroyed"):

@@ -5,6 +5,8 @@ query_kw = {
   "simulation_state": "submitted"
 }
 
+assert context.getPortalType() in portal.getPortalEntityTypeList()
+
 if section_uid:
   query_kw['source_section__uid'] = section_uid
 

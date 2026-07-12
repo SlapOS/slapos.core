@@ -112,8 +112,8 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>Software Type</string>
-                          <string>Software Type</string>
+                          <string>Software Product Type Variation</string>
+                          <string>Software Product Type Variation</string>
                         </tuple>
                       </list>
                     </value>
@@ -140,7 +140,7 @@
       <dictionary>
         <item>
             <key> <string>method_name</string> </key>
-            <value> <string>searchFolder</string> </value>
+            <value> <string>contentValues</string> </value>
         </item>
       </dictionary>
     </pickle>

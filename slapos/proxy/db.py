@@ -214,14 +214,20 @@ def requestSlave(software_release, software_type, partition_reference, requester
     q += ' AND software_type=?'
     a(software_type)
   if 'instance_guid' in filter_kw:
-    q += ' AND reference=?'
-    # instance_guid should be like: %s-%s % (requested_computer_id, partition_id)
-    # But code is convoluted here, so we check
     instance_guid = filter_kw['instance_guid']
-    if instance_guid.startswith(requested_computer_id):
-      a(instance_guid[len(requested_computer_id) + 1:])
+    if '___' in instance_guid:
+      # JSON-RPC clients: instance_guid is title___requested_by___is_shared
+      q += ' AND partition_reference=?'
+      a(instance_guid.split('___', 1)[0])
     else:
-      a(instance_guid)
+      q += ' AND reference=?'
+      # slap_tool clients: instance_guid should be like
+      # %s-%s % (requested_computer_id, partition_id)
+      # But code is convoluted here, so we check
+      if instance_guid.startswith(requested_computer_id):
+        a(instance_guid[len(requested_computer_id) + 1:])
+      else:
+        a(instance_guid)
 
   partition = execute_db('partition', q, args, one=True)
   if partition is None:

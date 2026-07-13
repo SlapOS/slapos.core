@@ -38,6 +38,9 @@ import subprocess
 import tempfile
 import sys
 import json
+import functools
+import http.server
+import threading
 from contextlib import closing
 from six.moves import BaseHTTPServer
 from six.moves import urllib_parse
@@ -91,6 +94,62 @@ def getPortFromPath(path):
   return 1024 + int(
       hashlib.md5(path.encode('utf-8', 'backslashreplace')).hexdigest(),
       16) % (65535 - 1024)
+
+
+def findSoftwareReleaseRootDirectory(path):
+  # type: (str) -> typing.Optional[str]
+  """Walk up from `path` to the root of a slapos software checkout.
+
+  The root is the directory holding both ``stack`` and ``component`` (the top
+  of a nexedi/slapos checkout). Returns None when no such directory is found.
+  """
+  directory = os.path.dirname(os.path.abspath(path))
+  while True:
+    if os.path.isdir(os.path.join(directory, 'stack')) \
+        and os.path.isdir(os.path.join(directory, 'component')):
+      return directory
+    parent = os.path.dirname(directory)
+    if parent == directory:
+      return None
+    directory = parent
+
+
+class CheckoutHTTPServer(object):
+  """Serve a checkout directory over HTTP.
+
+  Building a Software Release from this server's URL exercises the same code
+  path as production consumers, for which ``${:_profile_base_location_}`` is an
+  URL and not a filesystem directory.
+  """
+  def __init__(self, directory, ip, port):
+    # type: (str, str, int) -> None
+    self._directory = directory
+    self._ip = ip
+    self._port = port
+    self._server = None # type: typing.Optional[http.server.ThreadingHTTPServer]
+
+  @property
+  def url(self):
+    # type: () -> str
+    return 'http://{}:{}'.format(self._ip, self._port)
+
+  def start(self):
+    # type: () -> None
+    class RequestHandler(http.server.SimpleHTTPRequestHandler):
+      # buildout fetches hundreds of files; stay quiet.
+      def log_message(self, *args):
+        pass
+    self._server = http.server.ThreadingHTTPServer(
+        (self._ip, self._port),
+        functools.partial(RequestHandler, directory=self._directory))
+    threading.Thread(target=self._server.serve_forever, daemon=True).start()
+
+  def stop(self):
+    # type: () -> None
+    if self._server is not None:
+      self._server.shutdown()
+      self._server.server_close()
+      self._server = None
 
 
 def getPromisePluginParameterDict(filepath):

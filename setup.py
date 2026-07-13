@@ -44,6 +44,7 @@ extras_require = {
     'testing': (  # to use slapos.core testing helpers (typically, in software release tests)
         'caucase',
         'cryptography',
+        'nxdbom',  # used by generate_sbom to produce the software bill of material
     )
 }
 

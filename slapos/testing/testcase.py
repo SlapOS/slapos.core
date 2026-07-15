@@ -50,6 +50,8 @@ import requests
 
 from .utils import getPortFromPath
 from .utils import ManagedResource
+from .utils import CheckoutHTTPServer
+from .utils import findSoftwareReleaseRootDirectory
 
 from ..slap.standalone import StandaloneSlapOS
 from ..slap.standalone import SlapOSNodeCommandError
@@ -111,6 +113,48 @@ SLAPOS_SR_SBOM_DEPENDENCY_TRACK_API_KEY: str | None = os.environ.get(
 SLAPOS_SR_SBOM_DEPENDENCY_TRACK_PROJECT_ID: str | None = os.environ.get(
   "SLAPOS_SR_SBOM_DEPENDENCY_TRACK_PROJECT_ID",
 )
+SKIP_CHECKOUT_SERVER_DEFAULT: bool = bool(
+  int(os.environ.get("SLAPOS_TEST_SKIP_CHECKOUT_SERVER", 0))
+)
+
+# Software Releases are built from an URL served over HTTP from the checkout,
+# instead of from a filesystem path, so that tests exercise the same install
+# path as production consumers, where ${:_profile_base_location_} is an URL and
+# not a directory. One server per checkout is shared for the whole process.
+_checkout_http_server_registry: Dict[str, CheckoutHTTPServer] = {}
+
+
+def _serveSoftwareURL(
+  software_url: str,
+  ipv4_address: str,
+) -> Tuple[str, str | None]:
+  """Turn a local software path into an URL served over HTTP.
+
+  When ``software_url`` is a filesystem path, its containing checkout is served
+  over HTTP (reusing one server per checkout) and the matching URL is returned
+  along with the checkout root. An already-remote URL, a path outside a
+  recognisable checkout, or ``SLAPOS_TEST_SKIP_CHECKOUT_SERVER`` leave
+  ``software_url`` unchanged (with a ``None`` directory).
+  """
+  if urlparse(software_url).scheme or SKIP_CHECKOUT_SERVER_DEFAULT:
+    return software_url, None
+  path = os.path.abspath(software_url)
+  root = findSoftwareReleaseRootDirectory(path)
+  if root is None:
+    warnings.warn(
+      f"Could not find the checkout root of {path}, building it from the "
+      "filesystem instead of an URL",
+    )
+    return software_url, None
+  server = _checkout_http_server_registry.get(root)
+  if server is None:
+    port = int(
+      os.environ.get("SLAPOS_TEST_CHECKOUT_SERVER_PORT", 0),
+    ) or getPortFromPath(root)
+    server = CheckoutHTTPServer(root, ipv4_address, port)
+    server.start()
+    _checkout_http_server_registry[root] = server
+  return f"{server.url}/{os.path.relpath(path, root)}", root
 
 
 def makeModuleSetUpAndTestCaseClass(
@@ -126,6 +170,7 @@ def makeModuleSetUpAndTestCaseClass(
   shared_part_list: Iterable[str] = SHARED_PART_LIST_DEFAULT,
   snapshot_directory: str | None = SNAPSHOT_DIRECTORY_DEFAULT,
   software_id: str | None = None,
+  serve_software_release_from_url: bool = True,
   dependency_track_url: str | None = SLAPOS_SR_SBOM_DEPENDENCY_TRACK_URL,
   dependency_track_api_key: str
   | None = SLAPOS_SR_SBOM_DEPENDENCY_TRACK_API_KEY,
@@ -193,6 +238,13 @@ def makeModuleSetUpAndTestCaseClass(
       By default it is computed automatically from the software URL, but can
       also be passed explicitly, to use a different name for different kind of
       tests, like for example upgrade tests.
+    serve_software_release_from_url: Build the software from an URL served over
+      HTTP from the checkout, rather than from its filesystem path, so the test
+      exercises the same install path as production (where
+      ``${:_profile_base_location_}`` is an URL). ``True`` by default; pass
+      ``False`` for a software that cannot be built this way. The
+      ``SLAPOS_TEST_SKIP_CHECKOUT_SERVER`` environment variable disables it
+      globally regardless of this argument.
     dependency_track_url: The base URL of a dependency track instance, to
       upload CycloneDX software bill of material for the software url.
     dependency_track_api_key: API key for dependency track.
@@ -206,6 +258,14 @@ def makeModuleSetUpAndTestCaseClass(
 
   """
   software_url = os.fspath(software_url)
+  serve_software_release_from_url = (
+    serve_software_release_from_url and not SKIP_CHECKOUT_SERVER_DEFAULT)
+  software_checkout_directory = None
+  if serve_software_release_from_url:
+    software_url, software_checkout_directory = _serveSoftwareURL(
+      software_url,
+      ipv4_address,
+    )
 
   if base_directory is None:
     base_directory = os.path.realpath(
@@ -253,6 +313,24 @@ def makeModuleSetUpAndTestCaseClass(
       f"SLAPOS_TEST_WORKING_DIR to a shallow enough directory",
     )
 
+  if serve_software_release_from_url:
+    # A Software Release must be built and requested by the same string for an
+    # instance to find what was built; rewrite a local path to its served URL
+    # on both supply (build) and request. Idempotent for URLs.
+    _slap_supply = slap.supply
+    _slap_request = slap.request
+
+    def _supply(software_url, *args, **kwargs):  # pyright: ignore
+      return _slap_supply(
+        _serveSoftwareURL(software_url, ipv4_address)[0], *args, **kwargs)
+
+    def _request(software_release, *args, **kwargs):  # pyright: ignore
+      return _slap_request(
+        _serveSoftwareURL(software_release, ipv4_address)[0], *args, **kwargs)
+
+    setattr(slap, "supply", _supply)
+    setattr(slap, "request", _request)
+
   cls = type(
     f"SlapOSInstanceTestCase for {software_url}",
     (SlapOSInstanceTestCase,),
@@ -267,6 +345,8 @@ def makeModuleSetUpAndTestCaseClass(
       "_ipv6_address": ipv6_address,
       "_base_directory": base_directory,
       "_test_file_snapshot_directory": snapshot_directory,
+      "_software_checkout_directory": software_checkout_directory,
+      "_serve_software_from_url": serve_software_release_from_url,
     },
   )
 
@@ -374,6 +454,11 @@ def installSoftwareUrlList(
       facilitate inspection during debug.
 
   """
+  if cls._serve_software_from_url:  # pyright: ignore[reportPrivateUsage]
+    software_url_list = [
+      _serveSoftwareURL(software_url, cls._ipv4_address)[0]  # pyright: ignore[reportPrivateUsage]
+      for software_url in software_url_list
+    ]
 
   def _storeSoftwareSnapshot(name: str) -> None:
     for path in (
@@ -526,6 +611,16 @@ class SlapOSInstanceTestCase(unittest.TestCase):
 
   # Directory to save snapshot files for inspections.
   _test_file_snapshot_directory: ClassVar[str | None] = ""
+
+  # Checkout served over HTTP to build the software, when the software URL is a
+  # local path. ``None`` when the software is built from a remote URL. Tests
+  # that need the software's filesystem checkout should use this rather than
+  # ``getSoftwareURL()``, which is an URL.
+  _software_checkout_directory: ClassVar[str | None] = None
+
+  # Whether the software is built (and requested) from an URL served over HTTP
+  # rather than from its local path.
+  _serve_software_from_url: ClassVar[bool] = True
 
   # Patterns of files to save for inspection, relative to instance directory.
   _save_instance_file_pattern_list: ClassVar[Sequence[str]] = (

@@ -46,7 +46,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>resource, title, text_content, portal_type=\'Support Request\', source_project=None, causality=None, comment=None</string> </value>
+            <value> <string>resource, title, text_content, portal_type=\'Support Request\', source_project=None, destination_decision=None, causality=None, comment=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

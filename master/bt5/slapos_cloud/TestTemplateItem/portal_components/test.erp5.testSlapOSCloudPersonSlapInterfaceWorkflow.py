@@ -270,10 +270,6 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     shared = True
     state = "started"
 
-    previous_id = self.getPortalObject().portal_ids\
-        .generateNewId(id_group='slap_hosting_subscription_reference',
-                       id_generator='uid')
-
     person.requestSoftwareInstance(
       software_release=software_release,
       software_title=software_title,
@@ -293,7 +289,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     self.assertEqual(sla_xml, instance_tree.getSlaXml())
     self.assertEqual(shared, instance_tree.getRootSlave())
     self.assertEqual("start_requested", instance_tree.getSlapState())
-    self.assertEqual("HOSTSUBS-%s" % (previous_id+1),
+    self.assertEqual("HOSTSUBS-%s" % instance_tree.getId(),
                       instance_tree.getReference())
     self.assertEqual("validated", instance_tree.getValidationState())
 
@@ -680,10 +676,6 @@ class TestSlapOSCorePersonRequestComputeNode(SlapOSTestCaseMixin):
   def test_requestComputeNode_createdComputeNode(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
-    previous_id = self.getPortalObject().portal_ids\
-        .generateNewId(id_group='slap_computer_reference',
-                       id_generator='uid')
-
     compute_node_title = self.generateNewComputeNodeTitle()
     person.requestComputeNode(project_reference=self.project.getReference(),
                               compute_node_title=compute_node_title)
@@ -704,7 +696,7 @@ class TestSlapOSCorePersonRequestComputeNode(SlapOSTestCaseMixin):
     # check that data are sane
     self.assertEqual(compute_node_absolute_url, compute_node.absolute_url())
     self.assertEqual(compute_node_reference, compute_node.getReference())
-    self.assertEqual('COMP-%s' % (previous_id + 1), compute_node.getReference())
+    self.assertEqual('COMP-%s' % compute_node.getId(), compute_node.getReference())
     self.assertEqual('validated', compute_node.getValidationState())
     self.assertEqual('open', compute_node.getAllocationScope())
     self.assertEqual('close', compute_node.getCapacityScope())
@@ -722,10 +714,6 @@ class TestSlapOSCorePersonRequestComputeNode(SlapOSTestCaseMixin):
 
   def test_requestComputeNode_multiple_request_createdComputeNode(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
-
-    previous_id = self.getPortalObject().portal_ids\
-        .generateNewId(id_group='slap_computer_reference',
-                       id_generator='uid')
 
     compute_node_title = self.generateNewComputeNodeTitle()
     compute_node_title2 = self.generateNewComputeNodeTitle()
@@ -748,7 +736,7 @@ class TestSlapOSCorePersonRequestComputeNode(SlapOSTestCaseMixin):
     # check that data are sane
     self.assertEqual(compute_node_absolute_url, compute_node.absolute_url())
     self.assertEqual(compute_node_reference, compute_node.getReference())
-    self.assertEqual('COMP-%s' % (previous_id + 1), compute_node.getReference())
+    self.assertEqual('COMP-%s' % compute_node.getId(), compute_node.getReference())
     self.assertEqual('validated', compute_node.getValidationState())
     self.assertEqual('open', compute_node.getAllocationScope())
     self.assertEqual('close', compute_node.getCapacityScope())
@@ -775,7 +763,7 @@ class TestSlapOSCorePersonRequestComputeNode(SlapOSTestCaseMixin):
     # check that data are sane
     self.assertEqual(compute_node_absolute_url, compute_node.absolute_url())
     self.assertEqual(compute_node_reference, compute_node.getReference())
-    self.assertEqual('COMP-%s' % (previous_id + 1), compute_node.getReference())
+    self.assertEqual('COMP-%s' % compute_node.getId(), compute_node.getReference())
     self.assertEqual('validated', compute_node.getValidationState())
     self.assertEqual('open', compute_node.getAllocationScope())
     self.assertEqual('close', compute_node.getCapacityScope())
@@ -803,7 +791,7 @@ class TestSlapOSCorePersonRequestComputeNode(SlapOSTestCaseMixin):
     # check that data are sane
     self.assertEqual(compute_node_absolute_url2, compute_node2.absolute_url())
     self.assertEqual(compute_node_reference2, compute_node2.getReference())
-    self.assertEqual('COMP-%s' % (previous_id + 2), compute_node2.getReference())
+    self.assertEqual('COMP-%s' % compute_node2.getId(), compute_node2.getReference())
     self.assertEqual('validated', compute_node2.getValidationState())
     self.assertEqual('open', compute_node2.getAllocationScope())
     self.assertEqual('close', compute_node2.getCapacityScope())

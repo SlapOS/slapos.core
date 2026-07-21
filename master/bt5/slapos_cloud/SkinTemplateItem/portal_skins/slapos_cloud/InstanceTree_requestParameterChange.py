@@ -1,2 +1,0 @@
-context.InstanceTree_requestPerson(instance_xml=text_content)
-return

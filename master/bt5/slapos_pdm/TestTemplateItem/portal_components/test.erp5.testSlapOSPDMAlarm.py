@@ -4,7 +4,7 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
 import time
 
 class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
-
+  require_certificate = 1
   def _makeUpgradeDecision(self, confirm=True):
     upgrade_decision = self.portal.\
        upgrade_decision_module.newContent(

@@ -5,5 +5,4 @@ One exception is when a person object is installed from business template.
 """
 if context.getPortalType() != "Instance Node":
   return
-context.setUserId(None)
 context.InstanceNode_init()

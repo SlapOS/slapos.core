@@ -532,13 +532,15 @@ class TestRemoteNode(TestSlapOSGroupRoleSecurityMixin):
   def test_RemoteNode_userId(self):
     compute_node = self.portal.compute_node_module.newContent(portal_type='Remote Node')
     self.assertSecurityGroup(compute_node,
-        [self.user_id], False)
+        [self.user_id, 'F-SALE*'], False)
     self.assertRoles(compute_node, self.user_id, ['Owner'])
+    self.assertRoles(compute_node, 'F-SALE*', ['Auditor'])
 
     compute_node.edit(user_id=None)
     self.assertSecurityGroup(compute_node,
-        [self.user_id], False)
+        [self.user_id, 'F-SALE*'], False)
     self.assertRoles(compute_node, self.user_id, ['Owner'])
+    self.assertRoles(compute_node, 'F-SALE*', ['Auditor'])
 
   def test_RemoteNode_ProjectMember(self):
     project = self.addProject()
@@ -549,12 +551,14 @@ class TestRemoteNode(TestSlapOSGroupRoleSecurityMixin):
 
     self.assertSecurityGroup(compute_node, [
       self.user_id,
+      'F-SALE*',
       '%s_F-PRODAGNT' % project.getReference(),
       '%s_F-PRODMAN' % project.getReference(),
       '%s_F-CUSTOMER' % project.getReference(),
       '%s_R-INSTANCE' % project.getReference(),
     ], False)
     self.assertRoles(compute_node, self.user_id, ['Owner'])
+    self.assertRoles(compute_node, 'F-SALE*', ['Auditor'])
     self.assertRoles(compute_node, '%s_F-PRODAGNT' % project.getReference(), ['Assignee'])
     self.assertRoles(compute_node, '%s_F-PRODMAN' % project.getReference(), ['Assignor'])
     self.assertRoles(compute_node, '%s_F-CUSTOMER' % project.getReference(), ['Auditor'])
@@ -705,6 +709,39 @@ class TestMailMessage(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(product, 'F-SALEMAN', ['Assignor'])
     self.assertRoles(product, 'F-SALEAGT', ['Assignee'])
 
+  def test_SourceCustomer_Workgroup(self):
+    entity = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup',
+        reference='TESTWORKGROUP-%s' % self.generateNewId())
+    product = self.portal.event_module.newContent(
+        portal_type=self.event_portal_type)
+    product.edit(
+        source_value=entity,
+        )
+    self.assertSecurityGroup(product,
+        [entity.getUserId(), self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
+    self.assertRoles(product, entity.getUserId(), ['Auditor'])
+    self.assertRoles(product, self.user_id, ['Owner'])
+    self.assertRoles(product, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(product, 'F-SALEAGT', ['Assignee'])
+
+  def test_DestinationCustomer_Workgroup(self):
+    entity = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup',
+        reference='TESTWORKGROUP-%s' % self.generateNewId())
+    product = self.portal.event_module.newContent(
+        portal_type=self.event_portal_type)
+    product.edit(
+        destination_value=entity,
+        )
+    self.assertSecurityGroup(product,
+        [entity.getUserId(), self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
+    self.assertRoles(product, entity.getUserId(), ['Auditor'])
+    self.assertRoles(product, self.user_id, ['Owner'])
+    self.assertRoles(product, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(product, 'F-SALEAGT', ['Assignee'])
+
+
   def test_SourceProject(self):
     project = self.addProject()
     event = self.portal.event_module.newContent(
@@ -789,22 +826,31 @@ class TestInstanceTree(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(subscription, self.user_id, ['Owner'])
     self.assertRoles(subscription, 'F-SALE*', ['Auditor'])
 
-  def test_InstanceTree_CustomOfTheInstanceTree(self):
-    customer_reference = 'TESTPERSON-%s' % self.generateNewId()
-    customer = self.portal.person_module.newContent(
-        portal_type='Person', reference=customer_reference)
+  def _test_InstanceTree_CustomerOfTheInstanceTree(self, entity):
     reference = 'TESTHS-%s' % self.generateNewId()
     subscription = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree', reference=reference)
     subscription.edit(
-        destination_section_value=customer)
+        destination_section_value=entity)
 
     self.assertSecurityGroup(subscription, [self.user_id, 'F-SALE*', reference,
-        customer.getUserId()], False)
+        entity.getUserId()], False)
     self.assertRoles(subscription, reference, ['Assignee'])
     self.assertRoles(subscription, 'F-SALE*', ['Auditor'])
-    self.assertRoles(subscription, customer.getUserId(), ['Assignee'])
+    self.assertRoles(subscription, entity.getUserId(), ['Assignee'])
     self.assertRoles(subscription, self.user_id, ['Owner'])
+
+  def test_InstanceTree_CustomerOfTheInstanceTree_Person(self):
+    entity = self.portal.person_module.newContent(
+        portal_type='Person',
+        reference='TESTPERSON-%s' % self.generateNewId())
+    self._test_InstanceTree_CustomerOfTheInstanceTree(entity)
+
+  def test_InstanceTree_CustomerOfTheInstanceTree_Workgroup(self):
+    entity = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup',
+        reference='TESTWORKGROUP-%s' % self.generateNewId())
+    self._test_InstanceTree_CustomerOfTheInstanceTree(entity)
 
   def test_InstanceTree_ProjectMember(self):
     project = self.addProject()
@@ -899,26 +945,34 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertSecurityGroup(instance, [self.user_id], False)
     self.assertRoles(instance, self.user_id, ['Owner'])
 
-  def test_SoftwareInstance_CustomerOfTheInstance(self):
-    customer_reference = 'TESTPERSON-%s' % self.generateNewId()
-    customer = self.portal.person_module.newContent(
-        portal_type='Person', reference=customer_reference)
-
+  def _test_SoftwareInstance_CustomerOfTheInstance(self, entity):
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
     subscription = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
         reference=subscription_reference,
-        destination_section=customer.getRelativeUrl())
+        destination_section=entity.getRelativeUrl())
 
     instance = self.portal.software_instance_module.newContent(
         portal_type='Software Instance')
     instance.edit(specialise=subscription.getRelativeUrl())
 
-    self.assertSecurityGroup(instance, [customer.getUserId(),
+    self.assertSecurityGroup(instance, [entity.getUserId(),
         subscription_reference, self.user_id], False)
-    self.assertRoles(instance, customer.getUserId(), ['Assignee'])
+    self.assertRoles(instance, entity.getUserId(), ['Assignee'])
     self.assertRoles(instance, subscription_reference, ['Assignee'])
     self.assertRoles(instance, self.user_id, ['Owner'])
+
+  def test_SoftwareInstance_CustomerOfTheInstance_Person(self):
+    customer = self.portal.person_module.newContent(
+        portal_type='Person',
+        reference='TESTPERSON-%s' % self.generateNewId())
+    self._test_SoftwareInstance_CustomerOfTheInstance(customer)
+
+  def test_SoftwareInstance_CustomerOfTheInstance_Workgroup(self):
+    workgroup = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup',
+        reference='TESTWORKGROUP-%s' % self.generateNewId())
+    self._test_SoftwareInstance_CustomerOfTheInstance(workgroup)
 
   def test_SoftwareInstance_ProjectMember(self):
     project = self.addProject()
@@ -965,26 +1019,34 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertSecurityGroup(instance, [self.user_id], False)
     self.assertRoles(instance, self.user_id, ['Owner'])
 
-  def test_SlaveInstance_CustomerOfTheInstance(self):
-    customer_reference = 'TESTPERSON-%s' % self.generateNewId()
-    customer = self.portal.person_module.newContent(
-        portal_type='Person', reference=customer_reference)
-
+  def _test_SlaveInstance_CustomerOfTheInstance(self, entity):
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
     subscription = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
         reference=subscription_reference,
-        destination_section=customer.getRelativeUrl())
+        destination_section=entity.getRelativeUrl())
 
     instance = self.portal.software_instance_module.newContent(
         portal_type='Slave Instance')
     instance.edit(specialise=subscription.getRelativeUrl())
 
-    self.assertSecurityGroup(instance, [customer.getUserId(),
+    self.assertSecurityGroup(instance, [entity.getUserId(),
         subscription_reference, self.user_id], False)
-    self.assertRoles(instance, customer.getUserId(), ['Assignee'])
+    self.assertRoles(instance, entity.getUserId(), ['Assignee'])
     self.assertRoles(instance, subscription_reference, ['Assignee'])
     self.assertRoles(instance, self.user_id, ['Owner'])
+
+  def test_SlaveInstance_CustomerOfTheInstance_Person(self):
+    customer = self.portal.person_module.newContent(
+        portal_type='Person',
+        reference='TESTPERSON-%s' % self.generateNewId())
+    self._test_SlaveInstance_CustomerOfTheInstance(customer)
+
+  def test_SlaveInstance_CustomerOfTheInstance_Workgroup(self):
+    workgroup = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup',
+        reference='TESTWORKGROUP-%s' % self.generateNewId())
+    self._test_SlaveInstance_CustomerOfTheInstance(workgroup)
 
   def test_SlaveInstance_ProjectMember(self):
     project = self.addProject()
@@ -1077,8 +1139,9 @@ class TestInvitationTokenModule(TestSlapOSGroupRoleSecurityMixin):
   def test_InvitationTokenModule(self):
     module = self.portal.invitation_token_module
     self.assertSecurityGroup(module,
-        ['F-PRODUCTION*', module.Base_getOwnerId()], False)
+        ['F-PRODUCTION*', 'F-SALE*', module.Base_getOwnerId()], False)
     self.assertRoles(module, 'F-PRODUCTION*', ['Auditor', 'Author'])
+    self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
 
 
@@ -1100,7 +1163,8 @@ class TestInvitationToken(TestSlapOSGroupRoleSecurityMixin):
     support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
         portal_type=self.ticket_portal_type)
     self.assertSecurityGroup(support_request,
-        [self.user_id], False)
+        [self.user_id, 'F-SALE*'], False)
+    self.assertRoles(support_request, 'F-SALE*', ['Auditor'])
     self.assertRoles(support_request, self.user_id, ['Owner'])
 
   def test_InvitationToken_DestinationProject(self):
@@ -1109,11 +1173,25 @@ class TestInvitationToken(TestSlapOSGroupRoleSecurityMixin):
         portal_type=self.ticket_portal_type)
     support_request.edit(
         follow_up_value=project)
-    self.assertSecurityGroup(support_request, [self.user_id,
+    self.assertSecurityGroup(support_request, [self.user_id, 'F-SALE*',
         '%s_F-PRODMAN' % project.getReference()], False)
     self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, 'F-SALE*', ['Auditor'])
     self.assertRoles(support_request, '%s_F-PRODMAN' % project.getReference(), ['Auditor'])
 
+  def test_InvitationToken_Destination(self):
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup',
+      reference='TESTWORKGROUP-%s' % self.generateNewId())
+    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
+        portal_type=self.ticket_portal_type)
+    support_request.edit(
+        follow_up_value=workgroup)
+    self.assertSecurityGroup(support_request, [self.user_id, 'F-SALE*',
+        workgroup.getUserId()], False)
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, 'F-SALE*', ['Auditor'])
+    self.assertRoles(support_request, workgroup.getUserId(), ['Auditor'])
 
 class TestAssignmentRequestModule(TestSlapOSGroupRoleSecurityMixin):
   def test_AssignmentRequestModule(self):
@@ -1152,6 +1230,20 @@ class TestAssignmentRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(support_request, '%s_F-PRODMAN' % project.getReference(), ['Associate'])
     self.assertRoles(support_request, '%s_F-PRODAGNT' % project.getReference(), ['Associate'])
 
+  def test_AssignmentRequest_Destination(self):
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup',
+      reference='TESTWORKGROUP-%s' % self.generateNewId())
+    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
+        portal_type=self.ticket_portal_type)
+    support_request.edit(destination_value=workgroup)
+    self.assertSecurityGroup(support_request, [self.user_id, 'F-SALEAGT', 'F-SALEMAN',
+        workgroup.getUserId()], False)
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, 'F-SALEAGT', ['Associate'])
+    self.assertRoles(support_request, 'F-SALEMAN', ['Associate'])
+    self.assertRoles(support_request, workgroup.getUserId(), ['Associate'])
+
 
 class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
   ticket_portal_type = 'Support Request'
@@ -1177,6 +1269,22 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertSecurityGroup(support_request,
         [person.getUserId(), self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
     self.assertRoles(support_request, person.getUserId(), ['Auditor'])
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(support_request, 'F-SALEAGT', ['Assignee'])
+
+  def test_SupportRequest_Customer_Workgroup(self):
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup',
+      reference='TESTWORKGROUP-%s' % self.generateNewId())
+    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
+        portal_type=self.ticket_portal_type)
+    support_request.edit(
+        destination_decision_value=workgroup,
+        )
+    self.assertSecurityGroup(support_request,
+        [workgroup.getUserId(), self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
+    self.assertRoles(support_request, workgroup.getUserId(), ['Auditor'])
     self.assertRoles(support_request, self.user_id, ['Owner'])
     self.assertRoles(support_request, 'F-SALEMAN', ['Assignor'])
     self.assertRoles(support_request, 'F-SALEAGT', ['Assignee'])
@@ -1821,10 +1929,7 @@ class TestSubscriptionRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'F-SALE*', ['Auditor'])
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
 
-  def test_SubscriptionRequest_user(self):
-    reference = 'TESTPERSON-%s' % self.generateNewId()
-    person = self.portal.person_module.newContent(portal_type='Person',
-        reference=reference)
+  def _test_SubscriptionRequest_user(self, person):
     delivery = self.portal.subscription_request_module.newContent(
         portal_type='Subscription Request')
     delivery.edit(destination_decision_value=person, ledger="automated")
@@ -1836,6 +1941,17 @@ class TestSubscriptionRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'F-ACCOUNTING*', ['Auditor'])
     self.assertRoles(delivery, person.getUserId(), ['Associate'])
     self.assertRoles(delivery, "SHADOW-%s" % person.getUserId(), ['Auditor'])
+
+  def test_SubscriptionRequest_user(self):
+    person = self.portal.person_module.newContent(portal_type='Person',
+        reference='TESTPERSON-%s' % self.generateNewId())
+    self._test_SubscriptionRequest_user(person)
+
+  def test_SubscriptionRequest_workgroup(self):
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup',
+      reference='TESTWORKGROUP-%s' % self.generateNewId())
+    self._test_SubscriptionRequest_user(workgroup)
 
   def test_SubscriptionRequest_organisation(self):
     # Ensure compatibility if destination_decision is an org
@@ -1870,6 +1986,25 @@ class TestSubscriptionChangeRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'F-SALEAGT', ['Auditor'])
     self.assertRoles(delivery, 'F-SALEMAN', ['Auditor'])
 
+
+class TestRemoteNodeChangeRequestModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_RemoteNodeChangeRequestModule(self):
+    module = self.portal.remote_node_change_request_module
+    self.assertSecurityGroup(module,
+        ['F-SALE*', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
+    self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
+
+
+class TestRemoteNodeChangeRequest(TestSlapOSGroupRoleSecurityMixin):
+  def test_RemoteNodeChangeRequest_default(self):
+    delivery = self.portal.remote_node_change_request_module.newContent(
+        portal_type='Remote Node Change Request')
+    self.assertSecurityGroup(delivery,
+        [self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
+    self.assertRoles(delivery, 'F-SALEAGT', ['Auditor'])
+    self.assertRoles(delivery, 'F-SALEMAN', ['Auditor'])
 
 class TestOrganisationModule(TestSlapOSGroupRoleSecurityMixin):
   def test_OrganisationModule(self):
@@ -1983,7 +2118,6 @@ class TestPersonModule(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(module, 'F-PRODUCTION*', ['Auditor'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
 
-
 class TestPerson(TestSlapOSGroupRoleSecurityMixin):
   def test_Person_default(self):
     delivery = self.portal.person_module.newContent(
@@ -2012,6 +2146,40 @@ class TestPerson(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'F-ACCAGT', ['Assignee'])
     self.assertRoles(delivery, delivery.getUserId(), ['Assignee'])
     self.assertRoles(delivery, 'SHADOW-%s' % delivery.getUserId(), ['Auditor'])
+
+class TestWorkgroupModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_WorkgroupModule(self):
+    module = self.portal.workgroup_module
+    self.assertSecurityGroup(module,
+        ['F-SALE*', 'F-ACCOUNTING*', 'F-CUSTOMER', 'F-PRODUCTION*',
+         'R-SHADOW-PERSON', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
+    self.assertRoles(module, 'F-ACCOUNTING*', ['Auditor'])
+    self.assertRoles(module, 'F-CUSTOMER', ['Auditor'])
+    self.assertRoles(module, 'R-SHADOW-PERSON', ['Auditor'])
+    self.assertRoles(module, 'F-PRODUCTION*', ['Auditor'])
+    self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
+
+
+class TestWorkgroup(TestSlapOSGroupRoleSecurityMixin):
+
+  def test_Workgroup_selfWorkgroup(self):
+    document = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup')
+    self.assertSecurityGroup(document,
+        ['F-ACCMAN', 'F-SALEAGT', 'F-ACCAGT', 'F-SALEMAN',
+         document.getUserId(),
+         # XXX RAFAEL: Remove SHADOW if this is not required
+         'SHADOW-%s' % document.getUserId(),
+         self.user_id], False)
+    self.assertRoles(document, self.user_id, ['Owner'])
+    self.assertRoles(document, 'F-SALEAGT', ['Assignee'])
+    self.assertRoles(document, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(document, 'F-ACCMAN', ['Auditor'])
+    self.assertRoles(document, 'F-ACCAGT', ['Auditor'])
+    self.assertRoles(document, document.getUserId(), ['Auditor'])
+    # XXX RAFAEL: Remove SHADOW if this is not required
+    self.assertRoles(document, 'SHADOW-%s' % document.getUserId(), ['Auditor'])
 
 
 class TestERP5Login(TestSlapOSGroupRoleSecurityMixin):

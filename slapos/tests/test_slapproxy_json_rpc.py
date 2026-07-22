@@ -262,15 +262,14 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
       }
     )
 
-    assert response.status_code == 403, response.status_code
+    assert response.status_code == 200, response.status_code
     assert response.content_type == 'application/json', \
         response.content_type
-    expect_result_dict = {
-        "status": 403,
-        "type": "Forbidden",
-        "title": "No free computer partition found for: foo"
-    }
-    assert json.loads(response.data) == expect_result_dict, response.data
+    result = json.loads(response.data)
+    assert result['status'] == 102, response.data
+    assert result['name'] == 'Processing', response.data
+    assert 'No free computer partition found for: foo' in result['message'], \
+        response.data
 
   def test_post_v0_software_instance__first_allocation(self):
     self.format_for_number_of_partitions(1)
@@ -463,6 +462,65 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     data_result = json.loads(response.data)
     expect_result_dict['processing_timestamp'] = data_result.get('processing_timestamp', 'unknown')
     assert data_result == expect_result_dict, response.data
+
+  def test_post_v0_shared_instance__sla_instance_guid(self):
+    # Two Software Instances on two partitions, so that the
+    # instance_guid SLA filter is what selects the master partition
+    self.format_for_number_of_partitions(2)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      }
+    )
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MySecondInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      }
+    )
+
+    # Shared Instance selecting its master partition by instance_guid
+    # (title___requested_by___is_shared format)
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MySharedInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar2': 'foo2'},
+        'shared': True,
+        'sla_parameters': {'instance_guid': 'MySecondInstance______0'}
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    data_result = json.loads(response.data)
+    assert data_result['compute_partition_id'] == 'slappart1', response.data
+    assert data_result['instance_guid'] == 'MySharedInstance______1', \
+        response.data
+    assert data_result['shared'] is True, response.data
+
+    # An instance_guid matching no partition is an allocation failure,
+    # reported as status 102 so the client retries later
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyOtherSharedInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'shared': True,
+        'sla_parameters': {'instance_guid': 'DoesNotExist______0'}
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    result = json.loads(response.data)
+    assert result['status'] == 102, response.data
 
   #######################################################
   # CDN Shared Instance
@@ -950,13 +1008,29 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'software_type': 'foobar'
       }
     )
-    assert response.status_code == 403, response.status_code
-    expect_result_dict = {
-        "status": 403,
-        "type": "Forbidden",
-        "title": "No free computer partition found for: MyFirstInstance"
-    }
-    assert json.loads(response.data) == expect_result_dict, response.data
+    assert response.status_code == 200, response.status_code
+    result = json.loads(response.data)
+    assert result['status'] == 102, response.data
+    assert 'No free computer partition found for: MyFirstInstance' in result['message'], \
+        response.data
+
+  def test_put_v0_compute_node_format_no_netmask(self):
+    """ip_list entries from address_list have no netmask -- must not crash."""
+    response = self.app.post(
+      '/slapos.put.v0.compute_node_format',
+      json={
+        'computer_guid': self.computer_id,
+        'compute_partition_list': [{
+          'partition_id': 'slappart0',
+          'ip_list': [
+            {'ip-address': '10.0.1.1', 'network-interface': 'lo'},
+            {'ip-address': '::1',      'network-interface': 'lo'},
+          ]
+        }]
+      }
+    )
+    assert response.status_code == 200, response.data
+    assert json.loads(response.data) == {'type': 'success', 'title': 'Formatted'}
 
   def test_put_v0_compute_node_format_new_partition(self):
     response = self.app.post(
@@ -1855,3 +1929,52 @@ class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
         }]
     }
     assert json.loads(response.data) == expect_result_dict, response.data
+
+  #######################################################
+  # Backward compat: unregistered default computer
+  #######################################################
+  def test_compute_node_software_installation_list_unregistered_default(self):
+    # Default computer_id should get an empty list even without format
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_software_installation_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    assert json.loads(response.data) == {'result_list': []}, response.data
+
+  def test_compute_node_software_installation_list_unregistered_other(self):
+    # Non-default computer_id should get 403 when not registered
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_software_installation_list',
+      json={
+        'computer_guid': 'other'
+      }
+    )
+    assert response.status_code == 403, response.status_code
+
+  def test_compute_node_instance_list_unregistered_default(self):
+    # Default computer_id should get an empty list even without format
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_instance_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    assert json.loads(response.data)['result_list'] == [], response.data
+
+  def test_compute_node_instance_list_unregistered_other(self):
+    # Non-default computer_id should get 403 when not registered
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_instance_list',
+      json={
+        'computer_guid': 'other'
+      }
+    )
+    assert response.status_code == 403, response.status_code

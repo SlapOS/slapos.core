@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Project_getUserWorkgroupInformation</string> </value>
+            <value> <string>Project_getUserWorkgroupTitle</string> </value>
         </item>
       </dictionary>
     </pickle>

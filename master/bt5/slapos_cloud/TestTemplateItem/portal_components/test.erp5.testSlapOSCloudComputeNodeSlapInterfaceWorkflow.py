@@ -21,7 +21,6 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
   string_escape
 import transaction
-from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
 
 
 class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
@@ -723,10 +722,25 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
         software_installation.getReference())
 
     self.tic()
-    # XXX: This scenario shall be discussed...
-    self.assertRaises(UnsupportedWorkflowMethod,
-        self.compute_node.requestSoftwareRelease, state="available",
+
+    self.compute_node.requestSoftwareRelease(state="available",
         software_release_url=software_release)
+
+    self.assertEqual('invalidated', software_installation.getValidationState())
+    new_software_installation_url = self.compute_node.REQUEST.get(
+        'software_installation_url')
+
+    self.assertNotEqual(None, new_software_installation_url)
+    new_software_installation = self.compute_node.restrictedTraverse(
+        new_software_installation_url)
+    self.assertEqual(software_release, new_software_installation.getUrlString())
+
+    self.assertEqual('Software Installation',
+        new_software_installation.getPortalType())
+    self.assertEqual('validated', new_software_installation.getValidationState())
+    self.assertEqual('start_requested', new_software_installation.getSlapState())
+    self.assertEqual('SOFTINSTALL-%s' % new_software_installation.getId(),
+        new_software_installation.getReference())
 
   def test_supply_available_destroyed_finalised_available(self):
     software_release = self.generateNewSoftwareReleaseUrl()

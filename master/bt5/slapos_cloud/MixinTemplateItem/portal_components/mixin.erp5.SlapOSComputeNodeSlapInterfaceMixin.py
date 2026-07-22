@@ -158,6 +158,7 @@ class SlapOSComputeNodeSlapInterfaceMixin:
         raise NotImplementedError("The system was not able to get the expected Software Installation")
       return software_installation
 
+    software_installation = None
     if len(software_installation_list) > 1:
       software_installation = test_software_installation(
         software_installation_list[0].getObject())
@@ -174,7 +175,20 @@ class SlapOSComputeNodeSlapInterfaceMixin:
     elif len(software_installation_list) == 1:
       software_installation = test_software_installation(
         software_installation_list[0].getObject())
-    else:
+
+      if ((software_installation.getSlapState() == 'destroy_requested') and
+          (state != "destroyed")):
+        # The same SR was requested to be destroyed, but it was not yet reported
+        # Consider it was done, to let the node keep it installed
+        if portal.portal_workflow.isTransitionPossible(software_installation,
+                                                       'invalidate'):
+          software_installation.invalidate(
+            comment="Software Release needs to be reinstalled.",
+            activate_kw={'tag': tag}
+          )
+        software_installation = None
+
+    if software_installation is None:
       if (state == "destroyed"):
         # No need to create destroyed subscription.
         return

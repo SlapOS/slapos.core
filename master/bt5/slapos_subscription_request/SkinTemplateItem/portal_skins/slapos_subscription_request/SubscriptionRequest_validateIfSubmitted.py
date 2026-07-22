@@ -62,6 +62,10 @@ if is_deposit_check_needed:
   if 0 < total_price:
 
     customer = subscription_request.getDestinationSectionValue()
+    if customer.getPortalType() not in portal.getPortalEntityTypeList():
+      raise ValueError(
+        '%s is cannot handle deposit or invoices payments.' % customer.getPortalType())
+
     balance = customer.Entity_getDepositBalanceAmount([subscription_request])
 
     # XXX what is the guarantee deposit account_type?

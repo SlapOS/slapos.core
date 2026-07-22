@@ -57,6 +57,7 @@
             <value>
               <tuple>
                 <string>_setDestinationProject.*</string>
+                <string>_setDestination.*</string>
                 <string>setCategoryList</string>
               </tuple>
             </value>

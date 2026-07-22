@@ -7,6 +7,8 @@ if REQUEST is not None:
 
 batch = (dialog_id is None)
 
+assert context.getPortalType() in ['Workgroup', 'Person']
+
 # Search for the matching item
 sql_instance_list = portal.portal_catalog(
   reference=reference,
@@ -77,4 +79,5 @@ subscription_change_request = open_sale_order_cell.getResourceValue().Resource_c
 
 if batch:
   return subscription_change_request
+
 return subscription_change_request.Base_redirect()

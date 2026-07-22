@@ -15,6 +15,13 @@ assert remote_node.getPortalType() == 'Remote Node'
 remote_project = remote_node.getDestinationProjectValue(portal_type='Project')
 remote_person = remote_node.getDestinationSectionValue(portal_type='Person')
 
+remote_entity = remote_person
+if remote_person is None:
+  remote_workgroup = remote_node.getDestinationSectionValue(portal_type='Workgroup')
+  if remote_workgroup is not None:
+    remote_person = remote_workgroup.Workgroup_getValidMemberValue()
+    remote_entity = remote_workgroup
+
 # If local instance destruction has been propagated, do nothing
 if local_instance.getValidationState() != 'validated':
   return
@@ -25,7 +32,7 @@ if local_instance.getValidationState() != 'validated':
 remote_instance_tree = portal.portal_catalog.getResultValue(
   portal_type='Instance Tree',
   validation_state='validated',
-  destination_section__uid=remote_person.getUid(),
+  destination_section__uid=remote_entity.getUid(),
   follow_up__uid=remote_project.getUid(),
   title={'query': '_remote_%s_%s' % (local_instance.getFollowUpReference(),
                                      local_instance.getReference()),
@@ -107,6 +114,8 @@ if (remote_instance_tree is None) or \
   )
   requested_software_instance = context.REQUEST.get('request_instance')
   requested_instance_tree = context.REQUEST.get('request_instance_tree')
+  # Ensure that request properly owned.
+  assert requested_instance_tree.getDestinationSection() == remote_entity.getRelativeUrl()
   # Try to no trigger the script again on this object
   requested_instance_tree.reindexObject(activate_kw=activate_kw)
   if requested_software_instance is not None:

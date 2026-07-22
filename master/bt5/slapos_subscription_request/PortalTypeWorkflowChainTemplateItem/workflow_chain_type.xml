@@ -1,5 +1,9 @@
 <workflow_chain>
  <chain>
+  <type>Assignment Request</type>
+  <workflow>slapos_subscription_request_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Compute Node</type>
   <workflow>slapos_subscription_request_interaction_workflow</workflow>
  </chain>
@@ -18,6 +22,10 @@
  <chain>
   <type>Project</type>
   <workflow>slapos_subscription_request_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Remote Node Change Request</type>
+  <workflow>edit_workflow, slapos_subscription_request_interaction_workflow, subscription_request_workflow</workflow>
  </chain>
  <chain>
   <type>Sale Invoice Transaction Line</type>

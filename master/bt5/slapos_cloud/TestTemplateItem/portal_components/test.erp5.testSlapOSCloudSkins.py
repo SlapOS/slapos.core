@@ -96,7 +96,8 @@ class TestInstanceNode_afterClone(TestSlapOSCloudSkinsMixin):
     reference = instance_node.getReference()
     instance_node.InstanceNode_afterClone()
     self.assertTrue(instance_node.getReference().startswith("SHARED-"))
-    self.assertNotEqual(instance_node.getReference(), reference)
+    # It dont change because id is the same
+    self.assertEqual(instance_node.getReference(), reference)
 
     reference = instance_node.getReference()
     new_instance_node = instance_node.Base_createCloneDocument(batch_mode=1)
@@ -115,11 +116,11 @@ class TestRemoteNode_afterClone(TestSlapOSCloudSkinsMixin):
     reference = remote_node.getReference()
     remote_node.RemoteNode_afterClone()
     self.assertTrue(remote_node.getReference().startswith("REMOTE-"))
-    self.assertNotEqual(remote_node.getReference(), reference)
+    # It dont change because id is the same
+    self.assertEqual(remote_node.getReference(), reference)
 
     reference = remote_node.getReference()
     new_remote_node = remote_node.Base_createCloneDocument(batch_mode=1)
-    remote_node.InstanceNode_afterClone()
     self.assertTrue(new_remote_node.getReference().startswith("REMOTE-"))
     self.assertNotEqual(new_remote_node.getReference(), reference)
 

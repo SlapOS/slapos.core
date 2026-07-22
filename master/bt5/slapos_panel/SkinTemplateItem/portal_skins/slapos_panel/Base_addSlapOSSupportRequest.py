@@ -1,6 +1,6 @@
 portal = context.getPortalObject()
 REQUEST = context.REQUEST
-entity = portal.portal_membership.getAuthenticatedMember().getUserValue()
+person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
 # Max ~3Mb
 if int(REQUEST.getHeader('Content-Length', 0)) > 3145728:

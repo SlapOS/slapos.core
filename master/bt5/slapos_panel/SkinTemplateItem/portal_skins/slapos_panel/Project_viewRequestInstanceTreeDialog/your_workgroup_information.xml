@@ -124,7 +124,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: context.Project_getUserWorkgroupInformation()</string> </value>
+            <value> <string>python: context.Project_getUserWorkgroupTitle()</string> </value>
         </item>
       </dictionary>
     </pickle>
@@ -137,7 +137,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: context.Project_getUserWorkgroupInformation()</string> </value>
+            <value> <string>python: context.Project_getUserWorkgroupTitle()</string> </value>
         </item>
       </dictionary>
     </pickle>

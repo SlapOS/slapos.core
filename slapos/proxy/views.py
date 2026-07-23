@@ -39,9 +39,11 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from .hateoas import hateoas_blueprint
 from .slap_tool import slap_tool_blueprint
 from .http_proxy import http_proxy_blueprint
-from .db import execute_db
+from .db import execute_db, encodeSharedParameters
 from .json_rpc import JsonRpcManager
 from .panel import panel_blueprint
+
+from slapos.util import loads
 
 from six.moves.urllib.parse import urlparse
 
@@ -98,29 +100,175 @@ def _upgradeDatabaseIfNeeded():
       current_app.logger.info('Old schema detected: Migrating old tables...')
       n = len(current_schema_version)
       current_schema_version = int(current_schema_version)
+      # Fetch all old tables' rows before inserting anything, so a fix-up can
+      # read one table's rows (e.g. slave, partition) while emitting rows into
+      # a different target table (e.g. instance).
+      old_rows_by_table = {}
       for old_table, in previous_table_list:
-        rv = execute_db(old_table, 'SELECT * from %s', db_version='')
+        old_rows_by_table[old_table[:-n]] = execute_db(
+          old_table, 'SELECT * from %s', db_version='')
+      # Identity mapping: each old table's rows go to the same-named new table.
+      # A fix-up may replace an entry, drop a key (no target table), or add a
+      # key pointing at rows built from another table.
+      new_rows_by_table = dict(old_rows_by_table)
+
+      if current_schema_version < 17:
+        rv = old_rows_by_table.get('local_software_release_root')
         if rv:
-          table = old_table[:-n]
-          if current_schema_version < 17:
-            if table == 'local_software_release_root':
-              path, = {row['path'] for row in rv}
-              rv = {'name': table, 'value': path},
-              table = 'config'
-            elif table == 'partition':
-              request_dict = {row['reference']: (i, row['requested_by'])
-                              for i, row in enumerate(rv)}
-              for i, requested_by in request_dict.values():
-                if requested_by:
-                  while True:
-                    j, requested_by = request_dict[requested_by]
-                    if not requested_by:
-                      break
-                  rv[i]['requested_by'] = rv[j]['partition_reference']
-          for row in rv:
-            query = 'INSERT OR REPLACE INTO %%s (%s) VALUES (:%s)' % (
-              ', '.join(row), ', :'.join(row))
-            execute_db(table, query, row)
+          path, = {row['path'] for row in rv}
+          del new_rows_by_table['local_software_release_root']
+          new_rows_by_table.setdefault('config', []).append(
+            {'name': 'local_software_release_root', 'value': path})
+        partition_rows = old_rows_by_table.get('partition') or []
+        request_dict = {row['reference']: (i, row['requested_by'])
+                        for i, row in enumerate(partition_rows)}
+        for i, requested_by in request_dict.values():
+          if requested_by:
+            while True:
+              j, requested_by = request_dict[requested_by]
+              if not requested_by:
+                break
+            partition_rows[i]['requested_by'] = \
+              partition_rows[j]['partition_reference']
+
+      if current_schema_version < 18:
+        # Schemas older than v11 lack computer_reference; the current schema
+        # fills it from its DEFAULT, so the guid the proxy publishes for such
+        # a migrated instance uses the configured computer id.
+        computer_id = current_app.config['computer_id']
+        partition_rows = old_rows_by_table.get('partition') or []
+        slave_rows = old_rows_by_table.get('slave') or []
+        # Slave rows are indexed for connection_xml / asked_by recovery only.
+        # They are NOT the source of shared instances: v17 never deletes a slave
+        # row on destroy, so the table accumulates stale rows. The wire truth --
+        # what slapgrid and deployed SRs actually consume -- is the host's
+        # slave_instance_list blob, so pass 3 is driven by the blobs.
+        slave_row_by_address = {
+          (row.get('computer_reference') or computer_id, row['reference']): row
+          for row in slave_rows}
+        instance_rows, new_partition_rows = [], []
+        # Guids are opaque primary keys; a frozen-guid collision (two
+        # pathologically named computers/partitions freezing to the same
+        # string) would be silently clobbered by INSERT OR REPLACE. Warn so the
+        # drop is diagnosable rather than crashing.
+        seen_guid_address = {}
+        def emit_instance(inst, address):
+          guid = inst['instance_guid']
+          if guid in seen_guid_address:
+            current_app.logger.warning(
+              'Instance guid collision during migration: %r emitted for both '
+              '%s and %s; INSERT OR REPLACE keeps the last, dropping the first',
+              guid, seen_guid_address[guid], address)
+          seen_guid_address[guid] = address
+          instance_rows.append(inst)
+
+        def slaveTitle(slave_reference, asked_by):
+          # deterministic title: asked_by is the root title stored on the slave
+          # row; strip it as a prefix so the split is unambiguous
+          prefix = asked_by + '_'
+          if asked_by and slave_reference.startswith(prefix):
+            return slave_reference[len(prefix):]
+          return slave_reference.lstrip('_')
+
+        # --- pass 1: non-shared instances from busy partition rows, guid FROZEN ---
+        root_guid_by_title = {}
+        for row in partition_rows:
+          resource = {'reference': row['reference'],
+                      'slap_state': row['slap_state']}
+          if 'computer_reference' in row:
+            resource['computer_reference'] = row['computer_reference']
+          new_partition_rows.append(resource)
+          if row['slap_state'] != 'free':
+            computer_reference = row.get('computer_reference') or computer_id
+            # the exact string the proxy already published for this instance
+            guid = '%s-%s' % (computer_reference, row['reference'])
+            # a busy slot with no title (empty-title request) still has a
+            # published guid that must keep resolving -- fall back to the slot
+            # address for the title, but do NOT register it as a root title.
+            if row['partition_reference'] and not row['requested_by']:  # v17 root
+              root_guid_by_title.setdefault(row['partition_reference'], guid)
+            emit_instance(dict(
+              instance_guid=guid,
+              title=row['partition_reference'] or row['reference'], shared=0,
+              software_release=row['software_release'],
+              software_type=row['software_type'],
+              requested_state=row['requested_state'],
+              xml=row['xml'], connection_xml=row['connection_xml'],
+              sla_xml=None, slave_reference=None,
+              allocated_computer=computer_reference,
+              allocated_partition=row['reference'],
+              timestamp=row.get('timestamp'),
+              _requested_by_title=row['requested_by']),           # resolved in pass 2
+              (computer_reference, row['reference']))
+        # --- pass 2: tree edges from the flattened v17 root titles ---
+        for inst in instance_rows:
+          root_title = inst.pop('_requested_by_title')
+          # v17 discarded the direct parent (it flattened the edge to the root
+          # title). The root is the best available approximation for
+          # pre-existing trees; trees built after v18 record the true direct
+          # requester. Orphan edges (root title with no busy root) map to '',
+          # so the row becomes a root -- how every v17 reader treated an
+          # unmatched title.
+          guid = root_guid_by_title.get(root_title, '') if root_title else ''
+          inst['root_instance_guid'] = guid
+          inst['requested_by_instance_guid'] = guid
+        # --- pass 3: shared instances from host blobs, guid MINTED ---
+        counter = 0
+        for row in partition_rows:
+          if row['slap_state'] == 'free' or not row['slave_instance_list']:
+            continue
+          host_computer = row.get('computer_reference') or computer_id
+          host_reference = row['reference']
+          # blob append-order reproduces today's slave_instance_list ordering
+          for entry in loads(row['slave_instance_list'].encode('utf-8')):
+            entry = dict(entry)
+            slave_reference = entry.pop('slave_reference', None)
+            entry.pop('slave_title', None)
+            software_type = entry.pop('slap_software_type', None)
+            params = entry
+            slave = slave_row_by_address.get((host_computer, slave_reference))
+            if slave is not None:
+              connection_xml = slave['connection_xml']
+              asked_by = slave['asked_by'] or ''
+            else:
+              # a blob entry with no slave row cannot happen in practice; keep
+              # it live (it is on the wire) but with no recoverable connection
+              # or root title
+              connection_xml = None
+              asked_by = ''
+            counter += 1
+            root_guid = root_guid_by_title.get(asked_by, '')
+            emit_instance(dict(
+              instance_guid='SOFTINST-%s' % counter,              # nothing published
+              title=slaveTitle(slave_reference, asked_by), shared=1,  # to freeze
+              root_instance_guid=root_guid,
+              requested_by_instance_guid=root_guid,
+              software_release=row['software_release'],
+              software_type=software_type,
+              requested_state='started',     # the only state v17 could express
+              # params recovered from the v17 blob are already typed (loaded
+              # via xml_marshaller above); store them typed so they survive
+              xml=encodeSharedParameters(params), connection_xml=connection_xml,
+              sla_xml=None,
+              slave_reference=slave_reference,                    # frozen for the
+              allocated_computer=host_computer,                   # blob projection
+              allocated_partition=host_reference,
+              # match v17: a migrated shared row publishes the host partition's
+              # timestamp until its first mutation, not processing_timestamp 0
+              timestamp=row.get('timestamp')),
+              (host_computer, host_reference))
+        new_rows_by_table['partition'] = new_partition_rows
+        new_rows_by_table['instance'] = instance_rows
+        new_rows_by_table.pop('slave', None)
+        new_rows_by_table.setdefault('config', []).append(
+          {'name': 'last_instance_id', 'value': str(counter)})
+
+      for table, rows in new_rows_by_table.items():
+        for row in rows:
+          query = 'INSERT OR REPLACE INTO %%s (%s) VALUES (:%s)' % (
+            ', '.join(row), ', :'.join(row))
+          execute_db(table, query, row)
+      for old_table, in previous_table_list:
         g.db.execute("DROP table " + old_table)
   except:
     g.db.rollback()
@@ -178,7 +326,9 @@ def _updateLocalSoftwareReleaseRootPathIfNeeded():
     return new
   g.db.create_function('migrate_url', 1, migrate_url)
   execute_db('software', 'UPDATE %s SET url=migrate_url(url)')
-  execute_db('partition', 'UPDATE %s SET software_release=migrate_url(software_release)')
+  # software_release lives on the instance row under v18 (the partition row is a
+  # pure resource slot); rebase the URLs there.
+  execute_db('instance', 'UPDATE %s SET software_release=migrate_url(software_release)')
 
 is_schema_already_executed = False
 @app.before_request

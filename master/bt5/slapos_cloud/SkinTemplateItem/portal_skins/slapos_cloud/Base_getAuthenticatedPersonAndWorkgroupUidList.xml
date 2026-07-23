@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Base_getAuthenticatedPersonUid</string> </value>
+            <value> <string>Base_getAuthenticatedPersonAndWorkgroupUidList</string> </value>
         </item>
       </dictionary>
     </pickle>

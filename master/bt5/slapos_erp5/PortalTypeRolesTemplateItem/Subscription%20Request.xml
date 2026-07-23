@@ -7,7 +7,7 @@
   </role>
   <role id='Associate'>
    <property id='title'>Customer</property>
-   <property id='condition'>python: context.getDestinationDecision('', portal_type='Person') != ""
+   <property id='condition'>python: context.getDestinationDecision('', portal_type=['Person', 'Workgroup']) != ""
 </property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/user</multi_property>
@@ -21,7 +21,7 @@
   </role>
   <role id='Auditor'>
    <property id='title'>Shadow User</property>
-   <property id='condition'>python: (here.getDestinationDecision('', portal_type='Person') != "") and (here.getLedger("") == "automated")</property>
+   <property id='condition'>python: (here.getDestinationDecision('', portal_type=['Person', 'Workgroup']) != "") and (here.getLedger("") == "automated")</property>
    <property id='base_category_script'>Base_getSecurityCategoryAsShadowUser</property>
    <multi_property id='categories'>local_role_group/shadow</multi_property>
    <multi_property id='base_category'>destination_decision</multi_property>

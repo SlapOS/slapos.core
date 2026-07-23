@@ -1,5 +1,8 @@
 portal = context.getPortalObject()
 
+# Only person and organisation are payable
+assert context.getPortalType() in portal.getPortalEntityTypeList()
+
 # Ensure all invoice use the same arrow and resource
 first_subscription = subscription_list[0]
 identical_dict = {

@@ -1,0 +1,13 @@
+portal = context.getPortalObject()
+
+portal.portal_catalog.searchAndActivate(
+  method_id='RemoteNodeChangeRequest_validateIfSubmitted',
+  method_kw={'activate_kw': {'tag': tag}},
+  # Project are created only from UI for now
+  portal_type=["Remote Node Change Request"],
+  simulation_state='submitted',
+  packet_size=1, # Separate calls to many transactions
+  activate_kw={'tag': tag, 'priority': 2}
+)
+
+context.activate(after_tag=tag).getId()

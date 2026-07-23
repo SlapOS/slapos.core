@@ -318,18 +318,24 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
     self.assertNotIn(message, self.getMessageList(delivery))
 
   def _test_category_arrow(self, category):
-    message = "Arity Error for Relation ['%s'] and Type ('Organisation', "\
-        "'Person'), arity is equal to 0 but should be between 1 and 1" % category
-    message_2 = "Arity Error for Relation ['%s'] and Type ('Organisation', "\
-        "'Person'), arity is equal to 2 but should be between 1 and 1" % category
+    pt_string = "('Organisation', 'Person')"
+    if category in ['destination', 'destination_decision']:
+      pt_string = "('Organisation', 'Person', 'Workgroup')"
+    message = "Arity Error for Relation ['%s'] and Type %s, "\
+      "arity is equal to 0 but should be between 1 and 1" % (category, pt_string)
+    message_2 = "Arity Error for Relation ['%s'] and Type %s, "\
+      "arity is equal to 2 but should be between 1 and 1" % (category, pt_string)
     delivery = self.portal.getDefaultModule(self._portal_type).newContent(
         portal_type=self._portal_type)
+
     resource = self.portal.service_module.newContent(
         portal_type='Service').getRelativeUrl()
     person = self.portal.person_module.newContent(
         portal_type='Person').getRelativeUrl()
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation').getRelativeUrl()
+    workgroup = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup').getRelativeUrl()
 
     key = '%s_list' % category
     self.assertIn(message, self.getMessageList(delivery))
@@ -343,6 +349,10 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
     delivery.edit(**{key: [organisation]})
     self.assertNotIn(message, self.getMessageList(delivery))
     self.assertNotIn(message_2, self.getMessageList(delivery))
+    if category in ['destination', 'destination_decision']:
+      delivery.edit(**{key: [workgroup]})
+      self.assertNotIn(message, self.getMessageList(delivery))
+      self.assertNotIn(message_2, self.getMessageList(delivery))
 
   def test_destination(self):
     self._test_category_arrow('destination')

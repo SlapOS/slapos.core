@@ -20,7 +20,7 @@ for user_group in user_group_list:
   # provided by the workgroup.
   if user_group.endswith(workgroup_customer_on_project_user_group):
     workgroup_user_id = user_group[:-len(workgroup_customer_on_project_user_group)]
-    if workgroup is not None and workgroup.getUserId() != workgroup_user_id:
+    if (workgroup is not None) and (workgroup.getUserId() != workgroup_user_id):
       raise ValueError("Duplicated found: %s, %s" % (
         workgroup_user_id, workgroup.getUserId()))
 
@@ -29,4 +29,4 @@ for user_group in user_group_list:
         portal_type='Workgroup',
         user_id=workgroup_user_id)
 
-return None
+return workgroup

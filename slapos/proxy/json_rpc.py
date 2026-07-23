@@ -2,12 +2,15 @@ from werkzeug.http import HTTP_STATUS_CODES
 from werkzeug.exceptions import NotAcceptable
 from flask import current_app, request, abort, Blueprint, make_response, g, url_for
 from .db import execute_db, requestInstanceFromDB, supplyFromDB, removeFromDB, \
-                bangInstanceFromDB, getPartitionFromDB, freePartitionFromDB, \
-                formatFromDB, \
+                formatFromDB, getInstanceByGuid, getInstanceTreeList, \
+                getRootInstanceTitle, identifyRequester, renameInstance, \
+                bangInstance, setInstanceConnectionParameters, destroyInstance, \
+                UnknownRequester, \
                 NotFoundPartitionFailure, PartitionDeletionFailure, \
-                AllocationFailure, getInstanceTreeList, getAllocatedInstance
-from slapos.util import dict2xml, xml2dict, loads
-from slapos.slap.slap import ComputerPartition, SoftwareInstance
+                AllocationFailure, ConfigurationError, HostNotReady, \
+                decodeSharedParameters
+from slapos.util import xml2dict
+from slapos.slap.slap import ComputerPartition
 import json
 import jsonschema
 import sys
@@ -97,6 +100,27 @@ json_rpc_blueprint.before_request(before_json_rpc_request)
 json_rpc_experimental_blueprint.before_request(before_json_rpc_experimental_request)
 
 
+def identify_requester_from_headers():
+  """Resolve the asserted requester identity once per json_rpc request.
+
+  json_rpc asserts identity through transport metadata (headers), the only
+  channel the frozen request schemas leave open. This fails CLOSED: an asserted
+  but unresolvable identity aborts 403 before any endpoint body runs, so a bogus
+  identity never silently founds a new root tree. Registered AFTER the OpenAPI
+  validation hook, so a malformed body still 400s before a bogus identity 403s.
+  """
+  computer_id = request.headers.get('X-computer-id')
+  partition_id = request.headers.get('X-computer-partition-id')
+  try:
+    g.requester = identifyRequester(computer_id, partition_id)
+  except UnknownRequester as e:
+    return abort(403, str(e))
+  g.requester_id = partition_id or 'user'
+
+json_rpc_blueprint.before_request(identify_requester_from_headers)
+json_rpc_experimental_blueprint.before_request(identify_requester_from_headers)
+
+
 class JsonRpcManager(object):
   '''
   This object is used to replicate the slapos master json rpc api
@@ -170,7 +194,9 @@ def compute_node_software_installation_list():
   computer_id = request.json["computer_guid"]
   computer_list = execute_db('computer', 'SELECT * FROM %s WHERE reference=?', [computer_id])
   if len(computer_list) != 1:
-    return abort(403, '%s is not registered.' % computer_id)
+    # Legacy slap_tool behavior: the default computer may query before format() registers it.
+    if computer_id != current_app.config['computer_id']:
+      return abort(403, '%s is not registered.' % computer_id)
   software_release_list = []
   for sr in execute_db('software', 'select * from %s WHERE computer_reference=?', [computer_id]):
     software_release_list.append({
@@ -181,37 +207,32 @@ def compute_node_software_installation_list():
     'result_list': software_release_list
   })
 
-def generateInstanceGuid(title, requested_by, is_shared):
-  # We expect slapproxy to only a uniq partition_reference/requested_by
-  return '%s___%s___%i' % (title, requested_by, int(is_shared))
-
-def extractInstanceGuid(instance_guid):
-  result_list = instance_guid.split('___', 2)
-  result_list[2] = bool(int(result_list[2]))
-  return result_list
-
-def generateDBSlaveReference(title, requested_by):
-  return '%s_%s' % (requested_by, title)
-
-def extractDBSlaveReference(reference):
-  requested_by, title = reference.split('_', 1)
-  return title, requested_by
-
-
 @json_rpc_blueprint.route('/slapos.allDocs.v0.compute_node_instance_list', methods=['POST'])
 def compute_node_instance_list():
   computer_id = request.json["computer_guid"]
   computer_list = execute_db('computer', 'SELECT * FROM %s WHERE reference=?', [computer_id])
   if len(computer_list) != 1:
-    return abort(403, '%s is not registered.' % computer_id)
+    # Legacy slap_tool behavior: the default computer may query before format() registers it.
+    if computer_id != current_app.config['computer_id']:
+      return abort(403, '%s is not registered.' % computer_id)
+  # Master lists real Software Instance documents aggregated to the compute node
+  # (JSONRPCService_searchComputeNodeSoftwareInstanceFromDict: portal_type
+  # "Software Instance", sorted by reference), never the free partition slots. A
+  # free slot is not an instance, so it is simply absent -- slapgrid derives free
+  # partitions by difference against its local partition set, and a destroyed
+  # instance is cleaned while it is still listed with its software_release_uri,
+  # before the slot is freed.
   instance_list = []
-  for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=? AND slap_state="busy"', [computer_id]):
+  for instance in execute_db('instance',
+      'SELECT * FROM %s WHERE shared=0 AND allocated_computer=?'
+      ' AND allocated_partition IS NOT NULL ORDER BY instance_guid',
+      (computer_id,)):
     instance_list.append({
-      "title": partition['partition_reference'],
-      "instance_guid": generateInstanceGuid(partition['partition_reference'], partition['requested_by'], False),
-      "state": partition['requested_state'],
-      "compute_partition_id": partition['reference'],
-      "software_release_uri": partition['software_release'],
+      "title": instance['title'],
+      "instance_guid": instance['instance_guid'],
+      "state": instance['requested_state'],
+      "compute_partition_id": instance['allocated_partition'],
+      "software_release_uri": instance['software_release'],
     })
   return validate_and_send_json_rpc_document({
     'result_list': instance_list
@@ -219,32 +240,23 @@ def compute_node_instance_list():
 
 @json_rpc_blueprint.route('/slapos.allDocs.v0.instance_node_instance_list', methods=['POST'])
 def instance_node_instance_list():
-  try:
-    partition_reference, requested_by, is_shared = extractInstanceGuid(request.json["instance_guid"])
-  except (ValueError, IndexError):
-    return abort(403, 'instance_guid %s not handled.' % request.json["instance_guid"])
-
-  partition = getAllocatedInstance(partition_reference, requested_by)
-  if is_shared or (not partition):
+  host = getInstanceByGuid(request.json["instance_guid"])
+  if host is None or host['shared'] or host['allocated_partition'] is None:
     return abort(403, 'No software instance %s found.' % request.json["instance_guid"])
 
   result_list = []
-  slave_instance_list = []
-  if partition['slave_instance_list'] is not None:
-    slave_instance_list = loads(partition['slave_instance_list'].encode('utf-8'))
-  for slave_information in slave_instance_list:
-    title, asked_by = extractDBSlaveReference(slave_information.pop('slave_title'))
-    # Drop added informations
-    slap_software_type = slave_information.pop('slap_software_type')
-    slave_information.pop('slave_reference')
+  for row in execute_db('instance',
+      'SELECT * FROM %s'
+      ' WHERE shared=1 AND allocated_computer=? AND allocated_partition=?'
+      ' ORDER BY rowid',
+      (host['allocated_computer'], host['allocated_partition'])):
     result_list.append({
-      "title": title,
-      "instance_guid": generateInstanceGuid(title, asked_by, True),
-      "software_type": slap_software_type,
-      # The state is not stored in slapproxy
-      "state": "started",
-      "parameters": slave_information,
-      "compute_partition_id": partition['reference']
+      "title": row['title'],
+      "instance_guid": row['instance_guid'],
+      "software_type": row['software_type'],
+      "state": row['requested_state'],
+      "parameters": decodeSharedParameters(row['xml']),
+      "compute_partition_id": row['allocated_partition']
     })
   return validate_and_send_json_rpc_document({
     'result_list': result_list
@@ -270,200 +282,153 @@ def get_software_instance_certificate():
     'certificate': ''
   })
 
-def send_json_rpc_sql_partition(partition):
+def send_json_rpc_instance(row):
+  """Serialize an instance row to the json_rpc software_instance document.
+
+  One serializer for shared and non-shared rows: shared is bool(row['shared']),
+  state is the real requested_state, instance_guid is published for both. The
+  ip_list comes from the partition_network rows of the (possibly hosting)
+  allocated partition."""
   address_list = []
   for address in execute_db('partition_network',
                             'SELECT * FROM %s WHERE partition_reference=? AND computer_reference=?',
-                            (partition['reference'], partition['computer_reference'])):
+                            (row['allocated_partition'], row['allocated_computer'])):
     address_list.append([address['reference'], address['address']])
 
   return validate_and_send_json_rpc_document({
-    "title": partition['partition_reference'],
-    "instance_guid": generateInstanceGuid(partition['partition_reference'], partition['requested_by'], False),
-    "software_release_uri": partition['software_release'],
-    "software_type": partition['software_type'],
-    "state": partition['requested_state'],
-    "connection_parameters": xml2dict(partition['connection_xml']),
-    "parameters": xml2dict(partition['xml']),
-    "shared": False,
-    "root_instance_title": partition['requested_by'] or partition['partition_reference'],
+    "title": row['title'],
+    "instance_guid": row['instance_guid'],
+    "software_release_uri": row['software_release'],
+    "software_type": row['software_type'],
+    "state": row['requested_state'],
+    "connection_parameters": xml2dict(row['connection_xml']),
+    "parameters": decodeSharedParameters(row['xml']) if row['shared']
+      else xml2dict(row['xml']),
+    "shared": bool(row['shared']),
+    "root_instance_title": getRootInstanceTitle(row),
     "ip_list": address_list,
     "full_ip_list": [],
     # sla are not stored in slapproxy
     "sla_parameters": {},
-    "computer_guid": partition['computer_reference'],
-    "compute_partition_id": partition['reference'],
-    "processing_timestamp": int(partition['timestamp'] or '0'),
-    # This info is probably not available
-    "access_status_message": ''
-  })
-
-
-def send_json_rpc_sql_shared(shared_instance, partition):
-  title, asked_by = extractDBSlaveReference(shared_instance['reference'])
-  assert asked_by == shared_instance['asked_by']
-  slave_information = [x for x in loads(partition['slave_instance_list'].encode('utf-8')) if x['slave_title'] == shared_instance['reference']][0]
-  # Drop added informations
-  slave_information.pop('slave_title')
-  slave_information.pop('slap_software_type')
-  slave_information.pop('slave_reference')
-
-  return validate_and_send_json_rpc_document({
-    "title": title,
-    "instance_guid": generateInstanceGuid(title, shared_instance['asked_by'], True),
-    "software_release_uri": partition['software_release'],
-    "software_type": partition['software_type'],
-    # XXX This is not stored
-    "state": "started",
-    "connection_parameters": xml2dict(shared_instance['connection_xml']),
-    "parameters": slave_information,
-    "shared": True,
-    "root_instance_title": shared_instance['asked_by'] or title,
-    "ip_list": [],
-    "full_ip_list": [],
-    # sla are not stored in slapproxy
-    "sla_parameters": {},
-    "computer_guid": partition['computer_reference'],
-    "compute_partition_id": partition['reference'],
-    "processing_timestamp": int(partition['timestamp']),
-    # This info is probably not available
-    "access_status_message": ''
-  })
-
-def send_json_rpc_slap_instance(title, requested_by, is_shared, slap_instance):
-  parameters = slap_instance._parameter_dict
-  if is_shared:
-    # XXX there is not timestamp for shared instance currently
-    timestamp = 0
-    state = 'started'
-  else:
-    timestamp = parameters.pop('timestamp')
-    state = slap_instance._requested_state
-  return validate_and_send_json_rpc_document({
-    "title": title,
-    "instance_guid": generateInstanceGuid(title, requested_by, is_shared),
-    "software_release_uri": slap_instance.slap_software_release_url,
-    "software_type": slap_instance.slap_software_type,
-    "state": state,
-    "connection_parameters": slap_instance._connection_dict,
-    "parameters": parameters,
-    "shared": is_shared,
-    "root_instance_title": requested_by or title,
-    "ip_list": [[y for y in x] for x in slap_instance.ip_list],
-    "full_ip_list": [],
-    # sla are not stored in slapproxy
-    "sla_parameters": {},
-    "computer_guid": slap_instance.slap_computer_id,
-    "compute_partition_id": slap_instance.slap_computer_partition_id,
-    "processing_timestamp": int(float(timestamp)),
+    "computer_guid": row['allocated_computer'],
+    "compute_partition_id": row['allocated_partition'],
+    "processing_timestamp": int(row['timestamp'] or 0),
     # This info is probably not available
     "access_status_message": ''
   })
 
 @json_rpc_blueprint.route('/slapos.get.v0.software_instance', methods=['POST'])
 def get_software_instance():
-  try:
-    partition_reference, requested_by, is_shared = extractInstanceGuid(request.json["instance_guid"])
-  except (ValueError, IndexError):
-    return abort(403, 'instance_guid %s not handled.' % request.json["instance_guid"])
-
-  if is_shared:
-    # XXX Copied from db.getAllocatedSlaveInstance
-    shared = execute_db('slave',
-      'SELECT * FROM %s WHERE reference=? AND asked_by=?',
-      (generateDBSlaveReference(partition_reference, requested_by), requested_by), one=True)
-    if not shared:
-      return abort(403, 'No shared instance %s found.' % request.json["instance_guid"])
-    # Get the matching partition
-    partition = execute_db('partition',
-      'SELECT * FROM %s WHERE computer_reference=? AND reference=?',
-      (shared['computer_reference'], shared['hosted_by']), one=True)
-    if not partition:
-      return abort(403, 'No partition hosting %s found.' % request.json["instance_guid"])
-    return send_json_rpc_sql_shared(shared, partition)
-
-  partition = getAllocatedInstance(partition_reference, requested_by)
-  if not partition:
+  row = getInstanceByGuid(request.json["instance_guid"])
+  if row is None:
     return abort(403, 'No software instance %s found.' % request.json["instance_guid"])
-  return send_json_rpc_sql_partition(partition)
+  return send_json_rpc_instance(row)
 
 @json_rpc_blueprint.route('/slapos.get.v0.compute_partition', methods=['POST'])
 def get_compute_partition():
-  partition = getPartitionFromDB(request.json["compute_partition_id"], request.json["computer_guid"])
-  if (not partition) or (not partition['partition_reference']):
+  row = execute_db('instance',
+    'SELECT * FROM %s WHERE shared=0 AND allocated_computer=? AND allocated_partition=?',
+    (request.json["computer_guid"], request.json["compute_partition_id"]), one=True)
+  if row is None:
     return abort(403, 'No instance on partition %s found.' % request.json["compute_partition_id"])
-  return send_json_rpc_sql_partition(partition)
+  return send_json_rpc_instance(row)
 
 @json_rpc_blueprint.route('/slapos.post.v0.software_instance', methods=['POST'])
 def post_software_instance():
   title = request.json["title"]
-  requested_by = ''# XXX getRequesterFromForm(form) or '',
   parameters = request.json.get("parameters", {})
   is_shared = request.json.get("shared", False)
   requested_state = request.json.get("state", "started")
-  parsed_request_dict = {
-    'requester_id': None,
-    'requested_by': requested_by,
-    'software_release': request.json["software_release_uri"],
-    'software_type': request.json["software_type"],
-    'partition_reference': title,
-    'partition_parameter_kw': parameters,
-    'filter_kw': request.json.get("sla_parameters", {}),
-    # Note: currently ignored for slave instance (slave instances
-    # are always started).
-    'requested_state': requested_state,
-    # Is it a slave instance?
-    'slave': is_shared
-  }
   try:
-    slap_instance = requestInstanceFromDB(**parsed_request_dict)
+    result = requestInstanceFromDB(
+      requester=g.requester,
+      requester_id=g.requester_id,
+      software_release=request.json["software_release_uri"],
+      software_type=request.json["software_type"],
+      partition_reference=title,
+      partition_parameter_kw=parameters,
+      filter_kw=request.json.get("sla_parameters", {}),
+      # Note: currently ignored for slave instance (slave instances
+      # are always started).
+      requested_state=requested_state,
+      # Is it a slave instance?
+      slave=is_shared)
+  except HostNotReady as e:
+    # A shared instance whose hosting instance is not available yet. The master
+    # keeps the Slave Instance pending and returns the 102 SoftwareInstanceNotReady
+    # arm (JSONRPCService_requestSoftwareInstance.py); the host may be allocated
+    # on a later slapgrid run, so the client returns a placeholder
+    # ComputerPartition and polls (result['status'] == 102 in the json_rpc client).
+    return validate_and_send_json_rpc_document({
+      'status': 102,
+      'name': 'SoftwareInstanceNotReady',
+      'message': str(e),
+    })
   except AllocationFailure as e:
-    return abort(403, str(e))
-  if isinstance(slap_instance, SoftwareInstance):
-    return send_json_rpc_slap_instance(title, requested_by, is_shared, slap_instance)
-
-  elif isinstance(slap_instance, ComputerPartition):
+    # No free partition on this compute node. The proxy allocates synchronously
+    # over a fixed partition set with no allocation alarm, so unlike the master
+    # (where an unallocatable instance stays pending and returns 102 until an
+    # alarm places it) this never resolves on a later poll -- it is terminal.
+    # Returning the poll-again 102 arm would make slapgrid retry forever in
+    # silence. Surface it as a clear 404 instead, which the json_rpc client maps
+    # to NotFoundError, matching the slap_tool blueprint's abort(404, ...).
+    return abort(404, str(e))
+  except ConfigurationError as e:
+    # A misconfigured multimaster forward (external master missing from the
+    # multimaster list, or an https master without key/certificate). Surface
+    # the explanatory message as a 404, matching the slap_tool blueprint, so
+    # the reason is not lost in a generic 500.
+    return abort(404, str(e))
+  if isinstance(result, ComputerPartition):
+    if getattr(result, '_request_dict', None) is not None:
+      # The forward reached the external master but the sub-instance is still
+      # pending there: the master returned a placeholder ComputerPartition
+      # (_request_dict set, no _connection_dict) instead of an allocated one.
+      # Dereferencing _connection_dict here would raise -- surface the same 102
+      # SoftwareInstanceNotReady arm as the shared host-not-ready path so the
+      # client polls, mirroring slap_tool's _request_dict detection (which
+      # aborts 408 on the same condition).
+      return validate_and_send_json_rpc_document({
+        'status': 102,
+        'name': 'SoftwareInstanceNotReady',
+        'message': 'Software instance %s is not ready' % title,
+      })
+    # frontend-bypass / external-master forward: no local instance row exists
     return validate_and_send_json_rpc_document({
       "title": title,
-      "instance_guid": generateInstanceGuid(title, requested_by, is_shared),
+      "instance_guid": '%s-%s' % (result._computer_id, result._partition_id),
       "software_release_uri": request.json["software_release_uri"],
       "software_type": request.json["software_type"],
       "state": requested_state,
-      "connection_parameters": slap_instance._connection_dict,
+      "connection_parameters": result._connection_dict,
       "parameters": parameters,
       "shared": is_shared,
-      "root_instance_title": requested_by or title,
+      "root_instance_title": getRootInstanceTitle(g.requester)
+        if g.requester is not None else title,
       "ip_list": [],
       "full_ip_list": [],
       # sla are not stored in slapproxy
       "sla_parameters": {},
-      "computer_guid": slap_instance._computer_id,
-      "compute_partition_id": slap_instance._partition_id,
+      "computer_guid": result._computer_id,
+      "compute_partition_id": result._partition_id,
       "processing_timestamp": 0,
       # This info is probably not available
       "access_status_message": ''
     })
-
-  return abort(500, 'Can not export %s' % str(slap_instance))
+  if result is None:
+    # A first-ever shared request with state 'destroyed' allocated nothing.
+    return validate_and_send_json_rpc_document({
+      'status': 200,
+      'name': 'Destroyed',
+      'message': 'Shared instance %s destroyed' % title,
+    })
+  return send_json_rpc_instance(result)
 
 @json_rpc_blueprint.route('/slapos.get.v0.instance_tree', methods=['POST'])
 def get_instance_tree():
-  partition_and_shared_list = getInstanceTreeList(title=request.json["title"])
-
-  if (len(partition_and_shared_list[0]) == 1) and (not partition_and_shared_list[1]):
-    return send_json_rpc_sql_partition(partition_and_shared_list[0][0])
-
-  if not(partition_and_shared_list[0]) and (len(partition_and_shared_list[1]) == 1):
-    shared = partition_and_shared_list[1][0]
-    # XXX Copied from db.getAllocatedSlaveInstance
-    # Get the matching partition
-    partition = execute_db('partition',
-      'SELECT * FROM %s WHERE computer_reference=? AND reference=?',
-      (shared['computer_reference'], shared['hosted_by']), one=True)
-    if not partition:
-      return abort(403, 'No partition hosting %s found.' % request.json["title"])
-    return send_json_rpc_sql_shared(shared, partition)
-
+  root_list = getInstanceTreeList(title=request.json["title"])
+  if len(root_list) == 1:
+    return send_json_rpc_instance(root_list[0])
   return abort(403, 'No instance tree %s found.' % request.json["title"])
 
 @json_rpc_blueprint.route('/slapos.put.v0.compute_node_format', methods=['POST'])
@@ -510,33 +475,13 @@ def put_software_instance_reported_state():
 
   if reported_state == 'destroyed':
     try:
-      partition_reference, requested_by, is_shared = extractInstanceGuid(request.json["instance_guid"])
-    except (ValueError, IndexError):
-      return abort(403, 'instance_guid %s not handled.' % request.json["instance_guid"])
-
-    if is_shared:
-      return validate_and_send_json_rpc_document({
-        'type': 'success',
-        'title': 'Ignored'
-      })
-    else:
-
-      # Instance is fetched twice from DB
-      # Far from optimal, but enough for now, as this is really
-      # not called often
-      partition = getAllocatedInstance(partition_reference, requested_by)
-      if not partition:
-        return abort(403, 'No software instance %s found.' % request.json["instance_guid"])
-
-      try:
-        freePartitionFromDB(partition['reference'], partition['computer_reference'])
-      except (NotFoundPartitionFailure, PartitionDeletionFailure) as error:
-        return abort(403, str(error))
-
-      return validate_and_send_json_rpc_document({
-        'type': 'success',
-        'title': 'Destroyed'
-      })
+      destroyInstance(request.json["instance_guid"])
+    except (NotFoundPartitionFailure, PartitionDeletionFailure) as error:
+      return abort(403, str(error))
+    return validate_and_send_json_rpc_document({
+      'type': 'success',
+      'title': 'Destroyed'
+    })
 
   else:
     raise NotImplementedError('State %s handling not implemented' % reported_state)
@@ -544,15 +489,9 @@ def put_software_instance_reported_state():
 @json_rpc_blueprint.route('/slapos.put.v0.software_instance_bang', methods=['POST'])
 def put_software_instance_bang():
   try:
-    partition_reference, requested_by, is_shared = extractInstanceGuid(request.json["instance_guid"])
-  except (ValueError, IndexError):
-    return abort(403, 'instance_guid %s not handled.' % request.json["instance_guid"])
-
-  if is_shared:
-    return abort(403, 'NotImplemented')
-  else:
-    bangInstanceFromDB(partition_reference, requested_by)
-
+    bangInstance(request.json["instance_guid"])
+  except NotFoundPartitionFailure as error:
+    return abort(403, str(error))
   return validate_and_send_json_rpc_document({
     'type': 'success',
     'title': 'Bang handled'
@@ -561,28 +500,9 @@ def put_software_instance_bang():
 @json_rpc_blueprint.route('/slapos.put.v0.software_instance_title', methods=['POST'])
 def put_software_instance_title():
   try:
-    partition_reference, requested_by, is_shared = extractInstanceGuid(request.json["instance_guid"])
-  except (ValueError, IndexError):
-    return abort(403, 'instance_guid %s not handled.' % request.json["instance_guid"])
-  new_title = request.json['title']
-
-  if is_shared:
-    return abort(403, 'NotImplemented')
-    """
-    # XXX TODO update slave_instance_list
-    query = 'UPDATE %s SET reference=? WHERE reference=? AND asked_by=?'
-    argument_list = [
-      generateDBSlaveReference(new_title, requested_by),
-      generateDBSlaveReference(partition_reference, requested_by),
-      requested_by
-    ]
-    execute_db('slave', query, argument_list)
-    """
-  else:
-    query = 'UPDATE %s SET partition_reference=? WHERE partition_reference=? AND requested_by=?'
-    argument_list = [new_title, partition_reference, requested_by]
-    execute_db('partition', query, argument_list)
-
+    renameInstance(request.json["instance_guid"], request.json['title'])
+  except NotFoundPartitionFailure as error:
+    return abort(403, str(error))
   return validate_and_send_json_rpc_document({
     'type': 'success',
     'title': 'Renamed'
@@ -591,20 +511,10 @@ def put_software_instance_title():
 @json_rpc_blueprint.route('/slapos.put.v0.software_instance_connection_parameter', methods=['POST'])
 def put_software_instance_connection_parameter():
   try:
-    partition_reference, requested_by, is_shared = extractInstanceGuid(request.json["instance_guid"])
-  except (ValueError, IndexError):
-    return abort(403, 'instance_guid %s not handled.' % request.json["instance_guid"])
-  connection_xml = dict2xml(request.json["connection_parameter_dict"])
-
-  if is_shared:
-    query = 'UPDATE %s SET connection_xml=? WHERE reference=? AND asked_by=?'
-    argument_list = [connection_xml, generateDBSlaveReference(partition_reference, requested_by), requested_by]
-    execute_db('slave', query, argument_list)
-  else:
-    query = 'UPDATE %s SET connection_xml=? WHERE partition_reference=? AND requested_by=?'
-    argument_list = [connection_xml, partition_reference, requested_by]
-    execute_db('partition', query, argument_list)
-
+    setInstanceConnectionParameters(
+      request.json["instance_guid"], request.json["connection_parameter_dict"])
+  except NotFoundPartitionFailure as error:
+    return abort(403, str(error))
   return validate_and_send_json_rpc_document({
     'type': 'success',
     'title': 'Updated'
@@ -627,17 +537,10 @@ def put_software_installation_error():
 
 @json_rpc_blueprint.route('/slapos.allDocs.v0.instance_tree_list', methods=['POST'])
 def instance_tree_list():
-  partition_and_shared_list = getInstanceTreeList()
   result_list = []
-  for partition in partition_and_shared_list[0]:
+  for row in getInstanceTreeList():
     result_list.append({
-      "title": partition['partition_reference']
-    })
-  for shared in partition_and_shared_list[1]:
-    title, asked_by = extractDBSlaveReference(shared['reference'])
-    assert asked_by == shared['asked_by']
-    result_list.append({
-      "title": title
+      "title": row['title']
     })
   return validate_and_send_json_rpc_document({
     'result_list': result_list

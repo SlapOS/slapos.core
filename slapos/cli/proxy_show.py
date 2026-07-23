@@ -100,6 +100,7 @@ class ProxyShowCommand(ConfigCommand):
 
 
 tbl_partition = 'partition' + DB_VERSION
+tbl_instance = 'instance' + DB_VERSION
 
 
 def coalesce(*seq):
@@ -142,13 +143,13 @@ def log_table(logger, qry, tablename, skip=None):
 def log_params(logger, conn):
     cur = conn.cursor()
 
-    qry = cur.execute("SELECT reference, partition_reference, software_type, connection_xml FROM %s" % tbl_partition)
+    qry = cur.execute("SELECT allocated_partition, title, software_type, connection_xml FROM %s" % tbl_instance)
     for row in qry.fetchall():
         if not row['connection_xml']:
             continue
 
         xml = str2bytes(row['connection_xml'])
-        logger.info('%s: %s (type %s)', row['reference'], row['partition_reference'], row['software_type'])
+        logger.info('%s: %s (type %s)', row['allocated_partition'], row['title'], row['software_type'])
         instance = lxml.etree.fromstring(xml)
         for parameter in list(instance):
             name = parameter.get('id')
@@ -182,16 +183,18 @@ def log_software_table(logger, conn):
 
 
 def log_partition_table(logger, conn):
+    # Instance data (title/type/state/connection) lives in the instance table;
+    # non-shared rows are what the "partitions" view reports.
     cur = conn.cursor()
-    qry = cur.execute("SELECT * FROM %s WHERE slap_state<>'free'" % tbl_partition)
-    log_table(logger, qry, tbl_partition, skip=['xml', 'connection_xml', 'slave_instance_list'])
+    qry = cur.execute("SELECT * FROM %s WHERE shared=0" % tbl_instance)
+    log_table(logger, qry, tbl_instance, skip=['xml', 'connection_xml', 'sla_xml'])
 
 
 def log_slave_table(logger, conn):
-    tbl_slave = 'slave' + DB_VERSION
+    # A shared instance is an ordinary instance row with shared=1.
     cur = conn.cursor()
-    qry = cur.execute("SELECT * FROM %s" % tbl_slave)
-    log_table(logger, qry, tbl_slave, skip=['connection_xml'])
+    qry = cur.execute("SELECT * FROM %s WHERE shared=1" % tbl_instance)
+    log_table(logger, qry, tbl_instance, skip=['xml', 'connection_xml', 'sla_xml'])
 
 
 def log_network(logger, conn):

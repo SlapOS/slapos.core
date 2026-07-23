@@ -1,5 +1,5 @@
 from slapos.tests.test_slapproxy import BasicMixin
-from slapos.util import dumps
+from slapos.util import dumps, loads
 import unittest
 import json
 import mock
@@ -262,15 +262,16 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
       }
     )
 
-    assert response.status_code == 403, response.status_code
+    # No free partition on a synchronous single-node proxy is terminal (no
+    # allocation alarm ever satisfies a later poll), so it surfaces as a clear
+    # 404 -- NotFoundError on the client -- not a poll-forever 102.
+    assert response.status_code == 404, response.status_code
     assert response.content_type == 'application/json', \
         response.content_type
-    expect_result_dict = {
-        "status": 403,
-        "type": "Forbidden",
-        "title": "No free computer partition found for: foo"
-    }
-    assert json.loads(response.data) == expect_result_dict, response.data
+    result = json.loads(response.data)
+    assert result['status'] == 404, response.data
+    assert 'No free computer partition found on computer' in result['title'], \
+        response.data
 
   def test_post_v0_software_instance__first_allocation(self):
     self.format_for_number_of_partitions(1)
@@ -289,7 +290,8 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyFirstInstance',
-        'instance_guid': 'MyFirstInstance______0',
+        # First instance created on a fresh DB gets minted 'SOFTINST-1'.
+        'instance_guid': 'SOFTINST-1',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -311,7 +313,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
 
   def test_post_v0_software_instance__with_connection_parameters(self):
     self.format_for_number_of_partitions(1)
-    response_dict = json.loads(self.app.post(
+    guid = json.loads(self.app.post(
       '/slapos.post.v0.software_instance',
       json={
         'title': 'MyFirstInstance',
@@ -319,12 +321,12 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'software_type': 'foobar',
         'parameters': {'bar': 'foo'}
       }
-    ).data)
+    ).data)['instance_guid']
 
     self.app.post(
       '/slapos.put.v0.software_instance_connection_parameter',
       json={
-        'instance_guid': 'MyFirstInstance______0',
+        'instance_guid': guid,
         'connection_parameter_dict': {
           'foo': 'bar'
         }
@@ -346,7 +348,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyFirstInstance',
-        'instance_guid': 'MyFirstInstance______0',
+        'instance_guid': 'SOFTINST-1',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -365,6 +367,57 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     data_result = json.loads(response.data)
     expect_result_dict['processing_timestamp'] = data_result.get('processing_timestamp', 'unknown')
     assert data_result == expect_result_dict, response.data
+
+  def test_post_v0_software_instance__forwarded_pending(self):
+    # A request forwarded to an external master that is still pending there:
+    # the forward yields a placeholder ComputerPartition (_request_dict set, no
+    # _connection_dict). The endpoint must not dereference _connection_dict; it
+    # returns the 102 SoftwareInstanceNotReady arm so the client polls.
+    from slapos.slap.slap import ComputerPartition
+    placeholder = ComputerPartition(
+      request_dict={'partition_reference': 'MyForwardedInstance'})
+    with mock.patch(
+        'slapos.proxy.json_rpc.requestInstanceFromDB',
+        return_value=placeholder):
+      response = self.app.post(
+        '/slapos.post.v0.software_instance',
+        json={
+          'title': 'MyForwardedInstance',
+          'software_release_uri': 'http://sr//',
+          'software_type': 'foobar',
+        }
+      )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    result = json.loads(response.data)
+    assert result['status'] == 102, response.data
+    assert result['name'] == 'SoftwareInstanceNotReady', response.data
+
+  def test_post_v0_software_instance__misconfigured_multimaster(self):
+    # A misconfigured multimaster forward raises ConfigurationError. The
+    # endpoint surfaces the explanatory message as a 404 (matching slap_tool),
+    # not a generic 500 that would drop the message.
+    from slapos.proxy.db import ConfigurationError
+    message = 'External SlapOS Master URL http://other is not listed in ' \
+        'multimaster list.'
+    with mock.patch(
+        'slapos.proxy.json_rpc.requestInstanceFromDB',
+        side_effect=ConfigurationError(message)):
+      response = self.app.post(
+        '/slapos.post.v0.software_instance',
+        json={
+          'title': 'MyForwardedInstance',
+          'software_release_uri': 'http://sr//',
+          'software_type': 'foobar',
+        }
+      )
+    assert response.status_code == 404, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    result = json.loads(response.data)
+    assert result['status'] == 404, response.data
+    assert message in result['title'], response.data
 
   #######################################################
   # Shared Instance
@@ -398,7 +451,8 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MySharedInstance',
-        'instance_guid': 'MySharedInstance______1',
+        # Second instance created (after MyFirstInstance) -> minted 'SOFTINST-2'.
+        'instance_guid': 'SOFTINST-2',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -411,17 +465,21 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'sla_parameters': {},
         'computer_guid': 'computer',
         'compute_partition_id': 'slappart0',
-        'processing_timestamp': 0,
+        # A shared instance carries a real processing timestamp; assert it is a
+        # positive integer rather than copying it from the response.
         'access_status_message': ""
     }
     data_result = json.loads(response.data)
+    shared_timestamp = data_result.pop('processing_timestamp', 'unknown')
+    self.assertIsInstance(shared_timestamp, int)
+    self.assertGreater(shared_timestamp, 0)
     assert data_result == expect_result_dict, response.data
 
 
     self.app.post(
       '/slapos.put.v0.software_instance_connection_parameter',
       json={
-        'instance_guid': 'MySharedInstance______1',
+        'instance_guid': 'SOFTINST-2',
         'connection_parameter_dict': {
           'foo': 'bar'
         }
@@ -444,7 +502,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MySharedInstance',
-        'instance_guid': 'MySharedInstance______1',
+        'instance_guid': 'SOFTINST-2',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -457,12 +515,149 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'sla_parameters': {},
         'computer_guid': 'computer',
         'compute_partition_id': 'slappart0',
-        'processing_timestamp': 0,
         'access_status_message': ""
     }
     data_result = json.loads(response.data)
-    expect_result_dict['processing_timestamp'] = data_result.get('processing_timestamp', 'unknown')
+    # Publishing connection parameters bumps the shared instance's timestamp;
+    # it stays a positive integer, never resetting to 0.
+    updated_timestamp = data_result.pop('processing_timestamp', 'unknown')
+    self.assertIsInstance(updated_timestamp, int)
+    self.assertGreater(updated_timestamp, 0)
     assert data_result == expect_result_dict, response.data
+
+  def test_post_v0_shared_instance__sla_instance_guid(self):
+    # Two Software Instances on two partitions, so that the
+    # instance_guid SLA filter is what selects the master partition
+    self.format_for_number_of_partitions(2)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      }
+    )
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MySecondInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      }
+    )
+
+    # Shared Instance selecting its master partition by the master's opaque
+    # instance_guid. MySecondInstance was the second created -> 'SOFTINST-2',
+    # and it is allocated to slappart1.
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MySharedInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar2': 'foo2'},
+        'shared': True,
+        'sla_parameters': {'instance_guid': 'SOFTINST-2'}
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    data_result = json.loads(response.data)
+    assert data_result['compute_partition_id'] == 'slappart1', response.data
+    # The shared instance is the third created -> 'SOFTINST-3'.
+    assert data_result['instance_guid'] == 'SOFTINST-3', \
+        response.data
+    assert data_result['shared'] is True, response.data
+
+    # A shared instance whose host instance_guid matches no instance is a
+    # transient host-not-ready case: the host may be allocated on a later run,
+    # so -- like the master's pending Slave Instance -- it returns the 102
+    # SoftwareInstanceNotReady arm and the client polls.
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyOtherSharedInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'shared': True,
+        'sla_parameters': {'instance_guid': 'SOFTINST-99999'}
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    result = json.loads(response.data)
+    assert result['status'] == 102, response.data
+    assert result['name'] == 'SoftwareInstanceNotReady', response.data
+
+  def test_post_v0_shared_instance__underscore_in_root_title(self):
+    # A '_' in the root title must not break the '<root>_<title>' slave
+    # reference: the reference is stored verbatim, frozen at creation, so an
+    # underscore in either name is harmless.
+    self.format_for_number_of_partitions(1)
+    host = json.loads(self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'my_root',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+      }
+    ).data)
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'db',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'shared': True,
+        'sla_parameters': {'instance_guid': host['instance_guid']},
+      }
+    )
+    assert response.status_code == 200, response.data
+    shared = json.loads(response.data)
+    assert shared['shared'] is True, response.data
+    assert shared['title'] == 'db', response.data
+    # The shared instance resolves by its own opaque guid.
+    response = self.app.post(
+      '/slapos.get.v0.software_instance',
+      json={'instance_guid': shared['instance_guid']}
+    )
+    assert response.status_code == 200, response.data
+
+  def test_post_v0_shared_instance__colliding_titles_two_trees(self):
+    # Two trees (distinct requesters), each requesting a shared instance of the
+    # SAME title, pinned to its own host by instance_guid: the guid resolver +
+    # per-tree idempotency scope keep them distinct (the old '___'-sniff +
+    # partition-prefix match made this ambiguous).
+    self.format_for_number_of_partitions(2)
+    host0 = json.loads(self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={'title': 'HostA', 'software_release_uri': 'http://sr//',
+            'software_type': 'foobar'}).data)
+    host1 = json.loads(self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={'title': 'HostB', 'software_release_uri': 'http://sr//',
+            'software_type': 'foobar'}).data)
+    # Each shared instance is requested BY a different host (X-computer-*), so
+    # it belongs to that host's tree (distinct root_instance_guid).
+    shared0 = json.loads(self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={'title': 'shared', 'software_release_uri': 'http://sr//',
+            'software_type': 'foobar', 'shared': True,
+            'sla_parameters': {'instance_guid': host0['instance_guid']}},
+      headers={'X-computer-id': 'computer',
+               'X-computer-partition-id': host0['compute_partition_id']}).data)
+    shared1 = json.loads(self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={'title': 'shared', 'software_release_uri': 'http://sr//',
+            'software_type': 'foobar', 'shared': True,
+            'sla_parameters': {'instance_guid': host1['instance_guid']}},
+      headers={'X-computer-id': 'computer',
+               'X-computer-partition-id': host1['compute_partition_id']}).data)
+    # Distinct instances, each pinned to its own host partition.
+    assert shared0['instance_guid'] != shared1['instance_guid'], (shared0, shared1)
+    assert shared0['compute_partition_id'] == host0['compute_partition_id']
+    assert shared1['compute_partition_id'] == host1['compute_partition_id']
+    assert shared0['compute_partition_id'] != shared1['compute_partition_id']
 
   #######################################################
   # CDN Shared Instance
@@ -484,7 +679,11 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyCDNInstance',
-        'instance_guid': 'MyCDNInstance______1',
+        # Frontend-bypass: no local instance row is allocated, so the response
+        # carries the synthetic '<computer>-<partition>' address placeholder
+        # (computer empty, partition the fake-frontend label) rather than a
+        # minted guid -- see the free/synthetic-slot rule.
+        'instance_guid': '-Fake frontend for https://[::1]:123/my/path?my=query&string=value#myanchor',
         'software_release_uri': 'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
         'software_type': 'default',
         'state': 'started',
@@ -524,7 +723,9 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyCDNInstance',
-        'instance_guid': 'MyCDNInstance______1',
+        # Frontend-bypass synthetic address placeholder (see the non-proxy CDN
+        # test); no local instance row, no minted guid.
+        'instance_guid': '-Fake frontend for https://[::1]:123/my/path?my=query&string=value#myanchor',
         'software_release_uri': 'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
         'software_type': 'default',
         'state': 'started',
@@ -573,7 +774,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     expect_result_dict = {
         'result_list': [{
           'title': 'MyFirstInstance',
-          'instance_guid': 'MyFirstInstance______0',
+          'instance_guid': 'SOFTINST-1',
           'state': 'started',
           'compute_partition_id': 'slappart0',
           'software_release_uri': 'http://sr//'
@@ -582,6 +783,55 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     data_result = json.loads(response.data)
     assert data_result == expect_result_dict, response.data
 
+  def test_allDocs_v0_compute_node_instance_list__free_partitions_omitted(self):
+    # Master lists real Software Instance documents only; a free partition slot
+    # is not an instance and must be absent from the list (unlike a synthetic
+    # 'destroyed' placeholder per free slot).
+    self.format_for_number_of_partitions(3)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      }
+    )
+
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_instance_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    expect_result_dict = {
+        'result_list': [{
+          'title': 'MyFirstInstance',
+          'instance_guid': 'SOFTINST-1',
+          'state': 'started',
+          'compute_partition_id': 'slappart0',
+          'software_release_uri': 'http://sr//'
+        }]
+    }
+    data_result = json.loads(response.data)
+    # Only the one allocated instance appears; the two free slots are omitted.
+    assert data_result == expect_result_dict, response.data
+
+  def test_allDocs_v0_compute_node_instance_list__empty(self):
+    # A freshly formatted compute node with no allocated instance lists nothing,
+    # matching the master (no Software Instance documents to return).
+    self.format_for_number_of_partitions(2)
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_instance_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    data_result = json.loads(response.data)
+    assert data_result == {'result_list': []}, response.data
+
   #######################################################
   # slapos.allDocs.v0.instance_node_instance_list
   #######################################################
@@ -589,7 +839,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.allDocs.v0.instance_node_instance_list',
       json={
-        'instance_guid': 'MyFirstInstance______0'
+        'instance_guid': 'SOFTINST-99999'
       }
     )
     assert response.status_code == 403, response.status_code
@@ -598,7 +848,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     expect_result_dict = {
         'status': 403,
         'type': 'Forbidden',
-        'title': "No software instance MyFirstInstance______0 found."
+        'title': "No software instance SOFTINST-99999 found."
     }
     data_result = json.loads(response.data)
     assert data_result == expect_result_dict, response.data
@@ -618,7 +868,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.allDocs.v0.instance_node_instance_list',
       json={
-        'instance_guid': 'MyFirstInstance______0'
+        'instance_guid': 'SOFTINST-1'
       }
     )
     assert response.status_code == 200, response.status_code
@@ -655,7 +905,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.allDocs.v0.instance_node_instance_list',
       json={
-        'instance_guid': 'MyFirstInstance______0'
+        'instance_guid': 'SOFTINST-1'
       }
     )
     assert response.status_code == 200, response.status_code
@@ -664,7 +914,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     expect_result_dict = {
         'result_list': [{
           "title": "MySharedInstance",
-          "instance_guid": "MySharedInstance______1",
+          "instance_guid": "SOFTINST-2",
           "software_type": "foobar",
           "state": "started",
           "parameters": {'bar2': 'foo2'},
@@ -711,7 +961,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     self.app.post(
       '/slapos.put.v0.software_instance_connection_parameter',
       json={
-        'instance_guid': 'MyFirstInstance______0',
+        'instance_guid': 'SOFTINST-1',
         'connection_parameter_dict': {
           'foo': 'bar'
         }
@@ -731,7 +981,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyFirstInstance',
-        'instance_guid': 'MyFirstInstance______0',
+        'instance_guid': 'SOFTINST-1',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -789,7 +1039,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     expect_result_dict = {
         'status': 403,
         'type': 'Forbidden',
-        'title': 'instance_guid foo not handled.'
+        'title': 'No software instance foo found.'
     }
     data_result = json.loads(response.data)
     assert data_result == expect_result_dict, response.data
@@ -809,7 +1059,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     self.app.post(
       '/slapos.put.v0.software_instance_connection_parameter',
       json={
-        'instance_guid': 'MyFirstInstance______0',
+        'instance_guid': 'SOFTINST-1',
         'connection_parameter_dict': {
           'foo': 'bar'
         }
@@ -820,7 +1070,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.get.v0.software_instance',
       json={
-        'instance_guid': 'MyFirstInstance______0'
+        'instance_guid': 'SOFTINST-1'
       }
     )
     assert response.status_code == 200, response.status_code
@@ -828,7 +1078,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyFirstInstance',
-        'instance_guid': 'MyFirstInstance______0',
+        'instance_guid': 'SOFTINST-1',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -872,7 +1122,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     self.app.post(
       '/slapos.put.v0.software_instance_connection_parameter',
       json={
-        'instance_guid': 'MyFirstShared______1',
+        'instance_guid': 'SOFTINST-2',
         'connection_parameter_dict': {
           'foo': 'bar'
         }
@@ -883,7 +1133,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.get.v0.software_instance',
       json={
-        'instance_guid': 'MyFirstShared______1'
+        'instance_guid': 'SOFTINST-2'
       }
     )
     assert response.status_code == 200, response.status_code
@@ -891,7 +1141,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyFirstShared',
-        'instance_guid': 'MyFirstShared______1',
+        'instance_guid': 'SOFTINST-2',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -899,7 +1149,8 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'parameters': {'bar': 'foo'},
         'shared': True,
         'root_instance_title': 'MyFirstShared',
-        'ip_list': [],
+        # A shared instance reports the network of its hosting partition.
+        'ip_list': [["tap0", "1.2.3.4"], ["tap0", "4.3.2.1"]],
         'full_ip_list': [],
         'sla_parameters': {},
         'computer_guid': 'computer',
@@ -950,13 +1201,30 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'software_type': 'foobar'
       }
     )
-    assert response.status_code == 403, response.status_code
-    expect_result_dict = {
-        "status": 403,
-        "type": "Forbidden",
-        "title": "No free computer partition found for: MyFirstInstance"
-    }
-    assert json.loads(response.data) == expect_result_dict, response.data
+    # Formatting with no partitions leaves nothing to allocate: a terminal 404.
+    assert response.status_code == 404, response.status_code
+    result = json.loads(response.data)
+    assert result['status'] == 404, response.data
+    assert 'No free computer partition found on computer' in result['title'], \
+        response.data
+
+  def test_put_v0_compute_node_format_no_netmask(self):
+    """ip_list entries from address_list have no netmask -- must not crash."""
+    response = self.app.post(
+      '/slapos.put.v0.compute_node_format',
+      json={
+        'computer_guid': self.computer_id,
+        'compute_partition_list': [{
+          'partition_id': 'slappart0',
+          'ip_list': [
+            {'ip-address': '10.0.1.1', 'network-interface': 'lo'},
+            {'ip-address': '::1',      'network-interface': 'lo'},
+          ]
+        }]
+      }
+    )
+    assert response.status_code == 200, response.data
+    assert json.loads(response.data) == {'type': 'success', 'title': 'Formatted'}
 
   def test_put_v0_compute_node_format_new_partition(self):
     response = self.app.post(
@@ -1014,7 +1282,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyFirstInstance',
-        'instance_guid': 'MyFirstInstance______0',
+        'instance_guid': 'SOFTINST-1',
         'software_release_uri': software_release_url,
         'software_type': 'foobar',
         'state': 'started',
@@ -1152,7 +1420,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.get.v0.software_instance',
       json={
-        'instance_guid': 'MySecondInstance______0'
+        'instance_guid': 'SOFTINST-3'
       }
     )
     assert response.status_code == 200, response.status_code
@@ -1160,7 +1428,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MySecondInstance',
-        'instance_guid': 'MySecondInstance______0',
+        'instance_guid': 'SOFTINST-3',
         'software_release_uri': software_release_url,
         'software_type': software_type2,
         'state': 'started',
@@ -1183,7 +1451,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.get.v0.software_instance',
       json={
-        'instance_guid': 'MySecondShared______1'
+        'instance_guid': 'SOFTINST-4'
       }
     )
     assert response.status_code == 200, response.status_code
@@ -1191,7 +1459,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MySecondShared',
-        'instance_guid': 'MySecondShared______1',
+        'instance_guid': 'SOFTINST-4',
         'software_release_uri': software_release_url,
         'software_type': software_type2,
         'state': 'started',
@@ -1199,7 +1467,9 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'parameters': {},
         'shared': True,
         'root_instance_title': 'MySecondShared',
-        'ip_list': [],
+        # A shared instance is first-class: it reports the network of its
+        # hosting partition (MySecondPartition), not an empty list.
+        'ip_list': [["MyNewSecondNetworkInterface", "MyNewSecondIpAddress"]],
         'full_ip_list': [],
         'sla_parameters': {},
         'computer_guid': 'computer',
@@ -1216,14 +1486,14 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.get.v0.software_instance',
       json={
-        'instance_guid': 'MyFirstInstance______0'
+        'instance_guid': 'SOFTINST-1'
       }
     )
     assert response.status_code == 403, response.status_code
     response = self.app.post(
       '/slapos.get.v0.software_instance',
       json={
-        'instance_guid': 'MyFirstShared______1'
+        'instance_guid': 'SOFTINST-2'
       }
     )
     assert response.status_code == 403, response.status_code
@@ -1242,7 +1512,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyThirdInstance',
-        'instance_guid': 'MyThirdInstance______0',
+        'instance_guid': 'SOFTINST-5',
         'software_release_uri': software_release_url,
         'software_type': 'foobar',
         'state': 'started',
@@ -1336,7 +1606,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.put.v0.software_instance_reported_state',
       json={
-        'instance_guid': 'MyFirstInstance______0',
+        'instance_guid': 'SOFTINST-1',
         'reported_state': 'destroyed'
       }
     )
@@ -1353,14 +1623,14 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.get.v0.software_instance',
       json={
-        'instance_guid': 'MyFirstInstance______0'
+        'instance_guid': 'SOFTINST-1'
       }
     )
     assert response.status_code == 403, response.status_code
     expect_result_dict = {
         "status": 403,
         "type": "Forbidden",
-        "title": "No software instance MyFirstInstance______0 found."
+        "title": "No software instance SOFTINST-1 found."
     }
     assert json.loads(response.data) == expect_result_dict, response.data
 
@@ -1382,7 +1652,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.get.v0.software_instance',
       json={
-        'instance_guid': 'MyFirstInstance______0'
+        'instance_guid': 'SOFTINST-1'
       }
     )
     assert response.status_code == 200, response.status_code
@@ -1393,7 +1663,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
       response = self.app.post(
         '/slapos.put.v0.software_instance_bang',
         json={
-          'instance_guid': 'MyFirstInstance______0',
+          'instance_guid': 'SOFTINST-1',
           'message': 'Please reprocess'
         }
       )
@@ -1410,13 +1680,15 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.get.v0.software_instance',
       json={
-        'instance_guid': 'MyFirstInstance______0'
+        'instance_guid': 'SOFTINST-1'
       }
     )
     assert response.status_code == 200, response.status_code
     assert previous_timestamp != json.loads(response.data).get('processing_timestamp', 'unknown')
 
   def test_put_v0_software_instance_bang_shared(self):
+    # A shared instance is a first-class instance: bang works for it, rather
+    # than returning a 403 'NotImplemented'.
     self.format_for_number_of_partitions(1)
     self.app.post(
       '/slapos.post.v0.software_instance',
@@ -1426,7 +1698,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'software_type': 'foobar'
       }
     )
-    self.app.post(
+    shared_guid = json.loads(self.app.post(
       '/slapos.post.v0.software_instance',
       json={
         'title': 'MyFirstShared',
@@ -1434,43 +1706,56 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'software_type': 'foobar',
         'shared': True
       }
-    )
+    ).data)['instance_guid']
 
-    response = self.app.post(
-      '/slapos.put.v0.software_instance_bang',
-      json={
-        'instance_guid': 'MyFirstShared______1',
-        'message': 'Please reprocess'
-      }
-    )
-    assert response.status_code == 403, response.status_code
+    # Get previous timestamp
+    previous_timestamp = json.loads(self.app.post(
+      '/slapos.get.v0.software_instance',
+      json={'instance_guid': shared_guid}
+    ).data).get('processing_timestamp', 'unknown')
+
+    with mock.patch('time.time', return_value=previous_timestamp + 1):
+      response = self.app.post(
+        '/slapos.put.v0.software_instance_bang',
+        json={
+          'instance_guid': shared_guid,
+          'message': 'Please reprocess'
+        }
+      )
+    assert response.status_code == 200, response.status_code
     assert response.content_type == 'application/json', \
         response.content_type
     expect_result_dict = {
-        "status": 403,
-        "type": "Forbidden",
-        "title": "NotImplemented"
+        "type": "success",
+        "title": "Bang handled"
     }
     assert json.loads(response.data) == expect_result_dict, response.data
+
+    # Check that timestamp changed
+    response = self.app.post(
+      '/slapos.get.v0.software_instance',
+      json={'instance_guid': shared_guid}
+    )
+    assert previous_timestamp != json.loads(response.data).get('processing_timestamp', 'unknown')
 
   #######################################################
   # put software connection title
   #######################################################
   def test_put_v0_software_instance_title_instance(self):
     self.format_for_number_of_partitions(1)
-    self.app.post(
+    guid = json.loads(self.app.post(
       '/slapos.post.v0.software_instance',
       json={
         'title': 'MyFirstInstance',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar'
       }
-    )
+    ).data)['instance_guid']
 
     response = self.app.post(
       '/slapos.put.v0.software_instance_title',
       json={
-        'instance_guid': 'MyFirstInstance______0',
+        'instance_guid': guid,
         'title': 'MyRenamedFirstInstance'
       }
     )
@@ -1483,25 +1768,21 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     }
     assert json.loads(response.data) == expect_result_dict, response.data
 
-    # Check that the new uid is usable
+    # The guid is immutable: renaming changes only the title, so the SAME guid
+    # keeps resolving and returns the new title.
     response = self.app.post(
       '/slapos.get.v0.software_instance',
       json={
-        'instance_guid': 'MyRenamedFirstInstance______0'
+        'instance_guid': guid
       }
     )
     assert response.status_code == 200, response.status_code
-
-    # Check that the old uid is not usable
-    response = self.app.post(
-      '/slapos.get.v0.software_instance',
-      json={
-        'instance_guid': 'MyFirstInstance______0'
-      }
-    )
-    assert response.status_code == 403, response.status_code
+    assert json.loads(response.data)['title'] == 'MyRenamedFirstInstance', \
+        response.data
 
   def test_put_v0_software_instance_title_shared(self):
+    # A shared instance renames like any other, rather than returning a 403
+    # 'NotImplemented'; its guid stays immutable.
     self.format_for_number_of_partitions(1)
     self.app.post(
       '/slapos.post.v0.software_instance',
@@ -1511,7 +1792,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'software_type': 'foobar'
       }
     )
-    self.app.post(
+    shared_guid = json.loads(self.app.post(
       '/slapos.post.v0.software_instance',
       json={
         'title': 'MyFirstShared',
@@ -1519,44 +1800,34 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'software_type': 'foobar',
         'shared': True
       }
-    )
+    ).data)['instance_guid']
 
     response = self.app.post(
       '/slapos.put.v0.software_instance_title',
       json={
-        'instance_guid': 'MyFirstShared______1',
+        'instance_guid': shared_guid,
         'title': 'MyRenamedFirstShared'
       }
     )
-    assert response.status_code == 403, response.status_code
+    assert response.status_code == 200, response.status_code
     assert response.content_type == 'application/json', \
         response.content_type
     expect_result_dict = {
-      "status": 403,
-      "type": "Forbidden",
-      "title": "NotImplemented"
+      "type": "success",
+      "title": "Renamed"
     }
     assert json.loads(response.data) == expect_result_dict, response.data
 
-    """
-    # Check that the new uid is usable
+    # The same guid keeps resolving and returns the new title.
     response = self.app.post(
       '/slapos.get.v0.software_instance',
       json={
-        'instance_guid': 'MyRenamedFirstShared______1'
+        'instance_guid': shared_guid
       }
     )
     assert response.status_code == 200, response.status_code
-
-    # Check that the old uid is not usable
-    response = self.app.post(
-      '/slapos.get.v0.software_instance',
-      json={
-        'instance_guid': 'MyFirstShared______1'
-      }
-    )
-    assert response.status_code == 403, response.status_code
-    """
+    assert json.loads(response.data)['title'] == 'MyRenamedFirstShared', \
+        response.data
 
   #######################################################
   # put software connection parameter
@@ -1575,7 +1846,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.put.v0.software_instance_connection_parameter',
       json={
-        'instance_guid': 'MyFirstInstance______0',
+        'instance_guid': 'SOFTINST-1',
         'connection_parameter_dict': {
           'foo': 'bar',
           'bar': 'foo'
@@ -1614,7 +1885,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     response = self.app.post(
       '/slapos.put.v0.software_instance_connection_parameter',
       json={
-        'instance_guid': 'MyFirstShared______1',
+        'instance_guid': 'SOFTINST-2',
         'connection_parameter_dict': {
           'foo': 'bar',
           'bar': 'foo'
@@ -1723,7 +1994,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyFirstInstance',
-        'instance_guid': 'MyFirstInstance______0',
+        'instance_guid': 'SOFTINST-1',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -1775,7 +2046,7 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         response.content_type
     expect_result_dict = {
         'title': 'MyFirstShared',
-        'instance_guid': 'MyFirstShared______1',
+        'instance_guid': 'SOFTINST-2',
         'software_release_uri': 'http://sr//',
         'software_type': 'foobar',
         'state': 'started',
@@ -1783,7 +2054,8 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'parameters': {},
         'shared': True,
         'root_instance_title': 'MyFirstShared',
-        'ip_list': [],
+        # A shared instance reports the network of its hosting partition.
+        'ip_list': [["tap0", "1.2.3.4"], ["tap0", "4.3.2.1"]],
         'full_ip_list': [],
         'sla_parameters': {},
         'computer_guid': 'computer',
@@ -1835,6 +2107,148 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     assert json.loads(response.data) == expect_result_dict, response.data
 
 
+class JsonRpcAuthTestCase(BasicMixin, unittest.TestCase):
+  """Requester identification via X-computer-* headers.
+
+  json_rpc fails CLOSED: an identity asserted but not resolving to a known
+  allocated instance aborts 403 before the endpoint body runs (validation
+  still runs first). Absent identity is a direct user request.
+  """
+
+  def _post_instance(self, title, headers=None, shared=False, sla=None):
+    return self.app.post('/slapos.post.v0.software_instance', json={
+        'title': title,
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'shared': shared,
+        'sla_parameters': sla or {},
+    }, headers=headers)
+
+  def test_valid_requester_attributes_child_to_tree(self):
+    self.format_for_number_of_partitions(2)
+    root = json.loads(self._post_instance('Root').data)
+    child = json.loads(self._post_instance('Child', headers={
+        'X-computer-id': 'computer',
+        'X-computer-partition-id': root['compute_partition_id'],
+    }).data)
+    # The child is attributed to the requester's instance tree.
+    self.assertEqual(child['root_instance_title'], 'Root')
+
+  def test_refused_destroy_keeps_shared_children(self):
+    # A destroy refused because the victim has non-shared children must NOT drop
+    # the victim's requested shared children: the refuse check runs before any
+    # shared child is deleted.
+    self.format_for_number_of_partitions(3)
+    root = json.loads(self._post_instance('Root').data)
+    root_headers = {
+        'X-computer-id': 'computer',
+        'X-computer-partition-id': root['compute_partition_id'],
+    }
+    self._post_instance('Child', headers=root_headers)
+    shared_guid = json.loads(self._post_instance(
+        'SharedChild', headers=root_headers, shared=True).data)['instance_guid']
+    # Destroying the root is refused: it still has a non-shared child.
+    response = self.app.post(
+      '/slapos.put.v0.software_instance_reported_state',
+      json={'instance_guid': root['instance_guid'],
+            'reported_state': 'destroyed'})
+    self.assertEqual(response.status_code, 403, response.data)
+    # The requested shared child survived the refused destroy.
+    response = self.app.post('/slapos.get.v0.software_instance',
+      json={'instance_guid': shared_guid})
+    self.assertEqual(response.status_code, 200, response.data)
+
+  def test_unknown_requester_fails_closed(self):
+    self.format_for_number_of_partitions(2)
+    # A free partition hosts no instance -> the assertion does not verify.
+    response = self._post_instance('Child', headers={
+        'X-computer-id': 'computer',
+        'X-computer-partition-id': 'slappart0',
+    })
+    self.assertEqual(response.status_code, 403, response.data)
+    # A wholly nonexistent partition -> also 403.
+    response = self._post_instance('Child', headers={
+        'X-computer-id': 'computer',
+        'X-computer-partition-id': 'slappart99',
+    })
+    self.assertEqual(response.status_code, 403, response.data)
+
+  def test_unknown_requester_fails_closed_on_non_request_endpoint(self):
+    # The identity check is global: a bogus identity is rejected even on an
+    # endpoint that never consumes the requester.
+    response = self.app.post('/slapos.get.v0.compute_node_status', json={
+        'computer_guid': self.computer_id,
+    }, headers={
+        'X-computer-id': 'computer',
+        'X-computer-partition-id': 'slappart99',
+    })
+    self.assertEqual(response.status_code, 403, response.data)
+
+  def test_absent_identity_is_user_root(self):
+    self.format_for_number_of_partitions(1)
+    root = json.loads(self._post_instance('Root').data)
+    self.assertEqual(root['root_instance_title'], 'Root')
+    self.assertEqual(root['instance_guid'], 'SOFTINST-1')
+
+  def test_validation_runs_before_identity(self):
+    # A schema-invalid body with bogus identity headers: the OpenAPI validation
+    # hook is registered before the identity hook, so this 400s, not 403s.
+    response = self.app.post('/slapos.post.v0.software_instance', json={
+        'title': 'Child',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'bogus_extra_field': 'x',  # additionalProperties: false -> 400
+    }, headers={
+        'X-computer-id': 'computer',
+        'X-computer-partition-id': 'slappart99',
+    })
+    self.assertEqual(response.status_code, 400, response.data)
+
+  def test_half_pair_identity_fails_closed(self):
+    self.format_for_number_of_partitions(1)
+    response = self._post_instance('Child', headers={
+        'X-computer-id': 'computer',  # partition id absent: half-pair
+    })
+    self.assertEqual(response.status_code, 403, response.data)
+
+  def test_old_client_form_request_resolves_via_json_rpc(self):
+    # An instance created through the legacy slap_tool form request publishes a
+    # guid that resolves through the json_rpc get endpoint (one namespace).
+    self.format_for_number_of_partitions(1)
+    rv = self.app.post('/requestComputerPartition', data={
+        'software_release': 'http://sr//',
+        'software_type': 'default',
+        'partition_reference': 'MyInstance',
+        'shared_xml': dumps(False),
+        'partition_parameter_xml': dumps({}),
+        'filter_xml': dumps({}),
+        'state': dumps('started'),
+    })
+    self.assertEqual(rv.status_code, 200, rv.data)
+    guid = loads(rv.data)._instance_guid
+    response = self.app.post('/slapos.get.v0.software_instance',
+        json={'instance_guid': guid})
+    self.assertEqual(response.status_code, 200, response.data)
+    self.assertEqual(json.loads(response.data)['title'], 'MyInstance')
+
+  def test_slap_tool_identity_never_403(self):
+    # The legacy slap_tool blueprint never fails closed on identity: a request
+    # asserting an unknown partition succeeds (as a user request).
+    self.format_for_number_of_partitions(1)
+    rv = self.app.post('/requestComputerPartition', data={
+        'software_release': 'http://sr//',
+        'software_type': 'default',
+        'partition_reference': 'MyInstance',
+        'shared_xml': dumps(False),
+        'partition_parameter_xml': dumps({}),
+        'filter_xml': dumps({}),
+        'state': dumps('started'),
+        'computer_id': 'computer',
+        'computer_partition_id': 'slappart99',
+    })
+    self.assertEqual(rv.status_code, 200, rv.data)
+
+
 class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
   #######################################################
   # Get compute node list
@@ -1855,3 +2269,52 @@ class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
         }]
     }
     assert json.loads(response.data) == expect_result_dict, response.data
+
+  #######################################################
+  # Backward compat: unregistered default computer
+  #######################################################
+  def test_compute_node_software_installation_list_unregistered_default(self):
+    # Default computer_id should get an empty list even without format
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_software_installation_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    assert json.loads(response.data) == {'result_list': []}, response.data
+
+  def test_compute_node_software_installation_list_unregistered_other(self):
+    # Non-default computer_id should get 403 when not registered
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_software_installation_list',
+      json={
+        'computer_guid': 'other'
+      }
+    )
+    assert response.status_code == 403, response.status_code
+
+  def test_compute_node_instance_list_unregistered_default(self):
+    # Default computer_id should get an empty list even without format
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_instance_list',
+      json={
+        'computer_guid': self.computer_id
+      }
+    )
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    assert json.loads(response.data)['result_list'] == [], response.data
+
+  def test_compute_node_instance_list_unregistered_other(self):
+    # Non-default computer_id should get 403 when not registered
+    response = self.app.post(
+      '/slapos.allDocs.v0.compute_node_instance_list',
+      json={
+        'computer_guid': 'other'
+      }
+    )
+    assert response.status_code == 403, response.status_code

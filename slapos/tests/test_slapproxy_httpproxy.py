@@ -129,6 +129,32 @@ class HttpProxyTestCase(BasicMixin, unittest.TestCase):
     assert 'Set-Cookie' not in response.headers, response.headers
     assert 'foo' not in response.headers, response.headers
 
+  def test_auth_hook_does_not_consume_form_body(self):
+    # The requester-identification hooks are registered per-blueprint (slap_tool
+    # + json_rpc), NOT on httpproxy, so a form-encoded GET body routed through
+    # the proxy is forwarded intact even with X-computer-* headers present --
+    # guarding against a refactor to an app-wide hook re-opening the form-parse
+    # hazard.
+    captured = {}
+
+    def handler(url, request):
+      captured['body'] = request.body
+      return httmock.response(200, b'ok', request=request)
+
+    with httmock.HTTMock(handler):
+      response = self.app.get(
+          '/http_proxy/http/example.org/p',
+          headers={
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-computer-id': 'computer',
+              'X-computer-partition-id': 'slappart0',
+          },
+          data='computer_id=computer&computer_partition_id=slappart0')
+
+    assert response.status_code == 200, response.status_code
+    assert captured['body'] == \
+        b'computer_id=computer&computer_partition_id=slappart0', captured['body']
+
   def test_path_propagated(self):
     captured = {}
 

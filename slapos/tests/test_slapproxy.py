@@ -546,7 +546,8 @@ class TestRequest(MasterMixin):
     self.format_for_number_of_partitions(1)
     partition = self.request('http://sr//', None, 'MyFirstInstance', 'slappart0')
     self.assertEqual(partition.getState(), 'started')
-    self.assertEqual(partition.getInstanceGuid(), 'computer-slappart0')
+    # A fresh instance gets a minted 'SOFTINST-N' guid (first on a fresh DB).
+    self.assertEqual(partition.getInstanceGuid(), 'SOFTINST-1')
 
   def test_two_request_one_partition_free(self):
     """
@@ -838,27 +839,39 @@ class TestRequest(MasterMixin):
 
     partition = self.request('http://sr//', None, 'MyFirstInstance', state='destroyed')
     self.assertEqual(partition.getState(), 'destroyed')
+    # Instance data (title/state/software_release) lives on the instance row;
+    # the partition row is a pure resource (address + free/busy).
+    instance_data, = slapos.proxy.views.execute_db(
+          'instance',
+          'SELECT * from %s where allocated_partition=? and shared=0',
+          (partition.getId(),),
+          db=sqlite_connect(self.proxy_db))
+    self.assertEqual(instance_data['requested_state'], 'destroyed')
+    self.assertEqual(instance_data['software_release'], 'http://sr//')
+    self.assertEqual(instance_data['title'], 'MyFirstInstance')
     partition_data, =  slapos.proxy.views.execute_db(
           'partition',
           'SELECT * from %s where reference=?',
           (partition.getId(),),
           db=sqlite_connect(self.proxy_db))
-    self.assertEqual(partition_data['requested_state'], 'destroyed')
     self.assertEqual(partition_data['slap_state'], 'busy')
-    self.assertEqual(partition_data['software_release'], 'http://sr//')
-    self.assertEqual(partition_data['partition_reference'], 'MyFirstInstance')
 
     partition.destroyed() # this is what `slapos node report` call
 
-    # now partition is free
+    # the instance row is gone and the partition is free
+    self.assertEqual(
+        slapos.proxy.views.execute_db(
+          'instance',
+          'SELECT * from %s where allocated_partition=?',
+          (partition.getId(),),
+          db=sqlite_connect(self.proxy_db)),
+        [])
     partition_data, =  slapos.proxy.views.execute_db(
           'partition',
           'SELECT * from %s where reference=?',
           (partition.getId(),),
           db=sqlite_connect(self.proxy_db))
-    self.assertEqual(partition_data['requested_state'], 'started')
     self.assertEqual(partition_data['slap_state'], 'free')
-    self.assertIsNone(partition_data['partition_reference'])
 
     # and we can request new partitions
     self.request('http://sr//', None, 'Another instance')
@@ -869,72 +882,63 @@ class TestRequest(MasterMixin):
     partition_child = self.request('http://sr//', None, 'MySubInstance', partition_parent.getId())
     self.assertEqual(partition_parent.getState(), 'started')
     self.assertEqual(partition_child.getState(), 'started')
+    parent_guid = partition_parent.getInstanceGuid()
 
     partition_parent = self.request('http://sr//', None, 'MyFirstInstance', state='destroyed')
 
-    self.assertEqual(
-        slapos.proxy.views.execute_db(
-            'partition',
-            'SELECT reference, slap_state, requested_by, requested_state from %s order by requested_by',
-            db=sqlite_connect(self.proxy_db),
-        ), [
+    # The tree is stored on the instance table: the child records its parent as
+    # requested_by_instance_guid (the parent's frozen/minted guid), and belongs
+    # to the parent's tree (root_instance_guid == parent guid).
+    def _instance_state():
+      return slapos.proxy.views.execute_db(
+            'instance',
+            'SELECT title, requested_state, root_instance_guid,'
+            ' requested_by_instance_guid from %s where shared=0 order by title',
+            db=sqlite_connect(self.proxy_db))
+    self.assertEqual(_instance_state(), [
             {
-                'reference': partition_parent.getId(),
-                'slap_state': 'busy',
-                'requested_by': '',
+                'title': 'MyFirstInstance',
                 'requested_state': 'destroyed',
+                'root_instance_guid': '',
+                'requested_by_instance_guid': '',
             },
             {
-                'reference': partition_child.getId(),
-                'slap_state': 'busy',
-                'requested_by': 'MyFirstInstance',
+                'title': 'MySubInstance',
                 'requested_state': 'started',
+                'root_instance_guid': parent_guid,
+                'requested_by_instance_guid': parent_guid,
             },
         ])
 
-    # destroying the parent partition will first mark the dependent partitions as destroyed
+    # destroying the parent partition will first mark the dependent instances as destroyed
     partition_parent.destroyed()
-    self.assertEqual(
-        slapos.proxy.views.execute_db(
-            'partition',
-            'SELECT reference, slap_state, requested_by, requested_state from %s order by requested_by',
-            db=sqlite_connect(self.proxy_db),
-        ), [
+    self.assertEqual(_instance_state(), [
             {
-                'reference': partition_parent.getId(),
-                'slap_state': 'busy',
-                'requested_by': '',
+                'title': 'MyFirstInstance',
                 'requested_state': 'destroyed',
+                'root_instance_guid': '',
+                'requested_by_instance_guid': '',
             },
             {
-                'reference': partition_child.getId(),
-                'slap_state': 'busy',
-                'requested_by': 'MyFirstInstance',
+                'title': 'MySubInstance',
                 'requested_state': 'destroyed',
+                'root_instance_guid': parent_guid,
+                'requested_by_instance_guid': parent_guid,
             },
         ])
     partition_parent.destroyed()
     partition_child.destroyed()
     partition_parent.destroyed()
+    # Both instance rows are gone and both partitions are freed.
+    self.assertEqual(_instance_state(), [])
     self.assertEqual(
-        slapos.proxy.views.execute_db(
+        {(row['reference'], row['slap_state']) for row in
+         slapos.proxy.views.execute_db(
             'partition',
-            'SELECT reference, slap_state, requested_by, requested_state from %s order by requested_by',
-            db=sqlite_connect(self.proxy_db),
-        ), [
-            {
-                'reference': partition_parent.getId(),
-                'slap_state': 'free',
-                'requested_by': '',
-                'requested_state': 'started',
-            },
-            {
-                'reference': partition_child.getId(),
-                'slap_state': 'free',
-                'requested_by': '',
-                'requested_state': 'started',
-            },
-        ])
+            'SELECT reference, slap_state from %s where reference in (?, ?)',
+            (partition_parent.getId(), partition_child.getId()),
+            db=sqlite_connect(self.proxy_db))},
+        {(partition_parent.getId(), 'free'), (partition_child.getId(), 'free')})
 
 class TestSlaveRequest(MasterMixin):
   """
@@ -1050,6 +1054,74 @@ class TestSlaveRequest(MasterMixin):
     self.assertLess(before_timestamp, after_timestamp, 'Slave destroy shall result with timestamp update')
     self.assertEqual(after._parameter_dict['slave_instance_list'][0]['slave_reference'], '_MySecondSlave')
 
+  def _shared_instance_guid(self, title):
+    conn = sqlite_connect(self.proxy_db)
+    try:
+      guid, = conn.execute(
+        "SELECT instance_guid FROM instance%s"
+        " WHERE shared=1 AND title=?" % DB_VERSION, (title,)).fetchone()
+    finally:
+      conn.close()
+    return guid
+
+  def test_slave_request_preserves_parameter_types(self):
+    # A shared instance's parameters must reach the host with their Python
+    # types intact: deployed SRs (rapid-cdn, re6stnet) send bool/int/float and
+    # nested dict/list slave params and parse them back from the
+    # slave_instance_list projection.
+    self.format_for_number_of_partitions(1)
+    master_partition_id = self.request(
+      'http://sr//', None, 'MyMaster', 'slappart0')._partition_id
+    params = {'port': 8080, 'enable': True, 'ratio': 1.5,
+              'cfg': {'a': 1}, 'lst': [1, 2]}
+    self.request('http://sr//', None, 'MyShared', shared=True,
+                 partition_parameter_kw=params)
+    slave, = self.getPartitionInformation(
+      master_partition_id)._parameter_dict['slave_instance_list']
+    self.assertIsInstance(slave['port'], int)
+    self.assertEqual(slave['port'], 8080)
+    self.assertIs(slave['enable'], True)
+    self.assertEqual(slave['ratio'], 1.5)
+    self.assertEqual(slave['cfg'], {'a': 1})
+    self.assertEqual(slave['lst'], [1, 2])
+
+  def test_slave_reference_distinct_after_title_rename(self):
+    # Renaming a shared instance then re-requesting the original title mints a
+    # new distinct instance whose legacy '<root>_<title>' concat collides with
+    # the renamed one's frozen reference. The two must not share a
+    # slave_reference in the host projection.
+    self.format_for_number_of_partitions(1)
+    master_partition_id = self.request(
+      'http://sr//', None, 'MyMaster', 'slappart0')._partition_id
+    self.request('http://sr//', None, 'MyShared', shared=True)
+    guid = self._shared_instance_guid('MyShared')
+    rv = self.app.post('/slapos.put.v0.software_instance_title',
+      json={'instance_guid': guid, 'title': 'MyShared-renamed'})
+    self.assertEqual(rv.status_code, 200, rv.data)
+    self.request('http://sr//', None, 'MyShared', shared=True)
+    slave_list = self.getPartitionInformation(
+      master_partition_id)._parameter_dict['slave_instance_list']
+    self.assertEqual(len(slave_list), 2)
+    references = [s['slave_reference'] for s in slave_list]
+    self.assertEqual(len(set(references)), 2, references)
+
+  def test_bang_shared_touches_host(self):
+    # Banging a shared instance must bump the host partition (the only slapgrid
+    # that materializes the shared instance), not merely the shared row's own
+    # tree -- otherwise the bang is a wire no-op for the host.
+    self.format_for_number_of_partitions(1)
+    self.request('http://sr//', None, 'MyMaster', 'slappart0')
+    self.request('http://sr//', None, 'MyShared', shared=True)
+    def host_timestamp():
+      return float(self.getPartitionInformation('slappart0')
+                   ._parameter_dict['timestamp'])
+    before = host_timestamp()
+    guid = self._shared_instance_guid('MyShared')
+    time.sleep(0.1)
+    rv = self.app.post('/slapos.put.v0.software_instance_bang',
+      json={'instance_guid': guid, 'message': 'reprocess'})
+    self.assertEqual(rv.status_code, 200, rv.data)
+    self.assertGreater(host_timestamp(), before)
 
   def test_slave_request_set_parameters_are_updated(self):
     """
@@ -1155,6 +1227,148 @@ class TestSlaveRequest(MasterMixin):
     slave = self.request('http://sr//', None, 'MySlaveInstance', 'slappart1',
          shared=True, filter_kw=dict(instance_guid=partition._instance_guid))
     self.assertEqual(slave._partition_id, partition._partition_id)
+
+
+class TestRequesterIdentity(MasterMixin):
+  """
+  Requester identification on the legacy slap_tool blueprint. slap_tool stays
+  LENIENT: an asserted-but-unknown identity is warned and treated as a direct
+  user request, never a 4xx.
+  """
+
+  def test_unknown_requester_is_lenient(self):
+    self.format_for_number_of_partitions(1)
+    with self.assertLogs(views.app.logger, level='WARNING') as cm:
+      partition = self.request('http://sr//', None, 'MyInstance', 'slappart99')
+    self.assertEqual(partition.getState(), 'started')
+    self.assertTrue(
+      any('Unknown requester' in line and 'slappart99' in line
+          for line in cm.output),
+      cm.output)
+    # Downgraded to user: the instance is its own tree root.
+    self.assertEqual(
+      self.getPartitionInformation(partition.getId())._parameter_dict[
+        'root_instance_title'], 'MyInstance')
+
+  def test_bang_without_identity_is_noop(self):
+    # No identity fields at all: a 200 'OK' no-op, not a 4xx/5xx.
+    rv = self.app.post('/softwareInstanceBang', data={'message': 'anything'})
+    self.assertEqual(rv._status_code, 200)
+    self.assertEqual(rv.data, b'OK')
+
+  def test_bang_with_unknown_identity_is_noop(self):
+    # Present-but-unknown identity (e.g. a teardown race): 200 'OK' no-op, NOT
+    # 400 -- a legacy bang() does not catch HTTP errors.
+    self.format_for_number_of_partitions(1)
+    rv = self.app.post('/softwareInstanceBang', data={
+        'computer_id': 'computer',
+        'computer_partition_id': 'slappart99',
+        'message': 'anything'})
+    self.assertEqual(rv._status_code, 200)
+    self.assertEqual(rv.data, b'OK')
+
+  def test_slap_tool_get_endpoints_unaffected(self):
+    # A body-less GET carries no form fields, so the form-reading hook resolves
+    # to user and the node-level GET endpoints are untouched.
+    self.format_for_number_of_partitions(1)
+    computer = self.getFullComputerInformation()
+    self.assertEqual(
+      computer._computer_partition_list[0]._partition_id, 'slappart0')
+
+
+class TestOldClientCompat(MasterMixin):
+  """
+  An SR-pinned in-partition client talks only the legacy slap_tool blueprint
+  (form fields, no X-computer-* headers, xml_marshaller parsing). These tests
+  cover the behaviours that keep such clients working against the v18 proxy.
+  """
+
+  def test_request_child_attributed_to_requester_tree(self):
+    self.format_for_number_of_partitions(2)
+    root = self.request('http://sr//', None, 'Root')
+    child = self.request('http://sr//', None, 'Child', root.getId())
+    # The tree edge is observable on the getFullComputerInformation wire.
+    self.assertEqual(
+      self.getPartitionInformation(child.getId())._parameter_dict[
+        'root_instance_title'], 'Root')
+
+  def test_request_from_unknown_partition_is_lenient(self):
+    self.format_for_number_of_partitions(1)
+    rv = self._requestComputerPartition(
+      'http://sr//', None, 'MyInstance', 'slappart99')
+    self.assertEqual(rv._status_code, 200)
+
+  def test_request_response_attribute_contract(self):
+    # The attribute set an old xml_marshaller consumer reads off a request().
+    self.format_for_number_of_partitions(1)
+    partition = self.request(
+      'http://sr//', None, 'MyInstance', partition_parameter_kw={'foo': 'bar'})
+    self.assertTrue(partition.getInstanceGuid().startswith('SOFTINST-'))
+    self.assertEqual(partition.getState(), 'started')
+    self.assertEqual(partition.getInstanceParameter('foo'), 'bar')
+    self.assertEqual(partition.getConnectionParameterDict(), {})
+    self.assertEqual(partition._computer_id, 'computer')
+    self.assertEqual(partition._partition_id, 'slappart0')
+
+  def test_shared_response_has_no_instance_guid(self):
+    # A shared partition's SoftwareInstance carries no _instance_guid on the
+    # slap_tool wire (an old client's getInstanceGuid() must keep its behaviour).
+    self.format_for_number_of_partitions(1)
+    self.request('http://sr//', None, 'Master')
+    rv = self._requestComputerPartition(
+      'http://sr//', None, 'Shared', 'slappart0', shared=True)
+    self.assertEqual(rv._status_code, 200)
+    instance = loads(rv.data)
+    self.assertFalse(hasattr(instance, '_instance_guid'))
+
+  def test_bang_from_freed_partition_stays_noop(self):
+    self.format_for_number_of_partitions(1)
+    partition = self.request('http://sr//', None, 'MyInstance')
+    partition_id = partition.getId()
+    partition.destroyed()  # frees the slot, deletes the instance row
+    rv = self.app.post('/softwareInstanceBang', data={
+        'computer_id': 'computer',
+        'computer_partition_id': partition_id,
+        'message': 'anything'})
+    self.assertEqual(rv._status_code, 200)
+    self.assertEqual(rv.data, b'OK')
+
+  def test_reallocated_partition_does_not_inherit_slave_list(self):
+    self.format_for_number_of_partitions(1)
+    master = self.request('http://sr//', None, 'Master')
+    self.request('http://sr//', None, 'Shared', 'slappart0', shared=True)
+    info = self.getPartitionInformation('slappart0')
+    self.assertEqual(len(info._parameter_dict['slave_instance_list']), 1)
+    # Freeing the host slot must also drop the shared rows it hosted, or a
+    # newcomer on the recycled slot would inherit them through the projection.
+    master.destroyed()
+    new_master = self.request('http://sr//', None, 'NewMaster')
+    self.assertEqual(new_master.getId(), 'slappart0')
+    info = self.getPartitionInformation('slappart0')
+    self.assertEqual(info._parameter_dict['slave_instance_list'], [])
+
+  def test_stale_guid_after_reallocation_fails_soft(self):
+    self.format_for_number_of_partitions(2)
+    master = self.request('http://sr//', None, 'Master')
+    stale_guid = master.getInstanceGuid()
+    master.destroyed()  # the instance (and its guid) is gone
+    # A shared request pinning the stale guid fails soft (404), never a 5xx and
+    # never silently pinning the slot's new occupant.
+    rv = self._requestComputerPartition(
+      'http://sr//', None, 'Shared', 'slappart1', shared=True,
+      filter_kw={'instance_guid': stale_guid})
+    self.assertEqual(rv._status_code, 404)
+
+  def test_bare_partition_id_sla_fails_soft(self):
+    # A bare partition id as SLA instance_guid does not match a minted guid
+    # (v17 accepted it by accident); it fails soft (404), retried each slapgrid
+    # run.
+    self.format_for_number_of_partitions(1)
+    self.request('http://sr//', None, 'Master')
+    rv = self._requestComputerPartition(
+      'http://sr//', None, 'Shared', 'slappart0', shared=True,
+      filter_kw={'instance_guid': 'slappart0'})
+    self.assertEqual(rv._status_code, 404)
 
 
 class TestAppSession(requests.Session):
@@ -1695,8 +1909,6 @@ class TestMultiNodeSupport(MasterMixin):
   def test_multi_node_support_instance_guid(self):
     """
     Test that instance_guid support behaves correctly with multiple nodes.
-    Warning: proxy doesn't gives unique id of instance, but gives instead unique id
-    of partition.
     """
     computer_0_id = 'COMP-0'
     computer_1_id = 'COMP-1'
@@ -1707,9 +1919,28 @@ class TestMultiNodeSupport(MasterMixin):
     partition_computer_1 = self.request('http://sr//', None, 'MyOtherInstance', 'slappart0', filter_kw={'computer_guid': computer_1_id})
     partition_computer_default = self.request('http://sr//', None, 'MyThirdInstance', 'slappart0')
 
-    self.assertEqual(partition_computer_0.getInstanceGuid(), 'COMP-0-slappart0')
-    self.assertEqual(partition_computer_1.getInstanceGuid(), 'COMP-1-slappart0')
-    self.assertEqual(partition_computer_default.getInstanceGuid(), 'computer-slappart0')
+    guid_0 = partition_computer_0.getInstanceGuid()
+    guid_1 = partition_computer_1.getInstanceGuid()
+    guid_default = partition_computer_default.getInstanceGuid()
+
+    # Fresh instances get distinct minted 'SOFTINST-N' guids, regardless of
+    # which node hosts them (an instance's identity is not its partition slot).
+    for guid in (guid_0, guid_1, guid_default):
+      self.assertTrue(guid.startswith('SOFTINST-'), guid)
+    self.assertEqual(3, len({guid_0, guid_1, guid_default}))
+
+    # The guid is stable across a re-request of the same instance. These
+    # instances were created as roots (their partition-slot requester was free
+    # at creation time), so they are re-requested here in the same root scope.
+    self.assertEqual(
+        guid_0,
+        self.request('http://sr2//', None, 'MyFirstInstance', filter_kw={'computer_guid': computer_0_id}).getInstanceGuid())
+    self.assertEqual(
+        guid_1,
+        self.request('http://sr//', None, 'MyOtherInstance', filter_kw={'computer_guid': computer_1_id}).getInstanceGuid())
+    self.assertEqual(
+        guid_default,
+        self.request('http://sr//', None, 'MyThirdInstance').getInstanceGuid())
 
   def test_multi_node_support_getComputerInformation(self):
     """
@@ -2086,10 +2317,21 @@ database_uri = %(rootdir)s/lib/external_proxy.db
         'lib',
         'external_proxy.db',
     )) as db:
-      requested_by = slapos.proxy.views.execute_db(
-        "partition",
-        "select reference, computer_reference, requested_by from %s",
+      instance_rows = slapos.proxy.views.execute_db(
+        "instance",
+        "select instance_guid, title, root_instance_guid, allocated_computer,"
+        " allocated_partition from %s where shared=0",
         db=db)
+    # The requester edge is stored on the instance table; translate the
+    # root guid back to the root's title to reproduce the v17 'requested_by'
+    # (root-title) projection an old client observed.
+    guid2title = {r['instance_guid']: r['title'] for r in instance_rows}
+    requested_by = sorted(({
+        'computer_reference': r['allocated_computer'],
+        'reference': r['allocated_partition'],
+        'requested_by': guid2title.get(r['root_instance_guid'], '')
+                        if r['root_instance_guid'] else '',
+    } for r in instance_rows), key=lambda r: r['reference'])
     self.assertEqual([{
         'computer_reference': self.external_computer_id,
         'reference': 'slappart0',
@@ -2099,6 +2341,22 @@ database_uri = %(rootdir)s/lib/external_proxy.db
         'reference': 'slappart1',
         'requested_by': 'instance',
     }], requested_by)
+
+  def testForwardedRequesterIdRetainedWhenDowngraded(self):
+    """A slap_tool request whose identity is downgraded to user (the asserting
+    partition holds no local instance) still carries the raw asserted
+    requester_id into the multimaster forwarding prefix -- leniency clears
+    g.requester but not g.requester_id."""
+    self.format_for_number_of_partitions(1)
+    self.external_proxy_format_for_number_of_partitions(2)
+    self.external_proxy_create_requested_partition()
+    self.request(
+        self.forwarded_software_release, None, 'MySubInstance', 'slappart0',
+        partition_parameter_kw={'foo': 'bar'})
+    forwarded, = slapos.proxy.views.execute_db(
+        'forwarded_partition_request', 'SELECT * from %s', db=self.db)
+    self.assertEqual(
+        forwarded['partition_reference'], 'slappart0_MySubInstance')
 
   def testForwardToMasterAndDestroy(self):
     instance_reference = 'MyFirstInstance'
@@ -2199,8 +2457,20 @@ database_uri = %(rootdir)s/lib/external_proxy.db
         'lib',
         'external_proxy.db',
     )) as db:
-      requested_by = slapos.proxy.views.execute_db(
-          "partition", "select reference, partition_reference, xml, requested_by from %s", db=db)
+      instance_rows = slapos.proxy.views.execute_db(
+          "instance",
+          "select instance_guid, title, root_instance_guid, xml,"
+          " allocated_partition from %s where shared=0", db=db)
+    # title is the v17 'partition_reference'; the root guid translates back to
+    # the v17 'requested_by' root-title projection.
+    guid2title = {r['instance_guid']: r['title'] for r in instance_rows}
+    requested_by = sorted(({
+        'reference': r['allocated_partition'],
+        'partition_reference': r['title'],
+        'xml': r['xml'],
+        'requested_by': guid2title.get(r['root_instance_guid'], '')
+                        if r['root_instance_guid'] else '',
+    } for r in instance_rows), key=lambda r: r['reference'])
     self.assertEqual([{
         'reference': 'slappart0',
         'partition_reference': 'instance',
@@ -2458,25 +2728,47 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
         [(u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u'computer', u'available')]
     )
 
+    # The partition is a pure resource row: (reference, computer_reference,
+    # slap_state). Everything instance-shaped lives in the instance table.
     partition_list = self.db.execute("select * from partition" + DB_VERSION).fetchall()
     self.assertEqual(partition_list, [
-      ('slappart0', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="json">{\n  "site-id": "erp5"\n  }\n}</parameter>\n</instance>\n', None, None, 'production', 'slapos', '', 'started', None),
-      ('slappart1', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">mysql://127.0.0.1:45678/erp5</parameter>\n</instance>\n', None, 'mariadb', 'MariaDB DataBase', 'slapos', 'started', None),
-      ('slappart2', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="cloudooo-json"></parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', None, 'cloudooo', 'Cloudooo', 'slapos', 'started', None),
-      ('slappart3', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:11000/</parameter>\n</instance>\n', None, 'memcached', 'Memcached', 'slapos', 'started', None),
-      ('slappart4', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:13301/</parameter>\n</instance>\n', None, 'kumofs', 'KumoFS', 'slapos', 'started', None),
-      ('slappart5', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="kumofs-url">memcached://127.0.0.1:13301/</parameter>\n  <parameter id="memcached-url">memcached://127.0.0.1:11000/</parameter>\n  <parameter id="cloudooo-url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">https://[fc00::1]:10001</parameter>\n</instance>\n', None, 'tidstorage', 'TidStorage', 'slapos', 'started', None),
-      ('slappart6', 'computer', 'free', None, None, None, None, None, None, '', 'started', None),
-      ('slappart7', 'computer', 'free', None, None, None, None, None, None, '', 'started', None),
-      ('slappart8', 'computer', 'free', None, None, None, None, None, None, '', 'started', None),
-      ('slappart9', 'computer', 'free', None, None, None, None, None, None, '', 'started', None),
+      ('slappart0', 'computer', 'busy'),
+      ('slappart1', 'computer', 'busy'),
+      ('slappart2', 'computer', 'busy'),
+      ('slappart3', 'computer', 'busy'),
+      ('slappart4', 'computer', 'busy'),
+      ('slappart5', 'computer', 'busy'),
+      ('slappart6', 'computer', 'free'),
+      ('slappart7', 'computer', 'free'),
+      ('slappart8', 'computer', 'free'),
+      ('slappart9', 'computer', 'free'),
       ])
 
-    slave_list = self.db.execute("select * from slave" + DB_VERSION).fetchall()
-    self.assertEqual(
-        slave_list,
-        []
-    )
+    # Every instance is a first-class row keyed by an opaque instance_guid.
+    # Non-shared instances migrated from busy partitions keep the guid the
+    # proxy had already published for them ('computer-slappartN', frozen);
+    # the tree edges point at the root's frozen guid.
+    instance_list = self.db.execute(
+        "select instance_guid, title, shared, root_instance_guid,"
+        " requested_by_instance_guid, software_type, slave_reference,"
+        " allocated_computer, allocated_partition from instance"
+        + DB_VERSION).fetchall()
+    expected_instance_list = [
+      ('computer-slappart0', 'slapos', 0, '', '', 'production', None, 'computer', 'slappart0'),
+      ('computer-slappart1', 'MariaDB DataBase', 0, 'computer-slappart0', 'computer-slappart0', 'mariadb', None, 'computer', 'slappart1'),
+      ('computer-slappart2', 'Cloudooo', 0, 'computer-slappart0', 'computer-slappart0', 'cloudooo', None, 'computer', 'slappart2'),
+      ('computer-slappart3', 'Memcached', 0, 'computer-slappart0', 'computer-slappart0', 'memcached', None, 'computer', 'slappart3'),
+      ('computer-slappart4', 'KumoFS', 0, 'computer-slappart0', 'computer-slappart0', 'kumofs', None, 'computer', 'slappart4'),
+      ('computer-slappart5', 'TidStorage', 0, 'computer-slappart0', 'computer-slappart0', 'tidstorage', None, 'computer', 'slappart5'),
+      ]
+    # Shared instances have no published guid to freeze, so they are minted
+    # 'SOFTINST-N'. Only the v17 fixture carries slave rows; earlier fixtures
+    # have empty slave tables, so their migrated instance table is non-shared
+    # only.
+    if self.version >= 17:
+      expected_instance_list.append(
+        ('SOFTINST-1', 'shared-frontend', 1, 'computer-slappart0', 'computer-slappart0', 'frontend', 'slapos_shared-frontend', 'computer', 'slappart1'))
+    self.assertEqual(instance_list, expected_instance_list)
 
     partition_network_list = self.db.execute("select * from partition_network{}".format(DB_VERSION)).fetchall()
     self.assertEqual(
@@ -2498,9 +2790,9 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
        ['computer' + DB_VERSION,
         'config' + DB_VERSION,
         'forwarded_partition_request' + DB_VERSION,
+        'instance' + DB_VERSION,
         'partition' + DB_VERSION,
         'partition_network' + DB_VERSION,
-        'slave' + DB_VERSION,
         'software' + DB_VERSION,
       ])
 
@@ -2533,6 +2825,84 @@ class TestMigrateVersion15ToLatest(_MigrationTestCase):
 
 class TestMigrateVersion16ToLatest(_MigrationTestCase):
   version = 16
+
+class TestMigrateVersion17ToLatest(_MigrationTestCase):
+  version = 17
+
+  # The v17 fixture's software release, shared across the checks below.
+  _fixture_sr = '/srv/slapgrid//srv//runner/project//slapos/software.cfg'
+
+  def test_migrated_instance_guid_wire_value_unchanged(self):
+    # Every migrated instance keeps the exact guid the proxy already published
+    # for it ('computer-slappartN'), so deployed nodes see identical bytes.
+    computer = loads(self.app.get(
+      '/getFullComputerInformation?computer_id=computer').data)
+    guids = {
+      p._partition_id: p.getInstanceGuid()
+      for p in computer._computer_partition_list
+      if p._software_release_document is not None}
+    self.assertEqual(guids['slappart0'], 'computer-slappart0')
+    self.assertEqual(guids['slappart1'], 'computer-slappart1')
+    self.assertEqual(guids['slappart5'], 'computer-slappart5')
+
+  def test_old_client_rerequest_child_after_migration(self):
+    # An old client re-requesting an existing migrated child (as its migrated
+    # parent) resolves the same instance -- idempotency survives migration.
+    partition = self.request(
+      self._fixture_sr, 'mariadb', 'MariaDB DataBase', 'slappart0')
+    self.assertEqual(partition.getId(), 'slappart1')
+    self.assertEqual(partition.getInstanceGuid(), 'computer-slappart1')
+
+  def test_frozen_guid_still_pins_slave_after_migration(self):
+    # A frozen 'computer-slappartN' guid replayed as an SLA instance_guid still
+    # pins the shared instance to that host (the guid resolves with no special
+    # case).
+    partition = self.request(
+      self._fixture_sr, 'production', 'NewShared', 'slappart6', shared=True,
+      filter_kw={'instance_guid': 'computer-slappart0'})
+    self.assertEqual(partition._computer_id, 'computer')
+    self.assertEqual(partition.getId(), 'slappart0')
+
+  def test_mixed_guid_namespaces_one_resolver(self):
+    # Frozen ('computer-slappartN') and freshly minted ('SOFTINST-N') guids
+    # resolve through the same getInstanceByGuid lookup on one DB.
+    new = self.request(self._fixture_sr, 'default', 'NewInstance', 'slappart6')
+    self.assertTrue(new.getInstanceGuid().startswith('SOFTINST-'))
+    shared_on_new = self.request(
+      self._fixture_sr, 'default', 'SharedOnNew', 'slappart7', shared=True,
+      filter_kw={'instance_guid': new.getInstanceGuid()})
+    self.assertEqual(shared_on_new.getId(), new.getId())
+    shared_on_frozen = self.request(
+      self._fixture_sr, 'production', 'SharedOnFrozen', 'slappart8',
+      shared=True, filter_kw={'instance_guid': 'computer-slappart0'})
+    self.assertEqual(shared_on_frozen.getId(), 'slappart0')
+
+  def test_migrated_shared_params_preserve_types(self):
+    # The v17 host blob carried typed params (int/bool); migration must store
+    # them so they survive as their Python type -- the byte shape deployed SRs
+    # consume from slave_instance_list.
+    computer = loads(self.app.get(
+      '/getFullComputerInformation?computer_id=computer').data)
+    host, = [p for p in computer._computer_partition_list
+             if p._partition_id == 'slappart1']
+    slave, = host._parameter_dict['slave_instance_list']
+    self.assertIsInstance(slave['shared-port'], int)
+    self.assertEqual(slave['shared-port'], 4443)
+    self.assertIs(slave['shared-enable'], True)
+    self.assertEqual(slave['domain'], 'shared.example.com')
+
+  def test_migrated_shared_timestamp_matches_host(self):
+    # A migrated shared row inherits the host partition's timestamp, so it does
+    # not publish processing_timestamp 0 before its first mutation (matching
+    # v17, which emitted the host's timestamp).
+    self.app.get('/getFullComputerInformation?computer_id=computer')
+    host_timestamp, shared_timestamp = self.db.execute(
+      "SELECT"
+      " (SELECT timestamp FROM instance%(v)s WHERE instance_guid='computer-slappart1'),"
+      " (SELECT timestamp FROM instance%(v)s WHERE slave_reference='slapos_shared-frontend')"
+      % {'v': DB_VERSION}).fetchone()
+    self.assertEqual(host_timestamp, 1234567890.0)
+    self.assertEqual(shared_timestamp, host_timestamp)
 
 
 del _MigrationTestCase

@@ -52,12 +52,6 @@
             title: result_dict.translation_dict.Workgroups,
             jio_key: 'workgroup_module',
             erp5_action: 'slapos_panel_view_my_workgroup_list'
-/*
-          }, {
-            title: result_dict.translation_dict.Tickets,
-            jio_key: 'support_request_module',
-            erp5_action: 'slapos_panel_view_my_ticket_list'
-*/
           }, {
             title: result_dict.translation_dict.Invoices,
             jio_key: 'accounting_module',

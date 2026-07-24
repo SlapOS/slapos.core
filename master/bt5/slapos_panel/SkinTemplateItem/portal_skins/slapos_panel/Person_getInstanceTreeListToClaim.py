@@ -16,15 +16,14 @@ if workgroup is None:
   return []
 
 assignment_request_list = portal.portal_catalog(
-    portal_type='Assignment Request',
-    simulation_state='validated',
-    destination_decision__uid=workgroup.getUid(),
-    function__uid=portal.portal_categories.function.customer.getUid()
-  )
+  portal_type='Assignment Request',
+  simulation_state='validated',
+  destination_decision__uid=workgroup.getUid(),
+  destination_project__portal_type="Project",
+  function__uid=portal.portal_categories.function.customer.getUid()
+)
 if len(assignment_request_list):
-  project_uid_list = [
-    x.getDestinationProjectUid() for x in assignment_request_list
-      if x.getDestinationProject() is not None]
+  project_uid_list = [x.getDestinationProjectUid() for x in assignment_request_list]
 
   if len(project_uid_list):
     return portal.portal_catalog(

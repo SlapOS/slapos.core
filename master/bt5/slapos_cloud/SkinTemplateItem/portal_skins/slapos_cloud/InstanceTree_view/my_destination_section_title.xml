@@ -93,6 +93,10 @@
                           <string>Person</string>
                           <string>Person</string>
                         </tuple>
+                        <tuple>
+                          <string>Workgroup</string>
+                          <string>Workgroup</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

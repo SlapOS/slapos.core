@@ -202,21 +202,8 @@ class Software(object):
           force_binary_cache = True
           self.logger.debug('Binary cache forced for %r because of match %r', self.url, url_match)
           break
-      if (not os.path.exists(self.software_path)) \
-          and download_network_cached(
-              self.download_binary_cache_url,
-              self.download_binary_dir_url,
-              self.url, self.software_root,
-              self.software_url_hash,
-              tarpath, self.logger,
-              self.signature_certificate_list,
-              self.download_from_binary_cache_url_blacklist):
-        tar = tarfile.open(tarpath)
-        try:
-          self.logger.info("Extracting archive of cached software release...")
-          tar.extractall(path=self.software_root)
-        finally:
-          tar.close()
+      if self.downloadSoftwareRelease(cache_dir, tarpath):
+        pass
       elif force_binary_cache:
         if os.path.exists(self.software_path):
           message = 'Binary cache forced for %r, but directory %s already exists, will retry again' % (self.url, self.software_path)
@@ -238,7 +225,7 @@ class Software(object):
                                "Software Release URL is blacklisted.")
               break
           if not blacklisted:
-            self.uploadSoftwareRelease(tarpath)
+            self.uploadSoftwareRelease(cache_dir, tarpath)
     finally:
       shutil.rmtree(cache_dir)
 
@@ -395,21 +382,54 @@ class Software(object):
           f.write(
               "# %s git revision: %s" % (datetime.datetime.utcnow(), git_revision))
 
-  def uploadSoftwareRelease(self, tarpath):
+  def uploadSoftwareRelease(self, cache_dir, tarpath):
     """
     Try to tar and upload an installed Software Release.
     """
-    self.logger.info("Creating archive of software release...")
+    # Find shared parts paths
+    shared_parts = [p.strip() for p in self.shared_part_list.splitlines()]
+    shared_paths = []
+    if shared_parts:
+      configp = ConfigParser()
+      configp.read(os.path.join(self.software_path, '.installed.cfg'))
+      for s in configp.sections():
+        if configp.has_option(s, 'location') and configp.has_option(s, 'shared'):
+          location = configp.get(s, 'location').strip()
+          if location and '\n' not in location: # shared parts have one path
+            if any(
+              not os.path.relpath(location, p).startswith(os.pardir)
+              for p in shared_parts
+            ) and os.path.exists(
+              os.path.join(location, '.buildout-shared.json')
+            ):
+              shared_paths.add(location)
+    if shared_paths:
+      with open(self.software_path, 'shacache.shared.deps', 'w') as f:
+        f.write('\n'.join(shared_paths))
+      self.logger.info("Creating and uploading archive of shared parts..")
+      for path in shared_paths:
+        key = md5digest(path)
+        self.uploadToShacache(os.path.join(cache_dir, key), path, key)
+    self.logger.info("Creating and uploading archive of software release...")
+    self.uploadToShacache(tarpath, self.software_path, self.software_url_hash)
+
+  def uploadToShacache(self, tarpath, directory, key):
+    """
+    Try to tar and upload a directory
+    """
+    self.logger.info("Creating archive of directory %s", directory)
     tar = tarfile.open(tarpath, "w:gz")
     try:
-      tar.add(self.software_path, arcname=self.software_url_hash)
+      tar.add(directory, arcname=key)
     finally:
       tar.close()
     for i in range(3):
-      self.logger.info("Trying to upload archive of software release (try %d)..." % (i))
+      self.logger.info(
+        "Trying to upload archive of directory %s (try %d)...", directory, i
+      )
       if upload_network_cached(
           self.software_root,
-          self.url, self.software_url_hash,
+          self.url, key,
           self.upload_binary_cache_url,
           self.upload_binary_dir_url,
           tarpath, self.logger,
@@ -422,8 +442,46 @@ class Software(object):
           self.shadir_cert_file,
           self.shadir_key_file):
         break
-      # let shacache process the upload before retrying
+      # XXX: let shacache process the upload before retrying ???
       time.sleep(1800)
+
+  def downloadSoftwareRelease(self, cache_dir, tarpath):
+    if self.downloadFromShacache(
+      self.software_path,
+      tarpath,
+      self.software_url_hash,
+    ):
+      deps = os.path.join(self.software_path, 'shacache.shared.deps')
+      try:
+        with open(deps) as f:
+          shared_deps = f.read().splitlines()
+      except FileNotFoundError:
+        return True # all ok, no shared parts needed
+      status = True
+      for path in shared_deps:
+        key = md5digest(path)
+        tarpath = os.path.join(cache_dir, key)
+        status = status and self.downloadFromShacache(path, tarpath, key)
+      return status
+    return False # not ok, could not even download software release path
+
+  def downloadFromShacache(self, path, tarpath, key):
+    if not os.path.exists(path) and download_network_cached(
+              self.download_binary_cache_url,
+              self.download_binary_dir_url,
+              self.url, self.software_root, # XXX software_root seems useless
+              key,
+              tarpath, self.logger,
+              self.signature_certificate_list,
+              self.download_from_binary_cache_url_blacklist):
+      tar = tarfile.open(tarpath)
+      try:
+        self.logger.info("Extracting archive of cached directory %s...", path)
+        tar.extractall(path=path)
+      finally:
+        tar.close()
+      return True
+    return False
 
   def destroy(self):
     """Removes software release."""

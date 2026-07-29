@@ -98,6 +98,14 @@ def setupFlaskConfiguration(conf):
     app.config['local_software_release_root'] = conf.local_software_release_root
   if getattr(conf, 'public_directory_path', None) is not None:
     app.config['PUBLIC_DIRECTORY_PATH'] = conf.public_directory_path
+  if getattr(conf, 'shacache_content_directory', None) is not None:
+    app.config['SHACACHE_CONTENT_DIRECTORY'] = conf.shacache_content_directory
+  if getattr(conf, 'shacache_metadata_file', None) is not None:
+    app.config['SHACACHE_METADATA_FILE'] = conf.shacache_metadata_file
+  if getattr(conf, 'shacache_signing_key_path', None) is not None:
+    app.config['SHACACHE_SIGNING_KEY_PATH'] = conf.shacache_signing_key_path
+  if getattr(conf, 'shacache_upstream_cache_url', None) is not None:
+    app.config['SHACACHE_UPSTREAM_CACHE_URL'] = conf.shacache_upstream_cache_url
 
 def connectDB():
   # if first connection, create an empty db at DATABASE_URI path
@@ -112,6 +120,8 @@ def do_proxy(conf):
   app.logger.removeHandler(default_handler)
 
   setupFlaskConfiguration(conf)
+  from slapos.proxy.shacache_proxy import init_shacache_proxy
+  init_shacache_proxy(app)
   connectDB()
   app.run(host=conf.host, port=int(conf.port), threaded=True)
 

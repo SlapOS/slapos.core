@@ -98,6 +98,27 @@ def setupFlaskConfiguration(conf):
     app.config['local_software_release_root'] = conf.local_software_release_root
   if getattr(conf, 'public_directory_path', None) is not None:
     app.config['PUBLIC_DIRECTORY_PATH'] = conf.public_directory_path
+  if getattr(conf, 'shacache_content_directory', None) is not None:
+    app.config['SHACACHE_CONTENT_DIRECTORY'] = conf.shacache_content_directory
+  if getattr(conf, 'shacache_metadata_directory', None) is not None:
+    app.config['SHACACHE_METADATA_DIRECTORY'] = conf.shacache_metadata_directory
+  if getattr(conf, 'shacache_signing_key_path', None) is not None:
+    app.config['SHACACHE_SIGNING_KEY_PATH'] = conf.shacache_signing_key_path
+  if getattr(conf, 'shacache_upstream_cache_url', None) is not None:
+    app.config['SHACACHE_UPSTREAM_CACHE_URL'] = conf.shacache_upstream_cache_url
+  if getattr(conf, 'shacache_upstream_dir_url', None) is not None:
+    app.config['SHACACHE_UPSTREAM_DIR_URL'] = conf.shacache_upstream_dir_url
+
+  content_dir = app.config.get('SHACACHE_CONTENT_DIRECTORY')
+  metadata_dir = app.config.get('SHACACHE_METADATA_DIRECTORY')
+  if content_dir and not metadata_dir:
+    self.logger.warning(
+      "shacache-content-directory is set but shacache-metadata-directory is not. "
+      "Shacache proxy will not work.")
+  elif metadata_dir and not content_dir:
+    self.logger.warning(
+      "shacache-metadata-directory is set but shacache-content-directory is not. "
+      "Shacache proxy will not work.")
 
 def connectDB():
   # if first connection, create an empty db at DATABASE_URI path

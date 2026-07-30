@@ -7,3 +7,4 @@ include slapos/slapos-proxy.cfg.example
 include slapos/slapos.cfg.example
 recursive-include slapos *.in *.txt *.xsd *.rst py.typed
 recursive-include slapos/proxy/static_panel/ *
+recursive-include slapos/proxy/static_henri/ *

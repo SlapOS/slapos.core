@@ -108,11 +108,13 @@
   // View switching
   //////////////////////////////////////////////////////
 
+  var CELL_SOFTWARE_TYPE_LIST = ["enb", "gnb", "enb-gnb"];
+
   function renderCurrentView() {
     if (currentView === "cells") {
-      renderRootServiceListView("enb", document.getElementById("cells-list"));
+      renderRootServiceListView(CELL_SOFTWARE_TYPE_LIST, document.getElementById("cells-list"));
     } else if (currentView === "core-network") {
-      renderRootServiceListView("core-network", document.getElementById("core-network-list"));
+      renderRootServiceListView(["core-network"], document.getElementById("core-network-list"));
     } else if (currentView === "sim-management") {
       renderSimManagement();
     }
@@ -192,14 +194,14 @@
   // Shared root-service detail card (used by Cells and Core Network)
   //////////////////////////////////////////////////////
 
-  function renderRootServiceListView(softwareType, container) {
+  function renderRootServiceListView(softwareTypeList, container) {
     container.innerHTML = "";
     var services = allServices.filter(function (service) {
-      return service.software_type === softwareType && !service.shared;
+      return softwareTypeList.indexOf(service.software_type) !== -1 && !service.shared;
     });
     if (services.length === 0) {
       container.appendChild(document.createElement("p")).textContent =
-        "No services of type \"" + softwareType + "\" found.";
+        "No services of type \"" + softwareTypeList.join("\", \"") + "\" found.";
       return;
     }
     services.forEach(function (service) {

@@ -1,24 +1,222 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: sans-serif;
-  margin: 2em;
+  margin: 0;
+  display: flex;
+  min-height: 100vh;
+}
+
+#sidebar {
+  flex: 0 0 220px;
+  background: #000;
+  color: #fff;
+  padding: 1.5em 1em;
+  display: flex;
+  flex-direction: column;
+}
+
+#sidebar h1 {
+  font-size: 1.4em;
+  margin: 0 0 1.5em 0;
+}
+
+.nav-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #fff;
+  padding: 0.6em 0.5em;
+  margin-bottom: 0.3em;
+  font-size: 1em;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.nav-item:hover {
+  background: #333;
+}
+
+.nav-item.active {
+  background: #555;
+  font-weight: bold;
+}
+
+#content {
+  flex: 1;
+  padding: 1.5em 2em;
+  overflow-x: auto;
+}
+
+.view {
+  display: none;
+}
+
+.view.active {
+  display: block;
+}
+
+#message {
+  color: #a00;
+}
+
+.view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+
+.service-card {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 1em 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.service-card .view-header h2 {
+  margin: 0;
+}
+
+.service-meta {
+  color: #555;
+  margin-bottom: 1em;
+}
+
+button.edit-button {
+  background: #c0392b;
+  color: #fff;
+  border: none;
+  padding: 0.5em 1.2em;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+button.edit-button:hover {
+  background: #922b21;
+}
+
+.param-group {
+  margin-bottom: 1em;
+}
+
+.param-group h4 {
+  margin: 0 0 0.3em 0;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  color: #777;
+  letter-spacing: 0.05em;
 }
 
 table {
   border-collapse: collapse;
   width: 100%;
-  max-width: 60em;
+}
+
+.param-group table {
+  max-width: 40em;
 }
 
 th, td {
-  border: 1px solid #ccc;
-  padding: 0.5em 1em;
+  border: 1px solid #ddd;
+  padding: 0.4em 0.8em;
   text-align: left;
 }
 
-button {
-  margin-right: 0.5em;
+table.raw-parameters {
+  max-width: 50em;
+  margin-top: 1em;
 }
 
-#message {
+table.raw-parameters td.value {
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
+#sim-table button {
+  margin-right: 0.4em;
+  cursor: pointer;
+}
+
+.status-enabled {
+  color: #1a7f37;
+  font-weight: bold;
+}
+
+.status-disabled {
   color: #a00;
+  font-weight: bold;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#modal {
+  background: #fff;
+  border-radius: 6px;
+  width: 40em;
+  max-width: 90vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header, .modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1em;
+}
+
+.modal-header {
+  border-bottom: 1px solid #ddd;
+}
+
+.modal-footer {
+  border-top: 1px solid #ddd;
+  justify-content: flex-end;
+  gap: 0.5em;
+}
+
+#modal-body {
+  padding: 1em;
+  overflow-y: auto;
+}
+
+#modal-body textarea {
+  width: 100%;
+  height: 20em;
+  font-family: monospace;
+}
+
+#modal-body label {
+  display: block;
+  margin-bottom: 0.8em;
+}
+
+#modal-body input[type="text"] {
+  width: 100%;
+  padding: 0.3em;
+}
+
+#modal-close {
+  background: none;
+  border: none;
+  font-size: 1.3em;
+  cursor: pointer;
 }

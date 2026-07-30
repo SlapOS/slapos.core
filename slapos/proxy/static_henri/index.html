@@ -2,22 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>slapproxy services</title>
+  <title>Henri</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Services</h1>
-  <p id="message"></p>
-  <table id="services">
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>State</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <nav id="sidebar">
+    <h1>Henri</h1>
+    <button type="button" class="nav-item" data-view="cells">Cells</button>
+    <button type="button" class="nav-item" data-view="core-network">Core Network</button>
+    <button type="button" class="nav-item" data-view="sim-management">SIM Management</button>
+  </nav>
+
+  <main id="content">
+    <p id="message"></p>
+
+    <section id="view-cells" class="view">
+      <div id="cells-list"></div>
+    </section>
+
+    <section id="view-core-network" class="view">
+      <div id="core-network-list"></div>
+    </section>
+
+    <section id="view-sim-management" class="view">
+      <div class="view-header">
+        <h2>SIM Management</h2>
+        <button type="button" id="add-sim-button">+ Add SIM</button>
+      </div>
+      <table id="sim-table">
+        <thead>
+          <tr>
+            <th>IMSI</th>
+            <th>Device Name</th>
+            <th>APN</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <div id="modal-overlay" class="hidden">
+    <div id="modal">
+      <div class="modal-header">
+        <h3 id="modal-title"></h3>
+        <button type="button" id="modal-close">&times;</button>
+      </div>
+      <div id="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" id="modal-cancel">Cancel</button>
+        <button type="button" id="modal-save">Save</button>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

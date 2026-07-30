@@ -93,6 +93,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_cloud/Person_getSlaposActorRequester',
         'slapos_consumption/OrderBuilder_selectConsumptionInternalPackingListMovementList',
         'slapos_crm_monitoring/SupportRequest_afterNewEvent',
+        'slapos_crm_monitoring/Person_createTicketWithCausality',
         'slapos_crm/RegularisationRequest_getResourceItemList',
         'slapos_erp5/CategoryTool_checkRegionMigrationConsistency',
         'slapos_erp5/Category_updateRelatedRegionAndExpire',

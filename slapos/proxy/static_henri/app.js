@@ -79,11 +79,11 @@
   }
 
   function loadServices() {
-    return callJsonRpc("slapos.allDocs.WIP.instance_tree_list", {})
+    return callJsonRpc("slapos.allDocs.v0.instance_tree_list", {})
       .then(function (result) {
         return Promise.all(result.result_list.map(function (item) {
-          return callJsonRpc("slapos.get.v0.software_instance", {
-            instance_guid: item.instance_guid
+          return callJsonRpc("slapos.get.v0.instance_tree", {
+            title: item.title
           });
         }));
       })

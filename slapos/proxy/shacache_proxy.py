@@ -217,7 +217,11 @@ def shadir_select(key):
   state = _get_shacache_state()
   shacache = state['shacache']
   upstream_dir_url = state['upstream_dir_url']
-  dir_content = shacache.serve_metadata_entry(key)
+  try:
+    dir_content = shacache.serve_metadata_entry(key)
+  except Exception:
+    current_app.logger.warning("Failed to read metadata for %s", key)
+    dir_content = None
   if dir_content is None:
     if upstream_dir_url is None:
       return "Not found\n", 404

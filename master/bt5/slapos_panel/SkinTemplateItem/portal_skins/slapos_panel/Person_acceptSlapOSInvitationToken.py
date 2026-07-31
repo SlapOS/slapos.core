@@ -16,12 +16,19 @@ if (invitation_token is None) or (invitation_token.getValidationState() != 'vali
   )
 
 assert invitation_token.getPortalType() == 'Invitation Token'
+follow_up_value = invitation_token.getFollowUpValue()
+if follow_up_value.getPortalType() == 'Project':
+  edit_kw = {'destination_project_value': follow_up_value}
+elif follow_up_value.getPortalType() == 'Workgroup':
+  edit_kw = {'destination_value': follow_up_value}
+else:
+  raise ValueError('Unsupported Invitation Token follow up %s' % follow_up_value.getRelativeUrl())
 assignment_request = portal.assignment_request_module.newContent(
   portal_type='Assignment Request',
   title='%s: %s' % (invitation_token.getFunctionTitle(), person.getTitle()),
   destination_decision_value=person,
   function=invitation_token.getFunction(),
-  destination_project=invitation_token.getFollowUp()
+  **edit_kw
 )
 if len(assignment_request.checkConsistency()) != 0:
   raise AssertionError(assignment_request.checkConsistency()[0])

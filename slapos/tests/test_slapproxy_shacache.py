@@ -81,9 +81,8 @@ class ShacacheProxyTestCase(unittest.TestCase):
 
   def setUp(self):
     self.content_dir = tempfile.mkdtemp()
-    self.sr_list_path = os.path.join(self.content_dir, 'sr-list.json')
-    with open(self.sr_list_path, 'w') as f:
-      json.dump([], f)
+    self.metadata_dir = os.path.join(self.content_dir, 'metadata')
+    os.makedirs(self.metadata_dir)
 
     self.key_path = os.path.join(self.content_dir, 'test.key')
     with open(self.key_path, 'w') as f:
@@ -96,7 +95,7 @@ class ShacacheProxyTestCase(unittest.TestCase):
     self.port = _get_free_port()
     self.app = Flask(__name__)
     self.app.config['SHACACHE_CONTENT_DIRECTORY'] = self.content_dir
-    self.app.config['SHACACHE_METADATA_FILE'] = self.sr_list_path
+    self.app.config['SHACACHE_METADATA_DIRECTORY'] = self.metadata_dir
     self.app.config['SHACACHE_SIGNING_KEY_PATH'] = self.key_path
     self.app.register_blueprint(shacache_proxy_blueprint, url_prefix="/shacache")
     init_shacache_proxy(self.app)
@@ -185,6 +184,123 @@ class ShacacheProxyTestCase(unittest.TestCase):
     self.assertEqual(ctx.exception.code, 404)
 
 
+class ShacacheUpstreamDirTestCase(unittest.TestCase):
+  """Test upstream dir fallback: local miss proxies to upstream dir URL.
+
+  Uses urlopen directly to avoid the module-global state issue where two
+  Flask apps sharing the same blueprint overwrite each other's _shacache
+  and _upstream_* globals via init_shacache_proxy().
+  """
+
+  def setUp(self):
+    self.content_dir = tempfile.mkdtemp()
+    self.metadata_dir = os.path.join(self.content_dir, 'metadata')
+    os.makedirs(self.metadata_dir)
+
+    self.key_path = os.path.join(self.content_dir, 'test.key')
+    with open(self.key_path, 'w') as f:
+      f.write(KEY)
+
+    self.cert_path = os.path.join(self.content_dir, 'test.crt')
+    with open(self.cert_path, 'w') as f:
+      f.write(CERTIFICATE)
+
+  def tearDown(self):
+    shutil.rmtree(self.content_dir, True)
+
+  def _start_proxy(self, upstream_dir_url=None):
+    """Start a single Flask proxy server and return its base URL."""
+    port = _get_free_port()
+    app = Flask('test_upstream')
+    app.config['SHACACHE_CONTENT_DIRECTORY'] = self.content_dir
+    app.config['SHACACHE_METADATA_DIRECTORY'] = self.metadata_dir
+    app.config['SHACACHE_SIGNING_KEY_PATH'] = self.key_path
+    if upstream_dir_url:
+      app.config['SHACACHE_UPSTREAM_DIR_URL'] = upstream_dir_url
+    app.register_blueprint(shacache_proxy_blueprint, url_prefix="/shacache")
+    init_shacache_proxy(app)
+
+    t = threading.Thread(
+      target=app.run,
+      kwargs={'host': '127.0.0.1', 'port': port, 'use_reloader': False},
+    )
+    t.daemon = True
+    t.start()
+    import time
+    time.sleep(0.1)
+    return 'http://127.0.0.1:%d/shacache' % port
+
+  def test_dir_upstream_404_returns_404(self):
+    """When key is not found locally, falls back to upstream which also
+    returns 404, so the client gets 404."""
+    from six.moves.urllib.request import urlopen
+    from six.moves.urllib.error import HTTPError
+
+    # Start an 'upstream' server that has no entries
+    upstream_url = self._start_proxy()
+
+    # Start local server with upstream configured
+    local_url = self._start_proxy(upstream_dir_url=upstream_url + '/dir')
+
+    with self.assertRaises(HTTPError) as ctx:
+      urlopen(local_url + '/dir/no-such-key-xyz', timeout=10)
+    self.assertEqual(ctx.exception.code, 404)
+
+  def test_dir_upstream_hit(self):
+    """When key is not found locally, fetches from upstream and returns it."""
+    from six.moves.urllib.request import urlopen
+    import time
+
+    # Start upstream server
+    upstream_url = self._start_proxy()
+
+    # Upload a key to the upstream server
+    with open(self.cert_path) as f:
+      cert_pem = f.read()
+    nc = NetworkcacheClient(
+      upstream_url + '/cache', upstream_url + '/dir',
+      signature_private_key_file=self.key_path,
+      signature_certificate_list=[cert_pem],
+    )
+    key = 'upstream-hit-' + str(random.random())
+    test_data = BytesIO(b'upstream content')
+    shasum = nc.upload(test_data, key, urlmd5='u', file_name='u.bin')
+
+    # Start local server with upstream configured
+    local_url = self._start_proxy(upstream_dir_url=upstream_url + '/dir')
+
+    response = urlopen(local_url + '/dir/' + key, timeout=10)
+    data = json.loads(response.read().decode())
+    # Response format: [[entry_json_string, signature_string]]
+    entry = json.loads(data[0][0])
+    self.assertEqual(entry['sha512'], shasum)
+
+  def test_dir_local_hit_no_upstream(self):
+    """When key is found locally, no upstream fetch needed."""
+    from six.moves.urllib.request import urlopen
+
+    # Start local server WITHOUT upstream configured
+    local_url = self._start_proxy()
+
+    # Upload a key directly to the local server
+    with open(self.cert_path) as f:
+      cert_pem = f.read()
+    nc = NetworkcacheClient(
+      local_url + '/cache', local_url + '/dir',
+      signature_private_key_file=self.key_path,
+      signature_certificate_list=[cert_pem],
+    )
+    key = 'local-hit-' + str(random.random())
+    test_data = BytesIO(b'local content')
+    shasum = nc.upload(test_data, key, urlmd5='l', file_name='l.bin')
+
+    response = urlopen(local_url + '/dir/' + key, timeout=10)
+    data = json.loads(response.read().decode())
+    # Response format: [[entry_json_string, signature_string]]
+    entry = json.loads(data[0][0])
+    self.assertEqual(entry['sha512'], shasum)
+
+
 class TestCacheLookupCommand(unittest.TestCase):
   """Test CacheLookupCommand logic using a local shacache proxy server.
 
@@ -195,9 +311,8 @@ class TestCacheLookupCommand(unittest.TestCase):
 
   def setUp(self):
     self.content_dir = tempfile.mkdtemp()
-    self.sr_list_path = os.path.join(self.content_dir, 'sr-list.json')
-    with open(self.sr_list_path, 'w') as f:
-      json.dump([], f)
+    self.metadata_dir = os.path.join(self.content_dir, 'metadata')
+    os.makedirs(self.metadata_dir)
 
     self.key_path = os.path.join(self.content_dir, 'test.key')
     with open(self.key_path, 'w') as f:
@@ -210,7 +325,7 @@ class TestCacheLookupCommand(unittest.TestCase):
     self.port = _get_free_port()
     self.app = Flask(__name__)
     self.app.config['SHACACHE_CONTENT_DIRECTORY'] = self.content_dir
-    self.app.config['SHACACHE_METADATA_FILE'] = self.sr_list_path
+    self.app.config['SHACACHE_METADATA_DIRECTORY'] = self.metadata_dir
     self.app.config['SHACACHE_SIGNING_KEY_PATH'] = self.key_path
     self.app.register_blueprint(shacache_proxy_blueprint, url_prefix="/shacache")
     init_shacache_proxy(self.app)

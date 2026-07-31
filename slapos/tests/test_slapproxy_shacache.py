@@ -275,6 +275,11 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
     entry = json.loads(data[0][0])
     self.assertEqual(entry['sha512'], shasum)
 
+    # Verify the entry was saved to the local metadata directory
+    entry_path = os.path.join(self.metadata_dir, key)
+    self.assertTrue(os.path.isfile(entry_path),
+                    "Upstream entry should be saved locally")
+
   def test_dir_local_hit_no_upstream(self):
     """When key is found locally, no upstream fetch needed."""
     from six.moves.urllib.request import urlopen

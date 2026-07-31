@@ -239,6 +239,14 @@ def shadir_select(key):
     except Exception as e:
       current_app.logger.warning("Failed to fetch dir from upstream: %s", e)
       return "Upstream error\n", 502
+    try:
+      upstream_data = json.loads(data.decode("utf-8"))
+      if isinstance(upstream_data, list) and len(upstream_data) == 1:
+        entry = upstream_data[0]
+        if isinstance(entry, list) and len(entry) == 2:
+          shacache.store_metadata_entry(key, entry[0], entry[1])
+    except Exception:
+      current_app.logger.warning("Failed to save upstream dir entry for %s", key)
     return data.decode("utf-8"), 200, {"Content-Type": "application/json"}
   return dir_content
 

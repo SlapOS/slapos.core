@@ -109,6 +109,19 @@ def setupFlaskConfiguration(conf):
   if getattr(conf, 'shacache_upstream_dir_url', None) is not None:
     app.config['SHACACHE_UPSTREAM_DIR_URL'] = conf.shacache_upstream_dir_url
 
+  content_dir = app.config.get('SHACACHE_CONTENT_DIRECTORY')
+  metadata_dir = app.config.get('SHACACHE_METADATA_DIRECTORY')
+  if content_dir and not metadata_dir:
+    import logging
+    logging.warning(
+      "shacache-content-directory is set but shacache-metadata-directory is not. "
+      "Shacache proxy will not work.")
+  elif metadata_dir and not content_dir:
+    import logging
+    logging.warning(
+      "shacache-metadata-directory is set but shacache-content-directory is not. "
+      "Shacache proxy will not work.")
+
 def connectDB():
   # if first connection, create an empty db at DATABASE_URI path
   conn = sqlite_connect(app.config['DATABASE_URI'])

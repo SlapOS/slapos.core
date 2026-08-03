@@ -74,16 +74,19 @@ shacache_proxy_blueprint = Blueprint('shacache_proxy', __name__)
 
 
 def _get_shacache():
-  """Create a Shacache instance from current app config."""
-  return Shacache(
-    current_app.config['SHACACHE_CONTENT_DIRECTORY'],
-    current_app.config['SHACACHE_METADATA_DIRECTORY'],
-  )
+  """Create a Shacache instance from current app config, or None."""
+  content_dir = current_app.config.get('SHACACHE_CONTENT_DIRECTORY')
+  metadata_dir = current_app.config.get('SHACACHE_METADATA_DIRECTORY')
+  if not content_dir or not metadata_dir:
+    return None
+  return Shacache(content_dir, metadata_dir)
 
 
 @shacache_proxy_blueprint.route("/cache/<sha512>", methods=["GET"])
 def shacache_download(sha512):
   shacache = _get_shacache()
+  if shacache is None:
+    return "Not configured\n", 503
   file_name = shacache.find_file_cache_entry(sha512)
   if file_name is None:
     upstream_cache_url = current_app.config.get('SHACACHE_UPSTREAM_CACHE_URL')
@@ -123,25 +126,33 @@ def shacache_download(sha512):
 @shacache_proxy_blueprint.route("/cache/", methods=["POST"])
 @shacache_proxy_blueprint.route("/cache", methods=["POST"])
 def shacache_upload():
+  shacache = _get_shacache()
+  if shacache is None:
+    return "Not configured\n", 503
   data = request.get_data()
   sha512 = hashlib.sha512(data).hexdigest()
-  _get_shacache().store_file_cache_entry(sha512, data)
+  shacache.store_file_cache_entry(sha512, data)
   return sha512, 201
 
 
 @shacache_proxy_blueprint.route("/cache/<sha512>", methods=["PUT"])
 def shacache_upload_with_hash(sha512):
+  shacache = _get_shacache()
+  if shacache is None:
+    return "Not configured\n", 503
   data = request.get_data()
   computed = hashlib.sha512(data).hexdigest()
   if computed != sha512:
     return "Checksum mismatch\n", 400
-  _get_shacache().store_file_cache_entry(sha512, data)
+  shacache.store_file_cache_entry(sha512, data)
   return sha512, 201
 
 
 @shacache_proxy_blueprint.route("/dir/<key>", methods=["GET"])
 def shadir_select(key):
   shacache = _get_shacache()
+  if shacache is None:
+    return "Not configured\n", 503
   try:
     dir_content = shacache.serve_metadata_entry(key)
   except Exception:
@@ -179,9 +190,12 @@ def shadir_select(key):
 
 @shacache_proxy_blueprint.route("/dir/<key>", methods=["PUT"])
 def shadir_index(key):
+  shacache = _get_shacache()
+  if shacache is None:
+    return "Not configured\n", 503
   data = request.get_json()
   if not isinstance(data, list) or len(data) != 2:
     return "Invalid entry format\n", 400
   entry_json, signature = data
-  _get_shacache().store_metadata_entry(key, entry_json, signature)
+  shacache.store_metadata_entry(key, entry_json, signature)
   return "", 201

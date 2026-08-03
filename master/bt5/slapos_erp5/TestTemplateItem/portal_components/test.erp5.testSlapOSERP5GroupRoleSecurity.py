@@ -822,22 +822,31 @@ class TestInstanceTree(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(subscription, self.user_id, ['Owner'])
     self.assertRoles(subscription, 'F-SALE*', ['Auditor'])
 
-  def test_InstanceTree_CustomOfTheInstanceTree(self):
-    customer_reference = 'TESTPERSON-%s' % self.generateNewId()
-    customer = self.portal.person_module.newContent(
-        portal_type='Person', reference=customer_reference)
+  def _test_InstanceTree_CustomerOfTheInstanceTree(self, entity):
     reference = 'TESTHS-%s' % self.generateNewId()
     subscription = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree', reference=reference)
     subscription.edit(
-        destination_section_value=customer)
+        destination_section_value=entity)
 
     self.assertSecurityGroup(subscription, [self.user_id, 'F-SALE*', reference,
-        customer.getUserId()], False)
+        entity.getUserId()], False)
     self.assertRoles(subscription, reference, ['Assignee'])
     self.assertRoles(subscription, 'F-SALE*', ['Auditor'])
-    self.assertRoles(subscription, customer.getUserId(), ['Assignee'])
+    self.assertRoles(subscription, entity.getUserId(), ['Assignee'])
     self.assertRoles(subscription, self.user_id, ['Owner'])
+
+  def test_InstanceTree_CustomerOfTheInstanceTree_Person(self):
+    entity = self.portal.person_module.newContent(
+        portal_type='Person',
+        reference='TESTPERSON-%s' % self.generateNewId())
+    self._test_InstanceTree_CustomerOfTheInstanceTree(entity)
+
+  def test_InstanceTree_CustomerOfTheInstanceTree_Workgroup(self):
+    entity = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup',
+        reference='TESTWORKGROUP-%s' % self.generateNewId())
+    self._test_InstanceTree_CustomerOfTheInstanceTree(entity)
 
   def test_InstanceTree_ProjectMember(self):
     project = self.addProject()
@@ -932,26 +941,34 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertSecurityGroup(instance, [self.user_id], False)
     self.assertRoles(instance, self.user_id, ['Owner'])
 
-  def test_SoftwareInstance_CustomerOfTheInstance(self):
-    customer_reference = 'TESTPERSON-%s' % self.generateNewId()
-    customer = self.portal.person_module.newContent(
-        portal_type='Person', reference=customer_reference)
-
+  def _test_SoftwareInstance_CustomerOfTheInstance(self, entity):
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
     subscription = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
         reference=subscription_reference,
-        destination_section=customer.getRelativeUrl())
+        destination_section=entity.getRelativeUrl())
 
     instance = self.portal.software_instance_module.newContent(
         portal_type='Software Instance')
     instance.edit(specialise=subscription.getRelativeUrl())
 
-    self.assertSecurityGroup(instance, [customer.getUserId(),
+    self.assertSecurityGroup(instance, [entity.getUserId(),
         subscription_reference, self.user_id], False)
-    self.assertRoles(instance, customer.getUserId(), ['Assignee'])
+    self.assertRoles(instance, entity.getUserId(), ['Assignee'])
     self.assertRoles(instance, subscription_reference, ['Assignee'])
     self.assertRoles(instance, self.user_id, ['Owner'])
+
+  def test_SoftwareInstance_CustomerOfTheInstance_Person(self):
+    customer = self.portal.person_module.newContent(
+        portal_type='Person',
+        reference='TESTPERSON-%s' % self.generateNewId())
+    self._test_SoftwareInstance_CustomerOfTheInstance(customer)
+
+  def test_SoftwareInstance_CustomerOfTheInstance_Workgroup(self):
+    workgroup = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup',
+        reference='TESTWORKGROUP-%s' % self.generateNewId())
+    self._test_SoftwareInstance_CustomerOfTheInstance(workgroup)
 
   def test_SoftwareInstance_ProjectMember(self):
     project = self.addProject()
@@ -998,26 +1015,34 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertSecurityGroup(instance, [self.user_id], False)
     self.assertRoles(instance, self.user_id, ['Owner'])
 
-  def test_SlaveInstance_CustomerOfTheInstance(self):
-    customer_reference = 'TESTPERSON-%s' % self.generateNewId()
-    customer = self.portal.person_module.newContent(
-        portal_type='Person', reference=customer_reference)
-
+  def _test_SlaveInstance_CustomerOfTheInstance(self, entity):
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
     subscription = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
         reference=subscription_reference,
-        destination_section=customer.getRelativeUrl())
+        destination_section=entity.getRelativeUrl())
 
     instance = self.portal.software_instance_module.newContent(
         portal_type='Slave Instance')
     instance.edit(specialise=subscription.getRelativeUrl())
 
-    self.assertSecurityGroup(instance, [customer.getUserId(),
+    self.assertSecurityGroup(instance, [entity.getUserId(),
         subscription_reference, self.user_id], False)
-    self.assertRoles(instance, customer.getUserId(), ['Assignee'])
+    self.assertRoles(instance, entity.getUserId(), ['Assignee'])
     self.assertRoles(instance, subscription_reference, ['Assignee'])
     self.assertRoles(instance, self.user_id, ['Owner'])
+
+  def test_SlaveInstance_CustomerOfTheInstance_Person(self):
+    customer = self.portal.person_module.newContent(
+        portal_type='Person',
+        reference='TESTPERSON-%s' % self.generateNewId())
+    self._test_SlaveInstance_CustomerOfTheInstance(customer)
+
+  def test_SlaveInstance_CustomerOfTheInstance_Workgroup(self):
+    workgroup = self.portal.workgroup_module.newContent(
+        portal_type='Workgroup',
+        reference='TESTWORKGROUP-%s' % self.generateNewId())
+    self._test_SlaveInstance_CustomerOfTheInstance(workgroup)
 
   def test_SlaveInstance_ProjectMember(self):
     project = self.addProject()
@@ -1241,6 +1266,22 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertSecurityGroup(support_request,
         [person.getUserId(), self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
     self.assertRoles(support_request, person.getUserId(), ['Auditor'])
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, 'F-SALEMAN', ['Assignor'])
+    self.assertRoles(support_request, 'F-SALEAGT', ['Assignee'])
+
+  def test_SupportRequest_Customer_Workgroup(self):
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup',
+      reference='TESTWORKGROUP-%s' % self.generateNewId())
+    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
+        portal_type=self.ticket_portal_type)
+    support_request.edit(
+        destination_decision_value=workgroup,
+        )
+    self.assertSecurityGroup(support_request,
+        [workgroup.getUserId(), self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
+    self.assertRoles(support_request, workgroup.getUserId(), ['Auditor'])
     self.assertRoles(support_request, self.user_id, ['Owner'])
     self.assertRoles(support_request, 'F-SALEMAN', ['Assignor'])
     self.assertRoles(support_request, 'F-SALEAGT', ['Assignee'])

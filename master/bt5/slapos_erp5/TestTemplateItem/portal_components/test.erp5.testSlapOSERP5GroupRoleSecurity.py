@@ -1152,6 +1152,20 @@ class TestAssignmentRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(support_request, '%s_F-PRODMAN' % project.getReference(), ['Associate'])
     self.assertRoles(support_request, '%s_F-PRODAGNT' % project.getReference(), ['Associate'])
 
+  def test_AssignmentRequest_DestinationDecision(self):
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup',
+      reference='TESTWORKGROUP-%s' % self.generateNewId())
+    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
+        portal_type=self.ticket_portal_type)
+    support_request.edit(destination_decision_value=workgroup)
+    self.assertSecurityGroup(support_request, [self.user_id, 'F-SALEAGT', 'F-SALEMAN',
+        workgroup.getUserId()], False)
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, 'F-SALEAGT', ['Associate'])
+    self.assertRoles(support_request, 'F-SALEMAN', ['Associate'])
+    self.assertRoles(support_request, workgroup.getUserId(), ['Auditor'])
+
 
 class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
   ticket_portal_type = 'Support Request'

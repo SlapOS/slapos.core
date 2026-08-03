@@ -1077,8 +1077,9 @@ class TestInvitationTokenModule(TestSlapOSGroupRoleSecurityMixin):
   def test_InvitationTokenModule(self):
     module = self.portal.invitation_token_module
     self.assertSecurityGroup(module,
-        ['F-PRODUCTION*', module.Base_getOwnerId()], False)
+        ['F-PRODUCTION*', 'F-SALE*', module.Base_getOwnerId()], False)
     self.assertRoles(module, 'F-PRODUCTION*', ['Auditor', 'Author'])
+    self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
 
 
@@ -1100,7 +1101,8 @@ class TestInvitationToken(TestSlapOSGroupRoleSecurityMixin):
     support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
         portal_type=self.ticket_portal_type)
     self.assertSecurityGroup(support_request,
-        [self.user_id], False)
+        [self.user_id, 'F-SALE*'], False)
+    self.assertRoles(support_request, 'F-SALE*', ['Auditor'])
     self.assertRoles(support_request, self.user_id, ['Owner'])
 
   def test_InvitationToken_DestinationProject(self):
@@ -1109,9 +1111,10 @@ class TestInvitationToken(TestSlapOSGroupRoleSecurityMixin):
         portal_type=self.ticket_portal_type)
     support_request.edit(
         follow_up_value=project)
-    self.assertSecurityGroup(support_request, [self.user_id,
+    self.assertSecurityGroup(support_request, [self.user_id, 'F-SALE*',
         '%s_F-PRODMAN' % project.getReference()], False)
     self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, 'F-SALE*', ['Auditor'])
     self.assertRoles(support_request, '%s_F-PRODMAN' % project.getReference(), ['Auditor'])
 
 

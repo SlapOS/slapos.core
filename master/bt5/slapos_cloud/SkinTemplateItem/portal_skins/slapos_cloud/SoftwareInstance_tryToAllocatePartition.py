@@ -1,6 +1,8 @@
 from Products.ERP5Type.Core.Workflow import ValidationFailed
 from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery
 
+portal = context.getPortalObject()
+
 if context.getPortalType() not in ('Software Instance', 'Slave Instance'):
   raise TypeError('%s is not supported' % context.getPortalType())
 
@@ -42,9 +44,9 @@ def assignComputePartition(software_instance, instance_tree):
     else:
       raise Unauthorized("No Open Order")
 """
-    person = instance_tree.getDestinationSectionValue(portal_type='Person')
+    person = instance_tree.getDestinationSectionValue(portal_type=portal.getPortalActorTypeList())
     if person is None:
-      raise ValueError('%s does not have person related' % instance_tree.getRelativeUrl())
+      raise ValueError('%s does not have person or workgroup related' % instance_tree.getRelativeUrl())
 
     tag = None
     try:

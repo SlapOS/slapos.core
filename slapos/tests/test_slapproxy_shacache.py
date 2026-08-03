@@ -25,9 +25,7 @@ _shacache_proxy = importlib.util.module_from_spec(_spec)
 sys.modules['slapos.proxy.shacache_proxy'] = _shacache_proxy
 _spec.loader.exec_module(_shacache_proxy)
 
-Shacache = _shacache_proxy.Shacache
 shacache_proxy_blueprint = _shacache_proxy.shacache_proxy_blueprint
-init_shacache_proxy = _shacache_proxy.init_shacache_proxy
 
 
 KEY = """-----BEGIN RSA PRIVATE KEY-----
@@ -98,7 +96,6 @@ class ShacacheProxyTestCase(unittest.TestCase):
     self.app.config['SHACACHE_METADATA_DIRECTORY'] = self.metadata_dir
     self.app.config['SHACACHE_SIGNING_KEY_PATH'] = self.key_path
     self.app.register_blueprint(shacache_proxy_blueprint, url_prefix="/shacache")
-    init_shacache_proxy(self.app)
 
     self.server_thread = threading.Thread(
       target=self.app.run,
@@ -188,8 +185,7 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
   """Test upstream dir fallback: local miss proxies to upstream dir URL.
 
   Uses urlopen directly to avoid the module-global state issue where two
-  Flask apps sharing the same blueprint overwrite each other's _shacache
-  and _upstream_* globals via init_shacache_proxy().
+  Flask apps sharing the same blueprint overwrite each other's config.
   """
 
   def setUp(self):
@@ -218,7 +214,6 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
     if upstream_dir_url:
       app.config['SHACACHE_UPSTREAM_DIR_URL'] = upstream_dir_url
     app.register_blueprint(shacache_proxy_blueprint, url_prefix="/shacache")
-    init_shacache_proxy(app)
 
     t = threading.Thread(
       target=app.run,
@@ -333,7 +328,6 @@ class TestCacheLookupCommand(unittest.TestCase):
     self.app.config['SHACACHE_METADATA_DIRECTORY'] = self.metadata_dir
     self.app.config['SHACACHE_SIGNING_KEY_PATH'] = self.key_path
     self.app.register_blueprint(shacache_proxy_blueprint, url_prefix="/shacache")
-    init_shacache_proxy(self.app)
 
     self.server_thread = threading.Thread(
       target=self.app.run,

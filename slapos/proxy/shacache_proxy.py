@@ -32,9 +32,6 @@ import hashlib
 import json
 import os
 
-from base64 import b64encode
-from OpenSSL import crypto
-
 from flask import Blueprint, current_app, request, send_from_directory
 from six.moves.urllib.request import urlopen
 from six.moves.urllib.error import HTTPError
@@ -45,121 +42,51 @@ class Shacache():
     self.content_dir = content_dir
     self.metadata_dir_path = metadata_dir_path
 
-    self.metadata_dir = {}
-    self.file_sha512_dir = {}
-
-    self.key = None
-
-  def set_signing_key(self, key_file_name):
-    with open(key_file_name) as key_file:
-      self.key = crypto.load_privatekey(crypto.FILETYPE_PEM, key_file.read())
-
-  def build_metadata_dir(self):
-    if not os.path.isdir(self.metadata_dir_path):
-      os.makedirs(self.metadata_dir_path)
-      return
-
-    for file_name in os.listdir(self.metadata_dir_path):
-      fullpath = os.path.join(self.metadata_dir_path, file_name)
-      if not os.path.isfile(fullpath):
-        continue
-      with open(fullpath, "r") as f:
-        entry = json.loads(f.read())
-      if isinstance(entry, list) and len(entry) == 2:
-        self.metadata_dir[file_name] = entry
-
-  def build_file_cache(self):
-    for file_name in os.listdir(self.content_dir):
-      fullpath = os.path.join(self.content_dir, file_name)
-      if not os.path.isfile(fullpath):
-        continue
-      sha512 = hashlib.sha512()
-
-      with open(fullpath, "rb") as handle:
-        for chunk in iter(lambda: handle.read(4096), b""):
-          sha512.update(chunk)
-
-      self.file_sha512_dir[sha512.hexdigest()] = file_name
+  def find_file_cache_entry(self, sha512):
+    fullpath = os.path.join(self.content_dir, sha512)
+    if os.path.isfile(fullpath):
+      return sha512
+    return None
 
   def serve_metadata_entry(self, key):
     fullpath = os.path.join(self.metadata_dir_path, key)
     if os.path.isfile(fullpath):
       with open(fullpath, "r") as f:
-        return json.dumps([json.loads(f.read())])
+        entry = json.loads(f.read())
+      return json.dumps([entry])
     return None
 
-  def find_file_cache_entry(self, sha512):
-    file_name = self.file_sha512_dir.get(sha512)
-
-    if file_name:
-      return file_name
-    else:
-      return None
-
   def store_file_cache_entry(self, sha512, data):
-    file_name = sha512
-    fullpath = os.path.join(self.content_dir, file_name)
-
+    fullpath = os.path.join(self.content_dir, sha512)
     with open(fullpath, "wb") as handle:
       handle.write(data)
 
-    self.file_sha512_dir[sha512] = file_name
-    return file_name
-
   def store_metadata_entry(self, key, entry_json, signature):
+    if not os.path.isdir(self.metadata_dir_path):
+      os.makedirs(self.metadata_dir_path)
     entry = json.dumps([entry_json, signature])
     fullpath = os.path.join(self.metadata_dir_path, key)
     with open(fullpath, "w") as f:
       f.write(entry)
-    self.metadata_dir[key] = [entry_json, signature]
 
 
 shacache_proxy_blueprint = Blueprint('shacache_proxy', __name__)
 
 
-def _get_shacache_state():
-  """Return the per-app shacache state dict from current_app.extensions."""
-  return current_app.extensions['shacache_proxy']
-
-
-def init_shacache_proxy(app):
-  """Initialize the ShaCache proxy from Flask app config.
-
-  Reads config keys:
-    SHACACHE_CONTENT_DIRECTORY   - path to binary file storage
-    SHACACHE_METADATA_DIRECTORY  - path to directory of metadata entries
-    SHACACHE_SIGNING_KEY_PATH    - path to PEM private key
-    SHACACHE_UPSTREAM_CACHE_URL  - optional upstream shacache URL
-    SHACACHE_UPSTREAM_DIR_URL    - optional upstream shadir URL
-
-  Does nothing if SHACACHE_CONTENT_DIRECTORY is not set.
-  """
-  content_dir = app.config.get('SHACACHE_CONTENT_DIRECTORY')
-  if not content_dir:
-    return
-
-  shacache = Shacache(
-    content_dir,
-    app.config['SHACACHE_METADATA_DIRECTORY'],
+def _get_shacache():
+  """Create a Shacache instance from current app config."""
+  return Shacache(
+    current_app.config['SHACACHE_CONTENT_DIRECTORY'],
+    current_app.config['SHACACHE_METADATA_DIRECTORY'],
   )
-  shacache.set_signing_key(app.config['SHACACHE_SIGNING_KEY_PATH'])
-  shacache.build_file_cache()
-  shacache.build_metadata_dir()
-
-  app.extensions['shacache_proxy'] = {
-    'shacache': shacache,
-    'upstream_cache_url': app.config.get('SHACACHE_UPSTREAM_CACHE_URL'),
-    'upstream_dir_url': app.config.get('SHACACHE_UPSTREAM_DIR_URL'),
-  }
 
 
 @shacache_proxy_blueprint.route("/cache/<sha512>", methods=["GET"])
 def shacache_download(sha512):
-  state = _get_shacache_state()
-  shacache = state['shacache']
-  upstream_cache_url = state['upstream_cache_url']
+  shacache = _get_shacache()
   file_name = shacache.find_file_cache_entry(sha512)
   if file_name is None:
+    upstream_cache_url = current_app.config.get('SHACACHE_UPSTREAM_CACHE_URL')
     if upstream_cache_url is None:
       return "Not found\n", 404
     try:
@@ -198,7 +125,7 @@ def shacache_download(sha512):
 def shacache_upload():
   data = request.get_data()
   sha512 = hashlib.sha512(data).hexdigest()
-  _get_shacache_state()['shacache'].store_file_cache_entry(sha512, data)
+  _get_shacache().store_file_cache_entry(sha512, data)
   return sha512, 201
 
 
@@ -208,21 +135,20 @@ def shacache_upload_with_hash(sha512):
   computed = hashlib.sha512(data).hexdigest()
   if computed != sha512:
     return "Checksum mismatch\n", 400
-  _get_shacache_state()['shacache'].store_file_cache_entry(sha512, data)
+  _get_shacache().store_file_cache_entry(sha512, data)
   return sha512, 201
 
 
 @shacache_proxy_blueprint.route("/dir/<key>", methods=["GET"])
 def shadir_select(key):
-  state = _get_shacache_state()
-  shacache = state['shacache']
-  upstream_dir_url = state['upstream_dir_url']
+  shacache = _get_shacache()
   try:
     dir_content = shacache.serve_metadata_entry(key)
   except Exception:
     current_app.logger.warning("Failed to read metadata for %s", key)
     dir_content = None
   if dir_content is None:
+    upstream_dir_url = current_app.config.get('SHACACHE_UPSTREAM_DIR_URL')
     if upstream_dir_url is None:
       return "Not found\n", 404
     try:
@@ -257,5 +183,5 @@ def shadir_index(key):
   if not isinstance(data, list) or len(data) != 2:
     return "Invalid entry format\n", 400
   entry_json, signature = data
-  _get_shacache_state()['shacache'].store_metadata_entry(key, entry_json, signature)
+  _get_shacache().store_metadata_entry(key, entry_json, signature)
   return "", 201

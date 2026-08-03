@@ -42,7 +42,7 @@ from .http_proxy import http_proxy_blueprint
 from .db import execute_db
 from .json_rpc import JsonRpcManager
 from .panel import panel_blueprint
-from .shacache_proxy import shacache_proxy_blueprint, init_shacache_proxy
+from .shacache_proxy import shacache_proxy_blueprint
 
 from six.moves.urllib.parse import urlparse
 

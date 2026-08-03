@@ -122,8 +122,6 @@ def do_proxy(conf):
   app.logger.removeHandler(default_handler)
 
   setupFlaskConfiguration(conf)
-  from slapos.proxy.shacache_proxy import init_shacache_proxy
-  init_shacache_proxy(app)
   connectDB()
   app.run(host=conf.host, port=int(conf.port), threaded=True)
 

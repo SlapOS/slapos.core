@@ -100,6 +100,15 @@ class ConfigureLocalCommand(ConfigCommand):
                         help='Target location of the SlapOS configuration'
                              ' directory (default: %(default)s)')
 
+        ap.add_argument('--enable-shacache-proxy',
+                        action='store_true',
+                        default=False,
+                        help='Enable built-in shacache/shadir proxy on '
+                             'slapproxy. Configures local cache directories, '
+                             'signing key, and upstream URLs. Also configures '
+                             'slapos node to use the local proxy as binary '
+                             'cache. (default: %(default)s)')
+
         return ap
 
     @must_be_root
@@ -125,6 +134,20 @@ def _replaceParameterValue(original_content, to_replace):
           original_content)
     return original_content
 
+def _generateSigningKey(key_path):
+    """Generate an RSA private key for shacache signing."""
+    try:
+        from OpenSSL import crypto
+        key = crypto.PKey()
+        key.generate_key(crypto.TYPE_RSA, 2048)
+        with open(key_path, 'wb') as f:
+            f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, key))
+    except ImportError:
+        # Fallback: use openssl command
+        subprocess.check_call([
+            'openssl', 'genrsa', '-out', key_path, '2048'])
+    os.chmod(key_path, 0o600)
+
 def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):
     template_arg_list = (__name__, '../../slapos.cfg.example')
     slapos_node_configuration_template = \
@@ -148,6 +171,27 @@ def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):
     slapos_node_configuration_content = re.sub(
         '(key_file|cert_file|certificate_repository_path).*=.*\n',
         '', slapos_node_configuration_content)
+
+    if getattr(args, 'enable_shacache_proxy', False):
+        proxy_url = 'http://%s:%s/shacache' % (
+            args.daemon_listen_ip, args.daemon_listen_port)
+        slapos_node_configuration_content = re.sub(
+            r'(download-binary-cache-url\s+=).*',
+            r'\1 %s/cache' % proxy_url,
+            slapos_node_configuration_content)
+        slapos_node_configuration_content = re.sub(
+            r'(download-binary-dir-url\s+=).*',
+            r'\1 %s/dir' % proxy_url,
+            slapos_node_configuration_content)
+        slapos_node_configuration_content = re.sub(
+            r'(download-cache-url\s+=).*',
+            r'\1 %s/cache' % proxy_url,
+            slapos_node_configuration_content)
+        slapos_node_configuration_content = re.sub(
+            r'(download-dir-url\s+=).*',
+            r'\1 %s/dir' % proxy_url,
+            slapos_node_configuration_content)
+
     with open(slapos_node_config_path, 'w') as fout:
         fout.write(slapos_node_configuration_content)
 
@@ -170,6 +214,38 @@ def _generateSlaposProxyConfigurationFile(conf):
 
     slapos_proxy_configuration_content = _replaceParameterValue(
         slapos_proxy_configuration_template, to_replace)
+
+    if getattr(conf, 'enable_shacache_proxy', False):
+        shacache_data_dir = os.path.join(conf.instance_root, 'shacache', 'data')
+        shacache_dir_dir = os.path.join(conf.instance_root, 'shacache', 'dir')
+        shacache_key_path = os.path.join(conf.instance_root, 'shacache', 'signing-key.pem')
+
+        # Generate signing key if it doesn't exist
+        if not os.path.exists(shacache_key_path):
+            _createConfigurationDirectory(os.path.dirname(shacache_key_path))
+            _generateSigningKey(shacache_key_path)
+
+        # Uncomment and set shacache settings
+        slapos_proxy_configuration_content = re.sub(
+            r'#(shacache-content-directory\s+=).*',
+            r'\1 %s' % shacache_data_dir,
+            slapos_proxy_configuration_content)
+        slapos_proxy_configuration_content = re.sub(
+            r'#(shacache-metadata-directory\s+=).*',
+            r'\1 %s' % shacache_dir_dir,
+            slapos_proxy_configuration_content)
+        slapos_proxy_configuration_content = re.sub(
+            r'#(shacache-signing-key-path\s+=).*',
+            r'\1 %s' % shacache_key_path,
+            slapos_proxy_configuration_content)
+        slapos_proxy_configuration_content = re.sub(
+            r'#(shacache-upstream-cache-url\s+=).*',
+            r'\1 http://shacache.nxdcdn.com',
+            slapos_proxy_configuration_content)
+        slapos_proxy_configuration_content = re.sub(
+            r'#(shacache-upstream-dir-url\s+=).*',
+            r'\1 http://shadir.nxdcdn.com',
+            slapos_proxy_configuration_content)
 
     with open(slapos_proxy_configuration_path, 'w') as fout:
         fout.write(slapos_proxy_configuration_content)

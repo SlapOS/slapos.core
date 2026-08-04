@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import random
+import requests
 import shutil
 import socket
 import sys
@@ -14,8 +15,7 @@ import unittest
 
 from flask import Flask
 from io import BytesIO
-from six.moves.urllib.error import HTTPError, URLError
-from six.moves.urllib.request import urlopen
+from six.moves.urllib.error import HTTPError
 
 from slapos.libnetworkcache import NetworkcacheClient
 
@@ -181,11 +181,7 @@ class ShacacheProxyTestCase(unittest.TestCase):
 
 
 class ShacacheUpstreamDirTestCase(unittest.TestCase):
-  """Test upstream dir fallback: local miss proxies to upstream dir URL.
-
-  Uses urlopen directly to avoid the module-global state issue where two
-  Flask apps sharing the same blueprint overwrite each other's config.
-  """
+  """Test upstream dir fallback: local miss proxies to upstream dir URL."""
 
   def setUp(self):
     self.content_dir = tempfile.mkdtemp()
@@ -233,9 +229,8 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
     # Start local server with upstream configured
     local_url = self._start_proxy(upstream_dir_url=upstream_url + '/dir')
 
-    with self.assertRaises(HTTPError) as ctx:
-      urlopen(local_url + '/dir/no-such-key-xyz', timeout=10)
-    self.assertEqual(ctx.exception.code, 404)
+    response = requests.get(local_url + '/dir/no-such-key-xyz', timeout=10)
+    self.assertEqual(response.status_code, 404)
 
   def test_dir_upstream_hit(self):
     """When key is not found locally, fetches from upstream and returns it."""
@@ -258,8 +253,9 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
     # Start local server with upstream configured
     local_url = self._start_proxy(upstream_dir_url=upstream_url + '/dir')
 
-    response = urlopen(local_url + '/dir/' + key, timeout=10)
-    data = json.loads(response.read().decode())
+    response = requests.get(local_url + '/dir/' + key, timeout=10)
+    self.assertEqual(response.status_code, 200)
+    data = response.json()
     # Response format: [[entry_json_string, signature_string]]
     entry = json.loads(data[0][0])
     self.assertEqual(entry['sha512'], shasum)
@@ -287,8 +283,9 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
     test_data = BytesIO(b'local content')
     shasum = nc.upload(test_data, key, urlmd5='l', file_name='l.bin')
 
-    response = urlopen(local_url + '/dir/' + key, timeout=10)
-    data = json.loads(response.read().decode())
+    response = requests.get(local_url + '/dir/' + key, timeout=10)
+    self.assertEqual(response.status_code, 200)
+    data = response.json()
     # Response format: [[entry_json_string, signature_string]]
     entry = json.loads(data[0][0])
     self.assertEqual(entry['sha512'], shasum)
@@ -422,6 +419,207 @@ class TestCacheLookupCommand(unittest.TestCase):
       list(self.nc_unsigned.select_generic('nonexistent', filter=False))
 
 
+class TestShacacheNotConfigured(unittest.TestCase):
+  """Test that all endpoints return 503 when shacache is not configured."""
+
+  def setUp(self):
+    self.port = _get_free_port()
+    self.app = Flask('test_not_configured_%d' % self.port)
+    # No SHACACHE_CONTENT_DIRECTORY or SHACACHE_METADATA_DIRECTORY set
+    self.app.register_blueprint(shacache_proxy_blueprint, url_prefix="/shacache")
+    self.server_thread = threading.Thread(
+      target=self.app.run,
+      kwargs={'host': '127.0.0.1', 'port': self.port, 'use_reloader': False},
+    )
+    self.server_thread.daemon = True
+    self.server_thread.start()
+    time.sleep(0.5)
+    self.base_url = 'http://127.0.0.1:%d/shacache' % self.port
+
+  def test_get_cache_not_configured(self):
+    url = self.base_url + '/cache/' + '0' * 128
+    response = requests.get(url, timeout=5)
+    self.assertEqual(response.status_code, 503)
+
+  def test_post_cache_not_configured(self):
+    url = self.base_url + '/cache'
+    response = requests.post(url, data=b'data', timeout=5)
+    self.assertEqual(response.status_code, 503)
+
+  def test_put_cache_not_configured(self):
+    url = self.base_url + '/cache/' + '0' * 128
+    response = requests.put(url, data=b'data', timeout=5)
+    self.assertEqual(response.status_code, 503)
+
+  def test_get_dir_not_configured(self):
+    url = self.base_url + '/dir/some-key'
+    response = requests.get(url, timeout=5)
+    self.assertEqual(response.status_code, 503)
+
+  def test_put_dir_not_configured(self):
+    url = self.base_url + '/dir/some-key'
+    response = requests.put(
+      url,
+      data=json.dumps(["entry", "sig"]).encode(),
+      headers={'Content-Type': 'application/json'},
+      timeout=5,
+    )
+    self.assertEqual(response.status_code, 503)
+
+
+class TestShacacheUpstreamCache(unittest.TestCase):
+  """Test upstream cache fallback: local miss proxies to upstream cache URL."""
+
+  def setUp(self):
+    self.content_dir = tempfile.mkdtemp()
+    self.metadata_dir = os.path.join(self.content_dir, 'metadata')
+    os.makedirs(self.metadata_dir)
+
+    self.key_path = os.path.join(self.content_dir, 'test.key')
+    with open(self.key_path, 'w') as f:
+      f.write(KEY)
+
+    self.cert_path = os.path.join(self.content_dir, 'test.crt')
+    with open(self.cert_path, 'w') as f:
+      f.write(CERTIFICATE)
+
+  def tearDown(self):
+    shutil.rmtree(self.content_dir, True)
+
+  def _start_proxy(self, upstream_cache_url=None):
+    port = _get_free_port()
+    app = Flask('test_upstream_cache_%d' % port)
+    app.config['SHACACHE_CONTENT_DIRECTORY'] = self.content_dir
+    app.config['SHACACHE_METADATA_DIRECTORY'] = self.metadata_dir
+    app.config['SHACACHE_SIGNING_KEY_PATH'] = self.key_path
+    if upstream_cache_url:
+      app.config['SHACACHE_UPSTREAM_CACHE_URL'] = upstream_cache_url
+    app.register_blueprint(shacache_proxy_blueprint, url_prefix="/shacache")
+
+    t = threading.Thread(
+      target=app.run,
+      kwargs={'host': '127.0.0.1', 'port': port, 'use_reloader': False},
+    )
+    t.daemon = True
+    t.start()
+    time.sleep(0.5)
+    return 'http://127.0.0.1:%d/shacache' % port
+
+  def test_cache_upstream_hit(self):
+    """When file is not found locally, fetches from upstream and serves it."""
+    # Upload to upstream server
+    upstream_url = self._start_proxy()
+    with open(self.cert_path) as f:
+      cert_pem = f.read()
+    nc = NetworkcacheClient(
+      upstream_url + '/cache', upstream_url + '/dir',
+      signature_private_key_file=self.key_path,
+      signature_certificate_list=[cert_pem],
+    )
+    test_data = BytesIO(b'upstream binary content')
+    shasum = nc.upload(test_data)
+
+    # Start local server with upstream configured
+    local_url = self._start_proxy(upstream_cache_url=upstream_url + '/cache')
+
+    response = requests.get(local_url + '/cache/' + shasum, timeout=10)
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response.content, b'upstream binary content')
+
+    # Verify file was saved locally
+    local_file = os.path.join(self.content_dir, shasum)
+    self.assertTrue(os.path.isfile(local_file),
+                    "Upstream file should be saved locally")
+
+  def test_cache_upstream_404(self):
+    """When file not found locally or upstream, returns 404."""
+    upstream_url = self._start_proxy()
+    local_url = self._start_proxy(upstream_cache_url=upstream_url + '/cache')
+
+    fake_shasum = '0' * 128
+    response = requests.get(local_url + '/cache/' + fake_shasum, timeout=10)
+    self.assertEqual(response.status_code, 404)
+
+
+class TestShacachePutDir(unittest.TestCase):
+  """Test PUT /dir endpoint edge cases."""
+
+  def setUp(self):
+    self.content_dir = tempfile.mkdtemp()
+    self.metadata_dir = os.path.join(self.content_dir, 'metadata')
+    os.makedirs(self.metadata_dir)
+
+    self.port = _get_free_port()
+    self.app = Flask('test_put_dir_%d' % self.port)
+    self.app.config['SHACACHE_CONTENT_DIRECTORY'] = self.content_dir
+    self.app.config['SHACACHE_METADATA_DIRECTORY'] = self.metadata_dir
+    self.app.config['SHACACHE_SIGNING_KEY_PATH'] = '/dev/null'
+    self.app.register_blueprint(shacache_proxy_blueprint, url_prefix="/shacache")
+
+    self.server_thread = threading.Thread(
+      target=self.app.run,
+      kwargs={'host': '127.0.0.1', 'port': self.port, 'use_reloader': False},
+    )
+    self.server_thread.daemon = True
+    self.server_thread.start()
+    time.sleep(0.5)
+    self.base_url = 'http://127.0.0.1:%d/shacache' % self.port
+
+  def tearDown(self):
+    shutil.rmtree(self.content_dir, True)
+
+  def test_put_dir_invalid_format_not_list(self):
+    url = self.base_url + '/dir/test-key'
+    response = requests.put(
+      url,
+      data=json.dumps("not a list").encode(),
+      headers={'Content-Type': 'application/json'},
+      timeout=5,
+    )
+    self.assertEqual(response.status_code, 400)
+
+  def test_put_dir_invalid_format_wrong_length(self):
+    url = self.base_url + '/dir/test-key'
+    response = requests.put(
+      url,
+      data=json.dumps(["only_one"]).encode(),
+      headers={'Content-Type': 'application/json'},
+      timeout=5,
+    )
+    self.assertEqual(response.status_code, 400)
+
+  def test_put_dir_valid_creates_file(self):
+    url = self.base_url + '/dir/test-key'
+    entry = json.dumps(["entry_json_data", "signature_data"])
+    response = requests.put(
+      url,
+      data=entry.encode(),
+      headers={'Content-Type': 'application/json'},
+      timeout=5,
+    )
+    self.assertEqual(response.status_code, 201)
+
+    # Verify file was created in metadata directory
+    entry_path = os.path.join(self.metadata_dir, 'test-key')
+    self.assertTrue(os.path.isfile(entry_path))
+
+  def test_put_dir_valid_then_get(self):
+    """PUT then GET returns the stored entry."""
+    url = self.base_url + '/dir/test-key'
+    entry = json.dumps(["entry_json_data", "signature_data"])
+    requests.put(
+      url,
+      data=entry.encode(),
+      headers={'Content-Type': 'application/json'},
+      timeout=5,
+    )
+
+    response = requests.get(self.base_url + '/dir/test-key', timeout=5)
+    self.assertEqual(response.status_code, 200)
+    data = response.json()
+    self.assertEqual(data[0], ["entry_json_data", "signature_data"])
+
+
 class TestExternalShacache(unittest.TestCase):
   """Test connectivity to external shacache servers (nxdcdn.com).
 
@@ -435,20 +633,7 @@ class TestExternalShacache(unittest.TestCase):
   known_url = 'https://ftp.gnu.org/gnu/aspell/aspell-0.60.7.tar.gz'
   known_url_md5 = 'f213fcd8e97aa729f685b8cb71b976a7'
 
-  def _skip_if_unreachable(self, url):
-    try:
-      urlopen(url, timeout=5)
-    except (URLError, socket.timeout, OSError):
-      raise unittest.SkipTest('External shacache server %s unreachable' % url)
-
   def setUp(self):
-    try:
-      self._skip_if_unreachable(self.shacache_url)
-    except unittest.SkipTest:
-      raise
-    except Exception:
-      raise unittest.SkipTest('External shacache server unreachable')
-
     self.nc = NetworkcacheClient(
       self.shacache_url,
       self.shadir_url,

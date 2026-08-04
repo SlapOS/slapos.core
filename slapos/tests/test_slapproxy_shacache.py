@@ -184,27 +184,32 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
   """Test upstream dir fallback: local miss proxies to upstream dir URL."""
 
   def setUp(self):
-    self.content_dir = tempfile.mkdtemp()
-    self.metadata_dir = os.path.join(self.content_dir, 'metadata')
-    os.makedirs(self.metadata_dir)
+    self.upstream_content_dir = tempfile.mkdtemp()
+    self.upstream_metadata_dir = os.path.join(self.upstream_content_dir, 'metadata')
+    os.makedirs(self.upstream_metadata_dir)
 
-    self.key_path = os.path.join(self.content_dir, 'test.key')
+    self.local_content_dir = tempfile.mkdtemp()
+    self.local_metadata_dir = os.path.join(self.local_content_dir, 'metadata')
+    os.makedirs(self.local_metadata_dir)
+
+    self.key_path = os.path.join(self.upstream_content_dir, 'test.key')
     with open(self.key_path, 'w') as f:
       f.write(KEY)
 
-    self.cert_path = os.path.join(self.content_dir, 'test.crt')
+    self.cert_path = os.path.join(self.upstream_content_dir, 'test.crt')
     with open(self.cert_path, 'w') as f:
       f.write(CERTIFICATE)
 
   def tearDown(self):
-    shutil.rmtree(self.content_dir, True)
+    shutil.rmtree(self.upstream_content_dir, True)
+    shutil.rmtree(self.local_content_dir, True)
 
-  def _start_proxy(self, upstream_dir_url=None):
+  def _start_proxy(self, content_dir, metadata_dir, upstream_dir_url=None):
     """Start a single Flask proxy server and return its base URL."""
     port = _get_free_port()
-    app = Flask('test_upstream')
-    app.config['SHACACHE_CONTENT_DIRECTORY'] = self.content_dir
-    app.config['SHACACHE_METADATA_DIRECTORY'] = self.metadata_dir
+    app = Flask('test_upstream_%d' % port)
+    app.config['SHACACHE_CONTENT_DIRECTORY'] = content_dir
+    app.config['SHACACHE_METADATA_DIRECTORY'] = metadata_dir
     app.config['SHACACHE_SIGNING_KEY_PATH'] = self.key_path
     if upstream_dir_url:
       app.config['SHACACHE_UPSTREAM_DIR_URL'] = upstream_dir_url
@@ -224,19 +229,23 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
     returns 404, so the client gets 404."""
 
     # Start an 'upstream' server that has no entries
-    upstream_url = self._start_proxy()
+    upstream_url = self._start_proxy(self.upstream_content_dir,
+                                     self.upstream_metadata_dir)
 
     # Start local server with upstream configured
-    local_url = self._start_proxy(upstream_dir_url=upstream_url + '/dir')
+    local_url = self._start_proxy(self.local_content_dir,
+                                  self.local_metadata_dir,
+                                  upstream_dir_url=upstream_url + '/dir')
 
     response = requests.get(local_url + '/dir/no-such-key-xyz', timeout=10)
     self.assertEqual(response.status_code, 404)
 
   def test_dir_upstream_hit(self):
-    """When key is not found locally, fetches from upstream and returns it."""
+    """When key is not found locally, fetches from upstream and saves it."""
 
     # Start upstream server
-    upstream_url = self._start_proxy()
+    upstream_url = self._start_proxy(self.upstream_content_dir,
+                                     self.upstream_metadata_dir)
 
     # Upload a key to the upstream server
     with open(self.cert_path) as f:
@@ -250,8 +259,15 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
     test_data = BytesIO(b'upstream content')
     shasum = nc.upload(test_data, key, urlmd5='u', file_name='u.bin')
 
+    # Verify entry does NOT exist locally before fetch
+    entry_path = os.path.join(self.local_metadata_dir, key)
+    self.assertFalse(os.path.isfile(entry_path),
+                     "Entry should not exist before upstream fetch")
+
     # Start local server with upstream configured
-    local_url = self._start_proxy(upstream_dir_url=upstream_url + '/dir')
+    local_url = self._start_proxy(self.local_content_dir,
+                                  self.local_metadata_dir,
+                                  upstream_dir_url=upstream_url + '/dir')
 
     response = requests.get(local_url + '/dir/' + key, timeout=10)
     self.assertEqual(response.status_code, 200)
@@ -260,16 +276,20 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
     entry = json.loads(data[0][0])
     self.assertEqual(entry['sha512'], shasum)
 
-    # Verify the entry was saved to the local metadata directory
-    entry_path = os.path.join(self.metadata_dir, key)
+    # Verify the entry was saved to the local metadata directory with correct content
     self.assertTrue(os.path.isfile(entry_path),
                     "Upstream entry should be saved locally")
+    with open(entry_path, 'r') as f:
+      saved_entries = json.loads(f.read())
+    self.assertEqual(saved_entries, data,
+                     "Saved entries should match upstream response")
 
   def test_dir_local_hit_no_upstream(self):
     """When key is found locally, no upstream fetch needed."""
 
     # Start local server WITHOUT upstream configured
-    local_url = self._start_proxy()
+    local_url = self._start_proxy(self.local_content_dir,
+                                  self.local_metadata_dir)
 
     # Upload a key directly to the local server
     with open(self.cert_path) as f:
@@ -289,6 +309,160 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
     # Response format: [[entry_json_string, signature_string]]
     entry = json.loads(data[0][0])
     self.assertEqual(entry['sha512'], shasum)
+
+
+class TestShacacheDirUpdate(unittest.TestCase):
+  """Test POST /dir/update endpoint for cleanup and sync."""
+
+  def setUp(self):
+    self.upstream_content_dir = tempfile.mkdtemp()
+    self.upstream_metadata_dir = os.path.join(self.upstream_content_dir, 'metadata')
+    os.makedirs(self.upstream_metadata_dir)
+
+    self.local_content_dir = tempfile.mkdtemp()
+    self.local_metadata_dir = os.path.join(self.local_content_dir, 'metadata')
+    os.makedirs(self.local_metadata_dir)
+
+    self.key_path = os.path.join(self.upstream_content_dir, 'test.key')
+    with open(self.key_path, 'w') as f:
+      f.write(KEY)
+
+    self.cert_path = os.path.join(self.upstream_content_dir, 'test.crt')
+    with open(self.cert_path, 'w') as f:
+      f.write(CERTIFICATE)
+
+  def tearDown(self):
+    shutil.rmtree(self.upstream_content_dir, True)
+    shutil.rmtree(self.local_content_dir, True)
+
+  def _start_proxy(self, content_dir, metadata_dir,
+                   upstream_cache_url=None, upstream_dir_url=None):
+    port = _get_free_port()
+    app = Flask('test_dir_update_%d' % port)
+    app.config['SHACACHE_CONTENT_DIRECTORY'] = content_dir
+    app.config['SHACACHE_METADATA_DIRECTORY'] = metadata_dir
+    app.config['SHACACHE_SIGNING_KEY_PATH'] = self.key_path
+    if upstream_cache_url:
+      app.config['SHACACHE_UPSTREAM_CACHE_URL'] = upstream_cache_url
+    if upstream_dir_url:
+      app.config['SHACACHE_UPSTREAM_DIR_URL'] = upstream_dir_url
+    app.register_blueprint(shacache_proxy_blueprint, url_prefix="/shacache")
+
+    t = threading.Thread(
+      target=app.run,
+      kwargs={'host': '127.0.0.1', 'port': port, 'use_reloader': False},
+    )
+    t.daemon = True
+    t.start()
+    time.sleep(0.5)
+    return 'http://127.0.0.1:%d/shacache' % port
+
+  def test_update_no_upstream_removes_orphaned_entries(self):
+    """Without upstream, entries whose sha512 is not in content_dir are removed."""
+    local_url = self._start_proxy(self.local_content_dir,
+                                  self.local_metadata_dir)
+
+    # Manually create a metadata entry pointing to a sha512 that doesn't exist locally
+    entry = json.dumps([json.dumps({"sha512": "0" * 128, "url": "test"}), "sig"])
+    with open(os.path.join(self.local_metadata_dir, "orphan-key"), "w") as f:
+      f.write(entry)
+
+    # Also create a valid entry with content that exists
+    with open(self.cert_path) as f:
+      cert_pem = f.read()
+    nc = NetworkcacheClient(
+      local_url + '/cache', local_url + '/dir',
+      signature_private_key_file=self.key_path,
+      signature_certificate_list=[cert_pem],
+    )
+    test_data = BytesIO(b'valid content')
+    shasum = nc.upload(test_data, 'valid-key', urlmd5='v', file_name='v.bin')
+
+    # Verify both entries exist before update
+    self.assertTrue(os.path.isfile(os.path.join(self.local_metadata_dir, "orphan-key")))
+    self.assertTrue(os.path.isfile(os.path.join(self.local_metadata_dir, "valid-key")))
+
+    # Run update
+    response = requests.post(local_url + '/dir/update', timeout=10)
+    self.assertEqual(response.status_code, 200)
+    result = response.json()
+    self.assertIn("orphan-key", result["removed"])
+    self.assertNotIn("valid-key", result["removed"])
+
+    # Verify orphan is gone, valid remains
+    self.assertFalse(os.path.isfile(os.path.join(self.local_metadata_dir, "orphan-key")))
+    self.assertTrue(os.path.isfile(os.path.join(self.local_metadata_dir, "valid-key")))
+
+  def test_update_with_upstream_syncs(self):
+    """With upstream, local entries are synced with upstream."""
+    # Start upstream and upload data
+    upstream_url = self._start_proxy(self.upstream_content_dir,
+                                     self.upstream_metadata_dir)
+    with open(self.cert_path) as f:
+      cert_pem = f.read()
+    nc = NetworkcacheClient(
+      upstream_url + '/cache', upstream_url + '/dir',
+      signature_private_key_file=self.key_path,
+      signature_certificate_list=[cert_pem],
+    )
+    test_data = BytesIO(b'sync content')
+    shasum = nc.upload(test_data, 'sync-key', urlmd5='s', file_name='s.bin')
+
+    # Create a stale local entry (not on upstream)
+    stale_entry = json.dumps([json.dumps({"sha512": "f" * 128, "url": "stale"}), "sig"])
+    with open(os.path.join(self.local_metadata_dir, "stale-key"), "w") as f:
+      f.write(stale_entry)
+
+    # Create local entry that matches upstream
+    local_url = self._start_proxy(self.local_content_dir,
+                                  self.local_metadata_dir,
+                                  upstream_dir_url=upstream_url + '/dir')
+
+    # First fetch the upstream entry to populate local
+    requests.get(local_url + '/dir/sync-key', timeout=10)
+    self.assertTrue(os.path.isfile(os.path.join(self.local_metadata_dir, "sync-key")))
+
+    # Run update - stale-key should be removed, sync-key should be refreshed
+    response = requests.post(local_url + '/dir/update', timeout=10)
+    self.assertEqual(response.status_code, 200)
+    result = response.json()
+    self.assertIn("stale-key", result["removed"])
+    self.assertIn("sync-key", result["updated"])
+
+    # Verify stale is gone
+    self.assertFalse(os.path.isfile(os.path.join(self.local_metadata_dir, "stale-key")))
+    # Verify sync-key still exists
+    self.assertTrue(os.path.isfile(os.path.join(self.local_metadata_dir, "sync-key")))
+
+  def test_update_empty_metadata_dir(self):
+    """Update on empty metadata dir returns empty lists."""
+    # Use a fresh empty metadata dir
+    empty_metadata_dir = tempfile.mkdtemp()
+    try:
+      local_url = self._start_proxy(self.local_content_dir, empty_metadata_dir)
+      response = requests.post(local_url + '/dir/update', timeout=10)
+      self.assertEqual(response.status_code, 200)
+      result = response.json()
+      self.assertEqual(result["removed"], [])
+      self.assertEqual(result["updated"], [])
+    finally:
+      shutil.rmtree(empty_metadata_dir, True)
+
+  def test_update_not_configured(self):
+    """Update returns 503 when not configured."""
+    port = _get_free_port()
+    app = Flask('test_not_configured_%d' % port)
+    app.register_blueprint(shacache_proxy_blueprint, url_prefix="/shacache")
+    t = threading.Thread(
+      target=app.run,
+      kwargs={'host': '127.0.0.1', 'port': port, 'use_reloader': False},
+    )
+    t.daemon = True
+    t.start()
+    time.sleep(0.5)
+    url = 'http://127.0.0.1:%d/shacache/dir/update' % port
+    response = requests.post(url, timeout=5)
+    self.assertEqual(response.status_code, 503)
 
 
 class TestCacheLookupCommand(unittest.TestCase):
@@ -471,26 +645,31 @@ class TestShacacheUpstreamCache(unittest.TestCase):
   """Test upstream cache fallback: local miss proxies to upstream cache URL."""
 
   def setUp(self):
-    self.content_dir = tempfile.mkdtemp()
-    self.metadata_dir = os.path.join(self.content_dir, 'metadata')
-    os.makedirs(self.metadata_dir)
+    self.upstream_content_dir = tempfile.mkdtemp()
+    self.upstream_metadata_dir = os.path.join(self.upstream_content_dir, 'metadata')
+    os.makedirs(self.upstream_metadata_dir)
 
-    self.key_path = os.path.join(self.content_dir, 'test.key')
+    self.local_content_dir = tempfile.mkdtemp()
+    self.local_metadata_dir = os.path.join(self.local_content_dir, 'metadata')
+    os.makedirs(self.local_metadata_dir)
+
+    self.key_path = os.path.join(self.upstream_content_dir, 'test.key')
     with open(self.key_path, 'w') as f:
       f.write(KEY)
 
-    self.cert_path = os.path.join(self.content_dir, 'test.crt')
+    self.cert_path = os.path.join(self.upstream_content_dir, 'test.crt')
     with open(self.cert_path, 'w') as f:
       f.write(CERTIFICATE)
 
   def tearDown(self):
-    shutil.rmtree(self.content_dir, True)
+    shutil.rmtree(self.upstream_content_dir, True)
+    shutil.rmtree(self.local_content_dir, True)
 
-  def _start_proxy(self, upstream_cache_url=None):
+  def _start_proxy(self, content_dir, metadata_dir, upstream_cache_url=None):
     port = _get_free_port()
     app = Flask('test_upstream_cache_%d' % port)
-    app.config['SHACACHE_CONTENT_DIRECTORY'] = self.content_dir
-    app.config['SHACACHE_METADATA_DIRECTORY'] = self.metadata_dir
+    app.config['SHACACHE_CONTENT_DIRECTORY'] = content_dir
+    app.config['SHACACHE_METADATA_DIRECTORY'] = metadata_dir
     app.config['SHACACHE_SIGNING_KEY_PATH'] = self.key_path
     if upstream_cache_url:
       app.config['SHACACHE_UPSTREAM_CACHE_URL'] = upstream_cache_url
@@ -508,7 +687,8 @@ class TestShacacheUpstreamCache(unittest.TestCase):
   def test_cache_upstream_hit(self):
     """When file is not found locally, fetches from upstream and serves it."""
     # Upload to upstream server
-    upstream_url = self._start_proxy()
+    upstream_url = self._start_proxy(self.upstream_content_dir,
+                                     self.upstream_metadata_dir)
     with open(self.cert_path) as f:
       cert_pem = f.read()
     nc = NetworkcacheClient(
@@ -519,22 +699,35 @@ class TestShacacheUpstreamCache(unittest.TestCase):
     test_data = BytesIO(b'upstream binary content')
     shasum = nc.upload(test_data)
 
+    # Verify file does NOT exist locally before fetch
+    local_file = os.path.join(self.local_content_dir, shasum)
+    self.assertFalse(os.path.isfile(local_file),
+                     "File should not exist before upstream fetch")
+
     # Start local server with upstream configured
-    local_url = self._start_proxy(upstream_cache_url=upstream_url + '/cache')
+    local_url = self._start_proxy(self.local_content_dir,
+                                  self.local_metadata_dir,
+                                  upstream_cache_url=upstream_url + '/cache')
 
     response = requests.get(local_url + '/cache/' + shasum, timeout=10)
     self.assertEqual(response.status_code, 200)
     self.assertEqual(response.content, b'upstream binary content')
 
-    # Verify file was saved locally
-    local_file = os.path.join(self.content_dir, shasum)
+    # Verify file was saved locally with correct content
     self.assertTrue(os.path.isfile(local_file),
                     "Upstream file should be saved locally")
+    with open(local_file, 'rb') as f:
+      saved_content = f.read()
+    self.assertEqual(saved_content, b'upstream binary content',
+                     "Saved file content should match uploaded content")
 
   def test_cache_upstream_404(self):
     """When file not found locally or upstream, returns 404."""
-    upstream_url = self._start_proxy()
-    local_url = self._start_proxy(upstream_cache_url=upstream_url + '/cache')
+    upstream_url = self._start_proxy(self.upstream_content_dir,
+                                     self.upstream_metadata_dir)
+    local_url = self._start_proxy(self.local_content_dir,
+                                  self.local_metadata_dir,
+                                  upstream_cache_url=upstream_url + '/cache')
 
     fake_shasum = '0' * 128
     response = requests.get(local_url + '/cache/' + fake_shasum, timeout=10)

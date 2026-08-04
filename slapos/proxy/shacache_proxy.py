@@ -68,8 +68,7 @@ def _serve_metadata_entry(key, metadata_dir):
   fullpath = os.path.join(metadata_dir, key)
   if os.path.isfile(fullpath):
     with open(fullpath, "r") as f:
-      entry = json.loads(f.read())
-    return json.dumps([entry])
+      return f.read()
   return None
 
 
@@ -79,13 +78,12 @@ def _store_file_cache_entry(sha512, data, content_dir):
     handle.write(data)
 
 
-def _store_metadata_entry(key, entry_json, signature, metadata_dir):
+def _store_metadata_entry_list(key, entries, metadata_dir):
   if not os.path.isdir(metadata_dir):
     os.makedirs(metadata_dir)
-  entry = json.dumps([entry_json, signature])
   fullpath = os.path.join(metadata_dir, key)
   with open(fullpath, "w") as f:
-    f.write(entry)
+    f.write(json.dumps(entries))
 
 
 @shacache_proxy_blueprint.route("/cache/<sha512>", methods=["GET"])
@@ -176,10 +174,8 @@ def shadir_select(key):
       current_app.logger.warning("Failed to fetch dir from upstream: %s", e)
       abort(502, "Upstream error: %s" % e)
     try:
-      if isinstance(data_list, list) and len(data_list) == 1:
-        entry = data_list[0]
-        if isinstance(entry, list) and len(entry) == 2:
-          _store_metadata_entry(key, entry[0], entry[1], metadata_dir)
+      if isinstance(data_list, list):
+        _store_metadata_entry_list(key, data_list, metadata_dir)
     except Exception:
       current_app.logger.warning("Failed to save upstream dir entry for %s", key)
     return json.dumps(data_list), 200, {"Content-Type": "application/json"}
@@ -194,6 +190,77 @@ def shadir_index(key):
   data = request.get_json()
   if not isinstance(data, list) or len(data) != 2:
     abort(400, "Invalid entry format")
-  entry_json, signature = data
-  _store_metadata_entry(key, entry_json, signature, metadata_dir)
+  _store_metadata_entry_list(key, [data], metadata_dir)
   return "", 201
+
+
+@shacache_proxy_blueprint.route("/dir/update", methods=["POST"])
+def shadir_update():
+  content_dir, metadata_dir = _get_shacache_directory_tuple()
+  if not content_dir or not metadata_dir:
+    abort(503, "Shacache not configured")
+  if not os.path.isdir(metadata_dir):
+    return json.dumps({"removed": [], "updated": []}), 200, {
+      "Content-Type": "application/json"}
+
+  nc = _get_upstream_networkcache_client()
+  removed = []
+  updated = []
+
+  if nc is None:
+    # No upstream: remove entries whose sha512 is not in content_dir
+    for filename in os.listdir(metadata_dir):
+      filepath = os.path.join(metadata_dir, filename)
+      if not os.path.isfile(filepath):
+        continue
+      try:
+        with open(filepath, "r") as f:
+          entries = json.loads(f.read())
+        if not isinstance(entries, list):
+          os.remove(filepath)
+          removed.append(filename)
+          continue
+        has_local = False
+        for entry_pair in entries:
+          if isinstance(entry_pair, list) and len(entry_pair) == 2:
+            try:
+              entry_dict = json.loads(entry_pair[0])
+              sha512 = entry_dict.get("sha512", "")
+              if sha512 and _find_file_cache_entry(sha512, content_dir):
+                has_local = True
+                break
+            except Exception:
+              pass
+        if not has_local:
+          os.remove(filepath)
+          removed.append(filename)
+      except Exception:
+        current_app.logger.warning("Failed to process metadata file %s", filename)
+  else:
+    # Upstream set: sync each local entry with upstream
+    for filename in os.listdir(metadata_dir):
+      filepath = os.path.join(metadata_dir, filename)
+      if not os.path.isfile(filepath):
+        continue
+      try:
+        current_app.logger.info("Updating dir %s from upstream", filename)
+        upstream_data = nc.select_generic(filename, filter=False)
+        if isinstance(upstream_data, list) and len(upstream_data) > 0:
+          _store_metadata_entry_list(filename, upstream_data, metadata_dir)
+          updated.append(filename)
+        else:
+          os.remove(filepath)
+          removed.append(filename)
+      except HTTPError as e:
+        if e.code == 404:
+          os.remove(filepath)
+          removed.append(filename)
+        else:
+          current_app.logger.warning(
+            "Upstream returned %s for %s during update", e.code, filename)
+      except Exception as e:
+        current_app.logger.warning(
+          "Failed to update dir %s from upstream: %s", filename, e)
+
+  return json.dumps({"removed": removed, "updated": updated}), 200, {
+    "Content-Type": "application/json"}

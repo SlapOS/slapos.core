@@ -311,8 +311,8 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
     self.assertEqual(entry['sha512'], shasum)
 
 
-class TestShacacheDirUpdate(unittest.TestCase):
-  """Test POST /dir/update endpoint for cleanup and sync."""
+class TestShacacheUpdate(unittest.TestCase):
+  """Test POST /update endpoint for cleanup and sync."""
 
   def setUp(self):
     self.upstream_content_dir = tempfile.mkdtemp()
@@ -338,7 +338,7 @@ class TestShacacheDirUpdate(unittest.TestCase):
   def _start_proxy(self, content_dir, metadata_dir,
                    upstream_cache_url=None, upstream_dir_url=None):
     port = _get_free_port()
-    app = Flask('test_dir_update_%d' % port)
+    app = Flask('test_update_%d' % port)
     app.config['SHACACHE_CONTENT_DIRECTORY'] = content_dir
     app.config['SHACACHE_METADATA_DIRECTORY'] = metadata_dir
     app.config['SHACACHE_SIGNING_KEY_PATH'] = self.key_path
@@ -362,12 +362,6 @@ class TestShacacheDirUpdate(unittest.TestCase):
     local_url = self._start_proxy(self.local_content_dir,
                                   self.local_metadata_dir)
 
-    # Manually create a metadata entry pointing to a sha512 that doesn't exist locally
-    entry = json.dumps([json.dumps({"sha512": "0" * 128, "url": "test"}), "sig"])
-    with open(os.path.join(self.local_metadata_dir, "orphan-key"), "w") as f:
-      f.write(entry)
-
-    # Also create a valid entry with content that exists
     with open(self.cert_path) as f:
       cert_pem = f.read()
     nc = NetworkcacheClient(
@@ -375,27 +369,59 @@ class TestShacacheDirUpdate(unittest.TestCase):
       signature_private_key_file=self.key_path,
       signature_certificate_list=[cert_pem],
     )
+
+    # Upload a valid file and create a dir entry for it
     test_data = BytesIO(b'valid content')
     shasum = nc.upload(test_data, 'valid-key', urlmd5='v', file_name='v.bin')
 
+    # Create a metadata file with one valid and one orphaned entry
+    orphan_sha = "0" * 128
+    entries = [
+      [json.dumps({"sha512": shasum, "url": "valid"}), "valid-sig"],
+      [json.dumps({"sha512": orphan_sha, "url": "orphan"}), "orphan-sig"],
+    ]
+    with open(os.path.join(self.local_metadata_dir, "mixed-key"), "w") as f:
+      f.write(json.dumps(entries))
+
     # Verify both entries exist before update
-    self.assertTrue(os.path.isfile(os.path.join(self.local_metadata_dir, "orphan-key")))
-    self.assertTrue(os.path.isfile(os.path.join(self.local_metadata_dir, "valid-key")))
+    with open(os.path.join(self.local_metadata_dir, "mixed-key")) as f:
+      before = json.loads(f.read())
+    self.assertEqual(len(before), 2)
 
     # Run update
-    response = requests.post(local_url + '/dir/update', timeout=10)
+    response = requests.post(local_url + '/update', timeout=10)
     self.assertEqual(response.status_code, 200)
     result = response.json()
-    self.assertIn("orphan-key", result["removed"])
-    self.assertNotIn("valid-key", result["removed"])
+    self.assertIn("mixed-key", result["removed"])
 
-    # Verify orphan is gone, valid remains
-    self.assertFalse(os.path.isfile(os.path.join(self.local_metadata_dir, "orphan-key")))
-    self.assertTrue(os.path.isfile(os.path.join(self.local_metadata_dir, "valid-key")))
+    # Verify orphaned entry was removed, valid entry remains
+    with open(os.path.join(self.local_metadata_dir, "mixed-key")) as f:
+      after = json.loads(f.read())
+    self.assertEqual(len(after), 1)
+    self.assertEqual(json.loads(after[0][0])["sha512"], shasum)
+
+  def test_update_no_upstream_removes_empty_files(self):
+    """Without upstream, metadata files with no valid entries are deleted."""
+    local_url = self._start_proxy(self.local_content_dir,
+                                  self.local_metadata_dir)
+
+    # Create metadata file where all entries are orphaned
+    entries = [
+      [json.dumps({"sha512": "0" * 128, "url": "orphan1"}), "sig1"],
+      [json.dumps({"sha512": "1" * 128, "url": "orphan2"}), "sig2"],
+    ]
+    with open(os.path.join(self.local_metadata_dir, "all-orphan"), "w") as f:
+      f.write(json.dumps(entries))
+
+    response = requests.post(local_url + '/update', timeout=10)
+    self.assertEqual(response.status_code, 200)
+    result = response.json()
+    self.assertIn("all-orphan", result["removed"])
+    self.assertFalse(os.path.isfile(
+        os.path.join(self.local_metadata_dir, "all-orphan")))
 
   def test_update_with_upstream_syncs(self):
     """With upstream, local entries are synced with upstream."""
-    # Start upstream and upload data
     upstream_url = self._start_proxy(self.upstream_content_dir,
                                      self.upstream_metadata_dir)
     with open(self.cert_path) as f:
@@ -413,34 +439,30 @@ class TestShacacheDirUpdate(unittest.TestCase):
     with open(os.path.join(self.local_metadata_dir, "stale-key"), "w") as f:
       f.write(stale_entry)
 
-    # Create local entry that matches upstream
     local_url = self._start_proxy(self.local_content_dir,
                                   self.local_metadata_dir,
                                   upstream_dir_url=upstream_url + '/dir')
 
-    # First fetch the upstream entry to populate local
+    # Fetch upstream entry to populate local
     requests.get(local_url + '/dir/sync-key', timeout=10)
-    self.assertTrue(os.path.isfile(os.path.join(self.local_metadata_dir, "sync-key")))
 
-    # Run update - stale-key should be removed, sync-key should be refreshed
-    response = requests.post(local_url + '/dir/update', timeout=10)
+    # Run update
+    response = requests.post(local_url + '/update', timeout=10)
     self.assertEqual(response.status_code, 200)
     result = response.json()
     self.assertIn("stale-key", result["removed"])
     self.assertIn("sync-key", result["updated"])
-
-    # Verify stale is gone
-    self.assertFalse(os.path.isfile(os.path.join(self.local_metadata_dir, "stale-key")))
-    # Verify sync-key still exists
-    self.assertTrue(os.path.isfile(os.path.join(self.local_metadata_dir, "sync-key")))
+    self.assertFalse(os.path.isfile(
+        os.path.join(self.local_metadata_dir, "stale-key")))
+    self.assertTrue(os.path.isfile(
+        os.path.join(self.local_metadata_dir, "sync-key")))
 
   def test_update_empty_metadata_dir(self):
     """Update on empty metadata dir returns empty lists."""
-    # Use a fresh empty metadata dir
     empty_metadata_dir = tempfile.mkdtemp()
     try:
       local_url = self._start_proxy(self.local_content_dir, empty_metadata_dir)
-      response = requests.post(local_url + '/dir/update', timeout=10)
+      response = requests.post(local_url + '/update', timeout=10)
       self.assertEqual(response.status_code, 200)
       result = response.json()
       self.assertEqual(result["removed"], [])
@@ -460,7 +482,7 @@ class TestShacacheDirUpdate(unittest.TestCase):
     t.daemon = True
     t.start()
     time.sleep(0.5)
-    url = 'http://127.0.0.1:%d/shacache/dir/update' % port
+    url = 'http://127.0.0.1:%d/shacache/update' % port
     response = requests.post(url, timeout=5)
     self.assertEqual(response.status_code, 503)
 

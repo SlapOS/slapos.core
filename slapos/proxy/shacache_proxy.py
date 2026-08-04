@@ -194,7 +194,7 @@ def shadir_index(key):
   return "", 201
 
 
-@shacache_proxy_blueprint.route("/dir/update", methods=["POST"])
+@shacache_proxy_blueprint.route("/update", methods=["POST"])
 def shadir_update():
   content_dir, metadata_dir = _get_shacache_directory_tuple()
   if not content_dir or not metadata_dir:
@@ -220,20 +220,23 @@ def shadir_update():
           os.remove(filepath)
           removed.append(filename)
           continue
-        has_local = False
+        filtered = []
         for entry_pair in entries:
           if isinstance(entry_pair, list) and len(entry_pair) == 2:
             try:
               entry_dict = json.loads(entry_pair[0])
               sha512 = entry_dict.get("sha512", "")
               if sha512 and _find_file_cache_entry(sha512, content_dir):
-                has_local = True
-                break
+                filtered.append(entry_pair)
             except Exception:
               pass
-        if not has_local:
+        if len(filtered) == len(entries):
+          continue
+        if filtered:
+          _store_metadata_entry_list(filename, filtered, metadata_dir)
+        else:
           os.remove(filepath)
-          removed.append(filename)
+        removed.append(filename)
       except Exception:
         current_app.logger.warning("Failed to process metadata file %s", filename)
   else:

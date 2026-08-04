@@ -54,14 +54,7 @@ def _get_upstream_networkcache_client():
   upstream_dir_url = current_app.config.get('SHACACHE_UPSTREAM_DIR_URL')
   if not upstream_cache_url and not upstream_dir_url:
     return None
-  config = {}
-  if upstream_cache_url:
-    config['download-cache-url'] = upstream_cache_url
-    config['upload-cache-url'] = upstream_cache_url
-  if upstream_dir_url:
-    config['download-dir-url'] = upstream_dir_url
-    config['upload-dir-url'] = upstream_dir_url
-  return NetworkcacheClient(config)
+  return NetworkcacheClient(upstream_cache_url or '', upstream_dir_url or '')
 
 
 def _find_file_cache_entry(sha512, content_dir):

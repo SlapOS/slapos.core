@@ -11,6 +11,7 @@ import sys
 import tempfile
 import threading
 import time
+import types
 import unittest
 
 from flask import Flask
@@ -21,21 +22,15 @@ from slapos.libnetworkcache import NetworkcacheClient
 
 # Import shacache_proxy directly to avoid triggering slapos.proxy.__init__
 # which drags in the entire proxy dependency chain (lxml, zc.buildout, etc.)
+# The slapos namespace package is installed system-wide without the proxy
+# subpackage, so normal imports can't resolve slapos.proxy.
 _shacache_proxy_path = os.path.join(
   os.path.dirname(__file__), os.pardir, 'proxy', 'shacache_proxy.py')
 _shacache_proxy_path = os.path.abspath(_shacache_proxy_path)
-
-try:
-  import importlib.util
-  _spec = importlib.util.spec_from_file_location(
-    'slapos.proxy.shacache_proxy', _shacache_proxy_path)
-  _shacache_proxy = importlib.util.module_from_spec(_spec)
-  sys.modules['slapos.proxy.shacache_proxy'] = _shacache_proxy
-  _spec.loader.exec_module(_shacache_proxy)
-except ImportError:
-  import imp
-  _shacache_proxy = imp.load_source('slapos.proxy.shacache_proxy',
-                                    _shacache_proxy_path)
+_shacache_proxy = types.ModuleType('slapos.proxy.shacache_proxy')
+_shacache_proxy.__file__ = _shacache_proxy_path
+with open(_shacache_proxy_path) as _f:
+  exec(compile(_f.read(), _shacache_proxy_path, 'exec'), _shacache_proxy.__dict__)
 
 shacache_proxy_blueprint = _shacache_proxy.shacache_proxy_blueprint
 

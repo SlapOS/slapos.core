@@ -32,7 +32,7 @@ import hashlib
 import json
 import os
 
-from flask import Blueprint, current_app, request, send_from_directory
+from flask import Blueprint, abort, current_app, request, send_from_directory
 from six.moves.urllib.error import HTTPError
 
 from slapos.libnetworkcache import NetworkcacheClient
@@ -99,25 +99,25 @@ def _store_metadata_entry(key, entry_json, signature, metadata_dir):
 def shacache_download(sha512):
   content_dir, metadata_dir = _get_shacache_directory_tuple()
   if not content_dir or not metadata_dir:
-    return "Not configured\n", 503
+    abort(503, "Shacache not configured")
   file_name = _find_file_cache_entry(sha512, content_dir)
   if file_name is None:
     nc = _get_upstream_networkcache_client()
     if nc is None:
-      return "Not found\n", 404
+      abort(404)
     try:
       current_app.logger.info("Fetching %s from upstream", sha512)
       response = nc.download(sha512)
       data = response.read()
     except HTTPError as e:
       if e.code == 404:
-        return "Not found\n", 404
+        abort(404)
       current_app.logger.warning(
         "Upstream returned %s for %s", e.code, sha512)
-      return "Upstream error\n", 502
+      abort(502, "Upstream returned %s" % e.code)
     except Exception as e:
       current_app.logger.warning("Failed to fetch from upstream: %s", e)
-      return "Upstream error\n", 502
+      abort(502, "Upstream error: %s" % e)
     _store_file_cache_entry(sha512, data, content_dir)
     return send_from_directory(
       content_dir,
@@ -136,7 +136,7 @@ def shacache_download(sha512):
 def shacache_upload():
   content_dir, metadata_dir = _get_shacache_directory_tuple()
   if not content_dir or not metadata_dir:
-    return "Not configured\n", 503
+    abort(503, "Shacache not configured")
   data = request.get_data()
   sha512 = hashlib.sha512(data).hexdigest()
   _store_file_cache_entry(sha512, data, content_dir)
@@ -147,11 +147,11 @@ def shacache_upload():
 def shacache_upload_with_hash(sha512):
   content_dir, metadata_dir = _get_shacache_directory_tuple()
   if not content_dir or not metadata_dir:
-    return "Not configured\n", 503
+    abort(503, "Shacache not configured")
   data = request.get_data()
   computed = hashlib.sha512(data).hexdigest()
   if computed != sha512:
-    return "Checksum mismatch\n", 400
+    abort(400, "Checksum mismatch")
   _store_file_cache_entry(sha512, data, content_dir)
   return sha512, 201
 
@@ -160,7 +160,7 @@ def shacache_upload_with_hash(sha512):
 def shadir_select(key):
   content_dir, metadata_dir = _get_shacache_directory_tuple()
   if not content_dir or not metadata_dir:
-    return "Not configured\n", 503
+    abort(503, "Shacache not configured")
   try:
     dir_content = _serve_metadata_entry(key, metadata_dir)
   except Exception:
@@ -169,19 +169,19 @@ def shadir_select(key):
   if dir_content is None:
     nc = _get_upstream_networkcache_client()
     if nc is None:
-      return "Not found\n", 404
+      abort(404)
     try:
       current_app.logger.info("Fetching dir %s from upstream", key)
       data_list = nc.select_generic(key, filter=False)
     except HTTPError as e:
       if e.code == 404:
-        return "Not found\n", 404
+        abort(404)
       current_app.logger.warning(
         "Upstream dir returned %s for %s", e.code, key)
-      return "Upstream error\n", 502
+      abort(502, "Upstream returned %s" % e.code)
     except Exception as e:
       current_app.logger.warning("Failed to fetch dir from upstream: %s", e)
-      return "Upstream error\n", 502
+      abort(502, "Upstream error: %s" % e)
     try:
       if isinstance(data_list, list) and len(data_list) == 1:
         entry = data_list[0]
@@ -197,10 +197,10 @@ def shadir_select(key):
 def shadir_index(key):
   content_dir, metadata_dir = _get_shacache_directory_tuple()
   if not content_dir or not metadata_dir:
-    return "Not configured\n", 503
+    abort(503, "Shacache not configured")
   data = request.get_json()
   if not isinstance(data, list) or len(data) != 2:
-    return "Invalid entry format\n", 400
+    abort(400, "Invalid entry format")
   entry_json, signature = data
   _store_metadata_entry(key, entry_json, signature, metadata_dir)
   return "", 201

@@ -121,7 +121,7 @@ def _replaceParameterValue(original_content, to_replace):
     to_replace by their value.
     """
     for key, value in to_replace:
-        original_content = re.sub('%s\s+=.*' % key, '%s = %s' % (key, value),
+        original_content = re.sub(r'%s\s+=.*' % key, '%s = %s' % (key, value),
           original_content)
     return original_content
 

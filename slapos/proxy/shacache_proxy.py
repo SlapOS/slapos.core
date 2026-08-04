@@ -33,8 +33,9 @@ import json
 import os
 
 from flask import Blueprint, current_app, request, send_from_directory
-from six.moves.urllib.request import urlopen
 from six.moves.urllib.error import HTTPError
+
+from slapos.libnetworkcache import NetworkcacheClient
 
 
 shacache_proxy_blueprint = Blueprint('shacache_proxy', __name__)
@@ -45,6 +46,22 @@ def _get_shacache_directory_tuple():
   content_dir = current_app.config.get('SHACACHE_CONTENT_DIRECTORY')
   metadata_dir = current_app.config.get('SHACACHE_METADATA_DIRECTORY')
   return content_dir, metadata_dir
+
+
+def _get_upstream_networkcache_client():
+  """Create a NetworkcacheClient for upstream, or None."""
+  upstream_cache_url = current_app.config.get('SHACACHE_UPSTREAM_CACHE_URL')
+  upstream_dir_url = current_app.config.get('SHACACHE_UPSTREAM_DIR_URL')
+  if not upstream_cache_url and not upstream_dir_url:
+    return None
+  config = {}
+  if upstream_cache_url:
+    config['download-cache-url'] = upstream_cache_url
+    config['upload-cache-url'] = upstream_cache_url
+  if upstream_dir_url:
+    config['download-dir-url'] = upstream_dir_url
+    config['upload-dir-url'] = upstream_dir_url
+  return NetworkcacheClient(config)
 
 
 def _find_file_cache_entry(sha512, content_dir):
@@ -85,13 +102,12 @@ def shacache_download(sha512):
     return "Not configured\n", 503
   file_name = _find_file_cache_entry(sha512, content_dir)
   if file_name is None:
-    upstream_cache_url = current_app.config.get('SHACACHE_UPSTREAM_CACHE_URL')
-    if upstream_cache_url is None:
+    nc = _get_upstream_networkcache_client()
+    if nc is None:
       return "Not found\n", 404
     try:
-      url = upstream_cache_url.rstrip("/") + "/" + sha512
-      current_app.logger.info("Fetching %s from upstream %s", sha512, url)
-      response = urlopen(url)
+      current_app.logger.info("Fetching %s from upstream", sha512)
+      response = nc.download(sha512)
       data = response.read()
     except HTTPError as e:
       if e.code == 404:
@@ -102,10 +118,6 @@ def shacache_download(sha512):
     except Exception as e:
       current_app.logger.warning("Failed to fetch from upstream: %s", e)
       return "Upstream error\n", 502
-    if hashlib.sha512(data).hexdigest() != sha512:
-      current_app.logger.warning(
-        "Checksum mismatch for upstream fetch %s", sha512)
-      return "Checksum mismatch\n", 502
     _store_file_cache_entry(sha512, data, content_dir)
     return send_from_directory(
       content_dir,
@@ -155,14 +167,12 @@ def shadir_select(key):
     current_app.logger.warning("Failed to read metadata for %s", key)
     dir_content = None
   if dir_content is None:
-    upstream_dir_url = current_app.config.get('SHACACHE_UPSTREAM_DIR_URL')
-    if upstream_dir_url is None:
+    nc = _get_upstream_networkcache_client()
+    if nc is None:
       return "Not found\n", 404
     try:
-      url = upstream_dir_url.rstrip("/") + "/" + key
-      current_app.logger.info("Fetching dir %s from upstream %s", key, url)
-      response = urlopen(url)
-      data = response.read()
+      current_app.logger.info("Fetching dir %s from upstream", key)
+      data_list = nc.select_generic(key, filter=False)
     except HTTPError as e:
       if e.code == 404:
         return "Not found\n", 404
@@ -173,14 +183,13 @@ def shadir_select(key):
       current_app.logger.warning("Failed to fetch dir from upstream: %s", e)
       return "Upstream error\n", 502
     try:
-      upstream_data = json.loads(data.decode("utf-8"))
-      if isinstance(upstream_data, list) and len(upstream_data) == 1:
-        entry = upstream_data[0]
+      if isinstance(data_list, list) and len(data_list) == 1:
+        entry = data_list[0]
         if isinstance(entry, list) and len(entry) == 2:
           _store_metadata_entry(key, entry[0], entry[1], metadata_dir)
     except Exception:
       current_app.logger.warning("Failed to save upstream dir entry for %s", key)
-    return data.decode("utf-8"), 200, {"Content-Type": "application/json"}
+    return json.dumps(data_list), 200, {"Content-Type": "application/json"}
   return dir_content
 
 

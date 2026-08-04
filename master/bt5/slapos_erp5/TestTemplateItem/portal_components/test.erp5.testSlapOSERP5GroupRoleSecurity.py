@@ -1117,6 +1117,19 @@ class TestInvitationToken(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(support_request, 'F-SALE*', ['Auditor'])
     self.assertRoles(support_request, '%s_F-PRODMAN' % project.getReference(), ['Auditor'])
 
+  def test_InvitationToken_Destination(self):
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup',
+      reference='TESTWORKGROUP-%s' % self.generateNewId())
+    support_request = self.portal.getDefaultModuleValue(self.ticket_portal_type).newContent(
+        portal_type=self.ticket_portal_type)
+    support_request.edit(
+        follow_up_value=workgroup)
+    self.assertSecurityGroup(support_request, [self.user_id, 'F-SALE*',
+        workgroup.getUserId()], False)
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, 'F-SALE*', ['Auditor'])
+    self.assertRoles(support_request, workgroup.getUserId(), ['Auditor'])
 
 class TestAssignmentRequestModule(TestSlapOSGroupRoleSecurityMixin):
   def test_AssignmentRequestModule(self):

@@ -61,15 +61,22 @@ class SlapOSActorSlapInterfaceMixin:
       raise NotImplementedError("%i projects '%s'" % (len(project_list), project_reference))
 
     project = project_list[0]
-    requester = actor
+    script = actor._getTypeBasedMethod('getSlaposActorRequester')
+    if script is None:
+      requester = actor
+    else:
+      requester = script(project)
 
-    tag = "%s_%s_inProgress" % (requester.getUid(),
-                                    software_title)
+    # put the requester uid at the end, to propagate a shared tag
+    uid_set = {actor.getUid(), requester.getUid()}
+    for actor_uid in uid_set:
+      tag = "%s_%s_inProgress" % (actor_uid,
+                                      software_title)
 
-    if (portal.portal_activities.countMessageWithTag(tag) > 0):
-      # The software instance is already under creation but can not be fetched from catalog
-      # As it is not possible to fetch informations, it is better to raise an error
-      raise NotImplementedError(tag)
+      if (portal.portal_activities.countMessageWithTag(tag) > 0):
+        # The software instance is already under creation but can not be fetched from catalog
+        # As it is not possible to fetch informations, it is better to raise an error
+        raise NotImplementedError(tag)
 
 
     # Check if it already exists
@@ -77,7 +84,9 @@ class SlapOSActorSlapInterfaceMixin:
       portal_type=instance_tree_portal_type,
       title={'query': software_title, 'key': 'ExactMatch'},
       validation_state="validated",
-      destination_section__uid=requester.getUid(),
+      # Search instance trees from person and workgroup
+      # to allow compatibility so that a person can update its existing services
+      destination_section__uid=[requester.getUid(), actor.getUid()],
       limit=2,
       )
     if len(request_instance_tree_list) > 1:
@@ -88,8 +97,8 @@ class SlapOSActorSlapInterfaceMixin:
       if (request_instance_tree.getSlapState() == "destroy_requested") or \
          (request_instance_tree.getTitle() != software_title) or \
          (request_instance_tree.getValidationState() != "validated") or \
-         (request_instance_tree.getDestinationSection() != requester.getRelativeUrl()):
-        raise NotImplementedError("The system was not able to get the expected instance tree")
+         (request_instance_tree.getDestinationSection() not in [requester.getRelativeUrl(), actor.getRelativeUrl()]):
+        raise NotImplementedError("The system was not able to get the expected instance tree: " + request_instance_tree.getRelativeUrl())
       # Do not allow user to change the release/type/shared status
       # This is not compatible with invoicing the service
       # Instance release change will be handled by allocation supply and upgrade decision

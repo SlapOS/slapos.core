@@ -667,3 +667,299 @@ class TestSlapOSCoreWorkgroupRequest(SlapOSTestCaseMixin):
     self.assertEqual("validated", instance_tree.getValidationState())
     self.assertEqual(workgroup.getRelativeUrl(),
                      instance_tree.getDestinationSection())
+
+
+class TestSlapOSCorePersonWithWorkgroupRequest(SlapOSTestCaseMixin):
+
+  require_certificate = 1
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+
+    self.project = self.addProject()
+    person_user = self.makePerson(self.project)
+
+    self.workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup'
+    )
+    self.workgroup.newContent(
+      portal_type='Assignment',
+      destination_project_value=self.project,
+      function='customer'
+    ).open()
+    self.workgroup.validate()
+
+    person_user.newContent(
+      portal_type='Assignment',
+      destination_value=self.workgroup,
+    ).open()
+
+    self.tic()
+
+    # Login as new user
+    self.login(person_user.getUserId())
+
+    new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
+
+  def beforeTearDown(self):
+    pass
+
+  def test_PersonWithWorkgroup_requestSoftwareInstance_createInstanceTree(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+
+    software_release = self.generateNewSoftwareReleaseUrl()
+    software_title = "test"
+    software_type = "test"
+    instance_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance>
+    </instance>
+    """
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
+    shared = True
+    state = "started"
+
+    person.requestSoftwareInstance(
+      software_release=software_release,
+      software_title=software_title,
+      software_type=software_type,
+      instance_xml=instance_xml,
+      sla_xml=sla_xml,
+      shared=shared,
+      state=state,
+      project_reference=self.project.getReference()
+    )
+    instance_tree = person.REQUEST.get('request_instance_tree')
+    self.assertEqual(software_release,
+                      instance_tree.getUrlString())
+    self.assertEqual(software_title, instance_tree.getTitle())
+    self.assertEqual(software_type, instance_tree.getSourceReference())
+    self.assertEqual(instance_xml, instance_tree.getTextContent())
+    self.assertEqual(sla_xml, instance_tree.getSlaXml())
+    self.assertEqual(shared, instance_tree.getRootSlave())
+    self.assertEqual("start_requested", instance_tree.getSlapState())
+    self.assertEqual("HOSTSUBS-%s" % instance_tree.getId(),
+                      instance_tree.getReference())
+    self.assertEqual("validated", instance_tree.getValidationState())
+    self.assertEqual(self.workgroup.getRelativeUrl(),
+                     instance_tree.getDestinationSection())
+
+  def test_PersonWithWorkgroup_requestSoftwareInstance_updateWorkgroupInstanceTree(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+
+    software_release = self.generateNewSoftwareReleaseUrl()
+    software_title = "test"
+    software_type = "test"
+    instance_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance>
+    </instance>
+    """
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
+    shared = True
+    state = "started"
+
+    instance_tree = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
+      title=software_title,
+      destination_section_value=self.workgroup,
+      follow_up_value=self.project,
+      root_slave=shared,
+      source_reference=software_type,
+      url_string=software_release,
+    )
+    instance_tree.edit(reference="HOSTSUBS-%s" % instance_tree.getId())
+    self.portal.portal_workflow._jumpToStateFor(instance_tree, 'validated')
+
+    self.tic()
+
+    person.requestSoftwareInstance(
+      software_release=software_release,
+      software_title=software_title,
+      software_type=software_type,
+      instance_xml=instance_xml,
+      sla_xml=sla_xml,
+      shared=shared,
+      state=state,
+      project_reference=self.project.getReference()
+    )
+    instance_tree2 = person.REQUEST.get('request_instance_tree')
+    self.assertEqual(software_release,
+                      instance_tree2.getUrlString())
+    self.assertEqual(software_title, instance_tree2.getTitle())
+    self.assertEqual(software_type, instance_tree2.getSourceReference())
+    self.assertEqual(instance_xml, instance_tree2.getTextContent())
+    self.assertEqual(sla_xml, instance_tree2.getSlaXml())
+    self.assertEqual(shared, instance_tree2.getRootSlave())
+    self.assertEqual("start_requested", instance_tree2.getSlapState())
+    self.assertEqual("HOSTSUBS-%s" % instance_tree2.getId(),
+                      instance_tree2.getReference())
+    self.assertEqual("validated", instance_tree2.getValidationState())
+    self.assertEqual(self.workgroup.getRelativeUrl(),
+                     instance_tree2.getDestinationSection())
+
+    self.assertEqual(instance_tree.getRelativeUrl(),
+                      instance_tree2.getRelativeUrl())
+
+  def test_PersonWithWorkgroup_requestSoftwareInstance_updatePersonInstanceTree(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+
+    software_release = self.generateNewSoftwareReleaseUrl()
+    software_title = "test"
+    software_type = "test"
+    instance_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance>
+    </instance>
+    """
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
+    shared = True
+    state = "started"
+
+    instance_tree = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
+      title=software_title,
+      destination_section_value=person,
+      follow_up_value=self.project,
+      root_slave=shared,
+      source_reference=software_type,
+      url_string=software_release,
+    )
+    instance_tree.edit(reference="HOSTSUBS-%s" % instance_tree.getId())
+    self.portal.portal_workflow._jumpToStateFor(instance_tree, 'validated')
+
+    self.tic()
+
+    person.requestSoftwareInstance(
+      software_release=software_release,
+      software_title=software_title,
+      software_type=software_type,
+      instance_xml=instance_xml,
+      sla_xml=sla_xml,
+      shared=shared,
+      state=state,
+      project_reference=self.project.getReference()
+    )
+    instance_tree2 = person.REQUEST.get('request_instance_tree')
+    self.assertEqual(software_release,
+                      instance_tree2.getUrlString())
+    self.assertEqual(software_title, instance_tree2.getTitle())
+    self.assertEqual(software_type, instance_tree2.getSourceReference())
+    self.assertEqual(instance_xml, instance_tree2.getTextContent())
+    self.assertEqual(sla_xml, instance_tree2.getSlaXml())
+    self.assertEqual(shared, instance_tree2.getRootSlave())
+    self.assertEqual("start_requested", instance_tree2.getSlapState())
+    self.assertEqual("HOSTSUBS-%s" % instance_tree2.getId(),
+                      instance_tree2.getReference())
+    self.assertEqual("validated", instance_tree2.getValidationState())
+    self.assertEqual(person.getRelativeUrl(),
+                     instance_tree2.getDestinationSection())
+
+    self.assertEqual(instance_tree.getRelativeUrl(),
+                      instance_tree2.getRelativeUrl())
+
+  def test_PersonWithWorkgroup_requestSoftwareInstance_raiseIfTwoCustomerWorkgroups(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+
+    self.login()
+    workgroup2 = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup'
+    )
+    workgroup2.newContent(
+      portal_type='Assignment',
+      destination_project_value=self.project,
+      function='customer'
+    ).open()
+    workgroup2.validate()
+
+    person.newContent(
+      portal_type='Assignment',
+      destination_value=workgroup2,
+    ).open()
+
+    self.tic()
+
+    # Login as user
+    self.login(person.getUserId())
+
+    software_release = self.generateNewSoftwareReleaseUrl()
+    software_title = "test"
+    software_type = "test"
+    instance_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance>
+    </instance>
+    """
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
+    shared = True
+    state = "started"
+
+    self.tic()
+
+    self.assertRaises(ValueError, person.requestSoftwareInstance,
+      software_release=software_release,
+      software_title=software_title,
+      software_type=software_type,
+      instance_xml=instance_xml,
+      sla_xml=sla_xml,
+      shared=shared,
+      state=state,
+      project_reference=self.project.getReference()
+    )
+
+  def test_PersonWithWorkgroup_requestSoftwareInstance_raiseIfTwoInstanceTreeFound(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+
+    software_release = self.generateNewSoftwareReleaseUrl()
+    software_title = "test"
+    software_type = "test"
+    instance_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance>
+    </instance>
+    """
+    sla_xml = """<?xml version="1.0" encoding="utf-8"?>
+    <instance />
+    """
+    shared = True
+    state = "started"
+
+    instance_tree = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
+      title=software_title,
+      destination_section_value=person,
+      follow_up_value=self.project,
+      root_slave=shared,
+      source_reference=software_type,
+      url_string=software_release,
+    )
+    instance_tree.edit(reference="HOSTSUBS-%s" % instance_tree.getId())
+    self.portal.portal_workflow._jumpToStateFor(instance_tree, 'validated')
+
+    instance_tree2 = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
+      title=software_title,
+      destination_section_value=self.workgroup,
+      follow_up_value=self.project,
+      root_slave=shared,
+      source_reference=software_type,
+      url_string=software_release,
+    )
+    instance_tree2.edit(reference="HOSTSUBS-%s" % instance_tree2.getId())
+    self.portal.portal_workflow._jumpToStateFor(instance_tree2, 'validated')
+
+    self.tic()
+
+    self.assertRaises(NotImplementedError, person.requestSoftwareInstance,
+      software_release=software_release,
+      software_title=software_title,
+      software_type=software_type,
+      instance_xml=instance_xml,
+      sla_xml=sla_xml,
+      shared=shared,
+      state=state,
+      project_reference=self.project.getReference()
+    )

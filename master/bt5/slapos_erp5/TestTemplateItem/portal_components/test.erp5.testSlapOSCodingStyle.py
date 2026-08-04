@@ -89,6 +89,8 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_cloud/SoftwareInstance_renameAndRequestDestroy',
         'slapos_cloud/SoftwareInstance_renameAndRequestStop',
         'slapos_cloud/Base_getAuthenticatedPersonAndWorkgroupUidList',
+        'slapos_cloud/Person_getProjectCustomerWorkgroup',
+        'slapos_cloud/Person_getSlaposActorRequester',
         'slapos_consumption/OrderBuilder_selectConsumptionInternalPackingListMovementList',
         'slapos_crm_monitoring/SupportRequest_afterNewEvent',
         'slapos_crm/RegularisationRequest_getResourceItemList',

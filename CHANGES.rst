@@ -1,6 +1,15 @@
 Changes
 =======
 
+1.23.0 (2026-08-04)
+-------------------
+
+ * cli: fix some SyntaxWarning in python3.12+ about unrecognized escape sequences
+ * slap/exception: add SlapException common parent class
+ * standalone: fix supervisord process detection when run via python wrapper
+ * slapproxy: slapos.allDocs.v0.instance_tree_list
+ * format: use the address with the largest subnetwork by default
+
 1.22.1 (2026-05-26)
 -------------------
 

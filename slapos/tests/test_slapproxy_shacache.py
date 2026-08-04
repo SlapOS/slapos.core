@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 import hashlib
-import importlib.util
 import json
 import logging
 import os
@@ -23,11 +23,19 @@ from slapos.libnetworkcache import NetworkcacheClient
 # which drags in the entire proxy dependency chain (lxml, zc.buildout, etc.)
 _shacache_proxy_path = os.path.join(
   os.path.dirname(__file__), os.pardir, 'proxy', 'shacache_proxy.py')
-_spec = importlib.util.spec_from_file_location(
-  'slapos.proxy.shacache_proxy', os.path.abspath(_shacache_proxy_path))
-_shacache_proxy = importlib.util.module_from_spec(_spec)
-sys.modules['slapos.proxy.shacache_proxy'] = _shacache_proxy
-_spec.loader.exec_module(_shacache_proxy)
+_shacache_proxy_path = os.path.abspath(_shacache_proxy_path)
+
+try:
+  import importlib.util
+  _spec = importlib.util.spec_from_file_location(
+    'slapos.proxy.shacache_proxy', _shacache_proxy_path)
+  _shacache_proxy = importlib.util.module_from_spec(_spec)
+  sys.modules['slapos.proxy.shacache_proxy'] = _shacache_proxy
+  _spec.loader.exec_module(_shacache_proxy)
+except ImportError:
+  import imp
+  _shacache_proxy = imp.load_source('slapos.proxy.shacache_proxy',
+                                    _shacache_proxy_path)
 
 shacache_proxy_blueprint = _shacache_proxy.shacache_proxy_blueprint
 
@@ -491,7 +499,7 @@ class TestCacheLookupCommand(unittest.TestCase):
   """Test CacheLookupCommand logic using a local shacache proxy server.
 
   These tests exercise the same code path as the CLI commands
-  (networkcache.download_entry_list → NetworkcacheClient.select_generic)
+  (networkcache.download_entry_list -> NetworkcacheClient.select_generic)
   without importing slapos.cli (which has heavy dependencies like cliff/lxml).
   """
 

@@ -5,13 +5,17 @@ import logging
 import os
 import random
 import shutil
+import socket
 import sys
 import tempfile
 import threading
+import time
 import unittest
 
 from flask import Flask
 from io import BytesIO
+from six.moves.urllib.error import HTTPError, URLError
+from six.moves.urllib.request import urlopen
 
 from slapos.libnetworkcache import NetworkcacheClient
 
@@ -67,7 +71,6 @@ ygUuyW4BfQm723u7T7bF3eC19J+41g6+2iHfL5YG5iygiw==
 
 
 def _get_free_port():
-  import socket
   s = socket.socket()
   s.bind(('127.0.0.1', 0))
   port = s.getsockname()[1]
@@ -131,7 +134,6 @@ class ShacacheProxyTestCase(unittest.TestCase):
     self.assertEqual(result.read(), self.test_string)
 
   def test_download_not_exists(self):
-    from urllib.error import HTTPError
     fake_shasum = hashlib.sha512(b'nonexistent').hexdigest()
     with self.assertRaises(HTTPError) as ctx:
       self.nc.download(fake_shasum)
@@ -152,7 +154,6 @@ class ShacacheProxyTestCase(unittest.TestCase):
     self.assertEqual(entry_list[0]['sha512'], self.test_shasum)
 
   def test_select_not_exists(self):
-    from urllib.error import HTTPError
     with self.assertRaises(HTTPError) as ctx:
       list(self.nc.select('nonexistent-key-' + str(random.random())))
     self.assertEqual(ctx.exception.code, 404)
@@ -166,7 +167,6 @@ class ShacacheProxyTestCase(unittest.TestCase):
     self.assertEqual(result.read(), self.test_string)
 
   def test_upload_checksum_mismatch(self):
-    from urllib.error import HTTPError
     wrong_shasum = '0' * 128
     with self.assertRaises(HTTPError) as ctx:
       self.nc._request('cache', wrong_shasum, data=BytesIO(b'wrong'),
@@ -175,7 +175,6 @@ class ShacacheProxyTestCase(unittest.TestCase):
     self.assertEqual(ctx.exception.code, 400)
 
   def test_dir_get_not_exists(self):
-    from urllib.error import HTTPError
     with self.assertRaises(HTTPError) as ctx:
       self.nc._request('dir', 'missing-key')
     self.assertEqual(ctx.exception.code, 404)
@@ -221,15 +220,12 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
     )
     t.daemon = True
     t.start()
-    import time
     time.sleep(0.1)
     return 'http://127.0.0.1:%d/shacache' % port
 
   def test_dir_upstream_404_returns_404(self):
     """When key is not found locally, falls back to upstream which also
     returns 404, so the client gets 404."""
-    from six.moves.urllib.request import urlopen
-    from six.moves.urllib.error import HTTPError
 
     # Start an 'upstream' server that has no entries
     upstream_url = self._start_proxy()
@@ -243,8 +239,6 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
 
   def test_dir_upstream_hit(self):
     """When key is not found locally, fetches from upstream and returns it."""
-    from six.moves.urllib.request import urlopen
-    import time
 
     # Start upstream server
     upstream_url = self._start_proxy()
@@ -277,7 +271,6 @@ class ShacacheUpstreamDirTestCase(unittest.TestCase):
 
   def test_dir_local_hit_no_upstream(self):
     """When key is found locally, no upstream fetch needed."""
-    from six.moves.urllib.request import urlopen
 
     # Start local server WITHOUT upstream configured
     local_url = self._start_proxy()
@@ -443,9 +436,6 @@ class TestExternalShacache(unittest.TestCase):
   known_url_md5 = 'f213fcd8e97aa729f685b8cb71b976a7'
 
   def _skip_if_unreachable(self, url):
-    import socket
-    from six.moves.urllib.request import urlopen
-    from six.moves.urllib.error import URLError
     try:
       urlopen(url, timeout=5)
     except (URLError, socket.timeout, OSError):
@@ -488,14 +478,12 @@ class TestExternalShacache(unittest.TestCase):
     self.assertEqual(hashlib.sha512(data).hexdigest(), sha512)
 
   def test_select_nonexistent(self):
-    from urllib.error import HTTPError
     fake_key = 'file-urlmd5:' + '0' * 32
     with self.assertRaises(HTTPError) as ctx:
       list(self.nc.select_generic(fake_key, filter=False))
     self.assertEqual(ctx.exception.code, 404)
 
   def test_upload_to_external_fails_without_auth(self):
-    from urllib.error import HTTPError
     with self.assertRaises(HTTPError) as ctx:
       self.nc.upload_generic(
         BytesIO(b'test'),

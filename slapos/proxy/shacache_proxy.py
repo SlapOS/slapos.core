@@ -37,57 +37,53 @@ from six.moves.urllib.request import urlopen
 from six.moves.urllib.error import HTTPError
 
 
-class Shacache():
-  def __init__(self, content_dir, metadata_dir_path):
-    self.content_dir = content_dir
-    self.metadata_dir_path = metadata_dir_path
-
-  def find_file_cache_entry(self, sha512):
-    fullpath = os.path.join(self.content_dir, sha512)
-    if os.path.isfile(fullpath):
-      return sha512
-    return None
-
-  def serve_metadata_entry(self, key):
-    fullpath = os.path.join(self.metadata_dir_path, key)
-    if os.path.isfile(fullpath):
-      with open(fullpath, "r") as f:
-        entry = json.loads(f.read())
-      return json.dumps([entry])
-    return None
-
-  def store_file_cache_entry(self, sha512, data):
-    fullpath = os.path.join(self.content_dir, sha512)
-    with open(fullpath, "wb") as handle:
-      handle.write(data)
-
-  def store_metadata_entry(self, key, entry_json, signature):
-    if not os.path.isdir(self.metadata_dir_path):
-      os.makedirs(self.metadata_dir_path)
-    entry = json.dumps([entry_json, signature])
-    fullpath = os.path.join(self.metadata_dir_path, key)
-    with open(fullpath, "w") as f:
-      f.write(entry)
-
-
 shacache_proxy_blueprint = Blueprint('shacache_proxy', __name__)
 
 
-def _get_shacache():
-  """Create a Shacache instance from current app config, or None."""
+def _get_shacache_directory_tuple():
+  """Return (content_dir, metadata_dir) from config, or (None, None)."""
   content_dir = current_app.config.get('SHACACHE_CONTENT_DIRECTORY')
   metadata_dir = current_app.config.get('SHACACHE_METADATA_DIRECTORY')
-  if not content_dir or not metadata_dir:
-    return None
-  return Shacache(content_dir, metadata_dir)
+  return content_dir, metadata_dir
+
+
+def _find_file_cache_entry(sha512, content_dir):
+  fullpath = os.path.join(content_dir, sha512)
+  if os.path.isfile(fullpath):
+    return sha512
+  return None
+
+
+def _serve_metadata_entry(key, metadata_dir):
+  fullpath = os.path.join(metadata_dir, key)
+  if os.path.isfile(fullpath):
+    with open(fullpath, "r") as f:
+      entry = json.loads(f.read())
+    return json.dumps([entry])
+  return None
+
+
+def _store_file_cache_entry(sha512, data, content_dir):
+  fullpath = os.path.join(content_dir, sha512)
+  with open(fullpath, "wb") as handle:
+    handle.write(data)
+
+
+def _store_metadata_entry(key, entry_json, signature, metadata_dir):
+  if not os.path.isdir(metadata_dir):
+    os.makedirs(metadata_dir)
+  entry = json.dumps([entry_json, signature])
+  fullpath = os.path.join(metadata_dir, key)
+  with open(fullpath, "w") as f:
+    f.write(entry)
 
 
 @shacache_proxy_blueprint.route("/cache/<sha512>", methods=["GET"])
 def shacache_download(sha512):
-  shacache = _get_shacache()
-  if shacache is None:
+  content_dir, metadata_dir = _get_shacache_directory_tuple()
+  if not content_dir or not metadata_dir:
     return "Not configured\n", 503
-  file_name = shacache.find_file_cache_entry(sha512)
+  file_name = _find_file_cache_entry(sha512, content_dir)
   if file_name is None:
     upstream_cache_url = current_app.config.get('SHACACHE_UPSTREAM_CACHE_URL')
     if upstream_cache_url is None:
@@ -110,14 +106,14 @@ def shacache_download(sha512):
       current_app.logger.warning(
         "Checksum mismatch for upstream fetch %s", sha512)
       return "Checksum mismatch\n", 502
-    shacache.store_file_cache_entry(sha512, data)
+    _store_file_cache_entry(sha512, data, content_dir)
     return send_from_directory(
-      current_app.config['SHACACHE_CONTENT_DIRECTORY'],
+      content_dir,
       sha512,
       as_attachment=True,
     )
   return send_from_directory(
-    current_app.config['SHACACHE_CONTENT_DIRECTORY'],
+    content_dir,
     file_name,
     as_attachment=True,
   )
@@ -126,35 +122,35 @@ def shacache_download(sha512):
 @shacache_proxy_blueprint.route("/cache/", methods=["POST"])
 @shacache_proxy_blueprint.route("/cache", methods=["POST"])
 def shacache_upload():
-  shacache = _get_shacache()
-  if shacache is None:
+  content_dir, metadata_dir = _get_shacache_directory_tuple()
+  if not content_dir or not metadata_dir:
     return "Not configured\n", 503
   data = request.get_data()
   sha512 = hashlib.sha512(data).hexdigest()
-  shacache.store_file_cache_entry(sha512, data)
+  _store_file_cache_entry(sha512, data, content_dir)
   return sha512, 201
 
 
 @shacache_proxy_blueprint.route("/cache/<sha512>", methods=["PUT"])
 def shacache_upload_with_hash(sha512):
-  shacache = _get_shacache()
-  if shacache is None:
+  content_dir, metadata_dir = _get_shacache_directory_tuple()
+  if not content_dir or not metadata_dir:
     return "Not configured\n", 503
   data = request.get_data()
   computed = hashlib.sha512(data).hexdigest()
   if computed != sha512:
     return "Checksum mismatch\n", 400
-  shacache.store_file_cache_entry(sha512, data)
+  _store_file_cache_entry(sha512, data, content_dir)
   return sha512, 201
 
 
 @shacache_proxy_blueprint.route("/dir/<key>", methods=["GET"])
 def shadir_select(key):
-  shacache = _get_shacache()
-  if shacache is None:
+  content_dir, metadata_dir = _get_shacache_directory_tuple()
+  if not content_dir or not metadata_dir:
     return "Not configured\n", 503
   try:
-    dir_content = shacache.serve_metadata_entry(key)
+    dir_content = _serve_metadata_entry(key, metadata_dir)
   except Exception:
     current_app.logger.warning("Failed to read metadata for %s", key)
     dir_content = None
@@ -181,7 +177,7 @@ def shadir_select(key):
       if isinstance(upstream_data, list) and len(upstream_data) == 1:
         entry = upstream_data[0]
         if isinstance(entry, list) and len(entry) == 2:
-          shacache.store_metadata_entry(key, entry[0], entry[1])
+          _store_metadata_entry(key, entry[0], entry[1], metadata_dir)
     except Exception:
       current_app.logger.warning("Failed to save upstream dir entry for %s", key)
     return data.decode("utf-8"), 200, {"Content-Type": "application/json"}
@@ -190,12 +186,12 @@ def shadir_select(key):
 
 @shacache_proxy_blueprint.route("/dir/<key>", methods=["PUT"])
 def shadir_index(key):
-  shacache = _get_shacache()
-  if shacache is None:
+  content_dir, metadata_dir = _get_shacache_directory_tuple()
+  if not content_dir or not metadata_dir:
     return "Not configured\n", 503
   data = request.get_json()
   if not isinstance(data, list) or len(data) != 2:
     return "Invalid entry format\n", 400
   entry_json, signature = data
-  shacache.store_metadata_entry(key, entry_json, signature)
+  _store_metadata_entry(key, entry_json, signature, metadata_dir)
   return "", 201

@@ -89,7 +89,7 @@ class CompleteCommand(cliff.complete.CompleteCommand):
         )
 
 
-      self.app.stdout.write("""
+      self.app.stdout.write(r"""
 # completions for slapos command generated with `slapos complete --shell=fish`
 
 function __fish_print_slapos_services
@@ -97,24 +97,19 @@ function __fish_print_slapos_services
 end
 
 function __fish_print_slapos_node_services
-  echo all\\tAll services
-  eval ( commandline -o | head -1 ) node supervisorctl status | sed -e 's/ /\t/'
-end
-
-function __fish_print_slapos_node_services
-  echo all\\tAll services
+  echo all\tAll services
   eval ( commandline -o | head -1 ) node supervisorctl status | sed -e 's/ /\t/'
 end
 
 # complete installed softwares for slapos node software --only-sr
 function __fish_print_slapos_node_softwares
-  eval ( commandline -o | head -1 ) proxy show --software | tail -n +6 | grep available | awk '{print $4"\\t"$1}'
+  eval ( commandline -o | head -1 ) proxy show --software | tail -n +6 | grep available | awk '{print $4"\t"$1}'
 end
 complete -c slapos  -n '__fish_seen_subcommand_from node; and __fish_seen_subcommand_from software; and __fish_contains_opt only-sr only' -f -a '(__fish_print_slapos_node_softwares)'
 
 # complete busy partitions for slapos node instance --only-cp
 function __fish_print_slapos_partitions
-  eval ( commandline -o | head -1 ) proxy show --partitions | tail -n +6 | grep busy | awk '{print $1"\\t"$6" "$5" "$4}'
+  eval ( commandline -o | head -1 ) proxy show --partitions | tail -n +6 | grep busy | awk '{print $1"\t"$6" "$5" "$4}'
 end
 complete -c slapos  -n '__fish_seen_subcommand_from node; and __fish_seen_subcommand_from instance; and __fish_contains_opt only-cp only' -f -a '(__fish_print_slapos_partitions)'
 

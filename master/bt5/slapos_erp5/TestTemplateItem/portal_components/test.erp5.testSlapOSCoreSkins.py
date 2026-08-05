@@ -186,10 +186,9 @@ class TestSlaveInstance_getSecurityCategoryFromSoftwareInstance(TestSlapOSCoreMi
 
 
 class TestBase_getSecurityCategoryAsShadowUser(TestSlapOSCoreMixin):
-  def test_destination_section(self):
-    person = self.createPerson()
+  def _test_destination_section(self, actor):
     event = self.portal.system_event_module.newContent(
-      portal_type='Payzen Event', destination_section_value=person)
+      portal_type='Payzen Event', destination_section_value=actor)
 
     self.assertEqual([],
       self.portal.Base_getSecurityCategoryAsShadowUser([], None, None, None))
@@ -197,17 +196,22 @@ class TestBase_getSecurityCategoryAsShadowUser(TestSlapOSCoreMixin):
     self.assertEqual([],
       self.portal.Base_getSecurityCategoryAsShadowUser([], None, event, None)) 
 
-    shadow_user_id = 'SHADOW-%s' % person.getUserId()
+    shadow_user_id = 'SHADOW-%s' % actor.getUserId()
     self.assertEqual({'Assignee': [shadow_user_id], 'Auditor': [shadow_user_id]},
       self.portal.Base_getSecurityCategoryAsShadowUser(["destination_section"], None, event, None)) 
 
     self.assertEqual([],
       self.portal.Base_getSecurityCategoryAsShadowUser(["couscous", "destination_section"], None, event, None))
 
-  def test_destination(self):
-    person = self.createPerson()
+  def test_getSecurityCategoryAsShadowUser_personDestinationSection(self):
+    return self._test_destination_section(self.createPerson())
+
+  def test_getSecurityCategoryAsShadowUser_workgroupDestinationSection(self):
+    return self._test_destination_section(self.createWorkgroup())
+
+  def _test_destination(self, actor):
     payment = self.portal.accounting_module.newContent(
-      portal_type='Payment Transaction', destination_value=person)
+      portal_type='Payment Transaction', destination_value=actor)
 
     self.assertEqual([],
       self.portal.Base_getSecurityCategoryAsShadowUser([], None, None, None))
@@ -215,7 +219,7 @@ class TestBase_getSecurityCategoryAsShadowUser(TestSlapOSCoreMixin):
     self.assertEqual([],
       self.portal.Base_getSecurityCategoryAsShadowUser(["destination_section"], None, payment, None)) 
 
-    shadow_user_id = 'SHADOW-%s' % person.getUserId()
+    shadow_user_id = 'SHADOW-%s' % actor.getUserId()
     self.assertEqual({'Assignee': [shadow_user_id], 'Auditor': [shadow_user_id]},
       self.portal.Base_getSecurityCategoryAsShadowUser(["destination"], None, payment, None)) 
 
@@ -223,3 +227,8 @@ class TestBase_getSecurityCategoryAsShadowUser(TestSlapOSCoreMixin):
     self.assertEqual([],
       self.portal.Base_getSecurityCategoryAsShadowUser(["couscous", "destination"], None, payment, None)) 
 
+  def test_getSecurityCategoryAsShadowUser_personDestination(self):
+    return self._test_destination(self.createPerson())
+
+  def test_getSecurityCategoryAsShadowUser_workgroupDestination(self):
+    return self._test_destination(self.createWorkgroup())

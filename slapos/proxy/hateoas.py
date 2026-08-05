@@ -1,7 +1,7 @@
 from flask import request, abort, Blueprint, url_for, redirect
-from .db import execute_db, getRootPartitionList, getRootSharedList
+from .db import execute_db, decodeSharedParameters
+from slapos.util import dict2xml
 from six.moves.urllib.parse import unquote, urljoin
-from slapos.util import loads, dict2xml
 import re
 
 hateoas_blueprint = Blueprint('hateoas', __name__)
@@ -20,31 +20,31 @@ hateoas_blueprint = Blueprint('hateoas', __name__)
 def unquoted_url_for(method, **kwargs):
   return unquote(url_for(method, **kwargs))
 
+def _root_instance_list(shared, title=None):
+  query = "SELECT * FROM %s WHERE shared=? AND root_instance_guid=''"
+  args = [shared]
+  if title is not None:
+    query += ' AND title=?'
+    args.append(title)
+  return execute_db('instance', query, args)
+
 def busy_root_partitions_list(title=None):
   partitions = []
-  for row in getRootPartitionList(title=title):
+  for row in _root_instance_list(0, title=title):
     p = dict(row)
-    p['url_string'] = p['software_release']
-    p['title'] = p['partition_reference']
-    p['relative_url'] = url_for('.hateoas_partitions', partition_reference=p['partition_reference'])
+    p['url_string'] = row['software_release']
+    p['title'] = row['title']
+    p['relative_url'] = url_for('.hateoas_partitions', partition_reference=row['title'])
     partitions.append(p)
   return partitions
 
 def busy_root_shared_list(title=None):
   shared = []
-  for row in getRootSharedList(title=title):
-    host = execute_db('partition', 'SELECT * FROM %s WHERE reference=?', [row['hosted_by']], one=True)
-    if not host:
-      continue
-    for slave_dict in loads(host['slave_instance_list'].encode('utf-8')):
-      if slave_dict['slave_reference'] == row['reference']:
-        break
-    else:
-      continue
+  for row in _root_instance_list(1, title=title):
     s = {}
-    s['url_string'] = host['software_release']
-    s['title'] = row['reference'][1:] # root shared are prefixed with _
-    s['relative_url'] = url_for('.hateoas_shared', shared_reference=s['title'])
+    s['url_string'] = row['software_release']
+    s['title'] = row['title']
+    s['relative_url'] = url_for('.hateoas_shared', shared_reference=row['title'])
     shared.append(s)
   return shared
 
@@ -95,38 +95,38 @@ def parse_query(query):
 
 @hateoas_blueprint.route('/partitions/<partition_reference>', methods=['GET'])
 def hateoas_partitions(partition_reference):
-  partition = execute_db('partition', 'SELECT * FROM %s WHERE partition_reference=?', [partition_reference], one=True)
-  if partition is None:
+  row = execute_db('instance',
+    "SELECT * FROM %s WHERE shared=0 AND root_instance_guid='' AND title=?",
+    [partition_reference], one=True)
+  if row is None:
     abort(404)
-  partition['reference'] = partition['partition_reference']
-  partition['shared'] = 0
-  return hateoas_service_document(**partition)
+  return hateoas_service_document(
+    reference=row['title'],
+    requested_state=row['requested_state'],
+    xml=row['xml'],
+    connection_xml=row['connection_xml'],
+    software_release=row['software_release'],
+    software_type=row['software_type'],
+    shared=0,
+  )
 
 @hateoas_blueprint.route('/shared/<shared_reference>', methods=['GET'])
 def hateoas_shared(shared_reference):
-  slave_reference = '_' + shared_reference # root shared are prefixed with _ in db
-  shared = execute_db('slave', 'SELECT * FROM %s WHERE reference=?', [slave_reference], one=True)
-  if shared is None:
+  row = execute_db('instance',
+    "SELECT * FROM %s WHERE shared=1 AND root_instance_guid='' AND title=?",
+    [shared_reference], one=True)
+  if row is None:
     abort(404)
-  partition = execute_db('partition', 'SELECT * FROM %s WHERE reference=?', [shared['hosted_by']], one=True)
-  if partition is None:
-    abort(404)
-  slave_list = loads(partition['slave_instance_list'].encode('utf-8'))
-  for slave_dict in slave_list:
-    if slave_dict['slave_reference'] == slave_reference:
-      break
-  else:
-    abort(404)
-  del slave_dict['slave_title'], slave_dict['slave_reference']
-  software_type = slave_dict.pop('slap_software_type')
-  xml = dict2xml(slave_dict)
   return hateoas_service_document(
-    reference = shared_reference,
+    reference=shared_reference,
     requested_state='unused',
-    xml=xml,
-    connection_xml=shared['connection_xml'],
-    software_release=partition['software_release'],
-    software_type=software_type,
+    # Shared params are stored type-preserving (xml_marshaller); the hateoas
+    # my_text_content field is parsed by the client with xml2dict, so re-encode
+    # as dict2xml for that consumer.
+    xml=dict2xml(decodeSharedParameters(row['xml'])),
+    connection_xml=row['connection_xml'],
+    software_release=row['software_release'],
+    software_type=row['software_type'],
     shared=1,
   )
 

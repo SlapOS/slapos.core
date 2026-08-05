@@ -1,13 +1,12 @@
 import time
 
+import requests
 import slapos
-from slapos.slap.slap import ComputerPartition, SoftwareInstance
-from slapos.util import loads, dumps
-from slapos.util import bytes2str, \
-    xml2dict, dict2xml
+from slapos.slap.slap import ComputerPartition, SoftwareInstance, SoftwareRelease
+from slapos.util import xml2dict, dict2xml, dumps, loads, bytes2str
 
 import six
-from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlparse, urljoin
 
 from flask import g, current_app, request, url_for
 from slapos.proxy.db_version import DB_VERSION
@@ -22,8 +21,41 @@ class PartitionDeletionFailure(Exception):
 class AllocationFailure(Exception):
   pass
 
+class HostNotReady(AllocationFailure):
+  """A shared instance's hosting instance is not available yet.
+
+  Distinct from a capacity exhaustion: the host is another instance that a
+  later slapgrid run may allocate, so this is transient. It mirrors the
+  master's pending Slave Instance, which returns the 102 SoftwareInstanceNotReady
+  arm until the slave is allocated, rather than a terminal failure. It stays an
+  AllocationFailure subclass so the slap_tool blueprint keeps treating it like
+  any other allocation miss."""
+  pass
+
 class ConfigurationError(Exception):
   pass
+
+class UnknownRequester(Exception):
+  """An identity was asserted but does not resolve to a known, allocated
+  instance."""
+  pass
+
+
+def encodeSharedParameters(parameters):
+  """Serialize shared-instance parameters preserving their Python types.
+
+  Shared params travel to the hosting software through the slave_instance_list
+  projection, which deployed SRs (rapid-cdn, re6stnet) parse for typed values
+  (int ports, bool flags, nested dict/list). xml_marshaller round-trips those
+  types verbatim; dict2xml would stringify them. Non-shared params keep dict2xml
+  (which stringifies, mirroring the master)."""
+  return bytes2str(dumps(parameters))
+
+
+def decodeSharedParameters(xml):
+  """Decode a shared row's typed parameter blob written by
+  encodeSharedParameters."""
+  return loads(xml.encode('utf-8'))
 
 
 def execute_db(table, query, args=(), one=False, db_version=DB_VERSION, db=None):
@@ -42,6 +74,13 @@ def execute_db(table, query, args=(), one=False, db_version=DB_VERSION, db=None)
     for idx, value in enumerate(row)} for row in cur)
   return next(rv, None) if one else list(rv)
 
+
+def _write(table, query, args=()):
+  """Run an INSERT/UPDATE/DELETE statement, returning the cursor so callers
+  can read rowcount. Mirrors execute_db's table/version substitution."""
+  return g.db.execute(query % (table + DB_VERSION,), args)
+
+
 def checkIfMasterIsCurrentMaster(master_url):
   """
   Because there are several ways to contact this server, we can't easily check
@@ -55,10 +94,9 @@ def checkIfMasterIsCurrentMaster(master_url):
     return True
 
   # Hack way: call ourself
-  slap = slapos.slap.slap()
-  slap.initializeConnection(master_url)
   try:
-    return current_app.config['run_id'] == bytes2str(slap._connection_helper.GET('/getRunId'))
+    return current_app.config['run_id'] == requests.get(
+      urljoin(master_url, 'getRunId')).text
   except Exception:
     return False
 
@@ -69,23 +107,25 @@ def formatFromDB(computer_reference, partition_list,
   execute_db('computer', 'INSERT OR REPLACE INTO %s values(?, ?, ?)',
              (computer_reference, computer_address, computer_netmask))
 
-  # remove references to old partitions.
+  # Create as many placeholders as partitions requested; the first argument is
+  # the computer_reference, followed by every requested partition reference.
+  placeholders = ','.join('?' * len(partition_list))
+  reference_args = [x['partition_id'] for x in partition_list]
+
+  # remove references to old partitions (pure resource rows).
   execute_db(
     'partition',
     'DELETE FROM %s WHERE computer_reference = ? and reference not in ({})'.format(
-      ','.join('?' * len(partition_list)) # Create as many placeholder as partitions requested
-    ),
-    # Prepare arguments : first is for computer_reference, followed by the same of the partitions
-    [computer_reference] + [x['partition_id'] for x in partition_list]
+      placeholders),
+    [computer_reference] + reference_args
   )
-
+  # An instance is allocated to a partition; deleting the partition row
+  # deletes its instance too.
   execute_db(
-    'slave',
-    'DELETE FROM %s WHERE computer_reference = ? and hosted_by not in ({})'.format(
-      ','.join('?' * len(partition_list)) # Create as many placeholder as partitions requested
-    ),
-    # Prepare arguments : first is for computer_reference, followed by the same of the partitions
-    [computer_reference] + [x['partition_id'] for x in partition_list]
+    'instance',
+    'DELETE FROM %s WHERE allocated_computer = ? and allocated_partition not in ({})'.format(
+      placeholders),
+    [computer_reference] + reference_args
   )
   execute_db('partition_network', 'DELETE FROM %s WHERE computer_reference = ?', (computer_reference,))
 
@@ -97,7 +137,7 @@ def formatFromDB(computer_reference, partition_list,
         'partition_network',
         'INSERT OR REPLACE INTO %s (reference, partition_reference, computer_reference, address, netmask) values(?, ?, ?, ?, ?)',
         (ip['network-interface'], partition['partition_id'], computer_reference,
-         ip['ip-address'], ip['netmask'])
+         ip['ip-address'], ip.get('netmask', ''))
       )
 
 
@@ -118,274 +158,416 @@ def removeFromDB(computer_reference, software_release_url):
     [software_release_url, computer_reference])
 
 
-def freePartitionFromDB(computer_partition_id, computer_id):
-  partition = getPartitionFromDB(computer_partition_id, computer_id)
-  if not partition:
-    raise NotFoundPartitionFailure("Unknown partition %r on %r" % (computer_partition_id, computer_id))
-
-  # Implement something similar to Alarm_garbageCollectDestroyUnlinkedInstance, if root instance
-  # is destroyed, we request child instances in deleted state
-  if not partition['requested_by']:
-    args = partition['partition_reference'],
-    child_partitions = execute_db(
-      'partition',
-      'SELECT partition_reference'
-      ' FROM %s WHERE requested_by=?'
-      ' ORDER BY partition_reference',
-      args)
-    if child_partitions:
-      execute_db(
-        'partition',
-        "UPDATE %s SET requested_state='destroyed' WHERE requested_by=?",
-        args)
-      raise PartitionDeletionFailure("Not destroying yet because this partition has child partitions: "
-                                     + ', '.join(p['partition_reference'] for p in child_partitions))
-
-  execute_db(
-    "partition",
-    "UPDATE %s SET"
-      " slap_state='free',"
-      " software_release=NULL,"
-      " xml=NULL,"
-      " connection_xml=NULL,"
-      " slave_instance_list=NULL,"
-      " software_type=NULL,"
-      " partition_reference=NULL,"
-      " requested_by='',"
-      " requested_state='started'"
-    " WHERE reference=? AND computer_reference=?",
-    (computer_partition_id, computer_id))
-
 def getPartitionFromDB(reference, computer_reference):
+  """Resolve a partition RESOURCE row (address + allocation state)."""
   partition = execute_db('partition',
     'SELECT * FROM %s WHERE reference=? AND computer_reference=?',
     (reference, computer_reference), one=True)
-  if partition:
-    return partition
-  current_app.logger.warning("Nonexisting partition %r on %r. Known are %s",
-    reference, computer_reference,
-    execute_db("partition", "select reference, requested_by from %s"))
+  if partition is None:
+    current_app.logger.warning("Nonexisting partition %r on %r",
+      reference, computer_reference)
+  return partition
 
 
+def getInstanceByGuid(instance_guid):
+  """Resolve an instance_guid to its instance row, or None.
 
-def getAllocatedInstance(partition_reference, requested_by=''):
+  The guid is opaque and this function never inspects its format. Minted
+  'SOFTINST-N' guids and the 'computer-slappartN' guids frozen for migrated
+  instances both resolve through this one indexed PK lookup, with no special
+  case.
   """
-  Look for existence of instance, if so return the
-  corresponding partition dict, else return None
-  """
-  return execute_db('partition',
-    'SELECT * FROM %s WHERE partition_reference=? AND requested_by=?',
-    (partition_reference, requested_by), one=True)
+  return execute_db('instance',
+    'SELECT * FROM %s WHERE instance_guid=?', (instance_guid,), one=True)
 
-def getAllocatedSlaveInstance(slave_reference, requested_computer_id):
-  """
-  Look for existence of instance, if so return the
-  corresponding partition dict, else return None
 
-  # XXX: Scope currently depends on instance which requests slave.
-  # Meaning that two different instances requesting the same slave will
-  # result in two different allocated slaves.
-  """
-  return execute_db('slave',
-    'SELECT * FROM %s WHERE reference=? AND computer_reference=?',
-    (slave_reference, requested_computer_id), one=True)
+def mintInstanceGuid():
+  """Mint a fresh 'SOFTINST-N' guid from the monotonic last_instance_id counter.
 
-def requestSlave(software_release, software_type, partition_reference, requester_id, requested_by, partition_parameter_kw, filter_kw, requested_state):
+  The counter only grows and guids are never reused. instance_guid is the
+  PRIMARY KEY; on the (theoretical) conflict with a frozen guid that happens to
+  look like 'SOFTINST-N', the counter is incremented and a fresh value tried.
   """
-  Function to organise link between slave and master.
-  Slave information are stored in places:
-  1. slave table having information such as slave reference,
-      connection information to slave (given by slave master),
-      hosted_by and asked_by reference.
-  2. A dictionary in slave_instance_list of selected slave master
-      in which are stored slave_reference, software_type, slave_title and
-      partition_parameter_kw stored as individual keys.
-  """
-  requested_computer_id = filter_kw['computer_guid']
-  instance_xml = dict2xml(partition_parameter_kw)
+  row = execute_db('config',
+    "SELECT value FROM %s WHERE name='last_instance_id'", one=True)
+  counter = int(row['value']) if row and row['value'] is not None else 0
+  while True:
+    counter += 1
+    guid = 'SOFTINST-%s' % counter
+    if getInstanceByGuid(guid) is None:
+      break
+  execute_db('config',
+    "INSERT OR REPLACE INTO %s (name, value) VALUES ('last_instance_id', ?)",
+    (str(counter),))
+  return guid
 
-  # We will search for a master corresponding to request
-  args = []
-  a = args.append
-  q = 'SELECT * FROM %s WHERE software_release=? and computer_reference=?'
-  a(software_release)
-  a(requested_computer_id)
+
+def identifyRequester(computer_id, partition_id):
+  """Resolve an asserted (computer_id, partition_id) to the requester's
+  instance row.
+
+  Returns None ONLY when NEITHER field is present (no identity asserted =
+  direct user request). Raises UnknownRequester when an identity is asserted
+  but does not resolve -- including a PARTIAL assertion (exactly one of the two
+  fields present): a half-pair is a malformed assertion, not the absence of
+  one, so it is treated as bogus rather than silently downgraded to user.
+
+  This is the proxy-local substitute for the master deriving the requester from
+  the TLS client certificate: the assertion is trusted (the proxy mints no
+  credentials -- deliberate, local-only), but it is verified to EXIST so a
+  bogus identity fails explicitly instead of silently founding a new root tree.
+  """
+  if not computer_id and not partition_id:
+    return None
+  if not computer_id or not partition_id:
+    raise UnknownRequester(
+      'Incomplete requester identity: computer_id=%r partition_id=%r'
+      % (computer_id, partition_id))
+  requester = execute_db('instance',
+    'SELECT * FROM %s'
+    ' WHERE allocated_computer=? AND allocated_partition=? AND shared=0',
+    (computer_id, partition_id), one=True)
+  if requester is None:
+    raise UnknownRequester(
+      'Requester %r on %r is not a known allocated instance'
+      % (partition_id, computer_id))
+  return requester
+
+
+def requesterScope(requester):
+  """(root_instance_guid, requested_by_instance_guid) for a requester row.
+
+  A None requester (direct user request) scopes to the empty root, i.e. the
+  requested instance becomes a root of its own tree.
+  """
+  if requester is None:
+    return '', ''
+  return (requester['root_instance_guid'] or requester['instance_guid'],
+          requester['instance_guid'])
+
+
+def getRootInstanceTitle(row):
+  """Title of the tree root the given instance row belongs to."""
+  if not row['root_instance_guid']:
+    return row['title']
+  root = getInstanceByGuid(row['root_instance_guid'])
+  return root['title'] if root else row['title']
+
+
+def _touch(computer_reference, partition_reference):
+  """Bump the hosting (non-shared) instance's timestamp so slapgrid reprocesses
+  the partition. A shared-row mutation marks its host through here, since the
+  host partition is what materializes the shared instance."""
+  execute_db('instance',
+    'UPDATE %s SET timestamp=?'
+    ' WHERE shared=0 AND allocated_computer=? AND allocated_partition=?',
+    (time.time(), computer_reference, partition_reference))
+
+
+def _resolveSharedHost(filter_kw, software_release, software_type, computer_id):
+  """Find the non-shared instance whose partition will host a shared instance.
+
+  With an 'instance_guid' SLA filter the host is pinned to that exact instance's
+  partition; the miss is a soft HostNotReady (transient), never a 5xx/403 on the
+  request path. Without it, the host is any non-shared instance on the computer
+  matching the software release (and type if given)."""
+  if 'instance_guid' in filter_kw:
+    host = getInstanceByGuid(filter_kw['instance_guid'])
+    if host is None or host['shared'] or host['allocated_partition'] is None:
+      raise HostNotReady(
+        'No instance %s to host shared instance' % filter_kw['instance_guid'])
+    # The instance_guid filter pins the partition, but the base software
+    # release / computer / type constraints still apply (the pin is an
+    # additional constraint, not a bypass) -- otherwise a stale guid silently
+    # mis-pins.
+    if host['software_release'] != software_release \
+        or host['allocated_computer'] != computer_id \
+        or (software_type and host['software_type'] != software_type):
+      raise HostNotReady(
+        'No instance %s to host shared instance' % filter_kw['instance_guid'])
+    return host
+  args = [software_release, computer_id]
+  q = ('SELECT * FROM %s WHERE shared=0 AND software_release=?'
+       ' AND allocated_computer=? AND allocated_partition IS NOT NULL')
   if software_type:
     q += ' AND software_type=?'
-    a(software_type)
-  if 'instance_guid' in filter_kw:
-    q += ' AND reference=?'
-    # instance_guid should be like: %s-%s % (requested_computer_id, partition_id)
-    # But code is convoluted here, so we check
-    instance_guid = filter_kw['instance_guid']
-    if instance_guid.startswith(requested_computer_id):
-      a(instance_guid[len(requested_computer_id) + 1:])
-    else:
-      a(instance_guid)
+    args.append(software_type)
+  host = execute_db('instance', q, args, one=True)
+  if host is None:
+    raise HostNotReady(
+      'No instance to host shared instance for %s' % software_release)
+  return host
 
-  partition = execute_db('partition', q, args, one=True)
+
+def _pickFreePartition(computer_id):
+  """Pick a free partition slot on the given computer, marking it busy."""
+  partition = execute_db('partition',
+    "SELECT * FROM %s WHERE slap_state='free' and computer_reference=?",
+    [computer_id], one=True)
   if partition is None:
-    current_app.logger.warning('No partition corresponding to slave request: %s' % args)
-    raise AllocationFailure('No partition corresponding to slave request: %s' % args)
+    current_app.logger.warning('No more free computer partition')
+    raise AllocationFailure(
+      'No free computer partition found on %s' % computer_id)
+  execute_db('partition',
+    "UPDATE %s SET slap_state='busy' WHERE reference=? AND computer_reference=?",
+    (partition['reference'], partition['computer_reference']))
+  return partition
 
-  # We set slave dictionary as described in docstring
-  new_slave = {}
-  slave_reference = requested_by + '_' + partition_reference
-  new_slave['slave_title'] = slave_reference
-  new_slave['slap_software_type'] = software_type
-  new_slave['slave_reference'] = slave_reference
 
-  for key in partition_parameter_kw:
-    new_slave[key] = partition_parameter_kw[key]
+def requestInstance(requester, title, software_release, software_type,
+                    parameters, sla, requested_state, shared):
+  """Allocate or update one instance row and return the fresh row.
 
-  # Add slave to partition slave_list if not present else replace information
-  slave_updated_or_added = False
-  slave_instance_list = partition['slave_instance_list']
-  if requested_state == 'destroyed':
-    if slave_instance_list:
-      slave_instance_list = loads(slave_instance_list.encode('utf-8'))
-    before_count = len(slave_instance_list)
-    slave_instance_list = [x for x in slave_instance_list if x['slave_reference'] != slave_reference]
-    if before_count != len(slave_instance_list):
-      slave_updated_or_added = True
-  else:
-    if slave_instance_list:
-      slave_instance_list = loads(slave_instance_list.encode('utf-8'))
-      for i, x in enumerate(slave_instance_list):
-        if x['slave_reference'] == slave_reference:
-          if slave_instance_list[i] != new_slave:
-            slave_instance_list[i] = new_slave
-            slave_updated_or_added = True
-          break
-      else:
-        slave_instance_list.append(new_slave)
-        slave_updated_or_added = True
+  Idempotency is keyed on (title, root_instance_guid, shared) -- the master's
+  title-unique-per-instance-tree scope. Both tree edges (root_instance_guid and
+  requested_by_instance_guid) are stamped from requesterScope() at creation.
+  """
+  if parameters is None:
+    parameters = {}
+  if sla is None:
+    sla = {}
+  shared = 1 if shared else 0
+  if not shared and not software_type:
+    software_type = DEFAULT_SOFTWARE_TYPE
+  computer_id = sla.get('computer_guid', current_app.config['computer_id'])
+  root_guid, requester_guid = requesterScope(requester)
+  instance_xml = encodeSharedParameters(parameters) if shared \
+    else dict2xml(parameters)
+
+  if shared and requested_state == 'destroyed':
+    # A shared destroy is expressed at request time. Delete the row so it
+    # leaves the derived slave_instance_list projection and reprocess the host;
+    # a first-ever destroyed request creates nothing. The pre-delete row (or
+    # None) is returned so the destroy wire can still describe what was
+    # destroyed.
+    existing = execute_db('instance',
+      'SELECT * FROM %s WHERE title=? AND root_instance_guid=? AND shared=1',
+      (title, root_guid), one=True)
+    if existing is not None:
+      _write('instance', 'DELETE FROM %s WHERE instance_guid=?',
+        (existing['instance_guid'],))
+      _touch(existing['allocated_computer'], existing['allocated_partition'])
+    return existing
+
+  row = execute_db('instance',
+    'SELECT * FROM %s WHERE title=? AND root_instance_guid=? AND shared=?',
+    (title, root_guid, shared), one=True)
+
+  if row is None:
+    guid = mintInstanceGuid()
+    if shared:
+      host = _resolveSharedHost(sla, software_release, software_type, computer_id)
+      allocated_computer = host['allocated_computer']
+      allocated_partition = host['allocated_partition']
+      # Frozen at creation: the legacy '<root_title>_<title>' wire reference the
+      # slave_instance_list projection exposes. Frozen so a later root rename
+      # does not silently change the wire reference under the hosting software.
+      root_title = getRootInstanceTitle(requester) if requester is not None else ''
+      slave_reference = root_title + '_' + title
+      # slave_reference is the wire key the projection exposes and
+      # setComputerPartitionConnectionXml addresses; two distinct shared
+      # instances on one host must not collide on it. A title rename followed
+      # by a re-request of the original title can mint a new instance whose
+      # legacy concat equals an existing one -- disambiguate deterministically
+      # with the fresh (unique) guid. Existing (including migrated) refs are
+      # untouched.
+      if execute_db('instance',
+          'SELECT instance_guid FROM %s WHERE shared=1 AND allocated_computer=?'
+          ' AND allocated_partition=? AND slave_reference=?',
+          (allocated_computer, allocated_partition, slave_reference),
+          one=True) is not None:
+        slave_reference = slave_reference + '-' + guid
     else:
-      slave_instance_list = [new_slave]
-      slave_updated_or_added = True
+      partition = _pickFreePartition(computer_id)
+      allocated_computer = partition['computer_reference']
+      allocated_partition = partition['reference']
+      slave_reference = None
+    execute_db('instance',
+      'INSERT INTO %s (instance_guid, title, shared, root_instance_guid,'
+      ' requested_by_instance_guid, software_release, software_type,'
+      ' requested_state, xml, connection_xml, sla_xml, slave_reference,'
+      ' allocated_computer, allocated_partition, timestamp)'
+      ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      (guid, title, shared, root_guid, requester_guid, software_release,
+       software_type, requested_state or 'started', instance_xml, None,
+       dict2xml(sla) if sla else None, slave_reference,
+       allocated_computer, allocated_partition, time.time()))
+    if shared:
+      _touch(allocated_computer, allocated_partition)
+    return getInstanceByGuid(guid)
 
-  q += ' WHERE reference=? AND computer_reference=?'
-  a(partition['reference'])
-  a(partition['computer_reference'])
-  # Update slave_instance_list in database
+  guid = row['instance_guid']
+  if root_guid:
+    # propagate parent state to child: a child can be stopped or destroyed
+    # while its parent is started, but not started while the parent is not.
+    root = getInstanceByGuid(root_guid)
+    if root and root['requested_state'] != 'started':
+      requested_state = root['requested_state']
+
+  changed = row['timestamp'] is None
+  updates = []
   args = []
-  a = args.append
-  q = 'UPDATE %s SET slave_instance_list=?'
-  a(bytes2str(dumps(slave_instance_list)))
-  if slave_updated_or_added:
-    timestamp = time.time()
-    q += ', timestamp=?'
-    a(timestamp)
-  q += ' WHERE reference=? and computer_reference=?'
-  a(partition['reference'])
-  a(requested_computer_id)
-  execute_db('partition', q, args)
-  partition = getPartitionFromDB(partition['reference'], requested_computer_id)
-
-  # Add slave to slave table if not there
-  slave = execute_db('slave', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
-                     [slave_reference, requested_computer_id], one=True)
-  if slave is None:
-    execute_db('slave',
-               'INSERT INTO %s (reference,computer_reference,asked_by,hosted_by) values(?,?,?,?)',
-               (slave_reference, requested_computer_id, requested_by, partition['reference']))
-    slave = execute_db('slave', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
-                       [slave_reference, requested_computer_id], one=True)
-
-  address_list = []
-  for address in execute_db('partition_network',
-                            'SELECT * FROM %s WHERE partition_reference=? and computer_reference=?',
-                            [partition['reference'], partition['computer_reference']]):
-    address_list.append((address['reference'], address['address']))
-
-  # XXX it should be ComputerPartition, not a SoftwareInstance
-  return SoftwareInstance(
-    _connection_dict=xml2dict(slave['connection_xml']),
-    _parameter_dict=xml2dict(instance_xml),
-    slap_computer_id=partition['computer_reference'],
-    slap_computer_partition_id=slave['hosted_by'],
-    slap_software_release_url=partition['software_release'],
-    slap_server_url='slap_server_url',
-    slap_software_type=partition['software_type'],
-    ip_list=address_list)
-
-def requestNotSlave(software_release, software_type, partition_reference,
-                    requester_id, requested_by, partition_parameter_kw, filter_kw,
-                    requested_state):
-  instance_xml = dict2xml(partition_parameter_kw)
-  requested_computer_id = filter_kw['computer_guid']
-
-  partition = getAllocatedInstance(partition_reference, requested_by)
-  args = []
-  a = args.append
-  q = 'UPDATE %s SET slap_state="busy"'
-
-  if partition is None:
-    partition = execute_db('partition',
-        'SELECT * FROM %s WHERE slap_state="free" and computer_reference=?',
-        [requested_computer_id], one=True)
-    if partition is None:
-      current_app.logger.warning('No more free computer partition')
-      raise AllocationFailure('No free computer partition found for: %s' % partition_reference)
-    if partition_reference:
-      q += ' ,partition_reference=?'
-      a(partition_reference)
-    if requested_by:
-      q += ' ,requested_by=?'
-      a(requested_by)
-    if not software_type:
-      software_type = DEFAULT_SOFTWARE_TYPE
-  else:
-    if requested_by:
-      root_partition = getAllocatedInstance(requested_by)
-      if root_partition and root_partition['requested_state'] != "started":
-        # propagate parent state to child
-        # child can be stopped or destroyed while parent is started
-        requested_state = root_partition['requested_state']
-
-  timestamp = partition['timestamp']
-  changed = timestamp is None
-  for k, v in (('requested_state', requested_state or
-                                   partition['requested_state']),
+  for k, v in (('requested_state', requested_state or row['requested_state']),
                ('software_release', software_release),
-               ('software_type', software_type),
+               ('software_type', software_type or row['software_type']),
                ('xml', instance_xml)):
-    if partition[k] != v:
-      q += ', %s=?' % k
-      a(v)
+    if row[k] != v:
+      updates.append('%s=?' % k)
+      args.append(v)
       changed = True
-
   if changed:
-    timestamp = time.time()
-    q += ', timestamp=?'
-    a(timestamp)
+    updates.append('timestamp=?')
+    args.append(time.time())
+    args.append(guid)
+    _write('instance',
+      'UPDATE %s SET ' + ', '.join(updates) + ' WHERE instance_guid=?', args)
+    if shared:
+      _touch(row['allocated_computer'], row['allocated_partition'])
+  result = getInstanceByGuid(guid)
+  # The wire response reports the EFFECTIVE (propagated) requested state, not
+  # the stored intent: a child re-requested with no explicit state follows its
+  # parent and returns to 'started' when the parent restarts, even though the
+  # stored row keeps the last forced value. Storing falls back to the previous
+  # value, so the two can differ -- deliberately, to mirror the master.
+  result['requested_state'] = requested_state or 'started'
+  return result
 
-  q += ' WHERE reference=? AND computer_reference=?'
-  a(partition['reference'])
-  a(partition['computer_reference'])
 
-  execute_db('partition', q, args)
-  partition = getPartitionFromDB(partition['reference'],
-                                 partition['computer_reference'])
-  address_list = []
-  for address in execute_db('partition_network', 'SELECT * FROM %s WHERE partition_reference=?', [partition['reference']]):
-    address_list.append((address['reference'], address['address']))
+def renameInstance(instance_guid, new_title):
+  """Rename an instance -- a single-row title UPDATE, guid untouched. No
+  cascade: nothing references titles. Works for shared instances too."""
+  n = _write('instance',
+    'UPDATE %s SET title=? WHERE instance_guid=?',
+    (new_title, instance_guid)).rowcount
+  if not n:
+    raise NotFoundPartitionFailure(
+      'No instance %s to rename' % instance_guid)
 
-  # XXX it should be ComputerPartition, not a SoftwareInstance
-  parameter_dict = xml2dict(partition['xml'])
-  parameter_dict['timestamp'] = str(partition['timestamp'])
-  return SoftwareInstance(
-    _connection_dict=xml2dict(partition['connection_xml']),
-    _parameter_dict=parameter_dict,
-    connection_xml=partition['connection_xml'],
-    slap_computer_id=partition['computer_reference'],
-    slap_computer_partition_id=partition['reference'],
-    slap_software_release_url=partition['software_release'],
-    slap_server_url='slap_server_url',
-    slap_software_type=partition['software_type'],
-    _instance_guid='%(computer_reference)s-%(reference)s' % partition,
-    _requested_state=requested_state or 'started',
-    ip_list=address_list)
+
+def bangInstance(instance_guid):
+  """Bump the timestamp of a whole instance tree, scoped by guid."""
+  row = getInstanceByGuid(instance_guid)
+  if row is None:
+    raise NotFoundPartitionFailure('No instance %s to bang' % instance_guid)
+  root = row['root_instance_guid'] or row['instance_guid']
+  _write('instance',
+    'UPDATE %s SET timestamp=?'
+    ' WHERE instance_guid=? OR root_instance_guid=?',
+    (time.time(), root, root))
+  if row['shared']:
+    # A shared instance is materialized only by its host partition's slapgrid;
+    # bumping the guid's tree alone would be a wire no-op. Bump the host too.
+    _touch(row['allocated_computer'], row['allocated_partition'])
+
+
+def setInstanceConnectionParameters(instance_guid, connection_dict):
+  """Store an instance's published connection parameters."""
+  row = getInstanceByGuid(instance_guid)
+  if row is None:
+    raise NotFoundPartitionFailure(
+      'No instance %s to set connection parameters' % instance_guid)
+  connection_xml = dict2xml(connection_dict)
+  if row['connection_xml'] == connection_xml:
+    # Unchanged: publishing the same parameters must not bump the host every
+    # run (which would make slapgrid reprocess the hosting partition forever).
+    return
+  _write('instance',
+    'UPDATE %s SET connection_xml=? WHERE instance_guid=?',
+    (connection_xml, instance_guid))
+  if row['shared']:
+    _touch(row['allocated_computer'], row['allocated_partition'])
+
+
+def destroyInstance(instance_guid):
+  """Destroy an instance.
+
+  Implements an Alarm_garbageCollectDestroyUnlinkedInstance analogue: if the
+  instance has direct children, they are requested destroyed and the deletion
+  is refused (raising PartitionDeletionFailure); otherwise the row is deleted.
+
+  For a non-shared instance freeing a host slot, the shared instances hosted on
+  that slot are deleted too and the partition is freed -- otherwise a newcomer
+  allocated to the recycled slot would inherit the previous tenant's shared
+  instances through the slave_instance_list projection.
+  """
+  row = getInstanceByGuid(instance_guid)
+  if row is None:
+    raise NotFoundPartitionFailure(
+      'No instance %s to destroy' % instance_guid)
+  children = execute_db('instance',
+    'SELECT * FROM %s WHERE requested_by_instance_guid=?', (instance_guid,))
+  # Refuse the destroy while non-shared children exist, BEFORE touching the
+  # victim's shared children: a refused destroy must leave the victim (and its
+  # slaves) intact.
+  non_shared_children = [c for c in children if not c['shared']]
+  if non_shared_children:
+    _write('instance',
+      "UPDATE %s SET requested_state='destroyed'"
+      " WHERE requested_by_instance_guid=? AND shared=0", (instance_guid,))
+    raise PartitionDeletionFailure(
+      'Not destroying yet because this instance has child instances: '
+      + ', '.join(sorted(c['title'] for c in non_shared_children)))
+  # The destroy proceeds. Shared instances this instance requested are hosted on
+  # other slots; they do NOT block destruction (nothing else ever deletes a
+  # destroyed shared row, so blocking on them would deadlock teardown). Drop
+  # them and reprocess their hosts so they leave those hosts'
+  # slave_instance_list projections.
+  for c in children:
+    if c['shared']:
+      _write('instance', 'DELETE FROM %s WHERE instance_guid=?',
+        (c['instance_guid'],))
+      _touch(c['allocated_computer'], c['allocated_partition'])
+  _write('instance', 'DELETE FROM %s WHERE instance_guid=?', (instance_guid,))
+  if row['shared']:
+    _touch(row['allocated_computer'], row['allocated_partition'])
+  else:
+    _write('instance',
+      'DELETE FROM %s'
+      ' WHERE shared=1 AND allocated_computer=? AND allocated_partition=?',
+      (row['allocated_computer'], row['allocated_partition']))
+    _write('partition',
+      "UPDATE %s SET slap_state='free'"
+      " WHERE reference=? AND computer_reference=?",
+      (row['allocated_partition'], row['allocated_computer']))
+
+
+def getSlaveInstanceList(computer_reference, partition_reference):
+  """Derived slave_instance_list projection for a hosting partition.
+
+  Generated at read time from shared instance rows allocated to the partition,
+  in insertion order. Byte-compatible with the v17 blob shape (slapgrid and
+  deployed SRs such as rapid-cdn / re6stnet parse these entries). Shared
+  instances are NOT given an _instance_guid in the entries."""
+  result_list = []
+  for row in execute_db('instance',
+      'SELECT * FROM %s'
+      ' WHERE shared=1 AND allocated_computer=? AND allocated_partition=?'
+      ' ORDER BY rowid',
+      (computer_reference, partition_reference)):
+    entry = {
+      'slave_title': row['slave_reference'],
+      'slave_reference': row['slave_reference'],
+      'slap_software_type': row['software_type'],
+    }
+    entry.update(decodeSharedParameters(row['xml']))
+    result_list.append(entry)
+  return result_list
+
+
+def getRootInstanceList(title=None):
+  """Root instances (shared and non-shared), optionally filtered by title."""
+  query = "SELECT * FROM %s WHERE root_instance_guid=''"
+  args = []
+  if title is not None:
+    query += ' AND title=?'
+    args.append(title)
+  return execute_db('instance', query, args)
+
+
+def getInstanceTreeList(title=None):
+  """List of tree-root instance rows, optionally filtered by title."""
+  return getRootInstanceList(title=title)
+
 
 def isRequestToBeForwardedToExternalMaster(parsed_request_dict):
     """
@@ -478,7 +660,13 @@ def forwardRequestToExternalMaster(master_url, parsed_request_dict):
   # XXX move to other end
   partition._master_url = master_url # type: ignore
   partition._connection_helper = None
-  partition._software_release_document = parsed_request_dict['software_release'] # type: ignore
+  # getSoftwareRelease() must yield a SoftwareRelease object (consumers call
+  # .getURI() on it), so wrap the forwarded release URL instead of storing the
+  # raw string.
+  partition._software_release_document = SoftwareRelease( # type: ignore
+      software_release=parsed_request_dict['software_release'],
+      computer_guid=partition._computer_id,
+  )
 
   return partition
 
@@ -505,8 +693,73 @@ def checkMasterUrl(master_url):
 
   return True
 
-def requestInstanceFromDB(slave=None, **parsed_request_dict):
-  # Check first if instance is already allocated
+
+def _rowToSoftwareInstance(row):
+  """Build the slap_tool SoftwareInstance wire object from an instance row.
+
+  Shared instances carry NO _instance_guid on this wire (an old client's
+  getInstanceGuid() on a shared partition must keep its behaviour)."""
+  address_list = []
+  for address in execute_db('partition_network',
+      'SELECT * FROM %s WHERE partition_reference=? AND computer_reference=?',
+      (row['allocated_partition'], row['allocated_computer'])):
+    address_list.append((address['reference'], address['address']))
+
+  if row['shared']:
+    return SoftwareInstance(
+      _connection_dict=xml2dict(row['connection_xml']),
+      _parameter_dict=decodeSharedParameters(row['xml']),
+      slap_computer_id=row['allocated_computer'],
+      slap_computer_partition_id=row['allocated_partition'],
+      slap_software_release_url=row['software_release'],
+      slap_server_url='slap_server_url',
+      slap_software_type=row['software_type'],
+      ip_list=address_list)
+
+  parameter_dict = xml2dict(row['xml'])
+  parameter_dict['timestamp'] = str(row['timestamp'])
+  return SoftwareInstance(
+    _connection_dict=xml2dict(row['connection_xml']),
+    _parameter_dict=parameter_dict,
+    connection_xml=row['connection_xml'],
+    slap_computer_id=row['allocated_computer'],
+    slap_computer_partition_id=row['allocated_partition'],
+    slap_software_release_url=row['software_release'],
+    slap_server_url='slap_server_url',
+    slap_software_type=row['software_type'],
+    _instance_guid=row['instance_guid'],
+    _requested_state=row['requested_state'] or 'started',
+    ip_list=address_list)
+
+
+def requestInstanceFromDB(requester=None, requester_id='user',
+                          software_release=None, software_type=None,
+                          partition_reference=None, partition_parameter_kw=None,
+                          filter_kw=None, requested_state='started', slave=False):
+  """Orchestrate an instance request: frontend-bypass shortcuts and
+  external-master forwarding stay here; the local allocation path delegates to
+  requestInstance.
+
+  requester is the resolved requesting instance row (or None for a direct user
+  request), as identified by identifyRequester and carried in flask.g by the
+  blueprint hooks. requester_id is the raw asserted partition id string, used
+  only for the multimaster forwarding prefix.
+  """
+  if partition_parameter_kw is None:
+    partition_parameter_kw = {}
+  if filter_kw is None:
+    filter_kw = {}
+  parsed_request_dict = {
+    'requester_id': requester_id,
+    'software_release': software_release,
+    'software_type': software_type,
+    'partition_reference': partition_reference,
+    'partition_parameter_kw': partition_parameter_kw,
+    'filter_kw': filter_kw,
+    'requested_state': requested_state,
+    'slave': slave,
+  }
+
   if slave:
     # slapproxy cannot request frontends, but we can workaround common cases,
     # so that during tests promises are succesful.
@@ -516,9 +769,9 @@ def requestInstanceFromDB(slave=None, **parsed_request_dict):
       apache_frontend_sr_url_list = (
           'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
       )
-      if parsed_request_dict['software_release'] in apache_frontend_sr_url_list \
-        and parsed_request_dict.get('software_type', '') in ('', OLD_DEFAULT_SOFTWARE_TYPE, DEFAULT_SOFTWARE_TYPE):
-        url_parameter = parsed_request_dict['partition_parameter_kw'].get('url')
+      if software_release in apache_frontend_sr_url_list \
+        and (software_type or '') in ('', OLD_DEFAULT_SOFTWARE_TYPE, DEFAULT_SOFTWARE_TYPE):
+        url_parameter = partition_parameter_kw.get('url')
         if url_parameter:
           if request.scheme == 'https':
             # Only handle the secure access if slapproxy is also
@@ -558,10 +811,10 @@ def requestInstanceFromDB(slave=None, **parsed_request_dict):
       kvm_frontend_sr_url_list = (
           'http://git.erp5.org/gitweb/slapos.git/blob_plain/refs/tags/slapos-0.92:/software/kvm/software.cfg',
       )
-      if parsed_request_dict['software_release'] in kvm_frontend_sr_url_list \
-          and parsed_request_dict.get('software_type') in ('frontend', ):
-        host = parsed_request_dict['partition_parameter_kw'].get('host')
-        port = parsed_request_dict['partition_parameter_kw'].get('port')
+      if software_release in kvm_frontend_sr_url_list \
+          and software_type in ('frontend', ):
+        host = partition_parameter_kw.get('host')
+        port = partition_parameter_kw.get('port')
         if host and port:
           # host is supposed to be ipv6 without brackets.
           if ':' in host and host[0] != '[':
@@ -580,69 +833,53 @@ def requestInstanceFromDB(slave=None, **parsed_request_dict):
           }
           return partition
 
-    # XXX: concat is unreliable
-    slave_reference = parsed_request_dict['requested_by'] + '_' \
-                    + parsed_request_dict['partition_reference']
-    requested_computer_id = parsed_request_dict['filter_kw'].get('computer_guid', current_app.config['computer_id'])
-    matching_partition = getAllocatedSlaveInstance(slave_reference, requested_computer_id)
-  else:
-    matching_partition = getAllocatedInstance(
-      parsed_request_dict['partition_reference'],
-      parsed_request_dict['requested_by'])
-
-  if not matching_partition:
-    # Instance is not yet allocated: try to do it.
+  # Decide forwarding only for a request not already allocated locally: an
+  # instance already present in this request scope stays local (and is updated).
+  root_guid, _ = requesterScope(requester)
+  already_local = execute_db('instance',
+    'SELECT instance_guid FROM %s WHERE title=? AND root_instance_guid=? AND shared=?',
+    (partition_reference, root_guid, 1 if slave else 0), one=True)
+  if not already_local:
     external_master_url = isRequestToBeForwardedToExternalMaster(parsed_request_dict)
     if external_master_url:
       return forwardRequestToExternalMaster(external_master_url, {
-        # Prefix instance reference with id of requester (partition id (ends with a digit) or 'user' (cannot be a partition id))
-        'requested_by': parsed_request_dict['requested_by'],
-        'partition_reference': '%s_%s' % (parsed_request_dict['requester_id'], parsed_request_dict['partition_reference']),
-        'software_release': parsed_request_dict['software_release'],
-        'software_type': parsed_request_dict['software_type'],
-        'partition_parameter_kw': parsed_request_dict['partition_parameter_kw'],
-        'filter_kw': parsed_request_dict['filter_kw'],
+        # Prefix instance reference with id of requester (partition id (ends
+        # with a digit) or 'user' (cannot be a partition id))
+        'partition_reference': '%s_%s' % (requester_id, partition_reference),
+        'software_release': software_release,
+        'software_type': software_type,
+        'partition_parameter_kw': partition_parameter_kw,
+        'filter_kw': filter_kw,
         # Note: currently ignored for slave instance (slave instances
         # are always started).
-        'requested_state': parsed_request_dict['requested_state'],
+        'requested_state': requested_state,
         # Is it a slave instance?
-        'slave': slave
+        'slave': slave,
       })
-    # XXX add support for automatic deployment on specific node depending on available SR and partitions on each Node.
-    # Note: It only deploys on default node if SLA not specified
-    # XXX: split request and request slave into different update/allocate functions and simplify.
 
   # By default, ALWAYS request instance on default computer
-  parsed_request_dict['filter_kw'].setdefault('computer_guid', current_app.config['computer_id'])
-  if slave:
-    software_instance = requestSlave(**parsed_request_dict)
-  else:
-    software_instance = requestNotSlave(**parsed_request_dict)
-  return software_instance
+  filter_kw.setdefault('computer_guid', current_app.config['computer_id'])
+  # Return the raw instance row for the local-allocation path. The wire shape is
+  # the caller's concern: slap_tool wraps it with _rowToSoftwareInstance (which
+  # omits _instance_guid for shared rows), json_rpc serializes the row directly
+  # (publishing instance_guid for shared and non-shared alike). None is returned
+  # when a first-ever shared request with state 'destroyed' allocates nothing.
+  return requestInstance(requester, partition_reference, software_release,
+                         software_type, partition_parameter_kw, filter_kw,
+                         requested_state, slave)
 
 
-def bangInstanceFromDB(partition_reference, requested_by):
-  execute_db('partition',
-    "UPDATE %s SET timestamp=?"
-    " WHERE (partition_reference=? AND requested_by=?) OR requested_by=?",
-    (time.time(), partition_reference, requested_by, partition_reference))
+def freePartitionFromDB(computer_partition_id, computer_id):
+  """Destroy the non-shared instance allocated to a partition slot.
 
-
-def getRootPartitionList(title=None):
-  query = "SELECT * FROM %s WHERE slap_state!='free' AND requested_by=''"
-  args = []
-  if title:
-    query += ' AND partition_reference=?'
-    args.append(title)
-  return execute_db('partition', query, args)
-
-def getRootSharedList(title=None):
-  query = "SELECT * FROM %s WHERE asked_by=''"
-  args = []
-  if title:
-    query += ' AND reference=?'
-    args.append('_' + title)
-  return execute_db('slave', query, args)
-
-def getInstanceTreeList(title=None):
-  return [getRootPartitionList(title=title), getRootSharedList(title=title)]
+  Legacy entry point addressing an instance by its partition coordinates;
+  resolves to the instance row and delegates to destroyInstance (which also
+  drops the shared instances hosted on the freed slot and frees it)."""
+  row = execute_db('instance',
+    'SELECT * FROM %s'
+    ' WHERE allocated_computer=? AND allocated_partition=? AND shared=0',
+    (computer_id, computer_partition_id), one=True)
+  if row is None:
+    raise NotFoundPartitionFailure(
+      "Unknown partition %r on %r" % (computer_partition_id, computer_id))
+  destroyInstance(row['instance_guid'])

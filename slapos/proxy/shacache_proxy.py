@@ -156,7 +156,8 @@ def shadir_select(key):
   try:
     dir_content = _serve_metadata_entry(key, metadata_dir)
   except OSError:
-    current_app.logger.warning("Failed to read metadata for %s", key)
+    current_app.logger.warning("Failed to read metadata for %s", key,
+                               exc_info=True)
     dir_content = None
   if dir_content is None:
     nc = _get_upstream_networkcache_client()
@@ -237,7 +238,8 @@ def shadir_update():
           os.remove(filepath)
         removed.append(filename)
       except (OSError, ValueError):
-        current_app.logger.warning("Failed to process metadata file %s", filename)
+        current_app.logger.warning("Failed to process metadata file %s", filename,
+                                   exc_info=True)
   else:
     # Upstream set: sync each local entry with upstream
     for filename in os.listdir(metadata_dir):
@@ -262,7 +264,8 @@ def shadir_update():
             "Upstream returned %s for %s during update", e.code, filename)
       except (HTTPError, OSError, ValueError) as e:
         current_app.logger.warning(
-          "Failed to update dir %s from upstream: %s", filename, e)
+          "Failed to update dir %s from upstream: %s", filename, e,
+          exc_info=True)
 
   return json.dumps({"removed": removed, "updated": updated}), 200, {
     "Content-Type": "application/json"}

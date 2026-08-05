@@ -10,6 +10,15 @@ host = 127.0.0.1
 port = 5000
 database_uri = /opt/slapos/slapproxy.db
 
+# Shacache / Shadir proxy settings
+# Uncomment and configure these to enable the built-in shacache/shadir proxy.
+# The proxy endpoints are available at /shacache/cache and /shacache/dir.
+#shacache-content-directory = /opt/shacache/data
+#shacache-metadata-directory = /opt/shacache/dir
+#shacache-signing-key-path = /opt/shacache/signing-key.pem
+#shacache-upstream-cache-url = https://shacache.nxdcdn.com
+#shacache-upstream-dir-url = https://shadir.nxdcdn.com
+
 
 ###############################
 # Optional, advanced parameters

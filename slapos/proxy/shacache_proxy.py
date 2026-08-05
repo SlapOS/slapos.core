@@ -107,7 +107,8 @@ def shacache_download(sha512):
         "Upstream returned %s for %s", e.code, sha512)
       abort(502, "Upstream returned %s" % e.code)
     except Exception as e:
-      current_app.logger.warning("Failed to fetch from upstream: %s", e)
+      current_app.logger.warning("Failed to fetch from upstream: %s", e,
+                                 exc_info=True)
       abort(502, "Upstream error: %s" % e)
     _store_file_cache_entry(sha512, data, content_dir)
     return send_from_directory(
@@ -154,7 +155,7 @@ def shadir_select(key):
     abort(503, "Shacache not configured")
   try:
     dir_content = _serve_metadata_entry(key, metadata_dir)
-  except Exception:
+  except OSError:
     current_app.logger.warning("Failed to read metadata for %s", key)
     dir_content = None
   if dir_content is None:
@@ -171,13 +172,11 @@ def shadir_select(key):
         "Upstream dir returned %s for %s", e.code, key)
       abort(502, "Upstream returned %s" % e.code)
     except Exception as e:
-      current_app.logger.warning("Failed to fetch dir from upstream: %s", e)
+      current_app.logger.warning("Failed to fetch dir from upstream: %s", e,
+                                 exc_info=True)
       abort(502, "Upstream error: %s" % e)
-    try:
-      if isinstance(data_list, list):
-        _store_metadata_entry_list(key, data_list, metadata_dir)
-    except Exception:
-      current_app.logger.warning("Failed to save upstream dir entry for %s", key)
+    if isinstance(data_list, list):
+      _store_metadata_entry_list(key, data_list, metadata_dir)
     return json.dumps(data_list), 200, {"Content-Type": "application/json"}
   return dir_content
 
@@ -228,7 +227,7 @@ def shadir_update():
               sha512 = entry_dict.get("sha512", "")
               if sha512 and _find_file_cache_entry(sha512, content_dir):
                 filtered.append(entry_pair)
-            except Exception:
+            except ValueError:
               pass
         if len(filtered) == len(entries):
           continue
@@ -237,7 +236,7 @@ def shadir_update():
         else:
           os.remove(filepath)
         removed.append(filename)
-      except Exception:
+      except (OSError, ValueError):
         current_app.logger.warning("Failed to process metadata file %s", filename)
   else:
     # Upstream set: sync each local entry with upstream
@@ -261,7 +260,7 @@ def shadir_update():
         else:
           current_app.logger.warning(
             "Upstream returned %s for %s during update", e.code, filename)
-      except Exception as e:
+      except (HTTPError, OSError, ValueError) as e:
         current_app.logger.warning(
           "Failed to update dir %s from upstream: %s", filename, e)
 

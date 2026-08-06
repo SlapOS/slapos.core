@@ -418,8 +418,7 @@ class TestComputer(SlapformatMixin):
     computer.format(alter_user=False)
     self.assertEqual([
       "makedirs('/instance_root', 493)",
-      "makedirs('/software_root', 493)",
-      "chmod('/software_root', 493)"],
+      "makedirs('/software_root', 493)"],
       self.test_result.bucket)
     self.assertEqual([],
       self.fakeCallAndRead.external_command_list)
@@ -455,8 +454,7 @@ class TestComputer(SlapformatMixin):
     computer.format(alter_network=False, alter_user=False)
     self.assertEqual([
       "makedirs('/instance_root', 493)",
-      "makedirs('/software_root', 493)",
-      "chmod('/software_root', 493)"],
+      "makedirs('/software_root', 493)"],
       self.test_result.bucket)
     self.assertEqual([],
       self.fakeCallAndRead.external_command_list)
@@ -534,7 +532,6 @@ class TestComputer(SlapformatMixin):
     self.assertEqual([
       "makedirs('/instance_root', 493)",
       "makedirs('/software_root', 493)",
-      "chmod('/software_root', 493)",
       "mkdir('/instance_root/partition', 488)",
       "chmod('/instance_root/partition', 488)"
     ],
@@ -589,7 +586,6 @@ class TestComputer(SlapformatMixin):
     self.assertEqual([
       "makedirs('/instance_root', 493)",
       "makedirs('/software_root', 493)",
-      "chmod('/software_root', 493)",
       "mkdir('/instance_root/partition', 488)",
       "chmod('/instance_root/partition', 488)"
     ],
@@ -680,7 +676,6 @@ class TestComputer(SlapformatMixin):
     self.assertEqual([
         "makedirs('/instance_root', 493)",
         "makedirs('/software_root', 493)",
-        "chmod('/software_root', 493)",
         "mkdir('/instance_root/partition', 488)",
         "chmod('/instance_root/partition', 488)"
       ],

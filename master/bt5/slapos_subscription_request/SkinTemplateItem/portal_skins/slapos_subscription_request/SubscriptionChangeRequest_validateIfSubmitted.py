@@ -78,6 +78,14 @@ edit_kw = {
 is_owner_change_needed = False
 
 if previous_causality_to_compare.getDestination() != subscription_change_request.getDestination():
+  previous_destination = previous_causality_to_compare.getDestinationValue(portal_type="Workgroup")
+  next_destination = subscription_change_request.getDestinationValue(portal_type="Person")
+
+  if (previous_destination is not None and next_destination is not None and \
+                    context.Base_isPersonFromWorkgroup(next_destination, previous_destination)):
+    return subscription_change_request.cancel(
+      comment='Cannot transfer from a Workgroup to one of its members (Person).')
+
   # change instance tree owner
   identical_order_base_category_list.extend(['source_section', 'price'])
   edit_kw['destination'] = subscription_change_request.getDestination(None)

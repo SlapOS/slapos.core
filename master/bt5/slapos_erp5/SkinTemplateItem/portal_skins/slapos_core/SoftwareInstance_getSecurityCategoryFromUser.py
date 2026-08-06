@@ -32,10 +32,9 @@ if obj is None:
 
 instance_tree = obj.getSpecialiseValue(portal_type="Instance Tree")
 if instance_tree is not None:
-  person = instance_tree.getDestinationSectionValue(portal_type="Person")
-  if person is not None:
-
+  entity = instance_tree.getDestinationSectionValue(portal_type=["Person", "Workgroup"])
+  if entity is not None:
     for base_category in base_category_list:
-      category_list.append({base_category: [person.getRelativeUrl()]})
+      category_list.append({base_category: [entity.getRelativeUrl()]})
 
 return category_list

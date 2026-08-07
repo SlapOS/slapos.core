@@ -2,62 +2,237 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Henri</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HENRI — High Efficiency New Radio Interface</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <nav id="sidebar">
-    <h1>Henri</h1>
-    <button type="button" class="nav-item" data-view="cells">Cells</button>
-    <button type="button" class="nav-item" data-view="core-network">Core Network</button>
-    <button type="button" class="nav-item" data-view="sim-management">SIM Management</button>
-  </nav>
+<div class="app" id="app">
 
-  <main id="content">
-    <p id="message"></p>
-
-    <section id="view-cells" class="view">
-      <div id="cells-list"></div>
-    </section>
-
-    <section id="view-core-network" class="view">
-      <div id="core-network-list"></div>
-    </section>
-
-    <section id="view-sim-management" class="view">
-      <div class="view-header">
-        <h2>SIM Management</h2>
-        <button type="button" id="add-sim-button">+ Add SIM</button>
-      </div>
-      <table id="sim-table">
-        <thead>
-          <tr>
-            <th>IMSI</th>
-            <th>Device Name</th>
-            <th>APN</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-  </main>
-
-  <div id="modal-overlay" class="hidden">
-    <div id="modal">
-      <div class="modal-header">
-        <h3 id="modal-title"></h3>
-        <button type="button" id="modal-close">&times;</button>
-      </div>
-      <div id="modal-body"></div>
-      <div class="modal-footer">
-        <button type="button" id="modal-cancel">Cancel</button>
-        <button type="button" id="modal-save">Save</button>
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="side">
+    <div class="brand">
+      <div>
+        <div class="brand-mark"><span class="brand-txt">Nu</span><i class="brand-bar"></i><span class="brand-txt">Link</span></div>
+        <div class="brand-sub">Wireless Technology &amp; Solutions</div>
       </div>
     </div>
-  </div>
+    <nav class="nav" id="nav">
+      <button type="button" class="nav-item" data-view="dashboard"><i class="nav-dot"></i><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span></button>
+      <button type="button" class="nav-item" data-view="ue-monitoring"><i class="nav-dot"></i><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="10" y1="18" x2="14" y2="18"/></svg><span class="nav-label">UE Monitoring</span></button>
+      <button type="button" class="nav-item" data-view="production-set"><i class="nav-dot"></i><svg viewBox="0 0 24 24"><polygon points="3 7 9 4 15 7 21 4 21 17 15 20 9 17 3 20"/><line x1="9" y1="4" x2="9" y2="17"/><line x1="15" y1="7" x2="15" y2="20"/></svg><span class="nav-label">Production Set</span></button>
+      <button type="button" class="nav-item" data-view="cells"><i class="nav-dot"></i><svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="11"/><path d="M7 16a7 7 0 0 1 0-9"/><path d="M17 16a7 7 0 0 0 0-9"/><circle cx="12" cy="8" r="1.6"/></svg><span class="nav-label">Cells</span></button>
+      <button type="button" class="nav-item" data-view="core-network"><i class="nav-dot"></i><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg><span class="nav-label">Core Network</span></button>
+      <button type="button" class="nav-item" data-view="sim-management"><i class="nav-dot"></i><svg viewBox="0 0 24 24"><path d="M5 3h9l5 5v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><rect x="8" y="11" width="8" height="7" rx="1"/></svg><span class="nav-label">SIM Management</span></button>
+      <button type="button" class="nav-item" data-view="events"><i class="nav-dot"></i><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg><span class="nav-label">Events</span></button>
+      <button type="button" class="nav-item" data-view="settings"><i class="nav-dot"></i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg><span class="nav-label">Settings</span></button>
+    </nav>
+    <div class="side-foot">
+      <button type="button" class="collapse-btn" id="collapse"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/><polyline points="20 18 14 12 20 6"/></svg><span>Collapse</span></button>
+    </div>
+  </aside>
 
-  <script src="app.js"></script>
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb" id="crumb">Dashboard</div>
+      <div class="top-right">
+        <div class="live-pill" id="live-pill"><i class="live-dot"></i><span id="live-label">Live</span><span id="clock">00:00:00</span></div>
+        <button type="button" class="icon-btn" id="refresh" title="Reload from the proxy"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.5 15a9 9 0 1 1-2.1-9.4L23 10"/></svg></button>
+        <div class="user">
+          <div class="avatar">AD</div>
+          <div><div class="user-name">admin</div><div class="user-role">Admin</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eventbar off" id="eventbar">
+      <span class="eb-tag">LAB MODE</span>
+      <span class="eb-name">No event running — configuration unlocked</span>
+      <button type="button" class="eb-btn" id="ebtn">Activate event</button>
+    </div>
+
+    <p id="message"></p>
+
+    <div class="scroll" id="scroll">
+
+      <!-- ---------- DASHBOARD ---------- -->
+      <section class="view" id="view-dashboard">
+        <div class="h1">Dashboard</div>
+        <div class="sub">Operational view of the private network — live from the slapproxy.</div>
+        <div class="grid g4" id="dash-status" style="margin-bottom:14px"></div>
+        <div class="grid g3">
+          <div class="card"><div class="card-t">Network identity</div><div id="dash-identity"></div></div>
+          <div class="card"><div class="card-t">Device groups</div><div id="dash-groups"></div></div>
+          <div class="card"><div class="card-t">Radio cells</div><div id="dash-cells"></div></div>
+        </div>
+      </section>
+
+      <!-- ---------- UE MONITORING ---------- -->
+      <section class="view" id="view-ue-monitoring">
+        <div class="h1">UE Monitoring</div>
+        <div class="sub">The devices provisioned on the network, as known to the core.</div>
+        <div class="grid g4" id="ue-status" style="margin-bottom:16px"></div>
+        <div class="note" id="ue-note"></div>
+        <div class="tabs" id="ue-tabs">
+          <button type="button" class="tab on" data-tab="overview">Overview</button>
+          <button type="button" class="tab" data-tab="expert">Expert table</button>
+        </div>
+        <div class="ue-grid" id="ue-grid"></div>
+        <div id="ue-expert" class="hidden"></div>
+      </section>
+
+      <!-- ---------- PRODUCTION SET ---------- -->
+      <section class="view" id="view-production-set">
+        <div class="h1">Production Set</div>
+        <div class="sub">A map of the live set. Drag a SIM from the list onto the canvas to enable it, drag a node back onto the list to disable it, click any node to inspect it.</div>
+        <div class="set">
+          <div class="lib" id="set-lib">
+            <div class="lib-h">SIM cards</div>
+            <div class="lib-s">Drag onto the set to enable</div>
+            <div id="sim-lib"></div>
+            <div class="lib-h" style="margin-top:16px">Cells</div>
+            <div class="lib-s">Radio hubs of the set</div>
+            <div id="cell-lib"></div>
+          </div>
+
+          <div class="canvas" id="canvas">
+            <div class="cv-top"><b>&#9679;</b> <span id="cv-top-label">PRODUCTION SET</span></div>
+            <div class="cv-bot" id="cv-bot"></div>
+          </div>
+
+          <div class="dev">
+            <div class="dev-h"><span>DEVICE PAGE</span><span id="dev-idx">&mdash;</span></div>
+            <div class="dev-b" id="dev-b">
+              <div class="empty">No device selected.<br>Click a node on the canvas.</div>
+            </div>
+            <div class="dev-f hidden" id="dev-f">
+              <button type="button" class="btn btn-r" id="dev-edit">Configure</button>
+              <button type="button" class="btn hidden" id="dev-disable">Disable SIM</button>
+              <button type="button" class="btn" id="dev-reset">Reset layout</button>
+            </div>
+            <div class="dev-note hidden" id="dev-note">Positions, labels and icons are stored in this browser only — the proxy has no field for them.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- CELLS ---------- -->
+      <section class="view" id="view-cells">
+        <div class="h1">Cells</div>
+        <div class="sub">Radio configuration reported by the base station. Up to 4 cells per base station.</div>
+        <div class="grid g2" id="cells-list"></div>
+      </section>
+
+      <!-- ---------- CORE NETWORK ---------- -->
+      <section class="view" id="view-core-network">
+        <div class="h1">Core Network</div>
+        <div class="sub">Status and configuration of the network services devices attach to.</div>
+        <div id="core-network-list"></div>
+      </section>
+
+      <!-- ---------- SIM MANAGEMENT ---------- -->
+      <section class="view" id="view-sim-management">
+        <div class="h1" style="display:flex;align-items:center;justify-content:space-between">SIM Management
+          <button type="button" class="btn btn-r" id="add-sim-button">+ Add SIM</button>
+        </div>
+        <div class="sub">Provision and manage SIM profiles for the fleet.</div>
+        <table class="tbl" id="sim-table">
+          <thead>
+            <tr>
+              <th>Device name</th>
+              <th>IMSI</th>
+              <th>Network code</th>
+              <th>Device group (APN)</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <!-- ---------- EVENTS ---------- -->
+      <section class="view" id="view-events">
+        <div class="h1">Events</div>
+        <div class="sub">Named network configurations activated for a production.</div>
+        <div class="note">
+          Events are a HENRI concept with no backing store in the slapproxy yet — there is no
+          instance type to persist them against. The banner toggle at the top is a local
+          UI state only; nothing below is written anywhere.
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-t">Current session</div><span class="badge b-off" id="ev-badge">LAB MODE</span></div>
+          <div class="row"><span class="row-k">Mode</span><span class="row-v" id="ev-mode">Lab</span></div>
+          <div class="row"><span class="row-k">Cells in configuration</span><span class="row-v" id="ev-cells">&mdash;</span></div>
+          <div class="row"><span class="row-k">SIM profiles provisioned</span><span class="row-v" id="ev-sims">&mdash;</span></div>
+          <div class="row"><span class="row-k">Device groups</span><span class="row-v" id="ev-groups">&mdash;</span></div>
+          <div class="hint" style="margin-top:10px">
+            Lab mode is for setup and validation. Event mode is intended to lock configuration
+            for live operation — the lock itself still needs a backend.
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- SETTINGS ---------- -->
+      <section class="view" id="view-settings">
+        <div class="h1">Settings</div>
+        <div class="sub">Platform, roles and vendor adapter.</div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="card-t">Operating mode</div>
+            <div class="row"><span class="row-k">Current mode</span><span class="row-v" id="set-mode">Lab</span></div>
+            <div class="row"><span class="row-k">Configuration plane</span><span class="row-v"><i class="dot d-green"></i>slapproxy JSON-RPC v0</span></div>
+            <div class="hint" style="margin-top:10px">Lab mode is for setup and validation. Event mode locks configuration for live operation.</div>
+          </div>
+          <div class="card">
+            <div class="card-t">Vendor adapter</div>
+            <div class="row"><span class="row-k">Active adapter</span><span class="row-v" id="set-adapter">&mdash;</span></div>
+            <div class="row"><span class="row-k">Configuration link</span><span class="row-v" id="set-conf-link"><i class="dot d-amber"></i>Unknown</span></div>
+            <div class="row"><span class="row-k">Telemetry link</span><span class="row-v" id="set-telemetry"><i class="dot d-amber"></i>Not wired</span></div>
+            <div class="hint" style="margin-top:10px">Radios from other manufacturers appear here once their adapter is installed.</div>
+          </div>
+          <div class="card">
+            <div class="card-t">Roles</div>
+            <div class="row"><span class="row-k">Admin</span><span class="row-v">Full access</span></div>
+            <div class="row"><span class="row-k">Event manager</span><span class="row-v">Events + cells</span></div>
+            <div class="row"><span class="row-k">Event user</span><span class="row-v">Monitoring only</span></div>
+            <div class="hint" style="margin-top:10px">Roles are a design placeholder — the slapproxy has no per-role access control.</div>
+          </div>
+          <div class="card">
+            <div class="card-t">About</div>
+            <div class="row"><span class="row-k">Platform</span><span class="row-v">HENRI &middot; NuLink</span></div>
+            <div class="row"><span class="row-k">Services known</span><span class="row-v" id="set-count">&mdash;</span></div>
+            <div class="hint" style="margin-top:10px">High Efficiency New Radio Interface — vendor-neutral 4G/5G management, served by slapproxy.</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div id="drop-zone" class="hidden">
+  <div class="dz-card">
+    <div class="dz-ico">&#128229;</div>
+    <div class="dz-t">Drop SIM file to create</div>
+    <div class="dz-s">.xml or .json — sim_algo · imsi · opc · k</div>
+  </div>
+</div>
+
+<div id="modal-overlay" class="hidden">
+  <div id="modal">
+    <div class="modal-header">
+      <h3 id="modal-title"></h3>
+      <button type="button" id="modal-close">&times;</button>
+    </div>
+    <div id="modal-body"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn" id="modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-p" id="modal-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>

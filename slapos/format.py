@@ -46,6 +46,7 @@ import random
 import shutil
 import socket
 import struct
+import stat
 import subprocess
 import sys
 import threading
@@ -541,11 +542,12 @@ class Computer(object):
     - add groups and users
     - construct partitions inside slapgrid
     """
+    mode = 0o755
     for path in self.instance_root, self.software_root:
       if not os.path.exists(path):
-        os.makedirs(path, 0o755)
-      else:
-        os.chmod(path, 0o755)
+        os.makedirs(path, mode)
+      elif stat.S_IMODE(os.stat(path).st_mode) != mode:
+        os.chmod(path, mode)
 
     # own self.software_root by software user
     slapsoft = User(self.software_user)
@@ -554,7 +556,9 @@ class Computer(object):
       slapsoft.create()
       slapsoft_pw = pwd.getpwnam(slapsoft.name)
       os.chown(slapsoft.path, slapsoft_pw.pw_uid, slapsoft_pw.pw_gid)
-    os.chmod(self.software_root, 0o755)
+
+    if stat.S_IMODE(os.stat(self.software_root).st_mode) != mode:
+      os.chmod(self.software_root, 0o755)
 
     # Iterate over all managers and let them `format` the computer too
     for manager in self._manager_list:

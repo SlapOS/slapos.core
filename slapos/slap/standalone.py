@@ -408,8 +408,9 @@ class StandaloneSlapOS(object):
       slapos_bin='slapos',
       local_software_release_root=os.sep,
       public_directory_path='',
+      instance_only=False
     ):
-    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]], str, str, str) -> None
+    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]], str, str, str, bool) -> None
     """Constructor, creates a standalone slapos in `base_directory`.
 
     Arguments:
@@ -424,6 +425,7 @@ class StandaloneSlapOS(object):
       * `slapos_bin` -- slapos executable to use, default to "slapos" (thus depending on the runtime PATH).
       * `local_software_release_root` -- root for local Software Releases paths in the SlapOS proxy, default to `/`.
       * `public_directory_path` -- directory where slapproxy will look for json schema of SR
+      * `instance_only` -- flag to disable software processing or compilation (it uses external software folder)
 
     Error cases:
       * `PathTooDeepError` when `base_directory` is too deep. Because of limitation
@@ -448,6 +450,7 @@ class StandaloneSlapOS(object):
     self._ipv6_address = None
     self._ipv6_range_prefixlen = None
     self._partitions_have_ipv6_range = False
+    self._instance_only = instance_only
 
     # NOTE: Using Standalone's own slapos (slapos.cli.entry) instead
     # is not that easy because in test nodes standalone is often run
@@ -455,7 +458,9 @@ class StandaloneSlapOS(object):
     # buildout
     self._slapos_bin = slapos_bin
 
-    self._slapos_commands = {
+    self._slapos_commands = {}
+    if not self._instance_only:
+      self._slapos_commands.update({
         'slapos-node-software': {
             'command':
                 '{self._slapos_bin} node software --cfg {self._slapos_config} {debug_args}',
@@ -471,7 +476,11 @@ class StandaloneSlapOS(object):
                 '-v --buildout-debug',
             'stdout_logfile':
                 '{self._log_directory}/slapos-node-software.log',
-        },
+        }
+      })
+
+
+    self._slapos_commands.update({
         'slapos-node-instance': {
             'command':
                 '{self._slapos_bin} node instance --cfg {self._slapos_config} {debug_args}',
@@ -500,7 +509,7 @@ class StandaloneSlapOS(object):
             'stdout_logfile':
                 '{self._log_directory}/slapos-node-auto.log',
         }
-    }
+    })
     self._computer_id = computer_id
     self._slap = slap()
     self._slap.initializeConnection(self._master_url)
@@ -538,9 +547,13 @@ class StandaloneSlapOS(object):
         base_directory, 'inst')
     self._shared_part_root = shared_part_root if shared_part_root else os.path.join(
         base_directory, 'shared')
-    for d in (self._software_root, self._instance_root, self._shared_part_root):
+    for d in (self._instance_root, self._shared_part_root):
       ensureDirectoryExists(d)
       os.chmod(d, 0o750)
+
+    if not self._instance_only:
+      ensureDirectoryExists(self._software_root)
+      os.chmod(self._software_root, 0o750)
 
     etc_directory = os.path.join(base_directory, 'etc')
     ensureDirectoryExists(etc_directory)

@@ -557,7 +557,8 @@ class Computer(object):
       slapsoft_pw = pwd.getpwnam(slapsoft.name)
       os.chown(slapsoft.path, slapsoft_pw.pw_uid, slapsoft_pw.pw_gid)
 
-    if stat.S_IMODE(os.stat(self.software_root).st_mode) != mode:
+    if os.path.exists(self.software_root) and \
+            stat.S_IMODE(os.stat(self.software_root).st_mode) != mode:
       os.chmod(self.software_root, 0o755)
 
     # Iterate over all managers and let them `format` the computer too

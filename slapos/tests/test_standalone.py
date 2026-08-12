@@ -127,6 +127,26 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
       self.assertExists(
           self.getInstancePath(standalone, 'slappart%d' % i, '.slapos-resource'))
 
+  def test_format_idempotent_permissions(self):
+    standalone = self.setupSimpleStandalone()
+    standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+
+    software_mode = os.stat(standalone.software_directory).st_mode & 0o777
+    instance_mode = os.stat(standalone.instance_directory).st_mode & 0o777
+
+    standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+
+    self.assertEqual(software_mode, os.stat(standalone.software_directory).st_mode & 0o777)
+    self.assertEqual(instance_mode, os.stat(standalone.instance_directory).st_mode & 0o777)
+
+    os.chmod(standalone.software_directory, 0o700)
+    os.chmod(standalone.instance_directory, 0o700)
+
+    standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+
+    self.assertEqual(0o755, os.stat(standalone.software_directory).st_mode & 0o777)
+    self.assertEqual(0o755, os.stat(standalone.instance_directory).st_mode & 0o777)
+
   def test_format_ipv6_big_range(self):
     standalone = self.setupSimpleStandalone()
     prefixlen = 96
@@ -374,6 +394,66 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
 
     self.assertTrue(
         config_parser.has_section('multimaster/https://slapos4.example.com'))
+
+  def test_instance_only_creates_no_software_root(self):
+    working_dir = tempfile.mkdtemp(prefix=__name__)
+    self.addCleanup(slapos.util.rmtree, working_dir)
+    standalone = StandaloneSlapOS(
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT,
+        instance_only=True)
+    self.addCleanup(standalone.stop)
+
+    self.assertExists(standalone.instance_directory)
+    self.assertExists(standalone.shared_directory)
+    self.assertNotExists(standalone.software_directory)
+
+  def test_instance_only_commands(self):
+    working_dir = tempfile.mkdtemp(prefix=__name__)
+    self.addCleanup(slapos.util.rmtree, working_dir)
+    standalone = StandaloneSlapOS(
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT,
+        instance_only=True)
+    self.addCleanup(standalone.stop)
+
+    self.assertNotIn('slapos-node-software', standalone._slapos_commands)
+    self.assertNotIn('slapos-node-software-all', standalone._slapos_commands)
+    self.assertIn('slapos-node-instance', standalone._slapos_commands)
+    self.assertIn('slapos-node-instance-all', standalone._slapos_commands)
+    self.assertIn('slapos-node-report', standalone._slapos_commands)
+    self.assertIn('slapos-node-auto', standalone._slapos_commands)
+
+  def test_default_commands_include_software(self):
+    working_dir = tempfile.mkdtemp(prefix=__name__)
+    self.addCleanup(slapos.util.rmtree, working_dir)
+    standalone = StandaloneSlapOS(
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+    self.addCleanup(standalone.stop)
+
+    self.assertIn('slapos-node-software', standalone._slapos_commands)
+    self.assertIn('slapos-node-software-all', standalone._slapos_commands)
+    self.assertIn('slapos-node-instance', standalone._slapos_commands)
+    self.assertIn('slapos-node-instance-all', standalone._slapos_commands)
+    self.assertIn('slapos-node-report', standalone._slapos_commands)
+    self.assertIn('slapos-node-auto', standalone._slapos_commands)
+
+  def test_instance_only_format(self):
+    working_dir = tempfile.mkdtemp(prefix=__name__)
+    self.addCleanup(slapos.util.rmtree, working_dir)
+    standalone = StandaloneSlapOS(
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT,
+        instance_only=True)
+    self.addCleanup(standalone.stop)
+
+    self.assertNotExists(standalone.software_directory)
+
+    standalone.format(2, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+
+    self.assertExists(
+        os.path.join(standalone.instance_directory, 'slappart0'))
+    self.assertExists(
+        os.path.join(standalone.instance_directory, 'slappart1'))
+    self.assertIn('slapos-node-instance', standalone._slapos_commands)
+    self.assertNotIn('slapos-node-software', standalone._slapos_commands)
 
 
 class SlapOSStandaloneTestCase(unittest.TestCase):

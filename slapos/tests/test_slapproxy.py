@@ -28,6 +28,7 @@
 #
 ##############################################################################
 
+import contextlib
 import six
 from six.moves import configparser
 import os
@@ -2081,11 +2082,11 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     self.assertEqual(self.forwarded_software_release, partition.getSoftwareRelease())
     self.assertEqual({}, partition.getConnectionParameterDict())
 
-    with sqlite3.connect(os.path.join(
+    with contextlib.closing(sqlite3.connect(os.path.join(
         self._rootdir,
         'lib',
         'external_proxy.db',
-    )) as db:
+    ))) as db:
       requested_by = slapos.proxy.views.execute_db(
         "partition",
         "select reference, computer_reference, requested_by from %s",
@@ -2194,11 +2195,11 @@ database_uri = %(rootdir)s/lib/external_proxy.db
       self.assertEqual(self.forwarded_software_release, partition.getSoftwareRelease())
       self.assertEqual({}, partition.getConnectionParameterDict())
 
-    with sqlite3.connect(os.path.join(
+    with contextlib.closing(sqlite3.connect(os.path.join(
         self._rootdir,
         'lib',
         'external_proxy.db',
-    )) as db:
+    ))) as db:
       requested_by = slapos.proxy.views.execute_db(
           "partition", "select reference, partition_reference, xml, requested_by from %s", db=db)
     self.assertEqual([{

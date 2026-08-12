@@ -1006,12 +1006,12 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       f"SELECT reference FROM partition{DB_VERSION} "
       f"WHERE partition_reference=?"
     )
-    with sqlite3.connect(
+    with contextlib.closing(sqlite3.connect(
       os.path.join(
         cls._base_directory,
         "var/proxy.db",
       )
-    ) as db:
+    )) as db:
       return db.execute(query, (instance_name,)).fetchall()[0][0]
 
   @classmethod
@@ -1030,12 +1030,12 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       f"SELECT address FROM partition_network{DB_VERSION} "
       f"WHERE partition_reference=?"
     )
-    with sqlite3.connect(
+    with contextlib.closing(sqlite3.connect(
       os.path.join(
         cls._base_directory,
         "var/proxy.db",
       )
-    ) as db:
+    )) as db:
       rows = db.execute(query, (partition_id,)).fetchall()
     # do not assume the partition's IPv6 address is the second one,
     # instead find the first address that is IPv6

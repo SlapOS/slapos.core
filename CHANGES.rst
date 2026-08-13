@@ -1,6 +1,14 @@
 Changes
 =======
 
+1.24.0 (2026-08-13)
+-------------------
+
+ * slapos/proxy: implemented local shacache
+ * test: fixde some sqlite ResourceWarning
+ * format: allow standalone environment w/o bootstrap software folder
+ * testing: build Software Releases from an HTTP URL, as production does
+
 1.23.0 (2026-08-04)
 -------------------
 

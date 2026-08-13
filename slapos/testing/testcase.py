@@ -113,6 +113,41 @@ SLAPOS_SR_SBOM_DEPENDENCY_TRACK_PROJECT_ID: str | None = os.environ.get(
 )
 
 
+def _serveSoftwareURL(software_url: str) -> Tuple[str, str | None]:
+  """Rewrite a local software path to the URL it is served at over HTTP.
+
+  Software Releases are built from an URL rather than a filesystem path, so
+  tests exercise the same install path as production, where
+  ``${:_profile_base_location_}`` is an URL and not a directory. The
+  ``slapos-sr-testing`` ``software-web-server`` service serves the checkout and
+  exports ``SLAPOS_TEST_SOFTWARE_ROOT_URL`` (its base URL) and
+  ``SLAPOS_TEST_SOFTWARE_ROOT_DIR`` (the checkout it serves).
+
+  An already-remote URL is returned unchanged. A local path is rewritten to the
+  served URL; if no server is available for it -- the environment variables are
+  not set, or the path is outside the served checkout -- this raises: a Software
+  Release must be built from an URL.
+  """
+  if urlparse(software_url).scheme:
+    return software_url, None
+  root_url = os.environ.get("SLAPOS_TEST_SOFTWARE_ROOT_URL")
+  root_dir = os.environ.get("SLAPOS_TEST_SOFTWARE_ROOT_DIR")
+  path = os.path.abspath(software_url)
+  if root_url and root_dir:
+    root_dir = os.path.abspath(root_dir)
+    if os.path.commonpath((path, root_dir)) == root_dir:
+      return f"{root_url.rstrip('/')}/{os.path.relpath(path, root_dir)}", root_dir
+  raise RuntimeError(
+    f"Software Release {software_url!r} must be built from an URL served over "
+    "HTTP, but no server is available for it: SLAPOS_TEST_SOFTWARE_ROOT_URL and "
+    "SLAPOS_TEST_SOFTWARE_ROOT_DIR (exported by the slapos-sr-testing "
+    "'software-web-server' service) are unset or do not cover it. Ensure the "
+    "slapos-sr-testing instance is running, or pass "
+    "serve_software_release_from_url=False for a Software Release that cannot be "
+    "served over HTTP."
+  )
+
+
 def makeModuleSetUpAndTestCaseClass(
   software_url: str | os.PathLike[str],
   *,
@@ -126,6 +161,7 @@ def makeModuleSetUpAndTestCaseClass(
   shared_part_list: Iterable[str] = SHARED_PART_LIST_DEFAULT,
   snapshot_directory: str | None = SNAPSHOT_DIRECTORY_DEFAULT,
   software_id: str | None = None,
+  serve_software_release_from_url: bool = True,
   dependency_track_url: str | None = SLAPOS_SR_SBOM_DEPENDENCY_TRACK_URL,
   dependency_track_api_key: str
   | None = SLAPOS_SR_SBOM_DEPENDENCY_TRACK_API_KEY,
@@ -193,6 +229,11 @@ def makeModuleSetUpAndTestCaseClass(
       By default it is computed automatically from the software URL, but can
       also be passed explicitly, to use a different name for different kind of
       tests, like for example upgrade tests.
+    serve_software_release_from_url: Build the software from an URL served over
+      HTTP from the checkout, rather than from its filesystem path, so the test
+      exercises the same install path as production (where
+      ``${:_profile_base_location_}`` is an URL). ``True`` by default; pass
+      ``False`` for a software that cannot be built this way.
     dependency_track_url: The base URL of a dependency track instance, to
       upload CycloneDX software bill of material for the software url.
     dependency_track_api_key: API key for dependency track.
@@ -206,6 +247,9 @@ def makeModuleSetUpAndTestCaseClass(
 
   """
   software_url = os.fspath(software_url)
+  software_checkout_directory = None
+  if serve_software_release_from_url:
+    software_url, software_checkout_directory = _serveSoftwareURL(software_url)
 
   if base_directory is None:
     base_directory = os.path.realpath(
@@ -253,6 +297,22 @@ def makeModuleSetUpAndTestCaseClass(
       f"SLAPOS_TEST_WORKING_DIR to a shallow enough directory",
     )
 
+  if serve_software_release_from_url:
+    # A Software Release must be built and requested by the same string for an
+    # instance to find what was built; rewrite a local path to its served URL
+    # on both supply (build) and request. Idempotent for URLs.
+    _slap_supply = slap.supply
+    _slap_request = slap.request
+
+    def _supply(software_url, *args, **kwargs):  # pyright: ignore
+      return _slap_supply(_serveSoftwareURL(software_url)[0], *args, **kwargs)
+
+    def _request(software_release, *args, **kwargs):  # pyright: ignore
+      return _slap_request(_serveSoftwareURL(software_release)[0], *args, **kwargs)
+
+    setattr(slap, "supply", _supply)
+    setattr(slap, "request", _request)
+
   cls = type(
     f"SlapOSInstanceTestCase for {software_url}",
     (SlapOSInstanceTestCase,),
@@ -267,6 +327,8 @@ def makeModuleSetUpAndTestCaseClass(
       "_ipv6_address": ipv6_address,
       "_base_directory": base_directory,
       "_test_file_snapshot_directory": snapshot_directory,
+      "_software_checkout_directory": software_checkout_directory,
+      "_serve_software_from_url": serve_software_release_from_url,
     },
   )
 
@@ -374,6 +436,11 @@ def installSoftwareUrlList(
       facilitate inspection during debug.
 
   """
+  if cls._serve_software_from_url:  # pyright: ignore[reportPrivateUsage]
+    software_url_list = [
+      _serveSoftwareURL(software_url)[0]  # pyright: ignore[reportPrivateUsage]
+      for software_url in software_url_list
+    ]
 
   def _storeSoftwareSnapshot(name: str) -> None:
     for path in (
@@ -526,6 +593,16 @@ class SlapOSInstanceTestCase(unittest.TestCase):
 
   # Directory to save snapshot files for inspections.
   _test_file_snapshot_directory: ClassVar[str | None] = ""
+
+  # Checkout served over HTTP to build the software, when the software URL is a
+  # local path. ``None`` when the software is built from a remote URL. Tests
+  # that need the software's filesystem checkout should use this rather than
+  # ``getSoftwareURL()``, which is an URL.
+  _software_checkout_directory: ClassVar[str | None] = None
+
+  # Whether the software is built (and requested) from an URL served over HTTP
+  # rather than from its local path.
+  _serve_software_from_url: ClassVar[bool] = True
 
   # Patterns of files to save for inspection, relative to instance directory.
   _save_instance_file_pattern_list: ClassVar[Sequence[str]] = (

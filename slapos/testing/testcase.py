@@ -70,6 +70,7 @@ from typing import (
   Iterator,
   Mapping,
   Sequence,
+  Optional,
   Tuple,
   Type,
   TypeVar,
@@ -280,7 +281,7 @@ def makeModuleSetUpAndTestCaseClass(
   def setUpModule() -> None:
     installSoftwareUrlList(cls, [software_url], debug=debug)
     sbom_path = generate_sbom(cls, software_url, debug=debug)
-    if dependency_track_url and dependency_track_project_id:
+    if sbom_path and dependency_track_url and dependency_track_project_id:
       assert dependency_track_api_key
       upload_sbom(
         cls,
@@ -298,7 +299,7 @@ def generate_sbom(
   cls: Type[SlapOSInstanceTestCase],
   software_url: str,
   debug: bool = False,
-) -> pathlib.Path:
+) -> Optional[pathlib.Path]:
   software_hash = md5digest(software_url)
   bom_file = pathlib.Path(cls._base_directory) / f"{software_hash}.cdx.json"  # pyright: ignore[reportPrivateUsage]
 
@@ -313,6 +314,9 @@ def generate_sbom(
         pathlib.Path(cls.slap.software_directory) / software_hash,
       ]
     )
+  except FileNotFoundError:
+    cls.logger.warning("nxdbom not found, skipping SBOM generation")
+    return None
   except Exception:
     if debug:
       pdb.post_mortem()

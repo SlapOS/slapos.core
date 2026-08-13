@@ -1,15 +1,53 @@
 # Please see ERP5User_getSecurityCategoryValueFromAssignment for more informations
 # on what this script outputs.
+from DateTime import DateTime
+now = DateTime()
+from Products.ERP5Type.Document import newTempBase
 
 portal_type = context.getPortalType()
 if portal_type == 'Person':
-  return context.ERP5User_getSecurityCategoryValueFromAssignment(
+  category_list = []
+  for assignment_value in context.objectValues(portal_type='Assignment'):
+    if assignment_value.getValidationState() == 'open' and \
+      assignment_value.getDestination(portal_type="Workgroup") is not None and \
+    (  not assignment_value.hasStartDate() or assignment_value.getStartDate() <= now
+    ) and (
+      not assignment_value.hasStopDate() or assignment_value.getStopDate() >= now
+    ):
+      workgroup = assignment_value.getDestinationValue(portal_type="Workgroup")
+      workgroup_category_list = workgroup.ERP5User_getSecurityCategoryValueFromAssignment(
+        rule_dict={
+          ('function',): ((), ('function',)),
+          ('destination_project',): ((), ),
+          ('destination_project', 'function'): ((), ),
+        },
+      )
+      category_list.extend(workgroup_category_list)
+      for entry in workgroup_category_list:
+        if set(entry) == set(['destination_project', 'function']):
+          # Append Workgroup entry as a marker so we don't
+          # need to browser the roles to know where the project+function
+          # comes from. Use newTempBase since workgroup directly don't work.
+          wg = newTempBase(context, workgroup.getId(), reference=workgroup.getUserId())
+          category_list.append(
+            ({
+              'destination': ((wg, False),),
+              'destination_project': entry['destination_project'],
+              'function': entry['function'],
+            })
+          )
+          break
+  category_list.extend(
+    context.ERP5User_getSecurityCategoryValueFromAssignment(
     rule_dict={
       ('function',): ((), ('function',)),
       ('destination_project',): ((), ),
+      ('destination',): ((), ),
       ('destination_project', 'function'): ((), ),
     },
+   )
   )
+  return category_list
 
 category_list = []
 portal = context.getPortalObject()

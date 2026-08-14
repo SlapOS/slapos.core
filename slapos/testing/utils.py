@@ -77,11 +77,11 @@ def findFreeTCPPortRange(ip='', count=1):
         try:
           s.bind((ip, port + offset))
         except OSError:
-          port = None
           break
-  if port is None:
-    raise RuntimeError("Can't find port")
-  return port
+    else:
+      # every port in the range bound without error
+      return port
+  raise RuntimeError("Can't find port")
 
 
 def getPortFromPath(path):

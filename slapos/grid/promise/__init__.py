@@ -29,8 +29,6 @@
 ##############################################################################
 
 import os
-import glob
-import fnmatch
 import sys
 import logging
 import time
@@ -42,10 +40,10 @@ import psutil
 import shutil
 import inspect
 import hashlib
-import errno
 from datetime import datetime
-from multiprocessing import Process, Queue as MQueue
+import multiprocessing
 from six.moves import queue, reload_module
+import six
 from slapos.util import str2bytes, mkdir_p, chownDirectory, listifdir
 from slapos.grid.utils import dropPrivileges, killProcessTree
 from slapos.grid.promise import interface
@@ -56,6 +54,11 @@ from slapos.grid.promise.generic import (GenericPromise, PromiseQueueResult,
                                          PROMISE_PARAMETER_NAME)
 from slapos.grid.promise.wrapper import WrapPromise
 from slapos.version import version
+
+if six.PY2:
+  Process = multiprocessing.Process
+else:
+  Process = multiprocessing.get_context('fork').Process
 
 PROMISE_CACHE_FOLDER_NAME = '.slapgrid/promise/cache'
 
@@ -365,7 +368,7 @@ class PromiseLauncher(object):
     else:
       self.logger = logger
 
-    self.queue_result = MQueue()
+    self.queue_result = multiprocessing.Queue()
     self.bang_called = False
     self._skipped_amount = 0
 

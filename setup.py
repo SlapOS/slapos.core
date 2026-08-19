@@ -60,6 +60,11 @@ setup(name=name,
       author='VIFIB',
       namespace_packages=['slapos'],
       packages=find_packages(),
+      package_data={'slapos': [
+          'slapos.cfg.example',
+          'slapos-client.cfg.example',
+          'slapos-proxy.cfg.example',
+      ]},
       include_package_data=True,
       install_requires=[
           'Flask>=1.1.2', # used by proxy

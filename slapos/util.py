@@ -509,9 +509,8 @@ class SoftwareReleaseSchema(object):
           if is_temp:
             os.remove(path)
       else:
-        # XXX: https://discuss.python.org/t/file-uris-in-python/15600
-        if url.startswith('file://'):
-          path = url[7:]
+        if url.startswith('file:'):
+          path = parse.urlparse(url).path
         else:
           path = url
           url = 'file:' + url

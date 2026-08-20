@@ -49,11 +49,10 @@ def validate_and_send_json_rpc_document(json_rpc_dict, **kw):
   output_schema_text = g.output_schema_text
   # validate output
   try:
-    jsonschema.validate(
-      json_rpc_dict,
+    jsonschema.Draft7Validator(
       output_schema_text,
       format_checker=jsonschema.FormatChecker()
-    )
+    ).validate(json_rpc_dict)
   except jsonschema.exceptions.ValidationError as err:
     return abort(500, err.message)
 
@@ -79,11 +78,10 @@ def before_request(open_api_json_file_name):
   # Validate the input body
   body_json = request.json
   try:
-    jsonschema.validate(
-      body_json,
+    jsonschema.Draft7Validator(
       input_schema_text,
       format_checker=jsonschema.FormatChecker()
-    )
+    ).validate(body_json)
   except jsonschema.exceptions.ValidationError as err:
     return abort(400, err.message)
 

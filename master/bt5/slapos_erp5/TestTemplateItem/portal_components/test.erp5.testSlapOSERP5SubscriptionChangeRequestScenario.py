@@ -16,7 +16,10 @@ class TestSlapOSSubscriptionChangeRequestScenarioMixin(TestSlapOSVirtualMasterSc
 
 class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRequestScenarioMixin):
 
-  def test_subscription_change_request_change_instance_destination_without_accounting_scenario(self):
+  def test_subscription_change_request_change_instance_destination_to_workgroup_without_accounting_scenario(self):
+    self.test_subscription_change_request_change_instance_destination_without_accounting_scenario(entity_type='Workgroup')
+
+  def test_subscription_change_request_change_instance_destination_without_accounting_scenario(self, entity_type='Person'):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
     self.tic()
 
@@ -48,8 +51,10 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       public_person = self.joinSlapOS(public_reference)
 
     with PinnedDateTime(self, DateTime('2024/01/01')):
-      public_reference2 = 'public2-%s' % self.generateNewId()
-      public_person2 = self.joinSlapOS(public_reference2)
+      if entity_type == "Workgroup":
+        destination_entity = self.createWorkgroup(None, project, currency)
+      else:
+        destination_entity = self.joinSlapOS('public2-%s' % self.generateNewId())
 
     self.login()
     person_user_id = public_person.getUserId()
@@ -80,7 +85,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     with PinnedDateTime(self, DateTime('2024/02/25')):
       self.login(sale_person.getUserId())
-      subscription_change_request = public_person2.Person_claimSlaposItemSubscription(
+      subscription_change_request = destination_entity.Person_claimSlaposItemSubscription(
         instance_tree.getReference(),
         None
       )
@@ -88,9 +93,11 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.tic()
       self.login()
       self.assertEqual(instance_tree.getDestinationSection(),
-                        public_person2.getRelativeUrl())
+                        destination_entity.getRelativeUrl())
+      self.assertEqual('invalidated',
+        subscription_change_request.getSimulationState())
 
-
+    self.checkServiceSubscriptionRequest(instance_tree)
     # Total of quantity should be zero
     inventory_list_kw = {
         'group_by_section': False,
@@ -133,10 +140,10 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     # Ensure no unexpected object has been created
     # 4 assignment request
-    # 2 credential request
+    # 2 credential request (workgroup -1)
     # 1 instance tree
     # 7 open sale order
-    # 4 assignment
+    # 4 assignment (-1 on person, +1 on workgroup)
     # 4 simulation movement
     # 7 sale packing list / line
     # 1 sale trade condition ( a 3rd trade condition is not linked to the project)
@@ -149,7 +156,91 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
 
-  def test_subscription_change_request_change_project_destination_without_accounting_scenario(self):
+  def test_subscription_change_request_change_instance_destination_cannot_transfer_from_workgroup_scenario(self, entity_type='Person'):
+    currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
+    self.tic()
+
+    with PinnedDateTime(self, DateTime('2023/12/25')):
+      # lets join as slapos administrator, which will own few compute_nodes
+      owner_reference = 'owner-%s' % self.generateNewId()
+      owner_person = self.joinSlapOS(owner_reference)
+
+      # hooray, now it is time to create compute_nodes
+      self.login(sale_person.getUserId())
+
+      # create a default project
+      project = self.addDefaultProject(person=owner_person, currency=currency)
+      self.login(owner_person.getUserId())
+
+      # and install some software on them
+      public_server_software = self.generateNewSoftwareReleaseUrl()
+      public_instance_type = 'public type'
+
+      self.addSoftwareProduct(
+        "instance product", project, public_server_software, public_instance_type
+      )
+
+      # join as the another visitor and request software instance on public
+      # compute_node
+
+    with PinnedDateTime(self, DateTime('2023/12/29')):
+      public_reference = 'public-%s' % self.generateNewId()
+      public_person = self.joinSlapOS(public_reference)
+
+    with PinnedDateTime(self, DateTime('2024/01/01')):
+      self.login(sale_person.getUserId())
+      workgroup = self.createWorkgroup(public_person, project, currency)
+
+    self.login()
+    self.assertTrue(
+      self.portal.Base_isPersonFromWorkgroup(public_person, workgroup))
+    person_user_id = public_person.getUserId()
+    software_release = public_server_software
+    software_type = public_instance_type
+    project_reference = project.getReference()
+
+    public_instance_title = 'Public title %s' % self.generateNewId()
+    self.login(person_user_id)
+
+    with PinnedDateTime(self, DateTime('2024/01/10')):
+      self.personRequestInstanceNotReady(
+        software_release=software_release,
+        software_type=software_type,
+        partition_reference=public_instance_title,
+        project_reference=project_reference
+      )
+      self.tic()
+
+      # XXX search only for this user
+      instance_tree = self.portal.portal_catalog.getResultValue(
+        portal_type="Instance Tree",
+        title=public_instance_title,
+        follow_up__reference=project_reference
+      )
+      self.checkServiceSubscriptionRequest(instance_tree)
+      self.tic()
+      # Instance is owned by the workgroup
+      self.assertEqual(instance_tree.getDestinationSection(),
+                       workgroup.getRelativeUrl())
+
+    with PinnedDateTime(self, DateTime('2024/02/25')):
+      self.login(sale_person.getUserId())
+      # Try now transfer to public person from the workgroup
+      subscription_change_request = public_person.Person_claimSlaposItemSubscription(
+        instance_tree.getReference(), None)
+
+      self.tic()
+      self.login()
+      self.assertEqual(instance_tree.getDestinationSection(),
+                        workgroup.getRelativeUrl())
+      self.assertEqual('cancelled',
+                       subscription_change_request.getSimulationState())
+
+
+  def test_subscription_change_request_change_project_destination_to_workgroup_without_accounting_scenario(self):
+    self.test_subscription_change_request_change_project_destination_without_accounting_scenario(entity_type='Workgroup')
+
+  def test_subscription_change_request_change_project_destination_without_accounting_scenario(self, entity_type='Default'):
     currency, _, _, sale_person, _ = self.bootstrapVirtualMasterTest(is_virtual_master_accountable=False)
     self.tic()
 
@@ -188,8 +279,43 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.tic()
 
     with PinnedDateTime(self, DateTime('2024/01/01')):
-      public_reference2 = 'public2-%s' % self.generateNewId()
-      public_person2 = self.joinSlapOS(public_reference2)
+      public_reference = 'public-%s' % self.generateNewId()
+      public_person = self.joinSlapOS(public_reference)
+      destination_entity = public_person
+      if entity_type == "Workgroup":
+        # We need a complete Sale Trade Condition for workgroup because of organisation
+        organisation = self.portal.organisation_module.newContent(
+          portal_type='Organisation',
+          title='Test Organisation %s' % (self.generateNewId()),
+          default_address_region='europe/west/france',
+          vat_code=self.generateNewId(),
+          # required email to send events
+          default_email_url_string='test@example.org')
+        organisation.validate()
+
+        destination_entity = self.createWorkgroup(public_person, project, currency, organisation)
+
+        # We need a specific Trade Conditions for workgroup otherwise we create inconsistent
+        # Subscription requests
+        self.login(sale_person.getUserId())
+        project_trade_condition = self.portal.portal_catalog.getResultValue(
+          portal_type='Sale Trade Condition',
+          trade_condition_type__uid=self.portal.portal_categories.trade_condition_type.virtual_master.getUid(),
+          price_currency__uid=currency.getUid(),
+          validation_state='validated'
+        )
+        dedicated_trade_condition = self.portal.sale_trade_condition_module.newContent(
+          portal_type='Sale Trade Condition',
+          title='%s dedicated %s' % (project_trade_condition.getTitle(), destination_entity.getTitle()),
+          source_project=project_trade_condition.getSourceProject(),
+          destination_value=destination_entity,
+          destination_section_value=organisation,
+          specialise_value=project_trade_condition,
+          price_currency=project_trade_condition.getPriceCurrency(),
+          trade_condition_type=project_trade_condition.getTradeConditionType()
+        )
+        dedicated_trade_condition.SaleTradeCondition_createSaleTradeConditionChangeRequestToValidate()
+        self.tic()
 
     person_user_id = owner_person.getUserId()
     self.login(person_user_id)
@@ -200,7 +326,7 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
 
     with PinnedDateTime(self, DateTime('2024/02/25')):
       self.login(sale_person.getUserId())
-      subscription_change_request = public_person2.Person_claimSlaposItemSubscription(
+      subscription_change_request = destination_entity.Person_claimSlaposItemSubscription(
         project.getReference(),
         None
       )
@@ -208,8 +334,11 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       self.tic()
       self.login()
       self.assertEqual(project.getDestination(),
-                       public_person2.getRelativeUrl())
-      self.assertEqual(len([x for x in public_person2.contentValues(portal_type='Assignment') if (x.getValidationState()=='open') and (x.getFunctionId() == 'manager')]), 1)
+                       destination_entity.getRelativeUrl())
+      self.assertEqual(len([x for x in
+        destination_entity.contentValues(portal_type='Assignment')
+         if (x.getValidationState()=='open') and \
+            (x.getFunctionId() == 'manager')]), 1)
 
     # Total of quantity should be zero
     inventory_list_kw = {
@@ -240,17 +369,21 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
     # 4 assignment request
     # 1 compute node
     # 1 credential request
-    # 1 instance tree
     # 5 open sale order
     # 4 assignment
-    # 5 simulation movement
+    # 6 simulation movement
     # 7 sale packing list / line
     # 1 sale trade condition
     # 1 software instance
-    # 1 software product
     # 1 subscription change request
-    # 3 subscription request
-    self.assertRelatedObjectCount(project, 35)
+    # 4 subscription request
+    expected_amount = 35
+    if entity_type == 'Workgroup':
+      # + 1 assignment request
+      # + 1 assignment
+      # + 1 sale trade condition
+      expected_amount = 38
+    self.assertRelatedObjectCount(project, expected_amount)
 
     with PinnedDateTime(self, DateTime('2024/02/15')):
       self.checkERP5StateBeforeExit()
@@ -472,7 +605,6 @@ class TestSlapOSSubscriptionChangeRequestScenario(TestSlapOSSubscriptionChangeRe
       # lets join as slapos administrator, which will own few compute_nodes
       owner_reference = 'owner-%s' % self.generateNewId()
       owner_person = self.joinSlapOS(owner_reference)
-      # hooray, now it is time to create compute_nodes
       self.login(sale_person.getUserId())
 
       # create a default project

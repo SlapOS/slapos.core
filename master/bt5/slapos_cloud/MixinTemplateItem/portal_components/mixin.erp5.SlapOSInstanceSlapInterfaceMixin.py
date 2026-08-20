@@ -222,10 +222,23 @@ class SlapOSInstanceSlapInterfaceMixin:
       request_software_instance_url = request_software_instance.getRelativeUrl()
       self.REQUEST.set('request_instance', request_software_instance)
       self.Base_setTransactionalTag(tag)
+
+      # This is an optimization to prevent calling the instance workflow transition
+      # (requestStart, requestStop) and increasing the workflow history
+      # if not change is needed
+      need_change = not (
+        (request_software_instance.getUrlString() == software_release_url_string) and
+        (request_software_instance.getSourceReference() == software_type) and
+        (request_software_instance.getTextContent() == instance_xml) and
+        (request_software_instance.getSlaXml() == sla_xml) and
+        (request_software_instance.getSlapState() == {'started': 'start_requested', 'stopped': 'stop_requested', 'destroyed': 'destroy_requested'}.get(root_state, None))
+      )
       if (root_state == "started"):
-        request_software_instance.requestStart(**promise_kw)
+        if need_change:
+          request_software_instance.requestStart(**promise_kw)
       elif (root_state == "stopped"):
-        request_software_instance.requestStop(**promise_kw)
+        if need_change:
+          request_software_instance.requestStop(**promise_kw)
       elif (root_state == "destroyed"):
         request_software_instance.requestDestroy(**promise_kw)
         self.REQUEST.set('request_instance', None)

@@ -61,7 +61,9 @@ os_type = compute_node_dict.get('os_type', None)
 if context.getOsType() != os_type:
   edit_kw['os_type'] = os_type
 
-public_ipv4_address = compute_node_dict.get('public_ipv4_address', None)
+# Disabled, as it is far from stable on slapformat side
+# public_ipv4_address = compute_node_dict.get('public_ipv4_address', None)
+public_ipv4_address = None
 if context.getPublicIpv4Address() != public_ipv4_address:
   edit_kw['public_ipv4_address'] = public_ipv4_address
 

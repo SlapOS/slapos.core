@@ -3,6 +3,7 @@ from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery
 portal = context.getPortalObject()
 monitor_enabled_category = portal.restrictedTraverse(
   "portal_categories/monitor_scope/enabled", None)
+priority = 4
 
 portal = context.getPortalObject()
 portal.portal_catalog.searchAndActivate(
@@ -18,7 +19,7 @@ portal.portal_catalog.searchAndActivate(
       logical_operator='or'
     ),
     group_by=['follow_up_uid'],
-    method_kw={'tag': tag},
-  activate_kw={'tag': tag, 'priority': 2}
+    method_kw={'tag': tag, 'priority': priority},
+  activate_kw={'tag': tag, 'priority': priority}
   )
 context.activate(after_tag=tag).getId()

@@ -46,7 +46,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>tag</string> </value>
+            <value> <string>tag, priority</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

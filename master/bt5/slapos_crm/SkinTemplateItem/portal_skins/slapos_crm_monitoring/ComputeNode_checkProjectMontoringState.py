@@ -19,7 +19,7 @@ if monitor_enabled_category is not None:
     # This alarm bruteforce checking all documents,
     # without changing them directly.
     # Increase priority to not block other activities
-    activate_kw={'tag': tag, 'priority': 2}
+    activate_kw={'tag': tag, 'priority': priority}
   )
 
   portal.portal_catalog.searchAndActivate(
@@ -32,7 +32,5 @@ if monitor_enabled_category is not None:
     # This alarm bruteforce checking all documents,
     # without changing them directly.
     # Increase priority to not block other activities
-    activate_kw={'tag': tag, 'priority': 2}
+    activate_kw={'tag': tag, 'priority': priority}
   )
-
-project.activate(after_tag=tag).getId()

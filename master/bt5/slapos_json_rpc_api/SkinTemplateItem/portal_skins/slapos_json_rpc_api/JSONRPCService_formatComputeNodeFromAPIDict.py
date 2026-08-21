@@ -41,7 +41,14 @@ def compareAndUpdateAddressList(partition, partition_ip_list):
       edit_kw["network_address"] = address["network-address"]
     if "gateway-ip-address" in address:
       edit_kw["gateway_ip_address"] = address["gateway-ip-address"]
-    address_document.edit(**edit_kw)
+
+    address_document_edit_kw2 = dict()
+    for address_document_edit_kw_key, address_document_edit_kw_value in edit_kw.items():
+      if address_document.getProperty(address_document_edit_kw_key, None) != address_document_edit_kw_value:
+        address_document_edit_kw2[address_document_edit_kw_key] = address_document_edit_kw_value
+    if address_document_edit_kw2:
+      address_document.edit(**address_document_edit_kw2)
+
   if to_delete_ip_id_list:
     partition.deleteContent(to_delete_ip_id_list)
 

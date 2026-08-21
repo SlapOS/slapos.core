@@ -29,11 +29,19 @@ def compareAndUpdateAddressList(document, address_list, additional_dict=None):
       if not len(document.objectIds(portal_type='Internet Protocol Address')):
         kw.update(id='default_network_address')
       address_document = document.newContent(**kw)
-    address_document.edit(
+
+    address_document_edit_kw = dict(
       ip_address=address['addr'],
       netmask=address['netmask'],
       **additional_dict
     )
+    address_document_edit_kw2 = dict()
+    for address_document_edit_kw_key, address_document_edit_kw_value in address_document_edit_kw.items():
+      if address_document.getProperty(address_document_edit_kw_key, None) != address_document_edit_kw_value:
+        address_document_edit_kw2[address_document_edit_kw_key] = address_document_edit_kw_value
+    if address_document_edit_kw2:
+      address_document.edit(**address_document_edit_kw2)
+
   if to_delete_ip_id_list:
     document.deleteContent(to_delete_ip_id_list)
 
@@ -53,7 +61,9 @@ os_type = compute_node_dict.get('os_type', None)
 if context.getOsType() != os_type:
   edit_kw['os_type'] = os_type
 
-public_ipv4_address = compute_node_dict.get('public_ipv4_address', None)
+# Disabled, as it is far from stable on slapformat side
+# public_ipv4_address = compute_node_dict.get('public_ipv4_address', None)
+public_ipv4_address = None
 if context.getPublicIpv4Address() != public_ipv4_address:
   edit_kw['public_ipv4_address'] = public_ipv4_address
 

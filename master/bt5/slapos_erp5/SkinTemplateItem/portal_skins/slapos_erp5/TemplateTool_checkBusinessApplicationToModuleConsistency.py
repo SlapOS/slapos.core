@@ -24,6 +24,7 @@ for business_application_id, module_name_list in [
           "credential_recovery_module",
           "credential_update_module",
           "system_event_module",
+          "workgroup_module",
       ]],
       ["slapos", [  # SlapOS
           "allocation_supply_module",

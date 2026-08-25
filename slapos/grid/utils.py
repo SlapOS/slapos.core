@@ -95,6 +95,10 @@ LOCALE_ENVIRONMENT_REMOVE_LIST = [
   'LC_TIME',
 ]
 
+SLAPGRID_TIMEOUT = 60 * 60 * 2
+SLAPGRID_KILL_TIMEOUT = 60 * 60 * 24
+
+
 
 class LineLogger(object):
   """
@@ -254,7 +258,10 @@ def getCleanEnvironment(logger, home_path='/tmp'):
   return env
 
 def setRunning(logger, pidfile):
-  """Creates a pidfile. If a pidfile already exists, we exit"""
+  """
+    Creates a pidfile. If a pidfile already exists, we exit.
+    If the pid file is too old, we report a stall.
+  """
   if os.path.exists(pidfile):
     try:
       with open(pidfile, 'r') as f:
@@ -271,9 +278,26 @@ def setRunning(logger, pidfile):
             'Error getting information about process with pid %s',
             pid, exc_info=True)
       if is_slapos_running:
-        logger.info('New slapos process started, but another slapos '
-                    'process is aleady running with pid %s, exiting.', pid)
-        sys.exit(10)
+        creation_time = process.create_time()
+        running_time = time.time() - creation_time
+        if running_time > SLAPGRID_KILL_TIMEOUT:
+          logger.warning(
+            "Existing slapos process has been running too long "
+            "(%ds > %d), killing it",
+            running_time, SLAPGRID_KILL_TIMEOUT)
+          killProcessTree(pid, logger)
+        elif running_time > SLAPGRID_TIMEOUT:
+          logger.warning(
+            "Existing slapos process has been running too long "
+            "(%ds > %d), reporting likely problem",
+            running_time, SLAPGRID_TIMEOUT)
+          # report to master ?
+        else:
+          logger.info(
+          "New slapos process started, but another slapos "
+          "process is aleady running with pid %s for %ds, exiting.",
+          pid, running_time)
+          sys.exit(10)
     logger.info('Existing pid file %r was stale, overwritten', pidfile)
   # Start new process
   write_pid(logger, pidfile)

@@ -42,6 +42,8 @@ from contextlib import closing
 from six.moves import BaseHTTPServer
 from six.moves import urllib_parse
 
+from slapos.grid.promise import Process
+
 from ..grid.utils import getPythonExecutableFromSoftwarePath
 
 try:
@@ -194,7 +196,7 @@ class ManagedHTTPServer(ManagedResource):
       server.serve_forever()
 
     server = self._makeServer()
-    self._process = multiprocessing.Process(
+    self._process = Process(
         target=serve_forever,
         name=self._name,
         kwargs={

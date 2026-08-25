@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_claimSlaposItemSubscription</string> </value>
+            <value> <string>Actor_claimSlaposItemSubscription</string> </value>
         </item>
       </dictionary>
     </pickle>

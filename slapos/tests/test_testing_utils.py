@@ -28,6 +28,8 @@ import socket
 import unittest
 from contextlib import closing
 
+import six
+
 try:
   from unittest import mock
 except ImportError:
@@ -36,6 +38,7 @@ except ImportError:
 from slapos.testing.utils import findFreeTCPPortRange
 
 
+@unittest.skipIf(six.PY2, "Python3 only")
 class TestFindFreeTCPPortRange(unittest.TestCase):
   ip = '127.0.0.1'
 

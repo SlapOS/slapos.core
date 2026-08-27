@@ -24,68 +24,66 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
-
 import os
+import six
+import unittest
+
 # importing slapos.testing.testcase reads these at import time
 os.environ.setdefault('SLAPOS_TEST_IPV4', '127.0.0.1')
 os.environ.setdefault('SLAPOS_TEST_IPV6', '::1')
 
-import unittest
 
-from slapos.testing import testcase
+if not six.PY2:
 
+  from slapos.testing import testcase
 
-class TestServeSoftwareURL(unittest.TestCase):
-  """_serveSoftwareURL rewrites a local Software Release path to the URL served
-  by the slapos-sr-testing software-web-server, and requires that server."""
+  class TestServeSoftwareURL(unittest.TestCase):
+    """_serveSoftwareURL rewrites a local Software Release path to the URL served
+    by the slapos-sr-testing software-web-server, and requires that server."""
 
-  _env_keys = ('SLAPOS_TEST_SOFTWARE_ROOT_URL', 'SLAPOS_TEST_SOFTWARE_ROOT_DIR')
+    _env_keys = ('SLAPOS_TEST_SOFTWARE_ROOT_URL', 'SLAPOS_TEST_SOFTWARE_ROOT_DIR')
 
-  def setUp(self):
-    self._saved = {k: os.environ.pop(k, None) for k in self._env_keys}
+    def setUp(self):
+      self._saved = {k: os.environ.pop(k, None) for k in self._env_keys}
 
-  def tearDown(self):
-    for k, v in self._saved.items():
-      if v is None:
-        os.environ.pop(k, None)
-      else:
-        os.environ[k] = v
+    def tearDown(self):
+      for k, v in self._saved.items():
+        if v is None:
+          os.environ.pop(k, None)
+        else:
+          os.environ[k] = v
 
-  def _serveFromCheckout(self):
-    os.environ['SLAPOS_TEST_SOFTWARE_ROOT_URL'] = 'http://10.0.0.1:9080'
-    os.environ['SLAPOS_TEST_SOFTWARE_ROOT_DIR'] = '/checkout'
+    def _serveFromCheckout(self):
+      os.environ['SLAPOS_TEST_SOFTWARE_ROOT_URL'] = 'http://10.0.0.1:9080'
+      os.environ['SLAPOS_TEST_SOFTWARE_ROOT_DIR'] = '/checkout'
 
-  def test_remote_url_is_left_unchanged(self):
-    self.assertEqual(
-      testcase._serveSoftwareURL('https://lab/nexedi/slapos/software/a/software.cfg'),
-      ('https://lab/nexedi/slapos/software/a/software.cfg', None))
+    def test_remote_url_is_left_unchanged(self):
+      self.assertEqual(
+        testcase._serveSoftwareURL('https://lab/nexedi/slapos/software/a/software.cfg'),
+        ('https://lab/nexedi/slapos/software/a/software.cfg', None))
 
-  def test_local_path_is_rewritten_to_the_served_url(self):
-    self._serveFromCheckout()
-    self.assertEqual(
-      testcase._serveSoftwareURL('/checkout/software/rapid-cdn/software.cfg'),
-      ('http://10.0.0.1:9080/software/rapid-cdn/software.cfg', '/checkout'))
+    def test_local_path_is_rewritten_to_the_served_url(self):
+      self._serveFromCheckout()
+      self.assertEqual(
+        testcase._serveSoftwareURL('/checkout/software/rapid-cdn/software.cfg'),
+        ('http://10.0.0.1:9080/software/rapid-cdn/software.cfg', '/checkout'))
 
-  def test_root_url_trailing_slash_is_not_doubled(self):
-    os.environ['SLAPOS_TEST_SOFTWARE_ROOT_URL'] = 'http://10.0.0.1:9080/'
-    os.environ['SLAPOS_TEST_SOFTWARE_ROOT_DIR'] = '/checkout'
-    self.assertEqual(
-      testcase._serveSoftwareURL('/checkout/software/a/software.cfg')[0],
-      'http://10.0.0.1:9080/software/a/software.cfg')
+    def test_root_url_trailing_slash_is_not_doubled(self):
+      os.environ['SLAPOS_TEST_SOFTWARE_ROOT_URL'] = 'http://10.0.0.1:9080/'
+      os.environ['SLAPOS_TEST_SOFTWARE_ROOT_DIR'] = '/checkout'
+      self.assertEqual(
+        testcase._serveSoftwareURL('/checkout/software/a/software.cfg')[0],
+        'http://10.0.0.1:9080/software/a/software.cfg')
 
-  def test_path_outside_the_served_checkout_raises(self):
-    self._serveFromCheckout()
-    self.assertRaises(
-      RuntimeError,
-      testcase._serveSoftwareURL,
-      '/elsewhere/software/a/software.cfg')
+    def test_path_outside_the_served_checkout_raises(self):
+      self._serveFromCheckout()
+      self.assertRaises(
+        RuntimeError,
+        testcase._serveSoftwareURL,
+        '/elsewhere/software/a/software.cfg')
 
-  def test_local_path_without_a_server_raises(self):
-    self.assertRaises(
-      RuntimeError,
-      testcase._serveSoftwareURL,
-      '/checkout/software/a/software.cfg')
-
-
-if __name__ == '__main__':
-  unittest.main()
+    def test_local_path_without_a_server_raises(self):
+      self.assertRaises(
+        RuntimeError,
+        testcase._serveSoftwareURL,
+        '/checkout/software/a/software.cfg')

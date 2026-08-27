@@ -25,7 +25,7 @@ else:
   raise ValueError('Unsupported Invitation Token follow up %s' % follow_up_value.getRelativeUrl())
 assignment_request = portal.assignment_request_module.newContent(
   portal_type='Assignment Request',
-  title='%s: %s' % (invitation_token.getFunctionTitle(), person.getTitle()),
+  title='%s: %s' % (invitation_token.getFunctionTitle() or follow_up_value.getTitle(), person.getTitle()),
   destination_decision_value=person,
   function=invitation_token.getFunction(),
   **edit_kw

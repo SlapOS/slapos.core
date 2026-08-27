@@ -14,7 +14,7 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>Person_acceptSlapOSInvitationToken</string> </value>
+            <value> <string>Actor_acceptSlapOSInvitationToken</string> </value>
         </item>
         <item>
             <key> <string>action_title</string> </key>
@@ -91,7 +91,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_viewAcceptSlapOSInvitationTokenDialog</string> </value>
+            <value> <string>Actor_viewAcceptSlapOSInvitationTokenDialog</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -99,7 +99,7 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>Person_viewAcceptSlapOSInvitationTokenDialog</string> </value>
+            <value> <string>Actor_viewAcceptSlapOSInvitationTokenDialog</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>

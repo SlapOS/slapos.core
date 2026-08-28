@@ -247,6 +247,11 @@ def getCleanEnvironment(logger, home_path='/tmp'):
       removed_env.append(k)
   changed_env['HOME'] = env['HOME'] = home_path
   changed_env['PYTHONNOUSERSITE'] = env['PYTHONNOUSERSITE'] = 'true'
+  # Diffing options costs time and log proportional to their size, and parts
+  # like slap-configuration carry megabytes of them.
+  if 'BUILDOUT_INFO_REINSTALL_REASON' not in env:
+    changed_env['BUILDOUT_INFO_REINSTALL_REASON'] = \
+      env['BUILDOUT_INFO_REINSTALL_REASON'] = '0'
   for k, v in sorted(changed_env.items()):
     logger.debug('Overridden %s = %r', k, v)
   if removed_env:

@@ -46,7 +46,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>function, **kw</string> </value>
+            <value> <string>function, batch=0, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

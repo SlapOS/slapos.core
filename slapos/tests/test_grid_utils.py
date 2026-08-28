@@ -501,6 +501,22 @@ class TestGetPythonExecutableFromBinBuildout(unittest.TestCase):
         python)
 
 
+class TestGetCleanEnvironment(unittest.TestCase):
+  def getCleanEnvironment(self):
+    return slapos.grid.utils.getCleanEnvironment(
+      logging.getLogger(__name__))
+
+  @mock.patch.dict(os.environ, clear=True)
+  def test_buildout_info_reinstall_reason_off(self):
+    self.assertEqual(
+      self.getCleanEnvironment()['BUILDOUT_INFO_REINSTALL_REASON'], '0')
+
+  @mock.patch.dict(os.environ, {'BUILDOUT_INFO_REINSTALL_REASON': '1'})
+  def test_buildout_info_reinstall_reason_not_overridden(self):
+    self.assertEqual(
+      self.getCleanEnvironment()['BUILDOUT_INFO_REINSTALL_REASON'], '1')
+
+
 class RotateLogTestCase(unittest.TestCase):
   def setUp(self):
     self.test_dir = tempfile.mkdtemp()

@@ -57,6 +57,7 @@ import mock
 from mock import patch
 from zope.interface import implementer
 
+from slapos import functionality_lock
 import slapos.slap.slap
 import slapos.grid.utils
 import slapos.grid.svcbackend
@@ -4784,3 +4785,173 @@ class TestSlapgridPartitionTimeoutWithMaster(MasterMixin, unittest.TestCase):
 
   def test_default(self):
     self._test(None, 2, 0)
+
+
+class TestSlapgridFunctionalityLock(MasterMixin, unittest.TestCase):
+
+  def lock(self, instance):
+    open(os.path.join(instance.partition_path,
+                      functionality_lock.LOCK_FILENAME), 'w').close()
+
+  def release(self, instance):
+    os.unlink(os.path.join(instance.partition_path,
+                           functionality_lock.LOCK_FILENAME))
+
+  def getBuildoutRequestedState(self, instance):
+    with open(os.path.join(instance.partition_path, 'buildout.cfg')) as f:
+      return re.search('^requested-state = (.*)$', f.read(),
+                       re.MULTILINE).group(1)
+
+  def getSoftwareReleaseHash(self, instance):
+    return os.path.basename(os.path.realpath(
+      os.path.join(instance.partition_path, 'software_release')))
+
+  def test_snapshot_written_for_unlocked_partition(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      self.assertEqual(self.grid.processComputerPartitionList(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      snapshot = functionality_lock.readSnapshot(instance.partition_path)
+      self.assertEqual(snapshot['requested_state'], 'stopped')
+      self.assertEqual(snapshot['software_release_url'], instance.software.name)
+      self.assertIn('ip_list', snapshot['parameter_dict'])
+
+  def test_snapshot_written_for_up_to_date_partition(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.timestamp = str(int(time.time()))
+      self.assertEqual(self.grid.processComputerPartitionList(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      os.unlink(os.path.join(instance.partition_path,
+                             functionality_lock.SNAPSHOT_PATH))
+      self.setSlapgrid()
+      self.assertEqual(self.grid.processComputerPartitionList(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      self.assertEqual(instance.sequence, ['/stoppedComputerPartition'])
+      self.assertEqual(
+        functionality_lock.readSnapshot(
+          instance.partition_path)['requested_state'],
+        'stopped')
+
+  def test_snapshot_not_refreshed_while_locked(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      self.assertEqual(self.grid.processComputerPartitionList(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      self.lock(instance)
+      instance.requested_state = 'started'
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertEqual(
+        functionality_lock.readSnapshot(instance.partition_path)['requested_state'],
+        'stopped')
+
+  def test_requested_state_pinned_while_locked(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      self.assertEqual(self.grid.processComputerPartitionList(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      self.assertEqual(self.getBuildoutRequestedState(instance), 'stopped')
+      self.lock(instance)
+      instance.requested_state = 'started'
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertEqual(self.getBuildoutRequestedState(instance), 'stopped')
+
+  def test_software_release_pinned_while_locked(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      self.assertEqual(self.grid.processComputerPartitionList(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      pinned_hash = instance.software.software_hash
+      self.assertEqual(self.getSoftwareReleaseHash(instance), pinned_hash)
+      self.lock(instance)
+      instance.software = SoftwareForTest(self.software_root, name='upgraded')
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertEqual(self.getSoftwareReleaseHash(instance), pinned_hash)
+
+  def test_instance_parameters_pinned_while_locked(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      self.assertEqual(self.grid.processComputerPartitionList(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      self.lock(instance)
+      instance.ip_list = [('interface0', '10.0.8.99')]
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertEqual(
+        instance.current_partition.getInstanceParameterDict()['ip_list'],
+        [['interface0', '10.0.8.2']])
+
+  def test_locked_partition_reports_lock_with_outcome(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      self.assertEqual(self.grid.processComputerPartitionList(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      self.lock(instance)
+      computer.sequence = []
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertNotIn('/stoppedComputerPartition', computer.sequence)
+      self.assertIn('/softwareInstanceError', computer.sequence)
+      self.assertEqual(
+        instance.error_log,
+        '%s Instance correctly stopped' % functionality_lock.STATUS_TAG)
+
+  def test_locked_partition_reports_lock_with_failure(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      self.assertEqual(self.grid.processComputerPartitionList(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      self.lock(instance)
+      instance.software.setBuildout('#!/bin/sh\nexit 1')
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_FAIL)
+      self.assertTrue(instance.error_log.startswith(
+        functionality_lock.STATUS_TAG))
+      self.assertIn('Failed to run buildout', instance.error_log)
+
+  def test_locked_partition_without_snapshot_reports_error(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      self.lock(instance)
+      self.assertEqual(self.grid.processComputerPartitionList(),
+                       slapgrid.SLAPGRID_FAIL)
+      self.assertTrue(instance.error_log.startswith(
+        functionality_lock.STATUS_TAG))
+      self.assertIn('no snapshot', instance.error_log)
+
+  def test_locked_partition_is_not_destroyed(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      self.assertEqual(self.grid.processComputerPartitionList(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      self.lock(instance)
+      instance.requested_state = 'destroyed'
+      computer.sequence = []
+      self.assertEqual(self.grid.agregateAndSendUsage(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      self.assertNotIn('/destroyedComputerPartition', computer.sequence)
+      self.assertTrue(os.path.exists(
+        os.path.join(instance.partition_path, 'worked')))
+
+  def test_release_applies_master_state_again(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      self.assertEqual(self.grid.processComputerPartitionList(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      self.lock(instance)
+      instance.requested_state = 'started'
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertEqual(self.getBuildoutRequestedState(instance), 'stopped')
+      self.release(instance)
+      computer.sequence = []
+      self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertEqual(self.getBuildoutRequestedState(instance), 'started')
+      self.assertIn('/startedComputerPartition', computer.sequence)

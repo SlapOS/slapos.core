@@ -456,3 +456,50 @@ class TestSlaposSubscriptionGenerateSubscriptionChangeRequestForExpiredSaleTrade
       self.tic()
     self._test_alarm_not_visited(alarm, open_sale_order, script_name)
 
+
+class TestSlaposSubscriptionCreateSlapOSWorkgroupCustomerTradeCondition(SlapOSTestCaseMixin):
+
+  def _createSubscriptionRequestToChange(self):
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                                             "'disabled'", attribute='comment'):
+      subscription_request = self.portal.subscription_request_module.newContent(
+        portal_type='Subscription Request',
+        title="Test Subscription Request %s" % (self.generateNewId()),
+        destination_section_value=self.portal.workgroup_module.newContent(
+          title='Test %s' % self.generateNewId(),
+        ),
+        source_project_value=self.portal.project_module.newContent(
+          title='Test %s' % self.generateNewId(),
+        ),
+      )
+      subscription_request.submit()
+      self.tic()
+    return subscription_request
+
+  def test_SubscriptionRequest_createSlapOSWorkgroupCustomerTradeCondition_alarm_toChange(self):
+    script_name = "SubscriptionRequest_createSlapOSWorkgroupCustomerTradeCondition"
+    alarm = self.portal.portal_alarms.slapos_subscription_create_workgroup_customer_trade_condition
+    self._test_alarm(alarm, self._createSubscriptionRequestToChange(), script_name)
+
+  def test_SubscriptionRequest_createSlapOSWorkgroupCustomerTradeCondition_alarm_toKeep(self):
+    script_name = "SubscriptionRequest_createSlapOSWorkgroupCustomerTradeCondition"
+    alarm = self.portal.portal_alarms.slapos_subscription_create_workgroup_customer_trade_condition
+    subscription_request = self._createSubscriptionRequestToChange()
+    subscription_request.edit(
+      destination_section_value=self.portal.organisation_module.newContent(
+        title='Test %s' % self.generateNewId(),
+      ),
+    )
+    self._test_alarm_not_visited(alarm, subscription_request, script_name)
+
+  def test_SubscriptionRequest_createSlapOSWorkgroupCustomerTradeCondition_script_withoutOrganisation(self):
+    subscription_request = self._createSubscriptionRequestToChange()
+
+    result = subscription_request.SubscriptionRequest_createSlapOSWorkgroupCustomerTradeCondition()
+    self.assertEqual(subscription_request.getSimulationState(), "submitted")
+    self.assertEqual(result, None)
+    self.tic()
+    self.assertEqual(subscription_request.getSimulationState(), "submitted")
+
+  # XXX no more test as, it requires much more setup
+  # use case is tested in scenario

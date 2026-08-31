@@ -105,10 +105,14 @@ class TestSlapOSSubscriptionRequestValidateAlarm(SlapOSTestCaseMixin):
   #################################################################
   # slapos_subscription_request_validate_submitted
   #################################################################
-  def _createSubscriptionRequest(self):
+  def _createSubscriptionRequest(self, section_portal_type='Organisation'):
+    section_value = self.portal.getDefaultModule(portal_type=section_portal_type).newContent(
+      portal_type=section_portal_type
+    )
     return self.portal.subscription_request_module.newContent(
       portal_type='Subscription Request',
-      title="Test subscription %s" % (self.generateNewId())
+      title="Test subscription %s" % (self.generateNewId()),
+      destination_section_value=section_value,
     )
 
   def test_SubscriptionRequest_validateIfSubmitted_alarm_notSubmitted(self):
@@ -116,12 +120,26 @@ class TestSlapOSSubscriptionRequestValidateAlarm(SlapOSTestCaseMixin):
     alarm = self.portal.portal_alarms.slapos_subscription_request_validate_submitted
     self._test_alarm_not_visited(alarm, self._createSubscriptionRequest(), script_name)
 
-  def test_SubscriptionRequest_validateIfSubmitted_alarm_submitted(self):
+  def test_SubscriptionRequest_validateIfSubmitted_alarm_submittedWithOrganisation(self):
     script_name = "SubscriptionRequest_validateIfSubmitted"
     alarm = self.portal.portal_alarms.slapos_subscription_request_validate_submitted
     subscription_request = self._createSubscriptionRequest()
     self.portal.portal_workflow._jumpToStateFor(subscription_request, 'submitted')
     self._test_alarm(alarm, subscription_request, script_name)
+
+  def test_SubscriptionRequest_validateIfSubmitted_alarm_submittedWithPerson(self):
+    script_name = "SubscriptionRequest_validateIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_subscription_request_validate_submitted
+    subscription_request = self._createSubscriptionRequest(section_portal_type='Person')
+    self.portal.portal_workflow._jumpToStateFor(subscription_request, 'submitted')
+    self._test_alarm(alarm, subscription_request, script_name)
+
+  def test_SubscriptionRequest_validateIfSubmitted_alarm_submittedWithWorkgroup(self):
+    script_name = "SubscriptionRequest_validateIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_subscription_request_validate_submitted
+    subscription_request = self._createSubscriptionRequest(section_portal_type='Workgroup')
+    self.portal.portal_workflow._jumpToStateFor(subscription_request, 'submitted')
+    self._test_alarm_not_visited(alarm, subscription_request, script_name)
 
 
 class TestSlapOSSubscriptionChangeRequestValidateAlarm(SlapOSTestCaseMixin):

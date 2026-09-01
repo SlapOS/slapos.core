@@ -52,6 +52,7 @@ except ImportError: # XXX to be removed once we depend on typing
 from .exception import ResourceNotReady, ServerError, NotFoundError, \
           ConnectionError
 from .hateoas import SlapHateoasNavigator, ConnectionHelper
+from slapos import functionality_lock
 from slapos.util import (bytes2str, dict2xml, dumps, loads,
                          unicode2str, xml2dict)
 
@@ -578,8 +579,15 @@ class ComputerPartition(SlapRequester):
       raise ResourceNotReady()
     return self._instance_guid
 
+  def _getPinnedSnapshot(self):
+    return functionality_lock.getPinnedSnapshot(
+      getattr(self, '_partition_id', None))
+
   def getState(self):
     """return _requested_state. Raise ResourceNotReady if it doesn't exist."""
+    snapshot = self._getPinnedSnapshot()
+    if snapshot is not None:
+      return snapshot['requested_state']
     if not hasattr(self, '_requested_state'):
       self._fetchComputerPartitionInformation()
     if self._requested_state is None:
@@ -622,6 +630,9 @@ class ComputerPartition(SlapRequester):
 
   def getInstanceParameterDict(self):
     # type: (...) -> Mapping[str, object]
+    snapshot = self._getPinnedSnapshot()
+    if snapshot is not None:
+      return snapshot['parameter_dict'] or {}
     if not hasattr(self, '_parameter_dict'):
       self._fetchComputerPartitionInformation()
     return self._parameter_dict or {}
@@ -641,6 +652,12 @@ class ComputerPartition(SlapRequester):
     """
     Returns the software release associate to the computer partition.
     """
+    snapshot = self._getPinnedSnapshot()
+    if snapshot is not None:
+      return SoftwareRelease(
+        software_release=snapshot['software_release_url'],
+        computer_guid=self._computer_id,
+        connection_helper=self._connection_helper)
     if not hasattr(self, '_software_release_document'):
       self._fetchComputerPartitionInformation()
     if self._software_release_document is None:

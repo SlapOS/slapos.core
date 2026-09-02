@@ -413,7 +413,7 @@ class ComputerPartition(SlapRequester):
 
   def __init__(self, computer_id=None, partition_id=None,
                request_dict=None, connection_helper=None,
-               hateoas_navigator=None):
+               hateoas_navigator=None, partition_path=None):
     SlapDocument.__init__(self, connection_helper, hateoas_navigator)
     if request_dict is not None and (computer_id is not None or
         partition_id is not None):
@@ -425,6 +425,7 @@ class ComputerPartition(SlapRequester):
     self._computer_id = computer_id
     self._partition_id = partition_id
     self._request_dict = request_dict
+    self._partition_path = partition_path
 
     # Just create an empty file (for nothing requested yet)
     self._updateTransactionFile(partition_reference=None)
@@ -579,20 +580,33 @@ class ComputerPartition(SlapRequester):
       raise ResourceNotReady()
     return self._instance_guid
 
-  def _getPinnedSnapshot(self):
-    return functionality_lock.getPinnedSnapshot(
-      getattr(self, '_partition_id', None))
+  def _getFunctionalityLockPath(self):
+    return functionality_lock.getPartitionPath(
+      getattr(self, '_partition_id', None),
+      getattr(self, '_partition_path', None))
+
+  def _pinned(self, method, args=()):
+    """Recorded answer while locked, or None to go and ask SlapOS Master."""
+    return functionality_lock.getPinnedCall(
+      getattr(self, '_partition_id', None), method, args,
+      getattr(self, '_partition_path', None))
+
+  def _record(self, method, response, args=()):
+    path = self._getFunctionalityLockPath()
+    if path and os.path.isdir(path) and not functionality_lock.isLocked(path):
+      functionality_lock.recordCall(path, method, response, args)
+    return response
 
   def getState(self):
     """return _requested_state. Raise ResourceNotReady if it doesn't exist."""
-    snapshot = self._getPinnedSnapshot()
-    if snapshot is not None:
-      return snapshot['requested_state']
+    pinned = self._pinned('getState')
+    if pinned is not None:
+      return pinned
     if not hasattr(self, '_requested_state'):
       self._fetchComputerPartitionInformation()
     if self._requested_state is None:
       raise ResourceNotReady()
-    return self._requested_state
+    return self._record('getState', self._requested_state)
 
   def getAccessStatus(self):
     """Get latest computer partition Access message state"""
@@ -630,32 +644,35 @@ class ComputerPartition(SlapRequester):
 
   def getInstanceParameterDict(self):
     # type: (...) -> Mapping[str, object]
-    snapshot = self._getPinnedSnapshot()
-    if snapshot is not None:
-      return snapshot['parameter_dict'] or {}
+    pinned = self._pinned('getInstanceParameterDict')
+    if pinned is not None:
+      return pinned
     if not hasattr(self, '_parameter_dict'):
       self._fetchComputerPartitionInformation()
-    return self._parameter_dict or {}
+    return self._record('getInstanceParameterDict', self._parameter_dict or {})
 
   def getConnectionParameterDict(self):
     # type: (...) -> Mapping[str, str]
+    pinned = self._pinned('getConnectionParameterDict')
+    if pinned is not None:
+      return pinned
     if not hasattr(self, '_connection_dict'):
       self._fetchComputerPartitionInformation()
     connection_dict = self._connection_dict
     if connection_dict is None:
       # XXX Backward compatibility for older slapproxy (<= 1.0.0)
       connection_dict = xml2dict(getattr(self, 'connection_xml', ''))
-    return connection_dict or {}
+    return self._record('getConnectionParameterDict', connection_dict or {})
 
   def getSoftwareRelease(self):
     # type: (...) -> SoftwareRelease
     """
     Returns the software release associate to the computer partition.
     """
-    snapshot = self._getPinnedSnapshot()
-    if snapshot is not None:
+    pinned = self._pinned('getSoftwareReleaseURI')
+    if pinned is not None:
       return SoftwareRelease(
-        software_release=snapshot['software_release_url'],
+        software_release=pinned,
         computer_guid=self._computer_id,
         connection_helper=self._connection_helper)
     if not hasattr(self, '_software_release_document'):
@@ -663,6 +680,8 @@ class ComputerPartition(SlapRequester):
     if self._software_release_document is None:
       raise NotFoundError("No software release information for partition %s" %
           self.getId())
+    self._record('getSoftwareReleaseURI',
+                 self._software_release_document.getURI())
     return self._software_release_document
 
   def setConnectionDict(self, connection_dict, slave_reference=None):
@@ -673,7 +692,7 @@ class ComputerPartition(SlapRequester):
           'slave_reference': slave_reference})
 
   def getInstanceParameter(self, key):
-    parameter_dict = getattr(self, '_parameter_dict', None) or {}
+    parameter_dict = self.getInstanceParameterDict()
     try:
       return parameter_dict[key]
     except KeyError:
@@ -816,7 +835,8 @@ class slap:
       hateoas_navigator=self._hateoas_navigator
     )
 
-  def registerComputerPartition(self, computer_guid, partition_id):
+  def registerComputerPartition(self, computer_guid, partition_id,
+                                partition_path=None):
     """
     Registers connected representation of computer partition and
     returns Computer Partition class object
@@ -827,7 +847,8 @@ class slap:
 
     computer_partition = ComputerPartition(
       computer_guid,
-      partition_id
+      partition_id,
+      partition_path=partition_path,
     )
     computer_partition._connection_helper = self._connection_helper
     computer_partition._hateoas_navigator = self._hateoas_navigator

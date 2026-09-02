@@ -28,27 +28,39 @@
 ##############################################################################
 
 import errno
+import hashlib
 import json
 import os
 
 LOCK_FILENAME = '.slapos-functionality-lock'
-SNAPSHOT_PATH = os.path.join('.slapgrid', 'functionality-snapshot.json')
+STORE_PATH = os.path.join('.slapgrid', 'functionality-lock')
+SEED_SNAPSHOT_PATH = os.path.join('.slapgrid', 'functionality-snapshot.json')
 
 INSTANCE_ROOT_ENVIRONMENT_NAME = 'SLAPGRID_INSTANCE_ROOT'
 
 STATUS_TAG = '[functionality-locked]'
 
+# Fields of the single-file snapshot the store can be seeded from, and the call
+# each one answers.
+SEED_CALL_LIST = (
+  ('requested_state', 'getState', ()),
+  ('software_release_url', 'getSoftwareReleaseURI', ()),
+  ('parameter_dict', 'getInstanceParameterDict', ()),
+)
+
 
 class SnapshotMissingError(Exception):
-  """Partition is locked, but nothing was ever recorded to pin it to."""
+  """Partition is locked, but this call was never recorded to pin it to."""
 
 
-def getPartitionPath(partition_id):
-  """Partition directory as seen from inside a buildout run, or None.
+def getPartitionPath(partition_id, partition_path=None):
+  """Directory of the partition whose lock governs this call, or None.
 
-  slapgrid exports the instance root so that the pin also applies to the slap
-  library used by the software release's own recipes.
+  Callers inside a partition pass `partition_path`; slapgrid exports the
+  instance root instead, which is all its own processing needs.
   """
+  if partition_path:
+    return partition_path
   instance_root = os.environ.get(INSTANCE_ROOT_ENVIRONMENT_NAME)
   if not instance_root or not partition_id:
     return None
@@ -61,47 +73,82 @@ def isLocked(partition_path):
   return os.path.exists(os.path.join(partition_path, LOCK_FILENAME))
 
 
-def readSnapshot(partition_path):
+def getCallKey(method, args):
+  return hashlib.sha256(
+    json.dumps([method, args], sort_keys=True).encode('utf-8')).hexdigest()
+
+
+def readCall(partition_path, method, args=()):
+  """The recorded entry for this call, or None when nothing is recorded.
+
+  An entry, not the bare response: a recorded response may legitimately be
+  null, which must not read as "never recorded".
+  """
+  path = os.path.join(partition_path, STORE_PATH,
+                      '%s.json' % getCallKey(method, list(args)))
   try:
-    with open(os.path.join(partition_path, SNAPSHOT_PATH)) as f:
-      return json.load(f)
+    with open(path) as f:
+      entry = json.load(f)
   except (IOError, OSError) as e:
     if e.errno != errno.ENOENT:
       raise
-  except ValueError:
-    pass
-  return None
-
-
-def writeSnapshot(partition_path, requested_state, software_release_url,
-                  parameter_dict):
-  snapshot = {
-    'requested_state': requested_state,
-    'software_release_url': software_release_url,
-    'parameter_dict': parameter_dict,
-  }
-  if readSnapshot(partition_path) == snapshot:
-    return
-  snapshot_path = os.path.join(partition_path, SNAPSHOT_PATH)
-  snapshot_directory = os.path.dirname(snapshot_path)
-  if not os.path.isdir(snapshot_directory):
-    os.makedirs(snapshot_directory)
-  new_snapshot_path = snapshot_path + '.new'
-  with open(new_snapshot_path, 'w') as f:
-    json.dump(snapshot, f, sort_keys=True)
-  # the software release reads it back as the partition user
-  os.chmod(new_snapshot_path, 0o644)
-  os.rename(new_snapshot_path, snapshot_path)
-
-
-def getPinnedSnapshot(partition_id):
-  """Snapshot to substitute for what SlapOS Master reports, or None."""
-  partition_path = getPartitionPath(partition_id)
-  if not isLocked(partition_path):
     return None
-  snapshot = readSnapshot(partition_path)
-  if snapshot is None:
+  except ValueError:
+    return None
+  if 'response' not in entry:
+    return None
+  return entry
+
+
+def recordCall(partition_path, method, response, args=()):
+  """Remember what SlapOS Master answered, so a later lock can replay it."""
+  entry = readCall(partition_path, method, args)
+  if entry is not None and entry['response'] == response:
+    return
+  store = os.path.join(partition_path, STORE_PATH)
+  if not os.path.isdir(store):
+    os.makedirs(store)
+  path = os.path.join(store, '%s.json' % getCallKey(method, list(args)))
+  new_path = path + '.new'
+  with open(new_path, 'w') as f:
+    json.dump({'method': method, 'args': list(args), 'response': response},
+              f, sort_keys=True)
+  # the software release reads it back as the partition user
+  os.chmod(new_path, 0o644)
+  os.rename(new_path, path)
+
+
+def seedFromSnapshotFile(partition_path):
+  """Fill an empty store from a single-file snapshot, where one is left.
+
+  A partition locked before the store existed would otherwise have to be
+  unlocked to become lockable again.
+  """
+  if os.path.isdir(os.path.join(partition_path, STORE_PATH)):
+    return
+  try:
+    with open(os.path.join(partition_path, SEED_SNAPSHOT_PATH)) as f:
+      snapshot = json.load(f)
+  except (IOError, OSError) as e:
+    if e.errno != errno.ENOENT:
+      raise
+    return
+  except ValueError:
+    return
+  for field, method, args in SEED_CALL_LIST:
+    if field in snapshot:
+      recordCall(partition_path, method, snapshot[field], args)
+
+
+def getPinnedCall(partition_id, method, args=(), partition_path=None):
+  """Recorded answer to substitute for SlapOS Master's, or None if unlocked."""
+  path = getPartitionPath(partition_id, partition_path)
+  if not isLocked(path):
+    return None
+  seedFromSnapshotFile(path)
+  entry = readCall(path, method, args)
+  if entry is None:
     raise SnapshotMissingError(
-      'Partition %s is functionality locked with no snapshot to pin it to.'
-      % partition_id)
-  return snapshot
+      'Partition %s is functionality locked with no recorded %s to pin it to.'
+      % (partition_id, method))
+  return entry['response']

@@ -58,6 +58,7 @@ from requests.exceptions import RequestException
 
 from lxml import etree
 
+from slapos import functionality_lock
 from slapos import manager as slapmanager
 from slapos.slap.exception import ConnectionError
 from slapos.slap.slap import NotFoundError
@@ -459,6 +460,24 @@ class Slapgrid(object):
     self.shared_part_list = shared_part_list
     self.build_time_part_list = build_time_part_list
     self.force_stop = force_stop
+
+  def _isFunctionalityLocked(self, computer_partition_id):
+    return functionality_lock.isLocked(
+      os.path.join(self.instance_root, computer_partition_id))
+
+  def _reportPartitionLocked(self, computer_partition, message):
+    computer_partition.error(
+      '%s %s' % (functionality_lock.STATUS_TAG, message), logger=self.logger)
+
+  def _reportPartitionError(self, computer_partition, message):
+    try:
+      locked = self._isFunctionalityLocked(computer_partition.getId())
+    except Exception:
+      locked = False
+    if locked:
+      self._reportPartitionLocked(computer_partition, message)
+    else:
+      computer_partition.error(message, logger=self.logger)
 
   def _getWatchdogLine(self):
     invocation_list = [WATCHDOG_PATH]
@@ -1155,7 +1174,13 @@ stderr_logfile_backups=1
     self.logger.debug('Check if %s requires processing...' % computer_partition_id)
 
     instance_path = os.path.join(self.instance_root, computer_partition_id)
-    os.environ['SLAPGRID_INSTANCE_ROOT'] = self.instance_root
+    os.environ[functionality_lock.INSTANCE_ROOT_ENVIRONMENT_NAME] = \
+        self.instance_root
+    functionality_locked = functionality_lock.isLocked(instance_path)
+    if functionality_locked:
+      self.logger.info(
+        'Computer Partition %s is functionality locked, SlapOS Master state '
+        'is ignored.' % computer_partition_id)
 
     # Check if transaction file of this partition exists, if the file was created,
     # remove it so it will be generate with this new transaction
@@ -1237,6 +1262,12 @@ stderr_logfile_backups=1
     # - the partition should be processed regardless of the previous timestamp
     # - the timestamp should not be updated
     if self.force_stop and computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
+      timestamp = None
+
+    # The pinned parameters carry the pinned timestamp, which therefore always
+    # matches the one on disk: left alone, a locked partition would never be
+    # processed again and would never report its lock.
+    if functionality_locked:
       timestamp = None
 
     if self.computer_partition_filter_list and \
@@ -1335,7 +1366,11 @@ stderr_logfile_backups=1
                                               partition_ip_list)
         if not self.force_stop:
           self._checkPromiseList(local_partition)
-          computer_partition.started()
+          if functionality_locked:
+            self._reportPartitionLocked(
+              computer_partition, 'Instance correctly started')
+          else:
+            computer_partition.started()
         self._endInstallationTransaction(computer_partition)
       elif computer_partition_state == COMPUTER_PARTITION_STOPPED_STATE:
         try:
@@ -1349,9 +1384,13 @@ stderr_logfile_backups=1
           # Instance has to be stopped even if buildout/reporting is wrong.
           local_partition.stop()
         try:
-          computer_partition.stopped()
+          if functionality_locked:
+            self._reportPartitionLocked(
+              computer_partition, 'Instance correctly stopped')
+          else:
+            computer_partition.stopped()
         except (SystemExit, KeyboardInterrupt):
-          computer_partition.error(traceback.format_exc(), logger=self.logger)
+          self._reportPartitionError(computer_partition, traceback.format_exc())
           raise
         except Exception:
           pass
@@ -1363,16 +1402,20 @@ stderr_logfile_backups=1
                                               partition_ip_list,
                                               drop_entries=True)
         try:
-          computer_partition.stopped()
+          if functionality_locked:
+            self._reportPartitionLocked(
+              computer_partition, 'Instance correctly stopped')
+          else:
+            computer_partition.stopped()
         except (SystemExit, KeyboardInterrupt):
-          computer_partition.error(traceback.format_exc(), logger=self.logger)
+          self._reportPartitionError(computer_partition, traceback.format_exc())
           raise
         except Exception:
           pass
       else:
         error_string = "Computer Partition %r has unsupported state: %s" % \
           (computer_partition_id, computer_partition_state)
-        computer_partition.error(error_string, logger=self.logger)
+        self._reportPartitionError(computer_partition, error_string)
         raise NotImplementedError(error_string)
     except Exception as e:
       if not isinstance(e, PromiseError):
@@ -1423,7 +1466,8 @@ stderr_logfile_backups=1
         except (NotFoundError, TypeError, NameError):
           software_url = None
         if computer_partition_state == COMPUTER_PARTITION_DESTROYED_STATE and \
-           not software_url:
+           not software_url and \
+           not functionality_lock.isLocked(computer_partition_path):
           # Exclude files which may come from concurrent processing 
           #  ie.: slapos ndoe report and slapos node instance commands 
           # can create a .timestamp file.
@@ -1505,14 +1549,14 @@ stderr_logfile_backups=1
 
       # Send log before exiting
       except (SystemExit, KeyboardInterrupt):
-        computer_partition.error(traceback.format_exc(), logger=self.logger)
+        self._reportPartitionError(computer_partition, traceback.format_exc())
         raise
 
       except PromiseError as exc:
         clean_run_promise = False
         try:
           self.logger.error(exc)
-          computer_partition.error(exc, logger=self.logger)
+          self._reportPartitionError(computer_partition, exc)
           promise_error_partition_list.append((computer_partition, exc))
         except (SystemExit, KeyboardInterrupt):
           raise
@@ -1526,7 +1570,7 @@ stderr_logfile_backups=1
           # For everything else: log it, send it, continue.
           self.logger.exception('')
         try:
-          computer_partition.error(exc, logger=self.logger)
+          self._reportPartitionError(computer_partition, exc)
           process_error_partition_list.append((computer_partition, exc))
         except (SystemExit, KeyboardInterrupt):
           raise
@@ -1538,11 +1582,25 @@ stderr_logfile_backups=1
       """
       try:
         return part.getType()
-      except slapos.slap.ResourceNotReady:
+      except (slapos.slap.ResourceNotReady,
+              functionality_lock.SnapshotMissingError):
         return '(not ready)'
+
+    functionality_locked_partition_list = []
+    for computer_partition in computer_partition_list:
+      try:
+        partition_id = computer_partition.getId()
+      except Exception:
+        continue
+      if self._isFunctionalityLocked(partition_id):
+        functionality_locked_partition_list.append(partition_id)
 
     self.logger.info('Finished computer partitions.')
     self.logger.info('=' * 80)
+    if functionality_locked_partition_list:
+      self.logger.info('Functionality locked partitions:')
+      for partition_id in functionality_locked_partition_list:
+        self.logger.info('  %s', partition_id)
     if process_error_partition_list:
       self.logger.info('Error while processing the following partitions:')
       for partition, exc in process_error_partition_list:
@@ -1637,7 +1695,8 @@ stderr_logfile_backups=1
       """
       try:
         return part.getType()
-      except slapos.slap.ResourceNotReady:
+      except (slapos.slap.ResourceNotReady,
+              functionality_lock.SnapshotMissingError):
         return '(not ready)'
 
     if promise_error_partition_list:
@@ -1923,6 +1982,11 @@ stderr_logfile_backups=1
 
     for computer_partition in computer_partition_list:
       if computer_partition.getState() == COMPUTER_PARTITION_DESTROYED_STATE:
+        if self._isFunctionalityLocked(computer_partition.getId()):
+          self.logger.info(
+            'Not destroying functionality locked Computer Partition %s.'
+            % computer_partition.getId())
+          continue
         destroyed = False
         try:
           computer_partition_id = computer_partition.getId()

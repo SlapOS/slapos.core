@@ -53,6 +53,7 @@ from slapos.grid.utils import (md5digest, getCleanEnvironment,
 from slapos.grid import utils  # for methods that could be mocked, access them through the module
 from slapos.slap.slap import NotFoundError
 from slapos.grid.svcbackend import getSupervisorRPC
+from slapos import functionality_lock
 from slapos.grid.exception import (BuildoutFailedError, WrongPermissionError,
                                    PathDoesNotExistError, DiskSpaceError)
 from slapos.grid.networkcache import download_network_cached, upload_network_cached
@@ -856,6 +857,11 @@ class Partition(object):
     """
     self.logger.info("Destroying Computer Partition %s..."
         % self.partition_id)
+
+    if functionality_lock.isLocked(self.instance_path):
+      self.logger.info(
+        'Impossible to destroy partition because of functionality lock.')
+      return False
 
     self.createRetentionLockDate()
     if not self.checkRetentionIsAuthorized():

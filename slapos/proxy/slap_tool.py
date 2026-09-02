@@ -8,7 +8,7 @@ from slapos.util import unicode2str, \
     xml2dict, dict2xml
 
 from slapos.slap.slap import Computer, ComputerPartition, \
-    SoftwareRelease, NotFoundError
+    SoftwareRelease, NotFoundError, ConnectionError
 
 slap_tool_blueprint = Blueprint('slap_tool', __name__)
 
@@ -227,7 +227,7 @@ def requestComputerPartition():
   }
   try:
     partition = requestInstanceFromDB(**parsed_request_dict)
-  except (AllocationFailure, ConfigurationError) as e:
+  except (AllocationFailure, ConfigurationError, ConnectionError) as e:
     return abort(404, str(e))
   if getattr(partition, '_request_dict', None) is not None:
     # ResourceNotReady

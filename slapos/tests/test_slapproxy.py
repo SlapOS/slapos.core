@@ -2224,6 +2224,46 @@ database_uri = %(rootdir)s/lib/external_proxy.db
         'requested_by': 'instance',
     }], requested_by)
 
+class TestMultiMasterConnectionError(MasterMixin):
+  def setUp(self):
+    super(TestMultiMasterConnectionError, self).setUp()
+    self.dead_master_url = 'http://127.0.0.1:9'
+    self.app_config['multimaster'][self.dead_master_url] = {
+      'software_release_list': ['http://dead.example/software.cfg'],
+      'key': None,
+      'cert': None,
+    }
+    self.dead_master_partition_url = 'http://127.0.0.1:10'
+    self.app_config['multimaster'][self.dead_master_partition_url] = {
+      'software_release_list': ['https://example.com/software.cfg'],
+      'computer': 'COMP-12345',
+      'partition': 'slappart1',
+    }
+    from slapos.proxy.db import checkIfMasterIsCurrentMaster
+    with views.app.test_request_context('/', base_url='http://127.0.0.1:8080'):
+      self.assertFalse(checkIfMasterIsCurrentMaster(self.dead_master_url))
+      self.assertFalse(checkIfMasterIsCurrentMaster(self.dead_master_partition_url))
+
+  def test_forward_openorder_master_down_returns_404(self):
+    self.format_for_number_of_partitions(1)
+    rv = self._requestComputerPartition(
+      'http://dead.example/software.cfg', None, 'MyFirstInstance', 'slappart0',
+      filter_kw={'master_url': self.dead_master_url})
+    self.assertEqual(rv._status_code, 404)
+
+  def test_forward_partition_master_down_returns_404(self):
+    self.format_for_number_of_partitions(2)
+    rv = self._requestComputerPartition(
+      'https://example.com/software.cfg', None, 'MySubInstance', 'slappart0',
+      filter_kw={'master_url': self.dead_master_partition_url})
+    self.assertEqual(rv._status_code, 404)
+
+  def test_forward_auto_list_master_down_returns_404(self):
+    self.format_for_number_of_partitions(1)
+    rv = self._requestComputerPartition(
+      'http://dead.example/software.cfg', None, 'MyFirstInstance', 'slappart0')
+    self.assertEqual(rv._status_code, 404)
+
 
 class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):
   """

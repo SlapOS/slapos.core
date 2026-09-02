@@ -1309,10 +1309,6 @@ stderr_logfile_backups=1
               for manager in self._manager_list:
                 manager.instanceTearDown(local_partition)
 
-              if not functionality_locked:
-                functionality_lock.writeSnapshot(
-                  instance_path, computer_partition_state, software_url,
-                  parameter_dict)
               return
         os.remove(timestamp_path)
 
@@ -1440,10 +1436,6 @@ stderr_logfile_backups=1
       # as manager might be used for this
       for manager in self._manager_list:
         manager.instanceTearDown(local_partition)
-
-    if not functionality_locked:
-      functionality_lock.writeSnapshot(
-        instance_path, computer_partition_state, software_url, parameter_dict)
 
     # If partition has been successfully processed, write timestamp
     if timestamp is not None:

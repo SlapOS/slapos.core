@@ -2244,25 +2244,25 @@ class TestMultiMasterConnectionError(MasterMixin):
       self.assertFalse(checkIfMasterIsCurrentMaster(self.dead_master_url))
       self.assertFalse(checkIfMasterIsCurrentMaster(self.dead_master_partition_url))
 
-  def test_forward_openorder_master_down_returns_404(self):
+  def test_forward_openorder_master_down_returns_523(self):
     self.format_for_number_of_partitions(1)
     rv = self._requestComputerPartition(
       'http://dead.example/software.cfg', None, 'MyFirstInstance', 'slappart0',
       filter_kw={'master_url': self.dead_master_url})
-    self.assertEqual(rv._status_code, 404)
+    self.assertEqual(rv._status_code, 523)
 
-  def test_forward_partition_master_down_returns_404(self):
+  def test_forward_partition_master_down_returns_523(self):
     self.format_for_number_of_partitions(2)
     rv = self._requestComputerPartition(
       'https://example.com/software.cfg', None, 'MySubInstance', 'slappart0',
       filter_kw={'master_url': self.dead_master_partition_url})
-    self.assertEqual(rv._status_code, 404)
+    self.assertEqual(rv._status_code, 523)
 
-  def test_forward_auto_list_master_down_returns_404(self):
+  def test_forward_auto_list_master_down_returns_523(self):
     self.format_for_number_of_partitions(1)
     rv = self._requestComputerPartition(
       'http://dead.example/software.cfg', None, 'MyFirstInstance', 'slappart0')
-    self.assertEqual(rv._status_code, 404)
+    self.assertEqual(rv._status_code, 523)
 
 
 class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):

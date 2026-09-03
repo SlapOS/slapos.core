@@ -7,7 +7,8 @@ from .db import execute_db, requestInstanceFromDB, supplyFromDB, removeFromDB, \
                 NotFoundPartitionFailure, PartitionDeletionFailure, \
                 AllocationFailure, getInstanceTreeList, getAllocatedInstance
 from slapos.util import dict2xml, xml2dict, loads
-from slapos.slap.slap import ComputerPartition, SoftwareInstance
+from slapos.slap.slap import ComputerPartition, SoftwareInstance, ConnectionError
+from .http_proxy import HTTPConnectionError
 import json
 import jsonschema
 import sys
@@ -419,6 +420,8 @@ def post_software_instance():
     slap_instance = requestInstanceFromDB(**parsed_request_dict)
   except AllocationFailure as e:
     return abort(403, str(e))
+  except ConnectionError as e:
+    raise HTTPConnectionError(str(e))
   if isinstance(slap_instance, SoftwareInstance):
     return send_json_rpc_slap_instance(title, requested_by, is_shared, slap_instance)
 

@@ -39,6 +39,7 @@ import httmock
 
 import json
 import mock
+import requests
 
 import slapos.slap
 from slapos.util import dumps, dict2xml
@@ -1602,3 +1603,45 @@ class TestSoftwareProductCollection(SlapMixin):
       self.product_collection.get
     )
     self.assertEqual(self.product_collection.foo, '0')
+
+class TestHateoasServerError(SlapMixin):
+  def test_500_raises_server_error(self, status_code=500):
+    """
+    Asserts that 500 raises ServerError
+    """
+    def handler(url, req):
+      if url.path == '/test':
+        return {'status_code': status_code}
+      return {'status_code': 0}
+    with httmock.HTTMock(handler):
+      self.slap.initializeConnection(self.server_url)
+      self.assertRaises(slapos.slap.ServerError,
+        self.slap._connection_helper.GET, '/test')
+
+  def test_502_raises_server_error(self):
+    self.test_500_raises_server_error(502)
+
+  def test_503_raises_server_error(self):
+    self.test_500_raises_server_error(503)
+
+  def test_520_raises_server_error(self):
+    self.test_500_raises_server_error(520)
+
+  def test_523_raises_server_error(self):
+    self.test_500_raises_server_error(523)
+
+  def test_524_raises_server_error(self):
+    self.test_500_raises_server_error(524)
+
+  def test_526_raises_server_error(self):
+    self.test_500_raises_server_error(526)
+
+  def test_501_not_server_error(self):
+    def handler(url, req):
+      if url.path == '/test':
+        return {'status_code': 501}
+      return {'status_code': 0}
+    with httmock.HTTMock(handler):
+      self.slap.initializeConnection(self.server_url)
+      self.assertRaises(requests.exceptions.HTTPError,
+        self.slap._connection_helper.GET, '/test')

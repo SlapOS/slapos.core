@@ -10,6 +10,8 @@ from slapos.util import unicode2str, \
 from slapos.slap.slap import Computer, ComputerPartition, \
     SoftwareRelease, NotFoundError, ConnectionError
 
+from .http_proxy import HTTPConnectionError
+
 slap_tool_blueprint = Blueprint('slap_tool', __name__)
 
 EMPTY_DICT_XML = dumps({})
@@ -227,8 +229,10 @@ def requestComputerPartition():
   }
   try:
     partition = requestInstanceFromDB(**parsed_request_dict)
-  except (AllocationFailure, ConfigurationError, ConnectionError) as e:
+  except (AllocationFailure, ConfigurationError) as e:
     return abort(404, str(e))
+  except ConnectionError as e:
+    raise HTTPConnectionError(str(e))
   if getattr(partition, '_request_dict', None) is not None:
     # ResourceNotReady
     return abort(408, 'Resource not ready')

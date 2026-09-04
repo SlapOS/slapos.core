@@ -1835,6 +1835,66 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     assert json.loads(response.data) == expect_result_dict, response.data
 
 
+class JsonRpcConnectionErrorTestCase(BasicMixin, unittest.TestCase):
+  def setUp(self):
+    super(JsonRpcConnectionErrorTestCase, self).setUp()
+    self.dead_master_url = 'http://127.0.0.1:9'
+    self.app_config['multimaster'][self.dead_master_url] = {
+      'software_release_list': ['http://dead.example/software.cfg'],
+      'key': None,
+      'cert': None,
+    }
+    self.dead_master_partition_url = 'http://127.0.0.1:10'
+    self.app_config['multimaster'][self.dead_master_partition_url] = {
+      'software_release_list': ['https://example.com/software.cfg'],
+      'computer': 'COMP-12345',
+      'partition': 'slappart1',
+    }
+    from slapos.proxy.db import checkIfMasterIsCurrentMaster
+    from slapos.proxy import views
+    with views.app.test_request_context('/', base_url='http://127.0.0.1:8080'):
+      assert not checkIfMasterIsCurrentMaster(self.dead_master_url)
+      assert not checkIfMasterIsCurrentMaster(self.dead_master_partition_url)
+
+  def test_post_v0_software_instance_openorder_master_down_returns_523(self):
+    self.format_for_number_of_partitions(1)
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://dead.example/software.cfg',
+        'software_type': 'foobar',
+        'sla_parameters': {'master_url': self.dead_master_url}
+      }
+    )
+    assert response.status_code == 523, response.status_code
+
+  def test_post_v0_software_instance_partition_master_down_returns_523(self):
+    self.format_for_number_of_partitions(2)
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MySubInstance',
+        'software_release_uri': 'https://example.com/software.cfg',
+        'software_type': 'foobar',
+        'sla_parameters': {'master_url': self.dead_master_partition_url}
+      }
+    )
+    assert response.status_code == 523, response.status_code
+
+  def test_post_v0_software_instance_auto_list_master_down_returns_523(self):
+    self.format_for_number_of_partitions(1)
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://dead.example/software.cfg',
+        'software_type': 'foobar'
+      }
+    )
+    assert response.status_code == 523, response.status_code
+
+
 class JsonRpcExperimentalTestCase(BasicMixin, unittest.TestCase):
   #######################################################
   # Get compute node list

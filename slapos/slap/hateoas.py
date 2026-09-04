@@ -38,7 +38,7 @@ import logging
 from ..util import _addIpv6Brackets
 from ..version import version as slapos_version
 from .exception import ResourceNotReady, NotFoundError, \
-          AuthenticationError, ConnectionError
+          AuthenticationError, ConnectionError, ServerError
 
 import requests
 # silence messages like 'Starting connection' that are logged with INFO
@@ -134,6 +134,8 @@ class ConnectionHelper:
         # this is explicitly returned by SlapOS master, and does not really mean timeout
         raise ResourceNotReady(path)
         # XXX TODO test request timeout and resource not found
+      elif exc.response.status_code in (500, 502, 503, 520, 523, 524, 526):
+        raise ServerError(str(exc))
       else:
         # we don't know how or don't want to handle these (including Unauthorized)
         req.raise_for_status()

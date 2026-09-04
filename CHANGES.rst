@@ -1,6 +1,13 @@
 Changes
 =======
 
+1.24.1 (2026-09-04)
+-------------------
+
+ * slap: Catch 5xx http errors on request and raise ServerError
+ * proxy: Catch ConnectionError exceptions when request from remote master
+ * testing: fix findFreeTCPPortRange retry loop
+
 1.24.0 (2026-08-13)
 -------------------
 

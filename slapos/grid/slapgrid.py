@@ -1469,7 +1469,7 @@ stderr_logfile_backups=1
   def processComputerPartitionList(self):
     try:
       return self.processComputerPartitionListOnline()
-    except (RequestException, ConnectionError):
+    except (RequestException, ConnectionError, ServerError):
       return self.processComputerPartitionListOffline()
 
   def processComputerPartitionListOnline(self):
@@ -1500,7 +1500,7 @@ stderr_logfile_backups=1
         self.processComputerPartition(computer_partition)
 
       # Handle connection loss at the next level
-      except (RequestException, ConnectionError):
+      except (RequestException, ConnectionError, ServerError):
         raise
 
       # Send log before exiting

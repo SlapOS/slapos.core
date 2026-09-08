@@ -26,7 +26,7 @@ if instance is None or instance.getSlapState() == 'destroy_requested':
 
 parameter_dict = instance.getConnectionXmlAsDict()
 
-if parameter_dict.keys() == ["_"]:
+if (len(parameter_dict) == 1) and ("_" in parameter_dict):
   import json
   json_connection_dict = json.loads(parameter_dict["_"])
   if isinstance(json_connection_dict, dict):

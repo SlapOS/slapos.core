@@ -1,20 +1,38 @@
 # Please see ERP5User_getSecurityCategoryValueFromAssignment for more informations
 # on what this script outputs.
+from DateTime import DateTime
+now = DateTime()
+portal = context.getPortalObject()
 
 portal_type = context.getPortalType()
+category_list = []
+
 if portal_type == 'Person':
-  return context.ERP5User_getSecurityCategoryValueFromAssignment(
+  # Only extend workgroup from a person to prevent infinite loop
+  # (workgroup assignmed to self)
+  for assignment_value in context.objectValues(portal_type='Assignment'):
+    if ((assignment_value.getValidationState() == 'open') and
+        (assignment_value.getDestination(portal_type="Workgroup") is not None) and
+        (not assignment_value.hasStartDate() or (assignment_value.getStartDate() <= now)) and
+        (not assignment_value.hasStopDate() or (now <= assignment_value.getStopDate()))):
+      workgroup = assignment_value.getDestinationValue(portal_type="Workgroup")
+      if workgroup.getValidationState() == 'validated':
+        # invalidating a workgroup will quickly block all functionalities
+        category_list.extend(workgroup.ERP5User_getUserSecurityCategoryValueList())
+
+if portal_type in ('Person', 'Workgroup'):
+  category_list.extend(
+    context.ERP5User_getSecurityCategoryValueFromAssignment(
     rule_dict={
       ('function',): ((), ('function',)),
       ('destination_project',): ((), ),
+      ('destination',): ((), ),
       ('destination_project', 'function'): ((), ),
     },
+   )
   )
 
-category_list = []
-portal = context.getPortalObject()
-
-if portal_type == 'Compute Node':
+elif portal_type == 'Compute Node':
   category_list.append({
     'role': (
       (portal.portal_categories.role.computer, False),

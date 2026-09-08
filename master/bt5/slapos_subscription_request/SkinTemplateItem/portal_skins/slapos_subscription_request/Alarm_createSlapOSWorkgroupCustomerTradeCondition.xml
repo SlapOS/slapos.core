@@ -46,11 +46,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>reference, dialog_id, activate_kw=None, REQUEST=None, **kw</string> </value>
+            <value> <string>tag, fixit, params</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_claimSlaposItemSubscription</string> </value>
+            <value> <string>Alarm_createSlapOSWorkgroupCustomerTradeCondition</string> </value>
         </item>
       </dictionary>
     </pickle>

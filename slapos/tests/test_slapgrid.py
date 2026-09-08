@@ -271,14 +271,23 @@ class BasicMixin(object):
   def tearDown(self):
     # XXX: Hardcoded pid, as it is not configurable in slapos
     svc = os.path.join(self.instance_root, 'var', 'run', 'supervisord.pid')
-    if os.path.exists(svc):
+    # supervisord unlinks the file after answering shutdown, so a test
+    # that shut it down may find it already gone, and the process it named
+    # may already be reaped
+    try:
+      with open(svc) as f:
+        pid = int(f.read().strip())
+    except (IOError, OSError) as e:
+      if e.errno != errno.ENOENT:
+        raise
+    except ValueError:
+      pass
+    else:
       try:
-        with open(svc) as f:
-          pid = int(f.read().strip())
-      except ValueError:
-        pass
-      else:
         os.kill(pid, signal.SIGTERM)
+      except OSError as e:
+        if e.errno != errno.ESRCH:
+          raise
     shutil.rmtree(self._tempdir, True)
 
 

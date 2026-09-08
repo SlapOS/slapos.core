@@ -1119,7 +1119,8 @@ class TestAssignmentRequestModule(TestSlapOSGroupRoleSecurityMixin):
   def test_AssignmentRequestModule(self):
     module = self.portal.assignment_request_module
     self.assertSecurityGroup(module,
-        ['F-PRODUCTION*', 'F-SALE*', module.Base_getOwnerId()], False)
+        ['F-PRODUCTION*', 'F-SALE*', 'F-CUSTOMER', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-CUSTOMER', ['Auditor'])
     self.assertRoles(module, 'F-PRODUCTION*', ['Auditor'])
     self.assertRoles(module, 'F-SALE*', ['Auditor', 'Author'])
     self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])

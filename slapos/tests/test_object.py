@@ -675,24 +675,32 @@ class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
     time.sleep(1)
     self.assertTrue(partition.destroy())
 
+  def assertRetentionLockDate(self, partition, delay, before, after):
+    # the date is stamped from the writer's own clock, so bracket the call
+    # that writes it instead of comparing against a later reading of ours
+    with open(partition.retention_lock_date_file_path) as f:
+      deployed_date = float(f.read())
+    self.assertLessEqual(before + delay * 3600 * 24, deployed_date)
+    self.assertLessEqual(deployed_date, after + delay * 3600 * 24)
+
   def test_retention_lock_date_creation(self):
     delay = 42
     software = self.createSoftware()
     partition = self.createPartition(software.url, retention_delay=delay)
     partition.install()
     self.assertFalse(os.path.exists(partition.retention_lock_date_file_path))
+    before = int(time.time())
     partition.destroy()
-    with open(partition.retention_lock_date_file_path) as f:
-      deployed_date = float(f.read())
-    self.assertEqual(delay * 3600 * 24 + int(time.time()), int(deployed_date))
+    self.assertRetentionLockDate(partition, delay, before, int(time.time()))
 
   def test_retention_lock_date_does_not_change(self):
     delay = 42
     software = self.createSoftware()
     partition = self.createPartition(software.url, retention_delay=delay)
-    now = time.time()
     partition.install()
+    before = int(time.time())
     partition.destroy()
+    after = int(time.time())
 
     partition.retention_delay = 23
     # install/destroy many times
@@ -702,9 +710,7 @@ class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
     partition.install()
     partition.destroy()
 
-    with open(partition.retention_lock_date_file_path) as f:
-      deployed_date = float(f.read())
-    self.assertEqual(delay * 3600 * 24 + int(now), int(deployed_date))
+    self.assertRetentionLockDate(partition, delay, before, after)
 
 
 class TestPartitionDestructionUnwritable(MasterMixin, unittest.TestCase):

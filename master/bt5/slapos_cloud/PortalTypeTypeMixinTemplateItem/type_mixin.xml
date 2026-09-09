@@ -21,6 +21,7 @@
   <item>SlapOSInstanceSlapInterfaceMixin</item>
  </portal_type>
  <portal_type id="Person">
+  <item>SlapOSActorSlapInterfaceMixin</item>
   <item>SlapOSCacheMixin</item>
   <item>SlapOSPersonSlapInterfaceMixin</item>
  </portal_type>
@@ -38,5 +39,8 @@
  <portal_type id="Software Instance">
   <item>SlapOSCacheMixin</item>
   <item>SlapOSInstanceSlapInterfaceMixin</item>
+ </portal_type>
+ <portal_type id="Workgroup">
+  <item>SlapOSActorSlapInterfaceMixin</item>
  </portal_type>
 </type_mixin>

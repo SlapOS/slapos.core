@@ -46,11 +46,19 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string></string> </value>
+            <value> <string>invitation_token, **kw</string> </value>
+        </item>
+        <item>
+            <key> <string>_proxy_roles</string> </key>
+            <value>
+              <tuple>
+                <string>Assignor</string>
+              </tuple>
+            </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Base_getAuthenticatedPersonUid</string> </value>
+            <value> <string>Actor_acceptSlapOSInvitationToken</string> </value>
         </item>
       </dictionary>
     </pickle>

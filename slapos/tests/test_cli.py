@@ -416,6 +416,7 @@ class TestCliProxyShow(CliMixin):
       # use a pager that just output to a file.
       tmp = tempfile.NamedTemporaryFile(delete=False)
       self.addCleanup(os.unlink, tmp.name)
+      tmp.close()
       os.environ['PAGER'] = 'cat > {}'.format(tmp.name)
 
       do_show(self.conf)
@@ -1231,13 +1232,12 @@ class TestCliRequestParameterFile(CliMixin):
   expected_partition_parameter_kw = {'foo': ['bar']}
 
   def _makeParameterFile(self):
-    f = tempfile.NamedTemporaryFile(
+    with tempfile.NamedTemporaryFile(
         suffix=self.parameter_file_suffix,
         mode='w', delete=False,
-    )
-    self.addCleanup(os.unlink, f.name)
-    f.write(textwrap.dedent(self.parameter_file_content))
-    f.flush()
+    ) as f:
+      self.addCleanup(os.unlink, f.name)
+      f.write(textwrap.dedent(self.parameter_file_content))
     return f.name
 
   def _request_parameters_file_setup(self):

@@ -134,7 +134,8 @@ class TestRegister(unittest.TestCase):
     self.assertEqual(0, return_code)
     self.assertTrue(
       os.path.exists('%s/slapos.cfg' % self.temp_dir))
-    config_content = open('%s/slapos.cfg' % self.temp_dir).read()
+    with open('%s/slapos.cfg' % self.temp_dir) as f:
+      config_content = f.read()
     self.assertIn('computer_id = %s' % self.computer_id, config_content)
     self.assertIn('software_root = /opt/slapgrid', config_content)
     self.assertIn('instance_root = /srv/slapgrid', config_content)

@@ -4542,7 +4542,7 @@ class TestSlapgridPluginPromiseWithInstancePython(TestSlapgridPromiseWithMaster)
     with httmock.HTTMock(computer.request_handler), \
         patch.object(self.grid.logger, 'info',) as dummyLogger:
       self.launchSlapgrid()
-
+    self.maxDiff = None
     self.assertEqual(
         dummyLogger.mock_calls[-1][1][0] % dummyLogger.mock_calls[-1][1][1:],
         "  0[(not ready)]: Promise 'failing_promise_plugin.py' failed with output: héhé fake promise plugin error")

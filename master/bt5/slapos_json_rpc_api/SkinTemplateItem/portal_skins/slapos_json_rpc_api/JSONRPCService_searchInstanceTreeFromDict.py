@@ -1,10 +1,9 @@
 portal = context.getPortalObject()
 
-requester = portal.portal_membership.getAuthenticatedMember().getUserValue()
 search_kw = {
   "portal_type": "Instance Tree",
   "validation_state": "validated",
-  "destination_section__uid": requester.getUid(),
+  "destination_section__uid": context.Base_getAuthenticatedPersonAndWorkgroupUidList(),
   "select_list": ("title",),
   "sort_on": [("title", "ASC")]
 }

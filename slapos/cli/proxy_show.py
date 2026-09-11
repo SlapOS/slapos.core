@@ -135,7 +135,7 @@ def log_table(logger, qry, tablename, skip=None):
         logger.info('table %s: empty', tablename)
         return
 
-    for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.NONE).split('\n'):
+    for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.VRuleStyle.NONE).split('\n'):
         logger.info(line)
 
 

@@ -119,7 +119,7 @@ def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
     logger.info('Software URL: %s', meta['software_url'])
     logger.info('MD5:          %s', md5)
 
-    for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.NONE).split('\n'):
+    for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.VRuleStyle.NONE).split('\n'):
         logger.info(line)
 
     return 0

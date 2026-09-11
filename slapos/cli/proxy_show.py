@@ -27,6 +27,7 @@
 #
 ##############################################################################
 
+import contextlib
 import collections
 import hashlib
 import json
@@ -229,35 +230,35 @@ def do_show(conf):
     proxy_show_logger.propagate = False
 
     proxy_show_logger.debug('Using database: %s', conf.database_uri)
-    conn = sqlite_connect(conf.database_uri)
-    conn.row_factory = sqlite3.Row
+    with contextlib.closing(sqlite_connect(conf.database_uri)) as conn:
+        conn.row_factory = sqlite3.Row
 
-    conn.create_function('md5', 1,
-                         lambda s: hashlib.md5(str2bytes(s)).hexdigest())
+        conn.create_function('md5', 1,
+                            lambda s: hashlib.md5(str2bytes(s)).hexdigest())
 
-    call_table = [
-        (conf.computers, log_computer_table),
-        (conf.software, log_software_table),
-        (conf.partitions, log_partition_table),
-        (conf.slaves, log_slave_table),
-        (conf.params, log_params),
-        (conf.network, log_network)
-    ]
+        call_table = [
+            (conf.computers, log_computer_table),
+            (conf.software, log_software_table),
+            (conf.partitions, log_partition_table),
+            (conf.slaves, log_slave_table),
+            (conf.params, log_params),
+            (conf.network, log_network)
+        ]
 
-    if not any(flag for flag, func in call_table):
-        to_call = [func for flag, func in call_table]
-    else:
-        to_call = [func for flag, func in call_table if flag]
+        if not any(flag for flag, func in call_table):
+            to_call = [func for flag, func in call_table]
+        else:
+            to_call = [func for flag, func in call_table if flag]
 
-    for idx, func in enumerate(to_call):
-        func(proxy_show_logger, conn)
-        if idx < len(to_call) - 1:
-            proxy_show_logger.info(' ')
+        for idx, func in enumerate(to_call):
+            func(proxy_show_logger, conn)
+            if idx < len(to_call) - 1:
+                proxy_show_logger.info(' ')
 
-    if sys.stdout.isatty():
-        pager = subprocess.Popen(
-            os.getenv('PAGER', 'less --quit-if-one-screen --no-init'),
-            close_fds=True,
-            shell=True,
-            stdin=subprocess.PIPE,)
-        pager.communicate(str2bytes(output.getvalue()))
+        if sys.stdout.isatty():
+            pager = subprocess.Popen(
+                os.getenv('PAGER', 'less --quit-if-one-screen --no-init'),
+                close_fds=True,
+                shell=True,
+                stdin=subprocess.PIPE,)
+            pager.communicate(str2bytes(output.getvalue()))

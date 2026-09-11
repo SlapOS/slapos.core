@@ -64,6 +64,19 @@ except NameError:  # make pylint happy on python2...
   PermissionError = Exception
 
 
+if six.PY2:
+  import pkg_resources
+  get_package_resource_bytes = pkg_resources.resource_string
+  get_package_resource_filename = pkg_resources.resource_filename
+else:
+  import importlib.resources
+  def get_package_resource_bytes(package_name, resource_filename):
+    # type: (str, str) -> bytes
+    return importlib.resources.files(package_name).joinpath(resource_filename).read_bytes()
+  def get_package_resource_filename(package_name, resource_filename):
+    # type: (str, str) -> str
+    return str(importlib.resources.files(package_name).joinpath(resource_filename))
+
 
 _ALLOWED_CLASS_SET = frozenset((
     ('slapos.slap.slap', 'Computer'),

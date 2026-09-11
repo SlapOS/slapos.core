@@ -28,7 +28,6 @@
 ##############################################################################
 
 import os
-import pkg_resources
 import re
 import subprocess
 import sys
@@ -39,7 +38,7 @@ from slapos.cli.config import ConfigCommand
 from slapos.grid.slapgrid import create_slapgrid_object
 from slapos.grid.utils import updateFile, createPrivateDirectory
 from slapos.grid.svcbackend import launchSupervisord
-from slapos.util import bytes2str
+from slapos.util import bytes2str, get_package_resource_bytes
 
 DEFAULT_COMPUTER_ID = 'local_computer'
 
@@ -151,7 +150,7 @@ def _generateSigningKey(key_path):
 def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):
     template_arg_list = (__name__, '../../slapos.cfg.example')
     slapos_node_configuration_template = \
-      bytes2str(pkg_resources.resource_string(*template_arg_list))
+      bytes2str(get_package_resource_bytes(*template_arg_list))
     master_url = 'http://%s:%s' % (args.daemon_listen_ip, args.daemon_listen_port)
     slapos_home = args.slapos_buildout_directory
     to_replace = [
@@ -198,7 +197,7 @@ def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):
 def _generateSlaposProxyConfigurationFile(conf):
     template_arg_list = (__name__, '../../slapos-proxy.cfg.example')
     slapos_proxy_configuration_template = \
-      bytes2str(pkg_resources.resource_string(*template_arg_list))
+      bytes2str(get_package_resource_bytes(*template_arg_list))
     slapos_proxy_configuration_path = os.path.join(
       conf.slapos_configuration_directory, 'slapos-proxy.cfg')
     listening_ip, listening_port = \

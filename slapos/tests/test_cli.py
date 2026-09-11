@@ -36,13 +36,12 @@ import socket
 import textwrap
 import sys
 import os
-import pkg_resources
 import warnings
 
 from contextlib import contextmanager, closing
 from mock import patch, create_autospec
 import mock
-from slapos.util import sqlite_connect, bytes2str, dict2xml
+from slapos.util import sqlite_connect, bytes2str, dict2xml, get_package_resource_bytes
 from slapos.slap.slap import DEFAULT_SOFTWARE_TYPE
 
 import slapos.cli.console
@@ -340,7 +339,7 @@ class TestCliProxyShow(CliMixin):
     self.conf.logger = self.logger
 
     # load database
-    schema = bytes2str(pkg_resources.resource_string(
+    schema = bytes2str(get_package_resource_bytes(
         'slapos.tests',
         os.path.join('test_slapproxy', 'database_dump_version_current.sql')))
     with closing(sqlite_connect(self.db_file.name)) as db:
@@ -416,6 +415,7 @@ class TestCliProxyShow(CliMixin):
       # use a pager that just output to a file.
       tmp = tempfile.NamedTemporaryFile(delete=False)
       self.addCleanup(os.unlink, tmp.name)
+      tmp.close()
       os.environ['PAGER'] = 'cat > {}'.format(tmp.name)
 
       do_show(self.conf)
@@ -1231,13 +1231,12 @@ class TestCliRequestParameterFile(CliMixin):
   expected_partition_parameter_kw = {'foo': ['bar']}
 
   def _makeParameterFile(self):
-    f = tempfile.NamedTemporaryFile(
+    with tempfile.NamedTemporaryFile(
         suffix=self.parameter_file_suffix,
         mode='w', delete=False,
-    )
-    self.addCleanup(os.unlink, f.name)
-    f.write(textwrap.dedent(self.parameter_file_content))
-    f.flush()
+    ) as f:
+      self.addCleanup(os.unlink, f.name)
+      f.write(textwrap.dedent(self.parameter_file_content))
     return f.name
 
   def _request_parameters_file_setup(self):

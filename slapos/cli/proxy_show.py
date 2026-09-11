@@ -135,7 +135,9 @@ def log_table(logger, qry, tablename, skip=None):
         logger.info('table %s: empty', tablename)
         return
 
-    for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.NONE).split('\n'):
+    # BBB: prettytable.VRuleStyle only exists since 3.12, but python 2 is stuck at 0.7.2
+    for line in pt.get_string(border=True, padding_width=0,
+            vrules=getattr(prettytable, 'VRuleStyle', prettytable).NONE).split('\n'):
         logger.info(line)
 
 

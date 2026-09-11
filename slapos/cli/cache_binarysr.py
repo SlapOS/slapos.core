@@ -119,7 +119,9 @@ def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
     logger.info('Software URL: %s', meta['software_url'])
     logger.info('MD5:          %s', md5)
 
-    for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.NONE).split('\n'):
+    # BBB: prettytable.VRuleStyle only exists since 3.12, but python 2 is stuck at 0.7.2
+    for line in pt.get_string(border=True, padding_width=0,
+            vrules=getattr(prettytable, 'VRuleStyle', prettytable).NONE).split('\n'):
         logger.info(line)
 
     return 0

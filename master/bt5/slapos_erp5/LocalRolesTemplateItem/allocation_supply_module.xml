@@ -3,7 +3,10 @@
   <role id='F-CUSTOMER'>
    <item>Auditor</item>
   </role>
-  <role id='F-PRODUCTION*'>
+  <role id='F-PRODAGNT'>
+   <item>Auditor</item>
+  </role>
+  <role id='F-PRODMAN'>
    <item>Auditor</item>
    <item>Author</item>
   </role>
@@ -11,8 +14,9 @@
  <local_role_group_ids>
   <local_role_group_id id='function'>
     <principal id='F-CUSTOMER'>Auditor</principal>
-    <principal id='F-PRODUCTION*'>Auditor</principal>
-    <principal id='F-PRODUCTION*'>Author</principal>
+    <principal id='F-PRODAGNT'>Auditor</principal>
+    <principal id='F-PRODMAN'>Auditor</principal>
+    <principal id='F-PRODMAN'>Author</principal>
   </local_role_group_id>
  </local_role_group_ids>
 </local_roles_item>

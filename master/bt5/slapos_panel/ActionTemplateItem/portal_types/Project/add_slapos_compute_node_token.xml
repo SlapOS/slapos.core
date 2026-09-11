@@ -92,7 +92,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>python: context.Base_hasSlapOSProjectUserGroup(manager=True, agent=True)</string> </value>
+            <value> <string>python: context.Base_hasSlapOSProjectUserGroup(manager=True)</string> </value>
         </item>
       </dictionary>
     </pickle>

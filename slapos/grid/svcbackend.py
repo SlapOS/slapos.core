@@ -96,6 +96,12 @@ def _getSupervisordConfigurationFilePath(instance_root):
 def _getSupervisordConfigurationDirectory(instance_root):
   return os.path.join(instance_root, 'etc', 'supervisord.conf.d')
 
+def getSupervisorProcessName(process_name, group_name):
+  """
+  Return supervisord process name
+  """
+  return "{}:{}".format(group_name, process_name)
+
 def createSupervisordConfiguration(instance_root, logger, watchdog_command=''):
   """
   Create supervisord related files and directories.
@@ -159,6 +165,30 @@ def _updateWatchdog(socket):
       supervisor.removeProcessGroup('watchdog')
       supervisor.reloadConfig()
       supervisor.addProcessGroup('watchdog')
+
+def _checkProcessExitStatusList(supervisor_socket, local_partition):
+  """
+  Check process exit status in run_dir and return list of process name with
+  unexpected exit code
+  """
+  failed_script_list = []
+  if os.path.exists(local_partition.run_path):
+    with getSupervisorRPC(supervisor_socket) as supervisor:
+      for script_name in os.listdir(local_partition.run_path):
+        try:
+          # for each script, check process info
+          state = supervisor.getProcessInfo(
+            getSupervisorProcessName(script_name, local_partition.partition_id)
+          )
+          if state['exitstatus'] != 0:
+            # process failed
+            failed_script_list.append(script_name)
+        except xmlrpclib.Fault as e:
+          if e.faultCode == 10 and e.faultString.startswith('BAD_NAME'):
+            # Process is not yet present in supervisor
+            continue
+          raise
+  return failed_script_list
 
 def launchSupervisord(instance_root, logger,
                       supervisord_additional_argument_list=None):

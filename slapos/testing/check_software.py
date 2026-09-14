@@ -62,11 +62,13 @@ def checkSoftware(slap, software_url):
   # system libraries.
   system_lib_allowed_list = set((
       'libanl',
+      'libatomic',
       'libc',
       'libcrypt',
       'libdl',
       'libgcc_s',
       'libgomp',
+      'libitm',
       'libm',
       'libmvec',
       'libnsl',

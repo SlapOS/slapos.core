@@ -124,6 +124,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     testSlapOSMixin.afterSetUp(self)
     self.changeSkin('View')
     self.portal.portal_activities.unsubscribe()
+    self.portal.portal_alarms.subscribe()
     self.new_id = self.generateNewId()
 
   def beforeDumpExpectedConfiguration(self):

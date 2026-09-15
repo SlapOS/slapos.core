@@ -19,6 +19,8 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
+from erp5.component.mixin.SlapOSActorSlapInterfaceMixin import RequestConflictError, RequestInvalidParameterError
+
 import transaction
 
 
@@ -322,7 +324,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     )
     transaction.commit()
 
-    self.assertRaises(NotImplementedError, person.requestSoftwareInstance,
+    self.assertRaises(RequestConflictError, person.requestSoftwareInstance,
       software_release=software_release,
       software_title=software_title,
       software_type=software_type,
@@ -389,7 +391,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
         state=state2,
         project_reference=self.project.getReference()
       )
-    except NotImplementedError:
+    except RequestInvalidParameterError:
       pass
     else:
       raise AssertionError('User is not supposed to change the release/type/shared')
@@ -439,7 +441,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     transaction.commit()
     self.tic()
 
-    self.assertRaises(NotImplementedError, person.requestSoftwareInstance,
+    self.assertRaises(RequestConflictError, person.requestSoftwareInstance,
       software_release=software_release,
       software_title=software_title,
       software_type=software_type,
@@ -953,7 +955,7 @@ class TestSlapOSCorePersonWithWorkgroupRequest(SlapOSTestCaseMixin):
 
     self.tic()
 
-    self.assertRaises(NotImplementedError, person.requestSoftwareInstance,
+    self.assertRaises(RequestConflictError, person.requestSoftwareInstance,
       software_release=software_release,
       software_title=software_title,
       software_type=software_type,

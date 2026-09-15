@@ -2138,6 +2138,182 @@ class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
       instance_tree.SoftwareInstance_propagateFromRemoteNode()
     self.assertEqual(software_instance.getDescription(), 'Visited by SoftwareInstance_propagateRemoteNode')
 
+  #################################################################
+  # SoftwareInstance_propagateFromRemoteNode
+  #################################################################
+  def test_propagateRemoteNode_script_createRemoteWorkgroupInstanceTree(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    remote_node, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    remote_user = remote_node.getDestinationSectionValue()
+    remote_project = remote_node.getDestinationProjectValue()
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup',
+    )
+    workgroup.newContent(
+      portal_type='Assignment',
+      destination_project_value=remote_project,
+      function='customer'
+    ).open()
+    workgroup.validate()
+    remote_user.newContent(
+      portal_type='Assignment',
+      destination_value=workgroup,
+    ).open()
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    partition.ComputePartition_propagateRemoteNode()
+    self.tic()
+
+    remote_instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      destination_section__uid=workgroup.getUid(),
+      follow_up__uid=remote_project.getUid(),
+      title='_remote_%s_%s' % (software_instance.getFollowUpReference(),
+                               software_instance.getReference())
+    )
+    self.assertEqual(remote_instance_tree.getValidationState(), "validated")
+    self.assertEqual(remote_instance_tree.getSlapState(), "start_requested")
+    self.assertEqual(remote_instance_tree.getUrlString(),
+                     software_instance.getUrlString())
+    self.assertEqual(remote_instance_tree.getSourceReference(),
+                     software_instance.getSourceReference())
+    self.assertEqual(remote_instance_tree.getTextContent(),
+                     software_instance.getTextContent())
+    self.assertEqual(remote_instance_tree.getSlaXml(), None)
+    self.assertEqual(remote_instance_tree.isRootSlave(False),
+                     software_instance.getPortalType() == 'Slave Instance')
+
+    self.assertEqual(software_instance.getConnectionXml(), None)
+
+  def test_propagateRemoteNode_script_updateRemoteWorkgroupInstanceTree(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    remote_node, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    remote_user = remote_node.getDestinationSectionValue()
+    remote_project = remote_node.getDestinationProjectValue()
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup',
+    )
+    workgroup.newContent(
+      portal_type='Assignment',
+      destination_project_value=remote_project,
+      function='customer'
+    ).open()
+    workgroup.validate()
+    remote_user.newContent(
+      portal_type='Assignment',
+      destination_value=workgroup,
+    ).open()
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    remote_title = '_remote_%s_%s' % (software_instance.getFollowUpReference(),
+                                      software_instance.getReference())
+    remote_instance_tree = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
+      title=remote_title,
+      destination_section_value=workgroup,
+      follow_up_value=remote_project,
+      root_slave=software_instance.getPortalType() == 'Slave Instance',
+      source_reference=software_instance.getSourceReference(),
+      url_string=software_instance.getUrlString(),
+    )
+    remote_instance_tree.edit(reference="HOSTSUBS-%s" % remote_instance_tree.getId())
+    self.portal.portal_workflow._jumpToStateFor(remote_instance_tree, 'validated')
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    partition.ComputePartition_propagateRemoteNode()
+    self.tic()
+
+    self.assertEqual(remote_instance_tree.getValidationState(), "validated")
+    self.assertEqual(remote_instance_tree.getSlapState(), "start_requested")
+    self.assertEqual(remote_instance_tree.getUrlString(),
+                     software_instance.getUrlString())
+    self.assertEqual(remote_instance_tree.getSourceReference(),
+                     software_instance.getSourceReference())
+    self.assertEqual(remote_instance_tree.getTextContent(),
+                     software_instance.getTextContent())
+    self.assertEqual(remote_instance_tree.getSlaXml(), None)
+    self.assertEqual(remote_instance_tree.isRootSlave(False),
+                     software_instance.getPortalType() == 'Slave Instance')
+
+    self.assertEqual(software_instance.getConnectionXml(), None)
+
+  def test_propagateRemoteNode_script_updateRemotePersonInstanceTree(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    remote_node, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    remote_user = remote_node.getDestinationSectionValue()
+    remote_project = remote_node.getDestinationProjectValue()
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup',
+    )
+    workgroup.newContent(
+      portal_type='Assignment',
+      destination_project_value=remote_project,
+      function='customer'
+    ).open()
+    workgroup.validate()
+    remote_user.newContent(
+      portal_type='Assignment',
+      destination_value=workgroup,
+    ).open()
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    remote_title = '_remote_%s_%s' % (software_instance.getFollowUpReference(),
+                                      software_instance.getReference())
+    remote_instance_tree = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
+      title=remote_title,
+      destination_section_value=remote_user,
+      follow_up_value=remote_project,
+      root_slave=software_instance.getPortalType() == 'Slave Instance',
+      source_reference=software_instance.getSourceReference(),
+      url_string=software_instance.getUrlString(),
+    )
+    remote_instance_tree.edit(reference="HOSTSUBS-%s" % remote_instance_tree.getId())
+    self.portal.portal_workflow._jumpToStateFor(remote_instance_tree, 'validated')
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    partition.ComputePartition_propagateRemoteNode()
+    self.tic()
+
+    self.assertEqual(remote_instance_tree.getValidationState(), "validated")
+    self.assertEqual(remote_instance_tree.getSlapState(), "start_requested")
+    self.assertEqual(remote_instance_tree.getUrlString(),
+                     software_instance.getUrlString())
+    self.assertEqual(remote_instance_tree.getSourceReference(),
+                     software_instance.getSourceReference())
+    self.assertEqual(remote_instance_tree.getTextContent(),
+                     software_instance.getTextContent())
+    self.assertEqual(remote_instance_tree.getSlaXml(), None)
+    self.assertEqual(remote_instance_tree.isRootSlave(False),
+                     software_instance.getPortalType() == 'Slave Instance')
+
+    self.assertEqual(software_instance.getConnectionXml(), None)
+
 
 class TestERP5InvitationTokenAlarm(SlapOSTestCaseMixin):
 

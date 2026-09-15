@@ -105,10 +105,14 @@ class TestSlapOSSubscriptionRequestValidateAlarm(SlapOSTestCaseMixin):
   #################################################################
   # slapos_subscription_request_validate_submitted
   #################################################################
-  def _createSubscriptionRequest(self):
+  def _createSubscriptionRequest(self, section_portal_type='Organisation'):
+    section_value = self.portal.getDefaultModule(portal_type=section_portal_type).newContent(
+      portal_type=section_portal_type
+    )
     return self.portal.subscription_request_module.newContent(
       portal_type='Subscription Request',
-      title="Test subscription %s" % (self.generateNewId())
+      title="Test subscription %s" % (self.generateNewId()),
+      destination_section_value=section_value,
     )
 
   def test_SubscriptionRequest_validateIfSubmitted_alarm_notSubmitted(self):
@@ -116,12 +120,26 @@ class TestSlapOSSubscriptionRequestValidateAlarm(SlapOSTestCaseMixin):
     alarm = self.portal.portal_alarms.slapos_subscription_request_validate_submitted
     self._test_alarm_not_visited(alarm, self._createSubscriptionRequest(), script_name)
 
-  def test_SubscriptionRequest_validateIfSubmitted_alarm_submitted(self):
+  def test_SubscriptionRequest_validateIfSubmitted_alarm_submittedWithOrganisation(self):
     script_name = "SubscriptionRequest_validateIfSubmitted"
     alarm = self.portal.portal_alarms.slapos_subscription_request_validate_submitted
     subscription_request = self._createSubscriptionRequest()
     self.portal.portal_workflow._jumpToStateFor(subscription_request, 'submitted')
     self._test_alarm(alarm, subscription_request, script_name)
+
+  def test_SubscriptionRequest_validateIfSubmitted_alarm_submittedWithPerson(self):
+    script_name = "SubscriptionRequest_validateIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_subscription_request_validate_submitted
+    subscription_request = self._createSubscriptionRequest(section_portal_type='Person')
+    self.portal.portal_workflow._jumpToStateFor(subscription_request, 'submitted')
+    self._test_alarm(alarm, subscription_request, script_name)
+
+  def test_SubscriptionRequest_validateIfSubmitted_alarm_submittedWithWorkgroup(self):
+    script_name = "SubscriptionRequest_validateIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_subscription_request_validate_submitted
+    subscription_request = self._createSubscriptionRequest(section_portal_type='Workgroup')
+    self.portal.portal_workflow._jumpToStateFor(subscription_request, 'submitted')
+    self._test_alarm_not_visited(alarm, subscription_request, script_name)
 
 
 class TestSlapOSSubscriptionChangeRequestValidateAlarm(SlapOSTestCaseMixin):
@@ -438,3 +456,50 @@ class TestSlaposSubscriptionGenerateSubscriptionChangeRequestForExpiredSaleTrade
       self.tic()
     self._test_alarm_not_visited(alarm, open_sale_order, script_name)
 
+
+class TestSlaposSubscriptionCreateSlapOSWorkgroupCustomerTradeCondition(SlapOSTestCaseMixin):
+
+  def _createSubscriptionRequestToChange(self):
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm',
+                                             "'disabled'", attribute='comment'):
+      subscription_request = self.portal.subscription_request_module.newContent(
+        portal_type='Subscription Request',
+        title="Test Subscription Request %s" % (self.generateNewId()),
+        destination_section_value=self.portal.workgroup_module.newContent(
+          title='Test %s' % self.generateNewId(),
+        ),
+        source_project_value=self.portal.project_module.newContent(
+          title='Test %s' % self.generateNewId(),
+        ),
+      )
+      subscription_request.submit()
+      self.tic()
+    return subscription_request
+
+  def test_SubscriptionRequest_createSlapOSWorkgroupCustomerTradeCondition_alarm_toChange(self):
+    script_name = "SubscriptionRequest_createSlapOSWorkgroupCustomerTradeCondition"
+    alarm = self.portal.portal_alarms.slapos_subscription_create_workgroup_customer_trade_condition
+    self._test_alarm(alarm, self._createSubscriptionRequestToChange(), script_name)
+
+  def test_SubscriptionRequest_createSlapOSWorkgroupCustomerTradeCondition_alarm_toKeep(self):
+    script_name = "SubscriptionRequest_createSlapOSWorkgroupCustomerTradeCondition"
+    alarm = self.portal.portal_alarms.slapos_subscription_create_workgroup_customer_trade_condition
+    subscription_request = self._createSubscriptionRequestToChange()
+    subscription_request.edit(
+      destination_section_value=self.portal.organisation_module.newContent(
+        title='Test %s' % self.generateNewId(),
+      ),
+    )
+    self._test_alarm_not_visited(alarm, subscription_request, script_name)
+
+  def test_SubscriptionRequest_createSlapOSWorkgroupCustomerTradeCondition_script_withoutOrganisation(self):
+    subscription_request = self._createSubscriptionRequestToChange()
+
+    result = subscription_request.SubscriptionRequest_createSlapOSWorkgroupCustomerTradeCondition()
+    self.assertEqual(subscription_request.getSimulationState(), "submitted")
+    self.assertEqual(result, None)
+    self.tic()
+    self.assertEqual(subscription_request.getSimulationState(), "submitted")
+
+  # XXX no more test as, it requires much more setup
+  # use case is tested in scenario

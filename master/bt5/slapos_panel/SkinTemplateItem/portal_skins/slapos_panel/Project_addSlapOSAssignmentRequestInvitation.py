@@ -14,6 +14,9 @@ invitation_token.validate()
 # (user must be project manager)
 invitation_token_reference = invitation_token.getId()
 
+if batch:
+  return invitation_token_reference
+
 return context.Base_renderForm(
   'Project_viewSlapOSAssignmentRequestInvitationDialog',
   message=portal.Base_translateString('New Invitation Token created.'),

@@ -66,7 +66,7 @@ if can_allocate:
 
   if can_allocate:
     for sql_instance in portal.portal_catalog(
-        default_aggregate_relative_url='%s/%%' % compute_node.getRelativeUrl(),
+        aggregate__uid=[x.getUid() for x in compute_node.contentValues(portal_type='Compute Partition')],
         portal_type=['Software Instance', 'Slave Instance'],
         validation_state='validated',
         group_by=['url_string', 'source_reference'],

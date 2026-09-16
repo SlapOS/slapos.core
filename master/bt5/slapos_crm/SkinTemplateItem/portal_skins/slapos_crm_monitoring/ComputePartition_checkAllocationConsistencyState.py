@@ -23,10 +23,11 @@ for instance in instance_list:
 
   # if there is an ongoing upgrade decision, skip, since there is already
   # a ticket for handle the inconsistency.
-  if portal.portal_catalog.getResultValue(
-    portal_type='Upgrade Decision',
-    aggregate__uid=instance_tree.getUid(),
-    simulation_state=['started', 'stopped', 'planned', 'confirmed']) is not None:
+  if instance.getPortalType() == 'Software Instance' and\
+    portal.portal_catalog.getResultValue(
+      portal_type='Upgrade Decision',
+      aggregate__uid=instance_tree.getUid(),
+      simulation_state=['started', 'stopped', 'planned', 'confirmed']) is not None:
     continue
 
   # Create a temporary instance tree as the instance would be the root

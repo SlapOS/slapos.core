@@ -8,6 +8,7 @@ assert compute_node.getPortalType() in ['Compute Node', 'Remote Node']
 instance_list = compute_partition.getAggregateRelatedValueList(portal_type=[
   'Software Instance', 'Slave Instance'])
 
+instance_tree_upgrade_cache = {}
 for instance in instance_list:
   if instance.getValidationState() != 'validated' or \
       instance.getSlapState() == 'destroy_requested':
@@ -21,12 +22,12 @@ for instance in instance_list:
   # Now check allocation supply consistency
   instance_tree = instance.getSpecialiseValue(portal_type="Instance Tree")
 
-  # if there is an ongoing upgrade decision, skip, since there is already
-  # a ticket for handle the inconsistency.
-  if portal.portal_catalog.getResultValue(
+  if instance_tree.getUid() not in instance_tree_upgrade_cache:
+    instance_tree_upgrade_cache[instance_tree.getUid()] = portal.portal_catalog.getResultValue(
     portal_type='Upgrade Decision',
     aggregate__uid=instance_tree.getUid(),
-    simulation_state=['started', 'stopped', 'planned', 'confirmed']) is not None:
+    simulation_state=['started', 'stopped', 'planned', 'confirmed']) is not None
+  if instance_tree_upgrade_cache[instance_tree.getUid()]:
     continue
 
   # Create a temporary instance tree as the instance would be the root

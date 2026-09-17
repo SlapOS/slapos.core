@@ -5,15 +5,20 @@ error_dict = {}
 compute_node = compute_partition.getParentValue()
 assert compute_node.getPortalType() in ['Compute Node', 'Remote Node']
 
-instance_list = compute_partition.getAggregateRelatedValueList(portal_type=[
-  'Software Instance', 'Slave Instance'])
+instance_list = portal.portal_catalog(
+  portal_type=['Software Instance', 'Slave Instance'],
+  aggregate__uid=compute_partition.getUid(),
+  validation_state='validated',
+  group_by=['source_reference', 'url_string', 'specialise_uid', 'portal_type']
+)
 
 instance_tree_upgrade_cache = {}
 software_product_cache_map = {}
 
-for instance in instance_list:
-  if instance.getValidationState() != 'validated' or \
-      instance.getSlapState() == 'destroy_requested':
+for _instance in instance_list:
+  # Due group by, fetch real object
+  instance = _instance.getObject()
+  if instance.getSlapState() == 'destroy_requested':
     # Outdated catalog or instance under garbage collection,
     # we skip for now.
     continue
@@ -54,7 +59,6 @@ for instance in instance_list:
       allocable_compute_node, allocation_cell_list = compute_node, []
 
   if not allocation_cell_list:
-
     # In case of detected issue, check if there is an upgrade decision
     if instance_tree.getUid() not in instance_tree_upgrade_cache:
       instance_tree_upgrade_cache[instance_tree.getUid()] = portal.portal_catalog.getResultValue(

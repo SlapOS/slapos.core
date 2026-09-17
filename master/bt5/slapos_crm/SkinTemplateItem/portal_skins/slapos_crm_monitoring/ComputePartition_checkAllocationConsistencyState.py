@@ -24,14 +24,6 @@ for instance in instance_list:
   # Now check allocation supply consistency
   instance_tree = instance.getSpecialiseValue(portal_type="Instance Tree")
 
-  if instance_tree.getUid() not in instance_tree_upgrade_cache:
-    instance_tree_upgrade_cache[instance_tree.getUid()] = portal.portal_catalog.getResultValue(
-    portal_type='Upgrade Decision',
-    aggregate__uid=instance_tree.getUid(),
-    simulation_state=['started', 'stopped', 'planned', 'confirmed']) is not None
-  if instance_tree_upgrade_cache[instance_tree.getUid()]:
-    continue
-
   # Create a temporary instance tree as the instance would be the root
   # Instance.
   instance_tree_context = instance_tree.asContext(
@@ -62,6 +54,16 @@ for instance in instance_list:
       allocable_compute_node, allocation_cell_list = compute_node, []
 
   if not allocation_cell_list:
+
+    # In case of detected issue, check if there is an upgrade decision
+    if instance_tree.getUid() not in instance_tree_upgrade_cache:
+      instance_tree_upgrade_cache[instance_tree.getUid()] = portal.portal_catalog.getResultValue(
+      portal_type='Upgrade Decision',
+      aggregate__uid=instance_tree.getUid(),
+      simulation_state=['started', 'stopped', 'planned', 'confirmed']) is not None
+    if instance_tree_upgrade_cache[instance_tree.getUid()]:
+      continue
+
     # Sampling of the structure
     # error_dict = {
     #   compute_node or instance_node or remote_node : {

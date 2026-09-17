@@ -176,7 +176,12 @@ class SlapOSInstanceSlapInterfaceMixin:
           follow_up_value=instance_tree.getFollowUpValue(portal_type='Project'),
           activate_kw={'tag': tag}
         )
-        request_software_instance.setReference("SOFTINST-%s" % request_software_instance.getId())
+        # request_software_instance.setReference("SOFTINST-%s" % request_software_instance.getId())
+        # XXX revert until frontend domain gen is fixed
+        request_software_instance.setReference("SOFTINST-%s" % portal.portal_ids.generateNewId(
+          id_group='slap_software_instance_reference',
+          id_generator='uid'
+        ))
         if software_instance_portal_type == "Software Instance":
           request_software_instance.generateCertificate()
         request_software_instance.validate()

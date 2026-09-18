@@ -52,8 +52,9 @@ except ImportError: # XXX to be removed once we depend on typing
 from .exception import ResourceNotReady, ServerError, NotFoundError, \
           ConnectionError
 from .hateoas import SlapHateoasNavigator, ConnectionHelper
+from slapos import master_detach_lock
 from slapos.util import (bytes2str, dict2xml, dumps, loads,
-                         unicode2str, xml2dict)
+                         str2bytes, unicode2str, xml2dict)
 
 from xml.sax import saxutils
 from zope.interface import implementer
@@ -90,14 +91,46 @@ class SlapRequester(SlapDocument):
   """
   Abstract class that allow to factor method for subclasses that use "request()"
   """
+  def _getDetachLockPath(self):
+    return master_detach_lock.getPartitionPath(
+      getattr(self, '_partition_id', None),
+      getattr(self, '_partition_path', None))
+
+  def _pinned(self, method, args=()):
+    """Recorded answer while detached, or None to go and ask SlapOS Master."""
+    return master_detach_lock.getPinnedCall(
+      getattr(self, '_partition_id', None), method, args,
+      getattr(self, '_partition_path', None))
+
+  def _suppressed(self, method, attempt, args=()):
+    return master_detach_lock.suppressCall(
+      getattr(self, '_partition_id', None), method, attempt, args,
+      getattr(self, '_partition_path', None))
+
+  def _record(self, method, response, args=()):
+    path = self._getDetachLockPath()
+    if path and os.path.isdir(path) \
+        and not master_detach_lock.isMethodDetached(path, method):
+      master_detach_lock.recordCall(path, method, response, args)
+    return response
+
   def _requestComputerPartition(self, request_dict):
-    try:
-      xml = self._connection_helper.POST('requestComputerPartition', data=request_dict)
-    except ResourceNotReady:
-      return ComputerPartition(
-        request_dict=request_dict,
-        connection_helper=self._connection_helper,
-      )
+    # keyed on the requested instance alone, so a detached partition replays
+    # the last answer even when it asks with changed parameters
+    reference = (request_dict.get('partition_reference'),)
+    # the store is JSON and POST answers bytes, so it travels as text
+    pinned = self._pinned('request', reference)
+    if pinned is None:
+      try:
+        xml = self._connection_helper.POST('requestComputerPartition', data=request_dict)
+      except ResourceNotReady:
+        return ComputerPartition(
+          request_dict=request_dict,
+          connection_helper=self._connection_helper,
+        )
+      self._record('request', bytes2str(xml), reference)
+    else:
+      xml = str2bytes(pinned)
     software_instance = loads(xml)
     computer_partition = ComputerPartition(
       software_instance.slap_computer_id,
@@ -412,7 +445,7 @@ class ComputerPartition(SlapRequester):
 
   def __init__(self, computer_id=None, partition_id=None,
                request_dict=None, connection_helper=None,
-               hateoas_navigator=None):
+               hateoas_navigator=None, partition_path=None):
     SlapDocument.__init__(self, connection_helper, hateoas_navigator)
     if request_dict is not None and (computer_id is not None or
         partition_id is not None):
@@ -424,6 +457,7 @@ class ComputerPartition(SlapRequester):
     self._computer_id = computer_id
     self._partition_id = partition_id
     self._request_dict = request_dict
+    self._partition_path = partition_path
 
     # Just create an empty file (for nothing requested yet)
     self._updateTransactionFile(partition_reference=None)
@@ -491,24 +525,32 @@ class ComputerPartition(SlapRequester):
     return self._requestComputerPartition(request_dict)
 
   def destroyed(self):
+    if self._suppressed('destroyed', None):
+      return
     self._connection_helper.POST('destroyedComputerPartition', data={
       'computer_id': self._computer_id,
       'computer_partition_id': self.getId(),
       })
 
   def started(self):
+    if self._suppressed('started', None):
+      return
     self._connection_helper.POST('startedComputerPartition', data={
       'computer_id': self._computer_id,
       'computer_partition_id': self.getId(),
       })
 
   def stopped(self):
+    if self._suppressed('stopped', None):
+      return
     self._connection_helper.POST('stoppedComputerPartition', data={
       'computer_id': self._computer_id,
       'computer_partition_id': self.getId(),
       })
 
   def error(self, error_log, logger=None, slave_reference=None):
+    if self._suppressed('error', str(error_log), (slave_reference,)):
+      return
     post_dict = {
       'computer_id': self._computer_id,
       'computer_partition_id': self.getId(),
@@ -522,6 +564,8 @@ class ComputerPartition(SlapRequester):
       (logger or fallback_logger).exception('')
 
   def bang(self, message):
+    if self._suppressed('bang', str(message)):
+      return
     self._connection_helper.POST('softwareInstanceBang', data={
       'computer_id': self._computer_id,
       'computer_partition_id': self.getId(),
@@ -572,19 +616,25 @@ class ComputerPartition(SlapRequester):
 
   def getInstanceGuid(self):
     """Return instance_guid. Raise ResourceNotReady if it doesn't exist."""
+    pinned = self._pinned('getInstanceGuid')
+    if pinned is not None:
+      return pinned
     if not hasattr(self, '_instance_guid'):
       self._fetchComputerPartitionInformation()
     if self._instance_guid is None:
       raise ResourceNotReady()
-    return self._instance_guid
+    return self._record('getInstanceGuid', self._instance_guid)
 
   def getState(self):
     """return _requested_state. Raise ResourceNotReady if it doesn't exist."""
+    pinned = self._pinned('getState')
+    if pinned is not None:
+      return pinned
     if not hasattr(self, '_requested_state'):
       self._fetchComputerPartitionInformation()
     if self._requested_state is None:
       raise ResourceNotReady()
-    return self._requested_state
+    return self._record('getState', self._requested_state)
 
   def getAccessStatus(self):
     """Get latest computer partition Access message state"""
@@ -622,33 +672,56 @@ class ComputerPartition(SlapRequester):
 
   def getInstanceParameterDict(self):
     # type: (...) -> Mapping[str, object]
+    pinned = self._pinned('getInstanceParameterDict')
+    if pinned is not None:
+      return pinned
     if not hasattr(self, '_parameter_dict'):
       self._fetchComputerPartitionInformation()
-    return self._parameter_dict or {}
+    return self._record('getInstanceParameterDict', self._parameter_dict or {})
 
   def getConnectionParameterDict(self):
     # type: (...) -> Mapping[str, str]
+    pinned = self._pinned('getConnectionParameterDict')
+    if pinned is not None:
+      return pinned
     if not hasattr(self, '_connection_dict'):
       self._fetchComputerPartitionInformation()
     connection_dict = self._connection_dict
     if connection_dict is None:
       # XXX Backward compatibility for older slapproxy (<= 1.0.0)
       connection_dict = xml2dict(getattr(self, 'connection_xml', ''))
-    return connection_dict or {}
+    return self._record('getConnectionParameterDict', connection_dict or {})
 
   def getSoftwareRelease(self):
     # type: (...) -> SoftwareRelease
     """
     Returns the software release associate to the computer partition.
     """
+    pinned = self._pinned('getSoftwareReleaseURI')
+    if pinned is not None:
+      if isinstance(pinned, dict):
+        return SoftwareRelease(
+          software_release=pinned['uri'],
+          computer_guid=self._computer_id,
+          connection_helper=self._connection_helper)
+      return pinned
     if not hasattr(self, '_software_release_document'):
       self._fetchComputerPartitionInformation()
-    if self._software_release_document is None:
+    document = self._software_release_document
+    if document is None:
       raise NotFoundError("No software release information for partition %s" %
           self.getId())
-    return self._software_release_document
+    # a forwarded request leaves a plain URL here instead of a document, and
+    # callers compare against it, so the recorded shape has to say which it was
+    self._record(
+      'getSoftwareReleaseURI',
+      {'uri': document.getURI()} if hasattr(document, 'getURI') else document)
+    return document
 
   def setConnectionDict(self, connection_dict, slave_reference=None):
+    if self._suppressed('setConnectionDict', connection_dict,
+                        (slave_reference,)):
+      return
     self._connection_helper.POST('setComputerPartitionConnectionXml', data={
           'computer_id': self._computer_id,
           'computer_partition_id': self._partition_id,
@@ -656,7 +729,7 @@ class ComputerPartition(SlapRequester):
           'slave_reference': slave_reference})
 
   def getInstanceParameter(self, key):
-    parameter_dict = getattr(self, '_parameter_dict', None) or {}
+    parameter_dict = self.getInstanceParameterDict()
     try:
       return parameter_dict[key]
     except KeyError:
@@ -674,27 +747,36 @@ class ComputerPartition(SlapRequester):
     self.usage = usage_log
 
   def getCertificate(self):
+    pinned = self._pinned('getCertificate')
+    if pinned is not None:
+      return pinned
     xml = self._connection_helper.GET('getComputerPartitionCertificate',
             params={
                 'computer_id': self._computer_id,
                 'computer_partition_id': self._partition_id,
                 }
             )
-    return loads(xml)
+    return self._record('getCertificate', loads(xml))
 
   def getStatus(self):
     return self.getAccessStatus()
 
   def getFullHostingIpAddressList(self):
+    pinned = self._pinned('getFullHostingIpAddressList')
+    if pinned is not None:
+      return pinned
     xml = self._connection_helper.GET('getHostingSubscriptionIpList',
             params={
                 'computer_id': self._computer_id,
                 'computer_partition_id': self._partition_id,
                 }
             )
-    return loads(xml)
+    return self._record('getFullHostingIpAddressList', loads(xml))
 
   def setComputerPartitionRelatedInstanceList(self, instance_reference_list):
+    if self._suppressed('setComputerPartitionRelatedInstanceList',
+                        list(instance_reference_list)):
+      return
     self._connection_helper.POST('updateComputerPartitionRelatedInstanceList',
         data={
           'computer_id': self._computer_id,
@@ -799,7 +881,8 @@ class slap:
       hateoas_navigator=self._hateoas_navigator
     )
 
-  def registerComputerPartition(self, computer_guid, partition_id):
+  def registerComputerPartition(self, computer_guid, partition_id,
+                                partition_path=None):
     """
     Registers connected representation of computer partition and
     returns Computer Partition class object
@@ -810,7 +893,8 @@ class slap:
 
     computer_partition = ComputerPartition(
       computer_guid,
-      partition_id
+      partition_id,
+      partition_path=partition_path,
     )
     computer_partition._connection_helper = self._connection_helper
     computer_partition._hateoas_navigator = self._hateoas_navigator

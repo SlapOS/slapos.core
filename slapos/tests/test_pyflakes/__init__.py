@@ -26,7 +26,6 @@
 ##############################################################################
 
 import os
-import pkg_resources
 import pyflakes.scripts.pyflakes
 import sys
 import unittest
@@ -35,12 +34,7 @@ class CheckCodeConsistency(unittest.TestCase):
   """Lints all SlapOS Node and SLAP library code base."""
   def setUp(self):
     self._original_argv = sys.argv
-    sys.argv = [sys.argv[0],
-                os.path.join(
-                    pkg_resources.get_distribution('slapos.core').location,
-                    'slapos',
-                )
-               ]
+    sys.argv = [sys.argv[0], '.']
 
   def tearDown(self):
     sys.argv = self._original_argv
@@ -48,11 +42,7 @@ class CheckCodeConsistency(unittest.TestCase):
   @unittest.skip('pyflakes test is disabled')
   def testCodeConsistency(self):
     if pyflakes.scripts.pyflakes.main.func_code.co_argcount:
-      pyflakes.scripts.pyflakes.main([
-                os.path.join(
-                    pkg_resources.get_distribution('slapos.core').location,
-                    'slapos',
-                )])
+      pyflakes.scripts.pyflakes.main(['.'])
     else:
       pyflakes.scripts.pyflakes.main()
 

@@ -12,13 +12,6 @@ long_description = open("README.rst").read() + "\n" + \
 for f in sorted(glob.glob(os.path.join('slapos', 'README.*.rst'))):
   long_description += '\n' + open(f).read() + '\n'
 
-slapos_folder_path = os.path.dirname(__file__)
-for template_name in ('slapos-client.cfg.example',
-    'slapos-proxy.cfg.example', 'slapos.cfg.example'):
-  template_path = os.path.join(slapos_folder_path, template_name)
-  if os.path.exists(template_path):
-    copyfile(template_path,
-      os.path.join(slapos_folder_path, 'slapos', template_name))
 
 additional_install_requires = []
 # Even if argparse is available in python2.7, some python2.7 installations

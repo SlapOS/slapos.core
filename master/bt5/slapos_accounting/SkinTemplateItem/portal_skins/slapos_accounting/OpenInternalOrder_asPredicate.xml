@@ -46,11 +46,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>activate_kw=None, REQUEST=None</string> </value>
+            <value> <string>*args, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputeNode_invalidateIfEmpty</string> </value>
+            <value> <string>OpenInternalOrder_asPredicate</string> </value>
         </item>
       </dictionary>
     </pickle>

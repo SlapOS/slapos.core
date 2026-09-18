@@ -17,7 +17,9 @@ if context.getPortalType() == 'Instance Tree':
   # can contact the customer
   destination_decision = context.getDestinationSection()
 else:
-  destination_decision = project.getDestination()
+  # Else, use current user, to allow customer create ticket on project
+  # Project manager will also see it
+  destination_decision = None
 
 support_request = person.Entity_createTicketFromTradeCondition(
   resource,

@@ -11,6 +11,7 @@ if compute_node.getAllocationScope() != "close/forever":
 compute_partition_uid_list = [i.getUid() for i in context.objectValues(portal_type="Compute Partition")]
 if not len(compute_partition_uid_list):
   context.invalidate(comment='Compute Node has no compute partition.')
+  context.reindexObject(activate_kw=activate_kw)
   return
 
 if compute_partition_uid_list:
@@ -21,3 +22,4 @@ if compute_partition_uid_list:
   )
   if len(instance_list) == 0:
     context.invalidate(comment='Compute Node has no used compute partition.')
+    context.reindexObject(activate_kw=activate_kw)

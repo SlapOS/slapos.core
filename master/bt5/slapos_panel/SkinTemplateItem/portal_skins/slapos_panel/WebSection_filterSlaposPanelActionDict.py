@@ -18,10 +18,11 @@ for action_category_name, action_list in action_dict.items():
       filtered_action_dict.setdefault("object_list_action", []).append(action)
     elif (
       ('slapos' in action['id']) or
-      (action['id'] in ['delete_document_list', 'delete_document'])
+      (action['id'] in ['delete_document_list', 'delete_document', 'change_password'])
     ):
       # Allow all slapos* action
       # Allow deleting documents
+      # Allow changing password
       filtered_action_dict[action_category_name].append(action)
 
   if not filtered_action_dict[action_category_name]:

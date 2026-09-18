@@ -10,6 +10,7 @@ portal.portal_catalog.searchAndActivate(
     portal.portal_categories.allocation_scope.close.forever.getUid()
   ],
   method_id="ComputeNode_invalidateIfEmpty",
+  method_kw={"activate_kw": {'tag': tag, 'priority': 2}},
   activate_kw={'tag': tag, 'priority': 2}
 )
 

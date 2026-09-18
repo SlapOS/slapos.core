@@ -5,6 +5,10 @@ if REQUEST is not None:
 assignment_category_set = set(assignment_category_list)
 person = context.getParentValue()
 
+if person.getPortalType() != 'Person':
+  # Do not create default assignment for workgroup
+  return
+
 # check if user has an assignment matching the default preference
 has_default_assignment = False
 has_open_assignment = False

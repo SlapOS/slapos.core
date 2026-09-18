@@ -29,7 +29,7 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
     raise ValueError('Unsupported bootstrap step: %s' % step)
 
   if scenario not in ['accounting', 'customer', 'customer_shared',
-                      'customer_remote']:
+                      'customer_remote', 'workgroup']:
     raise ValueError('Unsupported bootstrap scenario: %s' % scenario)
 
   portal = self.getPortalObject()
@@ -105,6 +105,8 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
         price_currency_value=currency,
       )
       trade_condition.validate()
+      # Needed for workgroup creation
+      trade_condition.immediateReindexObject()
 
       if scenario == 'accounting':
 
@@ -130,6 +132,38 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
           resource="service_module/slapos_virtual_master_subscription"
         )
         sale_supply.validate()
+
+      if scenario == 'workgroup':
+        temp_customer = portal.person_module.newContent(
+          portal_type='Person',
+          title='tmp person'
+        )
+        temp_customer.validate()
+
+        workgroup_organisation = portal.organisation_module.newContent(
+          portal_type='Organisation',
+          title='workgroup test orga',
+          default_address_region='europe/west/france',
+          vat_code='12345',
+          # required email to send events
+          default_email_url_string='test@example.org'
+        )
+        workgroup_organisation.validate()
+
+        manager_workgroup = workgroup_organisation.Organisation_addWorkgroup(
+          'Workgroup for manager %s' % manager_login,
+          currency.getRelativeUrl(),
+          batch=1,
+          temp_customer=temp_customer,
+        )
+
+        customer_workgroup = workgroup_organisation.Organisation_addWorkgroup(
+          "Workgroup for %s" % manager_login,
+          currency.getRelativeUrl(),
+          batch=1,
+          temp_customer=temp_customer,
+        )
+
     finally:
       setSecurityManager(sm)
 
@@ -191,11 +225,53 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
       )
 
       # Create Project
-      project = manager_person.Person_addVirtualMaster(
-        project_title,
-        scenario == 'accounting',
-        currency.getRelativeUrl(),
-        batch=1)
+      if scenario == 'workgroup':
+
+        manager_workgroup = portal.portal_catalog.getResultValue(
+          portal_type='Workgroup',
+          title="Workgroup for manager %s" % manager_login,
+        )
+
+        customer_workgroup = portal.portal_catalog.getResultValue(
+          portal_type='Workgroup',
+          title="Workgroup for %s" % manager_login,
+        )
+
+        manager_person.newContent(
+          portal_type='Assignment',
+          title="Member of %s" % manager_workgroup.getTitle(),
+          destination_value=manager_workgroup,
+        ).open()
+        manager_person.newContent(
+          portal_type='Assignment',
+          title="Member of %s" % customer_workgroup.getTitle(),
+          destination_value=customer_workgroup,
+        ).open()
+
+        customer_person.newContent(
+          portal_type='Assignment',
+          title="Empty to allow login",
+          function='customer',
+        ).open()
+
+        project = manager_workgroup.Person_addVirtualMaster(
+          project_title,
+          scenario == 'accounting',
+          currency.getRelativeUrl(),
+          batch=1)
+        customer_workgroup.newContent(
+          portal_type='Assignment',
+          title="Client for %s: %s" % (project.getReference(), customer_workgroup.getTitle()) ,
+          destination_project_value=project,
+          function='customer'
+        ).open()
+
+      else:
+        project = manager_person.Person_addVirtualMaster(
+          project_title,
+          scenario == 'accounting',
+          currency.getRelativeUrl(),
+          batch=1)
 
       if scenario == 'accounting':
         manager_person.newContent(
@@ -204,12 +280,14 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
           function='sale/manager'
         ).open()
 
-      customer_person.newContent(
-        portal_type='Assignment',
-        title='Customer for project %s' % project.getTitle(),
-        destination_project_value=project,
-        function='customer'
-      ).open()
+      if scenario != 'workgroup':
+        # In workgroup scenario, customer will be invited to the project
+        customer_person.newContent(
+          portal_type='Assignment',
+          title='Customer for project %s' % project.getTitle(),
+          destination_project_value=project,
+          function='customer'
+        ).open()
 
       # Ensure checkConsistency is OK on this preference
       preference = portal.portal_preferences.slapos_default_system_preference
@@ -244,7 +322,6 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
           destination_project_value=remote_project,
           function='customer'
         ).open()
-
 
     finally:
       setSecurityManager(sm)

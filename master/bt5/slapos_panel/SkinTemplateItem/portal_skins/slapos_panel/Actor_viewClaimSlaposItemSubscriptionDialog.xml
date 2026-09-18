@@ -35,7 +35,7 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>Person_claimSlaposItemSubscription</string> </value>
+            <value> <string>Actor_claimSlaposItemSubscription</string> </value>
         </item>
         <item>
             <key> <string>action_title</string> </key>
@@ -112,7 +112,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_viewClaimSlaposItemSubscriptionDialog</string> </value>
+            <value> <string>Actor_viewClaimSlaposItemSubscriptionDialog</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>

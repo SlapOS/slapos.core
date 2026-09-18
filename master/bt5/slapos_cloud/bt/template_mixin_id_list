@@ -1,3 +1,4 @@
+mixin.erp5.SlapOSActorSlapInterfaceMixin
 mixin.erp5.SlapOSCacheMixin
 mixin.erp5.SlapOSCatalogToolCacheMixin
 mixin.erp5.SlapOSComputeNodeMixin

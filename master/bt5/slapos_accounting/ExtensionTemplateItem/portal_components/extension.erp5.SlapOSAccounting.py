@@ -81,3 +81,21 @@ def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
     'stop_date': stop_date,
     'movement': movement_list,
   }
+
+def ComputerConsumptionTioXMLFile_checkWorkflowHistoryMigrationConsistency(self, fixit=False):
+  error_list = []
+
+  if ((getattr(self, 'workflow_history', None) is not None) and
+      ('slapos_consumption_document_workflow' not in self.workflow_history)):
+    if fixit:
+      assert self.getPortalType() == 'Computer Consumption TioXML File'
+
+      if (getattr(self, 'workflow_history', None) is not None) and \
+         ('document_publication_workflow' in self.workflow_history):
+        self.workflow_history['slapos_consumption_document_workflow'] = self.workflow_history.pop('document_publication_workflow')
+
+      self.reindexObject()
+    else:
+      error_list.append('Computer Consumption TioXML File workflow must be migrated')
+
+  return error_list

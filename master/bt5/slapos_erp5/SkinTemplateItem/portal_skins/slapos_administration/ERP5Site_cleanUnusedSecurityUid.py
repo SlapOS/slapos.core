@@ -7,7 +7,7 @@ delitem = Base_getSlapOSattr(portal, security_uid_dict, '__delitem__')
 reverse_group_security_uid_dict = {}
 reverse_groupless_security_uid_dict =  {}
 
-for (group, role_set), security_uid in dict(security_uid_dict).iteritems():
+for (group, role_set), security_uid in dict(security_uid_dict).items():
   reverse_groupless_security_uid_dict[security_uid] = (group, role_set)
   try:
     reverse_security_uid_dict = reverse_group_security_uid_dict[group]
@@ -22,6 +22,10 @@ used_group_security_uid_dict = {
   '': {
     x.security_uid
     for x in portal.z_get_used_security_uid_list()
+  },
+  'function' : {
+    x.function_security_uid
+    for x in portal.z_get_used_function_security_uid_list()
   },
   'computer' : {
     x.computer_security_uid
@@ -50,7 +54,7 @@ used_group_security_uid_dict = {
 }
 
 # Check unused security uid
-for group, reverse_security_uid_dict in reverse_group_security_uid_dict.iteritems():
+for group, reverse_security_uid_dict in reverse_group_security_uid_dict.items():
   used_security_uid_set = used_group_security_uid_dict[group]
   unused_security_uid_set = set(reverse_security_uid_dict).difference(used_security_uid_set)
   if unused_security_uid_set:

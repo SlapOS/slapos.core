@@ -15,6 +15,7 @@
   <item>SlapOSVirtualMasterSourceProjectAccountingConstraint</item>
  </portal_type>
  <portal_type id="Computer Consumption TioXML File">
+  <item>SlapOSAccountingComputerConsumptionTioXMLFileConstraint</item>
   <item>SortIndex</item>
  </portal_type>
  <portal_type id="Consumption Subscription">

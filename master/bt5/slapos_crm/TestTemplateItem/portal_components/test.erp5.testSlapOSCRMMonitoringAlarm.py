@@ -159,8 +159,8 @@ class TestSlapOSCrmMonitoringCheckAllocationConsistencyState(TestSlapOSCrmMonito
     release_url = release_variation.getUrlString()
 
     _error_dict = error_dict[allocation_node.getRelativeUrl()]
-    self.assertTrue(release_url in _error_dict, _error_dict.keys())
-    self.assertTrue(type_reference in _error_dict[release_url], _error_dict[release_url].keys())
+    self.assertIn(release_url, _error_dict)
+    self.assertIn(type_reference, _error_dict[release_url])
 
   #############################################################################
   # ComputeNode_checkProjectAllocationConsistencyState > ComputeNode_checkAllocationConsistencyState
@@ -348,14 +348,14 @@ class TestSlapOSCrmMonitoringCheckAllocationConsistencyState(TestSlapOSCrmMonito
       self.tic()
 
     ticket = remote_node.ComputeNode_checkAllocationConsistencyState()
+    self.assertNotEqual(ticket, None)
+    ticket_title = "%s has missing allocation supplies." % remote_node.getTitle()
+    self.assertEqual(ticket.getTitle(), ticket_title)
 
     # Double check error dict
     error_dict = partition.ComputePartition_checkAllocationConsistencyState()
     self.assertAllocationErrorDict(error_dict, remote_node,
                                    release_variation, type_variation)
-    ticket_title = "%s has missing allocation supplies." % remote_node.getTitle()
-    self.assertNotEqual(ticket, None)
-    self.assertEqual(ticket.getTitle(), ticket_title)
 
     self.tic()
     event_list = ticket.getFollowUpRelatedValueList()

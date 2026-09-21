@@ -9,7 +9,7 @@ instance_list = portal.portal_catalog(
   portal_type=['Software Instance', 'Slave Instance'],
   aggregate__uid=compute_partition.getUid(),
   validation_state='validated',
-  group_by=['source_reference', 'url_string', 'specialise_uid', 'portal_type']
+  group_by=('source_reference', 'url_string', 'specialise_uid', 'portal_type',)
 )
 
 instance_tree_upgrade_cache = {}

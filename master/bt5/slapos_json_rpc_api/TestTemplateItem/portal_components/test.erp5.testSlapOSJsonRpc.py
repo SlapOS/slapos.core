@@ -1764,6 +1764,53 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       }, loadJson(response.getBody()))
       self.assertEqual(response.getStatus(), 200)
 
+  def test_PersonAccess_36_request_HTTPClientError(self):
+    with PinnedDateTime(self, DateTime()):
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree()
+      person = instance_tree.getDestinationSectionValue()
+      person_user_id = person.getUserId()
+
+      response = self.callJsonRpcWebService("slapos.post.v0.software_instance", {
+        "software_release_uri": instance_tree.getUrlString(),
+        "software_type": instance_tree.getSourceReference() + "FOO",
+        "title": instance_tree.getTitle()
+      },
+      person_user_id)
+
+      # Check Data is correct
+      # partition = instance.getAggregateValue(portal_type="Compute Partition")
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual({
+        "status": 400,
+        "title": "You can not change the release / type / shared states",
+        "type": "PARAMETER-ERROR"
+      }, loadJson(response.getBody()))
+      self.assertEqual(response.getStatus(), 400)
+
+  def test_PersonAccess_36_request_RequestConflictError(self):
+    with PinnedDateTime(self, DateTime()):
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree()
+      person = instance_tree.getDestinationSectionValue()
+      person_user_id = person.getUserId()
+      self.portal.portal_workflow._jumpToStateFor(instance_tree, 'destroy_requested')
+
+      response = self.callJsonRpcWebService("slapos.post.v0.software_instance", {
+        "software_release_uri": instance_tree.getUrlString(),
+        "software_type": instance_tree.getSourceReference(),
+        "title": instance_tree.getTitle()
+      },
+      person_user_id)
+
+      # Check Data is correct
+      # partition = instance.getAggregateValue(portal_type="Compute Partition")
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual({
+        "status": 409,
+        "title": "The system was not able to get the expected instance tree: %s" % instance_tree.getRelativeUrl(),
+        "type": "CONFLICT"
+      }, loadJson(response.getBody()))
+      self.assertEqual(response.getStatus(), 409)
+
   def test_PersonAccess_37_ComputeNodeSupply(self):
     # disable alarms to speed up the test
     with self.changeContextByDisablingPortalAlarm():

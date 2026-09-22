@@ -119,6 +119,17 @@ class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixin):
                      self.getSecurityUidList(group=""))
     SlapOSTestCaseMixin.beforeTearDown(self)
 
+class TestZZZSlapOSManageSecurityUidAmount(TestSlapOSGroupRoleSecurityMixin):
+  # USE ZZZ run last, to have a higher chance to catch a problem.
+  def testz_security_uid(self):
+    self.assertEqual(3, len(self.manage_security_uid_list))
+    self.assertEqual(self.manage_security_uid_list[-1], {})
+    self.assertEqual(self.manage_security_uid_list[-2]['viewable_owner'],
+                     self.user_id)
+    # Only one group is found, for security_uid
+    self.assertEqual(len(self.manage_security_uid_list[0]), 1)
+    # The amount is know and finite
+    self.assertEqual(len(self.manage_security_uid_list[0][""]), 18)
 
 class TestAccountModule(TestSlapOSGroupRoleSecurityMixin):
   def test_AccountModule(self):

@@ -120,6 +120,7 @@
                     <key> <string>right</string> </key>
                     <value>
                       <list>
+                        <string>my_destination_section_title</string>
                         <string>my_translated_slap_state_title</string>
                         <string>my_status</string>
                         <string>my_follow_up_title</string>

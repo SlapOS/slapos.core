@@ -1163,6 +1163,8 @@ class TestSlapOSOpenSaleOrderInvalidationAlarm(SlapOSTestCaseMixin):
 
     project, open_order_line = self._createValidatedItemAndOpenSaleOrderLine()
     project.invalidate()
+    with self.changeContextByDisablingPortalAlarm():
+      self.tic()
     self._test_alarm(alarm, open_order_line, script_name)
 
   def test_OpenSaleOrderLine_archiveIfUnusedItem_alarm_fromValidatedProject(self):
@@ -1170,6 +1172,8 @@ class TestSlapOSOpenSaleOrderInvalidationAlarm(SlapOSTestCaseMixin):
     alarm = self.portal.portal_alarms.slapos_archive_open_sale_order_with_unused_item
 
     _, open_order_line = self._createValidatedItemAndOpenSaleOrderLine()
+    with self.changeContextByDisablingPortalAlarm():
+      self.tic()
     self._test_alarm_not_visited(alarm, open_order_line, script_name)
 
   def test_OpenSaleOrderLine_archiveIfUnusedItem_alarm_fromInvalidatedProjectAndOrder(self):
@@ -1179,6 +1183,8 @@ class TestSlapOSOpenSaleOrderInvalidationAlarm(SlapOSTestCaseMixin):
     project, open_order_line = self._createValidatedItemAndOpenSaleOrderLine()
     project.invalidate()
     open_order_line.getParentValue().invalidate()
+    with self.changeContextByDisablingPortalAlarm():
+      self.tic()
     self._test_alarm_not_visited(alarm, open_order_line, script_name)
 
   def test_OpenSaleOrderLine_archiveIfUnusedItem_script_REQUEST_disallowed(self):
@@ -1235,6 +1241,8 @@ class TestSlapOSOpenInternalOrderInvalidationAlarm(SlapOSTestCaseMixin):
 
     project, open_order_line = self._createValidatedItemAndOpenInternalOrderLine()
     project.invalidate()
+    with self.changeContextByDisablingPortalAlarm():
+      self.tic()
     self._test_alarm(alarm, open_order_line, script_name)
 
   def test_OpenInternalOrderLine_archiveIfUnusedItem_alarm_fromValidatedProject(self):
@@ -1242,6 +1250,8 @@ class TestSlapOSOpenInternalOrderInvalidationAlarm(SlapOSTestCaseMixin):
     alarm = self.portal.portal_alarms.slapos_archive_open_internal_order_with_unused_item
 
     _, open_order_line = self._createValidatedItemAndOpenInternalOrderLine()
+    with self.changeContextByDisablingPortalAlarm():
+      self.tic()
     self._test_alarm_not_visited(alarm, open_order_line, script_name)
 
   def test_OpenInternalOrderLine_archiveIfUnusedItem_alarm_fromInvalidatedProjectAndOrder(self):
@@ -1251,6 +1261,8 @@ class TestSlapOSOpenInternalOrderInvalidationAlarm(SlapOSTestCaseMixin):
     project, open_order_line = self._createValidatedItemAndOpenInternalOrderLine()
     project.invalidate()
     open_order_line.getParentValue().invalidate()
+    with self.changeContextByDisablingPortalAlarm():
+      self.tic()
     self._test_alarm_not_visited(alarm, open_order_line, script_name)
 
   def test_OpenInternalOrderLine_archiveIfUnusedItem_script_REQUEST_disallowed(self):

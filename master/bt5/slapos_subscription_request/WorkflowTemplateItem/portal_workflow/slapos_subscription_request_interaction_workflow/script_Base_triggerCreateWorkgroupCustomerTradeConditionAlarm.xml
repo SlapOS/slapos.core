@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="PythonScript" module="Products.PythonScripts.PythonScript"/>
+      <global name="Workflow Script" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -46,19 +46,27 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>invitation_token, **kw</string> </value>
+            <value> <string>state_change</string> </value>
         </item>
         <item>
-            <key> <string>_proxy_roles</string> </key>
+            <key> <string>description</string> </key>
             <value>
-              <tuple>
-                <string>Assignor</string>
-              </tuple>
+              <none/>
             </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_acceptSlapOSInvitationToken</string> </value>
+            <value> <string>script_Base_triggerCreateWorkgroupCustomerTradeConditionAlarm</string> </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>Workflow Script</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
       </dictionary>
     </pickle>

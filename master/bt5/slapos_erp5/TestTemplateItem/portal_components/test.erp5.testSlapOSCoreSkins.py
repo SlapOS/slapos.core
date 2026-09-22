@@ -32,6 +32,9 @@ class TestSlapOSCoreMixin(SlapOSTestCaseMixin):
   def createPerson(self):
     return self.portal.person_module.newContent(portal_type="Person")
 
+  def createWorkgroup(self):
+    return self.portal.workgroup_module.newContent(portal_type="Workgroup")
+
   def createOrganisation(self):
     return self.portal.organisation_module.newContent(portal_type="Organisation")
 
@@ -122,11 +125,10 @@ class TestERP5Type_getSecurityCategoryFromParentContentParent(TestSlapOSCoreMixi
 
 
 class TestSoftwareInstance_getSecurityCategoryFromUser(TestSlapOSCoreMixin):
-  def test(self):
-    person = self.createPerson()
+  def _test(self, actor):
     instance_tree = self.portal.instance_tree_module.newContent(
       portal_type='Instance Tree',
-      destination_section=person.getRelativeUrl())
+      destination_section=actor.getRelativeUrl())
 
     instance = self.portal.software_instance_module.newContent(
       portal_type='Software Instance',
@@ -138,18 +140,24 @@ class TestSoftwareInstance_getSecurityCategoryFromUser(TestSlapOSCoreMixin):
     self.assertEqual([],
       self.portal.SoftwareInstance_getSecurityCategoryFromUser([], None, instance, None)) 
 
-    self.assertEqual([{'destination_section': [person.getRelativeUrl()]}],
+    self.assertEqual([{'destination_section': [actor.getRelativeUrl()]}],
       self.portal.SoftwareInstance_getSecurityCategoryFromUser(["destination_section"], None, instance, None)) 
 
-    self.assertEqual([{'couscous': [person.getRelativeUrl()]}, {'destination_section': [person.getRelativeUrl()]}],
+    self.assertEqual([{'couscous': [actor.getRelativeUrl()]}, {'destination_section': [actor.getRelativeUrl()]}],
       self.portal.SoftwareInstance_getSecurityCategoryFromUser(["couscous", "destination_section"], None, instance, None)) 
+
+  def test_SoftwareInstance_getSecurityCategoryFromUser_person(self):
+    return self._test(self.createPerson())
+
+  def test_SoftwareInstance_getSecurityCategoryFromUser_workgroup(self):
+    return self._test(self.createWorkgroup())
+
 
 class TestSlaveInstance_getSecurityCategoryFromSoftwareInstance(TestSlapOSCoreMixin):
   def test(self):
-    person = self.createPerson()
     computer_node = self.portal.compute_node_module.newContent(
       portal_type='Compute Node',
-      source_administration=person.getRelativeUrl())
+    )
 
     partition = computer_node.newContent(portal_type="Compute Partition")
 
@@ -178,10 +186,9 @@ class TestSlaveInstance_getSecurityCategoryFromSoftwareInstance(TestSlapOSCoreMi
 
 
 class TestBase_getSecurityCategoryAsShadowUser(TestSlapOSCoreMixin):
-  def test_destination_section(self):
-    person = self.createPerson()
+  def _test_destination_section(self, actor):
     event = self.portal.system_event_module.newContent(
-      portal_type='Payzen Event', destination_section_value=person)
+      portal_type='Payzen Event', destination_section_value=actor)
 
     self.assertEqual([],
       self.portal.Base_getSecurityCategoryAsShadowUser([], None, None, None))
@@ -189,17 +196,22 @@ class TestBase_getSecurityCategoryAsShadowUser(TestSlapOSCoreMixin):
     self.assertEqual([],
       self.portal.Base_getSecurityCategoryAsShadowUser([], None, event, None)) 
 
-    shadow_user_id = 'SHADOW-%s' % person.getUserId()
+    shadow_user_id = 'SHADOW-%s' % actor.getUserId()
     self.assertEqual({'Assignee': [shadow_user_id], 'Auditor': [shadow_user_id]},
       self.portal.Base_getSecurityCategoryAsShadowUser(["destination_section"], None, event, None)) 
 
     self.assertEqual([],
       self.portal.Base_getSecurityCategoryAsShadowUser(["couscous", "destination_section"], None, event, None))
 
-  def test_destination(self):
-    person = self.createPerson()
+  def test_getSecurityCategoryAsShadowUser_personDestinationSection(self):
+    return self._test_destination_section(self.createPerson())
+
+  def test_getSecurityCategoryAsShadowUser_workgroupDestinationSection(self):
+    return self._test_destination_section(self.createWorkgroup())
+
+  def _test_destination(self, actor):
     payment = self.portal.accounting_module.newContent(
-      portal_type='Payment Transaction', destination_value=person)
+      portal_type='Payment Transaction', destination_value=actor)
 
     self.assertEqual([],
       self.portal.Base_getSecurityCategoryAsShadowUser([], None, None, None))
@@ -207,7 +219,7 @@ class TestBase_getSecurityCategoryAsShadowUser(TestSlapOSCoreMixin):
     self.assertEqual([],
       self.portal.Base_getSecurityCategoryAsShadowUser(["destination_section"], None, payment, None)) 
 
-    shadow_user_id = 'SHADOW-%s' % person.getUserId()
+    shadow_user_id = 'SHADOW-%s' % actor.getUserId()
     self.assertEqual({'Assignee': [shadow_user_id], 'Auditor': [shadow_user_id]},
       self.portal.Base_getSecurityCategoryAsShadowUser(["destination"], None, payment, None)) 
 
@@ -215,3 +227,8 @@ class TestBase_getSecurityCategoryAsShadowUser(TestSlapOSCoreMixin):
     self.assertEqual([],
       self.portal.Base_getSecurityCategoryAsShadowUser(["couscous", "destination"], None, payment, None)) 
 
+  def test_getSecurityCategoryAsShadowUser_personDestination(self):
+    return self._test_destination(self.createPerson())
+
+  def test_getSecurityCategoryAsShadowUser_workgroupDestination(self):
+    return self._test_destination(self.createWorkgroup())

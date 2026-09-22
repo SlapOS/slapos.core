@@ -2694,3 +2694,396 @@ class TestSlapOSCrmGarbageCollectProject(TestSlapOSCrmMonitoringMixin):
 
     self.assertIn("This allocation supply has no linked Node.", event.getTextContent())
     self.assertEqual(ticket.getSimulationState(), "submitted")
+
+
+class TestSlapOSCrmCheckWorkgroupConsistencyState(TestSlapOSCrmMonitoringMixin):
+
+  ##########################################################################
+  # slapos_crm_workgroup_consistency > AssignmentRequest_suspendIfDuplicatedByWorkgroup
+  ##########################################################################
+  def test_AssignmentRequest_suspendIfDuplicatedByWorkgroup_alarm_personWorkgroupAssignment(self):
+    project = self.addProject()
+    person = self.makePerson(project)
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup'
+    )
+
+    assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_value=workgroup,
+      destination_decision_value=person
+    )
+    assignment_request.submit()
+
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_workgroup_consistency
+    self._test_alarm(alarm, assignment_request,
+             "AssignmentRequest_suspendIfDuplicatedByWorkgroup")
+
+  def test_AssignmentRequest_suspendIfDuplicatedByWorkgroup_alarm_personSuspendedAssignment(self):
+    project = self.addProject()
+    person = self.makePerson(project)
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup'
+    )
+
+    assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_value=workgroup,
+      destination_decision_value=person
+    )
+    assignment_request.submit()
+    self.tic()
+    assignment_request.suspend()
+
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_workgroup_consistency
+    self._test_alarm_not_visited(alarm, assignment_request,
+             "AssignmentRequest_suspendIfDuplicatedByWorkgroup")
+
+  def test_AssignmentRequest_suspendIfDuplicatedByWorkgroup_alarm_personProjectAssignment(self):
+    project = self.addProject()
+    person = self.makePerson(project)
+
+    assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_project_value=project,
+      function='customer',
+      destination_decision_value=person
+    )
+    assignment_request.submit()
+
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_workgroup_consistency
+    self._test_alarm_not_visited(alarm, assignment_request,
+             "AssignmentRequest_suspendIfDuplicatedByWorkgroup")
+
+  def test_AssignmentRequest_suspendIfDuplicatedByWorkgroup_alarm_workgroupAssignment(self):
+    project = self.addProject()
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup'
+    )
+
+    assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_project_value=project,
+      function='customer',
+      destination_decision_value=workgroup
+    )
+    assignment_request.submit()
+
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_workgroup_consistency
+    self._test_alarm_not_visited(alarm, assignment_request,
+             "AssignmentRequest_suspendIfDuplicatedByWorkgroup")
+
+  def _createPersonTestAssignmentRequest(self, person, project):
+    self.tic()
+    customer_assignment_request = self.portal.portal_catalog.getResultValue(
+      portal_type='Assignment Request',
+      destination_project__uid=project.getUid(),
+      function__uid=self.portal.portal_categories.function.customer.getUid(),
+      destination_decision__uid=person.getUid(),
+      simulation_state='validated'
+    )
+    assert customer_assignment_request is not None
+
+    manager_assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_project_value=project,
+      function='production/manager',
+      destination_decision_value=person
+    )
+    manager_assignment_request.submit()
+    return [customer_assignment_request, manager_assignment_request]
+
+  def _createWorkgroupTestAssignmentRequest(self, workgroup, project):
+    customer_assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_project_value=project,
+      function='customer',
+      destination_decision_value=workgroup
+    )
+    customer_assignment_request.submit()
+
+    manager_assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_project_value=project,
+      function='production/manager',
+      destination_decision_value=workgroup
+    )
+    manager_assignment_request.submit()
+    return [customer_assignment_request, manager_assignment_request]
+
+  def _createTestData(self):
+    project = self.addProject()
+    person = self.makePerson(project)
+    person_customer_assignment_request, person_manager_assignment_request = self._createPersonTestAssignmentRequest(person, project)
+
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup'
+    )
+    person_workgroup_assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_value=workgroup,
+      destination_decision_value=person
+    )
+    person_workgroup_assignment_request.submit()
+    workgroup_customer_assignment_request, workgroup_manager_assignment_request = self._createWorkgroupTestAssignmentRequest(workgroup, project)
+    self.tic()
+    return [person, person_customer_assignment_request, person_manager_assignment_request,
+            person_workgroup_assignment_request,
+            workgroup_customer_assignment_request, workgroup_manager_assignment_request]
+
+  def test_AssignmentRequest_suspendIfDuplicatedByWorkgroup_script_user(self):
+    _, person_customer_assignment_request, person_manager_assignment_request, person_workgroup_assignment_request, \
+      workgroup_customer_assignment_request, workgroup_manager_assignment_request = self._createTestData()
+
+    person_workgroup_assignment_request.AssignmentRequest_suspendIfDuplicatedByWorkgroup()
+    self.assertEqual(person_customer_assignment_request.getSimulationState(), 'suspended')
+    self.assertEqual(person_manager_assignment_request.getSimulationState(), 'suspended')
+    self.assertEqual(person_workgroup_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(workgroup_customer_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(workgroup_manager_assignment_request.getSimulationState(), 'validated')
+
+  def test_AssignmentRequest_suspendIfDuplicatedByWorkgroup_script_userCustomerOnlyWorkgroup(self):
+    _, person_customer_assignment_request, person_manager_assignment_request, person_workgroup_assignment_request, \
+      workgroup_customer_assignment_request, workgroup_manager_assignment_request = self._createTestData()
+
+    workgroup_manager_assignment_request.suspend()
+    self.tic()
+
+    person_workgroup_assignment_request.AssignmentRequest_suspendIfDuplicatedByWorkgroup()
+    self.assertEqual(person_customer_assignment_request.getSimulationState(), 'suspended')
+    self.assertEqual(person_manager_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(person_workgroup_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(workgroup_customer_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(workgroup_manager_assignment_request.getSimulationState(), 'invalidated')
+
+  def test_AssignmentRequest_suspendIfDuplicatedByWorkgroup_script_userManagerOnlyWorkgroup(self):
+    _, person_customer_assignment_request, person_manager_assignment_request, person_workgroup_assignment_request, \
+      workgroup_customer_assignment_request, workgroup_manager_assignment_request = self._createTestData()
+
+    workgroup_customer_assignment_request.suspend()
+    self.tic()
+
+    person_workgroup_assignment_request.AssignmentRequest_suspendIfDuplicatedByWorkgroup()
+    self.assertEqual(person_customer_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(person_manager_assignment_request.getSimulationState(), 'suspended')
+    self.assertEqual(person_workgroup_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(workgroup_customer_assignment_request.getSimulationState(), 'invalidated')
+    self.assertEqual(workgroup_manager_assignment_request.getSimulationState(), 'validated')
+
+  def test_AssignmentRequest_suspendIfDuplicatedByWorkgroup_script_userRoleLessWorkgroup(self):
+    _, person_customer_assignment_request, person_manager_assignment_request, person_workgroup_assignment_request, \
+      workgroup_customer_assignment_request, workgroup_manager_assignment_request = self._createTestData()
+
+    workgroup_customer_assignment_request.suspend()
+    workgroup_manager_assignment_request.suspend()
+    self.tic()
+
+    person_workgroup_assignment_request.AssignmentRequest_suspendIfDuplicatedByWorkgroup()
+    self.assertEqual(person_customer_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(person_manager_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(person_workgroup_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(workgroup_customer_assignment_request.getSimulationState(), 'invalidated')
+    self.assertEqual(workgroup_manager_assignment_request.getSimulationState(), 'invalidated')
+
+  def test_AssignmentRequest_suspendIfDuplicatedByWorkgroup_script_personWithInstanceTree(self):
+    person, person_customer_assignment_request, person_manager_assignment_request, person_workgroup_assignment_request, \
+      workgroup_customer_assignment_request, workgroup_manager_assignment_request = self._createTestData()
+
+    self.portal.instance_tree_module.newContent(
+      title="test %s" % self.generateNewId(),
+      destination_section_value=person,
+      follow_up_value=person_manager_assignment_request.getDestinationProjectValue()
+    ).validate()
+    self.tic()
+
+    person_workgroup_assignment_request.AssignmentRequest_suspendIfDuplicatedByWorkgroup()
+    self.assertEqual(person_customer_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(person_manager_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(person_workgroup_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(workgroup_customer_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(workgroup_manager_assignment_request.getSimulationState(), 'validated')
+
+  def test_AssignmentRequest_suspendIfDuplicatedByWorkgroup_script_projectOwner(self):
+    person, person_customer_assignment_request, person_manager_assignment_request, person_workgroup_assignment_request, \
+      workgroup_customer_assignment_request, workgroup_manager_assignment_request = self._createTestData()
+
+    person_manager_assignment_request.getDestinationProjectValue().edit(
+      destination_section_value=person
+    )
+
+    person_workgroup_assignment_request.AssignmentRequest_suspendIfDuplicatedByWorkgroup()
+    self.assertEqual(person_customer_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(person_manager_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(person_workgroup_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(workgroup_customer_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(workgroup_manager_assignment_request.getSimulationState(), 'validated')
+
+  def test_AssignmentRequest_suspendIfDuplicatedByWorkgroup_script_userExpiredWorkgroup(self):
+    _, person_customer_assignment_request, person_manager_assignment_request, person_workgroup_assignment_request, \
+      workgroup_customer_assignment_request, workgroup_manager_assignment_request = self._createTestData()
+
+    person_workgroup_assignment_request.suspend()
+
+    person_workgroup_assignment_request.AssignmentRequest_suspendIfDuplicatedByWorkgroup()
+    self.assertEqual(person_customer_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(person_manager_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(person_workgroup_assignment_request.getSimulationState(), 'suspended')
+    self.assertEqual(workgroup_customer_assignment_request.getSimulationState(), 'validated')
+    self.assertEqual(workgroup_manager_assignment_request.getSimulationState(), 'validated')
+
+  ##########################################################################
+  # slapos_crm_workgroup_consistency > AssignmentRequest_checkPersonWorkgroupConsistency
+  ##########################################################################
+  def test_AssignmentRequest_checkPersonWorkgroupConsistency_alarm_personWorkgroupAssignment(self):
+    project = self.addProject()
+    person = self.makePerson(project)
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup'
+    )
+
+    assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_value=workgroup,
+      destination_decision_value=person
+    )
+    assignment_request.submit()
+
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_workgroup_consistency
+    self._test_alarm(alarm, assignment_request,
+             "AssignmentRequest_checkPersonWorkgroupConsistency")
+
+  def test_AssignmentRequest_checkPersonWorkgroupConsistency_alarm_personSuspendedAssignment(self):
+    project = self.addProject()
+    person = self.makePerson(project)
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup'
+    )
+
+    assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_value=workgroup,
+      destination_decision_value=person
+    )
+    assignment_request.submit()
+    self.tic()
+    assignment_request.suspend()
+
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_workgroup_consistency
+    self._test_alarm_not_visited(alarm, assignment_request,
+             "AssignmentRequest_checkPersonWorkgroupConsistency")
+
+  def test_AssignmentRequest_checkPersonWorkgroupConsistency_alarm_personProjectAssignment(self):
+    project = self.addProject()
+    person = self.makePerson(project)
+
+    assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_project_value=project,
+      function='customer',
+      destination_decision_value=person
+    )
+    assignment_request.submit()
+
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_workgroup_consistency
+    self._test_alarm_not_visited(alarm, assignment_request,
+             "AssignmentRequest_checkPersonWorkgroupConsistency")
+
+  def test_AssignmentRequest_checkPersonWorkgroupConsistency_alarm_workgroupAssignment(self):
+    project = self.addProject()
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup'
+    )
+
+    assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_project_value=project,
+      function='customer',
+      destination_decision_value=workgroup
+    )
+    assignment_request.submit()
+
+    self.tic()
+    alarm = self.portal.portal_alarms.slapos_crm_workgroup_consistency
+    self._test_alarm_not_visited(alarm, assignment_request,
+             "AssignmentRequest_checkPersonWorkgroupConsistency")
+
+  def _createCustomerWorkgroup(self, person, project):
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup'
+    )
+
+    customer_assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_project_value=project,
+      function='customer',
+      destination_decision_value=workgroup
+    )
+    customer_assignment_request.submit()
+
+    person_assignment_request = self.portal.assignment_request_module.newContent(
+      portal_type='Assignment Request',
+      destination_value=workgroup,
+      destination_decision_value=person
+    )
+    person_assignment_request.submit()
+
+    return workgroup, customer_assignment_request, person_assignment_request
+
+  def test_AssignmentRequest_checkPersonWorkgroupConsistency_script_withMultipleCustomerWorkgroup(self):
+    project = self.addProject()
+    person = self.makePerson(project)
+
+    _, _, person_assignment_request1 = self._createCustomerWorkgroup(person, project)
+    _, _, _ = self._createCustomerWorkgroup(person, project)
+
+    self.tic()
+    ticket = person_assignment_request1.AssignmentRequest_checkPersonWorkgroupConsistency()
+    self.assertNotEqual(ticket, None)
+    self.assertEqual(ticket.getTitle(), 'Conflicting customer Workgroup assignments for: %s' % person.getTitle())
+
+    self.tic()
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertIn('The user "%s" has conflicting workgroup assignments for project %s.' % (person.getTitle(), project.getReference()),
+                  event.getTextContent())
+    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
+    self.assertEqual(event.getSourceProject(), None)
+    self.assertEqual(ticket.getSourceProject(), None)
+    self.assertEqual(ticket.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(ticket.getDestinationDecision(), person.getRelativeUrl())
+    self.assertEqual(ticket.getCausality(), project.getRelativeUrl())
+    self.assertEqual(ticket.getSimulationState(), "submitted")
+    self.assertEqual(event.getSimulationState(), "delivered")
+    self.assertEqual(event.getPortalType(), "Web Message")
+
+  def test_AssignmentRequest_checkPersonWorkgroupConsistency_script_withSingleCustomerWorkgroup(self):
+    project = self.addProject()
+    person = self.makePerson(project)
+
+    _, _, person_assignment_request1 = self._createCustomerWorkgroup(person, project)
+
+    self.tic()
+    ticket = person_assignment_request1.AssignmentRequest_checkPersonWorkgroupConsistency()
+    self.assertEqual(ticket, None)
+
+  def test_AssignmentRequest_checkPersonWorkgroupConsistency_script_multipleCustomer(self):
+    project = self.addProject()
+    person1 = self.makePerson(project)
+    person2 = self.makePerson(project)
+
+    _, _, person_assignment_request1 = self._createCustomerWorkgroup(person1, project)
+    _, _, _ = self._createCustomerWorkgroup(person2, project)
+
+    self.tic()
+    ticket = person_assignment_request1.AssignmentRequest_checkPersonWorkgroupConsistency()
+    self.assertEqual(ticket, None)

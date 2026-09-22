@@ -58,6 +58,13 @@ class TestSlapOSJsonRpcMixin(SlapOSTestCaseMixin):
       env={'CONTENT_TYPE': 'application/json'})
     return response
 
+  def createWorkgroup(self):
+    workgroup = self.portal.workgroup_module.newContent(
+      portal_type='Workgroup'
+    )
+    workgroup.validate()
+    return workgroup
+
   def beforeTearDown(self):
     self.unpinDateTime()
     self._cleaupREQUEST()
@@ -2048,6 +2055,71 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       }, loadJson(response.getBody()))
       self.assertEqual(response.getStatus(), 200)
 
+  def test_PersonAccess_44_getWorkgroupInstanceTreeAllocated(self):
+    with PinnedDateTime(self, DateTime()):
+      _, _, _, _, partition, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+      person = instance_tree.getDestinationSectionValue()
+      person_user_id = person.getUserId()
+      instance = instance_tree.getSuccessorValue()
+      workgroup = self.createWorkgroup()
+      person.newContent(portal_type='Assignment', destination_value=workgroup).open()
+      instance_tree.edit(destination_section_value=workgroup)
+      self.tic()
+
+      response = self.callJsonRpcWebService("slapos.get.v0.instance_tree", {
+        "title": instance_tree.getTitle()
+      },
+      person_user_id)
+
+      # Check Data is correct
+      # partition = instance.getAggregateValue(portal_type="Compute Partition")
+      self.assertEqual('application/json', response.headers.get('content-type'))
+      self.assertEqual({
+        "title": instance.getTitle(),
+        "instance_guid": instance.getReference(),
+        "software_release_uri": instance.getUrlString(),
+        "software_type": instance.getSourceReference(),
+        "state": self.getAPIStateFromSlapState(instance.getSlapState()),
+        "connection_parameters": instance.getConnectionXmlAsDict(),
+        "parameters": instance.getInstanceXmlAsDict(),
+        "shared": False,
+        "root_instance_title": instance.getSpecialiseValue().getTitle(),
+        "ip_list": [
+          [
+            x.getNetworkInterface(''),
+            x.getIpAddress()
+          ] for x in partition.contentValues(portal_type='Internet Protocol Address')
+        ],
+        "full_ip_list": [],
+        "sla_parameters": instance.getSlaXmlAsDict(),
+        "computer_guid": partition.getParentValue().getReference(),
+        "compute_partition_id": partition.getReference(),
+        "processing_timestamp": instance.getSlapTimestamp(),
+        "access_status_message": instance.getTextAccessStatus(),
+      }, loadJson(response.getBody()))
+      self.assertEqual(response.getStatus(), 200)
+
+  def test_PersonAccess_44_getUnrelatedWorkgroupInstanceTreeAllocated(self):
+    with PinnedDateTime(self, DateTime()):
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(allocation_state='allocated')
+      person = instance_tree.getDestinationSectionValue()
+      person_user_id = person.getUserId()
+      workgroup = self.createWorkgroup()
+      instance_tree.edit(destination_section_value=workgroup)
+      self.tic()
+
+      response = self.callJsonRpcWebService("slapos.get.v0.instance_tree", {
+        "title": instance_tree.getTitle()
+      },
+      person_user_id)
+
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    self.assertEqual({
+      'title': 'No instance tree found with title: test tree',
+      'type': 'INSTANCE-TREE-NOT-FOUND',
+      'status': 403
+    }, loadJson(response.getBody()))
+
   def test_PersonAccess_45_getInstanceTreeNonExisting(self):
     with PinnedDateTime(self, DateTime()):
       _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree()
@@ -2088,3 +2160,49 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSJsonRpcMixin):
       })
     self.assertEqual(response.getStatus(), 200)
 
+  def test_PersonAccess_46_searchWorkgroupInstanceTreeList(self):
+    with PinnedDateTime(self, DateTime()):
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree()
+      person = instance_tree.getDestinationSectionValue()
+      person_user_id = person.getUserId()
+      workgroup = self.createWorkgroup()
+      person.newContent(portal_type='Assignment', destination_value=workgroup).open()
+      instance_tree.edit(destination_section_value=workgroup)
+      self.tic()
+
+    response = self.callJsonRpcWebService(
+      "slapos.allDocs.v0.instance_tree_list",
+      {},
+      person_user_id
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    instance_tree_list_response = loadJson(response.getBody())
+    self.assertEqual(
+      instance_tree_list_response,
+      {
+        'result_list': [{'title': instance_tree.getTitle()}]
+      })
+    self.assertEqual(response.getStatus(), 200)
+
+  def test_PersonAccess_46_searchUnrelatedWorkgroupInstanceTreeList(self):
+    with PinnedDateTime(self, DateTime()):
+      _, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree()
+      person = instance_tree.getDestinationSectionValue()
+      person_user_id = person.getUserId()
+      workgroup = self.createWorkgroup()
+      instance_tree.edit(destination_section_value=workgroup)
+      self.tic()
+
+    response = self.callJsonRpcWebService(
+      "slapos.allDocs.v0.instance_tree_list",
+      {},
+      person_user_id
+    )
+    self.assertEqual('application/json', response.headers.get('content-type'))
+    instance_tree_list_response = loadJson(response.getBody())
+    self.assertEqual(
+      instance_tree_list_response,
+      {
+        'result_list': []
+      })
+    self.assertEqual(response.getStatus(), 200)

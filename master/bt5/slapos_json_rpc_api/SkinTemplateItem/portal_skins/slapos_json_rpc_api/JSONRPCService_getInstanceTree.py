@@ -7,11 +7,10 @@ class InstanceTreeNotFoundError(JsonRpcAPIError):
 portal = context.getPortalObject()
 
 instance_tree_title = data_dict.get("title")
-requester = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
 instance_tree_list = portal.portal_catalog(
   portal_type='Instance Tree',
-  destination_section__uid=requester.getUid(),
+  destination_section__uid=portal.Base_getAuthenticatedPersonAndWorkgroupUidList(),
   validation_state='validated',
   title={'query': data_dict.get("title"), 'key': 'ExactMatch'},
   limit=2

@@ -1,5 +1,7 @@
 from zExceptions import Unauthorized
+from zExceptions import HTTPConflict as RequestConflictError, HTTPClientError as RequestInvalidParameterError
 portal = context.getPortalObject()
+Base_translateString = portal.Base_translateString
 
 if shared in ["true", "1", 1]:
   shared = True
@@ -48,7 +50,15 @@ if sla_xml:
 %s
 </instance>""" % sla_xml
 
-person.requestSoftwareInstance(**request_kw)
+try:
+  person.requestSoftwareInstance(**request_kw)
+except (RequestConflictError, RequestInvalidParameterError) as e:
+  keep_items = {
+    'portal_status_level': 'error',
+    'portal_status_message': Base_translateString(str(e))
+  }
+  return context.Base_renderForm(dialog_id, keep_items=keep_items)
+
 request_instance_tree = context.REQUEST.get('request_instance_tree')
 
 web_site = context.getWebSectionValue()

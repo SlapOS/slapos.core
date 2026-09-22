@@ -1,4 +1,17 @@
+from zExceptions import HTTPConflict, HTTPClientError
+from erp5.component.document.JsonRpcAPIService import JsonRpcAPIError
 castToStr = context.Base_castDictToXMLString
+
+
+class JsonRpcAPIRequestConflictError(JsonRpcAPIError):
+  type = "CONFLICT"
+  status = 409
+
+
+class JsonRpcAPIRequestClientError(JsonRpcAPIError):
+  type = "PARAMETER-ERROR"
+  status = 400
+
 
 portal = context.getPortalObject()
 
@@ -93,12 +106,20 @@ if ((last_data is None) or
     (last_data.get('hash') != value['hash']) or
     (requested_software_instance is None) or
     ((requested_software_instance.getSlapState() != kw['state']))):
-  if requester.getPortalType() == 'Software Instance':
-    kw.pop('project_reference')
-    requester.requestInstance(**kw)
-  else:
-    # requester is a person so we use another method
-    requester.requestSoftwareInstance(**kw)
+
+
+  try:
+    if requester.getPortalType() == 'Software Instance':
+      kw.pop('project_reference')
+      requester.requestInstance(**kw)
+    else:
+      # requester is a person so we use another method
+      requester.requestSoftwareInstance(**kw)
+  except HTTPConflict as e:
+    raise JsonRpcAPIRequestConflictError(str(e))
+  except HTTPClientError as e:
+    raise JsonRpcAPIRequestClientError(str(e))
+
   requested_software_instance = context.REQUEST.get('request_instance')
   if requested_software_instance is not None:
     value['request_instance'] = requested_software_instance\

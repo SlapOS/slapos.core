@@ -5,12 +5,20 @@ error_dict = {}
 compute_node = compute_partition.getParentValue()
 assert compute_node.getPortalType() in ['Compute Node', 'Remote Node']
 
-instance_list = compute_partition.getAggregateRelatedValueList(portal_type=[
-  'Software Instance', 'Slave Instance'])
+instance_list = portal.portal_catalog(
+  portal_type=['Software Instance', 'Slave Instance'],
+  aggregate__uid=compute_partition.getUid(),
+  validation_state='validated',
+  group_by=('source_reference', 'url_string', 'specialise_uid', 'portal_type',)
+)
 
-for instance in instance_list:
-  if instance.getValidationState() != 'validated' or \
-      instance.getSlapState() == 'destroy_requested':
+instance_tree_upgrade_cache = {}
+software_product_cache_map = {}
+
+for _instance in instance_list:
+  # Due group by, fetch real object
+  instance = _instance.getObject()
+  if instance.getSlapState() == 'destroy_requested':
     # Outdated catalog or instance under garbage collection,
     # we skip for now.
     continue
@@ -20,14 +28,6 @@ for instance in instance_list:
 
   # Now check allocation supply consistency
   instance_tree = instance.getSpecialiseValue(portal_type="Instance Tree")
-
-  # if there is an ongoing upgrade decision, skip, since there is already
-  # a ticket for handle the inconsistency.
-  if portal.portal_catalog.getResultValue(
-    portal_type='Upgrade Decision',
-    aggregate__uid=instance_tree.getUid(),
-    simulation_state=['started', 'stopped', 'planned', 'confirmed']) is not None:
-    continue
 
   # Create a temporary instance tree as the instance would be the root
   # Instance.
@@ -41,7 +41,10 @@ for instance in instance_list:
   project = instance.getFollowUpValue()
   assert project is not None, 'Project is None'
 
-  software_product, software_release, software_type = instance_tree_context.InstanceTree_getSoftwareProduct()
+  cache_key = "!!!".join([str(project.getUid()), instance_software_release_url, instance_software_type])
+  if cache_key not in software_product_cache_map:
+    software_product_cache_map[cache_key] = instance_tree_context.InstanceTree_getSoftwareProduct()
+  software_product, software_release, software_type = software_product_cache_map[cache_key]
 
   if software_product is None:
     allocable_compute_node, allocation_cell_list = compute_node, []
@@ -56,6 +59,15 @@ for instance in instance_list:
       allocable_compute_node, allocation_cell_list = compute_node, []
 
   if not allocation_cell_list:
+    # In case of detected issue, check if there is an upgrade decision
+    if instance_tree.getUid() not in instance_tree_upgrade_cache:
+      instance_tree_upgrade_cache[instance_tree.getUid()] = portal.portal_catalog.getResultValue(
+      portal_type='Upgrade Decision',
+      aggregate__uid=instance_tree.getUid(),
+      simulation_state=['started', 'stopped', 'planned', 'confirmed']) is not None
+    if instance_tree_upgrade_cache[instance_tree.getUid()]:
+      continue
+
     # Sampling of the structure
     # error_dict = {
     #   compute_node or instance_node or remote_node : {

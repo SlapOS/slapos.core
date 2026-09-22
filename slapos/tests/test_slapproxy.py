@@ -54,10 +54,9 @@ from slapos.proxy import views
 from slapos.proxy.db_version import DB_VERSION
 import slapos.slap
 import slapos.slap.slap
-from slapos.util import loads, dumps, sqlite_connect, bytes2str, dict2xml
+from slapos.util import loads, dumps, sqlite_connect, bytes2str, dict2xml, get_package_resource_bytes
 
 import sqlite3
-import pkg_resources
 
 
 class WrongFormat(Exception):
@@ -1819,7 +1818,7 @@ database_uri = %(rootdir)s/lib/external_proxy.db
     Overwrite default slapos configuration file to enable specific multimaster
     behaviours.
     """
-    configuration = bytes2str(pkg_resources.resource_string(
+    configuration = bytes2str(get_package_resource_bytes(
         'slapos.tests', os.path.join('test_slapproxy', 'slapos_multimaster.cfg.in')
     )) % {
         'rootdir': self._rootdir, 'proxyaddr': self.proxyaddr,
@@ -2455,7 +2454,7 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
 
   def setUp(self):
     TestInformation.setUp(self)
-    schema = bytes2str(pkg_resources.resource_string(
+    schema = bytes2str(get_package_resource_bytes(
       'slapos.tests',
       os.path.join('test_slapproxy',
                    'database_dump_version_%s.sql' % self.version)

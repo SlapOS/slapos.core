@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import pkg_resources
-from slapos.util import bytes2str
+from slapos.util import bytes2str, get_package_resource_bytes
 
-with pkg_resources.resource_stream('slapos.proxy', 'schema.sql') as f:
-  DB_VERSION = bytes2str(f.readline()).strip().split(':')[1]
+DB_VERSION = bytes2str(get_package_resource_bytes('slapos.proxy', 'schema.sql').splitlines()[0]).strip().split(':')[1]
 

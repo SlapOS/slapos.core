@@ -4,7 +4,7 @@
 computer_id = COMP-123456789
 master_url = https://slap.vifib.com/
 key_file = /etc/opt/slapos/ssl/computer.key
-cert_file =  /etc/opt/slapos/ssl/computer.crt
+cert_file = /etc/opt/slapos/ssl/computer.crt
 certificate_repository_path = /etc/opt/slapos/ssl/partition_pki
 software_root = /opt/slapgrid
 instance_root = /srv/slapgrid
@@ -201,7 +201,7 @@ upload-to-binary-cache-url-blacklist =
 #  https://lab.nexedi.cn/nexedi/slapos/raw/1.0.
 
 [collect]
-enable = True 
+enable = True
 time_cycle = 86400
 pid_folder = /srv/slapgrid/var/run
 use_quota = False

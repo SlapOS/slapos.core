@@ -34,7 +34,7 @@ for sql_result in portal.portal_catalog(
 ## Migrate all existing projects
 ##########################################################################
 
-# Copied from Person_addVirtualMaster
+# Copied from Actor_addVirtualMaster
 project_resource = portal.restrictedTraverse("service_module/slapos_virtual_master_subscription")
 for sql_result in portal.portal_catalog(
   portal_type="Project",

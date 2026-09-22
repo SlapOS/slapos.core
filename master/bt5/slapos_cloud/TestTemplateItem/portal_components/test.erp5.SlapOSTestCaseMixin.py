@@ -124,6 +124,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     testSlapOSMixin.afterSetUp(self)
     self.changeSkin('View')
     self.portal.portal_activities.unsubscribe()
+    self.portal.portal_alarms.subscribe()
     self.new_id = self.generateNewId()
 
   def beforeDumpExpectedConfiguration(self):
@@ -875,8 +876,10 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         source_value=seller_organisation,
         destination_section_value=person
       )
+      hosting_subscription = self.portal.hosting_subscription_module.newContent()
+      hosting_subscription.validate()
       open_order.newContent(
-        aggregate_value=item
+        aggregate_value=[item, hosting_subscription]
       )
       self.portal.portal_workflow._jumpToStateFor(open_order, 'validated')
 
@@ -886,8 +889,10 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         ledger="automated",
         destination_section_value=person
       )
+      consumption_subscription = self.portal.consumption_subscription_module.newContent()
+      consumption_subscription.validate()
       open_order.newContent(
-        aggregate_value=item
+        aggregate_value=[item, consumption_subscription]
       )
       self.portal.portal_workflow._jumpToStateFor(open_order, 'validated')
 

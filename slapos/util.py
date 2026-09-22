@@ -44,7 +44,6 @@ import warnings
 
 import jsonschema
 import netaddr
-import zc.buildout.download
 import six
 from lxml import etree
 from six.moves.urllib import parse
@@ -63,6 +62,19 @@ try:
 except NameError:  # make pylint happy on python2...
   PermissionError = Exception
 
+
+if six.PY2:
+  import pkg_resources
+  get_package_resource_bytes = pkg_resources.resource_string
+  get_package_resource_filename = pkg_resources.resource_filename
+else:
+  import importlib.resources
+  def get_package_resource_bytes(package_name, resource_filename):
+    # type: (str, str) -> bytes
+    return importlib.resources.files(package_name).joinpath(resource_filename).read_bytes()
+  def get_package_resource_filename(package_name, resource_filename):
+    # type: (str, str) -> str
+    return str(importlib.resources.files(package_name).joinpath(resource_filename))
 
 
 _ALLOWED_CLASS_SET = frozenset((
@@ -484,6 +496,7 @@ class SoftwareReleaseSchema(object):
       # fine for normal buildout usage, but when downloading software release schemas
       # we want these messages to be logged with level debug
       logger.info = logger.debug  # type: ignore
+      import zc.buildout.download  # XXX late import because import zc.buildout causes setuptools warning
       download = zc.buildout.download.Download(logger=logger)
     self._download = download.download
 
@@ -509,9 +522,8 @@ class SoftwareReleaseSchema(object):
           if is_temp:
             os.remove(path)
       else:
-        # XXX: https://discuss.python.org/t/file-uris-in-python/15600
-        if url.startswith('file://'):
-          path = url[7:]
+        if url.startswith('file:'):
+          path = parse.urlparse(url).path
         else:
           path = url
           url = 'file:' + url

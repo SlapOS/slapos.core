@@ -15,6 +15,9 @@ instance_root = /srv/slapgrid
 #  /opt/slapgrid/read_only_shared
 #  /opt/slapgrid/shared
 
+# Enable upload of consumption reports to Master.
+#upload_consumption_report = false
+
 [slapformat]
 # Replace by your network interface providing IPv6 if you don't use re6st
 interface_name = lo

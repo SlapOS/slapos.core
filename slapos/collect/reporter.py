@@ -396,10 +396,10 @@ class ConsumptionReport(ConsumptionReportBase):
 
      transaction = journal.newTransaction()
 
-     journal.setProperty(transaction, "title", "Eco Information for %s " % self.computer_id)
+     journal.setProperty(transaction, "title", "Consumption Information for %s " % self.computer_id)
      journal.setProperty(transaction, "start_date", "%s 00:00:00" % date_scope)
      journal.setProperty(transaction, "stop_date", "%s 23:59:59" % date_scope)
-   
+
      journal.setProperty(transaction, "reference", "%s-global" % date_scope)
 
      journal.setProperty(transaction, "currency", "")
@@ -408,16 +408,6 @@ class ConsumptionReport(ConsumptionReportBase):
 
      arrow = ElementTree.SubElement(transaction, "arrow")
      arrow.set("type", "Destination")
-
-     cpu_load_percent = self._getCpuLoadAverageConsumption(date_scope)
-
-     if cpu_load_percent is not None:
-       journal.newMovement(transaction, 
-                           resource="service_module/cpu_load_percent",
-                           title="CPU Load Percent Average",
-                           quantity=str(cpu_load_percent), 
-                           reference=self.computer_id,
-                           category="")
 
      memory_used = self._getMemoryAverageConsumption(date_scope)
 
@@ -429,24 +419,14 @@ class ConsumptionReport(ConsumptionReportBase):
                            reference=self.computer_id,
                            category="")
 
-
-     if self._getZeroEmissionContribution() is not None:
+     zero_emission_contribution = self._getZeroEmissionContribution()
+     if zero_emission_contribition is not None and zero_emission_contribition > 0:
        journal.newMovement(transaction, 
                            resource="service_module/zero_emission_ratio",
                            title="Zero Emission Ratio",
                            quantity=str(self._getZeroEmissionContribution()), 
                            reference=self.computer_id, 
                            category="")
-
-     for user in self.user_list:
-       partition_cpu_load_percent = self.getPartitionCPULoadAverage(user, date_scope)
-       if partition_cpu_load_percent is not None:
-         journal.newMovement(transaction,
-                             resource="service_module/cpu_load_percent",
-                             title="CPU Load Percent Average for %s" % (user),
-                             quantity=str(partition_cpu_load_percent),
-                             reference=user,
-                             category="")
 
      mb = float(2 ** 20)
      for user in self.user_list:
@@ -476,12 +456,6 @@ class ConsumptionReport(ConsumptionReportBase):
      return xml_report_path
 
   @withDB
-  def _getCpuLoadAverageConsumption(self, date_scope):
-    (cpu_load_percent_list,), = self.db.select("system", date_scope,
-                       columns="SUM(cpu_percent)/COUNT(cpu_percent)")
-    return cpu_load_percent_list
-
-  @withDB
   def _getMemoryAverageConsumption(self, date_scope):
     (memory_used_list,), = self.db.select("system", date_scope,
                        columns="SUM(memory_used)/COUNT(memory_used)")
@@ -490,7 +464,7 @@ class ConsumptionReport(ConsumptionReportBase):
 
   @withDB
   def _getZeroEmissionContribution(self):
-    return self.db.getLastZeroEmissionRatio()  
+    return self.db.getLastZeroEmissionRatio()
 
 class Journal(object):
 

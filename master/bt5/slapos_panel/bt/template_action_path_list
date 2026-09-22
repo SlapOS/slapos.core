@@ -48,6 +48,7 @@ Instance Tree | slapos_panel_view
 Instance Tree | slapos_panel_workflow_request_hs_destroy
 Instance Tree | slapos_panel_workflow_request_hs_start
 Instance Tree | slapos_panel_workflow_request_hs_stop
+Instance Tree | slapos_rename
 Instance Tree | slaposjs_view
 Instance Tree | update_slapos_parameter
 Mail Message | slapos_panel_view

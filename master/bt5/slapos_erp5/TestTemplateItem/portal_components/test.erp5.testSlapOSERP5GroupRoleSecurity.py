@@ -72,6 +72,7 @@ class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixin):
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self.user_id = getSecurityManager().getUser().getId()
+    self.manage_security_uid_list = self.getSecurityUidList(group="")
 
   def _getLocalRoles(self, context):
     return [x[0] for x in context.get_local_roles()]
@@ -106,6 +107,17 @@ class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixin):
       role_list,
       context.get_local_roles_for_userid(security_group)
     )
+
+  def getSecurityUidList(self, group=""):
+    return [dict(item) for item in
+              self.portal.portal_catalog.getSecurityUidDictAndRoleColumnDict()]
+
+  def beforeTearDown(self):
+    self.tic()
+    self.login(self.user_id)
+    self.assertEqual(self.manage_security_uid_list,
+                     self.getSecurityUidList(group=""))
+    SlapOSTestCaseMixin.beforeTearDown(self)
 
 
 class TestAccountModule(TestSlapOSGroupRoleSecurityMixin):

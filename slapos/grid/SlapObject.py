@@ -53,6 +53,7 @@ from slapos.grid.utils import (md5digest, getCleanEnvironment,
 from slapos.grid import utils  # for methods that could be mocked, access them through the module
 from slapos.slap.slap import NotFoundError
 from slapos.grid.svcbackend import getSupervisorRPC
+from slapos import master_detach_lock
 from slapos.grid.exception import (BuildoutFailedError, WrongPermissionError,
                                    PathDoesNotExistError, DiskSpaceError)
 from slapos.grid.networkcache import download_network_cached, upload_network_cached
@@ -856,6 +857,12 @@ class Partition(object):
     """
     self.logger.info("Destroying Computer Partition %s..."
         % self.partition_id)
+
+    if master_detach_lock.QUERY_TOKEN in \
+        master_detach_lock.getArmedTokenList(self.instance_path):
+      self.logger.info(
+        'Impossible to destroy partition detached from SlapOS Master.')
+      return False
 
     self.createRetentionLockDate()
     if not self.checkRetentionIsAuthorized():

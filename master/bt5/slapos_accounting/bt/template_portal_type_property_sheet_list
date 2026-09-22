@@ -5,6 +5,7 @@ Amortisation Transaction | SlapOSLedgerAccountingConstraint
 Amortisation Transaction | SlapOSVirtualMasterSourceProjectAccountingConstraint
 Balance Transaction | SlapOSLedgerAccountingConstraint
 Balance Transaction | SlapOSVirtualMasterSourceProjectAccountingConstraint
+Computer Consumption TioXML File | SlapOSAccountingComputerConsumptionTioXMLFileConstraint
 Computer Consumption TioXML File | SortIndex
 Consumption Subscription | SlapOSLedgerConstraint
 Consumption Supply | ConsumptionSupplyConstraint

@@ -5,6 +5,7 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
+from DateTime import DateTime
 
 
 def getMessageList(instance):
@@ -100,3 +101,58 @@ class TestSlapOSAccountingUpgrader(SlapOSTestCaseMixin):
     self.assertEqual('archived', open_order2_to_migrate.getValidationState())
     self.assertNotEqual(None, open_order3_to_migrate.getStopDate())
     self.assertEqual('archived', open_order3_to_migrate.getValidationState())
+
+  def test_tioxml_document_slapos_consumption_document_workflow_migration(self):
+    # Testing:
+    # - ComputerConsumptionTioXMLFile_checkWorkflowHistoryMigrationConsistency
+    # - MISSING: AlarmTool_checkComputerConsumptionTioXMLFileWorkflowHistoryMigrationConsistency
+    migration_message = 'Computer Consumption TioXML File workflow must be migrated'
+
+    tioxml_module = self.portal.getDefaultModule('Computer Consumption TioXML File')
+
+    tioxml_nothing_to_migrate = tioxml_module.newContent(
+      portal_type='Computer Consumption TioXML File'
+    )
+
+    tioxml_to_migrate = tioxml_module.newContent(
+      portal_type='Computer Consumption TioXML File',
+    )
+
+    # Create fake workflow history
+    creation_date = DateTime('2011/11/15 11:11')
+    modification_date = DateTime('2012/11/15 11:11')
+    tioxml_to_migrate.workflow_history['edit_workflow'] = [{
+        'comment':'Fake history',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'state': 'current',
+        'time': creation_date,
+        'action': 'foo_action'
+        }]
+    tioxml_to_migrate.workflow_history['document_publication_workflow'] = [{
+        'comment':'Fake history',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'validation_state': 'submitted',
+        'time': modification_date,
+        'action': 'submit'
+        }]
+    tioxml_to_migrate.workflow_history.pop('slapos_consumption_document_workflow')
+
+    self.tic()
+
+    # Nothing to migrate
+    self.assertNotIn(migration_message, getMessageList(tioxml_nothing_to_migrate))
+
+    # To migrate
+    self.assertIn(migration_message, getMessageList(tioxml_to_migrate))
+    tioxml_to_migrate.fixConsistency()
+
+    self.commit()
+    self.assertTrue(tioxml_to_migrate.hasActivity())
+
+    self.tic()
+
+    self.assertNotIn('document_publication_workflow', tioxml_to_migrate.workflow_history)
+    self.assertEqual('submitted', tioxml_to_migrate.getValidationState())
+    self.assertNotIn(migration_message, getMessageList(tioxml_to_migrate))

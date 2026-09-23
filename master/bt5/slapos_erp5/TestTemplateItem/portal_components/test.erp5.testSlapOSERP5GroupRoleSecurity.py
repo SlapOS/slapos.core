@@ -71,6 +71,26 @@ class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
+
+    # Pre create some objects to ensure that the "Manager" is minimally populated
+    # Inside expected value, with general entries that has no Role Information
+    # Attached to it.
+    if getattr(self.portal.notification_message_module, "dummy_security", None) is None:
+      # Required to pre-populate expected security uid for Manager
+      self.portal.notification_message_module.newContent(id='dummy_security')
+    if getattr(self.portal.document_module, "dummy_security", None) is None:
+      # Ensure Associate security uid is registered
+      self.portal.document_module.newContent(
+        id='dummy_security',
+        publication_section='report',
+        contributor_value=self.portal.person_module.newContent(portal_type='Person'),
+        portal_type='Text')
+
+    if getattr(self.portal.system_event_module, "dummy_security", None) is None:
+      # Ensure Associate security uid is registered
+      self.portal.system_event_module.newContent(
+        id='dummy_security', portal_type="Payzen Event")
+
     self.tic()
     self.login()
     self.user_id = getSecurityManager().getUser().getId()
@@ -114,12 +134,17 @@ class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixin):
     return [dict(item) for item in
               self.portal.portal_catalog.getSecurityUidDictAndRoleColumnDict()]
 
-  def beforeTearDown(self):
+  def tearDown(self):  #pylint: disable=method-hidden
     self.tic()
     self.login(self.user_id)
-    self.assertEqual(self.manage_security_uid_list,
-                     self.getSecurityUidList(group=""))
-    SlapOSTestCaseMixin.beforeTearDown(self)
+    self.assertEqual(3, len(self.manage_security_uid_list))
+    self.assertEqual(self.manage_security_uid_list[2], {})
+    self.assertEqual(self.manage_security_uid_list[1]['viewable_owner'],
+                     self.user_id)
+    self.assertEqual(len(self.manage_security_uid_list[0]), 1)
+    self.assertSameSet(self.manage_security_uid_list[0][""],
+                     self.getSecurityUidList(group="")[0][""])
+    SlapOSTestCaseMixin.tearDown(self)
 
 class TestZZZSlapOSManageSecurityUidAmount(TestSlapOSGroupRoleSecurityMixin):
   # USE ZZZ run last, to have a higher chance to catch a problem.

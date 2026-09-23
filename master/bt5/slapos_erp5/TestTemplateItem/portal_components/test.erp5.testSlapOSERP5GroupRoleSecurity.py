@@ -52,10 +52,7 @@ class TestSlapOSGroupRoleSecurityCoverage(SlapOSTestCaseMixin):
     test_list = []
     expected_failure_dict = {
       # comes from generic erp5 bt5. Unused
-      'Query - Acquired Assignee': None,
-      # Like 'user' group, but for instance
-      # there is no local_role_group for single instance user
-      'Slave Instance - Software Instance which provides this Slave Instance': None
+      'Query - Acquired Assignee': None
     }
     for pt in self.portal.portal_types.objectValues():
       for role_information in pt.contentValues(portal_type="Role Information"):
@@ -156,7 +153,7 @@ class TestZZZSlapOSManageSecurityUidAmount(TestSlapOSGroupRoleSecurityMixin):
     # Only one group is found, for security_uid
     self.assertEqual(len(self.manage_security_uid_list[0]), 1)
     # The amount is know and finite
-    self.assertEqual(len(self.manage_security_uid_list[0][""]), 18)
+    self.assertEqual(len(self.manage_security_uid_list[0][""]), 17)
 
 class TestAccountModule(TestSlapOSGroupRoleSecurityMixin):
   def test_AccountModule(self):

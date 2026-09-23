@@ -71,6 +71,8 @@ class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
+    self.tic()
+    self.login()
     self.user_id = getSecurityManager().getUser().getId()
     self.manage_security_uid_list = self.getSecurityUidList(group="")
 

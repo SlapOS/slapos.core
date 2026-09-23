@@ -19,7 +19,6 @@
   </role>
   <role id='Assignee'>
    <property id='title'>Project Production Agent</property>
-   <property id='description'>XXX add local role group</property>
    <property id='condition'>python: context.getFollowUp("") != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
@@ -28,7 +27,6 @@
   </role>
   <role id='Assignor'>
    <property id='title'>Project Production Manager</property>
-   <property id='description'>XXX add local role group</property>
    <property id='condition'>python: context.getFollowUp("") != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
@@ -37,7 +35,9 @@
   </role>
   <role id='Assignor'>
    <property id='title'>Software Instance which provides this Slave Instance</property>
+   <property id='description'>This role use 'group' for the convinience of already exist, it could be used 'shared' but it would lead inconvenient large alter table while migrating it.</property>
    <property id='base_category_script'>SlaveInstance_getSecurityCategoryFromSoftwareInstance</property>
+   <multi_property id='categories'>local_role_group/group</multi_property>
    <multi_property id='base_category'>aggregate</multi_property>
   </role>
 </type_roles>

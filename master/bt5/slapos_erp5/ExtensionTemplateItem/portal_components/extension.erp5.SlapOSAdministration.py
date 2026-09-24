@@ -31,12 +31,11 @@ def Base_getAllowedRolesAndUsers(self, user_id, REQUEST=None):
     transaction.abort()
     setSecurityManager(sm)
 
-def ERP5Site_getSecurityUidListForRecreateTable(self):
-  security_uid_entry_list = []
-  for item in self.getPortalObject().portal_catalog.getSQLCatalog().getRoleAndSecurityUidList():
-    security_uid_entry_list.append((item[2], item[1]))
-
-  return security_uid_entry_list
+def ERP5Site_getSecurityUidListForRecreateTable(self, REQUEST=None):
+  if REQUEST is not None:
+    raise Unauthorized
+  portal = self.getPortalObject()
+  return portal.portal_catalog.getSQLCatalog().getRoleAndSecurityUidList()
 
 def slapos_getattr(portal=None, *args):
   if portal is None or portal.getPortalObject() != portal:

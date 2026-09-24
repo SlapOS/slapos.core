@@ -95,6 +95,7 @@ erp5_monaco_editor
 erp5_mysql_innodb
 erp5_notebook
 erp5_oauth
+erp5_oauth2_authorisation
 erp5_oauth_facebook_login
 erp5_oauth_google_login
 erp5_ods_core
@@ -109,6 +110,7 @@ erp5_project_trade
 erp5_rss_core
 erp5_run_my_doc
 erp5_secure_payment
+erp5_session
 erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm

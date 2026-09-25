@@ -131,7 +131,7 @@ class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixin):
     return [dict(item) for item in
               self.portal.portal_catalog.getSecurityUidDictAndRoleColumnDict()]
 
-  def tearDown(self):
+  def tearDown(self):  #pylint: disable=method-hidden
     self.tic()
     self.login(self.user_id)
     self.assertEqual(3, len(self.manage_security_uid_list))

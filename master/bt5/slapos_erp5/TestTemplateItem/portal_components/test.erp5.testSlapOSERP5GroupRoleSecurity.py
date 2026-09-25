@@ -143,7 +143,21 @@ class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixin):
                      self.getSecurityUidList(group="")[0][""])
     SlapOSTestCaseMixin.tearDown(self)
 
+
 class TestZZZSlapOSManageSecurityUidAmount(TestSlapOSGroupRoleSecurityMixin):
+
+  def assertMissingSecurityUid(self):
+    for security_uid_column in ["computer_security_uid", "function_security_uid",
+                                "group_security_uid", "project_security_uid",
+                                "security_uid", "shadow_security_uid",
+                                "subscription_security_uid", "user_security_uid"]:
+
+      missing_security_uid_list = self.portal.z_search_unindexed_security_uid(
+        security_uid_column=security_uid_column)
+
+      self.assertEqual(0, len(missing_security_uid_list),
+        missing_security_uid_list)
+
   # USE ZZZ run last, to have a higher chance to catch a problem.
   def testz_security_uid(self):
     self.assertEqual(3, len(self.manage_security_uid_list))
@@ -153,7 +167,15 @@ class TestZZZSlapOSManageSecurityUidAmount(TestSlapOSGroupRoleSecurityMixin):
     # Only one group is found, for security_uid
     self.assertEqual(len(self.manage_security_uid_list[0]), 1)
     # The amount is know and finite
-    self.assertEqual(len(self.manage_security_uid_list[0][""]), 17)
+    self.assertEqual(len(self.manage_security_uid_list[0][""]), 16)
+
+    self.tic()
+    self.assertMissingSecurityUid()
+    self.tic()
+
+    self.portal.z_refresh_roles_and_users()
+    self.commit()
+    self.assertMissingSecurityUid()
 
 class TestAccountModule(TestSlapOSGroupRoleSecurityMixin):
   def test_AccountModule(self):

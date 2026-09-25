@@ -91,6 +91,9 @@ SKIP_SOFTWARE_CHECK_DEFAULT: bool = bool(
 SKIP_SOFTWARE_REBUILD_DEFAULT: bool = bool(
   int(os.environ.get("SLAPOS_TEST_SKIP_SOFTWARE_REBUILD", 0))
 )
+SERVE_SR_FROM_URL: bool = bool(
+  int(os.environ.get("SLAPOS_TEST_SERVE_SR_FROM_URL", 1))
+)
 SHARED_PART_LIST_DEFAULT: Sequence[str] = [
   os.path.expanduser(p)
   for p in os.environ.get(
@@ -111,6 +114,7 @@ SLAPOS_SR_SBOM_DEPENDENCY_TRACK_API_KEY: str | None = os.environ.get(
 SLAPOS_SR_SBOM_DEPENDENCY_TRACK_PROJECT_ID: str | None = os.environ.get(
   "SLAPOS_SR_SBOM_DEPENDENCY_TRACK_PROJECT_ID",
 )
+
 
 
 def _serveSoftwareURL(software_url: str) -> Tuple[str, str | None]:
@@ -161,7 +165,7 @@ def makeModuleSetUpAndTestCaseClass(
   shared_part_list: Iterable[str] = SHARED_PART_LIST_DEFAULT,
   snapshot_directory: str | None = SNAPSHOT_DIRECTORY_DEFAULT,
   software_id: str | None = None,
-  serve_software_release_from_url: bool = True,
+  serve_software_release_from_url: bool = SERVE_SR_FROM_URL,
   dependency_track_url: str | None = SLAPOS_SR_SBOM_DEPENDENCY_TRACK_URL,
   dependency_track_api_key: str
   | None = SLAPOS_SR_SBOM_DEPENDENCY_TRACK_API_KEY,

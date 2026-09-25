@@ -91,6 +91,14 @@ SKIP_SOFTWARE_CHECK_DEFAULT: bool = bool(
 SKIP_SOFTWARE_REBUILD_DEFAULT: bool = bool(
   int(os.environ.get("SLAPOS_TEST_SKIP_SOFTWARE_REBUILD", 0))
 )
+SERVE_SR_ROOT_URL: str | None = os.environ.get(
+  "SLAPOS_TEST_SOFTWARE_ROOT_URL"
+)
+SERVE_SR_ROOT_DIR: str | None = os.environ.get(
+  "SLAPOS_TEST_SOFTWARE_ROOT_DIR"
+)
+if SERVE_SR_FROM_URL_ROOT_DIR:
+  SERVE_SR_FROM_URL_ROOT_DIR = os.path.abspath(SERVE_SR_FROM_URL_ROOT_DIR)
 SHARED_PART_LIST_DEFAULT: Sequence[str] = [
   os.path.expanduser(p)
   for p in os.environ.get(
@@ -113,7 +121,8 @@ SLAPOS_SR_SBOM_DEPENDENCY_TRACK_PROJECT_ID: str | None = os.environ.get(
 )
 
 
-def _serveSoftwareURL(software_url: str) -> Tuple[str, str | None]:
+
+def _serveSoftwareURL(software_url: str) -> str | None:
   """Rewrite a local software path to the URL it is served at over HTTP.
 
   Software Releases are built from an URL rather than a filesystem path, so
@@ -130,13 +139,11 @@ def _serveSoftwareURL(software_url: str) -> Tuple[str, str | None]:
   """
   if urlparse(software_url).scheme:
     return software_url, None
-  root_url = os.environ.get("SLAPOS_TEST_SOFTWARE_ROOT_URL")
-  root_dir = os.environ.get("SLAPOS_TEST_SOFTWARE_ROOT_DIR")
   path = os.path.abspath(software_url)
-  if root_url and root_dir:
-    root_dir = os.path.abspath(root_dir)
-    if os.path.commonpath((path, root_dir)) == root_dir:
-      return f"{root_url.rstrip('/')}/{os.path.relpath(path, root_dir)}", root_dir
+  if SERVE_SR_ROOT_URL and SERVE_SR_ROOT_DIR:
+    relpath = os.path.relpath(path, SERVE_SR_ROOT_DIR)
+    if not relpath.startswith(os.pardir):
+      return f"{SERVE_SR_ROOT_DIR.rstrip('/')}/{relpath}"
   raise RuntimeError(
     f"Software Release {software_url!r} must be built from an URL served over "
     "HTTP, but no server is available for it: SLAPOS_TEST_SOFTWARE_ROOT_URL and "
@@ -161,7 +168,7 @@ def makeModuleSetUpAndTestCaseClass(
   shared_part_list: Iterable[str] = SHARED_PART_LIST_DEFAULT,
   snapshot_directory: str | None = SNAPSHOT_DIRECTORY_DEFAULT,
   software_id: str | None = None,
-  serve_software_release_from_url: bool = True,
+  serve_software_release_from_url: bool = SERVE_SR_FROM_URL,
   dependency_track_url: str | None = SLAPOS_SR_SBOM_DEPENDENCY_TRACK_URL,
   dependency_track_api_key: str
   | None = SLAPOS_SR_SBOM_DEPENDENCY_TRACK_API_KEY,
@@ -247,9 +254,8 @@ def makeModuleSetUpAndTestCaseClass(
 
   """
   software_url = os.fspath(software_url)
-  software_checkout_directory = None
   if serve_software_release_from_url:
-    software_url, software_checkout_directory = _serveSoftwareURL(software_url)
+    software_url = _serveSoftwareURL(software_url)
 
   if base_directory is None:
     base_directory = os.path.realpath(
@@ -305,10 +311,10 @@ def makeModuleSetUpAndTestCaseClass(
     _slap_request = slap.request
 
     def _supply(software_url, *args, **kwargs):  # pyright: ignore
-      return _slap_supply(_serveSoftwareURL(software_url)[0], *args, **kwargs)
+      return _slap_supply(_serveSoftwareURL(software_url), *args, **kwargs)
 
     def _request(software_release, *args, **kwargs):  # pyright: ignore
-      return _slap_request(_serveSoftwareURL(software_release)[0], *args, **kwargs)
+      return _slap_request(_serveSoftwareURL(software_release), *args, **kwargs)
 
     setattr(slap, "supply", _supply)
     setattr(slap, "request", _request)
@@ -327,7 +333,7 @@ def makeModuleSetUpAndTestCaseClass(
       "_ipv6_address": ipv6_address,
       "_base_directory": base_directory,
       "_test_file_snapshot_directory": snapshot_directory,
-      "_software_checkout_directory": software_checkout_directory,
+      "_software_checkout_directory": SERVE_SR_ROOT_DIR,
       "_serve_software_from_url": serve_software_release_from_url,
     },
   )
@@ -438,7 +444,7 @@ def installSoftwareUrlList(
   """
   if cls._serve_software_from_url:  # pyright: ignore[reportPrivateUsage]
     software_url_list = [
-      _serveSoftwareURL(software_url)[0]  # pyright: ignore[reportPrivateUsage]
+      _serveSoftwareURL(software_url)  # pyright: ignore[reportPrivateUsage]
       for software_url in software_url_list
     ]
 

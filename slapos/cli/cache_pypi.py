@@ -87,7 +87,9 @@ def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
         logger.info('SHADIR URL: %s/%s\n', cache_dir, key)
 
         with resetLogger(logger):
-            for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.NONE).split('\n'):
+            # BBB: prettytable.VRuleStyle only exists since 3.12, but python 2 is stuck at 0.7.2
+            for line in pt.get_string(border=True, padding_width=0,
+                    vrules=getattr(prettytable, 'VRuleStyle', prettytable).NONE).split('\n'):
                 logger.info(line)
     except HTTPError as e:
         if e.code == 404:

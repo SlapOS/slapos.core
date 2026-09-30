@@ -33,7 +33,6 @@ import re
 import shutil
 import stat
 import sys
-import pkg_resources
 import requests
 import json
 from six.moves import input

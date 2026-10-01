@@ -128,6 +128,7 @@ class Software(object):
                shared_part_list='',
                build_time_part_list='',
                develop=False,
+               software_timeout=None,
               ):
     """Initialisation of class parameters
     """
@@ -173,6 +174,7 @@ class Software(object):
         download_from_binary_cache_force_url_list
     self.software_min_free_space = software_min_free_space
     self.develop = develop
+    self.software_timeout = software_timeout
 
   def check_free_space(self):
     required = self.software_min_free_space or 0
@@ -348,7 +350,8 @@ class Software(object):
                            buildout_binary=buildout_binary,
                            logger=self.logger,
                            additional_buildout_parameter_list=additional_parameters,
-                           debug=self.buildout_debug)
+                           debug=self.buildout_debug,
+                           timeout=self.software_timeout)
       if f is not None:
         os.remove(buildout_marker)
     finally:

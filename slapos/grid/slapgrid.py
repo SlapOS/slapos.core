@@ -100,6 +100,7 @@ SLAPGRID_FAIL = 1
 SLAPGRID_PROMISE_FAIL = 2
 SLAPGRID_OFFLINE_SUCCESS = 3
 PROMISE_TIMEOUT = 20
+SOFTWARE_TIMEOUT = 86400
 
 COMPUTER_PARTITION_TIMESTAMP_FILENAME = '.timestamp'
 COMPUTER_PARTITION_LATEST_BANG_TIMESTAMP_FILENAME = '.slapos_latest_bang_timestamp'
@@ -274,6 +275,13 @@ def create_slapgrid_object(options, logger):
   partition_timeout = op.get('partition_timeout', op.get('partition-timeout'))
   if partition_timeout is not None:
     partition_timeout = int(partition_timeout)
+
+  # Same as partition_timeout, but for software release builds. Defaults to
+  # SOFTWARE_TIMEOUT (not None) so that a stalled buildout subprocess cannot
+  # block "slapos node software" indefinitely.
+  software_timeout = op.get('software_timeout', op.get('software-timeout', SOFTWARE_TIMEOUT))
+  if software_timeout is not None:
+    software_timeout = int(software_timeout)
   return Slapgrid(software_root=op['software_root'],
                   instance_root=op['instance_root'],
                   shared_part_list=op.get('shared_part_list', ''),
@@ -323,7 +331,8 @@ def create_slapgrid_object(options, logger):
                   firewall_conf=op.get('firewall'),
                   config=options,
                   force_stop=op.get('force_stop', False),
-                  partition_timeout=partition_timeout)
+                  partition_timeout=partition_timeout,
+                  software_timeout=software_timeout)
 
 
 def check_required_only_partitions(existing, required):
@@ -388,6 +397,7 @@ class Slapgrid(object):
                build_time_part_list='',
                force_stop=False,
                partition_timeout=None,
+               software_timeout=SOFTWARE_TIMEOUT,
                ):
     """Makes easy initialisation of class parameters"""
     # Parses arguments
@@ -432,6 +442,7 @@ class Slapgrid(object):
     self.buildout_debug = buildout_debug
     self.promise_timeout = promise_timeout
     self.partition_timeout = partition_timeout
+    self.software_timeout = software_timeout
     self.develop = develop
     if software_release_filter_list is not None:
       self.software_release_filter_list = \
@@ -643,6 +654,7 @@ stderr_logfile_backups=1
             shared_part_list=self.shared_part_list,
             build_time_part_list=self.build_time_part_list,
             develop=self.develop,
+            software_timeout=self.software_timeout,
         )
 
         # call manager for every software release

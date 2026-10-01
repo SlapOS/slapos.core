@@ -27,6 +27,7 @@
 
 from AccessControl import ClassSecurityInfo
 from Products.ERP5Type import Permissions
+from zExceptions import HTTPConflict as RequestConflictError, HTTPClientError as RequestInvalidParameterError
 
 
 class SlapOSActorSlapInterfaceMixin:
@@ -49,7 +50,7 @@ class SlapOSActorSlapInterfaceMixin:
     root_state = state
 
     if is_slave not in [True, False]:
-      raise ValueError("shared should be a boolean")
+      raise RequestInvalidParameterError("shared should be a boolean")
 
     instance_tree_portal_type = "Instance Tree"
 
@@ -58,7 +59,7 @@ class SlapOSActorSlapInterfaceMixin:
     project_list = portal.portal_catalog(portal_type='Project', reference=project_reference,
                                                         validation_state='validated', limit=2)
     if len(project_list) != 1:
-      raise NotImplementedError("%i projects '%s'" % (len(project_list), project_reference))
+      raise RequestInvalidParameterError("%i projects '%s'" % (len(project_list), project_reference))
 
     project = project_list[0]
     script = actor._getTypeBasedMethod('getSlaposActorRequester')
@@ -76,7 +77,7 @@ class SlapOSActorSlapInterfaceMixin:
       if (portal.portal_activities.countMessageWithTag(tag) > 0):
         # The software instance is already under creation but can not be fetched from catalog
         # As it is not possible to fetch informations, it is better to raise an error
-        raise NotImplementedError(tag)
+        raise RequestConflictError(tag)
 
 
     # Check if it already exists
@@ -90,15 +91,16 @@ class SlapOSActorSlapInterfaceMixin:
       limit=2,
       )
     if len(request_instance_tree_list) > 1:
-      raise NotImplementedError("Too many instance tree %s found %s" % (software_title, [x.path for x in request_instance_tree_list]))
+      raise RequestConflictError("Too many instance tree %s found %s" % (software_title, [x.path for x in request_instance_tree_list]))
     elif len(request_instance_tree_list) == 1:
       request_instance_tree = request_instance_tree_list[0].getObject()
-      assert request_instance_tree.getFollowUp() == project.getRelativeUrl()
+      if request_instance_tree.getFollowUp() != project.getRelativeUrl():
+        raise RequestInvalidParameterError("You can not change the project")
       if (request_instance_tree.getSlapState() == "destroy_requested") or \
          (request_instance_tree.getTitle() != software_title) or \
          (request_instance_tree.getValidationState() != "validated") or \
          (request_instance_tree.getDestinationSection() not in [requester.getRelativeUrl(), actor.getRelativeUrl()]):
-        raise NotImplementedError("The system was not able to get the expected instance tree: " + request_instance_tree.getRelativeUrl())
+        raise RequestConflictError("The system was not able to get the expected instance tree: " + request_instance_tree.getRelativeUrl())
       # Do not allow user to change the release/type/shared status
       # This is not compatible with invoicing the service
       # Instance release change will be handled by allocation supply and upgrade decision
@@ -106,7 +108,7 @@ class SlapOSActorSlapInterfaceMixin:
           (request_instance_tree.getSourceReference() != software_type) or \
           (request_instance_tree.getRootSlave() != is_slave)) and \
          (not force_software_change):
-        raise NotImplementedError("You can not change the release / type / shared states")
+        raise RequestInvalidParameterError("You can not change the release / type / shared states")
     else:
       if (root_state == "destroyed"):
         # No need to create destroyed subscription.

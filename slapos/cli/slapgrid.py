@@ -32,7 +32,8 @@ from slapos.cli.config import ConfigCommand
 
 from slapos.grid.utils import setRunning, setFinished
 from slapos.grid.slapgrid import (merged_options, check_missing_parameters, check_missing_files,
-                                  random_delay, create_slapgrid_object, PROMISE_TIMEOUT)
+                                  random_delay, create_slapgrid_object, PROMISE_TIMEOUT,
+                                  SOFTWARE_TIMEOUT)
 
 from slapos.util import string_to_boolean
 
@@ -88,6 +89,10 @@ class SlapgridCommand(ConfigCommand):
         ap.add_argument('--partition-timeout',
                         type=int,
                         help='Partition timeout in seconds (optional)')
+        ap.add_argument('--software-timeout',
+                        type=int,
+                        help='Software release build timeout in seconds'
+                             ' (optional, default: %d)' % SOFTWARE_TIMEOUT)
         ap.add_argument('--now',
                         action='store_true',
                         help='Launch slapgrid without delay. Default behavior.')

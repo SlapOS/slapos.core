@@ -1,6 +1,6 @@
 <local_roles_item>
  <local_roles>
-  <role id='F-PRODUCTION*'>
+  <role id='F-PRODMAN'>
    <item>Auditor</item>
    <item>Author</item>
   </role>
@@ -11,8 +11,8 @@
  </local_roles>
  <local_role_group_ids>
   <local_role_group_id id='function'>
-    <principal id='F-PRODUCTION*'>Auditor</principal>
-    <principal id='F-PRODUCTION*'>Author</principal>
+    <principal id='F-PRODMAN'>Auditor</principal>
+    <principal id='F-PRODMAN'>Author</principal>
     <principal id='F-SALE*'>Auditor</principal>
     <principal id='F-SALE*'>Author</principal>
   </local_role_group_id>

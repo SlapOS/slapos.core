@@ -31,7 +31,6 @@
 import datetime
 import errno
 import os
-import pkg_resources
 import pwd
 import shutil
 import stat
@@ -57,7 +56,7 @@ from slapos.grid.exception import (BuildoutFailedError, WrongPermissionError,
                                    PathDoesNotExistError, DiskSpaceError)
 from slapos.grid.networkcache import download_network_cached, upload_network_cached
 from slapos.human import bytes2human
-from slapos.util import bytes2str, rmtree
+from slapos.util import bytes2str, rmtree, get_package_resource_bytes
 
 
 WATCHDOG_MARK = '-on-watch'
@@ -68,11 +67,11 @@ CP_STORAGE_FOLDER_NAME = 'DATA'
 
 # XXX not very clean. this is changed when testing
 PROGRAM_PARTITION_TEMPLATE = bytes2str(
-  pkg_resources.resource_string(
+  get_package_resource_bytes(
     __name__, 'templates/program_partition_supervisord.conf.in'))
 
 GROUP_PARTITION_TEMPLATE = bytes2str(
-  pkg_resources.resource_string(
+  get_package_resource_bytes(
     __name__, 'templates/group_partition_supervisord.conf.in'))
 
 
@@ -647,7 +646,7 @@ class Partition(object):
     # fill generated buildout with additional information
     with open(config_location) as f:
       buildout_text = f.read()
-    buildout_text += '\n\n' + bytes2str(pkg_resources.resource_string(__name__,
+    buildout_text += '\n\n' + bytes2str(get_package_resource_bytes(__name__,
         'templates/buildout-tail.cfg.in')) % {
             'computer_id': self.computer_id,
             'partition_id': self.partition_id,

@@ -4793,3 +4793,22 @@ class TestSlapgridPartitionTimeoutWithMaster(MasterMixin, unittest.TestCase):
 
   def test_default(self):
     self._test(None, 2, 0)
+
+
+class TestSlapgridSoftwareTimeoutWithMaster(MasterMixin, unittest.TestCase):
+  def _test(self, software_timeout, delay, result):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      computer.software_list[0].setBuildout('#!/bin/sh\nsleep %s' % (delay,))
+      self.setSlapgrid(develop=False, force_stop=False)
+      self.grid.software_timeout = software_timeout
+      self.assertEqual(result, self.grid.processSoftwareReleaseList())
+
+  def test_timeouted(self):
+    self._test(1, 2, 1)
+
+  def test_finished(self):
+    self._test(2, 1, 0)
+
+  def test_default(self):
+    self._test(None, 2, 0)

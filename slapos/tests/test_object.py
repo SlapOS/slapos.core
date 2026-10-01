@@ -122,7 +122,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     return svcbackend.getSupervisorRPC(self.supervisord_socket)
 
   # Helper functions
-  def createSoftware(self, url=None, empty=False):
+  def createSoftware(self, url=None, empty=False, software_timeout=None):
     """
     Create an empty software, and return a Software object from
     dummy parameters.
@@ -143,6 +143,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
       software_root=self.software_root,
       buildout=self.buildout,
       logger=logging.getLogger(),
+      software_timeout=software_timeout,
     )
 
   def createPartition(
@@ -389,6 +390,28 @@ class TestSoftwareNetworkCacheSlapObject(MasterMixin, unittest.TestCase):
     software.install()
     with open(os.path.join(software.software_path, 'buildout.cfg')) as f:
       self.assertIn("git revision: heads/master-0-g", f.read())
+
+
+class TestSoftwareTimeout(MasterMixin, unittest.TestCase):
+  def setUp(self):
+    MasterMixin.setUp(self)
+
+    utils.bootstrapBuildout = FakeCallAndNoop()
+    utils.launchBuildout = FakeCallAndStore()
+
+  def test_software_timeout_default(self):
+    software = self.createSoftware()
+    software.install()
+
+    self.assertTrue(utils.launchBuildout.called)
+    self.assertEqual(utils.launchBuildout.kwargs['timeout'], None)
+
+  def test_software_timeout_passed(self):
+    software = self.createSoftware(software_timeout=123)
+    software.install()
+
+    self.assertTrue(utils.launchBuildout.called)
+    self.assertEqual(utils.launchBuildout.kwargs['timeout'], 123)
 
 
 class TestPartitionSlapObject(MasterMixin, unittest.TestCase):

@@ -1,6 +1,15 @@
 Changes
 =======
 
+1.25.0 (2026-10-01)
+-------------------
+
+ * add support for python3.14 (update setup.py, promises and slapproxy)
+ * util: Support 'file:' URIs with single slash
+ * check_software: tolerate libatomic and libitm in ldd check
+ * tests: bracket the retention lock date
+ * tests: tolerate supervisord unlinking its pid file
+
 1.24.1 (2026-09-04)
 -------------------
 

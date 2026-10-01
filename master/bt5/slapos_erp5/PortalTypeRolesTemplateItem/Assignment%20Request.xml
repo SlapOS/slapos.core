@@ -1,5 +1,5 @@
 <type_roles>
-  <role id='Associate'>
+  <role id='Auditor'>
    <property id='title'>Project Production Agent</property>
    <property id='condition'>python: context.getDestinationProject("") != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>

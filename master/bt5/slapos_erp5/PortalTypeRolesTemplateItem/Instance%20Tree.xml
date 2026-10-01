@@ -5,7 +5,7 @@
    <multi_property id='categories'>local_role_group/user</multi_property>
    <multi_property id='base_category'>destination_section</multi_property>
   </role>
-  <role id='Assignee'>
+  <role id='Auditor'>
    <property id='title'>Project Production Agent</property>
    <property id='description'>XXX add local role group</property>
    <property id='condition'>python: context.getFollowUp("") != ""</property>

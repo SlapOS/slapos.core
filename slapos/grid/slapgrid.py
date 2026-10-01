@@ -30,7 +30,6 @@
 
 import os
 import glob
-import pkg_resources
 import random
 import socket
 from io import BytesIO
@@ -65,6 +64,7 @@ from slapos.slap.slap import ServerError
 from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
 from slapos.util import (mkdir_p,
                         chownDirectory,
+                        get_package_resource_bytes,
                         string_to_boolean,
                         listifdir,
                         rmtree,
@@ -1743,23 +1743,23 @@ stderr_logfile_backups=1
     #We retrieve XSD models
     try:
       computer_consumption_model = \
-        pkg_resources.resource_string(
+        get_package_resource_bytes(
           'slapos.slap',
           'doc/computer_consumption.xsd')
     except IOError:
       computer_consumption_model = \
-        pkg_resources.resource_string(
+        get_package_resource_bytes(
           __name__,
           '../../../../slapos/slap/doc/computer_consumption.xsd')
 
     try:
       partition_consumption_model = \
-        pkg_resources.resource_string(
+        get_package_resource_bytes(
           'slapos.slap',
           'doc/partition_consumption.xsd')
     except IOError:
       partition_consumption_model = \
-        pkg_resources.resource_string(
+        get_package_resource_bytes(
           __name__,
           '../../../../slapos/slap/doc/partition_consumption.xsd')
 

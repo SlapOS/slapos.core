@@ -4812,3 +4812,32 @@ class TestSlapgridSoftwareTimeoutWithMaster(MasterMixin, unittest.TestCase):
 
   def test_default(self):
     self._test(None, 2, 0)
+
+
+class TestCreateSlapgridObjectSoftwareTimeout(unittest.TestCase):
+  """
+  create_slapgrid_object() is the one place that turns the software-timeout
+  slapos.cfg/command-line option into Slapgrid.software_timeout, including
+  the default and the "0 disables the timeout" special case.
+  """
+  base_options = dict(
+      software_root='/does-not-need-to-exist/software_root',
+      instance_root='/does-not-need-to-exist/instance_root',
+      master_url='http://example.com',
+      computer_id='comp-0',
+  )
+
+  def _create(self, **extra):
+    options = dict(self.base_options, **extra)
+    return slapgrid.create_slapgrid_object(options, logging.getLogger())
+
+  def test_default(self):
+    self.assertEqual(self._create().software_timeout, slapgrid.SOFTWARE_TIMEOUT)
+
+  def test_configured(self):
+    grid = self._create(**{'software-timeout': '42'})
+    self.assertEqual(grid.software_timeout, 42)
+
+  def test_zero_disables(self):
+    grid = self._create(**{'software-timeout': '0'})
+    self.assertIsNone(grid.software_timeout)

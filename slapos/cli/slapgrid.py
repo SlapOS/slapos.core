@@ -92,7 +92,8 @@ class SlapgridCommand(ConfigCommand):
         ap.add_argument('--software-timeout',
                         type=int,
                         help='Software release build timeout in seconds'
-                             ' (optional, default: %d)' % SOFTWARE_TIMEOUT)
+                             ' (optional, default: %d, 0 disables it)'
+                             % SOFTWARE_TIMEOUT)
         ap.add_argument('--now',
                         action='store_true',
                         help='Launch slapgrid without delay. Default behavior.')

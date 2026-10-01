@@ -97,6 +97,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_crm/RegularisationRequest_getResourceItemList',
         'slapos_erp5/CategoryTool_checkRegionMigrationConsistency',
         'slapos_erp5/Category_updateRelatedRegionAndExpire',
+        'slapos_erp5/TemplateTool_checkSlapOSCookieCrumblerConsistency',
         'slapos_erp5/TemplateTool_checkSlapOSOAuth2ConnectorSetConsistency',
         'slapos_json_rpc_api/JSONRPCService_asJSON',
         'slapos_json_rpc_api/JSONRPCService_bangComputeNodeFromAPIDict',

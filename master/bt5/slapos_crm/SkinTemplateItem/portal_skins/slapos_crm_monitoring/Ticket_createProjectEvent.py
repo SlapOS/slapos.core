@@ -85,7 +85,8 @@ if not event.hasTitle():
                             subject=title,
                             attachment_list=attachment_list)
   event.edit(
-    data=str2bytes(email.as_string())
+    data=str2bytes(email.as_string()),
+    filename='mail.eml'
   )
 
 if not keep_draft:

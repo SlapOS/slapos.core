@@ -29,6 +29,7 @@
     "production-set": "Production Set",
     "cells": "Cells",
     "core-network": "Core Network",
+    "routes": "Routes",
     "sim-management": "SIM Management",
     "events": "Events",
     "settings": "Settings"
@@ -249,7 +250,7 @@
     });
     element("crumb").textContent = VIEW_TITLES[view];
     element("scroll").scrollTop = 0;
-    if (view === "cells" || view === "core-network") {
+    if (view === "routes") {
       loadOsRoutes();
     }
     // keep the view in the URL so a reload comes back to the same page
@@ -281,20 +282,127 @@
 
   element("refresh").addEventListener("click", function () {
     loadAllServices();
-    if (currentView === "cells" || currentView === "core-network") {
+    if (currentView === "routes") {
       loadOsRoutes();
     }
   });
 
-  document.querySelectorAll("[data-load-os-routes]").forEach(function (button) {
-    button.addEventListener("click", loadOsRoutes);
-  });
+  element("routes-refresh").addEventListener("click", loadOsRoutes);
+
+  var ROUTE_VALUE_KEYS = {
+    via: 1, dev: 1, proto: 1, src: 1, metric: 1, scope: 1, from: 1,
+    pref: 1, mtu: 1, weight: 1, table: 1, tos: 1, expires: 1, error: 1,
+    advmss: 1, rtt: 1, window: 1, cwnd: 1, ssthresh: 1, realms: 1,
+    hoplimit: 1, initcwnd: 1, initrwnd: 1, features: 1, lock: 1, uid: 1
+  };
+  var ROUTE_TYPES = {blackhole: 1, unreachable: 1, prohibit: 1, throw: 1};
+
+  function parseRouteLine(line) {
+    var parts = line.trim().split(/\s+/);
+    if (!parts[0]) {
+      return null;
+    }
+    var route = {
+      destination: "",
+      via: "",
+      iface: "",
+      source: "",
+      proto: "",
+      linkdown: false,
+      type: ""
+    };
+    var index = 0;
+    if (ROUTE_TYPES[parts[0]]) {
+      route.type = parts[0];
+      index = 1;
+    }
+    route.destination = parts[index] || "";
+    index += 1;
+    while (index < parts.length) {
+      var key = parts[index];
+      if (key === "linkdown") {
+        route.linkdown = true;
+        index += 1;
+      } else if (key === "onlink") {
+        index += 1;
+      } else if (ROUTE_VALUE_KEYS[key] && parts[index + 1]) {
+        if (key === "via") {
+          route.via = parts[index + 1];
+        } else if (key === "dev") {
+          route.iface = parts[index + 1];
+        } else if (key === "src") {
+          route.source = parts[index + 1];
+        } else if (key === "proto") {
+          route.proto = parts[index + 1];
+        }
+        index += 2;
+      } else {
+        index += 1;
+      }
+    }
+    return route.destination ? route : null;
+  }
+
+  function parseRouteText(text) {
+    return String(text || "").split("\n").map(parseRouteLine).filter(function (route) {
+      return route !== null;
+    });
+  }
+
+  function splitRouteGroups(routes) {
+    var groups = {defaults: [], active: [], rest: []};
+    routes.forEach(function (route) {
+      if (route.destination === "default") {
+        groups.defaults.push(route);
+      } else if (!route.linkdown && route.proto !== "babel") {
+        groups.active.push(route);
+      } else {
+        groups.rest.push(route);
+      }
+    });
+    return groups;
+  }
+
+  function routeCells(route) {
+    var destination = route.destination === "default" ? "Passerelle par défaut" : route.destination;
+    var via = route.via || "lien direct";
+    var state = route.linkdown ? "arrêtée" : (route.type || "active");
+    return [destination, via, route.iface || "—", route.source || "—", state];
+  }
+
+  function routeTable(routes) {
+    if (!routes.length) {
+      return '<div class="empty">Aucune route.</div>';
+    }
+    var head = ["Destination", "Via", "Interface", "Source", "État"].map(function (label) {
+      return "<th>" + esc(label) + "</th>";
+    }).join("");
+    var body = routes.map(function (route) {
+      return "<tr>" + routeCells(route).map(function (value) {
+        return "<td>" + esc(value) + "</td>";
+      }).join("") + "</tr>";
+    }).join("");
+    return '<table class="tbl"><thead><tr>' + head + "</tr></thead><tbody>" + body + "</tbody></table>";
+  }
+
+  function routeFamilyCard(title, text) {
+    var groups = splitRouteGroups(parseRouteText(text));
+    return '<div class="card" style="margin-bottom:14px">' +
+      '<div class="card-t">' + esc(title) + "</div>" +
+      '<div class="eyebrow" style="margin:12px 0 8px">Sortie</div>' +
+      routeTable(groups.defaults) +
+      '<div class="eyebrow" style="margin:16px 0 8px">Réseaux locaux actifs</div>' +
+      routeTable(groups.active) +
+      '<details class="fold" style="margin-top:14px"><summary>Le reste (' + groups.rest.length + ")</summary>" +
+      routeTable(groups.rest) +
+      "</details>" +
+      '<details class="fold"><summary>Sortie brute</summary><pre class="raw">' + esc(text || "") + "</pre></details>" +
+      "</div>";
+  }
 
   function loadOsRoutes() {
-    var blocks = document.querySelectorAll("[data-os-routes-body]");
-    blocks.forEach(function (node) {
-      node.textContent = "Loading…";
-    });
+    var container = element("routes-body");
+    container.innerHTML = '<div class="card"><div class="empty">Chargement…</div></div>';
     fetch("os-routes", {headers: {"Accept": "application/json"}})
       .then(function (response) {
         if (!response.ok) {
@@ -303,18 +411,14 @@
         return response.json();
       })
       .then(function (payload) {
-        var text = payload.error
-          ? payload.error
-          : "ip -4 route\n" + (payload.ipv4 || "(empty)") +
-            "\nip -6 route\n" + (payload.ipv6 || "(empty)");
-        blocks.forEach(function (node) {
-          node.textContent = text;
-        });
+        if (payload.error) {
+          container.innerHTML = '<div class="card"><div class="empty">' + esc(payload.error) + "</div></div>";
+          return;
+        }
+        container.innerHTML = routeFamilyCard("IPv4", payload.ipv4) + routeFamilyCard("IPv6", payload.ipv6);
       })
       .catch(function (error) {
-        blocks.forEach(function (node) {
-          node.textContent = "Routes unavailable: " + error.message;
-        });
+        container.innerHTML = '<div class="card"><div class="empty">' + esc("Routes indisponibles : " + error.message) + "</div></div>";
       });
   }
 

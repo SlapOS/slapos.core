@@ -121,6 +121,14 @@
         <div class="h1">Cells</div>
         <div class="sub">Radio configuration reported by the base station. Up to 4 cells per base station.</div>
         <div class="grid g2" id="cells-list"></div>
+        <div class="card" style="margin-top:14px">
+          <div class="card-head">
+            <div class="card-t">Host routes</div>
+            <button type="button" class="btn" data-load-os-routes>Refresh</button>
+          </div>
+          <pre class="raw" data-os-routes-body>Routes load when this screen opens.</pre>
+          <div class="hint">Read from the station with ip -4 route and ip -6 route at the moment of the request.</div>
+        </div>
       </section>
 
       <!-- ---------- CORE NETWORK ---------- -->
@@ -128,6 +136,14 @@
         <div class="h1">Core Network</div>
         <div class="sub">Status and configuration of the network services devices attach to.</div>
         <div id="core-network-list"></div>
+        <div class="card" style="margin-top:14px">
+          <div class="card-head">
+            <div class="card-t">Host routes</div>
+            <button type="button" class="btn" data-load-os-routes>Refresh</button>
+          </div>
+          <pre class="raw" data-os-routes-body>Routes load when this screen opens.</pre>
+          <div class="hint">Read from the station with ip -4 route and ip -6 route at the moment of the request.</div>
+        </div>
       </section>
 
       <!-- ---------- SIM MANAGEMENT ---------- -->

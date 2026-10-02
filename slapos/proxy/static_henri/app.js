@@ -1,8 +1,9 @@
 /* HENRI — High Efficiency New Radio Interface
  *
  * Vendor-neutral 4G/5G ops console on top of slapproxy's JSON-RPC v0 API.
- * Plain ES5, no framework, no build step, no backend change: this file is
- * served straight from static_henri/ by the henri blueprint.
+ * Plain ES5, no framework, no build step. This file is served from
+ * static_henri/ by the henri blueprint. Host routes are the exception:
+ * GET /henri/os-routes runs ip on the station when the screen asks.
  *
  * Everything shown here is read from the proxy. Where the mockup showed a
  * figure the proxy cannot provide (live radio telemetry, event history),
@@ -248,6 +249,9 @@
     });
     element("crumb").textContent = VIEW_TITLES[view];
     element("scroll").scrollTop = 0;
+    if (view === "cells" || view === "core-network") {
+      loadOsRoutes();
+    }
     // keep the view in the URL so a reload comes back to the same page
     if (viewFromHash() !== view) {
       window.location.hash = "#/" + view;
@@ -277,7 +281,42 @@
 
   element("refresh").addEventListener("click", function () {
     loadAllServices();
+    if (currentView === "cells" || currentView === "core-network") {
+      loadOsRoutes();
+    }
   });
+
+  document.querySelectorAll("[data-load-os-routes]").forEach(function (button) {
+    button.addEventListener("click", loadOsRoutes);
+  });
+
+  function loadOsRoutes() {
+    var blocks = document.querySelectorAll("[data-os-routes-body]");
+    blocks.forEach(function (node) {
+      node.textContent = "Loading…";
+    });
+    fetch("os-routes", {headers: {"Accept": "application/json"}})
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
+        return response.json();
+      })
+      .then(function (payload) {
+        var text = payload.error
+          ? payload.error
+          : "ip -4 route\n" + (payload.ipv4 || "(empty)") +
+            "\nip -6 route\n" + (payload.ipv6 || "(empty)");
+        blocks.forEach(function (node) {
+          node.textContent = text;
+        });
+      })
+      .catch(function (error) {
+        blocks.forEach(function (node) {
+          node.textContent = "Routes unavailable: " + error.message;
+        });
+      });
+  }
 
   function renderAllViews() {
     renderDashboard();

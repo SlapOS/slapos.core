@@ -841,11 +841,12 @@
   // profiles become device nodes. Disabled SIMs live only in the left-hand
   // list; dragging one onto the canvas writes disable_sim=false through the
   // proxy. Node positions, labels and icons are a pure UI concern — the
-  // proxy has no field for them, so they live in localStorage on this
-  // browser.
+  // proxy has no field for them. They are stored in a JSON file on the
+  // station (GET/PUT production-set), keyed by "sim:<title>" or "cell:<title>".
   //////////////////////////////////////////////////////
 
   var LABEL_STORAGE_KEY = "henri.production-set.labels";
+  var productionSet = {};
 
   var ICON_CHOICES = [
     {icon: "📹", hint: "Camera"},
@@ -865,46 +866,127 @@
   var selectedNode = null;
   var simLibraryList = [];
 
-  function readLabels() {
+  function readBrowserProductionSet() {
+    var merged = {};
     try {
-      return JSON.parse(window.localStorage.getItem(LABEL_STORAGE_KEY) || "{}");
+      var labels = JSON.parse(window.localStorage.getItem(LABEL_STORAGE_KEY) || "{}");
+      Object.keys(labels).forEach(function (title) {
+        var entry = labels[title] || {};
+        merged["sim:" + title] = {label: entry.label || "", icon: entry.icon || ""};
+      });
     } catch (error) {
-      return {};
+      // ignore a broken browser cache
     }
+    try {
+      var positions = JSON.parse(window.localStorage.getItem(POSITION_STORAGE_KEY) || "{}");
+      Object.keys(positions).forEach(function (key) {
+        merged[key] = merged[key] || {};
+        merged[key].x = positions[key].x;
+        merged[key].y = positions[key].y;
+      });
+    } catch (error) {
+      // ignore a broken browser cache
+    }
+    return merged;
+  }
+
+  function saveProductionSet() {
+    return fetch("production-set", {
+      method: "PUT",
+      headers: {"Accept": "application/json", "Content-Type": "application/json"},
+      body: JSON.stringify(productionSet)
+    }).then(function (response) {
+      if (!response.ok) {
+        throw new Error("HTTP " + response.status);
+      }
+      return response.json();
+    }).then(function (data) {
+      productionSet = data || {};
+    }, function () {
+      // keep the in-memory copy if the station file cannot be written
+    });
+  }
+
+  function loadProductionSet() {
+    return fetch("production-set", {headers: {"Accept": "application/json"}})
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        productionSet = data || {};
+        if (!Object.keys(productionSet).length) {
+          var migrated = readBrowserProductionSet();
+          if (Object.keys(migrated).length) {
+            productionSet = migrated;
+            return saveProductionSet();
+          }
+        }
+      }, function () {
+        productionSet = readBrowserProductionSet();
+      })
+      .then(function () {
+        renderProductionSet();
+      });
   }
 
   function readLabel(title) {
-    return readLabels()[title] || {};
+    return productionSet["sim:" + title] || {};
   }
 
   function storeLabel(title, label, icon) {
-    var labels = readLabels();
-    if (label || icon) {
-      labels[title] = {label: label, icon: icon};
+    var key = "sim:" + title;
+    var entry = productionSet[key] || {};
+    if (label) {
+      entry.label = label;
     } else {
-      delete labels[title];
+      delete entry.label;
     }
-    try {
-      window.localStorage.setItem(LABEL_STORAGE_KEY, JSON.stringify(labels));
-    } catch (error) {
-      // private browsing, quota, storage disabled: labels just won't persist
+    if (icon) {
+      entry.icon = icon;
+    } else {
+      delete entry.icon;
     }
+    if (entry.label || entry.icon || typeof entry.x === "number") {
+      productionSet[key] = entry;
+    } else {
+      delete productionSet[key];
+    }
+    saveProductionSet();
   }
 
   function readPositions() {
-    try {
-      return JSON.parse(window.localStorage.getItem(POSITION_STORAGE_KEY) || "{}");
-    } catch (error) {
-      return {};
-    }
+    var positions = {};
+    Object.keys(productionSet).forEach(function (key) {
+      var entry = productionSet[key];
+      if (entry && typeof entry.x === "number" && typeof entry.y === "number") {
+        positions[key] = {x: entry.x, y: entry.y};
+      }
+    });
+    return positions;
   }
 
   function writePositions(positions) {
-    try {
-      window.localStorage.setItem(POSITION_STORAGE_KEY, JSON.stringify(positions));
-    } catch (error) {
-      // private browsing, quota, storage disabled: layout just won't persist
-    }
+    Object.keys(productionSet).forEach(function (key) {
+      if (positions[key]) {
+        return;
+      }
+      var entry = productionSet[key];
+      delete entry.x;
+      delete entry.y;
+      if (!entry.label && !entry.icon) {
+        delete productionSet[key];
+      }
+    });
+    Object.keys(positions).forEach(function (key) {
+      var entry = productionSet[key] || {};
+      entry.x = positions[key].x;
+      entry.y = positions[key].y;
+      productionSet[key] = entry;
+    });
+    saveProductionSet();
   }
 
   function storePosition(key, x, y) {
@@ -1312,8 +1394,8 @@
 
     var hint = document.createElement("div");
     hint.className = "modal-hint";
-    hint.textContent = "The label and icon are display names stored in this browser only — " +
-      "the proxy keeps the device name \"" + sim.title + "\" unchanged.";
+    hint.textContent = "The label and icon are stored on this station. " +
+      "The proxy keeps the device name \"" + sim.title + "\" unchanged.";
     body.appendChild(hint);
 
     var labelField = buildTextField("Label (e.g. CAMERA, MONITOR)", meta.label);
@@ -2124,5 +2206,6 @@
 
   setActiveView(viewFromHash() || "dashboard");
   updateLivePill();
+  loadProductionSet();
   loadAllServices();
 }());

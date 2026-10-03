@@ -72,9 +72,14 @@
       <!-- ---------- UE MONITORING ---------- -->
       <section class="view" id="view-ue-monitoring">
         <div class="h1">UE Monitoring</div>
-        <div class="sub">The devices provisioned on the network, as known to the core.</div>
+        <div class="sub">Provisioned SIM cards, with live radio and core figures from this station. The curve stays in this page.</div>
         <div class="grid g4" id="ue-status" style="margin-bottom:16px"></div>
         <div class="note" id="ue-note"></div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-t">Cell throughput</div>
+          <div class="ue-legend"><span><i class="lg-ul"></i>Uplink</span><span><i class="lg-dl"></i>Downlink</span></div>
+          <div id="ue-chart"></div>
+        </div>
         <div class="tabs" id="ue-tabs">
           <button type="button" class="tab on" data-tab="overview">Overview</button>
           <button type="button" class="tab" data-tab="expert">Expert table</button>

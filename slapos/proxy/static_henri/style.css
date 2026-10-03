@@ -229,6 +229,10 @@ input, select, textarea { font: inherit; color: inherit; }
 .tbl tr:last-child td { border-bottom: none; }
 .tbl tbody tr:hover td { background: #fafbfc; }
 .t-name { font-weight: 600; }
+.sim-alias { display: flex; align-items: center; gap: 4px; margin-top: 2px; font-size: 11px; font-weight: 500; color: var(--text-2); line-height: 1.3; }
+.sim-alias-ico { font-size: 13px; line-height: 1; }
+.sim-alias-center { justify-content: center; margin: 0 0 8px; color: #d5d9df; font-size: 13px; }
+.sim-link-block { display: inline-block; vertical-align: top; margin: 0 8px 4px 0; }
 .t-mono { font-family: var(--mono); font-size: 11.5px; color: var(--text-2); }
 .t-act { display: flex; gap: 6px; }
 .t-act .btn { padding: 4px 10px; font-size: 11px; }

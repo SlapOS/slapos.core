@@ -451,6 +451,20 @@ function simRouteBadges(sim) {
       ' <span class="badge ' + tone + '">' + label + '</span></div>';
   }).join("");
 }
+
+function simAliasHtml(title, centered) {
+  if (typeof readLabel !== "function") {
+    return "";
+  }
+  var meta = readLabel(title) || {};
+  if (!meta.label && !meta.icon) {
+    return "";
+  }
+  return '<div class="sim-alias' + (centered ? " sim-alias-center" : "") + '">' +
+    (meta.icon ? '<span class="sim-alias-ico">' + esc(meta.icon) + "</span>" : "") +
+    (meta.label ? "<span>" + esc(meta.label) + "</span>" : "") +
+    "</div>";
+}
 function loadOsRoutes() {
   var container = element("routes-body");
   if (currentView === "routes" && container) {

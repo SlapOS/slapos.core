@@ -15,7 +15,7 @@ function renderSimManagement() {
     var connection = unwrapParameters(sim.connection_parameters);
     var enabled = !parameters.disable_sim;
     return '<tr>' +
-      '<td class="t-name">' + esc(sim.title) + '</td>' +
+      '<td class="t-name">' + esc(sim.title) + simAliasHtml(sim.title) + '</td>' +
       '<td class="t-mono">' + esc(orDash(connection.imsi || parameters.imsi)) + '</td>' +
       '<td class="t-mono">' + esc(orDash(parameters.plmn)) + '</td>' +
       '<td class="t-mono">' + esc(groupText) + '</td>' +

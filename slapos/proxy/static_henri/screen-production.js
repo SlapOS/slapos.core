@@ -95,6 +95,18 @@ function loadProductionSet() {
     })
     .then(function () {
       renderProductionSet();
+      if (typeof renderSimManagement === "function") {
+        renderSimManagement();
+      }
+      if (typeof renderUeMonitoring === "function") {
+        renderUeMonitoring();
+      }
+      if (lastOsPayload && typeof paintOsRoutes === "function") {
+        paintOsRoutes(lastOsPayload);
+      }
+      if (selectedRouteSimTitle && typeof showRouteSim === "function") {
+        showRouteSim(selectedRouteSimTitle);
+      }
     });
 }
 
@@ -353,6 +365,7 @@ function selectNode(el) {
   } else {
     element("dev-idx").textContent = "ENABLED";
     rows =
+      simAliasHtml(service.title, true) +
       devRow("Device name", service.title) +
       devRow("IMSI", orDash(connection.imsi || parameters.imsi)) +
       devRow("MSIN", orDash(parameters.msin)) +

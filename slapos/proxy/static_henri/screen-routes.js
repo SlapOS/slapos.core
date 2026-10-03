@@ -19,9 +19,10 @@ function routeSimButtons(route) {
   }
   var buttons = owners.map(function (sim) {
     var selected = selectedRouteSimTitle === sim.title ? " on" : "";
-    return '<button type="button" class="sim-link' + selected + '" data-sim-title="' +
-      esc(sim.title) + '">' + esc(sim.title) + "</button>";
-  }).join(", ");
+    return '<span class="sim-link-block"><button type="button" class="sim-link' + selected + '" data-sim-title="' +
+      esc(sim.title) + '">' + esc(sim.title) + "</button>" +
+      simAliasHtml(sim.title) + "</span>";
+  }).join("");
   if (owners.length > 1) {
     buttons += ' <span class="sim-conflict">(conflit)</span>';
   }
@@ -59,6 +60,7 @@ function showRouteSim(title) {
     '<div class="dev-m">' + esc(connection.imsi || parameters.imsi || sim.title) + "</div>" +
     (enabled ? '<div class="dev-live">ON THE SET</div>' : "") +
     '<div style="margin-top:14px">' +
+    simAliasHtml(sim.title, true) +
     devRow("Device name", sim.title) +
     devRow("IMSI", orDash(connection.imsi || parameters.imsi)) +
     devRow("MSIN", orDash(parameters.msin)) +
@@ -123,7 +125,8 @@ if (element("routes-refresh")) {
 }
 if (element("routes-body")) {
   element("routes-body").addEventListener("click", function (event) {
-    var button = event.target.closest(".sim-link");
+    var block = event.target.closest(".sim-link-block");
+    var button = event.target.closest(".sim-link") || (block && block.querySelector(".sim-link"));
     if (!button) {
       return;
     }

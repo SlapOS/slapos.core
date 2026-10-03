@@ -183,6 +183,7 @@ function renderUeMonitoring() {
     return '<div class="ue">' +
       '<div class="ue-h"><div>' +
       '<div class="ue-n">' + esc(sim.title) + '</div>' +
+      simAliasHtml(sim.title) +
       '<div class="ue-id">SIM ' + esc(orDash(imsi)) + '</div></div>' +
       '<span class="badge ' + (stateOn ? "b-on" : "b-off") + '">' + esc(stateLabel) + '</span></div>' +
       '<div class="chips">' +

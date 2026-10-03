@@ -250,7 +250,7 @@
     });
     element("crumb").textContent = VIEW_TITLES[view];
     element("scroll").scrollTop = 0;
-    if (view === "routes") {
+    if (view === "routes" || view === "sim-management") {
       loadOsRoutes();
     }
     // keep the view in the URL so a reload comes back to the same page
@@ -282,7 +282,7 @@
 
   element("refresh").addEventListener("click", function () {
     loadAllServices();
-    if (currentView === "routes") {
+    if (currentView === "routes" || currentView === "sim-management") {
       loadOsRoutes();
     }
   });
@@ -363,18 +363,183 @@
     return groups;
   }
 
+  var lastOsPayload = null;
+  var kernelRouteByPrefix = null;
+  var osRoutesError = "";
+
+  function ipv4MaskToPrefix(mask) {
+    var bits = 0;
+    String(mask || "255.255.255.255").split(".").forEach(function (octet) {
+      var value = Number(octet);
+      var cursor = 128;
+      while (cursor > 0) {
+        if (value & cursor) {
+          bits += 1;
+        }
+        cursor >>= 1;
+      }
+    });
+    return bits;
+  }
+
+  function ipv4Network(address, prefix) {
+    var parts = String(address).split(".").map(Number);
+    var ip = ((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]) >>> 0;
+    var mask = prefix === 0 ? 0 : ((0xffffffff << (32 - prefix)) >>> 0);
+    var network = (ip & mask) >>> 0;
+    return [
+      (network >>> 24) & 255,
+      (network >>> 16) & 255,
+      (network >>> 8) & 255,
+      network & 255
+    ].join(".") + "/" + prefix;
+  }
+
+  function expandIpv6(address) {
+    var lower = String(address).toLowerCase();
+    var halves = lower.split("::");
+    if (halves.length > 2) {
+      return lower;
+    }
+    var head = halves[0] ? halves[0].split(":") : [];
+    var tail = halves.length === 2 && halves[1] ? halves[1].split(":") : [];
+    var groups = head.slice();
+    if (halves.length === 2) {
+      var missing = 8 - head.length - tail.length;
+      while (missing > 0) {
+        groups.push("0");
+        missing -= 1;
+      }
+      groups = groups.concat(tail);
+    }
+    return groups.map(function (group) {
+      return group.replace(/^0+/, "") || "0";
+    }).join(":");
+  }
+
+  function normalizeCidr(value) {
+    if (!value || value === "default") {
+      return "";
+    }
+    var bits = String(value).split("/");
+    var address = bits[0];
+    var prefix = bits[1];
+    if (address.indexOf(":") !== -1) {
+      return expandIpv6(address) + "/" + (prefix || "128");
+    }
+    if (address.indexOf(".") === -1) {
+      return "";
+    }
+    return ipv4Network(address, prefix === undefined ? 32 : Number(prefix));
+  }
+
+  function simDeclaredRoutes(sim) {
+    var parameters = unwrapParameters(sim.parameters);
+    var list = parameters.route_list;
+    if (!list || !list.length) {
+      return [];
+    }
+    return list.map(function (entry) {
+      if (!entry) {
+        return null;
+      }
+      if (entry.ipv4_remote_addr) {
+        var prefix = entry.mask ? ipv4MaskToPrefix(entry.mask) : 32;
+        var cidr = normalizeCidr(entry.ipv4_remote_addr + "/" + prefix);
+        return cidr ? {cidr: cidr, label: cidr} : null;
+      }
+      if (entry.ipv6_remote_addr_prefix) {
+        var length = entry.prefix_len === undefined || entry.prefix_len === null ? 128 : entry.prefix_len;
+        var v6 = normalizeCidr(entry.ipv6_remote_addr_prefix + "/" + length);
+        return v6 ? {cidr: v6, label: v6} : null;
+      }
+      return null;
+    }).filter(function (entry) {
+      return entry !== null;
+    });
+  }
+
+  function indexKernelRoutes(payload) {
+    kernelRouteByPrefix = {};
+    ["ipv4", "ipv6"].forEach(function (family) {
+      parseRouteText(payload[family]).forEach(function (route) {
+        var key = normalizeCidr(route.destination);
+        if (!key) {
+          return;
+        }
+        if (!kernelRouteByPrefix[key]) {
+          kernelRouteByPrefix[key] = [];
+        }
+        kernelRouteByPrefix[key].push(route);
+      });
+    });
+  }
+
+  function simsForPrefix(cidr) {
+    if (!cidr) {
+      return [];
+    }
+    return simList().filter(function (sim) {
+      return simDeclaredRoutes(sim).some(function (entry) {
+        return entry.cidr === cidr;
+      });
+    });
+  }
+
+  function prefixIsActive(cidr) {
+    var installed = kernelRouteByPrefix && kernelRouteByPrefix[cidr];
+    if (!installed) {
+      return false;
+    }
+    return installed.some(function (route) {
+      return !route.linkdown && !route.type;
+    });
+  }
+
+  function simLabelForDestination(destination) {
+    var owners = simsForPrefix(normalizeCidr(destination));
+    if (!owners.length) {
+      return "—";
+    }
+    var names = owners.map(function (sim) {
+      return sim.title;
+    }).join(", ");
+    return owners.length > 1 ? names + " (conflit)" : names;
+  }
+
+  function simRouteBadges(sim) {
+    var declared = simDeclaredRoutes(sim);
+    if (!declared.length) {
+      return "—";
+    }
+    if (osRoutesError) {
+      return esc(osRoutesError);
+    }
+    if (!kernelRouteByPrefix) {
+      return "lecture…";
+    }
+    return declared.map(function (entry) {
+      var owners = simsForPrefix(entry.cidr);
+      var active = prefixIsActive(entry.cidr);
+      var label = owners.length > 1 ? "conflit" : (active ? "active" : "absente");
+      var tone = label === "active" ? "b-on" : "b-off";
+      return '<div style="margin-bottom:4px">' + esc(entry.label) +
+        ' <span class="badge ' + tone + '">' + label + '</span></div>';
+    }).join("");
+  }
+
   function routeCells(route) {
     var destination = route.destination === "default" ? "Passerelle par défaut" : route.destination;
     var via = route.via || "lien direct";
     var state = route.linkdown ? "arrêtée" : (route.type || "active");
-    return [destination, via, route.iface || "—", route.source || "—", state];
+    return [destination, via, route.iface || "—", route.source || "—", state, simLabelForDestination(route.destination)];
   }
 
   function routeTable(routes) {
     if (!routes.length) {
       return '<div class="empty">Aucune route.</div>';
     }
-    var head = ["Destination", "Via", "Interface", "Source", "État"].map(function (label) {
+    var head = ["Destination", "Via", "Interface", "Source", "État", "SIM"].map(function (label) {
       return "<th>" + esc(label) + "</th>";
     }).join("");
     var body = routes.map(function (route) {
@@ -400,9 +565,20 @@
       "</div>";
   }
 
+  function paintOsRoutes(payload) {
+    var container = element("routes-body");
+    if (payload.error) {
+      container.innerHTML = '<div class="card"><div class="empty">' + esc(payload.error) + "</div></div>";
+      return;
+    }
+    container.innerHTML = routeFamilyCard("IPv4", payload.ipv4) + routeFamilyCard("IPv6", payload.ipv6);
+  }
+
   function loadOsRoutes() {
     var container = element("routes-body");
-    container.innerHTML = '<div class="card"><div class="empty">Chargement…</div></div>';
+    if (currentView === "routes") {
+      container.innerHTML = '<div class="card"><div class="empty">Chargement…</div></div>';
+    }
     fetch("os-routes", {headers: {"Accept": "application/json"}})
       .then(function (response) {
         if (!response.ok) {
@@ -411,14 +587,18 @@
         return response.json();
       })
       .then(function (payload) {
-        if (payload.error) {
-          container.innerHTML = '<div class="card"><div class="empty">' + esc(payload.error) + "</div></div>";
-          return;
+        lastOsPayload = payload;
+        osRoutesError = payload.error || "";
+        if (!payload.error) {
+          indexKernelRoutes(payload);
         }
-        container.innerHTML = routeFamilyCard("IPv4", payload.ipv4) + routeFamilyCard("IPv6", payload.ipv6);
+        paintOsRoutes(payload);
+        renderSimManagement();
       })
       .catch(function (error) {
+        osRoutesError = error.message;
         container.innerHTML = '<div class="card"><div class="empty">' + esc("Routes indisponibles : " + error.message) + "</div></div>";
+        renderSimManagement();
       });
   }
 
@@ -1368,7 +1548,7 @@
     var groupText = apnText();
 
     if (sims.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6"><div class="empty">No SIM provisioned.</div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty">No SIM provisioned.</div></td></tr>';
       return;
     }
 
@@ -1383,6 +1563,7 @@
         '<td class="t-mono">' + esc(groupText) + '</td>' +
         '<td><span class="badge ' + (enabled ? "b-on" : "b-off") + '">' +
         (enabled ? "ENABLED" : "DISABLED") + '</span></td>' +
+        '<td>' + simRouteBadges(sim) + '</td>' +
         '<td><div class="t-act">' +
         '<button type="button" class="btn" data-edit-sim="' + index + '">Edit</button>' +
         '<button type="button" class="btn" data-delete-sim="' + index + '">Delete</button>' +

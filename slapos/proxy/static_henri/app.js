@@ -250,7 +250,7 @@
     });
     element("crumb").textContent = VIEW_TITLES[view];
     element("scroll").scrollTop = 0;
-    if (view === "routes" || view === "sim-management") {
+    if (view === "routes" || view === "sim-management" || view === "production-set") {
       loadOsRoutes();
     }
     // keep the view in the URL so a reload comes back to the same page
@@ -282,7 +282,7 @@
 
   element("refresh").addEventListener("click", function () {
     loadAllServices();
-    if (currentView === "routes" || currentView === "sim-management") {
+    if (currentView === "routes" || currentView === "sim-management" || currentView === "production-set") {
       loadOsRoutes();
     }
   });
@@ -594,11 +594,17 @@
         }
         paintOsRoutes(payload);
         renderSimManagement();
+        if (selectedNode) {
+          selectNode(selectedNode);
+        }
       })
       .catch(function (error) {
         osRoutesError = error.message;
         container.innerHTML = '<div class="card"><div class="empty">' + esc("Routes indisponibles : " + error.message) + "</div></div>";
         renderSimManagement();
+        if (selectedNode) {
+          selectNode(selectedNode);
+        }
       });
   }
 
@@ -1195,11 +1201,18 @@
         devRow("Device group", apnText());
     }
 
+    var routeBlock = "";
+    if (!node.hub && simDeclaredRoutes(service).length) {
+      routeBlock = '<div style="margin-top:14px"><div class="eyebrow" style="margin-bottom:8px">Routes</div>' +
+        simRouteBadges(service) + '</div>';
+    }
+
     element("dev-b").innerHTML =
       '<div class="dev-n">' + esc(node.name) + '</div>' +
       '<div class="dev-m">' + esc(node.subtitle) + '</div>' +
       (node.hub ? "" : '<div class="dev-live">ON THE SET</div>') +
-      '<div style="margin-top:14px">' + rows + '</div>';
+      '<div style="margin-top:14px">' + rows + '</div>' +
+      routeBlock;
     element("dev-f").classList.remove("hidden");
     element("dev-note").classList.remove("hidden");
     element("dev-edit").disabled = false;

@@ -230,6 +230,12 @@
         secondsSinceLoad = 0;
         updateLivePill();
         renderAllViews();
+        if (lastOsPayload) {
+          paintOsRoutes(lastOsPayload);
+        }
+        if (selectedRouteSimTitle) {
+          showRouteSim(selectedRouteSimTitle);
+        }
       }, showError);
   }
 
@@ -296,6 +302,28 @@
   });
 
   element("routes-refresh").addEventListener("click", loadOsRoutes);
+
+  element("routes-body").addEventListener("click", function (event) {
+    var button = event.target.closest(".sim-link");
+    if (!button) {
+      return;
+    }
+    showRouteSim(button.getAttribute("data-sim-title"));
+  });
+
+  element("route-dev-edit").addEventListener("click", function () {
+    var sim = simByTitle(selectedRouteSimTitle);
+    if (sim) {
+      openEditSimModal(sim);
+    }
+  });
+
+  element("route-dev-disable").addEventListener("click", function () {
+    var sim = simByTitle(selectedRouteSimTitle);
+    if (sim) {
+      setSimEnabled(sim, false);
+    }
+  });
 
   var ROUTE_VALUE_KEYS = {
     via: 1, dev: 1, proto: 1, src: 1, metric: 1, scope: 1, from: 1,
@@ -504,15 +532,79 @@
     });
   }
 
-  function simLabelForDestination(destination) {
-    var owners = simsForPrefix(normalizeCidr(destination));
+  var selectedRouteSimTitle = null;
+
+  function simByTitle(title) {
+    var found = null;
+    simList().some(function (sim) {
+      if (sim.title === title) {
+        found = sim;
+        return true;
+      }
+      return false;
+    });
+    return found;
+  }
+
+  function routeSimButtons(route) {
+    var owners = simsForPrefix(normalizeCidr(route.destination));
     if (!owners.length) {
       return "—";
     }
-    var names = owners.map(function (sim) {
-      return sim.title;
+    var buttons = owners.map(function (sim) {
+      var selected = selectedRouteSimTitle === sim.title ? " on" : "";
+      return '<button type="button" class="sim-link' + selected + '" data-sim-title="' +
+        esc(sim.title) + '">' + esc(sim.title) + "</button>";
     }).join(", ");
-    return owners.length > 1 ? names + " (conflit)" : names;
+    if (owners.length > 1) {
+      buttons += ' <span class="sim-conflict">(conflit)</span>';
+    }
+    return buttons;
+  }
+
+  function clearRouteSim() {
+    selectedRouteSimTitle = null;
+    element("route-dev-idx").textContent = "—";
+    element("route-dev-b").innerHTML =
+      '<div class="empty">Aucune SIM sélectionnée.<br>Cliquez une SIM liée à une route.</div>';
+    element("route-dev-f").classList.add("hidden");
+    element("route-dev-note").classList.add("hidden");
+  }
+
+  function showRouteSim(title) {
+    var sim = simByTitle(title);
+    if (!sim) {
+      clearRouteSim();
+      return;
+    }
+    selectedRouteSimTitle = sim.title;
+    var parameters = unwrapParameters(sim.parameters);
+    var connection = unwrapParameters(sim.connection_parameters);
+    var meta = readLabel(sim.title);
+    var enabled = !parameters.disable_sim;
+    var routeBlock = "";
+    if (simDeclaredRoutes(sim).length) {
+      routeBlock = '<div style="margin-top:14px"><div class="eyebrow" style="margin-bottom:8px">Routes</div>' +
+        simRouteBadges(sim) + "</div>";
+    }
+    element("route-dev-idx").textContent = enabled ? "ENABLED" : "DISABLED";
+    element("route-dev-b").innerHTML =
+      '<div class="dev-n">' + esc(meta.label || sim.title) + "</div>" +
+      '<div class="dev-m">' + esc(connection.imsi || parameters.imsi || sim.title) + "</div>" +
+      (enabled ? '<div class="dev-live">ON THE SET</div>' : "") +
+      '<div style="margin-top:14px">' +
+      devRow("Device name", sim.title) +
+      devRow("IMSI", orDash(connection.imsi || parameters.imsi)) +
+      devRow("MSIN", orDash(parameters.msin)) +
+      devRow("Network code", orDash(parameters.plmn)) +
+      devRow("Algorithm", orDash(parameters.sim_algo)) +
+      devRow("Device group", apnText()) +
+      "</div>" + routeBlock;
+    element("route-dev-f").classList.remove("hidden");
+    element("route-dev-note").classList.remove("hidden");
+    document.querySelectorAll("#routes-body .sim-link").forEach(function (button) {
+      button.classList.toggle("on", button.getAttribute("data-sim-title") === sim.title);
+    });
   }
 
   function simRouteBadges(sim) {
@@ -540,7 +632,7 @@
     var destination = route.destination === "default" ? "Passerelle par défaut" : route.destination;
     var via = route.via || "lien direct";
     var state = route.linkdown ? "arrêtée" : (route.type || "active");
-    return [destination, via, route.iface || "—", route.source || "—", state, simLabelForDestination(route.destination)];
+    return [destination, via, route.iface || "—", route.source || "—", state];
   }
 
   function routeTable(routes) {
@@ -553,7 +645,7 @@
     var body = routes.map(function (route) {
       return "<tr>" + routeCells(route).map(function (value) {
         return "<td>" + esc(value) + "</td>";
-      }).join("") + "</tr>";
+      }).join("") + "<td>" + routeSimButtons(route) + "</td></tr>";
     }).join("");
     return '<table class="tbl"><thead><tr>' + head + "</tr></thead><tbody>" + body + "</tbody></table>";
   }
@@ -601,6 +693,9 @@
           indexKernelRoutes(payload);
         }
         paintOsRoutes(payload);
+        if (selectedRouteSimTitle) {
+          showRouteSim(selectedRouteSimTitle);
+        }
         renderSimManagement();
         if (selectedNode) {
           selectNode(selectedNode);

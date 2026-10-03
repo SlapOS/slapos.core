@@ -265,6 +265,11 @@ details.fold > summary::before { content: '\25B8'; display: inline-block; margin
 details.fold[open] > summary::before { transform: rotate(90deg); }
 details.fold > summary:hover { color: var(--text-2); }
 pre.raw { font-family: var(--mono); font-size: 11px; line-height: 1.55; background: #fafbfc; border: 1px solid var(--line-soft); border-radius: 5px; padding: 10px 12px; overflow-x: auto; color: var(--text-2); }
+.routes-layout { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 14px; align-items: start; }
+.routes-layout .dev { position: sticky; top: 0; max-height: calc(100vh - 140px); }
+.sim-link { background: none; border: 0; padding: 0; font: inherit; color: var(--text); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.sim-link:hover, .sim-link.on { color: var(--red); }
+.sim-conflict { color: var(--text-3); }
 
 .empty { padding: 26px 13px; text-align: center; font-family: var(--mono); font-size: 11px; line-height: 1.7; color: var(--text-3); }
 .dev .empty { color: #6d737c; }
@@ -383,6 +388,8 @@ pre.raw { font-family: var(--mono); font-size: 11px; line-height: 1.55; backgrou
   .g4 { grid-template-columns: repeat(2, 1fr); }
   .g3 { grid-template-columns: 1fr; }
   .set { grid-template-columns: 1fr; height: auto; }
+  .routes-layout { grid-template-columns: 1fr; }
+  .routes-layout .dev { position: static; max-height: none; min-height: 280px; }
   .canvas { height: 430px; }
 }
 @media (max-width: 720px) {

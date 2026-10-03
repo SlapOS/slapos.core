@@ -141,8 +141,21 @@
         <div class="h1" style="display:flex;align-items:center;justify-content:space-between">Routes
           <button type="button" class="btn" id="routes-refresh">Refresh</button>
         </div>
-        <div class="sub">Table de routage de la station, lue à l’ouverture de cet écran.</div>
-        <div id="routes-body"></div>
+        <div class="sub">Table de routage de la station, lue à l’ouverture de cet écran. Cliquez une SIM liée pour l’inspecter.</div>
+        <div class="routes-layout">
+          <div id="routes-body"></div>
+          <aside class="dev" id="route-dev">
+            <div class="dev-h"><span>SIM</span><span id="route-dev-idx">&mdash;</span></div>
+            <div class="dev-b" id="route-dev-b">
+              <div class="empty">Aucune SIM sélectionnée.<br>Cliquez une SIM liée à une route.</div>
+            </div>
+            <div class="dev-f hidden" id="route-dev-f">
+              <button type="button" class="btn btn-r" id="route-dev-edit">Configure</button>
+              <button type="button" class="btn" id="route-dev-disable">Disable SIM</button>
+            </div>
+            <div class="dev-note hidden" id="route-dev-note">Labels, icons and positions are stored on this station. The SIM device name in the proxy stays unchanged.</div>
+          </aside>
+        </div>
       </section>
 
       <!-- ---------- SIM MANAGEMENT ---------- -->

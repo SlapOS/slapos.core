@@ -92,17 +92,17 @@
     </tr>
     <tr>
       <td>type</td>
-      <td>//input[@name='__ac_name']</td>
+      <td>//input[@name='username']</td>
       <td tal:content="python: login_configuration['user']"></td>
     </tr>
     <tr>
       <td>type</td>
-      <td>//input[@name='__ac_password']</td>
+      <td>//input[@name='password']</td>
       <td tal:content="python: login_configuration['password']"></td>
     </tr>
     <tr>
       <td>click</td>
-      <td>WebSite_login:method</td>
+      <td>logged_in_once:method</td>
       <td></td>
     </tr>
     <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/wait_for_app_loaded" />

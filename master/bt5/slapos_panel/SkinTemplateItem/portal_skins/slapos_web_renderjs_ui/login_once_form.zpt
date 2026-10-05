@@ -4,11 +4,10 @@
                   form_action python: 'logged_in_once' if has_oauth2 else 'WebSite_login';
                   absolute_url python: context.absolute_url() + '/';
                   web_site_value python: context.getWebSiteValue();
-                  web_section_value python: context.getWebSectionValue();
                   portal python: context.getPortalObject();
                   root_absolute_url python: (portal if web_site_value is None else web_site_value).absolute_url() + '/';
                   available_oauth_login_list python: portal.ERP5Site_getAvailableOAuthLoginList();
-                  enable_join_form python: 'join_form' in web_section_value.contentIds();
+                  enable_join_form python: web_site_value.restrictedTraverse('hateoas/connection/join_form', None) is not None;
                   enable_google_login python: 'google' in available_oauth_login_list;
                   enable_facebook_login python: 'facebook' in available_oauth_login_list;
                   enable_openidconnect_login python: 'openidconnect' in available_oauth_login_list;

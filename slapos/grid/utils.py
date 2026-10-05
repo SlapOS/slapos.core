@@ -31,7 +31,6 @@
 import grp
 import hashlib
 import os
-import pkg_resources
 import pwd
 import stat
 import sys
@@ -372,7 +371,7 @@ def bootstrapBuildout(path, logger, buildout=None,
     except ImportError:
       logger.warning('Using old style bootstrap of included bootstrap file. '
         'Consider having zc.buildout available in search path.')
-      invocation_list.append(pkg_resources.resource_filename(__name__,
+      invocation_list.append(get_package_resource_filename(__name__,
         'zc.buildout-bootstrap.py'))
       invocation_list.extend(additional_buildout_parameter_list)
     else:

@@ -8,11 +8,15 @@
       <dictionary>
         <item>
             <key> <string>active_sense_method_id</string> </key>
-            <value> <string>Alarm_checkUnindexedSecurityUid</string> </value>
+            <value> <string>Alarm_garbageCollectSecurityUidFromCatalog</string> </value>
+        </item>
+        <item>
+            <key> <string>automatic_solve</string> </key>
+            <value> <int>0</int> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Check Unindexed Security UIDs</string> </value>
+            <value> <string>Garbage Collect security UIDs from catalog tool and SQL database.</string> </value>
         </item>
         <item>
             <key> <string>enabled</string> </key>
@@ -20,7 +24,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_check_security_uid</string> </value>
+            <value> <string>slapos_garbage_collect_security_uid</string> </value>
         </item>
         <item>
             <key> <string>periodicity_start_date</string> </key>
@@ -45,7 +49,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Check unindexed Security uids</string> </value>
+            <value> <string>Garbage Collect Security Uid From Catalog</string> </value>
         </item>
       </dictionary>
     </pickle>

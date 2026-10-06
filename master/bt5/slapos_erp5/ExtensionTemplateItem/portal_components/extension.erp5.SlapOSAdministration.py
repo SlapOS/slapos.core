@@ -37,11 +37,12 @@ def ERP5Site_getSecurityUidListForRecreateTable(self, REQUEST=None):
   portal = self.getPortalObject()
   return portal.portal_catalog.getSQLCatalog().getRoleAndSecurityUidList()
 
-def slapos_getattr(portal=None, *args):
-  if portal is None or portal.getPortalObject() != portal:
+def ERP5Site_deleteSecurityUidDictEntry(self, sql_catalog, entry, REQUEST=None):
+  if REQUEST is not None:
     raise Unauthorized
 
-  return getattr(*args)
+  del sql_catalog.security_uid_dict[entry]
+  return
 
 def checkConsistencyAsUser(self, user_id, REQUEST=None):
   if REQUEST is not None:

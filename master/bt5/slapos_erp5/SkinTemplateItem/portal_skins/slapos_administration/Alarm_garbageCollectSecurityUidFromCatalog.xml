@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Alarm_checkUnindexedSecurityUid</string> </value>
+            <value> <string>Alarm_garbageCollectSecurityUidFromCatalog</string> </value>
         </item>
       </dictionary>
     </pickle>

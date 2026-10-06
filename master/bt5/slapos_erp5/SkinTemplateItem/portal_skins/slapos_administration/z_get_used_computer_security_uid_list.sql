@@ -1,1 +1,0 @@
-SELECT DISTINCT computer_security_uid FROM catalog

@@ -59,7 +59,8 @@ for group, reverse_security_uid_dict in reverse_group_security_uid_dict.items():
       for unused_security_uid in unused_security_uid_set:
         detail += '(%s %s),' % (unused_security_uid, reverse_security_uid_dict[unused_security_uid])
         portal.ERP5Site_deleteSecurityUidDictEntry(
-          entry=(group, reverse_security_uid_dict[unused_security_uid]))
+          sql_catalog=portal.portal_catalog.getSQLCatalog(),
+          entry=(group, tuple(reverse_security_uid_dict[unused_security_uid])))
         portal.z_delete_security_uid_set_from_roles_and_users(uid=unused_security_uid)
 
     active_process.postResult(ActiveResult(

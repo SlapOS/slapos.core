@@ -98,19 +98,6 @@ class RegisterCommand(ConfigCommand):
                         default='/srv/slapgrid',
                         help='Path of the instance directory')
 
-        ap.add_argument('--login-auth',
-                        action='store_true',
-                        help='Force login and password authentication')
-
-        ap.add_argument('--login',
-                        help='Your SlapOS Master login. '
-                             'Asks it interactively, then password.')
-
-        ap.add_argument('--password',
-                        help='Your SlapOS Master password. If not provided, '
-                             'asks it interactively. NOTE: giving password as parameter '
-                             'should be avoided for security reasons.')
-
         ap.add_argument('--token',
                         help="SlapOS 'computer security' authentication token")
 
@@ -145,23 +132,13 @@ class RegisterCommand(ConfigCommand):
 # XXX dry_run will happily register a new node on the slapos master. Isn't it supposed to be no-op?
 
 
-def check_credentials(url, login, password):
-    """Check if login and password are correct"""
-    req = requests.get(url, auth=(login, password), verify=False)
-    return 'Logout' in req.text
-
-
-def get_certificate_key_pair(logger, master_url_web, node_name, token=None, login=None, password=None):
+def get_certificate_key_pair(logger, master_url_web, node_name, token):
     """Download certificates from SlapOS Master"""
 
-    if token:
-        req = requests.post('/'.join([master_url_web, 'Person_requestComputer']),
-                            data={'title': node_name},
-                            headers={'X-Access-Token': token},
-                            verify=False)
-    else:
-        register_server_url = '/'.join([master_url_web, ("Person_requestComputer?title={}".format(node_name))])
-        req = requests.get(register_server_url, auth=(login, password), verify=False)
+    req = requests.post('/'.join([master_url_web, 'Person_requestComputer']),
+                        data={'title': node_name},
+                        headers={'X-Access-Token': token},
+                        verify=False)
 
     if not req.ok and 'Certificate still active.' in req.text:
         # raise a readable exception if the computer name is already used,
@@ -173,15 +150,8 @@ def get_certificate_key_pair(logger, master_url_web, node_name, token=None, logi
         sys.exit(1)
 
     if req.status_code == 403:
-        if token:
-            msg = 'Please check the authentication token or require a new one.'
-        else:
-            msg = 'Please check username and password.'
+        msg = 'Please check the authentication token or require a new one.'
         logger.critical('Access denied to the SlapOS Master. %s', msg)
-        sys.exit(1)
-    elif not req.ok and 'NotImplementedError' in req.text and not token:
-        logger.critical('This SlapOS server does not support login/password '
-                        'authentication. Please use the token.')
         sys.exit(1)
     else:
         req.raise_for_status()
@@ -326,42 +296,15 @@ class RegisterConfig(object):
         self.logger.debug('Ipv6 Interface: %s', self.ipv6_interface)
 
 
-def gen_auth(conf):
-    ask = True
-    if conf.login:
-        if conf.password:
-            yield conf.login, conf.password
-            ask = False
-        else:
-            yield conf.login, getpass.getpass()
-    while ask:
-        yield input('SlapOS Master Login: '), getpass.getpass()
-
-
 def do_register(conf):
     """Register new computer on SlapOS Master and generate slapos.cfg"""
+    while not conf.token:
+        conf.token = input('Computer security token: ').strip()
 
-    if conf.login or conf.login_auth:
-        for login, password in gen_auth(conf):
-            if check_credentials(conf.master_url_web, login, password):
-                break
-            conf.logger.warning('Wrong login/password')
-        else:
-            return 1
-
-        certificate, key = get_certificate_key_pair(conf.logger,
-                                                    conf.master_url_web,
-                                                    conf.node_name,
-                                                    login=login,
-                                                    password=password)
-    else:
-        while not conf.token:
-            conf.token = input('Computer security token: ').strip()
-
-        certificate, key = get_certificate_key_pair(conf.logger,
-                                                    conf.master_url_web,
-                                                    conf.node_name,
-                                                    token=conf.token)
+    certificate, key = get_certificate_key_pair(conf.logger,
+                                                conf.master_url_web,
+                                                conf.node_name,
+                                                conf.token)
 
     # get computer id
     COMP = get_computer_name(certificate)

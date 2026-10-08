@@ -409,6 +409,12 @@ class TestInformation(BasicMixin, unittest.TestCase):
     response = loads(rv.data)
     self.assertEqual('', response)
 
+
+class FakeRequest(object):
+  def __init__(self):
+    self.headers = {}
+
+
 class MasterMixin(BasicMixin, unittest.TestCase):
   """
   Define advanced tool for test proxy simulating behavior slap library tools
@@ -441,8 +447,11 @@ class MasterMixin(BasicMixin, unittest.TestCase):
         return app.get(path, query_string=params, headers=headers).data
 
       def POST(self, path, params=None, data=None,
-              content_type='application/x-www-form-urlencoded'):
-        return app.post(path, query_string=params, data=data).data
+              content_type='application/x-www-form-urlencoded', auth=None):
+        fake_request = FakeRequest()
+        if auth is not None:
+          auth(fake_request)
+        return app.post(path, query_string=params, data=data, headers=fake_request.headers).data
     computer_partition._connection_helper = TestConnectionHelper()
     return computer_partition
 

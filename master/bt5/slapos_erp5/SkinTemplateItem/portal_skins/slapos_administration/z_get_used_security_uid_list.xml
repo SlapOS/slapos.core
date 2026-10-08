@@ -39,7 +39,7 @@
         </item>
         <item>
             <key> <string>arguments_src</string> </key>
-            <value> <string></string> </value>
+            <value> <string>column_type=\'\'</string> </value>
         </item>
         <item>
             <key> <string>cache_time_</string> </key>

@@ -74,7 +74,7 @@ existing_security_uid_set = set(
 not_existing_security_uid_set = existing_security_uid_set.difference(cataloged_security_uid_set)
 if len(not_existing_security_uid_set):
   summary = "Found UIDs missing in catalog (zodb) %s security_uids" % len(not_existing_security_uid_set)
-  detail += " ("
+  detail = " ("
   for security_uid in not_existing_security_uid_set:
     detail += '(%s %s),' % (security_uid, reverse_groupless_security_uid_dict[security_uid])
   detail += ")"
@@ -86,11 +86,11 @@ if not_existing_security_uid_set:
   summary = "Found UIDs removed from in catalog (mariadb) %s security_uids" % len(not_existing_security_uid_set)
   detail = "Sample: "
   for security_uid in list(not_existing_security_uid_set)[:10]:
-    detail += '(%s %s),' % (security_uid, reverse_groupless_security_uid_dict[security_uid])
+    detail += '(%s %s),' % (security_uid, reverse_groupless_security_uid_dict.get(security_uid))
   if fixit:
     for security_uid in not_existing_security_uid_set:
       assert security_uid not in reverse_groupless_security_uid_dict
-      portal.z_delete_security_uid_set_from_roles_and_users(security_uid=security_uid)
+      portal.z_delete_security_uid_set_from_roles_and_users(uid=security_uid)
   active_process.postResult(ActiveResult(
     summary=summary, severity=100, detail=detail))
 

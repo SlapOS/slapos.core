@@ -93,7 +93,7 @@
         </item>
         <item>
             <key> <string>arguments_src</string> </key>
-            <value> <string></string> </value>
+            <value> <string>security_uid_column</string> </value>
         </item>
         <item>
             <key> <string>cache_time_</string> </key>

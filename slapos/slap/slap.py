@@ -51,7 +51,7 @@ except ImportError: # XXX to be removed once we depend on typing
 
 from .exception import ResourceNotReady, ServerError, NotFoundError, \
           ConnectionError
-from .hateoas import SlapHateoasNavigator, ConnectionHelper
+from .hateoas import SlapHateoasNavigator, ConnectionHelper, BasicSlapPartitionAuth
 from slapos.util import (bytes2str, dict2xml, dumps, loads,
                          unicode2str, xml2dict)
 
@@ -90,9 +90,9 @@ class SlapRequester(SlapDocument):
   """
   Abstract class that allow to factor method for subclasses that use "request()"
   """
-  def _requestComputerPartition(self, request_dict):
+  def _requestComputerPartition(self, request_dict, auth=None):
     try:
-      xml = self._connection_helper.POST('requestComputerPartition', data=request_dict)
+      xml = self._connection_helper.POST('requestComputerPartition', data=request_dict, auth=auth)
     except ResourceNotReady:
       return ComputerPartition(
         request_dict=request_dict,
@@ -488,7 +488,11 @@ class ComputerPartition(SlapRequester):
         'state': dumps(state),
     }
     self._updateTransactionFile(partition_reference)
-    return self._requestComputerPartition(request_dict)
+
+    return self._requestComputerPartition(
+      request_dict,
+      auth=BasicSlapPartitionAuth(self._computer_id, self._partition_id)
+    )
 
   def destroyed(self):
     self._connection_helper.POST('destroyedComputerPartition', data={

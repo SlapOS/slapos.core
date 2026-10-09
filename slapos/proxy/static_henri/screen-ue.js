@@ -185,9 +185,9 @@ function radioChart() {
     var bits = maxBits * (step / steps);
     var y = yOf(bits);
     marks += '<line x1="' + left + '" y1="' + y.toFixed(1) + '" x2="' + (left + plotWidth) +
-      '" y2="' + y.toFixed(1) + '" stroke="#e3e6ea" stroke-width="1"/>';
+      '" y2="' + y.toFixed(1) + '" stroke="#313742" stroke-width="1"/>';
     marks += '<text x="' + (left - 6) + '" y="' + y.toFixed(1) +
-      '" text-anchor="end" dominant-baseline="middle" fill="#6b7280" font-size="7" font-weight="400" font-family="ui-monospace, monospace">' +
+      '" text-anchor="end" dominant-baseline="middle" fill="#a8aeb8" font-size="7" font-weight="400" font-family="ui-monospace, monospace">' +
       formatRate(bits, scale.unit) + "</text>";
   }
   var ticks = 4;
@@ -197,12 +197,12 @@ function radioChart() {
     var x = xOf(timestamp);
     var anchor = tick === 0 ? "start" : tick === ticks ? "end" : "middle";
     marks += '<line x1="' + x.toFixed(1) + '" y1="' + top + '" x2="' + x.toFixed(1) +
-      '" y2="' + (top + plotHeight) + '" stroke="#eef0f3" stroke-width="1"/>';
+      '" y2="' + (top + plotHeight) + '" stroke="#262b34" stroke-width="1"/>';
     marks += '<text x="' + x.toFixed(1) + '" y="' + (height - 6) +
-      '" text-anchor="' + anchor + '" fill="#6b7280" font-size="7" font-weight="400" font-family="ui-monospace, monospace">' +
+      '" text-anchor="' + anchor + '" fill="#a8aeb8" font-size="7" font-weight="400" font-family="ui-monospace, monospace">' +
       formatClock(timestamp) + "</text>";
   }
-  marks += '<text x="' + left + '" y="9" fill="#9aa1ab" font-size="7" font-weight="400" font-family="ui-monospace, monospace">' +
+  marks += '<text x="' + left + '" y="9" fill="#7d8490" font-size="7" font-weight="400" font-family="ui-monospace, monospace">' +
     scale.label + "</text>";
 
   return '<svg class="ue-chart" viewBox="0 0 ' + width + " " + height + '">' +

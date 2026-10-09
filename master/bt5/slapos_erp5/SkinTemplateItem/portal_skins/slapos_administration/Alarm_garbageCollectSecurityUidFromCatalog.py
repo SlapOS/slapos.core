@@ -5,17 +5,14 @@ active_process = context.newActiveProcess()
 
 reverse_group_security_uid_dict = {}
 reverse_groupless_security_uid_dict =  {}
+local_group_id_list = []
 
-local_group_id_list = [i for i in portal.portal_categories.local_role_group.objectIds()]
-security_uid_column_list = ['%s_security_uid' % g for g in local_group_id_list]
+columns_list = portal.portal_catalog.getSQLCatalog().getSqlCatalogSecurityUidColumnsList()
 
-local_group_id_list += ['']
-security_uid_column_list += ['security_uid']
-
-for security_uid_column in security_uid_column_list:
+for group_id, security_uid_column in (entry.split(' | ') for entry in columns_list):
+  local_group_id_list.append(group_id)
   missing_security_uid_list = portal.z_search_unindexed_security_uid(
     security_uid_column=security_uid_column)
-
   if len(missing_security_uid_list) > 0:
     summary = "Security UIDs are inconsistent"
     if fixit:

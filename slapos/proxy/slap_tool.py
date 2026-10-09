@@ -1,8 +1,9 @@
-from flask import request, Blueprint, current_app, abort
+from flask import request, Blueprint, current_app, abort, g
 from .db import execute_db, requestInstanceFromDB, supplyFromDB, removeFromDB, \
                 bangInstanceFromDB, freePartitionFromDB, formatFromDB, \
                 NotFoundPartitionFailure, PartitionDeletionFailure, \
-                getPartitionFromDB, AllocationFailure, ConfigurationError
+                getPartitionFromDB, AllocationFailure, ConfigurationError, \
+                getRequesterFromAuthorization
 from slapos.util import loads, dumps
 from slapos.util import unicode2str, \
     xml2dict, dict2xml
@@ -214,8 +215,8 @@ def supplySupply():
 def requestComputerPartition():
   form = request.form
   parsed_request_dict = {
-    'requester_id': unicode2str(request.form.get('computer_partition_id', 'user')),
-    'requested_by': getRequesterFromForm(form) or '',
+    'requester_id': unicode2str(g.get('authorization_computer_partition_id', request.form.get('computer_partition_id', 'user'))),
+    'requested_by': getRequesterFromAuthorization() or getRequesterFromForm(form) or '',
     'software_release': unicode2str(form['software_release']),
     'software_type': unicode2str(form['software_type']),
     'partition_reference': unicode2str(form['partition_reference']),

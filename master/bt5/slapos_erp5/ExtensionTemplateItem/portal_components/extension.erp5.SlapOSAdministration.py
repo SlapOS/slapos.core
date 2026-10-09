@@ -41,10 +41,7 @@ def ERP5Site_deleteSecurityUidDictEntry(self, sql_catalog, entry, REQUEST=None):
   if REQUEST is not None:
     raise Unauthorized
 
-  # security_uid_dict is an OBTree
-  security_uid_dict = getattr(sql_catalog, 'security_uid_dict')
-  # Remove entry from OBTree
-  getattr(security_uid_dict, '__delitem__')(entry)
+  del sql_catalog.security_uid_dict[entry]
   return
 
 def checkConsistencyAsUser(self, user_id, REQUEST=None):

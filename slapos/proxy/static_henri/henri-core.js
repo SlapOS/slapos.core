@@ -571,6 +571,25 @@ function stateBadge(state) {
   }
   return '<span class="badge b-off">' + esc(String(state || "unknown").toUpperCase()) + '</span>';
 }
+function liveSimIp(sim) {
+  var imsi = simIdentity(sim);
+  if (!imsi || typeof lastRadio === "undefined" || !lastRadio) {
+    return "";
+  }
+  var found = "";
+  (lastRadio.ues || []).some(function (ue) {
+    if (String(ue.imsi || "") === imsi && ue.ip) {
+      found = String(ue.ip);
+      return true;
+    }
+    return false;
+  });
+  return found;
+}
+function assignedSimIp(sim) {
+  var parameters = unwrapParameters(sim.parameters);
+  return String(parameters.force_ip_pdn1 || parameters.force_ip || liveSimIp(sim) || "");
+}
 function devRow(label, value) {
   return '<div class="dev-r"><span>' + esc(label) + '</span><b>' + esc(value) + '</b></div>';
 }
@@ -767,6 +786,234 @@ function buildRouteListEditor(routeList) {
   };
 }
 
+function ipv4ToInt(address) {
+  var parts = String(address).split(".").map(Number);
+  return ((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]) >>> 0;
+}
+
+function intToIpv4(value) {
+  return [
+    (value >>> 24) & 255,
+    (value >>> 16) & 255,
+    (value >>> 8) & 255,
+    value & 255
+  ].join(".");
+}
+
+function simIpv4Pool(core) {
+  var text = connectionParameter(core, "PDN.internet-sim-ipv4");
+  var match = String(text || "").match(/(\d+\.\d+\.\d+\.\d+)\s*(?:->|-)\s*(\d+\.\d+\.\d+\.\d+)/);
+  if (!match) {
+    return null;
+  }
+  var start = ipv4ToInt(match[1]);
+  var end = ipv4ToInt(match[2]);
+  if (end < start) {
+    return null;
+  }
+  return {start: start, end: end, text: String(text)};
+}
+
+function simIdentity(sim) {
+  var parameters = unwrapParameters(sim.parameters);
+  var connection = unwrapParameters(sim.connection_parameters);
+  return String(connection.imsi || parameters.imsi || "");
+}
+
+function occupiedSimAddresses(exceptTitle) {
+  var taken = {};
+  var exceptImsi = "";
+  simList().forEach(function (sim) {
+    var parameters = unwrapParameters(sim.parameters);
+    var address = parameters.force_ip_pdn1 || parameters.force_ip;
+    if (exceptTitle && sim.title === exceptTitle) {
+      exceptImsi = simIdentity(sim);
+      return;
+    }
+    if (address) {
+      taken[String(address)] = true;
+    }
+  });
+  ((lastRadio && lastRadio.ues) || []).forEach(function (ue) {
+    if (ue.ip && String(ue.imsi || "") !== exceptImsi) {
+      taken[String(ue.ip)] = true;
+    }
+  });
+  return taken;
+}
+
+function nextFreeSimIp(core, exceptTitle, extraTaken) {
+  var pool = simIpv4Pool(core);
+  if (!pool) {
+    throw new Error("The core does not publish a SIM address pool (PDN.internet-sim-ipv4).");
+  }
+  var taken = occupiedSimAddresses(exceptTitle);
+  var key;
+  for (key in extraTaken || {}) {
+    if (Object.prototype.hasOwnProperty.call(extraTaken, key)) {
+      taken[key] = true;
+    }
+  }
+  // First address is the gateway. The next one is the local reserve.
+  var cursor = pool.start + 2;
+  var previous = cursor;
+  while (cursor <= pool.end && cursor >= previous) {
+    var address = intToIpv4(cursor);
+    if (!taken[address]) {
+      return address;
+    }
+    previous = cursor;
+    cursor += 1;
+  }
+  throw new Error("No free address left in the SIM pool.");
+}
+
+function assertSimIpAvailable(core, address, exceptTitle, extraTaken) {
+  if (!IPV4_RE.test(address)) {
+    throw new Error("The address must be a dotted IPv4 address.");
+  }
+  var pool = simIpv4Pool(core);
+  if (!pool) {
+    throw new Error("The core does not publish a SIM address pool (PDN.internet-sim-ipv4).");
+  }
+  var value = ipv4ToInt(address);
+  if (value < pool.start + 2 || value > pool.end) {
+    throw new Error("This address is outside the usable pool. The first address and the next one are reserved.");
+  }
+  var taken = occupiedSimAddresses(exceptTitle);
+  var key;
+  for (key in extraTaken || {}) {
+    if (Object.prototype.hasOwnProperty.call(extraTaken, key)) {
+      taken[key] = true;
+    }
+  }
+  if (taken[address]) {
+    throw new Error("Address " + address + " is already used.");
+  }
+  return address;
+}
+
+function fixedIpFlags(core) {
+  var parameters = unwrapParameters(core.parameters);
+  function enabled(value) {
+    return value !== undefined && value !== null && value !== false && value !== "";
+  }
+  var pdn1 = parameters.pdn1;
+  return {
+    parameters: parameters,
+    root: enabled(parameters.fixed_ips),
+    pdn: !!(pdn1 && typeof pdn1 === "object" && enabled(pdn1.fixed_ips))
+  };
+}
+
+function fixedIpNote(core) {
+  var flags = fixedIpFlags(core);
+  if (flags.root && flags.pdn) {
+    return "Fixed addresses are set both at the core root and under pdn1. Henri leaves both.";
+  }
+  if (flags.root) {
+    return "Fixed addresses are enabled at the core root. Henri does not move that setting.";
+  }
+  if (!flags.pdn) {
+    return "Fixed addresses are not enabled on the core. Henri will set pdn1.fixed_ips when this SIM is saved.";
+  }
+  return "";
+}
+
+function ensureCoreFixedIps(core) {
+  var flags = fixedIpFlags(core);
+  if (flags.pdn || flags.root) {
+    return Promise.resolve();
+  }
+  var pdn1 = {};
+  var current = flags.parameters.pdn1;
+  if (current && typeof current === "object") {
+    pdn1 = extend(current, {});
+  }
+  pdn1.fixed_ips = true;
+  var edited = extend(flags.parameters, {pdn1: pdn1});
+  return callJsonRpc("slapos.post.v0.software_instance", {
+    title: core.title,
+    software_release_uri: core.software_release_uri,
+    software_type: core.software_type,
+    shared: core.shared,
+    parameters: rewrapParameters(core.parameters, edited),
+    sla_parameters: core.sla_parameters,
+    state: core.state
+  });
+}
+
+function buildSimIpField(core, currentAddress, exceptTitle) {
+  var label = document.createElement("label");
+  label.textContent = "Address";
+  var select = document.createElement("select");
+  var automatic = document.createElement("option");
+  automatic.value = "auto";
+  automatic.textContent = "Automatic";
+  var manual = document.createElement("option");
+  manual.value = "manual";
+  manual.textContent = "Manual";
+  select.appendChild(automatic);
+  select.appendChild(manual);
+  var input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = "172.22.0.4";
+  var note = document.createElement("div");
+  note.className = "ip-note";
+  var schema = fixedIpNote(core);
+  if (schema) {
+    note.textContent = schema + " ";
+  }
+  label.appendChild(select);
+  label.appendChild(input);
+  label.appendChild(note);
+
+  function showAuto() {
+    try {
+      input.value = nextFreeSimIp(core, exceptTitle);
+      note.textContent = (schema ? schema + " " : "") +
+        "Taken from the pool. The first address and the next one stay reserved. " +
+        "A released address is not held for 24 h yet.";
+    } catch (error) {
+      input.value = "";
+      note.textContent = error.message;
+    }
+  }
+
+  select.value = currentAddress ? "manual" : "auto";
+  input.value = currentAddress || "";
+  if (select.value === "auto") {
+    showAuto();
+  } else {
+    input.disabled = false;
+    note.textContent = (schema ? schema + " " : "") +
+      "Must be free and inside the pool, after the two reserved addresses.";
+  }
+  input.disabled = select.value !== "manual";
+  select.addEventListener("change", function () {
+    input.disabled = select.value !== "manual";
+    if (select.value === "auto") {
+      showAuto();
+      return;
+    }
+    if (!input.value && currentAddress) {
+      input.value = currentAddress;
+    }
+    note.textContent = (schema ? schema + " " : "") +
+      "Must be free and inside the pool, after the two reserved addresses.";
+  });
+
+  return {
+    label: label,
+    getAddress: function () {
+      if (select.value === "auto") {
+        return nextFreeSimIp(core, exceptTitle);
+      }
+      return assertSimIpAvailable(core, input.value.trim(), exceptTitle);
+    }
+  };
+}
+
 function openEditSimModal(sim) {
   var connectionParameters = unwrapParameters(sim.connection_parameters);
   var parameters = unwrapParameters(sim.parameters);
@@ -795,6 +1042,12 @@ function openEditSimModal(sim) {
 
   var routeEditor = buildRouteListEditor(parameters.route_list);
   body.appendChild(routeEditor.container);
+  var coreNetwork = coreNetworkList()[0];
+  var ipField = null;
+  if (coreNetwork) {
+    ipField = buildSimIpField(coreNetwork, parameters.force_ip_pdn1 || parameters.force_ip || "", sim.title);
+    body.appendChild(ipField.label);
+  }
 
   var disableLabel = document.createElement("label");
   disableLabel.className = "check";
@@ -806,6 +1059,7 @@ function openEditSimModal(sim) {
   body.appendChild(disableLabel);
 
   openModal("Edit " + sim.title, body, function () {
+    var address = ipField ? ipField.getAddress() : "";
     var edited = extend(parameters, {
       sim_algo: simAlgoField.input.value,
       opc: opcField.input.value,
@@ -816,15 +1070,22 @@ function openEditSimModal(sim) {
     if (edited.route_list.length === 0) {
       delete edited.route_list;
     }
-    return callJsonRpc("slapos.post.v0.software_instance", {
-      title: sim.title,
-      software_release_uri: sim.software_release_uri,
-      software_type: sim.software_type,
-      shared: true,
-      parameters: rewrapParameters(sim.parameters, edited),
-      sla_parameters: sim.sla_parameters,
-      state: sim.state
-    }).then(loadAllServices);
+    if (address) {
+      edited.force_ip_pdn1 = address;
+      delete edited.force_ip;
+    }
+    var writeSim = function () {
+      return callJsonRpc("slapos.post.v0.software_instance", {
+        title: sim.title,
+        software_release_uri: sim.software_release_uri,
+        software_type: sim.software_type,
+        shared: true,
+        parameters: rewrapParameters(sim.parameters, edited),
+        sla_parameters: sim.sla_parameters,
+        state: sim.state
+      }).then(loadAllServices);
+    };
+    return address && coreNetwork ? ensureCoreFixedIps(coreNetwork).then(writeSim) : writeSim();
   });
 }
 var modalOverlay = element("modal-overlay");

@@ -62,6 +62,7 @@ function showRouteSim(title) {
     '<div style="margin-top:14px">' +
     simAliasHtml(sim.title, true) +
     devRow("Device name", sim.title) +
+    devRow("IP address", orDash(assignedSimIp(sim))) +
     devRow("IMSI", orDash(connection.imsi || parameters.imsi)) +
     devRow("MSIN", orDash(parameters.msin)) +
     devRow("Network code", orDash(parameters.plmn)) +

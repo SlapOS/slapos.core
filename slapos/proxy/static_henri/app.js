@@ -94,6 +94,9 @@ window.setInterval(function () {
 }, 1000);
 
 setActiveView(viewFromHash() || "dashboard");
+if (typeof startRadioPoll === "function") {
+  startRadioPoll();
+}
 updateLivePill();
 if (typeof loadProductionSet === "function") {
   loadProductionSet();

@@ -45,7 +45,7 @@ function loadRadioStats() {
     .then(function (payload) {
       lastRadio = payload;
       radioError = payload.error || "";
-      if (payload.cell) {
+      if (payload.cell && currentView === "ue-monitoring") {
         radioHistory.push({
           t: Date.now(),
           ul: Number(payload.cell.ul_bitrate) || 0,
@@ -56,6 +56,7 @@ function loadRadioStats() {
           return point.t >= cutoff;
         });
       }
+      paintSimIpSurfaces();
       if (currentView === "ue-monitoring") {
         renderUeMonitoring();
       }
@@ -66,6 +67,19 @@ function loadRadioStats() {
         renderUeMonitoring();
       }
     });
+}
+
+function paintSimIpSurfaces() {
+  if (typeof renderSimManagement === "function") {
+    renderSimManagement();
+  }
+  if (selectedRouteSimTitle && typeof showRouteSim === "function") {
+    showRouteSim(selectedRouteSimTitle);
+  }
+  if (typeof selectedNode !== "undefined" && selectedNode && selectedNode._node &&
+      !selectedNode._node.hub && typeof selectNode === "function") {
+    selectNode(selectedNode);
+  }
 }
 
 function mbps(bits) {
@@ -330,19 +344,21 @@ function renderUeMonitoring() {
     var received = volumeText(live && live.dl_total_bytes);
     var sent = volumeText(live && live.ul_total_bytes);
     var imei = imeiOf(live);
+    var shownIp = assignedSimIp(sim);
     return '<div class="ue">' +
       '<div class="ue-h"><div>' +
       '<div class="ue-n">' + esc(sim.title) + '</div>' +
       simAliasHtml(sim.title) +
       '<div class="ue-id">SIM ' + esc(orDash(imsi)) + '</div>' +
       (imei ? '<div class="ue-id">IMEI ' + esc(imei) + '</div>' : '') +
+      '<div class="ue-id">IP ' + esc(orDash(shownIp)) + '</div>' +
       '</div>' +
       '<span class="badge ' + (stateOn ? "b-on" : "b-off") + '">' + esc(stateLabel) + '</span></div>' +
       '<div class="chips">' +
       '<span class="chip">' + (isEnabled ? "Enabled" : "Disabled") + '</span>' +
       (live && live.rat ? '<span class="chip">' + esc(live.rat) + '</span>' : '') +
       (live && live.apn ? '<span class="chip">' + esc(live.apn) + '</span>' : '') +
-      (live && live.ip ? '<span class="chip">' + esc(live.ip) + '</span>' : '') +
+      (live && live.ip && String(live.ip) !== shownIp ? '<span class="chip">' + esc(live.ip) + '</span>' : '') +
       (live && live.ipv6 ? '<span class="chip">' + esc(live.ipv6) + '</span>' : '') +
       '</div>' +
       '<div class="ue-m">' +
@@ -361,13 +377,14 @@ function renderUeMonitoring() {
 
   element("ue-expert").innerHTML = sims.length ?
     '<table class="tbl"><thead><tr><th>Device name</th><th>IMSI</th><th>State</th>' +
-    '<th>IP</th><th>CQI</th><th>Uplink</th><th>Downlink</th><th>SNR</th></tr></thead><tbody>' +
+    '<th>Assigned IP</th><th>IP</th><th>CQI</th><th>Uplink</th><th>Downlink</th><th>SNR</th></tr></thead><tbody>' +
     sims.map(function (sim) {
       var live = byImsi[simImsi(sim)];
       var stateLabel = live && live.connected ? "On radio" : (live && live.registered ? "Registered" : "Not attached");
       return '<tr><td class="t-name">' + esc(sim.title) + '</td>' +
         '<td class="t-mono">' + esc(orDash(simImsi(sim))) + '</td>' +
         '<td>' + esc(stateLabel) + '</td>' +
+        '<td class="t-mono">' + esc(orDash(assignedSimIp(sim))) + '</td>' +
         '<td class="t-mono">' + esc(live && live.ip ? live.ip : TELEMETRY_DASH) + '</td>' +
         '<td class="t-mono">' + esc(live && live.cqi !== null && live.cqi !== undefined ? String(Math.round(live.cqi)) : TELEMETRY_DASH) + '</td>' +
         '<td class="t-mono">' + esc(live && live.ul_bitrate !== null && live.ul_bitrate !== undefined ? mbps(live.ul_bitrate) : TELEMETRY_DASH) + '</td>' +
@@ -439,6 +456,5 @@ registerScreen({
   title: "UE Monitoring",
   render: renderUeMonitoring,
   enter: startRadioPoll,
-  leave: stopRadioPoll,
   refresh: loadRadioStats
 });

@@ -367,6 +367,7 @@ function selectNode(el) {
     rows =
       simAliasHtml(service.title, true) +
       devRow("Device name", service.title) +
+      devRow("IP address", orDash(assignedSimIp(service))) +
       devRow("IMSI", orDash(connection.imsi || parameters.imsi)) +
       devRow("MSIN", orDash(parameters.msin)) +
       devRow("Network code", orDash(parameters.plmn)) +

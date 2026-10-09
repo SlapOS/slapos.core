@@ -6,7 +6,7 @@ function renderSimManagement() {
   var groupText = apnText();
 
   if (sims.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7"><div class="empty">No SIM provisioned.</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty">No SIM provisioned.</div></td></tr>';
     return;
   }
 
@@ -19,6 +19,7 @@ function renderSimManagement() {
       '<td class="t-mono">' + esc(orDash(connection.imsi || parameters.imsi)) + '</td>' +
       '<td class="t-mono">' + esc(orDash(parameters.plmn)) + '</td>' +
       '<td class="t-mono">' + esc(groupText) + '</td>' +
+      '<td class="t-mono">' + esc(orDash(assignedSimIp(sim))) + '</td>' +
       '<td><span class="badge ' + (enabled ? "b-on" : "b-off") + '">' +
       (enabled ? "ENABLED" : "DISABLED") + '</span></td>' +
       '<td>' + simRouteBadges(sim) + '</td>' +
@@ -79,6 +80,8 @@ element("add-sim-button").addEventListener("click", function () {
   body.appendChild(kField.label);
   var routeEditor = buildRouteListEditor([]);
   body.appendChild(routeEditor.container);
+  var ipField = buildSimIpField(coreNetwork, "", "");
+  body.appendChild(ipField.label);
 
   openModal("Add SIM", body, function () {
     if (!titleField.input.value) {
@@ -90,20 +93,23 @@ element("add-sim-button").addEventListener("click", function () {
       msin: msinField.input.value,
       plmn: plmnField.input.value,
       opc: opcField.input.value,
-      k: kField.input.value
+      k: kField.input.value,
+      force_ip_pdn1: ipField.getAddress()
     };
     var routeList = routeEditor.getRouteList();
     if (routeList.length > 0) {
       parameters.route_list = routeList;
     }
-    return callJsonRpc("slapos.post.v0.software_instance", {
-      title: titleField.input.value,
-      software_release_uri: coreNetwork.software_release_uri,
-      software_type: "core-network",
-      shared: true,
-      parameters: parameters,
-      sla_parameters: {},
-      state: "started"
+    return ensureCoreFixedIps(coreNetwork).then(function () {
+      return callJsonRpc("slapos.post.v0.software_instance", {
+        title: titleField.input.value,
+        software_release_uri: coreNetwork.software_release_uri,
+        software_type: "core-network",
+        shared: true,
+        parameters: parameters,
+        sla_parameters: {},
+        state: "started"
+      });
     }).then(loadAllServices);
   });
 });
@@ -214,6 +220,7 @@ function openImportModal(coreNetwork, items) {
   body.appendChild(hint);
 
   var rows = [];
+  var importTaken = {};
   items.forEach(function (item) {
     var row = document.createElement("div");
     row.className = "imp-row";
@@ -227,13 +234,29 @@ function openImportModal(coreNetwork, items) {
       return;
     }
     var defaultTitle = "SIM " + item.params.imsi;
+    var planned = "";
+    try {
+      planned = item.params.force_ip_pdn1 || item.params.force_ip || nextFreeSimIp(coreNetwork, "", importTaken);
+      if (item.params.force_ip_pdn1 || item.params.force_ip) {
+        assertSimIpAvailable(coreNetwork, planned, "", importTaken);
+      }
+      importTaken[planned] = true;
+      item.params.force_ip_pdn1 = planned;
+      delete item.params.force_ip;
+    } catch (error) {
+      row.className += " imp-bad";
+      row.innerHTML = '<div class="imp-file">' + esc(item.name) + '</div>' +
+        '<div class="imp-note">' + esc(error.message) + '</div>';
+      body.appendChild(row);
+      return;
+    }
     row.innerHTML =
       '<div class="imp-file">' + esc(item.name) + '</div>' +
       '<div class="imp-meta">IMSI ' + esc(item.params.imsi) +
       ' · ' + esc(item.params.sim_algo || "milenage") +
       ' · K ' + (item.params.k ? "set" : "—") +
       ' · OPc ' + (item.params.opc ? "set" : "—") +
-      (item.params.force_ip ? ' · IP ' + esc(item.params.force_ip) : "") + '</div>';
+      ' · IP ' + esc(planned) + '</div>';
     var input = document.createElement("input");
     input.type = "text";
     input.value = defaultTitle;
@@ -251,7 +274,7 @@ function openImportModal(coreNetwork, items) {
       if (!rows.length) {
         throw new Error("Nothing to import — no valid new SIM in the dropped file(s).");
       }
-      var chain = Promise.resolve();
+      var chain = ensureCoreFixedIps(coreNetwork);
       rows.forEach(function (entry) {
         var title = entry.input.value.trim() || ("SIM " + entry.item.params.imsi);
         chain = chain.then(function () {

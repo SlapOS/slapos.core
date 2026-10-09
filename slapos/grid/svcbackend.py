@@ -29,7 +29,6 @@
 ##############################################################################
 
 import os
-import pkg_resources
 import socket as socketlib
 import subprocess
 import stat
@@ -39,7 +38,7 @@ from six.moves import xmlrpc_client as xmlrpclib
 import contextlib
 
 from slapos.grid.utils import (createPrivateDirectory, SlapPopen, updateFile)
-from slapos.util import bytes2str
+from slapos.util import bytes2str, get_package_resource_bytes
 
 from supervisor import xmlrpc, states
 
@@ -126,7 +125,7 @@ def createSupervisordConfiguration(instance_root, logger, watchdog_command=''):
 
   # Creates supervisord configuration
   updateFile(supervisord_configuration_file_path,
-    bytes2str(pkg_resources.resource_string(__name__,
+    bytes2str(get_package_resource_bytes(__name__,
       'templates/supervisord.conf.in')) % {
           'supervisord_configuration_directory': supervisord_configuration_directory,
           'supervisord_socket': os.path.abspath(supervisord_socket),

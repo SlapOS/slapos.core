@@ -414,7 +414,20 @@ def _number(value):
     return None
   return value
 
+def _nested_count(source, group, key):
+  if not isinstance(source, dict):
+    return 0
+  counters = source.get("counters")
+  if not isinstance(counters, dict):
+    return 0
+  bucket = counters.get(group)
+  if not isinstance(bucket, dict):
+    return 0
+  return _number(bucket.get(key)) or 0
+
 def _cell_summary(stats):
+  if not isinstance(stats, dict):
+    stats = {}
   cells = []
   for cell_id, cell in (stats.get("cells") or {}).items():
     if not isinstance(cell, dict):
@@ -424,17 +437,48 @@ def _cell_summary(stats):
       "ul_bitrate": _number(cell.get("ul_bitrate")) or 0,
       "dl_bitrate": _number(cell.get("dl_bitrate")) or 0,
       "ue_count": _number(cell.get("ue_count_avg")),
+      "ue_active_count": _number(cell.get("ue_active_count_avg")),
       "ul_use": _number(cell.get("ul_use_avg")),
       "dl_use": _number(cell.get("dl_use_avg")),
+      "dl_err": _number(cell.get("dl_err")) or 0,
+      "ul_err": _number(cell.get("ul_err")) or 0,
+      "dl_retx": _number(cell.get("dl_retx")) or 0,
+      "ul_retx": _number(cell.get("ul_retx")) or 0,
+      "rrc_reject_no_match": _nested_count(
+        cell, "errors", "rrc_connection_reestablishment_reject_no_match"),
+      "rrc_reject_no_context": _nested_count(
+        cell, "errors", "rrc_connection_reestablishment_reject_no_cn_context"),
+      "rrc_setup_request": _nested_count(cell, "messages", "nr_rrc_setup_request"),
+      "rrc_setup_complete": _nested_count(cell, "messages", "nr_rrc_setup_complete"),
     })
+  delays = []
+  ports = stats.get("rf_ports")
+  if isinstance(ports, dict):
+    for port in ports.values():
+      delay = port.get("rxtx_delay") if isinstance(port, dict) else None
+      average = _number(delay.get("avg")) if isinstance(delay, dict) else None
+      if average is not None:
+        delays.append(average)
+  cpu = stats.get("cpu")
   return {
     "ul_bitrate": sum(cell["ul_bitrate"] for cell in cells),
     "dl_bitrate": sum(cell["dl_bitrate"] for cell in cells),
     "gtp_ul_bitrate": _number(stats.get("gtp_tx_bitrate")),
     "gtp_dl_bitrate": _number(stats.get("gtp_rx_bitrate")),
+    "cpu": _number(cpu.get("global")) if isinstance(cpu, dict) else None,
     "ue_count": max([cell["ue_count"] or 0 for cell in cells] or [0]),
+    "ue_active_count": max([cell["ue_active_count"] or 0 for cell in cells] or [0]),
     "ul_use": max([cell["ul_use"] or 0 for cell in cells] or [0]),
     "dl_use": max([cell["dl_use"] or 0 for cell in cells] or [0]),
+    "dl_err": sum(cell["dl_err"] for cell in cells),
+    "ul_err": sum(cell["ul_err"] for cell in cells),
+    "dl_retx": sum(cell["dl_retx"] for cell in cells),
+    "ul_retx": sum(cell["ul_retx"] for cell in cells),
+    "rxtx_delay_us": (sum(delays) / len(delays)) if delays else None,
+    "rrc_reject_no_match": sum(cell["rrc_reject_no_match"] for cell in cells),
+    "rrc_reject_no_context": sum(cell["rrc_reject_no_context"] for cell in cells),
+    "rrc_setup_request": sum(cell["rrc_setup_request"] for cell in cells),
+    "rrc_setup_complete": sum(cell["rrc_setup_complete"] for cell in cells),
     "cells": cells,
   }
 

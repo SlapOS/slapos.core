@@ -198,11 +198,12 @@ input, select, textarea { font: inherit; color: inherit; }
 .chips { display: flex; gap: 5px; margin: 9px 0 10px; flex-wrap: wrap; }
 .chip { font-family: var(--mono); font-size: 9px; letter-spacing: .04em; background: var(--line-soft); color: var(--text-2); padding: 2px 6px; border-radius: 3px; }
 .ue-m { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px 6px; }
-.ue-legend { display: flex; gap: 16px; margin: 0 0 6px; font-size: 11px; color: var(--text-2); }
+.ue-legend { display: flex; gap: 16px; margin: 8px 0 0; font-size: 11px; color: var(--text-2); }
+.card-hint { font-size: 11px; color: var(--text-3); margin: 0 0 8px; }
 .ue-legend i { display: inline-block; width: 12px; height: 3px; margin-right: 6px; vertical-align: middle; }
 .lg-ul { background: var(--green); }
 .lg-dl { background: var(--blue); }
-.ue-chart svg { width: 100%; height: 140px; display: block; }
+#ue-chart svg { width: 100%; height: auto; display: block; }
 .m-k { font-family: var(--mono); font-size: 8.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-3); line-height: 1.3; }
 .m-v { font-family: var(--mono); font-size: 12px; font-weight: 600; margin-top: 3px; font-variant-numeric: tabular-nums; }
 .m-u { font-size: 9px; color: var(--text-3); font-weight: 400; }

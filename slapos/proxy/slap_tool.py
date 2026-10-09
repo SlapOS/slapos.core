@@ -1,4 +1,4 @@
-from flask import request, Blueprint, current_app, abort
+from flask import request, Blueprint, current_app, abort, g
 from .db import execute_db, requestInstanceFromDB, supplyFromDB, removeFromDB, \
                 bangInstanceFromDB, freePartitionFromDB, formatFromDB, \
                 NotFoundPartitionFailure, PartitionDeletionFailure, \
@@ -214,8 +214,8 @@ def supplySupply():
 def requestComputerPartition():
   form = request.form
   parsed_request_dict = {
-    'requester_id': unicode2str(request.form.get('computer_partition_id', 'user')),
-    'requested_by': getRequesterFromForm(form) or '',
+    'requester_id': unicode2str(g.get('authorization_computer_partition_id', request.form.get('computer_partition_id', 'user'))),
+    'requested_by': getRequesterFromAuthorization() or getRequesterFromForm(form) or '',
     'software_release': unicode2str(form['software_release']),
     'software_type': unicode2str(form['software_type']),
     'partition_reference': unicode2str(form['partition_reference']),
@@ -237,6 +237,16 @@ def requestComputerPartition():
     # ResourceNotReady
     return abort(408, 'Resource not ready')
   return dumps(partition)
+
+def getRequesterFromAuthorization():
+  try:
+    computer_id = g.authorization_computer_id
+    partition_id = g.authorization_computer_partition_id
+  except AttributeError:
+    return
+  partition = getPartitionFromDB(unicode2str(partition_id), unicode2str(computer_id))
+  return partition and (partition['requested_by'] or
+                        partition['partition_reference'])
 
 def getRequesterFromForm(form, required=False):
   try:

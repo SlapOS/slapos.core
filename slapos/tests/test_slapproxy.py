@@ -207,6 +207,10 @@ database_uri = %(rootdir)s/lib/proxy.db
         computer_id=computer_id or self.computer_id,
         computer_partition_id=partition_id,
       )
+      if headers is None:
+        headers = {}
+      headers['Authorization'] = "X-SlapPartition computer_id=%s,computer_partition_id=%s" % (computer_id or self.computer_id, partition_id)
+
     return self.app.post('/requestComputerPartition', data=request_dict, headers=headers)
 
 

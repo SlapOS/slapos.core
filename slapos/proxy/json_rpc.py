@@ -5,8 +5,9 @@ from .db import execute_db, requestInstanceFromDB, supplyFromDB, removeFromDB, \
                 bangInstanceFromDB, getPartitionFromDB, freePartitionFromDB, \
                 formatFromDB, \
                 NotFoundPartitionFailure, PartitionDeletionFailure, \
-                AllocationFailure, getInstanceTreeList, getAllocatedInstance
-from slapos.util import dict2xml, xml2dict, loads
+                AllocationFailure, getInstanceTreeList, getAllocatedInstance, \
+                getRequesterFromAuthorization
+from slapos.util import dict2xml, xml2dict, loads, unicode2str
 from slapos.slap.slap import ComputerPartition, SoftwareInstance, ConnectionError
 from .http_proxy import HTTPConnectionError
 import json
@@ -396,12 +397,12 @@ def get_compute_partition():
 @json_rpc_blueprint.route('/slapos.post.v0.software_instance', methods=['POST'])
 def post_software_instance():
   title = request.json["title"]
-  requested_by = ''# XXX getRequesterFromForm(form) or '',
+  requested_by = getRequesterFromAuthorization() or ''
   parameters = request.json.get("parameters", {})
   is_shared = request.json.get("shared", False)
   requested_state = request.json.get("state", "started")
   parsed_request_dict = {
-    'requester_id': None,
+    'requester_id': unicode2str(g.get('authorization_computer_partition_id', 'user')),
     'requested_by': requested_by,
     'software_release': request.json["software_release_uri"],
     'software_type': request.json["software_type"],

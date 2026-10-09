@@ -91,7 +91,7 @@ class TestSlapOSERP5ActiveProcess_deleteSelf(SlapOSTestCaseMixin):
 class TestSlapOSGarbageCollectSecurityUid(SlapOSTestCaseMixin):
 
   def sense(self, fixit=0):
-    alarm self.portal.portal_alarms.slapos_garbage_collect_security_uid
+    alarm = self.portal.portal_alarms.slapos_garbage_collect_security_uid
     return alarm.Alarm_garbageCollectSecurityUidFromCatalog(
       tag='test', fixit=fixit)
 
@@ -148,7 +148,7 @@ class TestSlapOSGarbageCollectSecurityUid(SlapOSTestCaseMixin):
     self.assertIn(str(security_uid), result_list[0].detail)
     self.assertNotIn(security_uid, self.getSecurityUidSetFromRolesAndUsers())
 
-    active_process = self.sense()
+    active_process = self.sense(fixit=1)
     self.assertEqual(
       'Security UIDs are inconsistent (fixing it)',
       active_process.getResultList()[0].summary)
@@ -175,7 +175,7 @@ class TestSlapOSGarbageCollectSecurityUid(SlapOSTestCaseMixin):
       (group, role, security_uid),
       self.portal.ERP5Site_getSecurityUidListForRecreateTable())
 
-    active_process = self.sense()
+    active_process = self.sense(fixit=1)
     self.assertIn(
       'Found UIDs to delete from %s (fixing it)' % group,
       self.getSummaryList(active_process))

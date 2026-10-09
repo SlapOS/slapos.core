@@ -126,6 +126,7 @@ class TestSlapOSGarbageCollectSecurityUid(SlapOSTestCaseMixin):
        self.portal.z_get_used_security_uid_list(column_type=group)])
 
   def test_consistentCatalogPostsNoResult(self):
+    self.sense(fixit=1)
     self.tic()
     self.assertEqual([], self.getSummaryList(self.sense()))
 

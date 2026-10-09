@@ -34,7 +34,7 @@ from datetime import datetime
 from slapos.proxy.db_version import DB_VERSION
 from slapos.util import sqlite_connect
 
-from flask import g, Flask, redirect, url_for, current_app
+from flask import g, Flask, redirect, url_for, current_app, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 from .hateoas import hateoas_blueprint
 from .slap_tool import slap_tool_blueprint
@@ -185,6 +185,12 @@ def _updateLocalSoftwareReleaseRootPathIfNeeded():
 is_schema_already_executed = False
 @app.before_request
 def before_request():
+  # fake auth
+  authorization = request.authorization
+  if (authorization is not None) and (authorization.type == 'x-slappartition'):
+    g.authorization_computer_id = authorization.computer_id
+    g.authorization_computer_partition_id = authorization.computer_partition_id
+
   g.db = connect_db()
   global is_schema_already_executed
   if not is_schema_already_executed:

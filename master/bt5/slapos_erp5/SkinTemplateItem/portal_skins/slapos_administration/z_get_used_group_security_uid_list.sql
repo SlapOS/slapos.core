@@ -1,1 +1,0 @@
-SELECT DISTINCT group_security_uid FROM catalog

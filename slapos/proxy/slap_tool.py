@@ -214,8 +214,8 @@ def supplySupply():
 def requestComputerPartition():
   form = request.form
   parsed_request_dict = {
-    'requester_id': unicode2str(g.get('authorization_computer_partition_id', request.form.get('computer_partition_id', 'user'))),
-    'requested_by': getRequesterFromAuthorization() or getRequesterFromForm(form) or '',
+    'requester_id': unicode2str(g.get('authorization_computer_partition_id', 'user')),
+    'requested_by': getRequesterFromAuthorization() or '',
     'software_release': unicode2str(form['software_release']),
     'software_type': unicode2str(form['software_type']),
     'partition_reference': unicode2str(form['partition_reference']),

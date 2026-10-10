@@ -92,7 +92,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>python: (context.getSimulationState() in (\'confirmed\',)) and (context.Base_hasSlapOSProjectUserGroup(manager=True, agent=True, project_relation=\'destination_project\'))</string> </value>
+            <value> <string>python: (context.getSimulationState() in (\'confirmed\',)) and (context.Base_hasSlapOSProjectUserGroup(manager=True, project_relation=\'destination_project\'))</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -413,6 +413,7 @@ class ComputerForTest(object):
     Will set up instances, software and sequence
     """
     self.sequence = []
+    self.body_sequence = []
     self.instance_amount = instance_amount
     self.software_amount = software_amount
     self.software_root = software_root
@@ -438,17 +439,241 @@ class ComputerForTest(object):
     and error and error message by partition
     """
     self.sequence.append(url.path)
+    if req.method == 'POST':
+      if self.status_code != 200:
+        return {'status_code': self.status_code,
+                'reason': 'test expects this status code'}
+
+      content = json.loads(req.body)
+      self.body_sequence.append(content)
+      if ("put.software_installation" in url.path):
+        # XXX hardcoded to first software release!
+        software = self.software_list[0]
+        software.sequence.append(url.path)
+      elif ("put.software_instance" in url.path):
+        instance = self.instance_list[int(content['compute_partition_id'])]
+        instance.sequence.append(url.path)
+
+      if (url.path == '/slapos.allDocs.instance'):
+        if "compute_node_id" in content:
+          """
++          if "compute_partition_id" in content:
++            return json.dumps({
++              "current_page_full": False,
++              "next_page_request": {
++                "portal_type": "Software Instance",
++                "compute_partition_id": content["compute_partition_id"],
++              },
++              "result_list": [{
++                "software_release_uri": x.software.name if x.software else None,
++                "reference": x.name,
++                "title": x.name,
++                "portal_type": "Software Instance",
++                "compute_partition_id": x.name,
++                "state": x.requested_state,
++                "api_revision": "12132",
++                "get_parameters": {
++                  "portal_type": "Software Instance",
++                  "reference": x.name,
++                }
++              } for x in self.instance_list if x.name == content["compute_partition_id"]]
++            })
++          else:
+"""
+          return json.dumps({
+            "current_page_full": False,
+            "next_page_request": {
+              "portal_type": "Software Instance",
+              "compute_node_id": content["compute_node_id"],
+            },
+            "result_list": [{
+              "software_release_uri": x.software.name if x.software else None,
+              "reference": x.name,
+              "title": x.name,
+              "portal_type": "Software Instance",
+              "compute_partition_id": x.name,
+              "state": x.requested_state,
+              "get_parameters": {
+                "portal_type": "Software Instance",
+                "reference": x.name,
+              }
+            } for x in self.instance_list]
+          })
+
+      elif (url.path == '/slapos.allDocs.software_installation'):
+        if "compute_node_id" in content:
+          return json.dumps({
+            "current_page_full": False,
+            "next_page_request": {
+              "portal_type": "Software Installation",
+              "compute_node_id": content["compute_node_id"],
+            },
+            "result_list": [{
+              "software_release_uri": x.name,
+              "portal_type": "Software Installation",
+              "compute_node_id": content["compute_node_id"],
+              "state": x.requested_state,
+              "get_parameters": {
+                "portal_type": "Software Installation",
+                "compute_node_id": content["compute_node_id"],
+                "software_release_uri": x.name
+              }
+            } for x in self.software_list]
+          })
+
+      elif (url.path == '/slapos.get.software_instance'):
+        requested_instance = self.instance_list[int(content['compute_partition_id'])]
+        #reference = content["reference"]
+        # Treat the case of firewall
+        if requested_instance.name == "related_instance":
+          return json.dumps({
+            "title": "related_instance",
+            "reference": "related_instance",
+            "software_release_uri": "foo.cfg",
+            "software_type": None,
+            "state": "stopped",
+            "connection_parameters": {
+            },
+            "parameters": {},
+            "shared": False,
+            "root_instance_title": "0",
+            "ip_list": self.ip_address_list,
+            "X509": {
+              "certificate": "",
+              "key": ""
+            },
+            "sla_parameters": {},
+            "compute_node_id": None,
+            "compute_partition_id": "requested_instance",
+            "processing_timestamp": 0,
+            "access_status_message": "",
+            "portal_type": "Software Instance"
+          })
+        """
+        requested_instance = None
+        for instance in self.instance_list:
+          if instance.name == reference:
+            requested_instance = instance
+            break
+        """
+        if requested_instance:
+          requested_instance.sequence.append(url.path)#(url.path, content))
+          return json.dumps({
+            "title": requested_instance.name,
+            "reference": requested_instance.name,
+            "software_release_uri": requested_instance.software.name,
+            "software_type": None,
+            "state": requested_instance.requested_state,
+            "connection_parameters": {
+            },
+            "parameters": {},
+            "shared": False,
+            "root_instance_title": requested_instance.name,
+            "ip_list": requested_instance.ip_list,
+            "full_ip_list": requested_instance.full_ip_list,
+            # XXX XXX XXX "sla_parameters": requested_instance.filter_dict,
+            "compute_node_id": None,
+            "compute_partition_id": requested_instance.name,
+            "processing_timestamp": requested_instance.timestamp,
+            "access_status_message": requested_instance.error_log,
+            "portal_type": "Software Instance"
+          })
+        else:
+          return json.dumps({
+            "status": "404",
+            "message": "No document found with parameters: %s" % content['compute_partition_id'],
+            "name": "NotFound",
+          })
+
+
+      elif (url.path == '/slapos.get.software_instance_certificate'):
+        reference = content["reference"]
+        requested_instance = None
+        # raise NotImplementedError(self.instance_list)
+        for instance in self.instance_list:
+          if instance.name == reference:
+            requested_instance = instance
+            break
+        if requested_instance:
+          # We don't need to check certificates are being retrieved
+          return json.dumps({
+            "reference": requested_instance.name,
+            "certificate": getattr(requested_instance, 'certificate', ''),
+            "key": getattr(requested_instance, 'key', ''),
+            "portal_type": "Software Instance Certificate Record",
+          })
+        else:
+          return {'status_code': 500, 'reason': 'reference not found'}
+
+      elif (url.path == '/slapos.put.software_instance'):
+        slap_computer = self.getComputer(content.pop('compute_node_id')[0])
+        instance = self.instance_list[int(content.pop('compute_partition_id')[0])]
+        assert content.pop('portal_type') == 'Software Instance'
+        if 'reported_state' in content:
+          assert content['reported_state'] in ["started", "destroyed", "stopped", "error", "bang"]
+          instance.state = content.pop('reported_state')
+        if 'status_message' in content:
+          instance.error_log = content.pop('status_message')
+          instance.error = True
+        if content:
+          # Check that there is no other input parameters
+          return {'status_code': 500, 'reason': 'Unhandled body content: %s' % str(content)}
+        return json.dumps({'foo': 'bar'})
+
+      elif url.path == '/slapos.put.software_installation':
+        if "error_status" in content:
+          software.error_log = '\n'.join(
+              [
+                  line
+                  for line in content['error_status'].splitlines()
+                  if 'dropPrivileges' not in line
+              ]
+          )
+          software.error = True
+
+        return json.dumps({'foo': 'bar'})
+        """
+
++        elif "root_instance_title" in content:
++          return json.dumps({
++            "current_page_full": False,
++            "next_page_request": {
++              "portal_type": "Software Instance",
++              "root_instance_title": content["root_instance_title"],
++            },
++            "result_list": [{
++              "software_release_uri": x.software.name if x.software else None,
++              "reference": x.name,
++              "title": x.name,
++              "portal_type": "Software Instance",
++              "compute_partition_id": x.name,
++              "state": x.requested_state,
++              "get_parameters": {
++                "portal_type": "Software Instance",
++                "reference": x.name,
++              },
++            } for x in self.instance_list] + [
++              {
++              "software_release_uri": "foo.cfg",
++              "reference": "related_instance",
++              "title": "related_instance",
++              "portal_type": "Software Instance",
++              "compute_partition_id": "related_instance",
++              "state": "stopped",
++              "get_parameters": {
++                "portal_type": "Software Instance",
++                "reference": "related_instance",
++              }
++            }
++            ]
++          })
+"""
+    """
     if req.method == 'GET':
       qs = parse.parse_qs(url.query)
     else:
       qs = parse.parse_qs(req.body)
-    if (url.path == '/getFullComputerInformation'
-            and 'computer_id' in qs):
-      slap_computer = self.getComputer(qs['computer_id'][0])
-      return {
-              'status_code': self.status_code,
-              'content': dumps(slap_computer)
-              }
+
     elif url.path == '/getHostingSubscriptionIpList':
       ip_address_list = self.ip_address_list
       return {
@@ -460,57 +685,19 @@ class ComputerForTest(object):
               'status_code': self.status_code,
               'content': dumps({'certificate': 'SLAPOS_cert', 'key': 'SLAPOS_key'})
               }
-    if req.method == 'POST' and 'computer_partition_id' in qs:
-      instance = self.instance_list[int(qs['computer_partition_id'][0])]
+    if req.method == 'POST' and 'compute_partition_id' in qs:
+      instance = self.instance_list[int(qs['compute_partition_id'][0])]
       instance.sequence.append(url.path)
       instance.header_list.append(req.headers)
-      if url.path == '/startedComputerPartition':
-        instance.state = 'started'
-        return {'status_code': self.status_code}
-      if url.path == '/stoppedComputerPartition':
-        instance.state = 'stopped'
-        return {'status_code': self.status_code}
-      if url.path == '/destroyedComputerPartition':
-        instance.state = 'destroyed'
-        return {'status_code': self.status_code}
-      if url.path == '/softwareInstanceBang':
+
+
+      if url.path == '/slapos.put.software_instance':
         return {'status_code': self.status_code}
       if url.path == "/updateComputerPartitionRelatedInstanceList":
         return {'status_code': self.status_code}
-      if url.path == '/softwareInstanceError':
-        instance.error_log = '\n'.join(
-            [
-                line
-                for line in qs['error_log'][0].splitlines()
-                if 'dropPrivileges' not in line
-            ]
-        )
-        instance.error = True
-        return {'status_code': self.status_code}
 
-    elif req.method == 'POST' and 'url' in qs:
-      # XXX hardcoded to first software release!
-      software = self.software_list[0]
-      software.sequence.append(url.path)
-      if url.path == '/availableSoftwareRelease':
-        return {'status_code': self.status_code}
-      if url.path == '/buildingSoftwareRelease':
-        return {'status_code': self.status_code}
-      if url.path == '/destroyedSoftwareRelease':
-        return {'status_code': self.status_code}
-      if url.path == '/softwareReleaseError':
-        software.error_log = '\n'.join(
-            [
-                line
-                for line in qs['error_log'][0].splitlines()
-                if 'dropPrivileges' not in line
-            ]
-        )
-        software.error = True
-        return {'status_code': self.status_code}
-
-    else:
-      return {'status_code': 500}
+    """
+    return {'status_code': 404, 'reason': 'test_slapgrid does not handle'}
 
   def getTestSoftwareClass(self):
     return SoftwareForTest
@@ -570,6 +757,7 @@ class InstanceForTest(object):
     self.error = False
     self.error_log = None
     self.sequence = []
+    self.body_sequence = []
     self.header_list = []
     self.name = name
     self.partition_path = os.path.join(self.instance_root, self.name)
@@ -666,6 +854,7 @@ class SoftwareForTest(object):
     self.software_root = software_root
     self.name = 'http://sr%s/' % name
     self.sequence = []
+    self.body_sequence = []
     self.software_hash = md5digest(self.name)
     self.srdir = os.path.join(self.software_root, self.software_hash)
     self.requested_state = 'available'
@@ -711,6 +900,7 @@ touch worked"""):
 class DummyManager(object):
   def __init__(self):
     self.sequence = []
+    self.body_sequence = []
 
   def format(self, computer):
     self.sequence.append('format')
@@ -756,9 +946,10 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
                                                     'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual(open(os.path.join(self.certificate_repository_path, '0.crt')).read(), 'SLAPOS_cert')
       self.assertEqual(open(os.path.join(self.certificate_repository_path, '0.key')).read(), 'SLAPOS_key')
 
@@ -777,9 +968,10 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
                                                     'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
 
   def test_one_free_partition(self):
     """
@@ -812,9 +1004,10 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual(partition.state, 'started')
 
   def test_one_partition_started_fail(self):
@@ -832,9 +1025,10 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual(partition.state, 'started')
 
       instance = computer.instance_list[0]
@@ -848,13 +1042,15 @@ exit 1
                              'etc', 'software_release', 'worked',
                              '.slapos-retention-lock-delay', '.slapgrid-0-error.log'])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition',
-                        '/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/softwareInstanceError'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance',
+                        # XXX desactivated '/getHateoasUrl',
+                        '/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual(instance.state, 'started')
 
   def test_one_partition_started_stopped(self):
@@ -892,9 +1088,10 @@ chmod 755 etc/run/wrapper
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual(instance.state, 'started')
 
       computer.sequence = []
@@ -906,10 +1103,11 @@ chmod 755 etc/run/wrapper
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition'])
+                       [# XXX desactivated until I decide what to do with this '/getHateoasUrl',
+                        '/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual(instance.state, 'stopped')
 
   def test_one_broken_partition_stopped(self):
@@ -953,9 +1151,10 @@ chmod 755 etc/run/wrapper
       six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual(instance.state, 'started')
 
       computer.sequence = []
@@ -971,10 +1170,11 @@ exit 1
                              '.slapos-retention-lock-delay', '.slapgrid-0-error.log'])
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/softwareInstanceError'])
+                       [# XXX desactivated '/getHateoasUrl',
+                        '/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual(instance.state, 'started')
 
   def test_one_partition_stopped_started(self):
@@ -992,9 +1192,10 @@ exit 1
       six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual('stopped', instance.state)
 
       instance.requested_state = 'started'
@@ -1010,10 +1211,11 @@ exit 1
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       [# XXX desactivated '/getHateoasUrl',
+                        '/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual('started', instance.state)
 
   def test_one_partition_destroyed(self):
@@ -1037,9 +1239,10 @@ exit 1
       six.assertCountEqual(self, os.listdir(partition), ['.slapgrid', dummy_file_name])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual('stopped', instance.state)
 
   def test_one_partition_started_no_master(self):
@@ -1052,7 +1255,7 @@ exit 1
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(partition.partition_path), []) # buildout hasn't run
       six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
-      self.assertEqual(computer.sequence, ['/getFullComputerInformation'])
+      self.assertEqual(computer.sequence, ['/slapos.allDocs.instance'])
       self.assertEqual(partition.state, None)
 
   def test_one_partition_started_after_master_connection_loss(self):
@@ -1100,10 +1303,11 @@ exit 1
         runner_log = f.read()
       self.assertEqual(runner_log, 'Working\n' * 2)
       self.assertEqual(computer.sequence, [
-        '/getFullComputerInformation',
-        '/getComputerPartitionCertificate',
-        '/startedComputerPartition',
-        '/getComputerPartitionCertificate' # /getFullComputerInformation is cached
+        '/slapos.allDocs.instance',
+        '/slapos.get.software_instance',
+        '/slapos.get.software_instance_certificate',
+        '/slapos.put.software_instance',
+        '/slapos.get.software_instance_certificate' # /getFullComputerInformation is cached
       ])
 
   def test_stopped_partition_remains_stopped_after_master_connection_loss(self):
@@ -1163,12 +1367,14 @@ exit 1
       assertRunnerWorked(control_file)
       self.assertFalse(os.path.exists(test_file))
       self.assertEqual(computer.sequence, [
-        '/getFullComputerInformation',
-        '/getComputerPartitionCertificate',
-        '/startedComputerPartition',
-        '/getComputerPartitionCertificate',
-        '/startedComputerPartition',
-        '/getComputerPartitionCertificate' # /getFullComputerInformation is cached
+        '/slapos.allDocs.instance',
+        '/slapos.get.software_instance',
+        '/slapos.get.software_instance_certificate',
+        '/slapos.put.software_instance',
+        '/slapos.get.software_instance',
+        '/slapos.get.software_instance_certificate',
+        '/slapos.put.software_instance',
+        '/slapos.allDocs.instance'
       ])
 
 class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
@@ -1288,7 +1494,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
         payload = 'processname:%s groupname:%s from_state:RUNNING' % (
             'daemon' + WATCHDOG_MARK, instance.name)
         watchdog.handle_event(headers, payload)
-        self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
+        self.assertEqual(instance.sequence, ['/slapos.put.software_instance'])
 
   def test_unwanted_events_will_not_bang(self):
     """
@@ -1364,7 +1570,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       payload = 'processname:%s groupname:%s from_state:RUNNING' % (
           'daemon' + WATCHDOG_MARK, instance.name)
       watchdog.handle_event(headers, payload)
-      self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
+      self.assertEqual(instance.sequence, ['/slapos.put.software_instance'])
 
       with open(os.path.join(
           partition,
@@ -1399,7 +1605,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       payload = 'processname:%s groupname:%s from_state:RUNNING' % (
           'daemon' + WATCHDOG_MARK, instance.name)
       watchdog.handle_event(headers, payload)
-      self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
+      self.assertEqual(instance.sequence, ['/slapos.put.software_instance'])
 
       with open(os.path.join(
           partition,
@@ -1434,7 +1640,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       payload = 'processname:%s groupname:%s from_state:RUNNING' % (
           'daemon' + WATCHDOG_MARK, instance.name)
       watchdog.handle_event(headers, payload)
-      self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
+      self.assertEqual(instance.sequence, ['/slapos.put.software_instance'])
 
       # Second bang
       event = watchdog.process_state_events[0]
@@ -1488,7 +1694,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       payload = 'processname:%s groupname:%s from_state:RUNNING' % (
           'daemon' + WATCHDOG_MARK, instance.name)
       watchdog.handle_event(headers, payload)
-      self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
+      self.assertEqual(instance.sequence, ['/slapos.put.software_instance'])
 
       with open(os.path.join(
           partition,
@@ -1519,7 +1725,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       payload = 'processname:%s groupname:%s from_state:RUNNING' % (
           'daemon' + WATCHDOG_MARK, instance.name)
       watchdog.handle_event(headers, payload)
-      self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
+      self.assertEqual(instance.sequence, ['/slapos.put.software_instance'])
 
       with open(os.path.join(
           partition,
@@ -1558,7 +1764,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       with open(timestamp_path) as f:
         self.assertIn(timestamp, f.read())
       self.assertEqual(instance.sequence,
-                       ['/stoppedComputerPartition'])
+                       ['/slapos.get.software_instance', '/slapos.put.software_instance'])
 
   def test_partition_timestamp_develop(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root)
@@ -1580,8 +1786,8 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(instance.sequence,
-                       [ '/stoppedComputerPartition',
-                         '/stoppedComputerPartition'])
+                       ['/slapos.get.software_instance', '/slapos.put.software_instance',
+                        '/slapos.get.software_instance', '/slapos.put.software_instance'])
 
   def test_partition_same_timestamp(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root)
@@ -1599,7 +1805,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       instance.timestamp = timestamp
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(instance.sequence,
-                       [ '/stoppedComputerPartition'])
+                       ['/slapos.get.software_instance', '/slapos.put.software_instance'])
 
   def test_partition_different_older_timestamp(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root)
@@ -1646,16 +1852,19 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition',
-                        '/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition',
-                        '/getHateoasUrl',
-                        '/getFullComputerInformation'])
+                       [# XXX desactivated '/getHateoasUrl',
+                        '/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance',
+                        # XXX desactivated '/getHateoasUrl',
+                        '/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance',
+                        # XXX desactivated '/getHateoasUrl',
+                        '/slapos.allDocs.instance',
+                        '/slapos.get.software_instance'])
 
   def test_partition_timestamp_no_timestamp(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root)
@@ -1674,14 +1883,16 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       instance.timestamp = None
       self.launchSlapgrid()
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition',
-                        '/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition'])
+                       [# XXX desactivated '/getHateoasUrl',
+                        '/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance',
+                        # XXX desactivated '/getHateoasUrl',
+                        '/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
 
   def test_partition_periodicity_remove_timestamp(self):
     """
@@ -1747,16 +1958,17 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       time.sleep(wanted_periodicity + 1)
       for instance in computer.instance_list[1:]:
         self.assertEqual(instance.sequence,
-                         [ '/stoppedComputerPartition'])
+                         ['/slapos.get.software_instance', '/slapos.put.software_instance'])
       time.sleep(1)
       self.launchSlapgrid()
       self.assertEqual(instance0.sequence,
-                       [ '/startedComputerPartition',
-                         '/startedComputerPartition',
+                       ['/slapos.get.software_instance', '/slapos.put.software_instance',
+                        '/slapos.get.software_instance', '/slapos.put.software_instance',
                         ])
       for instance in computer.instance_list[1:]:
         self.assertEqual(instance.sequence,
-                         [ '/stoppedComputerPartition'])
+                         ['/slapos.get.software_instance', '/slapos.put.software_instance',
+                          '/slapos.get.software_instance'])
       self.assertGreater(
           os.path.getmtime(os.path.join(instance0.partition_path, '.timestamp')),
           last_runtime)
@@ -1787,15 +1999,15 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       time.sleep(wanted_periodicity + 1)
       for instance in computer.instance_list[1:]:
         self.assertEqual(instance.sequence,
-                         [ '/stoppedComputerPartition'])
+                         ['/slapos.get.software_instance', '/slapos.put.software_instance'])
       time.sleep(1)
       self.launchSlapgrid()
       self.assertEqual(instance0.sequence,
-                       [ '/stoppedComputerPartition',
-                         '/stoppedComputerPartition'])
+                       ['/slapos.get.software_instance', '/slapos.put.software_instance',
+                        '/slapos.get.software_instance', '/slapos.put.software_instance'])
       for instance in computer.instance_list[1:]:
         self.assertEqual(instance.sequence,
-                         [ '/stoppedComputerPartition'])
+                         ['/slapos.get.software_instance', '/slapos.put.software_instance', '/slapos.get.software_instance'])
       self.assertNotEqual(os.path.getmtime(os.path.join(instance0.partition_path,
                                                         '.timestamp')),
                           last_runtime)
@@ -1827,16 +2039,16 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       time.sleep(wanted_periodicity + 1)
       for instance in computer.instance_list[1:]:
         self.assertEqual(instance.sequence,
-                         [ '/stoppedComputerPartition'])
+                         ['/slapos.get.software_instance', '/slapos.put.software_instance'])
       time.sleep(1)
       instance0.requested_state = 'destroyed'
       self.launchSlapgrid()
       self.assertEqual(instance0.sequence,
-                       [ '/stoppedComputerPartition',
-                         '/stoppedComputerPartition'])
+                       ['/slapos.get.software_instance', '/slapos.put.software_instance',
+                        '/slapos.get.software_instance', '/slapos.put.software_instance'])
       for instance in computer.instance_list[1:]:
         self.assertEqual(instance.sequence,
-                         [ '/stoppedComputerPartition'])
+                         ['/slapos.put.software_instance'])
       self.assertNotEqual(os.path.getmtime(os.path.join(instance0.partition_path,
                                                         '.timestamp')),
                           last_runtime)
@@ -1901,9 +2113,9 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
 exit 42""")
       self.launchSlapgrid()
       self.assertEqual(instance0.sequence,
-                       ['/softwareInstanceError'])
+                       ['/slapos.get.software_instance', '/slapos.put.software_instance'])
       self.assertEqual(instance1.sequence,
-                       [ '/stoppedComputerPartition'])
+                       ['/slapos.get.software_instance', '/slapos.put.software_instance'])
 
   def test_one_partition_lacking_software_path_does_not_disturb_others(self):
     """
@@ -1918,9 +2130,9 @@ exit 42""")
       shutil.rmtree(instance0.software.srdir)
       self.launchSlapgrid()
       self.assertEqual(instance0.sequence,
-                       ['/softwareInstanceError'])
+                       ['/slapos.get.software_instance', '/slapos.put.software_instance'])
       self.assertEqual(instance1.sequence,
-                       [ '/stoppedComputerPartition'])
+                       ['/slapos.get.software_instance', '/slapos.put.software_instance'])
 
   def test_one_partition_lacking_software_bin_path_does_not_disturb_others(self):
     """
@@ -1935,9 +2147,9 @@ exit 42""")
       shutil.rmtree(instance0.software.srbindir)
       self.launchSlapgrid()
       self.assertEqual(instance0.sequence,
-                       ['/softwareInstanceError'])
+                       ['/slapos.get.software_instance', '/slapos.put.software_instance'])
       self.assertEqual(instance1.sequence,
-                       [ '/stoppedComputerPartition'])
+                       ['/slapos.get.software_instance', '/slapos.put.software_instance'])
 
   def test_one_partition_lacking_path_does_not_disturb_others(self):
     """
@@ -1952,9 +2164,9 @@ exit 42""")
       shutil.rmtree(instance0.partition_path)
       self.launchSlapgrid()
       self.assertEqual(instance0.sequence,
-                       ['/softwareInstanceError'])
+                       ['/slapos.put.software_instance'])
       self.assertEqual(instance1.sequence,
-                       [ '/stoppedComputerPartition'])
+                       ['/slapos.get.software_instance', '/slapos.put.software_instance'])
 
   def test_one_partition_buildout_fail_is_correctly_logged(self):
     """
@@ -1970,7 +2182,7 @@ exit 42""")
       instance.software.setBuildout("""#!/bin/sh
 echo %s; echo %s; exit 42""" % (line1, line2))
       self.launchSlapgrid()
-      self.assertEqual(instance.sequence, ['/softwareInstanceError'])
+      self.assertEqual(instance.sequence, ['/slapos.get.software_instance', '/slapos.put.software_instance'])
       # We don't care of actual formatting, we just want to have full log
       self.assertIn(line1, instance.error_log)
       self.assertIn(line2, instance.error_log)
@@ -2054,7 +2266,7 @@ echo %s; echo %s; exit 42""" % (line1, line2))
         ['etc', '.slapgrid', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay']
       )
       self.assertFalse(os.path.exists(promise_ran))
-      self.assertFalse(instance.sequence)
+      self.assertEqual(instance.sequence, ['/slapos.get.software_instance'])
 
   def test_supervisor_partition_files_removed_on_stop(self):
     computer = self.getTestComputerClass()(self.software_root, self.instance_root, 2, 1)
@@ -2124,9 +2336,10 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual(instance.state, 'started')
 
       # Then destroy the instance
@@ -2143,10 +2356,10 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertIsNotCreated(wrapper_log)
 
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition',
-                        '/destroyedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance',
+                        '/slapos.put.software_instance'])
       self.assertEqual(instance.state, 'destroyed')
 
   def test_partition_list_is_complete_if_empty_destroyed_partition(self):
@@ -2176,10 +2389,10 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
 
       self.assertEqual(
           computer.sequence,
-          ['/getFullComputerInformation',
-           '/getComputerPartitionCertificate',
-           '/stoppedComputerPartition',
-           '/destroyedComputerPartition'])
+          ['/slapos.allDocs.instance',
+           '/slapos.get.software_instance_certificate',
+           '/slapos.put.software_instance',
+           '/slapos.put.software_instance'])
 
   def test_slapgrid_not_destroy_bad_instance(self):
     """
@@ -2199,9 +2412,10 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual('started', instance.state)
 
       # Then run usage report and see if it is still working
@@ -2225,7 +2439,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation'])
+                       ['/slapos.allDocs.instance'])
       self.assertEqual('started', instance.state)
 
   def test_slapgrid_instance_ignore_free_instance(self):
@@ -2245,7 +2459,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(instance.partition_path), [])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
-      self.assertEqual(computer.sequence, ['/getFullComputerInformation'])
+      self.assertEqual(computer.sequence, ['/slapos.allDocs.instance'])
 
   def test_slapgrid_report_ignore_free_instance(self):
     """
@@ -2264,7 +2478,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual(['0'])
       six.assertCountEqual(self, os.listdir(instance.partition_path), [])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
-      self.assertEqual(computer.sequence, ['/getFullComputerInformation'])
+      self.assertEqual(computer.sequence, ['/slapos.allDocs.instance'])
 
 
 class TestSlapgridSoftwareRelease(MasterMixin, unittest.TestCase):
@@ -2298,7 +2512,7 @@ class TestSlapgridSoftwareRelease(MasterMixin, unittest.TestCase):
 echo %s; echo %s; exit 42""" % (line1, line2))
       self.launchSlapgridSoftware()
       self.assertEqual(software.sequence,
-                       ['/buildingSoftwareRelease', '/softwareReleaseError'])
+                       ['/slapos.put.software_installation', '/slapos.put.software_installation'])
       # We don't care of actual formatting, we just want to have full log
       self.assertIn(line1, software.error_log)
       self.assertIn(line2, software.error_log)
@@ -3156,9 +3370,10 @@ exit 0
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual(partition.state, 'started')
       manager_list = slapmanager.from_config({'manager_list': 'prerm'})
       self.grid._manager_list = manager_list
@@ -3373,7 +3588,7 @@ exit 1  # do not proceed trying to use this software
       self.launchSlapgridSoftware()
 
       self.assertEqual(software.sequence,
-                       ['/buildingSoftwareRelease', '/softwareReleaseError'])
+                       ['/slapos.put.software_installation', '/slapos.put.software_installation'])
       self.assertNotIn("file descriptors: leaked", software.error_log)
       self.assertIn("file descriptors: ok", software.error_log)
 
@@ -3408,9 +3623,10 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
     self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
     self.assertEqual(self.computer.sequence,
-                     ['/getFullComputerInformation',
-                      '/getComputerPartitionCertificate',
-                      '/startedComputerPartition'])
+                     ['/slapos.allDocs.instance',
+                      '/slapos.get.software_instance',
+                      '/slapos.get.software_instance_certificate',
+                      '/slapos.put.software_instance'])
     self.assertEqual(self.partition.state, 'started')
 
   def test_simple_port_redirection(self):
@@ -3484,11 +3700,13 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(self.computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual(self.partition.state, 'started')
 
       # Check the socat command
@@ -4052,9 +4270,10 @@ class TestSlapgridManagerLifecycle(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(self.computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual(partition.state, 'started')
 
       self.assertEqual(self.manager.sequence,

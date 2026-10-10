@@ -144,8 +144,19 @@ _RADIO_CACHE = {
   "cell": None,
   "ues": [],
   "sampled_at": None,
+  "password": {"radio": "ok", "core": "ok"},
 }
 _RADIO_STARTED = False
+# Passwords typed in the page. Kept in this process only, and only while
+# that browser session is still calling. Nothing is written to disk.
+_WS_AUTH = {
+  "token": "",
+  "radio": "",
+  "core": "",
+  "seen": 0,
+  "generation": 0,
+}
+_WS_AUTH_TTL = 60
 
 def proxy_database_path():
   cfg_path = os.path.join(os.getcwd(), "etc", "slapproxy.cfg")
@@ -192,34 +203,85 @@ def partition_rows(database_path):
     db.close()
   return []
 
-def split_host_port(value):
-  value = str(value).strip()
-  if value.startswith("["):
-    host, _, rest = value[1:].partition("]")
-    return host, int(rest.lstrip(":"))
-  host, port = value.rsplit(":", 1)
-  return host, int(port)
+def touch_ws_session(token):
+  """Remember which browser session is on the page. A new token drops the passwords."""
+  if not token or len(token) > 80:
+    return
+  with _RADIO_LOCK:
+    if token != _WS_AUTH["token"]:
+      _WS_AUTH["token"] = token
+      _WS_AUTH["radio"] = ""
+      _WS_AUTH["core"] = ""
+      _WS_AUTH["generation"] += 1
+    _WS_AUTH["seen"] = time.time()
 
-def read_amari_config(partition_reference, filename):
-  """Local websocket address and password. The password is never returned to the browser."""
-  if not re.match(r"^slappart[0-9]+$", str(partition_reference or "")):
-    return None, "", "configuration not found"
-  path = os.path.join("/srv/slapgrid", partition_reference, "etc", filename)
-  try:
-    with open(path, "r") as handle:
-      text = handle.read()
-  except OSError:
-    return None, "", "configuration not readable"
-  address = None
-  found = re.search(r'com_addr\s*:\s*"([^"]+)"', text)
-  if found and ":" in found.group(1):
+def current_ws_passwords():
+  with _RADIO_LOCK:
+    fresh = (time.time() - _WS_AUTH["seen"]) < _WS_AUTH_TTL
+    return (
+      _WS_AUTH["radio"] if fresh else "",
+      _WS_AUTH["core"] if fresh else "",
+      _WS_AUTH["generation"],
+    )
+
+def _decode_proc_addr(hex_ip):
+  raw = bytes.fromhex(hex_ip)
+  if len(raw) == 4:
+    return socket.inet_ntop(socket.AF_INET, raw[::-1])
+  if len(raw) == 16:
+    words = [raw[index:index + 4][::-1] for index in range(0, 16, 4)]
+    return socket.inet_ntop(socket.AF_INET6, b"".join(words))
+  return None
+
+def listeners_on(port):
+  """Addresses listening on this port. Used when the published address refuses."""
+  found = []
+  for path in ("/proc/net/tcp", "/proc/net/tcp6"):
     try:
-      address = split_host_port(found.group(1))
-    except ValueError:
-      address = None
-  match = re.search(r'com_auth\s*:\s*\{[^}]*password\s*:\s*"([^"]*)"', text, re.S)
-  password = match.group(1) if match else ""
-  return address, password, None
+      lines = open(path).read().splitlines()[1:]
+    except OSError:
+      continue
+    for line in lines:
+      parts = line.split()
+      if len(parts) < 4 or parts[3] != "0A":
+        continue
+      address, hex_port = parts[1].split(":")
+      if int(hex_port, 16) != int(port):
+        continue
+      host = _decode_proc_addr(address)
+      if host == "0.0.0.0":
+        host = "127.0.0.1"
+      elif host == "::":
+        host = "::1"
+      if host and host not in found:
+        found.append(host)
+  return found
+
+def _port_open(host, port):
+  family = socket.AF_INET6 if ":" in str(host) else socket.AF_INET
+  sock = socket.socket(family, socket.SOCK_STREAM)
+  sock.settimeout(2)
+  try:
+    if family == socket.AF_INET6:
+      sock.connect((host, int(port), 0, 0))
+    else:
+      sock.connect((host, int(port)))
+    return True
+  except OSError:
+    return False
+  finally:
+    sock.close()
+
+def endpoint_target(endpoint):
+  """Published host, or the local listener on the same port when that host refuses."""
+  host = endpoint["host"]
+  port = int(endpoint["port"])
+  if _port_open(host, port):
+    return host, port
+  for candidate in listeners_on(port):
+    if candidate != host and _port_open(candidate, port):
+      return candidate, port
+  return host, port
 
 def discover_amari():
   database_path = proxy_database_path()
@@ -236,28 +298,12 @@ def discover_amari():
       host = params.get("URL.websocket-hostname")
       port = params.get("URL.websocket-port")
       if host and port not in (None, ""):
-        address, password, problem = read_amari_config(reference, "enb.cfg")
-        if address:
-          host, port = address
-        enb = {
-          "host": str(host).strip(),
-          "port": int(port),
-          "password": password,
-          "problem": problem,
-        }
+        enb = {"host": str(host).strip(), "port": int(port)}
     if software_type == "core-network" and mme is None:
       host = params.get("URL.websocket-mme-hostname")
       port = params.get("URL.websocket-mme-port")
       if host and port not in (None, ""):
-        address, password, problem = read_amari_config(reference, "mme.cfg")
-        if address:
-          host, port = address
-        mme = {
-          "host": str(host).strip(),
-          "port": int(port),
-          "password": password,
-          "problem": problem,
-        }
+        mme = {"host": str(host).strip(), "port": int(port)}
   return enb, mme
 
 def _ws_send(sock, text):
@@ -329,8 +375,12 @@ class AmariSession(object):
     self.sock.settimeout(8)
     self.buf = bytearray()
     self.next_id = 1
-    self._upgrade(host, port)
-    self._authenticate(password)
+    try:
+      self._upgrade(host, port)
+      self._authenticate(password)
+    except Exception:
+      self.close()
+      raise
 
   def close(self):
     try:
@@ -545,9 +595,18 @@ def _store_radio(payload):
     _RADIO_CACHE.clear()
     _RADIO_CACHE.update(payload)
 
+def _password_failure(exc):
+  text = str(exc)
+  if text == "authentication required":
+    return "required", "needs a password"
+  if text == "authentication failed":
+    return "failed", "rejected the password"
+  return "", ""
+
 def _radio_loop():
   enb_session = None
   mme_session = None
+  held_generation = None
   while True:
     delay = 2
     errors = []
@@ -555,6 +614,16 @@ def _radio_loop():
     enb_ues = []
     mme_ues = []
     mme_ok = False
+    password_state = {"radio": "ok", "core": "ok"}
+    radio_password, core_password, generation = current_ws_passwords()
+    if generation != held_generation:
+      if enb_session is not None:
+        enb_session.close()
+      if mme_session is not None:
+        mme_session.close()
+      enb_session = None
+      mme_session = None
+      held_generation = generation
     try:
       enb_endpoint, mme_endpoint = discover_amari()
     except (OSError, sqlite3.Error, RuntimeError, ValueError) as exc:
@@ -567,18 +636,18 @@ def _radio_loop():
         "cell": previous.get("cell"),
         "ues": previous.get("ues") or [],
         "sampled_at": previous.get("sampled_at"),
+        "password": previous.get("password") or password_state,
       })
       time.sleep(5)
       continue
     try:
       if not enb_endpoint:
         errors.append("radio websocket is not published")
-      elif enb_endpoint["problem"]:
-        errors.append("radio: " + enb_endpoint["problem"])
+        password_state["radio"] = "down"
       else:
         if enb_session is None:
-          enb_session = AmariSession(
-            enb_endpoint["host"], enb_endpoint["port"], enb_endpoint["password"])
+          host, port = endpoint_target(enb_endpoint)
+          enb_session = AmariSession(host, port, radio_password)
           enb_session.call({"message": "stats", "initial_delay": 0.4})
         stats = enb_session.call({"message": "stats"})
         enb_ues = enb_session.call({"message": "ue_get", "stats": True}).get("ue_list") or []
@@ -586,24 +655,35 @@ def _radio_loop():
       if enb_session is not None:
         enb_session.close()
       enb_session = None
-      errors.append("radio websocket unavailable (%s)" % exc)
+      state, detail = _password_failure(exc)
+      if state:
+        password_state["radio"] = state
+        errors.append("radio websocket " + detail)
+      else:
+        password_state["radio"] = "down"
+        errors.append("radio websocket unavailable (%s)" % exc)
       delay = 5
     try:
       if not mme_endpoint:
         errors.append("core websocket is not published")
-      elif mme_endpoint["problem"]:
-        errors.append("core: " + mme_endpoint["problem"])
+        password_state["core"] = "down"
       else:
         if mme_session is None:
-          mme_session = AmariSession(
-            mme_endpoint["host"], mme_endpoint["port"], mme_endpoint["password"])
+          host, port = endpoint_target(mme_endpoint)
+          mme_session = AmariSession(host, port, core_password)
         mme_ues = mme_session.call({"message": "ue_get"}).get("ue_list") or []
         mme_ok = True
     except (OSError, RuntimeError, ValueError, socket.timeout) as exc:
       if mme_session is not None:
         mme_session.close()
       mme_session = None
-      errors.append("core websocket unavailable (%s)" % exc)
+      state, detail = _password_failure(exc)
+      if state:
+        password_state["core"] = state
+        errors.append("core websocket " + detail)
+      else:
+        password_state["core"] = "down"
+        errors.append("core websocket unavailable (%s)" % exc)
       delay = 5
     with _RADIO_LOCK:
       previous = dict(_RADIO_CACHE)
@@ -615,6 +695,7 @@ def _radio_loop():
       "cell": _cell_summary(stats) if got_cell else previous.get("cell"),
       "ues": _join_ues(mme_ues, enb_ues) if mme_ok else (previous.get("ues") or []),
       "sampled_at": time.time() if (got_cell or mme_ok) else previous.get("sampled_at"),
+      "password": password_state,
     })
     time.sleep(delay)
 
@@ -627,9 +708,35 @@ def ensure_radio_thread():
     thread = threading.Thread(target=_radio_loop, name="henri-radio", daemon=True)
     thread.start()
 
+@henri_blueprint.route('/radio-auth', methods=['POST'])
+def radio_auth():
+  """Hold websocket passwords for the browser session that sent them."""
+  body = request.get_json(force=True, silent=True) or {}
+  token = body.get("token")
+  if not isinstance(token, str) or not token or len(token) > 80:
+    abort(400)
+  with _RADIO_LOCK:
+    if token != _WS_AUTH["token"]:
+      _WS_AUTH["token"] = token
+      _WS_AUTH["radio"] = ""
+      _WS_AUTH["core"] = ""
+      _WS_AUTH["generation"] += 1
+    changed = False
+    for side in ("radio", "core"):
+      value = body.get(side)
+      if isinstance(value, str) and value != _WS_AUTH[side]:
+        _WS_AUTH[side] = value
+        changed = True
+    if changed:
+      _WS_AUTH["generation"] += 1
+    _WS_AUTH["seen"] = time.time()
+  ensure_radio_thread()
+  return jsonify({"ok": True})
+
 @henri_blueprint.route('/radio-stats', methods=['GET'])
 def radio_stats():
   """Latest Amarisoft sample: cell throughput and attached UEs. Nothing is stored."""
   ensure_radio_thread()
+  touch_ws_session(request.headers.get("X-Henri-Session") or "")
   with _RADIO_LOCK:
     return jsonify(dict(_RADIO_CACHE))

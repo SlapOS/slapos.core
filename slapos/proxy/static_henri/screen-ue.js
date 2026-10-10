@@ -15,16 +15,110 @@ var radioTimer = null;
 var radioHistory = [];
 var attachBaseline = null;
 
+function wsSessionToken() {
+  var token = sessionStorage.getItem("henri-ws-token");
+  if (!token) {
+    token = String(Date.now()) + "-" + Math.random().toString(36).slice(2);
+    sessionStorage.setItem("henri-ws-token", token);
+  }
+  return token;
+}
+
+function storedWsPassword(side) {
+  return sessionStorage.getItem(side === "radio" ? "henri-ws-radio" : "henri-ws-core") || "";
+}
+
+function postWsPasswords() {
+  var body = {token: wsSessionToken()};
+  var radio = storedWsPassword("radio");
+  var core = storedWsPassword("core");
+  if (radio) {
+    body.radio = radio;
+  }
+  if (core) {
+    body.core = core;
+  }
+  if (!body.radio && !body.core) {
+    return Promise.resolve();
+  }
+  return fetch("radio-auth", {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "Accept": "application/json"},
+    body: JSON.stringify(body)
+  });
+}
+
+function askWsPassword(state, side) {
+  if (state === "failed") {
+    sessionStorage.removeItem(side === "radio" ? "henri-ws-radio" : "henri-ws-core");
+    return true;
+  }
+  return state === "required" && !storedWsPassword(side);
+}
+
+function openWsPasswordPrompt(radioState, coreState) {
+  if (typeof modalOverlay !== "undefined" && !modalOverlay.classList.contains("hidden")) {
+    return;
+  }
+  var askRadio = askWsPassword(radioState, "radio");
+  var askCore = askWsPassword(coreState, "core");
+  if (!askRadio && !askCore) {
+    return;
+  }
+  var body = document.createElement("div");
+  var hint = document.createElement("div");
+  hint.className = "modal-hint";
+  hint.textContent = "Kept for this visit only. Leaving Henri and coming back asks again.";
+  body.appendChild(hint);
+  var fields = {};
+  function addField(side, label, failed) {
+    var wrap = document.createElement("label");
+    wrap.textContent = label;
+    var input = document.createElement("input");
+    input.type = "password";
+    input.autocomplete = "off";
+    wrap.appendChild(input);
+    if (failed) {
+      var note = document.createElement("div");
+      note.className = "ip-note";
+      note.textContent = "The previous password was rejected.";
+      wrap.appendChild(note);
+    }
+    body.appendChild(wrap);
+    fields[side] = input;
+  }
+  if (askRadio) {
+    addField("radio", "enb-gnb password", radioState === "failed");
+  }
+  if (askCore) {
+    addField("core", "Core network password", coreState === "failed");
+  }
+  openModal("Websocket password", body, function () {
+    if (askRadio && !fields.radio.value) {
+      throw new Error("The enb-gnb password is required.");
+    }
+    if (askCore && !fields.core.value) {
+      throw new Error("The core network password is required.");
+    }
+    if (askRadio) {
+      sessionStorage.setItem("henri-ws-radio", fields.radio.value);
+    }
+    if (askCore) {
+      sessionStorage.setItem("henri-ws-core", fields.core.value);
+    }
+    return postWsPasswords().then(function () {
+      loadRadioStats();
+    });
+  });
+}
+
 function startRadioPoll() {
+  postWsPasswords();
   loadRadioStats();
   if (radioTimer) {
     return;
   }
-  radioTimer = setInterval(function () {
-    if (currentView === "ue-monitoring") {
-      loadRadioStats();
-    }
-  }, 2500);
+  radioTimer = setInterval(loadRadioStats, 2500);
 }
 
 function stopRadioPoll() {
@@ -35,7 +129,10 @@ function stopRadioPoll() {
 }
 
 function loadRadioStats() {
-  fetch("radio-stats", {headers: {"Accept": "application/json"}})
+  fetch("radio-stats", {headers: {
+    "Accept": "application/json",
+    "X-Henri-Session": wsSessionToken()
+  }})
     .then(function (response) {
       if (!response.ok) {
         throw new Error("HTTP " + response.status);
@@ -57,6 +154,8 @@ function loadRadioStats() {
         });
       }
       paintSimIpSurfaces();
+      var passwordState = payload.password || {};
+      openWsPasswordPrompt(passwordState.radio, passwordState.core);
       if (currentView === "ue-monitoring") {
         renderUeMonitoring();
       }

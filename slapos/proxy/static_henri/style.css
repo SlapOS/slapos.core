@@ -384,7 +384,7 @@ pre.raw { font-family: var(--mono); font-size: 11px; line-height: 1.55; backgrou
   margin-top: 6px; font-family: var(--sans); font-size: 11px; letter-spacing: 0; text-transform: none;
   color: var(--text-2); line-height: 1.45;
 }
-#modal-body input[type="text"], #modal-body textarea {
+#modal-body input[type="text"], #modal-body input[type="password"], #modal-body textarea {
   display: block; width: 100%; margin-top: 5px; border: 1px solid var(--line); border-radius: 5px;
   padding: 7px 10px; font-family: var(--mono); font-size: 12px; background: var(--paper); color: var(--text);
 }

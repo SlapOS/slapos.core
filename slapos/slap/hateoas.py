@@ -65,6 +65,16 @@ class TempDocument(object):
     """
     self.__dict__.update(kw)
 
+
+class BasicSlapPartitionAuth(requests.auth.AuthBase):
+  def __init__(self, computer_id, computer_partition_id):
+    self.authorization = 'X-SlapPartition computer_id=%s, computer_partition_id=%s' % (computer_id, computer_partition_id)
+
+  def __call__(self, r):
+    r.headers['Authorization'] = self.authorization
+    return r
+
+
 class ConnectionHelper:
   def __init__(self, master_url, key_file=None,
                cert_file=None, master_ca_file=None, timeout=None):
@@ -79,7 +89,7 @@ class ConnectionHelper:
     self.master_ca_file = master_ca_file
     self.timeout = timeout
 
-  def do_request(self, method, path, params=None, data=None, headers=None):
+  def do_request(self, method, path, params=None, data=None, headers=None, auth=None):
     url = parse.urljoin(self.slapgrid_uri, path)
     if headers is None:
       headers = {}
@@ -90,7 +100,7 @@ class ConnectionHelper:
 #      raise ValueError('method path should be relative: %s' % path)
 
     try:
-      if url.startswith('https'):
+      if url.startswith('https') and (self.cert_file is not None):
         cert = (self.cert_file, self.key_file)
       else:
         cert = None
@@ -108,6 +118,7 @@ class ConnectionHelper:
       req = method(url=url,
                    params=params,
                    cert=cert,
+                   auth=auth,
                    verify=False,
                    data=data,
                    headers=headers,
@@ -160,8 +171,10 @@ class ConnectionHelper:
     return req.text.encode('utf-8')
 
   def POST(self, path, params=None, data=None,
-           content_type='application/x-www-form-urlencoded'):
+           content_type='application/x-www-form-urlencoded',
+           auth=None):
     req = self.do_request(requests.post,
+                          auth=auth,
                           path=path,
                           params=params,
                           data=data,

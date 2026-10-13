@@ -570,10 +570,10 @@ class TestRequest(MasterMixin):
     """
     self.format_for_number_of_partitions(2)
     self.assertIsInstance(self.request('http://sr//', None,
-                                       'MyFirstInstance', 'slappart2'),
+                                       'MyFirstInstance'),
                           slapos.slap.ComputerPartition)
     self.assertIsInstance(self.request('http://sr//', None,
-                                       'MyFirstInstance', 'slappart3'),
+                                       'MySecondInstance'),
                           slapos.slap.ComputerPartition)
 
   def test_two_same_request_from_one_partition(self):
@@ -582,7 +582,7 @@ class TestRequest(MasterMixin):
     """
     self.format_for_number_of_partitions(2)
     def do_request():
-      return self.request('http://sr//', None, 'MyFirstInstance', 'slappart2')
+      return self.request('http://sr//', None, 'MyFirstInstance')
     requested_at = time.time()
     partition = do_request()
     self.assertLessEqual(float(str(requested_at)),
@@ -671,11 +671,11 @@ class TestRequest(MasterMixin):
     wanted_domain1 = 'fou.org'
     wanted_domain2 = 'carzy.org'
 
-    request1 = self.request('http://sr//', None, 'MyFirstInstance', 'slappart2',
+    request1 = self.request('http://sr//', None, 'MyFirstInstance',
                             partition_parameter_kw={'domain': wanted_domain1})
     requested_result1 = self.getPartitionInformation(request1._partition_id)
     time.sleep(.1) # so that timestamp changes
-    request2 = self.request('http://sr//', 'Papa', 'MyFirstInstance', 'slappart2',
+    request2 = self.request('http://sr//', 'Papa', 'MyFirstInstance',
                             partition_parameter_kw={'domain': wanted_domain2})
     requested_result2 = self.getPartitionInformation(request2._partition_id)
     # Test we received same partition
@@ -710,12 +710,12 @@ class TestRequest(MasterMixin):
     wanted_domain1 = 'fou.org'
     wanted_domain2 = 'carzy.org'
 
-    request1 = self.request('http://sr//', None, 'MyFirstInstance', 'slappart2',
+    request1 = self.request('http://sr//', None, 'MyFirstInstance',
                             partition_parameter_kw={'domain': wanted_domain1})
     request1_dict = request1.__dict__
     requested_result1 = self.getPartitionInformation(
         request1_dict['_partition_id'])
-    request2 = self.request('http://sr1//', 'Papa', 'MyFirstInstance', 'slappart2',
+    request2 = self.request('http://sr1//', 'Papa', 'MyFirstInstance',
                             partition_parameter_kw={'domain': wanted_domain2})
     request2_dict = request2.__dict__
     requested_result2 = self.getPartitionInformation(
@@ -746,7 +746,7 @@ class TestRequest(MasterMixin):
     Verify that request with non-ascii parameters is correctly accepted
     """
     self.format_for_number_of_partitions(1)
-    request = self.request('http://sr//', None, 'myinstance', 'slappart0',
+    request = self.request('http://sr//', None, 'myinstance',
                            partition_parameter_kw={'text': u'Привет Мир!'})
     self.assertIsInstance(request, slapos.slap.ComputerPartition)
 
@@ -755,7 +755,7 @@ class TestRequest(MasterMixin):
     Verify that request with int parameters is correctly accepted
     """
     self.format_for_number_of_partitions(1)
-    request = self.request('http://sr//', None, 'myinstance', 'slappart0',
+    request = self.request('http://sr//', None, 'myinstance',
                            partition_parameter_kw={'int': 1})
     self.assertIsInstance(request, slapos.slap.ComputerPartition)
 
@@ -781,7 +781,6 @@ class TestRequest(MasterMixin):
         'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
         None,
         self.id(),
-        'slappart0',
         shared=True,
         partition_parameter_kw={'url': 'https://[::1]:123/my/path?my=query&string=value#myanchor', })
     self.assertEqual(
@@ -797,7 +796,6 @@ class TestRequest(MasterMixin):
         'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
         None,
         self.id(),
-        'slappart0',
         shared=True,
         partition_parameter_kw={'url': 'https://[::1]:123/my/path?my=query&string=value#myanchor', },
         headers={'X-Forwarded-Proto': 'https'})
@@ -814,7 +812,6 @@ class TestRequest(MasterMixin):
         'http://git.erp5.org/gitweb/slapos.git/blob_plain/refs/tags/slapos-0.92:/software/kvm/software.cfg',
         'frontend',
         self.id(),
-        'slappart0',
         shared=True,
         partition_parameter_kw={'host': '::1', 'port': '123'})
     self.assertEqual(
@@ -945,7 +942,7 @@ class TestSlaveRequest(MasterMixin):
     Slave instance request will fail if no corresponding are found
     """
     self.format_for_number_of_partitions(2)
-    rv = self._requestComputerPartition('http://sr//', None, 'MyFirstInstance', 'slappart2', shared=True)
+    rv = self._requestComputerPartition('http://sr//', None, 'MyFirstInstance', shared=True)
     self.assertEqual(rv._status_code, 404)
 
   def test_slave_request_set_parameters(self):
@@ -984,7 +981,7 @@ class TestSlaveRequest(MasterMixin):
   def test_slave_request_updates_timestamp(self):
     self.format_for_number_of_partitions(1)
     # Provide partition
-    master_partition = self.request('http://sr//', None, 'MyMasterInstance', 'slappart4')
+    master_partition = self.request('http://sr//', None, 'MyMasterInstance')
 
     def getPartition():
       return self.getFullComputerInformation()._computer_partition_list[0]
@@ -1030,7 +1027,7 @@ class TestSlaveRequest(MasterMixin):
   def test_slave_request_destroyed(self):
     self.format_for_number_of_partitions(1)
     # Provide partition
-    master_partition = self.request('http://sr//', None, 'MyMasterInstance', 'slappart4')
+    master_partition = self.request('http://sr//', None, 'MyMasterInstance')
     def getPartition():
       return self.getFullComputerInformation()._computer_partition_list[0]
     def getTimestamp(partition):
@@ -1151,8 +1148,8 @@ class TestSlaveRequest(MasterMixin):
     of partition.
     """
     self.format_for_number_of_partitions(1)
-    partition = self.request('http://sr//', None, 'MyInstance', 'slappart1')
-    slave = self.request('http://sr//', None, 'MySlaveInstance', 'slappart1',
+    partition = self.request('http://sr//', None, 'MyInstance')
+    slave = self.request('http://sr//', None, 'MySlaveInstance',
          shared=True, filter_kw=dict(instance_guid=partition._instance_guid))
     self.assertEqual(slave._partition_id, partition._partition_id)
 
@@ -1492,22 +1489,22 @@ class TestMultiNodeSupport(MasterMixin):
     # Request without SLA -> goes to default computer only.
     # It should fail if we didn't registered partitions for default computer
     # (default computer is always registered)
-    rv = self._requestComputerPartition('http://sr//', None, 'MyFirstInstance', 'slappart2')
+    rv = self._requestComputerPartition('http://sr//', None, 'MyFirstInstance')
     self.assertEqual(rv._status_code, 404)
 
-    rv = self._requestComputerPartition('http://sr//', None, 'MyFirstInstance', 'slappart2',
+    rv = self._requestComputerPartition('http://sr//', None, 'MyFirstInstance',
                                         filter_kw={'computer_guid': self.computer_id})
     self.assertEqual(rv._status_code, 404)
 
     # Register default computer: deployment works
     self.format_for_number_of_partitions(1)
-    self.request('http://sr//', None, 'MyFirstInstance', 'slappart0')
+    self.request('http://sr//', None, 'MyFirstInstance')
     computer_default = loads(self.app.get(
         '/getFullComputerInformation?computer_id=%s' % self.computer_id).data)
     self.assertEqual(len(computer_default._software_release_list), 0)
 
     # No free space on default computer: request without SLA fails
-    rv = self._requestComputerPartition('http://sr//', None, 'CanIHasPartition', 'slappart2',
+    rv = self._requestComputerPartition('http://sr//', None, 'CanIHasPartition',
                                         filter_kw={'computer_guid': self.computer_id})
     self.assertEqual(rv._status_code, 404)
 
@@ -1526,13 +1523,13 @@ class TestMultiNodeSupport(MasterMixin):
 
     # Deploy to first non-default computer using SLA
     # It should fail since computer is not registered
-    rv = self._requestComputerPartition(software_release_1, None, 'MyFirstInstance', 'slappart2', filter_kw={'computer_guid': computer_0_id})
+    rv = self._requestComputerPartition(software_release_1, None, 'MyFirstInstance', filter_kw={'computer_guid': computer_0_id})
     self.assertEqual(rv._status_code, 404)
 
     self.format_for_number_of_partitions(2, computer_id=computer_0_id)
 
     # Deploy to first non-default computer using SLA
-    partition = self.request(software_release_1, None, 'MyFirstInstance', 'slappart0', filter_kw={'computer_guid': computer_0_id})
+    partition = self.request(software_release_1, None, 'MyFirstInstance', filter_kw={'computer_guid': computer_0_id})
     self.assertEqual(partition.getState(), 'started')
     self.assertEqual(partition._partition_id, 'slappart0')
     self.assertEqual(partition._computer_id, computer_0_id)
@@ -1545,7 +1542,7 @@ class TestMultiNodeSupport(MasterMixin):
     self.assertTrue(computer_1._computer_partition_list[1]._software_release_document == None)
 
     # Deploy to second non-default computer using SLA
-    partition = self.request(software_release_2, None, 'MySecondInstance', 'slappart0', filter_kw={'computer_guid': computer_1_id})
+    partition = self.request(software_release_2, None, 'MySecondInstance', filter_kw={'computer_guid': computer_1_id})
     self.assertEqual(partition.getState(), 'started')
     self.assertEqual(partition._partition_id, 'slappart0')
     self.assertEqual(partition._computer_id, computer_1_id)
@@ -1634,10 +1631,10 @@ class TestMultiNodeSupport(MasterMixin):
     computer_1_id = 'COMP-1'
     self.format_for_number_of_partitions(6, computer_id=computer_0_id)
     self.format_for_number_of_partitions(6, computer_id=computer_1_id)
-    partition_first = self.request('http://sr//', None, 'MyFirstInstance', 'slappart0', filter_kw={'computer_guid': computer_0_id})
-    partition_second = self.request('http://sr//', None, 'MySecondInstance', 'slappart0', filter_kw={'computer_guid': computer_1_id})
+    partition_first = self.request('http://sr//', None, 'MyFirstInstance', filter_kw={'computer_guid': computer_0_id})
+    partition_second = self.request('http://sr//', None, 'MySecondInstance', filter_kw={'computer_guid': computer_1_id})
 
-    partition_first = self.request('http://sr//', None, 'MyFirstInstance', 'slappart0', filter_kw={'computer_guid': computer_0_id}, state='stopped')
+    partition_first = self.request('http://sr//', None, 'MyFirstInstance', filter_kw={'computer_guid': computer_0_id}, state='stopped')
 
     computer_0 = loads(self.app.get('/getFullComputerInformation?computer_id=COMP-0').data)
     computer_1 = loads(self.app.get('/getFullComputerInformation?computer_id=COMP-1').data)
@@ -1657,8 +1654,8 @@ class TestMultiNodeSupport(MasterMixin):
     computer_1_id = 'COMP-1'
     self.format_for_number_of_partitions(2, computer_id=computer_0_id)
     self.format_for_number_of_partitions(2, computer_id=computer_1_id)
-    partition = self.request('http://sr//', None, 'MyFirstInstance', 'slappart0', filter_kw={'computer_guid': computer_0_id})
-    partition = self.request('http://sr//', None, 'MyFirstInstance', 'slappart0', filter_kw={'computer_guid': computer_1_id})
+    partition = self.request('http://sr//', None, 'MyFirstInstance', filter_kw={'computer_guid': computer_0_id})
+    partition = self.request('http://sr//', None, 'MyFirstInstance', filter_kw={'computer_guid': computer_1_id})
 
     self.assertEqual(partition._computer_id, computer_0_id)
 
@@ -1677,19 +1674,19 @@ class TestMultiNodeSupport(MasterMixin):
     self.format_for_number_of_partitions(2, computer_id=computer_0_id)
     self.format_for_number_of_partitions(2, computer_id=computer_1_id)
     self.format_for_number_of_partitions(2)
-    self.request('http://sr2//', None, 'MyFirstInstance', 'slappart0', filter_kw={'computer_guid': computer_0_id})
-    self.request('http://sr//', None, 'MyOtherInstance', 'slappart0', filter_kw={'computer_guid': computer_1_id})
+    self.request('http://sr2//', None, 'MyFirstInstance', filter_kw={'computer_guid': computer_0_id})
+    self.request('http://sr//', None, 'MyOtherInstance', filter_kw={'computer_guid': computer_1_id})
 
     # Request slave without SLA: will fail
-    rv = self._requestComputerPartition('http://sr//', None, 'MySlaveInstance', 'slappart2', shared=True)
+    rv = self._requestComputerPartition('http://sr//', None, 'MySlaveInstance', shared=True)
     self.assertEqual(rv._status_code, 404)
 
     # Request slave with SLA on incorrect computer: will fail
-    rv = self._requestComputerPartition('http://sr//', None, 'MySlaveInstance', 'slappart2', shared=True, filter_kw={'computer_guid': computer_0_id})
+    rv = self._requestComputerPartition('http://sr//', None, 'MySlaveInstance', shared=True, filter_kw={'computer_guid': computer_0_id})
     self.assertEqual(rv._status_code, 404)
 
     # Request computer on correct computer: will succeed
-    partition = self.request('http://sr//', None, 'MySlaveInstance', 'slappart2', shared=True, filter_kw={'computer_guid': computer_1_id})
+    partition = self.request('http://sr//', None, 'MySlaveInstance', shared=True, filter_kw={'computer_guid': computer_1_id})
     self.assertEqual(partition._computer_id, computer_1_id)
 
   def test_multi_node_support_instance_guid(self):
@@ -1703,9 +1700,9 @@ class TestMultiNodeSupport(MasterMixin):
     self.format_for_number_of_partitions(2, computer_id=computer_0_id)
     self.format_for_number_of_partitions(2, computer_id=computer_1_id)
     self.format_for_number_of_partitions(2)
-    partition_computer_0 = self.request('http://sr2//', None, 'MyFirstInstance', 'slappart0', filter_kw={'computer_guid': computer_0_id})
-    partition_computer_1 = self.request('http://sr//', None, 'MyOtherInstance', 'slappart0', filter_kw={'computer_guid': computer_1_id})
-    partition_computer_default = self.request('http://sr//', None, 'MyThirdInstance', 'slappart0')
+    partition_computer_0 = self.request('http://sr2//', None, 'MyFirstInstance', filter_kw={'computer_guid': computer_0_id})
+    partition_computer_1 = self.request('http://sr//', None, 'MyOtherInstance', filter_kw={'computer_guid': computer_1_id})
+    partition_computer_default = self.request('http://sr//', None, 'MyThirdInstance')
 
     self.assertEqual(partition_computer_0.getInstanceGuid(), 'COMP-0-slappart0')
     self.assertEqual(partition_computer_1.getInstanceGuid(), 'COMP-1-slappart0')

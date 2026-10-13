@@ -163,8 +163,9 @@ class ConnectionHelper:
 
     return req
 
-  def GET(self, path, params=None, headers=None):
+  def GET(self, path, params=None, headers=None, auth=None):
     req = self.do_request(requests.get,
+                          auth=None,
                           path=path,
                           params=params,
                           headers=headers)

@@ -3,7 +3,7 @@ from .db import execute_db, requestInstanceFromDB, supplyFromDB, removeFromDB, \
                 bangInstanceFromDB, freePartitionFromDB, formatFromDB, \
                 NotFoundPartitionFailure, PartitionDeletionFailure, \
                 getPartitionFromDB, AllocationFailure, ConfigurationError, \
-                getRequesterFromAuthorization
+                propagateTimestampToRequester, getRequesterFromAuthorization
 from slapos.util import loads, dumps
 from slapos.util import unicode2str, \
     xml2dict, dict2xml
@@ -115,9 +115,12 @@ def setComputerPartitionConnectionXml():
   computer_id = unicode2str(request.form['computer_id'])
   connection_xml = dict2xml(loads(request.form['connection_xml'].encode('utf-8')))
   if not slave_reference or slave_reference == 'None':
+    partition = getPartitionFromDB(computer_partition_id, computer_id)
     query = 'UPDATE %s SET connection_xml=? WHERE reference=? AND computer_reference=?'
     argument_list = [connection_xml, computer_partition_id, computer_id]
     execute_db('partition', query, argument_list)
+    if not partition or partition['connection_xml'] != connection_xml:
+      propagateTimestampToRequester(computer_partition_id, computer_id)
   else:
     query = 'UPDATE %s SET connection_xml=? , hosted_by=? WHERE reference=?'
     argument_list = [connection_xml, computer_partition_id, slave_reference]

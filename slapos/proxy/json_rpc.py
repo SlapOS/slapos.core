@@ -5,7 +5,8 @@ from .db import execute_db, requestInstanceFromDB, supplyFromDB, removeFromDB, \
                 bangInstanceFromDB, getPartitionFromDB, freePartitionFromDB, \
                 formatFromDB, \
                 NotFoundPartitionFailure, PartitionDeletionFailure, \
-                AllocationFailure, getInstanceTreeList, getAllocatedInstance
+                AllocationFailure, getInstanceTreeList, getAllocatedInstance, \
+                propagateTimestampToRequester
 from slapos.util import dict2xml, xml2dict, loads
 from slapos.slap.slap import ComputerPartition, SoftwareInstance, ConnectionError
 from .http_proxy import HTTPConnectionError
@@ -602,9 +603,12 @@ def put_software_instance_connection_parameter():
     argument_list = [connection_xml, generateDBSlaveReference(partition_reference, requested_by), requested_by]
     execute_db('slave', query, argument_list)
   else:
+    partition = getAllocatedInstance(partition_reference, requested_by)
     query = 'UPDATE %s SET connection_xml=? WHERE partition_reference=? AND requested_by=?'
     argument_list = [connection_xml, partition_reference, requested_by]
     execute_db('partition', query, argument_list)
+    if partition and partition['connection_xml'] != connection_xml:
+      propagateTimestampToRequester(partition['reference'], partition['computer_reference'])
 
   return validate_and_send_json_rpc_document({
     'type': 'success',

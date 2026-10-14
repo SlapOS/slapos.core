@@ -152,6 +152,7 @@ def freePartitionFromDB(computer_partition_id, computer_id):
       " software_type=NULL,"
       " partition_reference=NULL,"
       " requested_by='',"
+      " requester_id='',"
       " requested_state='started'"
     " WHERE reference=? AND computer_reference=?",
     (computer_partition_id, computer_id))
@@ -165,6 +166,24 @@ def getPartitionFromDB(reference, computer_reference):
   current_app.logger.warning("Nonexisting partition %r on %r. Known are %s",
     reference, computer_reference,
     execute_db("partition", "select reference, requested_by from %s"))
+
+def propagateTimestampToRequester(reference, computer_reference):
+  """
+  A partition whose published state changed got its timestamp updated, so
+  that it gets reprocessed. The partition which directly requested it also
+  needs reprocessing, to pick up the new state: propagate the timestamp
+  update to it. This does not propagate further up the request chain.
+  """
+  partition = getPartitionFromDB(reference, computer_reference)
+  if not partition:
+    return
+  requester_id = partition['requester_id']
+  if not requester_id:
+    return
+  execute_db(
+    'partition',
+    'UPDATE %s SET timestamp=? WHERE reference=? AND computer_reference=?',
+    (time.time(), requester_id, computer_reference))
 
 
 
@@ -196,7 +215,7 @@ def requestSlave(software_release, software_type, partition_reference, requester
   Slave information are stored in places:
   1. slave table having information such as slave reference,
       connection information to slave (given by slave master),
-      hosted_by and asked_by reference.
+      hosted_by and requester_id reference.
   2. A dictionary in slave_instance_list of selected slave master
       in which are stored slave_reference, software_type, slave_title and
       partition_parameter_kw stored as individual keys.
@@ -287,8 +306,8 @@ def requestSlave(software_release, software_type, partition_reference, requester
                      [slave_reference, requested_computer_id], one=True)
   if slave is None:
     execute_db('slave',
-               'INSERT INTO %s (reference,computer_reference,asked_by,hosted_by) values(?,?,?,?)',
-               (slave_reference, requested_computer_id, requested_by, partition['reference']))
+               'INSERT INTO %s (reference,computer_reference,hosted_by,requester_id) values(?,?,?,?)',
+               (slave_reference, requested_computer_id, partition['reference'], requester_id))
     slave = execute_db('slave', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
                        [slave_reference, requested_computer_id], one=True)
 
@@ -333,6 +352,9 @@ def requestNotSlave(software_release, software_type, partition_reference,
     if requested_by:
       q += ' ,requested_by=?'
       a(requested_by)
+    if requester_id:
+      q += ' ,requester_id=?'
+      a(requester_id)
     if not software_type:
       software_type = DEFAULT_SOFTWARE_TYPE
   else:
@@ -637,12 +659,12 @@ def getRootPartitionList(title=None):
   return execute_db('partition', query, args)
 
 def getRootSharedList(title=None):
-  query = "SELECT * FROM %s WHERE asked_by=''"
-  args = []
+  # a root shared instance has no requester: its reference, built as
+  # '<requester_title>_<title>', starts with the separator.
   if title:
-    query += ' AND reference=?'
-    args.append('_' + title)
-  return execute_db('slave', query, args)
+    return execute_db('slave', 'SELECT * FROM %s WHERE reference=?', ['_' + title])
+  return [row for row in execute_db('slave', 'SELECT * FROM %s', ())
+          if row['reference'].startswith('_')]
 
 def getInstanceTreeList(title=None):
   return [getRootPartitionList(title=title), getRootSharedList(title=title)]

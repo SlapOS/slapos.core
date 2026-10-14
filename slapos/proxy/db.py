@@ -4,12 +4,12 @@ import slapos
 from slapos.slap.slap import ComputerPartition, SoftwareInstance
 from slapos.util import loads, dumps
 from slapos.util import bytes2str, \
-    xml2dict, dict2xml
+    xml2dict, dict2xml, unicode2str
 
 import six
 from six.moves.urllib.parse import urlparse
 
-from flask import g, current_app, request, url_for
+from flask import g, current_app, request, url_for, abort
 from slapos.proxy.db_version import DB_VERSION
 from slapos.slap.slap import DEFAULT_SOFTWARE_TYPE, OLD_DEFAULT_SOFTWARE_TYPE
 
@@ -152,6 +152,7 @@ def freePartitionFromDB(computer_partition_id, computer_id):
       " software_type=NULL,"
       " partition_reference=NULL,"
       " requested_by='',"
+      " requester_reference='',"
       " requested_state='started'"
     " WHERE reference=? AND computer_reference=?",
     (computer_partition_id, computer_id))
@@ -165,6 +166,28 @@ def getPartitionFromDB(reference, computer_reference):
   current_app.logger.warning("Nonexisting partition %r on %r. Known are %s",
     reference, computer_reference,
     execute_db("partition", "select reference, requested_by from %s"))
+
+def propagateTimestampToRequester(reference, computer_reference):
+  """
+  A partition whose published state changed got its timestamp updated, so
+  that it gets reprocessed. The partition which requested it also needs
+  reprocessing, to pick up the new state: propagate the timestamp update to
+  it, and so on up the request chain.
+  """
+  seen = {reference}
+  while True:
+    partition = getPartitionFromDB(reference, computer_reference)
+    if not partition:
+      return
+    requester_reference = partition['requester_reference']
+    if not requester_reference or requester_reference in seen:
+      return
+    seen.add(requester_reference)
+    execute_db(
+      'partition',
+      'UPDATE %s SET timestamp=? WHERE reference=? AND computer_reference=?',
+      (time.time(), requester_reference, computer_reference))
+    reference = requester_reference
 
 
 
@@ -333,6 +356,9 @@ def requestNotSlave(software_release, software_type, partition_reference,
     if requested_by:
       q += ' ,requested_by=?'
       a(requested_by)
+    if requester_id:
+      q += ' ,requester_reference=?'
+      a(requester_id)
     if not software_type:
       software_type = DEFAULT_SOFTWARE_TYPE
   else:
@@ -646,3 +672,16 @@ def getRootSharedList(title=None):
 
 def getInstanceTreeList(title=None):
   return [getRootPartitionList(title=title), getRootSharedList(title=title)]
+
+def getRequesterFromAuthorization():
+  try:
+    computer_id = g.authorization_computer_id
+    partition_id = g.authorization_computer_partition_id
+  except AttributeError:
+    # No Authorization header was sent
+    return
+  partition = getPartitionFromDB(unicode2str(partition_id), unicode2str(computer_id))
+  if not partition:
+    return abort(400, 'No partition matching the authorization header: (%s / %s)' % (computer_id, partition_id))
+  return partition and (partition['requested_by'] or
+                        partition['partition_reference'])

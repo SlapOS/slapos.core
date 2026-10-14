@@ -1,5 +1,6 @@
 from slapos.tests.test_slapproxy import BasicMixin
-from slapos.util import dumps
+from slapos.proxy.db import execute_db
+from slapos.util import dumps, sqlite_connect
 import unittest
 import json
 import mock
@@ -1629,6 +1630,61 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         "title": "Updated"
     }
     assert json.loads(response.data) == expect_result_dict, response.data
+
+  def test_put_v0_software_instance_connection_parameter_updates_requester_timestamp(self):
+    """
+    When a connection parameter changes for a software instance, the
+    partition which requested it must have its timestamp updated too, so
+    that it gets reprocessed and picks up the new connection parameters.
+    """
+    self.format_for_number_of_partitions(2)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar'
+      }
+    )
+
+    db = sqlite_connect(self.proxy_db)
+    instance = execute_db(
+        'partition',
+        "SELECT * FROM %s WHERE partition_reference='MyFirstInstance'",
+        db=db, one=True)
+    requester_reference, = [
+        p['reference'] for p in execute_db('partition', 'SELECT * FROM %s', db=db)
+        if p['reference'] != instance['reference']]
+    # The json rpc request route does not track which partition requested
+    # another one yet (see the XXX in post_software_instance): simulate it
+    # directly here, as if the requester had already been allocated and
+    # processed once.
+    execute_db(
+        'partition',
+        "UPDATE %s SET software_release='http://sr//', timestamp=1 WHERE reference=?",
+        [requester_reference], db=db)
+    execute_db(
+        'partition',
+        "UPDATE %s SET requester_reference=? WHERE reference=?",
+        [requester_reference, instance['reference']], db=db)
+    db.commit()
+
+    response = self.app.post(
+      '/slapos.put.v0.software_instance_connection_parameter',
+      json={
+        'instance_guid': 'MyFirstInstance______0',
+        'connection_parameter_dict': {
+          'foo': 'bar'
+        }
+      }
+    )
+    assert response.status_code == 200, response.status_code
+
+    requester = execute_db(
+        'partition', "SELECT * FROM %s WHERE reference=?",
+        [requester_reference], db=db, one=True)
+    db.close()
+    self.assertGreater(requester['timestamp'], 1)
 
   #######################################################
   # put software instance error

@@ -3,6 +3,7 @@ from slapos.util import dumps
 import unittest
 import json
 import mock
+import time
 
 
 class JsonRpcTestCase(BasicMixin, unittest.TestCase):
@@ -1765,6 +1766,109 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         "title": "Updated"
     }
     assert json.loads(response.data) == expect_result_dict, response.data
+
+  def test_put_v0_software_instance_connection_parameter_updates_requester_timestamp(self):
+    """
+    When a connection parameter changes for a software instance, the
+    partition which requested it must have its timestamp updated too, so
+    that it gets reprocessed and picks up the new connection parameters.
+    """
+    self.format_for_number_of_partitions(2)
+    requester = json.loads(self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar'
+      }
+    ).data)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MySecondInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar'
+      },
+      headers={
+        'Authorization': 'X-SlapPartition computer_id=%s, computer_partition_id=%s' %
+            (requester['computer_guid'], requester['compute_partition_id'])
+      }
+    )
+
+    def getRequesterTimestamp():
+      return json.loads(self.app.post(
+        '/slapos.get.v0.software_instance',
+        json={'instance_guid': requester['instance_guid']}
+      ).data)['processing_timestamp']
+
+    before_timestamp = getRequesterTimestamp()
+    # processing_timestamp is truncated to a whole second
+    time.sleep(1.1)
+
+    response = self.app.post(
+      '/slapos.put.v0.software_instance_connection_parameter',
+      json={
+        'instance_guid': 'MySecondInstance___MyFirstInstance___0',
+        'connection_parameter_dict': {
+          'foo': 'bar'
+        }
+      }
+    )
+    assert response.status_code == 200, response.status_code
+
+    self.assertGreater(getRequesterTimestamp(), before_timestamp)
+
+  def test_put_v0_software_instance_connection_parameter_updates_requester_timestamp_shared(self):
+    """
+    When a connection parameter changes for a shared (slave) instance, the
+    partition which requested it must have its timestamp updated too, so
+    that it gets reprocessed and picks up the new connection parameters.
+    """
+    self.format_for_number_of_partitions(1)
+    requester = json.loads(self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar'
+      }
+    ).data)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstShared',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'shared': True
+      },
+      headers={
+        'Authorization': 'X-SlapPartition computer_id=%s, computer_partition_id=%s' %
+            (requester['computer_guid'], requester['compute_partition_id'])
+      }
+    )
+
+    def getRequesterTimestamp():
+      return json.loads(self.app.post(
+        '/slapos.get.v0.software_instance',
+        json={'instance_guid': requester['instance_guid']}
+      ).data)['processing_timestamp']
+
+    before_timestamp = getRequesterTimestamp()
+    # processing_timestamp is truncated to a whole second
+    time.sleep(1.1)
+
+    response = self.app.post(
+      '/slapos.put.v0.software_instance_connection_parameter',
+      json={
+        'instance_guid': 'MyFirstShared___MyFirstInstance___1',
+        'connection_parameter_dict': {
+          'foo': 'bar'
+        }
+      }
+    )
+    assert response.status_code == 200, response.status_code
+
+    self.assertGreater(getRequesterTimestamp(), before_timestamp)
 
   #######################################################
   # put software instance error

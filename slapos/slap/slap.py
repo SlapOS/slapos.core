@@ -523,19 +523,6 @@ class Computer(SlapDocument):
     return computer
 
 
-def parsed_error_message(status, body, path):
-  m = re.search('(Error Value:\n.*)', body, re.MULTILINE)
-  if m:
-    match = ' '.join(line.strip() for line in m.group(0).split('\n'))
-    return '%s (status %s while calling %s)' % (
-                saxutils.unescape(match),
-                status,
-                path
-            )
-  else:
-    return 'Server responded with wrong code %s with %s' % (status, path)
-
-
 @implementer(interface.IComputerPartition)
 class ComputerPartition(SlapRequester):
 
@@ -920,15 +907,18 @@ class ComputerPartition(SlapRequester):
 
 class SlapConnectionHelper(ConnectionHelper):
 
-  def getComputerInformation(self, computer_id):
+  def TODO_unused_getComputerInformation(self, computer_id):
     xml = self.GET('getComputerInformation', params={'computer_id': computer_id})
     return loads(xml)
 
-  def getFullComputerInformation(self, computer_id):
+  def TODO_unused_getFullComputerInformation(self, computer_id):
     """
     Retrieve from SlapOS Master Computer instance containing all needed
     informations (Software Releases, Computer Partitions, ...).
     """
+    if not computer_id:
+      # XXX-Cedric: should raise something smarter than "NotFound".
+      raise NotFoundError('%r %r' % (path, params))
     return Computer(computer_id)
 
 

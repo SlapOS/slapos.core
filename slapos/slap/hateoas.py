@@ -195,6 +195,14 @@ class ConnectionHelper:
       raise
     return req
 
+  def GET(self, path, params=None, headers=None, auth=None):
+    req = self.do_request(requests.get,
+                          auth=None,
+                          path=path,
+                          params=params,
+                          headers=headers)
+    return req.text.encode('utf-8')
+
   def callJsonRpcAPI(self, path, data, auth=None):
     req = self.do_request(requests.post,
                           auth=auth,

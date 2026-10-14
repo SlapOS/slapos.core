@@ -1,4 +1,4 @@
---version:17
+--version:18
 CREATE TABLE config%(version)s (
   name TEXT PRIMARY KEY,
   value TEXT
@@ -29,6 +29,9 @@ CREATE TABLE partition%(version)s (
   software_type VARCHAR(255),
   partition_reference VARCHAR(255), -- name of the instance
   requested_by VARCHAR(255) NOT NULL DEFAULT '',
+  requester_reference VARCHAR(255) NOT NULL DEFAULT '', -- reference of the
+                        -- partition which directly requested this one, used
+                        -- to propagate a timestamp update to it
   requested_state VARCHAR(255) NOT NULL DEFAULT 'started',
   timestamp REAL,
   PRIMARY KEY (reference, computer_reference)

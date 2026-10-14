@@ -152,6 +152,7 @@ def freePartitionFromDB(computer_partition_id, computer_id):
       " software_type=NULL,"
       " partition_reference=NULL,"
       " requested_by='',"
+      " requester_reference='',"
       " requested_state='started'"
     " WHERE reference=? AND computer_reference=?",
     (computer_partition_id, computer_id))
@@ -165,6 +166,28 @@ def getPartitionFromDB(reference, computer_reference):
   current_app.logger.warning("Nonexisting partition %r on %r. Known are %s",
     reference, computer_reference,
     execute_db("partition", "select reference, requested_by from %s"))
+
+def propagateTimestampToRequester(reference, computer_reference):
+  """
+  A partition whose published state changed got its timestamp updated, so
+  that it gets reprocessed. The partition which requested it also needs
+  reprocessing, to pick up the new state: propagate the timestamp update to
+  it, and so on up the request chain.
+  """
+  seen = {reference}
+  while True:
+    partition = getPartitionFromDB(reference, computer_reference)
+    if not partition:
+      return
+    requester_reference = partition['requester_reference']
+    if not requester_reference or requester_reference in seen:
+      return
+    seen.add(requester_reference)
+    execute_db(
+      'partition',
+      'UPDATE %s SET timestamp=? WHERE reference=? AND computer_reference=?',
+      (time.time(), requester_reference, computer_reference))
+    reference = requester_reference
 
 
 
@@ -281,6 +304,8 @@ def requestSlave(software_release, software_type, partition_reference, requester
   a(requested_computer_id)
   execute_db('partition', q, args)
   partition = getPartitionFromDB(partition['reference'], requested_computer_id)
+  if slave_updated_or_added:
+    propagateTimestampToRequester(partition['reference'], partition['computer_reference'])
 
   # Add slave to slave table if not there
   slave = execute_db('slave', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
@@ -333,6 +358,9 @@ def requestNotSlave(software_release, software_type, partition_reference,
     if requested_by:
       q += ' ,requested_by=?'
       a(requested_by)
+    if requester_id:
+      q += ' ,requester_reference=?'
+      a(requester_id)
     if not software_type:
       software_type = DEFAULT_SOFTWARE_TYPE
   else:

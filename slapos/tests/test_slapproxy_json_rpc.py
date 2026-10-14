@@ -3,6 +3,7 @@ from slapos.util import dumps
 import unittest
 import json
 import mock
+import time
 
 
 class JsonRpcTestCase(BasicMixin, unittest.TestCase):
@@ -353,6 +354,142 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         'connection_parameters': {'foo': 'bar'},
         'parameters': {'bar': 'foo'},
         'shared': False,
+        'root_instance_title': 'MyFirstInstance',
+        'ip_list': [["tap0", "1.2.3.4"], ["tap0", "4.3.2.1"]],
+        'full_ip_list': [],
+        'sla_parameters': {},
+        'computer_guid': 'computer',
+        'compute_partition_id': 'slappart0',
+        'processing_timestamp': None,
+        'access_status_message': ""
+    }
+    data_result = json.loads(response.data)
+    expect_result_dict['processing_timestamp'] = data_result.get('processing_timestamp', 'unknown')
+    assert data_result == expect_result_dict, response.data
+
+  #######################################################
+  # Authorization
+  #######################################################
+  def test_post_v0_software_instance__unknown_authorization(self):
+    self.format_for_number_of_partitions(1)
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      },
+      headers={
+        'Authorization': 'X-SlapPartition computer_id=foo, computer_partition_id=bar'
+      }
+    )
+
+    assert response.status_code == 400, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'status': 400,
+        'type': 'Bad Request',
+        'title': "No partition matching the authorization header: (foo / bar)"
+    }
+    data_result = json.loads(response.data)
+    assert data_result == expect_result_dict, response.data
+
+  def test_post_v0_software_instance__with_authorization(self):
+    # First, create a Software Instance
+    self.format_for_number_of_partitions(2)
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      }
+    )
+    data_result = json.loads(response.data)
+
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MySecondInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      },
+      headers={
+        'Authorization': 'X-SlapPartition computer_id=%s, computer_partition_id=%s' %
+            (data_result['computer_guid'], data_result['compute_partition_id'])
+      }
+    )
+
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'title': 'MySecondInstance',
+        'instance_guid': 'MySecondInstance___MyFirstInstance___0',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'state': 'started',
+        'connection_parameters': {},
+        'parameters': {'bar': 'foo'},
+        'shared': False,
+        'root_instance_title': 'MyFirstInstance',
+        'ip_list': [["tap0", "1.2.3.4"], ["tap0", "4.3.2.1"]],
+        'full_ip_list': [],
+        'sla_parameters': {},
+        'computer_guid': 'computer',
+        'compute_partition_id': 'slappart1',
+        'processing_timestamp': None,
+        'access_status_message': ""
+    }
+    data_result = json.loads(response.data)
+    expect_result_dict['processing_timestamp'] = data_result.get('processing_timestamp', 'unknown')
+    assert data_result == expect_result_dict, response.data
+
+  def test_post_v0_software_instance__shared_with_authorization(self):
+    # First, create a Software Instance
+    self.format_for_number_of_partitions(1)
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      }
+    )
+    data_result = json.loads(response.data)
+
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MySecondInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'},
+        'shared': True
+      },
+      headers={
+        'Authorization': 'X-SlapPartition computer_id=%s, computer_partition_id=%s' %
+            (data_result['computer_guid'], data_result['compute_partition_id'])
+      }
+    )
+
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'title': 'MySecondInstance',
+        'instance_guid': 'MySecondInstance___MyFirstInstance___1',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'state': 'started',
+        'connection_parameters': {},
+        'parameters': {'bar': 'foo'},
+        'shared': True,
         'root_instance_title': 'MyFirstInstance',
         'ip_list': [["tap0", "1.2.3.4"], ["tap0", "4.3.2.1"]],
         'full_ip_list': [],
@@ -1629,6 +1766,57 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
         "title": "Updated"
     }
     assert json.loads(response.data) == expect_result_dict, response.data
+
+  def test_put_v0_software_instance_connection_parameter_updates_requester_timestamp(self):
+    """
+    When a connection parameter changes for a software instance, the
+    partition which requested it must have its timestamp updated too, so
+    that it gets reprocessed and picks up the new connection parameters.
+    """
+    self.format_for_number_of_partitions(2)
+    requester = json.loads(self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar'
+      }
+    ).data)
+    self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MySecondInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar'
+      },
+      headers={
+        'Authorization': 'X-SlapPartition computer_id=%s, computer_partition_id=%s' %
+            (requester['computer_guid'], requester['compute_partition_id'])
+      }
+    )
+
+    def getRequesterTimestamp():
+      return json.loads(self.app.post(
+        '/slapos.get.v0.software_instance',
+        json={'instance_guid': requester['instance_guid']}
+      ).data)['processing_timestamp']
+
+    before_timestamp = getRequesterTimestamp()
+    # processing_timestamp is truncated to a whole second
+    time.sleep(1.1)
+
+    response = self.app.post(
+      '/slapos.put.v0.software_instance_connection_parameter',
+      json={
+        'instance_guid': 'MySecondInstance___MyFirstInstance___0',
+        'connection_parameter_dict': {
+          'foo': 'bar'
+        }
+      }
+    )
+    assert response.status_code == 200, response.status_code
+
+    self.assertGreater(getRequesterTimestamp(), before_timestamp)
 
   #######################################################
   # put software instance error

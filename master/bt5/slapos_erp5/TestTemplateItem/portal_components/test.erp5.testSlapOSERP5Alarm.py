@@ -131,6 +131,7 @@ class TestSlapOSGarbageCollectSecurityUid(SlapOSTestCaseMixin):
     self.assertEqual([], self.getSummaryList(self.sense()))
 
   def test_unindexedUidDetectedAndFixed(self):
+    self.sense(fixit=1)
     _, new_entry_set = self.newPerson()
     group, _, security_uid = sorted(new_entry_set)[0]
 
@@ -140,6 +141,7 @@ class TestSlapOSGarbageCollectSecurityUid(SlapOSTestCaseMixin):
     self.portal.z_delete_security_uid_set_from_roles_and_users(
       uid=security_uid)
     self.assertNotIn(security_uid, self.getSecurityUidSetFromRolesAndUsers())
+    self.tic()
 
     active_process = self.sense()
     result_list = active_process.getResultList()

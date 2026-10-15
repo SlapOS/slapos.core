@@ -310,6 +310,15 @@ def requestSlave(software_release, software_type, partition_reference, requester
                (slave_reference, requested_computer_id, partition['reference'], requester_id))
     slave = execute_db('slave', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
                        [slave_reference, requested_computer_id], one=True)
+  elif requester_id and slave['requester_id'] != requester_id:
+    # the slave is now requested by a different direct parent: track it, so
+    # that a future connection parameter change propagates the timestamp
+    # update to this new requester instead of the previous one.
+    execute_db('slave',
+               'UPDATE %s SET requester_id=? WHERE reference=? and computer_reference=?',
+               (requester_id, slave_reference, requested_computer_id))
+    slave = execute_db('slave', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
+                       [slave_reference, requested_computer_id], one=True)
 
   address_list = []
   for address in execute_db('partition_network',
@@ -364,6 +373,12 @@ def requestNotSlave(software_release, software_type, partition_reference,
         # propagate parent state to child
         # child can be stopped or destroyed while parent is started
         requested_state = root_partition['requested_state']
+    if requester_id and partition['requester_id'] != requester_id:
+      # the partition is now requested by a different direct parent: track
+      # it, so that a future connection parameter change propagates the
+      # timestamp update to this new requester instead of the previous one.
+      q += ' ,requester_id=?'
+      a(requester_id)
 
   timestamp = partition['timestamp']
   changed = timestamp is None

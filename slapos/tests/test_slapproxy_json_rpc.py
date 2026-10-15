@@ -1870,6 +1870,130 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
 
     self.assertGreater(getRequesterTimestamp(), before_timestamp)
 
+  def test_put_v0_software_instance_connection_parameter_updates_requester_timestamp_shared_not_root(self):
+    """
+    When a shared (slave) instance is requested by a partition which is not
+    itself the root of the request tree, a connection parameter change must
+    propagate to that direct requester, not to the root of the tree.
+    """
+    self.format_for_number_of_partitions(3)
+
+    def post(title, software_type='foobar', shared=False, requester=None):
+      headers = None
+      if requester is not None:
+        headers = {
+          'Authorization': 'X-SlapPartition computer_id=%s, computer_partition_id=%s' %
+              (requester['computer_guid'], requester['compute_partition_id'])
+        }
+      return json.loads(self.app.post(
+        '/slapos.post.v0.software_instance',
+        json={
+          'title': title,
+          'software_release_uri': 'http://sr//',
+          'software_type': software_type,
+          'shared': shared
+        },
+        headers=headers
+      ).data)
+
+    a = post('A')
+    post('MyFirstInstance')
+    b = post('B', requester=a)
+    post('MyFirstShared', shared=True, requester=b)
+
+    def getTimestamp(instance):
+      return json.loads(self.app.post(
+        '/slapos.get.v0.software_instance',
+        json={'instance_guid': instance['instance_guid']}
+      ).data)['processing_timestamp']
+
+    a_timestamp = getTimestamp(a)
+    b_timestamp = getTimestamp(b)
+    # processing_timestamp is truncated to a whole second
+    time.sleep(1.1)
+
+    response = self.app.post(
+      '/slapos.put.v0.software_instance_connection_parameter',
+      json={
+        'instance_guid': 'MyFirstShared___A___1',
+        'connection_parameter_dict': {'foo': 'bar'}
+      }
+    )
+    assert response.status_code == 200, response.status_code
+
+    self.assertEqual(
+        a_timestamp, getTimestamp(a),
+        'A is the root but not the direct requester of the shared instance: '
+        'its timestamp must not change')
+    self.assertGreater(
+        getTimestamp(b), b_timestamp,
+        'B is the direct requester of the shared instance: its timestamp '
+        'must be updated')
+
+  def test_post_v0_software_instance_reparenting_updates_requester(self):
+    """
+    A requests B, B requests C. A then requests D. When D in turn requests
+    C (same title, same root), C must not be duplicated and must now be
+    considered requested by D: further connection parameter changes on C
+    propagate to D, not to B anymore.
+    """
+    self.format_for_number_of_partitions(4)
+
+    def post(title, requester=None):
+      headers = None
+      if requester is not None:
+        headers = {
+          'Authorization': 'X-SlapPartition computer_id=%s, computer_partition_id=%s' %
+              (requester['computer_guid'], requester['compute_partition_id'])
+        }
+      return json.loads(self.app.post(
+        '/slapos.post.v0.software_instance',
+        json={
+          'title': title,
+          'software_release_uri': 'http://sr//',
+          'software_type': 'foobar'
+        },
+        headers=headers
+      ).data)
+
+    a = post('A')
+    b = post('B', a)
+    c = post('C', b)
+    d = post('D', a)
+
+    c_again = post('C', d)
+    self.assertEqual(c['instance_guid'], c_again['instance_guid'])
+    self.assertEqual(
+        c['compute_partition_id'], c_again['compute_partition_id'],
+        'C must not be duplicated when re-requested by D')
+
+    def getTimestamp(instance):
+      return json.loads(self.app.post(
+        '/slapos.get.v0.software_instance',
+        json={'instance_guid': instance['instance_guid']}
+      ).data)['processing_timestamp']
+
+    b_timestamp = getTimestamp(b)
+    d_timestamp = getTimestamp(d)
+    # processing_timestamp is truncated to a whole second
+    time.sleep(1.1)
+
+    response = self.app.post(
+      '/slapos.put.v0.software_instance_connection_parameter',
+      json={
+        'instance_guid': c['instance_guid'],
+        'connection_parameter_dict': {'foo': 'bar'}
+      }
+    )
+    assert response.status_code == 200, response.status_code
+
+    self.assertEqual(
+        b_timestamp, getTimestamp(b),
+        'B is no longer the requester of C: its timestamp must not change')
+    self.assertGreater(
+        getTimestamp(d), d_timestamp,
+        'D is now the requester of C: its timestamp must be updated')
+
   #######################################################
   # put software instance error
   #######################################################

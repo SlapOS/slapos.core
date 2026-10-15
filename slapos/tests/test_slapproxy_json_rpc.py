@@ -367,6 +367,142 @@ class JsonRpcTestCase(BasicMixin, unittest.TestCase):
     assert data_result == expect_result_dict, response.data
 
   #######################################################
+  # Authorization
+  #######################################################
+  def test_post_v0_software_instance__unknown_authorization(self):
+    self.format_for_number_of_partitions(1)
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      },
+      headers={
+        'Authorization': 'X-SlapPartition computer_id=foo, computer_partition_id=bar'
+      }
+    )
+
+    assert response.status_code == 400, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'status': 400,
+        'type': 'Bad Request',
+        'title': "No partition matching the authorization header: (foo / bar)"
+    }
+    data_result = json.loads(response.data)
+    assert data_result == expect_result_dict, response.data
+
+  def test_post_v0_software_instance__with_authorization(self):
+    # First, create a Software Instance
+    self.format_for_number_of_partitions(2)
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      }
+    )
+    data_result = json.loads(response.data)
+
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MySecondInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      },
+      headers={
+        'Authorization': 'X-SlapPartition computer_id=%s, computer_partition_id=%s' %
+            (data_result['computer_guid'], data_result['compute_partition_id'])
+      }
+    )
+
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'title': 'MySecondInstance',
+        'instance_guid': 'MySecondInstance___MyFirstInstance___0',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'state': 'started',
+        'connection_parameters': {},
+        'parameters': {'bar': 'foo'},
+        'shared': False,
+        'root_instance_title': 'MyFirstInstance',
+        'ip_list': [["tap0", "1.2.3.4"], ["tap0", "4.3.2.1"]],
+        'full_ip_list': [],
+        'sla_parameters': {},
+        'computer_guid': 'computer',
+        'compute_partition_id': 'slappart1',
+        'processing_timestamp': None,
+        'access_status_message': ""
+    }
+    data_result = json.loads(response.data)
+    expect_result_dict['processing_timestamp'] = data_result.get('processing_timestamp', 'unknown')
+    assert data_result == expect_result_dict, response.data
+
+  def test_post_v0_software_instance__shared_with_authorization(self):
+    # First, create a Software Instance
+    self.format_for_number_of_partitions(1)
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MyFirstInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'}
+      }
+    )
+    data_result = json.loads(response.data)
+
+    response = self.app.post(
+      '/slapos.post.v0.software_instance',
+      json={
+        'title': 'MySecondInstance',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'parameters': {'bar': 'foo'},
+        'shared': True
+      },
+      headers={
+        'Authorization': 'X-SlapPartition computer_id=%s, computer_partition_id=%s' %
+            (data_result['computer_guid'], data_result['compute_partition_id'])
+      }
+    )
+
+    assert response.status_code == 200, response.status_code
+    assert response.content_type == 'application/json', \
+        response.content_type
+    expect_result_dict = {
+        'title': 'MySecondInstance',
+        'instance_guid': 'MySecondInstance___MyFirstInstance___1',
+        'software_release_uri': 'http://sr//',
+        'software_type': 'foobar',
+        'state': 'started',
+        'connection_parameters': {},
+        'parameters': {'bar': 'foo'},
+        'shared': True,
+        'root_instance_title': 'MyFirstInstance',
+        'ip_list': [["tap0", "1.2.3.4"], ["tap0", "4.3.2.1"]],
+        'full_ip_list': [],
+        'sla_parameters': {},
+        'computer_guid': 'computer',
+        'compute_partition_id': 'slappart0',
+        'processing_timestamp': None,
+        'access_status_message': ""
+    }
+    data_result = json.loads(response.data)
+    expect_result_dict['processing_timestamp'] = data_result.get('processing_timestamp', 'unknown')
+    assert data_result == expect_result_dict, response.data
+
+  #######################################################
   # Shared Instance
   #######################################################
   def test_post_v0_shared_instance__with_connection_parameters(self):

@@ -4,12 +4,12 @@ import slapos
 from slapos.slap.slap import ComputerPartition, SoftwareInstance
 from slapos.util import loads, dumps
 from slapos.util import bytes2str, \
-    xml2dict, dict2xml
+    xml2dict, dict2xml, unicode2str
 
 import six
 from six.moves.urllib.parse import urlparse
 
-from flask import g, current_app, request, url_for
+from flask import g, current_app, request, url_for, abort
 from slapos.proxy.db_version import DB_VERSION
 from slapos.slap.slap import DEFAULT_SOFTWARE_TYPE, OLD_DEFAULT_SOFTWARE_TYPE
 
@@ -646,3 +646,16 @@ def getRootSharedList(title=None):
 
 def getInstanceTreeList(title=None):
   return [getRootPartitionList(title=title), getRootSharedList(title=title)]
+
+def getRequesterFromAuthorization():
+  try:
+    computer_id = g.authorization_computer_id
+    partition_id = g.authorization_computer_partition_id
+  except AttributeError:
+    # No Authorization header was sent
+    return
+  partition = getPartitionFromDB(unicode2str(partition_id), unicode2str(computer_id))
+  if not partition:
+    return abort(400, 'No partition matching the authorization header: (%s / %s)' % (computer_id, partition_id))
+  return partition and (partition['requested_by'] or
+                        partition['partition_reference'])

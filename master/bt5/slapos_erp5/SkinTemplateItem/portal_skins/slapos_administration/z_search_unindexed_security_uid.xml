@@ -93,7 +93,7 @@
         </item>
         <item>
             <key> <string>arguments_src</string> </key>
-            <value> <string></string> </value>
+            <value> <string>security_uid_column</string> </value>
         </item>
         <item>
             <key> <string>cache_time_</string> </key>
@@ -113,7 +113,7 @@
         </item>
         <item>
             <key> <string>connection_id</string> </key>
-            <value> <string>cmf_activity_sql_connection</string> </value>
+            <value> <string>erp5_sql_transactionless_connection</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

@@ -52,10 +52,7 @@ class TestSlapOSGroupRoleSecurityCoverage(SlapOSTestCaseMixin):
     test_list = []
     expected_failure_dict = {
       # comes from generic erp5 bt5. Unused
-      'Query - Acquired Assignee': None,
-      # Like 'user' group, but for instance
-      # there is no local_role_group for single instance user
-      'Slave Instance - Software Instance which provides this Slave Instance': None
+      'Query - Acquired Assignee': None
     }
     for pt in self.portal.portal_types.objectValues():
       for role_information in pt.contentValues(portal_type="Role Information"):
@@ -71,7 +68,30 @@ class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
+
+    # Pre create some objects to ensure that the "Manager" is minimally populated
+    # Inside expected value, with general entries that has no Role Information
+    # Attached to it.
+    if getattr(self.portal.notification_message_module, "dummy_security", None) is None:
+      # Required to pre-populate expected security uid for Manager
+      self.portal.notification_message_module.newContent(id='dummy_security')
+    if getattr(self.portal.document_module, "dummy_security", None) is None:
+      # Ensure Associate security uid is registered
+      self.portal.document_module.newContent(
+        id='dummy_security',
+        publication_section='report',
+        contributor_value=self.portal.person_module.newContent(portal_type='Person'),
+        portal_type='Text')
+
+    if getattr(self.portal.system_event_module, "dummy_security", None) is None:
+      # Ensure Associate security uid is registered
+      self.portal.system_event_module.newContent(
+        id='dummy_security', portal_type="Payzen Event")
+
+    self.tic()
+    self.login()
     self.user_id = getSecurityManager().getUser().getId()
+    self.manage_security_uid_list = self.getSecurityUidList(group="")
 
   def _getLocalRoles(self, context):
     return [x[0] for x in context.get_local_roles()]
@@ -107,6 +127,55 @@ class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixin):
       context.get_local_roles_for_userid(security_group)
     )
 
+  def getSecurityUidList(self, group=""):
+    return [dict(item) for item in
+              self.portal.portal_catalog.getSecurityUidDictAndRoleColumnDict()]
+
+  def tearDown(self):  #pylint: disable=method-hidden
+    self.tic()
+    self.login(self.user_id)
+    self.assertEqual(3, len(self.manage_security_uid_list))
+    self.assertEqual(self.manage_security_uid_list[2], {})
+    self.assertEqual(self.manage_security_uid_list[1]['viewable_owner'],
+                     self.user_id)
+    self.assertEqual(len(self.manage_security_uid_list[0]), 1)
+    self.assertSameSet(self.manage_security_uid_list[0][""],
+                     self.getSecurityUidList(group="")[0][""])
+    SlapOSTestCaseMixin.tearDown(self)
+
+
+class TestZZZSlapOSManageSecurityUidAmount(TestSlapOSGroupRoleSecurityMixin):
+
+  def assertMissingSecurityUid(self):
+    for security_uid_column in ["computer_security_uid", "function_security_uid",
+                                "group_security_uid", "project_security_uid",
+                                "security_uid", "shadow_security_uid",
+                                "subscription_security_uid", "user_security_uid"]:
+
+      missing_security_uid_list = self.portal.z_search_unindexed_security_uid(
+        security_uid_column=security_uid_column)
+
+      self.assertEqual(0, len(missing_security_uid_list),
+        missing_security_uid_list)
+
+  # USE ZZZ run last, to have a higher chance to catch a problem.
+  def testz_security_uid(self):
+    self.assertEqual(3, len(self.manage_security_uid_list))
+    self.assertEqual(self.manage_security_uid_list[-1], {})
+    self.assertEqual(self.manage_security_uid_list[-2]['viewable_owner'],
+                     self.user_id)
+    # Only one group is found, for security_uid
+    self.assertEqual(len(self.manage_security_uid_list[0]), 1)
+    # The amount is know and finite
+    self.assertEqual(len(self.manage_security_uid_list[0][""]), 16)
+
+    self.tic()
+    self.assertMissingSecurityUid()
+    self.tic()
+
+    self.portal.z_refresh_roles_and_users()
+    self.commit()
+    self.assertMissingSecurityUid()
 
 class TestAccountModule(TestSlapOSGroupRoleSecurityMixin):
   def test_AccountModule(self):

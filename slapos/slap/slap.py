@@ -51,7 +51,7 @@ except ImportError: # XXX to be removed once we depend on typing
 
 from .exception import ResourceNotReady, ServerError, NotFoundError, \
           ConnectionError
-from .hateoas import SlapHateoasNavigator, ConnectionHelper
+from .hateoas import SlapHateoasNavigator, ConnectionHelper, BasicSlapPartitionAuth
 from slapos.util import (bytes2str, dict2xml, dumps, loads,
                          unicode2str, xml2dict)
 
@@ -90,9 +90,9 @@ class SlapRequester(SlapDocument):
   """
   Abstract class that allow to factor method for subclasses that use "request()"
   """
-  def _requestComputerPartition(self, request_dict):
+  def _requestComputerPartition(self, request_dict, auth=None):
     try:
-      xml = self._connection_helper.POST('requestComputerPartition', data=request_dict)
+      xml = self._connection_helper.POST('requestComputerPartition', data=request_dict, auth=auth)
     except ResourceNotReady:
       return ComputerPartition(
         request_dict=request_dict,
@@ -488,25 +488,32 @@ class ComputerPartition(SlapRequester):
         'state': dumps(state),
     }
     self._updateTransactionFile(partition_reference)
-    return self._requestComputerPartition(request_dict)
+
+    return self._requestComputerPartition(
+      request_dict,
+      auth=BasicSlapPartitionAuth(self._computer_id, self._partition_id)
+    )
 
   def destroyed(self):
     self._connection_helper.POST('destroyedComputerPartition', data={
       'computer_id': self._computer_id,
       'computer_partition_id': self.getId(),
-      })
+      },
+      auth=BasicSlapPartitionAuth(self._computer_id, self._partition_id))
 
   def started(self):
     self._connection_helper.POST('startedComputerPartition', data={
       'computer_id': self._computer_id,
       'computer_partition_id': self.getId(),
-      })
+      },
+      auth=BasicSlapPartitionAuth(self._computer_id, self._partition_id))
 
   def stopped(self):
     self._connection_helper.POST('stoppedComputerPartition', data={
       'computer_id': self._computer_id,
       'computer_partition_id': self.getId(),
-      })
+      },
+      auth=BasicSlapPartitionAuth(self._computer_id, self._partition_id))
 
   def error(self, error_log, logger=None, slave_reference=None):
     post_dict = {
@@ -525,7 +532,8 @@ class ComputerPartition(SlapRequester):
     self._connection_helper.POST('softwareInstanceBang', data={
       'computer_id': self._computer_id,
       'computer_partition_id': self.getId(),
-      'message': message})
+      'message': message},
+      auth=BasicSlapPartitionAuth(self._computer_id, self._partition_id))
 
   def rename(self, new_name, slave_reference=None):
     post_dict = {
@@ -535,7 +543,8 @@ class ComputerPartition(SlapRequester):
             }
     if slave_reference:
       post_dict['slave_reference'] = slave_reference
-    self._connection_helper.POST('softwareInstanceRename', data=post_dict)
+    self._connection_helper.POST('softwareInstanceRename', data=post_dict,
+      auth=BasicSlapPartitionAuth(self._computer_id, self._partition_id))
 
   def getInformation(self, partition_reference):
     """
@@ -616,7 +625,8 @@ class ComputerPartition(SlapRequester):
       params = {
         'computer_reference': self._computer_id,
         'computer_partition_reference': self.getId()
-      }
+      },
+      auth=BasicSlapPartitionAuth(self._computer_id, self._partition_id)
     )
     self._updateComputerPartitionInformation(loads(xml))
 
@@ -653,7 +663,8 @@ class ComputerPartition(SlapRequester):
           'computer_id': self._computer_id,
           'computer_partition_id': self._partition_id,
           'connection_xml': dumps(connection_dict),
-          'slave_reference': slave_reference})
+          'slave_reference': slave_reference},
+      auth=BasicSlapPartitionAuth(self._computer_id, self._partition_id))
 
   def getInstanceParameter(self, key):
     parameter_dict = getattr(self, '_parameter_dict', None) or {}
@@ -678,7 +689,8 @@ class ComputerPartition(SlapRequester):
             params={
                 'computer_id': self._computer_id,
                 'computer_partition_id': self._partition_id,
-                }
+                },
+      auth=BasicSlapPartitionAuth(self._computer_id, self._partition_id)
             )
     return loads(xml)
 
@@ -690,7 +702,8 @@ class ComputerPartition(SlapRequester):
             params={
                 'computer_id': self._computer_id,
                 'computer_partition_id': self._partition_id,
-                }
+                },
+      auth=BasicSlapPartitionAuth(self._computer_id, self._partition_id)
             )
     return loads(xml)
 
@@ -700,7 +713,8 @@ class ComputerPartition(SlapRequester):
           'computer_id': self._computer_id,
           'computer_partition_id': self._partition_id,
           'instance_reference_xml': dumps(instance_reference_list)
-          }
+          },
+      auth=BasicSlapPartitionAuth(self._computer_id, self._partition_id)
         )
 
 class SlapConnectionHelper(ConnectionHelper):

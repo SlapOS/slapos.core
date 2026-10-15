@@ -152,6 +152,7 @@ def freePartitionFromDB(computer_partition_id, computer_id):
       " software_type=NULL,"
       " partition_reference=NULL,"
       " requested_by='',"
+      " requester_id='',"
       " requested_state='started'"
     " WHERE reference=? AND computer_reference=?",
     (computer_partition_id, computer_id))
@@ -165,6 +166,28 @@ def getPartitionFromDB(reference, computer_reference):
   current_app.logger.warning("Nonexisting partition %r on %r. Known are %s",
     reference, computer_reference,
     execute_db("partition", "select reference, requested_by from %s"))
+
+def propagateTimestampToRequester(reference, computer_reference):
+  """
+  A partition whose published state changed got its timestamp updated, so
+  that it gets reprocessed. The partition which requested it also needs
+  reprocessing, to pick up the new state: propagate the timestamp update to
+  it, and so on up the request chain.
+  """
+  seen = {reference}
+  while True:
+    partition = getPartitionFromDB(reference, computer_reference)
+    if not partition:
+      return
+    requester_id = partition['requester_id']
+    if not requester_id or requester_id in seen:
+      return
+    seen.add(requester_id)
+    execute_db(
+      'partition',
+      'UPDATE %s SET timestamp=? WHERE reference=? AND computer_reference=?',
+      (time.time(), requester_id, computer_reference))
+    reference = requester_id
 
 
 
@@ -333,6 +356,9 @@ def requestNotSlave(software_release, software_type, partition_reference,
     if requested_by:
       q += ' ,requested_by=?'
       a(requested_by)
+    if requester_id:
+      q += ' ,requester_id=?'
+      a(requester_id)
     if not software_type:
       software_type = DEFAULT_SOFTWARE_TYPE
   else:
@@ -342,6 +368,12 @@ def requestNotSlave(software_release, software_type, partition_reference,
         # propagate parent state to child
         # child can be stopped or destroyed while parent is started
         requested_state = root_partition['requested_state']
+    if requester_id and partition['requester_id'] != requester_id:
+      # the partition is now requested by a different direct parent: track
+      # it, so that a future connection parameter change propagates the
+      # timestamp update to this new requester instead of the previous one.
+      q += ' ,requester_id=?'
+      a(requester_id)
 
   timestamp = partition['timestamp']
   changed = timestamp is None

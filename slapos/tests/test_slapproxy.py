@@ -983,6 +983,40 @@ class TestRequest(MasterMixin):
         'Publishing the same connection parameters again shall not update '
         'the timestamp of the partition which requested it')
 
+  def test_request_reparenting_updates_requester(self):
+    """
+    A requests B, B requests C. A then requests D. When D in turn requests
+    C (same partition reference, same root), C must not be duplicated and
+    must now be considered requested by D: further connection parameter
+    changes on C propagate to D, not to B anymore.
+    """
+    self.format_for_number_of_partitions(4)
+    a = self.request('http://sr//', None, 'A')
+    b = self.request('http://sr//', None, 'B', a._partition_id)
+    c = self.request('http://sr//', None, 'C', b._partition_id)
+    d = self.request('http://sr//', None, 'D', a._partition_id)
+
+    c_again = self.request('http://sr//', None, 'C', d._partition_id)
+    self.assertEqual(c._partition_id, c_again._partition_id,
+        'C must not be duplicated when re-requested by D')
+
+    def getTimestamp(partition_id):
+      return float(
+          self.getPartitionInformation(partition_id)._parameter_dict['timestamp'])
+
+    b_timestamp = getTimestamp(b._partition_id)
+    d_timestamp = getTimestamp(d._partition_id)
+    time.sleep(0.1)
+
+    self.setConnectionDict(c._partition_id, {'foo': 'bar'})
+
+    self.assertEqual(
+        b_timestamp, getTimestamp(b._partition_id),
+        'B is no longer the requester of C: its timestamp must not change')
+    self.assertGreater(
+        getTimestamp(d._partition_id), d_timestamp,
+        'D is now the requester of C: its timestamp must be updated')
+
 class TestSlaveRequest(MasterMixin):
   """
   Test requests related to slave instances.

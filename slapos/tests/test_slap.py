@@ -1061,7 +1061,9 @@ class TestComputerPartition(SlapMixin):
             'slave_reference': slave_reference,
             'connection_xml': connection_xml,
             'computer_partition_id': 'PART-0',
-            'computer_id': 'COMP-0'})
+            'computer_id': 'COMP-0'},
+          auth=partition._connection_helper.POST.call_args.kwargs['auth'])
+        self.assertNotEqual(partition._connection_helper.POST.call_args.kwargs['auth'], None)
       else:
         partition._connection_helper.POST.assert_not_called()
 

@@ -1116,7 +1116,9 @@ class TestComputerPartition(SlapMixin):
       if expected_post_data:
         partition._connection_helper.POST.assert_called_with(
           'softwareInstanceError',
-          data=expected_post_data)
+          data=expected_post_data,
+          auth=partition._connection_helper.POST.call_args.kwargs['auth'])
+        self.assertNotEqual(partition._connection_helper.POST.call_args.kwargs['auth'], None)
       else:
         partition._connection_helper.POST.assert_not_called()
 

@@ -368,6 +368,12 @@ def requestNotSlave(software_release, software_type, partition_reference,
         # propagate parent state to child
         # child can be stopped or destroyed while parent is started
         requested_state = root_partition['requested_state']
+    if requester_id and partition['requester_reference'] != requester_id:
+      # the partition is now requested by a different direct parent: track
+      # it, so that a future connection parameter change propagates the
+      # timestamp update to this new requester instead of the previous one.
+      q += ' ,requester_reference=?'
+      a(requester_id)
 
   timestamp = partition['timestamp']
   changed = timestamp is None

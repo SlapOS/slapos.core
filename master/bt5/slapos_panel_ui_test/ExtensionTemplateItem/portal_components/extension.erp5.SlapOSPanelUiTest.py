@@ -254,7 +254,7 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
           function='customer',
         ).open()
 
-        project = manager_workgroup.Person_addVirtualMaster(
+        project = manager_workgroup.Actor_addVirtualMaster(
           project_title,
           scenario == 'accounting',
           currency.getRelativeUrl(),
@@ -267,7 +267,7 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
         ).open()
 
       else:
-        project = manager_person.Person_addVirtualMaster(
+        project = manager_person.Actor_addVirtualMaster(
           project_title,
           scenario == 'accounting',
           currency.getRelativeUrl(),
@@ -311,7 +311,7 @@ def ERP5Site_bootstrapSlapOSPanelTest(self, step, scenario, customer_login,
         ).open()
 
       if scenario == 'customer_remote':
-        remote_project = customer_person.Person_addVirtualMaster(
+        remote_project = customer_person.Actor_addVirtualMaster(
           'Test Remote Project',
           scenario == 'accounting',
           currency.getRelativeUrl(),

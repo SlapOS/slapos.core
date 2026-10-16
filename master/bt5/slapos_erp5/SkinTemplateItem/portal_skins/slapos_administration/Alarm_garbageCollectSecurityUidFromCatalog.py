@@ -8,24 +8,32 @@ reverse_groupless_security_uid_dict =  {}
 local_group_id_list = []
 
 columns_list = portal.portal_catalog.getSQLCatalog().getSqlCatalogSecurityUidColumnsList()
-
+is_inconsistent = False
 for group_id, security_uid_column in (entry.split(' | ') for entry in columns_list):
   local_group_id_list.append(group_id)
   missing_security_uid_list = portal.z_search_unindexed_security_uid(
     security_uid_column=security_uid_column)
   if len(missing_security_uid_list) > 0:
+    is_inconsistent = True
     summary = "Security UIDs are inconsistent"
     if fixit:
       summary += " (fixing it)"
-      portal.z_refresh_roles_and_users()
+      portal.portal_catalog.searchAndActivate(
+        method_id='reindexObject',
+        **{security_uid_column: [i.security_uid for i in missing_security_uid_list]})
 
     active_process.postResult(ActiveResult(
          summary=summary,
          severity=100,
          detail="Missing Security Uid List on %s : %s " % (security_uid_column,
-           [i.security_uid for i in missing_security_uid_list])))
-    # Break loop earlier, since it is not wise to configure
-    return active_process
+           list(set([i.security_uid for i in missing_security_uid_list])))))
+
+if is_inconsistent:
+  # Due cache, fixit might require restart zopes to flush cache.
+  if fixit:
+    # Refresh only once after the end.
+    portal.z_refresh_roles_and_users()
+  return active_process
 
 used_group_security_uid_dict = {
   group: {
@@ -46,7 +54,7 @@ for group, role, security_uid in portal.ERP5Site_getSecurityUidListForRecreateTa
 # Check unused security uid
 for group, reverse_security_uid_dict in reverse_group_security_uid_dict.items():
   unused_security_uid_set = set(reverse_security_uid_dict).difference(
-    used_group_security_uid_dict[group])
+    used_group_security_uid_dict.get(group, set()))
 
   if unused_security_uid_set:
     summary = 'Found UIDs to delete from %s' % (group)
@@ -70,17 +78,16 @@ existing_security_uid_set = set(
 
 not_existing_security_uid_set = existing_security_uid_set.difference(cataloged_security_uid_set)
 if len(not_existing_security_uid_set):
-  summary = "Found UIDs missing in catalog (zodb) %s security_uids" % len(not_existing_security_uid_set)
-  detail = " ("
-  for security_uid in not_existing_security_uid_set:
+  summary = "Found UIDs missing in catalog %s security_uids" % len(not_existing_security_uid_set)
+  detail = "Sample: "
+  for security_uid in not_existing_security_uid_set[:10]:
     detail += '(%s %s),' % (security_uid, reverse_groupless_security_uid_dict[security_uid])
-  detail += ")"
   active_process.postResult(ActiveResult(
     summary=summary, severity=100, detail=detail))
 
 not_existing_security_uid_set = cataloged_security_uid_set.difference(existing_security_uid_set)
-if not_existing_security_uid_set:
-  summary = "Found UIDs removed from in catalog (mariadb) %s security_uids" % len(not_existing_security_uid_set)
+if len(not_existing_security_uid_set):
+  summary = "Found UIDs removed from catalog %s security_uids" % len(not_existing_security_uid_set)
   detail = "Sample: "
   for security_uid in list(not_existing_security_uid_set)[:10]:
     detail += '(%s %s),' % (security_uid, reverse_groupless_security_uid_dict.get(security_uid))

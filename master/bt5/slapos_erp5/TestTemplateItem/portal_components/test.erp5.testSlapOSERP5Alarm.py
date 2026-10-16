@@ -158,10 +158,13 @@ class TestSlapOSGarbageCollectSecurityUid(SlapOSTestCaseMixin):
     self.assertIn(security_uid, self.getSecurityUidSetFromRolesAndUsers())
 
   def test_unusedUidDetectedAndFixed(self):
+    self.sense(fixit=1)
+    self.tic()
+
     person, new_entry_set = self.newPerson()
     group, role, security_uid = sorted(new_entry_set)[0]
 
-    person.unindexObject()
+    self.portal.person_module.manage_delObjects(ids=person.getId())
     self.tic()
 
     self.assertIn(
@@ -211,12 +214,12 @@ class TestSlapOSGarbageCollectSecurityUid(SlapOSTestCaseMixin):
 
     active_process = self.sense()
     self.assertIn(
-      'Found UIDs removed from in catalog (mariadb) 1 security_uids',
+      'Found UIDs removed from catalog 1 security_uids',
       self.getSummaryList(active_process))
     self.assertIn(security_uid, self.getSecurityUidSetFromRolesAndUsers())
 
     active_process = self.sense(fixit=1)
     self.assertIn(
-      'Found UIDs removed from in catalog (mariadb) 1 security_uids',
+      'Found UIDs removed from catalog 1 security_uids',
       self.getSummaryList(active_process))
     self.assertNotIn(security_uid, self.getSecurityUidSetFromRolesAndUsers())

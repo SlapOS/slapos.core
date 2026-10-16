@@ -418,12 +418,13 @@ class TestSlap(SlapMixin):
                 'content': hateoas_url
                 }
 
+    self.slap.initializeConnection('http://%s' % self.id())
+
     with httmock.HTTMock(handler):
-      self.slap.initializeConnection('http://%s' % self.id())
-    self.assertEqual(
-        self.slap._hateoas_navigator.slapos_master_hateoas_uri,
-        hateoas_url
-    )
+      self.assertEqual(
+          self.slap._hateoas_navigator.slapos_master_hateoas_uri,
+          hateoas_url
+      )
 
   def test_initializeConnection_specifiedHateoasUrl(self):
     """
@@ -456,9 +457,12 @@ class TestSlap(SlapMixin):
                 'status_code': 404,
                 }
 
+    self.slap.initializeConnection('http://%s' % self.id())
     with httmock.HTTMock(handler):
-      self.slap.initializeConnection('http://%s' % self.id())
-    self.assertEqual(None, getattr(self.slap, '_hateoas_navigator', None))
+      self.assertRaises(
+        ValueError,
+        getattr, self.slap._hateoas_navigator, 'slapos_master_hateoas_uri'
+      )
 
 
 class TestComputer(SlapMixin):

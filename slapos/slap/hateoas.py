@@ -35,7 +35,7 @@ from uritemplate import expand
 import os
 import logging
 
-from ..util import _addIpv6Brackets
+from ..util import _addIpv6Brackets, bytes2str
 from ..version import version as slapos_version
 from .exception import ResourceNotReady, NotFoundError, \
           AuthenticationError, ConnectionError, ServerError
@@ -188,14 +188,33 @@ class HateoasNavigator(object):
   Inspired by
   https://git.erp5.org/gitweb/jio.git/blob/HEAD:/src/jio.storage/erp5storage.js
   """
-  def __init__(self, slapgrid_uri,
+  def __init__(self, slapgrid_rest_uri,
                key_file=None, cert_file=None,
-               master_ca_file=None, timeout=60):
-    self.slapos_master_hateoas_uri = slapgrid_uri
+               master_ca_file=None, timeout=60,
+               slapgrid_uri=None
+               ):
+    self.slapos_master_hateoas_uri = slapgrid_rest_uri
+    self.slapgrid_uri = slapgrid_uri
     self.key_file = key_file
     self.cert_file = cert_file
     self.master_ca_file = master_ca_file
     self.timeout = timeout
+
+  # Only calculate the hateoas url on demand if used
+  @property
+  def slapos_master_hateoas_uri(self):
+    if not self.__slapos_master_hateoas_uri:
+      if not self.slapgrid_uri:
+        raise ValueError('Can not query getHateoasUrl from without slapgrid_uri')
+      try:
+        self.__slapos_master_hateoas_uri = bytes2str(self.GET(parse.urljoin(self.slapgrid_uri, 'getHateoasUrl')))
+      except NotFoundError:
+        raise ValueError('Can not retrieve /getHateoasUrl result')
+    return self.__slapos_master_hateoas_uri
+
+  @slapos_master_hateoas_uri.setter
+  def slapos_master_hateoas_uri(self, value):
+    self.__slapos_master_hateoas_uri = value
 
   def GET(self, uri, headers=None):
     connection_helper = ConnectionHelper(

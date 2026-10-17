@@ -6,13 +6,14 @@ from .db import execute_db, requestInstanceFromDB, supplyFromDB, removeFromDB, \
                 formatFromDB, \
                 NotFoundPartitionFailure, PartitionDeletionFailure, \
                 AllocationFailure, getInstanceTreeList, getAllocatedInstance, \
-                getRequesterFromAuthorization
+                propagateTimestampToRequester, getRequesterFromAuthorization
 from slapos.util import dict2xml, xml2dict, loads, unicode2str
 from slapos.slap.slap import ComputerPartition, SoftwareInstance, ConnectionError
 from .http_proxy import HTTPConnectionError
 import json
 import jsonschema
 import sys
+import time
 
 
 json_rpc_blueprint = Blueprint('json_rpc', __name__)
@@ -301,7 +302,6 @@ def send_json_rpc_sql_partition(partition):
 
 def send_json_rpc_sql_shared(shared_instance, partition):
   title, asked_by = extractDBSlaveReference(shared_instance['reference'])
-  assert asked_by == shared_instance['asked_by']
   slave_information = [x for x in loads(partition['slave_instance_list'].encode('utf-8')) if x['slave_title'] == shared_instance['reference']][0]
   # Drop added informations
   slave_information.pop('slave_title')
@@ -310,7 +310,7 @@ def send_json_rpc_sql_shared(shared_instance, partition):
 
   return validate_and_send_json_rpc_document({
     "title": title,
-    "instance_guid": generateInstanceGuid(title, shared_instance['asked_by'], True),
+    "instance_guid": generateInstanceGuid(title, asked_by, True),
     "software_release_uri": partition['software_release'],
     "software_type": partition['software_type'],
     # XXX This is not stored
@@ -318,7 +318,7 @@ def send_json_rpc_sql_shared(shared_instance, partition):
     "connection_parameters": xml2dict(shared_instance['connection_xml']),
     "parameters": slave_information,
     "shared": True,
-    "root_instance_title": shared_instance['asked_by'] or title,
+    "root_instance_title": asked_by or title,
     "ip_list": [],
     "full_ip_list": [],
     # sla are not stored in slapproxy
@@ -370,8 +370,8 @@ def get_software_instance():
   if is_shared:
     # XXX Copied from db.getAllocatedSlaveInstance
     shared = execute_db('slave',
-      'SELECT * FROM %s WHERE reference=? AND asked_by=?',
-      (generateDBSlaveReference(partition_reference, requested_by), requested_by), one=True)
+      'SELECT * FROM %s WHERE reference=?',
+      (generateDBSlaveReference(partition_reference, requested_by),), one=True)
     if not shared:
       return abort(403, 'No shared instance %s found.' % request.json["instance_guid"])
     # Get the matching partition
@@ -572,11 +572,10 @@ def put_software_instance_title():
     return abort(403, 'NotImplemented')
     """
     # XXX TODO update slave_instance_list
-    query = 'UPDATE %s SET reference=? WHERE reference=? AND asked_by=?'
+    query = 'UPDATE %s SET reference=? WHERE reference=?'
     argument_list = [
       generateDBSlaveReference(new_title, requested_by),
       generateDBSlaveReference(partition_reference, requested_by),
-      requested_by
     ]
     execute_db('slave', query, argument_list)
     """
@@ -599,13 +598,28 @@ def put_software_instance_connection_parameter():
   connection_xml = dict2xml(request.json["connection_parameter_dict"])
 
   if is_shared:
-    query = 'UPDATE %s SET connection_xml=? WHERE reference=? AND asked_by=?'
-    argument_list = [connection_xml, generateDBSlaveReference(partition_reference, requested_by), requested_by]
+    slave_db_reference = generateDBSlaveReference(partition_reference, requested_by)
+    shared = execute_db('slave',
+      'SELECT * FROM %s WHERE reference=?',
+      (slave_db_reference,), one=True)
+    query = 'UPDATE %s SET connection_xml=? WHERE reference=?'
+    argument_list = [connection_xml, slave_db_reference]
     execute_db('slave', query, argument_list)
+    if shared and shared['connection_xml'] != connection_xml and shared['requester_id']:
+      # requester_id is the reference of the partition which directly
+      # requested this shared instance: it has no partition row of its own
+      # to propagate from, so update the requester's timestamp directly.
+      execute_db(
+        'partition',
+        'UPDATE %s SET timestamp=? WHERE reference=? AND computer_reference=?',
+        (time.time(), shared['requester_id'], shared['computer_reference']))
   else:
+    partition = getAllocatedInstance(partition_reference, requested_by)
     query = 'UPDATE %s SET connection_xml=? WHERE partition_reference=? AND requested_by=?'
     argument_list = [connection_xml, partition_reference, requested_by]
     execute_db('partition', query, argument_list)
+    if partition and partition['connection_xml'] != connection_xml:
+      propagateTimestampToRequester(partition['reference'], partition['computer_reference'])
 
   return validate_and_send_json_rpc_document({
     'type': 'success',
@@ -636,8 +650,7 @@ def instance_tree_list():
       "title": partition['partition_reference']
     })
   for shared in partition_and_shared_list[1]:
-    title, asked_by = extractDBSlaveReference(shared['reference'])
-    assert asked_by == shared['asked_by']
+    title, _ = extractDBSlaveReference(shared['reference'])
     result_list.append({
       "title": title
     })

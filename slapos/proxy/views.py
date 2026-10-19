@@ -187,14 +187,37 @@ def _updateLocalSoftwareReleaseRootPathIfNeeded():
   execute_db('software', 'UPDATE %s SET url=migrate_url(url)')
   execute_db('partition', 'UPDATE %s SET software_release=migrate_url(software_release)')
 
+def _parseSlapPartitionAuthorization(header):
+  """
+  Parse the custom 'X-SlapPartition computer_id=..., computer_partition_id=...'
+  Authorization header ourselves, instead of relying on
+  werkzeug's request.authorization: werkzeug before 2.3 (still used on
+  Python 2) only recognises the basic and digest schemes, and silently
+  drops any other one, including this custom one.
+  """
+  if not header:
+    return None, None
+  try:
+    auth_type, auth_info = header.split(None, 1)
+  except ValueError:
+    return None, None
+  if auth_type.lower() != 'x-slappartition':
+    return None, None
+  parameter_dict = {}
+  for item in auth_info.split(','):
+    key, _, value = item.partition('=')
+    parameter_dict[key.strip()] = value.strip()
+  return parameter_dict.get('computer_id'), parameter_dict.get('computer_partition_id')
+
 is_schema_already_executed = False
 @app.before_request
 def before_request():
   # fake auth
-  authorization = request.authorization
-  if (authorization is not None) and (authorization.type == 'x-slappartition'):
-    g.authorization_computer_id = authorization.computer_id
-    g.authorization_computer_partition_id = authorization.computer_partition_id
+  computer_id, computer_partition_id = _parseSlapPartitionAuthorization(
+    request.headers.get('Authorization'))
+  if computer_id is not None:
+    g.authorization_computer_id = computer_id
+    g.authorization_computer_partition_id = computer_partition_id
 
   g.db = connect_db()
   global is_schema_already_executed

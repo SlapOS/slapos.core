@@ -1,6 +1,16 @@
 Changes
 =======
 
+1.26.0 (2026-10-19)
+-------------------
+
+ * slap: pass Authorization header in all instance calls
+ * slapproxy: read the Authorization header to decide which instance did a call
+ * slapproxy: implement timestamp propagation to requester
+ * slapproxy: fix the case where a partition is requested by another partition
+ * cli: drop login/password register
+ * fix some warnings for python3.14
+
 1.25.0 (2026-10-01)
 -------------------
 

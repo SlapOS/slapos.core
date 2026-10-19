@@ -946,6 +946,77 @@ class TestRequest(MasterMixin):
             },
         ])
 
+  def test_request_updates_requester_timestamp(self):
+    """
+    When a requested partition publishes new connection parameters, the
+    timestamp of the partition which requested it is also updated, so that
+    this requester gets reprocessed and picks up the new parameters.
+    """
+    self.format_for_number_of_partitions(2)
+    root_instance = self.request('http://sr//', None, 'RootInstance')
+    requested_instance = self.request(
+        'http://sr//', None, 'Requested', root_instance._partition_id)
+
+    def getTimestamp(partition_id):
+      return float(
+          self.getPartitionInformation(partition_id)._parameter_dict['timestamp'])
+
+    before_timestamp = getTimestamp(root_instance._partition_id)
+    time.sleep(0.1)
+
+    self.setConnectionDict(requested_instance._partition_id, {'foo': 'bar'})
+
+    after_timestamp = getTimestamp(root_instance._partition_id)
+    self.assertLess(
+        before_timestamp, after_timestamp,
+        'Requested partition publishing new connection parameters shall '
+        'update the timestamp of the partition which requested it')
+
+    # publishing the same connection parameters again is a no-op and must
+    # not update the requester's timestamp again
+    before_timestamp = after_timestamp
+    time.sleep(0.1)
+    self.setConnectionDict(requested_instance._partition_id, {'foo': 'bar'})
+    after_timestamp = getTimestamp(root_instance._partition_id)
+    self.assertEqual(
+        before_timestamp, after_timestamp,
+        'Publishing the same connection parameters again shall not update '
+        'the timestamp of the partition which requested it')
+
+  def test_request_reparenting_updates_requester(self):
+    """
+    A requests B, B requests C. A then requests D. When D in turn requests
+    C (same partition reference, same root), C must not be duplicated and
+    must now be considered requested by D: further connection parameter
+    changes on C propagate to D, not to B anymore.
+    """
+    self.format_for_number_of_partitions(4)
+    a = self.request('http://sr//', None, 'A')
+    b = self.request('http://sr//', None, 'B', a._partition_id)
+    c = self.request('http://sr//', None, 'C', b._partition_id)
+    d = self.request('http://sr//', None, 'D', a._partition_id)
+
+    c_again = self.request('http://sr//', None, 'C', d._partition_id)
+    self.assertEqual(c._partition_id, c_again._partition_id,
+        'C must not be duplicated when re-requested by D')
+
+    def getTimestamp(partition_id):
+      return float(
+          self.getPartitionInformation(partition_id)._parameter_dict['timestamp'])
+
+    b_timestamp = getTimestamp(b._partition_id)
+    d_timestamp = getTimestamp(d._partition_id)
+    time.sleep(0.1)
+
+    self.setConnectionDict(c._partition_id, {'foo': 'bar'})
+
+    self.assertEqual(
+        b_timestamp, getTimestamp(b._partition_id),
+        'B is no longer the requester of C: its timestamp must not change')
+    self.assertGreater(
+        getTimestamp(d._partition_id), d_timestamp,
+        'D is now the requester of C: its timestamp must be updated')
+
 class TestSlaveRequest(MasterMixin):
   """
   Test requests related to slave instances.
@@ -2510,23 +2581,31 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
 
     partition_list = self.db.execute("select * from partition" + DB_VERSION).fetchall()
     self.assertEqual(partition_list, [
-      ('slappart0', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="json">{\n  "site-id": "erp5"\n  }\n}</parameter>\n</instance>\n', None, None, 'production', 'slapos', '', 'started', None),
-      ('slappart1', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">mysql://127.0.0.1:45678/erp5</parameter>\n</instance>\n', None, 'mariadb', 'MariaDB DataBase', 'slapos', 'started', None),
-      ('slappart2', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="cloudooo-json"></parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', None, 'cloudooo', 'Cloudooo', 'slapos', 'started', None),
-      ('slappart3', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:11000/</parameter>\n</instance>\n', None, 'memcached', 'Memcached', 'slapos', 'started', None),
-      ('slappart4', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:13301/</parameter>\n</instance>\n', None, 'kumofs', 'KumoFS', 'slapos', 'started', None),
-      ('slappart5', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="kumofs-url">memcached://127.0.0.1:13301/</parameter>\n  <parameter id="memcached-url">memcached://127.0.0.1:11000/</parameter>\n  <parameter id="cloudooo-url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">https://[fc00::1]:10001</parameter>\n</instance>\n', None, 'tidstorage', 'TidStorage', 'slapos', 'started', None),
-      ('slappart6', 'computer', 'free', None, None, None, None, None, None, '', 'started', None),
-      ('slappart7', 'computer', 'free', None, None, None, None, None, None, '', 'started', None),
-      ('slappart8', 'computer', 'free', None, None, None, None, None, None, '', 'started', None),
-      ('slappart9', 'computer', 'free', None, None, None, None, None, None, '', 'started', None),
+      ('slappart0', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="json">{\n  "site-id": "erp5"\n  }\n}</parameter>\n</instance>\n', None, None, 'production', 'slapos', '', '', 'started', None),
+      ('slappart1', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">mysql://127.0.0.1:45678/erp5</parameter>\n</instance>\n', None, 'mariadb', 'MariaDB DataBase', 'slapos', '', 'started', None),
+      ('slappart2', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="cloudooo-json"></parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', None, 'cloudooo', 'Cloudooo', 'slapos', '', 'started', None),
+      ('slappart3', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:11000/</parameter>\n</instance>\n', None, 'memcached', 'Memcached', 'slapos', '', 'started', None),
+      ('slappart4', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:13301/</parameter>\n</instance>\n', None, 'kumofs', 'KumoFS', 'slapos', '', 'started', None),
+      ('slappart5', 'computer', 'busy', '/srv/slapgrid//srv//runner/project//slapos/software.cfg', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="kumofs-url">memcached://127.0.0.1:13301/</parameter>\n  <parameter id="memcached-url">memcached://127.0.0.1:11000/</parameter>\n  <parameter id="cloudooo-url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">https://[fc00::1]:10001</parameter>\n</instance>\n', None, 'tidstorage', 'TidStorage', 'slapos', '', 'started', None),
+      ('slappart6', 'computer', 'free', None, None, None, None, None, None, '', '', 'started', None),
+      ('slappart7', 'computer', 'free', None, None, None, None, None, None, '', '', 'started', None),
+      ('slappart8', 'computer', 'free', None, None, None, None, None, None, '', '', 'started', None),
+      ('slappart9', 'computer', 'free', None, None, None, None, None, None, '', '', 'started', None),
       ])
 
     slave_list = self.db.execute("select * from slave" + DB_VERSION).fetchall()
-    self.assertEqual(
-        slave_list,
-        []
-    )
+    if self.version == 17:
+      # a pre-existing slave (with the now dropped asked_by column) must
+      # migrate without error, and its requester_id default to empty
+      self.assertEqual(
+          slave_list,
+          [('_MySlave', 'computer', None, 'slappart1', '')]
+      )
+    else:
+      self.assertEqual(
+          slave_list,
+          []
+      )
 
     partition_network_list = self.db.execute("select * from partition_network{}".format(DB_VERSION)).fetchall()
     self.assertEqual(
@@ -2583,6 +2662,9 @@ class TestMigrateVersion15ToLatest(_MigrationTestCase):
 
 class TestMigrateVersion16ToLatest(_MigrationTestCase):
   version = 16
+
+class TestMigrateVersion17ToLatest(_MigrationTestCase):
+  version = 17
 
 
 del _MigrationTestCase

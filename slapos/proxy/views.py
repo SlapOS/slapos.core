@@ -119,6 +119,11 @@ def _upgradeDatabaseIfNeeded():
                     if not requested_by:
                       break
                   rv[i]['requested_by'] = rv[j]['partition_reference']
+          if table == 'slave':
+            # asked_by was dropped: it only ever duplicated what reference
+            # already encodes ('<requester_title>_<title>').
+            for row in rv:
+              row.pop('asked_by', None)
           for row in rv:
             query = 'INSERT OR REPLACE INTO %%s (%s) VALUES (:%s)' % (
               ', '.join(row), ', :'.join(row))

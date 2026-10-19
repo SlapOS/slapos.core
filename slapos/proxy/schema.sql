@@ -1,4 +1,4 @@
---version:17
+--version:18
 CREATE TABLE config%(version)s (
   name TEXT PRIMARY KEY,
   value TEXT
@@ -28,19 +28,26 @@ CREATE TABLE partition%(version)s (
   slave_instance_list TEXT,
   software_type VARCHAR(255),
   partition_reference VARCHAR(255), -- name of the instance
-  requested_by VARCHAR(255) NOT NULL DEFAULT '',
+  requested_by VARCHAR(255) NOT NULL DEFAULT '', -- partition_reference of
+                        -- the root of the request tree this partition
+                        -- belongs to, empty if this partition is the root
+  requester_id VARCHAR(255) NOT NULL DEFAULT '', -- reference of the
+                        -- partition which directly requested this one, used
+                        -- to propagate a timestamp update to it
   requested_state VARCHAR(255) NOT NULL DEFAULT 'started',
   timestamp REAL,
   PRIMARY KEY (reference, computer_reference)
 );
 
 CREATE TABLE slave%(version)s (
-  reference VARCHAR(255), -- unique slave reference
+  reference VARCHAR(255), -- unique slave reference, built as
+                        -- '<requester_title>_<title>'
   computer_reference VARCHAR(255) DEFAULT '%(computer)s',
   connection_xml TEXT,
   hosted_by VARCHAR(255),
-  asked_by VARCHAR(255) -- only used for debugging,
-                        -- slapproxy does not support proper scope
+  requester_id VARCHAR(255) NOT NULL DEFAULT '' -- reference of the
+                        -- partition which directly requested this slave,
+                        -- used to propagate a timestamp update to it
 );
 
 CREATE TABLE partition_network%(version)s (

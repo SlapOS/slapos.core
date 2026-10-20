@@ -7,7 +7,6 @@
   </role>
   <role id='Auditor'>
    <property id='title'>Project Customer</property>
-   <property id='description'>XXX add local role group</property>
    <property id='condition'>python: context.getFollowUp("") != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
@@ -16,7 +15,6 @@
   </role>
   <role id='Auditor'>
    <property id='title'>Project Production Agent</property>
-   <property id='description'>XXX project local role group</property>
    <property id='condition'>python: context.getFollowUp("") != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
@@ -25,7 +23,6 @@
   </role>
   <role id='Assignor'>
    <property id='title'>Project Production Manager</property>
-   <property id='description'>XXX project local role group</property>
    <property id='condition'>python: context.getFollowUp("") != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>

@@ -17,7 +17,6 @@
   </role>
   <role id='Assignee'>
    <property id='title'>Destination Project Production Agent</property>
-   <property id='description'>XXX add local role group</property>
    <property id='condition'>python: context.getDestinationProject('', portal_type='Project') != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
@@ -26,7 +25,6 @@
   </role>
   <role id='Assignor'>
    <property id='title'>Destination Project Production Manager</property>
-   <property id='description'>XXX add local role group</property>
    <property id='condition'>python: context.getDestinationProject('', portal_type='Project') != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
@@ -49,7 +47,6 @@
   </role>
   <role id='Assignee'>
    <property id='title'>Source Project Production Agent</property>
-   <property id='description'>XXX add local role group</property>
    <property id='condition'>python: context.getSourceProject('', portal_type='Project') != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
@@ -59,7 +56,6 @@
   </role>
   <role id='Assignor'>
    <property id='title'>Source Project Production Manager</property>
-   <property id='description'>XXX add local role group</property>
    <property id='condition'>python: context.getSourceProject('', portal_type='Project') != ""</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>

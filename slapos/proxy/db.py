@@ -185,6 +185,27 @@ def propagateTimestampToRequester(reference, computer_reference):
     'UPDATE %s SET timestamp=? WHERE reference=? AND computer_reference=?',
     (time.time(), requester_id, computer_reference))
 
+def updateSharedConnectionXml(slave_reference, connection_xml, hosted_by=None):
+  """
+  Update a shared (slave) instance's published connection_xml. If it
+  changed, propagate a timestamp update to the partition which directly
+  requested it: a shared instance has no partition row of its own to
+  propagate from, so its requester's timestamp is updated directly.
+  """
+  shared = execute_db('slave', 'SELECT * FROM %s WHERE reference=?',
+                      (slave_reference,), one=True)
+  if hosted_by is None:
+    query = 'UPDATE %s SET connection_xml=? WHERE reference=?'
+    argument_list = [connection_xml, slave_reference]
+  else:
+    query = 'UPDATE %s SET connection_xml=? , hosted_by=? WHERE reference=?'
+    argument_list = [connection_xml, hosted_by, slave_reference]
+  execute_db('slave', query, argument_list)
+  if shared and shared['connection_xml'] != connection_xml and shared['requester_id']:
+    execute_db(
+      'partition',
+      'UPDATE %s SET timestamp=? WHERE reference=? AND computer_reference=?',
+      (time.time(), shared['requester_id'], shared['computer_reference']))
 
 
 def getAllocatedInstance(partition_reference, requested_by=''):

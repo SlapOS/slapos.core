@@ -6,14 +6,14 @@ from .db import execute_db, requestInstanceFromDB, supplyFromDB, removeFromDB, \
                 formatFromDB, \
                 NotFoundPartitionFailure, PartitionDeletionFailure, \
                 AllocationFailure, getInstanceTreeList, getAllocatedInstance, \
-                propagateTimestampToRequester, getRequesterFromAuthorization
+                propagateTimestampToRequester, getRequesterFromAuthorization, \
+                updateSharedConnectionXml
 from slapos.util import dict2xml, xml2dict, loads, unicode2str
 from slapos.slap.slap import ComputerPartition, SoftwareInstance, ConnectionError
 from .http_proxy import HTTPConnectionError
 import json
 import jsonschema
 import sys
-import time
 
 
 json_rpc_blueprint = Blueprint('json_rpc', __name__)
@@ -599,20 +599,7 @@ def put_software_instance_connection_parameter():
 
   if is_shared:
     slave_db_reference = generateDBSlaveReference(partition_reference, requested_by)
-    shared = execute_db('slave',
-      'SELECT * FROM %s WHERE reference=?',
-      (slave_db_reference,), one=True)
-    query = 'UPDATE %s SET connection_xml=? WHERE reference=?'
-    argument_list = [connection_xml, slave_db_reference]
-    execute_db('slave', query, argument_list)
-    if shared and shared['connection_xml'] != connection_xml and shared['requester_id']:
-      # requester_id is the reference of the partition which directly
-      # requested this shared instance: it has no partition row of its own
-      # to propagate from, so update the requester's timestamp directly.
-      execute_db(
-        'partition',
-        'UPDATE %s SET timestamp=? WHERE reference=? AND computer_reference=?',
-        (time.time(), shared['requester_id'], shared['computer_reference']))
+    updateSharedConnectionXml(slave_db_reference, connection_xml)
   else:
     partition = getAllocatedInstance(partition_reference, requested_by)
     query = 'UPDATE %s SET connection_xml=? WHERE partition_reference=? AND requested_by=?'

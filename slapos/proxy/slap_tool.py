@@ -3,7 +3,8 @@ from .db import execute_db, requestInstanceFromDB, supplyFromDB, removeFromDB, \
                 bangInstanceFromDB, freePartitionFromDB, formatFromDB, \
                 NotFoundPartitionFailure, PartitionDeletionFailure, \
                 getPartitionFromDB, AllocationFailure, ConfigurationError, \
-                propagateTimestampToRequester, getRequesterFromAuthorization
+                propagateTimestampToRequester, getRequesterFromAuthorization, \
+                updateSharedConnectionXml
 from slapos.util import loads, dumps
 from slapos.util import unicode2str, \
     xml2dict, dict2xml
@@ -122,9 +123,7 @@ def setComputerPartitionConnectionXml():
     if not partition or partition['connection_xml'] != connection_xml:
       propagateTimestampToRequester(computer_partition_id, computer_id)
   else:
-    query = 'UPDATE %s SET connection_xml=? , hosted_by=? WHERE reference=?'
-    argument_list = [connection_xml, computer_partition_id, slave_reference]
-    execute_db('slave', query, argument_list)
+    updateSharedConnectionXml(slave_reference, connection_xml, hosted_by=computer_partition_id)
   return 'done'
 
 @slap_tool_blueprint.route('/buildingSoftwareRelease', methods=['POST'])

@@ -1225,6 +1225,42 @@ class TestSlaveRequest(MasterMixin):
     self.assertIsInstance(our_slave, slapos.slap.ComputerPartition)
     self.assertEqual(slave_address, our_slave._connection_dict)
 
+  def test_setComputerPartitionConnectionXml_shared_propagates_to_requester_not_root(self):
+    """
+    slap.py's setConnectionDict() (used by slapos.cookbook:publish) posts to
+    setComputerPartitionConnectionXml, not to the slapos.put.v0 json_rpc
+    endpoint. When a shared (slave) instance set through this endpoint is
+    requested by a partition which is not itself the root of the request
+    tree, the connection parameter change must propagate to that direct
+    requester, not to the root of the tree.
+    """
+    self.format_for_number_of_partitions(6)
+    a = self.request('http://sr//', None, 'A')
+    provider = self.request('http://sr//', 'provider', 'MyProviderInstance')
+    b = self.request(
+      'http://sr//', None, 'B', headers={
+        'Authorization': 'X-SlapPartition computer_id=%s,computer_partition_id=%s' %
+          (self.computer_id, a._partition_id)})
+    self.request('http://sr//', 'provider', 'MyFirstShared',
+                 b._partition_id, shared=True)
+
+    def getTimestamp(partition_id):
+      return float(self.getPartitionInformation(partition_id)._parameter_dict['timestamp'])
+
+    a_timestamp = getTimestamp(a._partition_id)
+    b_timestamp = getTimestamp(b._partition_id)
+    # processing_timestamp is truncated to a whole second
+    time.sleep(1.1)
+
+    provider_partition = self.getPartitionInformation(provider._partition_id)
+    slave_reference = provider_partition._parameter_dict['slave_instance_list'][0]['slave_reference']
+    self.setConnectionDict(partition_id=provider_partition._partition_id,
+                           connection_dict={'foo': 'bar'},
+                           slave_reference=slave_reference)
+
+    self.assertEqual(getTimestamp(a._partition_id), a_timestamp)
+    self.assertGreater(getTimestamp(b._partition_id), b_timestamp)
+
   def test_slave_request_instance_guid(self):
     """
     Test that instance_guid support behaves correctly.

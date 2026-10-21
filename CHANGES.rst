@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.26.1 (2026-10-21)
+-------------------
+
+ * slapproxy: fix for python2
+ * slapproxy: fix implement timestamp propagation in slap_tool
+
 1.26.0 (2026-10-19)
 -------------------
 

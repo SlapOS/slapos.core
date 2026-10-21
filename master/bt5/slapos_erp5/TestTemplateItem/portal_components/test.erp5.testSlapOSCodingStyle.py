@@ -228,6 +228,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/InstanceTree_addSlapOSInstanceNode',
         'slapos_panel/InstanceTree_requestBang',
         'slapos_panel/InstanceTree_getConnectionParameterList',
+        'slapos_panel/InstanceTree_rename',
         'slapos_panel/InstanceTree_requestDestroy',
         'slapos_panel/InstanceTree_requestPerson',
         'slapos_panel/InstanceTree_requestStart',

@@ -95,7 +95,7 @@ else:
       source_administration_value.Person_checkSiteMigrationCreatePersonalVirtualMaster([compute_node_relative_url])
     else:
       # Create a single project for every single remaining compute node
-      project = source_administration_value.Person_addVirtualMaster(
+      project = source_administration_value.Actor_addVirtualMaster(
         title='Migrated shared for %s' % compute_node.getReference(),
         is_instance_tree_payable=False,
         # Hardcoded

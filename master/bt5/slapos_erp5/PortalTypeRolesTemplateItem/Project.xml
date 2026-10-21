@@ -7,6 +7,7 @@
   </role>
   <role id='Auditor'>
    <property id='title'>Project Member</property>
+   <property id='condition'>python: context.getValidationState() in ['draft', 'validated']</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromSelf</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
    <multi_property id='base_category'>destination_project</multi_property>

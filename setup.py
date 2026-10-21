@@ -74,6 +74,7 @@ setup(name=name,
           'PyYAML',
           'uritemplate', # used by hateoas navigator
           'distro',
+          'slapos.libnetworkcache',
           'subprocess32; python_version<"3"',
           'enum34; python_version<"3"',
           'selectors34; python_version<"3"', # used by SlapPopen (grid/utils)

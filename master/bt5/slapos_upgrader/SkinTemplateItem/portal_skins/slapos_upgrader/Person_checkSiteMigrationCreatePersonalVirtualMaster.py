@@ -36,7 +36,7 @@ if project is None:
 
   # No concurrent activity.
   # Create it
-  project = person.Person_addVirtualMaster(
+  project = person.Actor_addVirtualMaster(
     title=virtual_master_title,
     is_instance_tree_payable=False,
     # Hardcoded

@@ -15,7 +15,7 @@
   </role>
   <role id='Auditor'>
    <property id='title'>Destination Project Member</property>
-   <property id='condition'>python: (context.getValidationState() == 'validated') and (context.getDestination('') == "") and (context.getDestinationProject('') != "")
+   <property id='condition'>python: (context.getValidationState() == 'validated') and (context.getDestination('') == "") and (context.getDestinationProject('') != "") and context.getDestinationProjectValue().getValidationState() != "invalidated" 
 </property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>

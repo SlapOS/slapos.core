@@ -1,7 +1,7 @@
 <type_roles>
   <role id='Auditor'>
    <property id='title'>Destination Project Production Agent</property>
-   <property id='condition'>python: context.getDestinationProject('', portal_type='Project') != ""</property>
+   <property id='condition'>python: context.getDestinationProject('', portal_type='Project') != "" and context.getDestinationProjectValue().getValidationState() != "invalidated"</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
    <multi_property id='category'>function/production/agent</multi_property>
@@ -9,7 +9,7 @@
   </role>
   <role id='Assignor'>
    <property id='title'>Destination Project Production Manager</property>
-   <property id='condition'>python: context.getDestinationProject('', portal_type='Project') != ""</property>
+   <property id='condition'>python: context.getDestinationProject('', portal_type='Project') != "" and context.getDestinationProjectValue().getValidationState() != "invalidated"</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
    <multi_property id='category'>function/production/manager</multi_property>
@@ -17,7 +17,7 @@
   </role>
   <role id='Auditor'>
    <property id='title'>Source Project Production Agent</property>
-   <property id='condition'>python: context.getSourceProject('', portal_type='Project') != ""</property>
+   <property id='condition'>python: context.getSourceProject('', portal_type='Project') != "" and context.getSourceProjectValue().getValidationState() != "invalidated"</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
    <multi_property id='category'>function/production/agent</multi_property>
@@ -26,7 +26,7 @@
   </role>
   <role id='Assignor'>
    <property id='title'>Source Project Production Manager</property>
-   <property id='condition'>python: context.getSourceProject('', portal_type='Project') != ""</property>
+   <property id='condition'>python: context.getSourceProject('', portal_type='Project') != "" and context.getSourceProjectValue().getValidationState() != "invalidated"</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
    <multi_property id='category'>function/production/manager</multi_property>

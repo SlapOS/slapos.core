@@ -56,11 +56,11 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>script_Project_updateLocalRolesOnFollowUpRelated</string> </value>
+            <value> <string>script_Project_updateLocalRolesOnRelatedDocument</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Project_updateLocalRolesOnFollowUpRelated</string> </value>
+            <value> <string>Project_updateLocalRolesOnRelatedDocument</string> </value>
         </item>
       </dictionary>
     </pickle>

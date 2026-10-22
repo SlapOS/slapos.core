@@ -91,6 +91,15 @@ SKIP_SOFTWARE_CHECK_DEFAULT: bool = bool(
 SKIP_SOFTWARE_REBUILD_DEFAULT: bool = bool(
   int(os.environ.get("SLAPOS_TEST_SKIP_SOFTWARE_REBUILD", 0))
 )
+SERVE_SR_ROOT_URL: str | None = os.environ.get(
+  "SLAPOS_TEST_SOFTWARE_ROOT_URL"
+).rstrip('/')
+SERVE_SR_ROOT_DIR: str | None = os.environ.get(
+  "SLAPOS_TEST_SOFTWARE_ROOT_DIR"
+)
+if SERVE_SR_FROM_URL_ROOT_DIR:
+  SERVE_SR_FROM_URL_ROOT_DIR = os.path.abspath(SERVE_SR_FROM_URL_ROOT_DIR)
+SERVE_SR_FROM_URL = bool(SERVE_SR_ROOT_URL and SERVE_SR_ROOT_DIR)
 SHARED_PART_LIST_DEFAULT: Sequence[str] = [
   os.path.expanduser(p)
   for p in os.environ.get(
@@ -113,39 +122,40 @@ SLAPOS_SR_SBOM_DEPENDENCY_TRACK_PROJECT_ID: str | None = os.environ.get(
 )
 
 
-def _serveSoftwareURL(software_url: str) -> Tuple[str, str | None]:
+def _rewriteSoftwareAsURL(software_url: str) -> str | None:
   """Rewrite a local software path to the URL it is served at over HTTP.
 
-  Software Releases are built from an URL rather than a filesystem path, so
-  tests exercise the same install path as production, where
-  ``${:_profile_base_location_}`` is an URL and not a directory. The
-  ``slapos-sr-testing`` ``software-web-server`` service serves the checkout and
-  exports ``SLAPOS_TEST_SOFTWARE_ROOT_URL`` (its base URL) and
-  ``SLAPOS_TEST_SOFTWARE_ROOT_DIR`` (the checkout it serves).
+  When ``SLAPOS_TEST_SOFTWARE_ROOT_URL`` and ``SLAPOS_TEST_SOFTWARE_ROOT_DIR``
+  environment variables are set, they indicate a that webserver serves at that
+  base URL all the paths under that directory. This service is provided by
+  `slapos-sr-testing``. In that case, Software Releases are built from the URL
+  rather than a filesystem path, so tests exercise the same install path as in
+  production, where ``${:_profile_base_location_}`` is an URL, not a directory.
 
-  An already-remote URL is returned unchanged. A local path is rewritten to the
-  served URL; if no server is available for it -- the environment variables are
-  not set, or the path is outside the served checkout -- this raises: a Software
-  Release must be built from an URL.
+  A local subpath of ``SLAPOS_TEST_SOFTWARE_ROOT_DIR`` is rewritten to the
+  corresponding served URL. An already-remote URL is returned unchanged.
+
+  Otherwise, None is returned.
   """
   if urlparse(software_url).scheme:
-    return software_url, None
-  root_url = os.environ.get("SLAPOS_TEST_SOFTWARE_ROOT_URL")
-  root_dir = os.environ.get("SLAPOS_TEST_SOFTWARE_ROOT_DIR")
-  path = os.path.abspath(software_url)
-  if root_url and root_dir:
-    root_dir = os.path.abspath(root_dir)
-    if os.path.commonpath((path, root_dir)) == root_dir:
-      return f"{root_url.rstrip('/')}/{os.path.relpath(path, root_dir)}", root_dir
-  raise RuntimeError(
-    f"Software Release {software_url!r} must be built from an URL served over "
-    "HTTP, but no server is available for it: SLAPOS_TEST_SOFTWARE_ROOT_URL and "
-    "SLAPOS_TEST_SOFTWARE_ROOT_DIR (exported by the slapos-sr-testing "
-    "'software-web-server' service) are unset or do not cover it. Ensure the "
-    "slapos-sr-testing instance is running, or pass "
-    "serve_software_release_from_url=False for a Software Release that cannot be "
-    "served over HTTP."
-  )
+    return software_url
+  if SERVE_SR_FROM_URL:
+    path = os.path.abspath(software_url)
+    relpath = os.path.relpath(path, SERVE_SR_ROOT_DIR)
+    if not relpath.startswith(os.pardir):
+      return '%s/%s' % (SERVE_SR_ROOT_URL, relpath)
+
+
+def softwareAsURL(software_url: str) -> str:
+  """
+  Translate software path-or-URL to URL-or-path actually supplied and requested
+  by the framework: local paths converted to URL when a webserver is available,
+  local paths returned unchanged when not; remote URL returned unchanged.
+
+  This is meant for usage inside Software Release tests that do not necessarily
+  know if they are running with path-to-URL conversion enforced or disabled.
+  """
+  return _rewriteSoftwareAsURL(software_url) or software_url
 
 
 def makeModuleSetUpAndTestCaseClass(
@@ -161,7 +171,7 @@ def makeModuleSetUpAndTestCaseClass(
   shared_part_list: Iterable[str] = SHARED_PART_LIST_DEFAULT,
   snapshot_directory: str | None = SNAPSHOT_DIRECTORY_DEFAULT,
   software_id: str | None = None,
-  serve_software_release_from_url: bool = True,
+  serve_software_release_from_url: bool = SERVE_SR_FROM_URL,
   dependency_track_url: str | None = SLAPOS_SR_SBOM_DEPENDENCY_TRACK_URL,
   dependency_track_api_key: str
   | None = SLAPOS_SR_SBOM_DEPENDENCY_TRACK_API_KEY,
@@ -247,9 +257,26 @@ def makeModuleSetUpAndTestCaseClass(
 
   """
   software_url = os.fspath(software_url)
+
   software_checkout_directory = None
   if serve_software_release_from_url:
-    software_url, software_checkout_directory = _serveSoftwareURL(software_url)
+    if software_url == (software_url := _rewriteSoftwareAsURL(software_url)):
+      # already-remote URL, returned unchanged
+      pass
+    elif software_url is None:
+      # local path, webserver unprovided or not serving it
+      raise RuntimeError(
+        f"Software Release {software_url!r} must be built from an URL served"
+        " over HTTP, but no server is available for it:"
+        " SLAPOS_TEST_SOFTWARE_ROOT_URL and  SLAPOS_TEST_SOFTWARE_ROOT_DIR"
+        " (exported by the slapos-sr-testing 'software-web-server' service)"
+        " are unset or do not cover it. Ensure the slapos-sr-testing instance"
+        " is up-to-date, or pass serve_software_release_from_url=False if the"
+        " Software Release cannot be served over HTTP."
+      )
+    else:
+      # local path converted to URL, set original checkout directory
+      software_checkout_directory = SERVE_SR_ROOT_DIR
 
   if base_directory is None:
     base_directory = os.path.realpath(
@@ -305,10 +332,10 @@ def makeModuleSetUpAndTestCaseClass(
     _slap_request = slap.request
 
     def _supply(software_url, *args, **kwargs):  # pyright: ignore
-      return _slap_supply(_serveSoftwareURL(software_url)[0], *args, **kwargs)
+      return _slap_supply(rewriteSoftwareAsURL(software_url), *args, **kwargs)
 
-    def _request(software_release, *args, **kwargs):  # pyright: ignore
-      return _slap_request(_serveSoftwareURL(software_release)[0], *args, **kwargs)
+    def _request(software_url, *args, **kwargs):  # pyright: ignore
+      return _slap_request(rewriteSoftwareAsURL(software_url), *args, **kwargs)
 
     setattr(slap, "supply", _supply)
     setattr(slap, "request", _request)
@@ -438,7 +465,7 @@ def installSoftwareUrlList(
   """
   if cls._serve_software_from_url:  # pyright: ignore[reportPrivateUsage]
     software_url_list = [
-      _serveSoftwareURL(software_url)[0]  # pyright: ignore[reportPrivateUsage]
+      rewriteSoftwareAsURL(software_url)  # pyright: ignore[reportPrivateUsage]
       for software_url in software_url_list
     ]
 

@@ -851,7 +851,6 @@ exit 1
                        ['/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/startedComputerPartition',
-                        '/getHateoasUrl',
                         '/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/softwareInstanceError'])
@@ -906,8 +905,7 @@ chmod 755 etc/run/wrapper
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/getFullComputerInformation',
+                       ['/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition'])
       self.assertEqual(instance.state, 'stopped')
@@ -971,8 +969,7 @@ exit 1
                              '.slapos-retention-lock-delay', '.slapgrid-0-error.log'])
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/getFullComputerInformation',
+                       ['/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/softwareInstanceError'])
       self.assertEqual(instance.state, 'started')
@@ -1010,8 +1007,7 @@ exit 1
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/getFullComputerInformation',
+                       ['/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/startedComputerPartition'])
       self.assertEqual('started', instance.state)
@@ -1618,15 +1614,12 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
+                       ['/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
+                        '/stoppedComputerPartition',
                         '/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition',
-                        '/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition',
-                        '/getHateoasUrl',
                         '/getFullComputerInformation'])
 
   def test_partition_timestamp_new_timestamp(self):
@@ -1646,15 +1639,12 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
+                       ['/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
+                        '/stoppedComputerPartition',
                         '/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition',
-                        '/getHateoasUrl',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/stoppedComputerPartition',
-                        '/getHateoasUrl',
                         '/getFullComputerInformation'])
 
   def test_partition_timestamp_no_timestamp(self):
@@ -1674,11 +1664,9 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       instance.timestamp = None
       self.launchSlapgrid()
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl',
-                        '/getFullComputerInformation',
+                       ['/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition',
-                        '/getHateoasUrl',
                         '/getFullComputerInformation',
                         '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition'])

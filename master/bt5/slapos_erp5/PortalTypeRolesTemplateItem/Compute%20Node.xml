@@ -31,7 +31,7 @@
   </role>
   <role id='Assignor'>
    <property id='title'>Self Compute Node</property>
-   <property id='condition'>python: context.getUserId("") != ""</property>
+   <property id='condition'>python: context.getUserId("") != "" and context.getValidationState() != "invalidated"</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromSelf</property>
    <multi_property id='categories'>local_role_group/computer</multi_property>
    <multi_property id='base_category'>destination_decision</multi_property>

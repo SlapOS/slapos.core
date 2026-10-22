@@ -55,6 +55,8 @@
                 <string>_setSpecialise.*</string>
                 <string>_setAggregate.*</string>
                 <string>_setFollowUp.*</string>
+                <string>invalidate</string>
+                <string>validate</string>
               </tuple>
             </value>
         </item>

@@ -1,6 +1,7 @@
 <type_roles>
   <role id='Assignor'>
    <property id='title'>Compute Node</property>
+   <property id='condition'>python: context.getAggregate('') != "" and context.getAggregateValue().getParentValue().getValidationState() != "invalidated"  </property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContentParent</property>
    <multi_property id='categories'>local_role_group/computer</multi_property>
    <multi_property id='base_category'>aggregate</multi_property>
@@ -13,6 +14,7 @@
   </role>
   <role id='Assignee'>
    <property id='title'>Instance related by Instance Tree</property>
+   <property id='condition'>python: context.getSpecialise('') != '' and context.getSpecialiseValue().getValidationState() != 'archived' </property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/subscription</multi_property>
    <multi_property id='base_category'>specialise</multi_property>

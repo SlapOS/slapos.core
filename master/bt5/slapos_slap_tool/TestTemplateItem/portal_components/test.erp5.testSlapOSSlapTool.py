@@ -1962,20 +1962,22 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         portal_type='Compute Partition').getReference()
     ssl_key = self.destroy_requested_software_instance.getSslKey()
     ssl_cert = self.destroy_requested_software_instance.getSslCertificate()
+    self.assertNotEqual(ssl_key, None)
+    self.assertNotEqual(ssl_cert, None)
     self.login(self.destroy_requested_software_instance.getUserId())
     response = self.portal_slap.destroyedComputerPartition(self.compute_node_id,
       partition_id)
     self.assertEqual('None', response)
     self.assertEqual('invalidated',
         self.destroy_requested_software_instance.getValidationState())
-    
+
     certificate_login_list = self.destroy_requested_software_instance.objectValues(
       portal_type="Certificate Login")
     self.assertEqual(1, len(certificate_login_list))
     self.assertEqual("invalidated", certificate_login_list[0].getValidationState())
-    
-    self.assertEqual(ssl_key, self.destroy_requested_software_instance.getSslKey())
-    self.assertEqual(ssl_cert, self.destroy_requested_software_instance.getSslCertificate())
+
+    self.assertEqual(None, self.destroy_requested_software_instance.getSslKey())
+    self.assertEqual(None, self.destroy_requested_software_instance.getSslCertificate())
 
   def assertInstanceRequestSimulator(self, args, kwargs):
     with open(self.instance_request_simulator) as f:

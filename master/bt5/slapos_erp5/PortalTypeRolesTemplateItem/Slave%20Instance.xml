@@ -38,6 +38,7 @@
   <role id='Assignor'>
    <property id='title'>Software Instance which provides this Slave Instance</property>
    <property id='description'>This role use 'group' for the convinience of already exist, it could be used 'shared' but it would lead inconvenient large alter table while migrating it.</property>
+   <property id='condition'>python: context.getValidationState() != 'invalidated'</property>
    <property id='base_category_script'>SlaveInstance_getSecurityCategoryFromSoftwareInstance</property>
    <multi_property id='categories'>local_role_group/group</multi_property>
    <multi_property id='base_category'>aggregate</multi_property>

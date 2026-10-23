@@ -195,7 +195,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       currency_relative_url = currency.getRelativeUrl()
 
     # Action to submit project subscription
-    return person.Person_addVirtualMaster(
+    return person.Actor_addVirtualMaster(
       'project-%s' % self.generateNewId(),
       is_accountable,
       currency_relative_url,

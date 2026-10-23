@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_addVirtualMaster</string> </value>
+            <value> <string>Actor_addVirtualMaster</string> </value>
         </item>
       </dictionary>
     </pickle>

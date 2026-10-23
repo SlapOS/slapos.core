@@ -1303,6 +1303,11 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(instance, provider.getUserId(), ['Assignor'])
     self.assertRoles(instance, self.user_id, ['Owner'])
 
+    instance.validate()
+    instance.invalidate()
+    self.assertSecurityGroup(instance, [self.user_id], False)
+    self.assertRoles(instance, self.user_id, ['Owner'])
+
 class TestSoftwareProductModule(TestSlapOSGroupRoleSecurityMixin):
   def test_SoftwareProductModule(self):
     module = self.portal.software_product_module

@@ -62,9 +62,10 @@ def machine_info_tuple():
     return multiarch(), distribution_tuple()
 
 
-def is_compatible(machine_info_tuple, required_info_tuple):
+def is_compatible(machine_info_tuple, software_root, required_info_tuple):
     return machine_info_tuple[0] == required_info_tuple[0] \
-        and os_matches(required_info_tuple[1], machine_info_tuple[1])
+        and os_matches(required_info_tuple[1], machine_info_tuple[1]) \
+        and required_info_tuple[2].rstrip('/') == software_root.rstrip('/')
 
 
 def loadJsonEntry(jentry):
@@ -119,7 +120,7 @@ def download_network_cached(cache_url, dir_url, software_url, software_root,
         for entry, _ in nc.select_generic(key):
             try:
                 tags = loadJsonEntry(entry)
-                if is_compatible(machine_info, (tags['multiarch'], tags['os'])):
+                if is_compatible(machine_info, software_root, (tags['multiarch'], tags['os'], tag['software_root'])):
                     file_descriptor = nc.download(tags['sha512'])
                     break
             except Exception:

@@ -271,8 +271,6 @@ class OpenOrder(SlapRequester):
     return self._requestComputerPartition(request_dict)
 
   def getInformation(self, partition_reference):
-    if not getattr(self, '_hateoas_navigator', None):
-      raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
     raw_information = self._hateoas_navigator.getInstanceTreeRootSoftwareInstanceInformation(partition_reference)
     software_instance = SoftwareInstance()
     # XXX redefine SoftwareInstance to be more consistent
@@ -383,8 +381,6 @@ class Computer(SlapDocument):
     return loads(xml)
 
   def getInformation(self):
-    if not getattr(self, '_hateoas_navigator', None):
-      raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
     raw_information = self._hateoas_navigator._getComputer(reference=self._computer_id)
     computer = Computer(self._computer_id) 
     for key, value in six.iteritems(raw_information["data"]):
@@ -552,9 +548,6 @@ class ComputerPartition(SlapRequester):
     Return all needed informations about an existing Computer Partition
     in the Instance tree of the current Computer Partition.
     """
-    if not getattr(self, '_hateoas_navigator', None):
-      raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
-
     instance_url = self.getMeUrl()
     raw_information = self._hateoas_navigator.getRelatedInstanceInformation(
       instance_url, partition_reference)
@@ -743,7 +736,6 @@ class SlapConnectionHelper(ConnectionHelper):
 
     return loads(xml)
 
-getHateoasUrl_cache = {}
 @implementer(interface.slap)
 class slap:
 
@@ -758,26 +750,12 @@ class slap:
     self._connection_helper = SlapConnectionHelper(
             slapgrid_uri, key_file, cert_file, master_ca_file, timeout)
 
-    if not slapgrid_rest_uri:
-      getHateoasUrl_cache_key = (slapgrid_uri, key_file, cert_file, master_ca_file, timeout)
-      try:
-        slapgrid_rest_uri = getHateoasUrl_cache[getHateoasUrl_cache_key]
-      except KeyError:
-        pass
-    if not slapgrid_rest_uri:
-      try:
-        slapgrid_rest_uri = getHateoasUrl_cache[getHateoasUrl_cache_key] = \
-          bytes2str(self._connection_helper.GET('getHateoasUrl'))
-      except:
-        pass
-    if slapgrid_rest_uri:
-      self._hateoas_navigator = SlapHateoasNavigator(
-          slapgrid_rest_uri,
-          key_file, cert_file,
-          master_ca_file, timeout
-      )
-    else:
-      self._hateoas_navigator = None
+    self._hateoas_navigator = SlapHateoasNavigator(
+        slapgrid_rest_uri,
+        key_file=key_file, cert_file=cert_file,
+        master_ca_file=master_ca_file, timeout=timeout,
+        slapgrid_uri=slapgrid_uri
+    )
 
   # XXX-Cedric: this method is never used and thus should be removed.
   def registerSoftwareRelease(self, software_release):
@@ -795,9 +773,6 @@ class slap:
     Registers connected represenation of token and
     return Token class object
     """
-    if not getattr(self, '_hateoas_navigator', None):
-      raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
-
     return Token(
       connection_helper=self._connection_helper,
       hateoas_navigator=self._hateoas_navigator
@@ -864,12 +839,8 @@ class slap:
     return result
 
   def getOpenOrderDict(self):
-    if not getattr(self, '_hateoas_navigator', None):
-      raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
     return self._hateoas_navigator.getInstanceTreeDict()
 
   def getComputerDict(self): 
-    if not getattr(self, '_hateoas_navigator', None):
-      raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
     return self._hateoas_navigator.getComputerDict()
 

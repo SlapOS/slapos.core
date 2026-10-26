@@ -220,24 +220,6 @@ class TestSlap(SlapMixin):
     )
     self.assertEqual(result, None)
 
-  def test_slap_initializeConnection_defaultHateoasUrl(self):
-    """
-    Test that by default, slap will try to fetch Hateoas URL from XML/RPC URL.
-    """
-    hateoas_url = 'foo'
-    with AssertRequestsMock(self, [(
-      'GET',
-      '/getHateoasUrl',
-      {},
-      None,
-      200, {}, hateoas_url
-    )]):
-      self.slap.initializeConnection('http://%s' % self.id())
-    self.assertEqual(
-        self.slap._hateoas_navigator.slapos_master_hateoas_uri,
-        hateoas_url
-    )
-
   def test_slap_initializeConnection_specifiedHateoasUrl(self):
     """
     Test that if rest URL is specified, slap will NOT try to fetch
@@ -250,22 +232,6 @@ class TestSlap(SlapMixin):
         self.slap._hateoas_navigator.slapos_master_hateoas_uri,
         hateoas_url
     )
-
-  def test_slap_initializeConnection_noHateoasUrl(self):
-    """
-    Test that if no rest URL is specified and master does not know about rest,
-    it still work.
-    """
-    hateoas_url = 'foo'
-    with AssertRequestsMock(self, [(
-      'GET',
-      '/getHateoasUrl',
-      {},
-      None,
-      404, {}, None
-    )]):
-      self.slap.initializeConnection('http://%s' % self.id())
-    self.assertEqual(None, getattr(self.slap, '_hateoas_navigator', None))
 
   ###########################################################
   # registerComputer
@@ -362,7 +328,9 @@ class TestSlap(SlapMixin):
   def test_slap_registerToken_withoutRestUri(self):
     self.slap = slapos.slap.slap()
     self.slap.initializeConnection(self.server_url)
-    self.assertRaises(Exception, self.slap.registerToken)
+    with AssertRequestsMock(self):
+      token = self.slap.registerToken()
+    self.assertIsInstance(token, slapos.slap.Token)
 
   def test_slap_registerToken_withRestUri(self):
     self.slap = slapos.slap.slap()

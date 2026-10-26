@@ -1042,12 +1042,15 @@ exit 1
                              'etc', 'software_release', 'worked',
                              '.slapos-retention-lock-delay', '.slapgrid-0-error.log'])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/startedComputerPartition',
-                        '/getFullComputerInformation',
-                        '/getComputerPartitionCertificate',
-                        '/softwareInstanceError'])
+                       ['/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance',
+                        # XXX desactivated '/getHateoasUrl',
+                        '/slapos.allDocs.instance',
+                        '/slapos.get.software_instance',
+                        '/slapos.get.software_instance_certificate',
+                        '/slapos.put.software_instance'])
       self.assertEqual(instance.state, 'started')
 
   def test_one_partition_started_stopped(self):

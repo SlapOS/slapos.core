@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Workflow Script" module="erp5.portal_type"/>
+      <global name="PythonScript" module="Products.PythonScripts.PythonScript"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -46,21 +46,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>state_change</string> </value>
-        </item>
-        <item>
-            <key> <string>description</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>tag, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>script_ComputeNode_updateLocalRolesOnAggregatedInstanceList</string> </value>
-        </item>
-        <item>
-            <key> <string>title</string> </key>
-            <value> <string>ComputeNode_updateLocalRolesOnAggregatedInstanceList</string> </value>
+            <value> <string>Alarm_updateInvalidatedSecurityLocalRole</string> </value>
         </item>
       </dictionary>
     </pickle>

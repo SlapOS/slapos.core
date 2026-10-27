@@ -45,6 +45,69 @@ import slapos.slap
 from slapos.util import dumps, dict2xml
 
 
+class AssertRequestsMock(object):
+  """
+  Acts as a context manager to allow mocking
+  """
+  def __init__(self, unit_test, call_list=[]):
+    # call_list: [(request_method, request_url, request_headers, request_body,
+    #              response_status, response_headers, response_body)]
+    self.unit_test = unit_test
+    self.call_count = 0
+    self.expected_call_list = call_list
+
+    def handler(url, req):
+      debug_call_count = self.call_count + 1
+      # temporary mark number of calls as expected,
+      # to not trigger __exit__ assert in case of error
+      # (which is way more difficult to debug/understand)
+      self.call_count = len(self.expected_call_list)
+
+      if (debug_call_count <= len(self.expected_call_list)):
+        expected_call = self.expected_call_list[debug_call_count - 1]
+        self.unit_test.assertEqual(
+          expected_call[0],
+          req.method,
+          'Expected requests call %i method %s, got %s' % (debug_call_count, expected_call[0], req.method)
+        )
+        self.unit_test.assertEqual(
+          expected_call[1],
+          req.url,
+          'Expected requests call %i url %s, got %s' % (debug_call_count, expected_call[1], req.url)
+        )
+        for header_key, expected_header_value in expected_call[2].items():
+          header_value = req.headers.get(header_key, None)
+          self.unit_test.assertEqual(
+            expected_header_value,
+            header_value,
+            'Expected requests call %i header %s: %s, got %s' % (debug_call_count, header_key, expected_header_value, header_value)
+          )
+        self.unit_test.assertEqual(
+          expected_call[3],
+          req.body,
+          'Expected requests call %i body %s, got %s' % (debug_call_count, expected_call[3], req.body)
+        )
+        self.call_count = debug_call_count
+        # XXX XXX XXX add response headers expected_call[5]
+        return httmock.response(expected_call[4], expected_call[6], request=req)
+
+      self.unit_test.assertFalse('Unhandled call %i: %s %s' % (self.call_count, req.method, req.url))
+
+    self.httmock = httmock.HTTMock(handler)
+
+  def __enter__(self):
+    self.httmock.__enter__()
+
+  def __exit__(self, exc_type, exc_val, exc_tb):
+    self.httmock.__exit__(exc_type, exc_val, exc_tb)
+
+    self.unit_test.assertEqual(
+      self.call_count,
+      len(self.expected_call_list),
+      'Expected %i https requests calls, got %i' % (len(self.expected_call_list), self.call_count)
+    )
+
+
 class UndefinedYetException(Exception):
   """To catch exceptions which are not yet defined"""
 
@@ -84,58 +147,96 @@ class TestSlap(SlapMixin):
   This test can be used to test a running SLAP server by setting
   TEST_SLAP_SERVER_URL environment variable to the URL of this server.
   """
+  ###########################################################
+  # slap.__new__
+  ###########################################################
+  def test_slap_new(self):
+    with AssertRequestsMock(self):
+      slap_instance = slapos.slap.slap()
+      self.assertIsInstance(slap_instance, slapos.slap.slap)
 
-  def test_slap_initialisation(self):
+  ###########################################################
+  # slap.initializeConnection
+  ###########################################################
+  def test_slap_initializeConnection_url(self):
     """
     Asserts that slap initialisation works properly in case of
     passing correct url
     """
     slap_instance = slapos.slap.slap()
-    slap_instance.initializeConnection(self.server_url)
+    with AssertRequestsMock(self):
+      result = slap_instance.initializeConnection(self.server_url)
     self.assertEqual(slap_instance._connection_helper.slapgrid_uri, self.server_url)
+    self.assertEqual(result, None)
 
-  def test_slap_initialisation_ipv6_and_port(self):
+  def test_slap_initializeConnection_ipv6AndPort(self):
     slap_instance = slapos.slap.slap()
-    slap_instance.initializeConnection("http://fe80:1234:1234:1234:1:1:1:1:5000/foo/")
+    with AssertRequestsMock(self):
+      result = slap_instance.initializeConnection("http://fe80:1234:1234:1234:1:1:1:1:5000/foo/")
     self.assertEqual(
         slap_instance._connection_helper.slapgrid_uri,
         "http://[fe80:1234:1234:1234:1:1:1:1]:5000/foo/"
     )
+    self.assertEqual(result, None)
 
-  def test_slap_initialisation_ipv6_without_port(self):
+  def test_slap_initializeConnection_ipv6WithoutPort(self):
     slap_instance = slapos.slap.slap()
-    slap_instance.initializeConnection("http://fe80:1234:1234:1234:1:1:1:1/foo/")
+    with AssertRequestsMock(self):
+      result = slap_instance.initializeConnection("http://fe80:1234:1234:1234:1:1:1:1/foo/")
     self.assertEqual(
         slap_instance._connection_helper.slapgrid_uri,
         "http://[fe80:1234:1234:1234:1:1:1:1]/foo/"
     )
+    self.assertEqual(result, None)
 
-  def test_slap_initialisation_ipv6_with_bracket(self):
+  def test_slap_initializeConnection_ipv6WithBracket(self):
     slap_instance = slapos.slap.slap()
-    slap_instance.initializeConnection("http://[fe80:1234:1234:1234:1:1:1:1]:5000/foo/")
+    with AssertRequestsMock(self):
+      result = slap_instance.initializeConnection("http://[fe80:1234:1234:1234:1:1:1:1]:5000/foo/")
     self.assertEqual(
         slap_instance._connection_helper.slapgrid_uri,
         "http://[fe80:1234:1234:1234:1:1:1:1]:5000/foo/"
     )
+    self.assertEqual(result, None)
 
-  def test_slap_initialisation_ipv4(self):
+  def test_slap_initializeConnection_ipv4(self):
     slap_instance = slapos.slap.slap()
-    slap_instance.initializeConnection("http://127.0.0.1:5000/foo/")
+    with AssertRequestsMock(self):
+      result = slap_instance.initializeConnection("http://127.0.0.1:5000/foo/")
     self.assertEqual(
         slap_instance._connection_helper.slapgrid_uri,
         "http://127.0.0.1:5000/foo/"
     )
+    self.assertEqual(result, None)
 
-  def test_slap_initialisation_hostname(self):
+  def test_slap_initializeConnection_hostname(self):
     # XXX this really opens a connection !
     slap_instance = slapos.slap.slap()
-    slap_instance.initializeConnection("http://example.com:80/foo/")
+    with AssertRequestsMock(self):
+      result = slap_instance.initializeConnection("http://example.com:80/foo/")
     self.assertEqual(
         slap_instance._connection_helper.slapgrid_uri,
         "http://example.com:80/foo/"
     )
+    self.assertEqual(result, None)
 
-  def test_registerComputer_with_new_guid(self):
+  def test_slap_initializeConnection_specifiedHateoasUrl(self):
+    """
+    Test that if rest URL is specified, slap will NOT try to fetch
+    Hateoas URL from XML/RPC URL.
+    """
+    hateoas_url = 'foo'
+    with AssertRequestsMock(self):
+      self.slap.initializeConnection('http://%s' % self.id(), slapgrid_rest_uri=hateoas_url)
+    self.assertEqual(
+        self.slap._hateoas_navigator.slapos_master_hateoas_uri,
+        hateoas_url
+    )
+
+  ###########################################################
+  # registerComputer
+  ###########################################################
+  def test_slap_registerComputer_withNewGuid(self):
     """
     Asserts that calling slap.registerComputer with new guid returns
     Computer object
@@ -143,26 +244,19 @@ class TestSlap(SlapMixin):
     computer_guid = self._getTestComputerId()
     self.slap = slapos.slap.slap()
     self.slap.initializeConnection(self.server_url)
-    computer = self.slap.registerComputer(computer_guid)
+    with AssertRequestsMock(self):
+      computer = self.slap.registerComputer(computer_guid)
     self.assertIsInstance(computer, slapos.slap.Computer)
+    self.assertEqual(computer._computer_id, computer_guid)
+    self.assertEqual(computer._connection_helper, self.slap._connection_helper)
+    self.assertEqual(computer._hateoas_navigator, self.slap._hateoas_navigator)
 
-  def test_registerComputer_with_existing_guid(self):
-    """
-    Asserts that calling slap.registerComputer with already used guid
-    returns Computer object
-    """
-    computer_guid = self._getTestComputerId()
-    self.slap = slapos.slap.slap()
-    self.slap.initializeConnection(self.server_url)
-    computer = self.slap.registerComputer(computer_guid)
-    self.assertIsInstance(computer, slapos.slap.Computer)
-
-    computer2 = self.slap.registerComputer(computer_guid)
-    self.assertIsInstance(computer2, slapos.slap.Computer)
-
+  ###########################################################
+  # registerSoftwareRelease
+  ###########################################################
   # XXX: There is naming conflict in slap library.
   # SoftwareRelease is currently used as suboject of Slap transmission object
-  def test_registerSoftwareRelease_with_new_uri(self):
+  def test_slap_registerSoftwareRelease_withNewUri(self):
     """
     Asserts that calling slap.registerSoftwareRelease with new guid
     returns SoftwareRelease object
@@ -170,24 +264,49 @@ class TestSlap(SlapMixin):
     software_release_uri = 'http://server/' + self._getTestComputerId()
     self.slap = slapos.slap.slap()
     self.slap.initializeConnection(self.server_url)
-    software_release = self.slap.registerSoftwareRelease(software_release_uri)
+    with AssertRequestsMock(self):
+      software_release = self.slap.registerSoftwareRelease(software_release_uri)
     self.assertIsInstance(software_release, slapos.slap.SoftwareRelease)
+    self.assertEqual(software_release._connection_helper, self.slap._connection_helper)
+    self.assertEqual(software_release._hateoas_navigator, self.slap._hateoas_navigator)
 
-  def test_registerSoftwareRelease_with_existing_uri(self):
+  ###########################################################
+  # registerComputerPartition
+  ###########################################################
+  def test_slap_registerComputerPartition_emptyComputerGuid(self):
     """
-    Asserts that calling slap.registerSoftwareRelease with already
-    used guid returns SoftwareRelease object
+    Asserts that calling registerComputerPartition with empty computer_id
+    raises early, before calling master.
     """
-    software_release_uri = 'http://server/' + self._getTestComputerId()
-    self.slap = slapos.slap.slap()
     self.slap.initializeConnection(self.server_url)
-    software_release = self.slap.registerSoftwareRelease(software_release_uri)
-    self.assertIsInstance(software_release, slapos.slap.SoftwareRelease)
+    with AssertRequestsMock(self):
+      self.assertRaises(slapos.slap.NotFoundError,
+                        self.slap.registerComputerPartition,
+                        None, 'PARTITION_01')
 
-    software_release2 = self.slap.registerSoftwareRelease(software_release_uri)
-    self.assertIsInstance(software_release2, slapos.slap.SoftwareRelease)
+  def test_slap_registerComputerPartition_emptyComputerPartitionId(self):
+    """
+    Asserts that calling registerComputerPartition with empty
+    computer_partition_id raises early, before calling master.
+    """
+    self.slap.initializeConnection(self.server_url)
+    with AssertRequestsMock(self):
+      self.assertRaises(slapos.slap.NotFoundError,
+                        self.slap.registerComputerPartition,
+                        self._getTestComputerId(), None)
 
-  def test_registerComputerPartition_new_partition_id_known_computer_guid(self):
+  def test_slap_registerComputerPartition_emptyComputerGuidEmptyComputerPartitionId(self):
+    """
+    Asserts that calling registerComputerPartition with empty
+    computer_partition_id raises early, before calling master.
+    """
+    self.slap.initializeConnection(self.server_url)
+    with AssertRequestsMock(self):
+      self.assertRaises(slapos.slap.NotFoundError,
+                        self.slap.registerComputerPartition,
+                        None, None)
+
+  def test_slap_registerComputerPartition_newPartitionIdKnownComputerGuid(self):
     """
     Asserts that calling slap.registerComputerPartition on known computer
     returns ComputerPartition object
@@ -195,77 +314,213 @@ class TestSlap(SlapMixin):
     computer_guid = self._getTestComputerId()
     partition_id = self.partition_id
     self.slap.initializeConnection(self.server_url)
-    self.slap.registerComputer(computer_guid)
-
-    def handler(url, req):
-      qs = parse.parse_qs(url.query)
-      if url.path == '/registerComputerPartition' and qs == {
-                'computer_reference': [computer_guid],
-                'computer_partition_reference': [partition_id]
-                }:
-        partition = slapos.slap.ComputerPartition(computer_guid, partition_id)
-        return {
-                'status_code': 200,
-                'content': dumps(partition)
-                }
-      else:
-        return {'status_code': 400}
-
-    self._handler = handler
-
-    with httmock.HTTMock(handler):
+    with AssertRequestsMock(self):
       partition = self.slap.registerComputerPartition(computer_guid, partition_id)
-      self.assertIsInstance(partition, slapos.slap.ComputerPartition)
+    self.assertIsInstance(partition, slapos.slap.ComputerPartition)
+    self.assertEqual(partition._computer_id, computer_guid)
+    self.assertEqual(partition._partition_id, partition_id)
+    self.assertEqual(partition._connection_helper, self.slap._connection_helper)
+    self.assertEqual(partition._hateoas_navigator, self.slap._hateoas_navigator)
 
-  def test_registerComputerPartition_existing_partition_id_known_computer_guid(self):
-    """
-    Asserts that calling slap.registerComputerPartition on known computer
-    returns ComputerPartition object
-    """
-    self.test_registerComputerPartition_new_partition_id_known_computer_guid()
-    with httmock.HTTMock(self._handler):
-      partition = self.slap.registerComputerPartition(self._getTestComputerId(),
-                                                      self.partition_id)
-      self.assertIsInstance(partition, slapos.slap.ComputerPartition)
-
-  def test_registerComputerPartition_no_http_query(self):
-    """
-    Asserts that calling slap.registerComputerPartition does not trigger an http query
-    """
-    computer_guid = self._getTestComputerId()
+  ###########################################################
+  # registerToken
+  ###########################################################
+  def test_slap_registerToken_withoutRestUri(self):
+    self.slap = slapos.slap.slap()
     self.slap.initializeConnection(self.server_url)
-    partition_id = self.id()
+    with AssertRequestsMock(self):
+      token = self.slap.registerToken()
+    self.assertIsInstance(token, slapos.slap.Token)
 
-    def handler(url, req):
-      return {'status_code': 500}
+  def test_slap_registerToken_withRestUri(self):
+    self.slap = slapos.slap.slap()
+    self.slap.initializeConnection(self.server_url, slapgrid_rest_uri='foo')
+    with AssertRequestsMock(self):
+      token = self.slap.registerToken()
+    self.assertIsInstance(token, slapos.slap.Token)
+    self.assertEqual(token._connection_helper, self.slap._connection_helper)
+    self.assertEqual(token._hateoas_navigator, self.slap._hateoas_navigator)
 
-    with httmock.HTTMock(handler):
-      self.slap.registerComputerPartition(computer_guid, partition_id)
-
-  def test_fetchComputerPartitionInformation_unknown_computer_guid(self):
-    """
-    Asserts that calling _fetchComputerPartitionInformation on unknown
-    computer raises NotFoundError exception
-    """
-    computer_guid = self._getTestComputerId()
+  ###########################################################
+  # registerOpenOrder
+  ###########################################################
+  def test_slap_registerOpenOrder(self):
+    self.slap = slapos.slap.slap()
     self.slap.initializeConnection(self.server_url)
-    partition_id = self.id()
+    with AssertRequestsMock(self):
+      open_order = self.slap.registerOpenOrder()
+    self.assertIsInstance(open_order, slapos.slap.OpenOrder)
+    self.assertEqual(open_order._connection_helper, self.slap._connection_helper)
+    self.assertEqual(open_order._hateoas_navigator, self.slap._hateoas_navigator)
 
-    def handler(url, req):
-      qs = parse.parse_qs(url.query)
-      if url.path == '/registerComputerPartition' and qs == {
-              'computer_reference': [computer_guid],
-              'computer_partition_reference': [partition_id]
-              }:
-        return {'status_code': 404}
-      else:
-        return {'status_code': 0}
+  ###########################################################
+  # registerSupply
+  ###########################################################
+  def test_slap_registerSupply(self):
+    self.slap = slapos.slap.slap()
+    self.slap.initializeConnection(self.server_url)
+    with AssertRequestsMock(self):
+      supply = self.slap.registerSupply()
+    self.assertIsInstance(supply, slapos.slap.Supply)
+    self.assertEqual(supply._connection_helper, self.slap._connection_helper)
+    self.assertEqual(supply._hateoas_navigator, self.slap._hateoas_navigator)
 
-    partition = self.slap.registerComputerPartition(computer_guid, partition_id)
-    with httmock.HTTMock(handler):
-      self.assertRaises(slapos.slap.NotFoundError,
-                        partition._fetchComputerPartitionInformation)
+  ###########################################################
+  # getSoftwareReleaseListFromSoftwareProduct
+  ###########################################################
+  def test_slap_getSoftwareReleaseListFromSoftwareProduct_softwareProductReference(self):
+    """
+    Check that slap.getSoftwareReleaseListFromSoftwareProduct calls
+    "/getSoftwareReleaseListFromSoftwareProduct" URL with correct parameters,
+    with software_product_reference parameter being specified.
+    """
+    self.slap.initializeConnection(self.server_url)
+    software_product_reference = 'random_reference'
+    software_release_url_list = ['1', '2']
 
+    with AssertRequestsMock(self, [(
+      'GET',
+      'http://localhost/getSoftwareReleaseListFromSoftwareProduct?software_product_reference=random_reference',
+      {},
+      None,
+      200, {}, dumps(software_release_url_list)
+    )]):
+      self.assertEqual(
+        self.slap.getSoftwareReleaseListFromSoftwareProduct(software_product_reference=software_product_reference),
+        software_release_url_list
+      )
+
+  def test_slap_getSoftwareReleaseListFromSoftwareProduct_softwareReleaseUrl(self):
+    """
+    Check that slap.getSoftwareReleaseListFromSoftwareProduct calls
+    "/getSoftwareReleaseListFromSoftwareProduct" URL with correct parameters,
+    with software_release_url parameter being specified.
+    """
+    self.slap.initializeConnection(self.server_url)
+    software_release_url = 'random_url'
+    software_release_url_list = ['1', '2']
+
+    with AssertRequestsMock(self, [(
+      'GET',
+      'http://localhost/getSoftwareReleaseListFromSoftwareProduct?software_release_url=random_url',
+      {},
+      None,
+      200, {}, dumps(software_release_url_list)
+    )]):
+      self.assertEqual(
+        self.slap.getSoftwareReleaseListFromSoftwareProduct(software_release_url=software_release_url),
+        software_release_url_list
+      )
+
+  def test_slap_getSoftwareReleaseListFromSoftwareProduct_tooManyParameters(self):
+    """
+    Check that slap.getSoftwareReleaseListFromSoftwareProduct raises if
+    both parameters are set.
+    """
+    self.slap.initializeConnection(self.server_url)
+    with AssertRequestsMock(self):
+      self.assertRaises(
+        AttributeError,
+        self.slap.getSoftwareReleaseListFromSoftwareProduct, 'foo', 'bar'
+      )
+
+  def test_slap_getSoftwareReleaseListFromSoftwareProduct_noParameter(self):
+    """
+    Check that slap.getSoftwareReleaseListFromSoftwareProduct raises if
+    both parameters are either not set or None.
+    """
+    self.slap.initializeConnection(self.server_url)
+    with AssertRequestsMock(self):
+      self.assertRaises(
+        AttributeError,
+        self.slap.getSoftwareReleaseListFromSoftwareProduct
+      )
+
+  ###########################################################
+  # getOpenOrderDict
+  ###########################################################
+  def test_slap_getOpenOrderDict(self):
+    self.slap.initializeConnection(self.server_url, slapgrid_rest_uri='http://example.org')
+    with AssertRequestsMock(self, [(
+      'GET',
+      'http://example.org/',
+      {},
+      None,
+      200, {}, json.dumps({
+        "_links": {
+          "raw_search": {
+            "href": "https://localhost/SLAPTEST_getHateoas?mode=search{&query,select_list*,limit*,group_by*,sort_on*,local_roles*,selection_domain*}",
+            "name": "Raw Search",
+            "templated": True
+          }
+        }
+      })
+    ), (
+      'GET',
+      'https://localhost/SLAPTEST_getHateoas?mode=search&query=portal_type%3A%22Instance%20Tree%22%20AND%20validation_state%3Avalidated&select_list=title&select_list=url_string&limit=40',
+      {},
+      None,
+      200, {}, json.dumps({
+        "_embedded": {
+          "contents": [{
+            "url_string": "foo_url",
+            "title": "bar title"
+          }, {
+            "url_string": "foo_url 2",
+            "title": "bar title 2"
+          }]
+        }
+      })
+    )]):
+      result = self.slap.getOpenOrderDict()
+    self.assertIsInstance(result, dict)
+    self.assertEqual(set(result.keys()), {'bar title', 'bar title 2'})
+    self.assertEqual(result['bar title']._title, 'bar title')
+    self.assertEqual(result['bar title']._software_release_url, 'foo_url')
+
+  ###########################################################
+  # getComputerDict
+  ###########################################################
+  def test_slap_getComputerDict(self):
+    self.slap.initializeConnection(self.server_url, slapgrid_rest_uri='http://example.org')
+    with AssertRequestsMock(self, [(
+      'GET',
+      'http://example.org/',
+      {},
+      None,
+      200, {}, json.dumps({
+        "_links": {
+          "raw_search": {
+            "href": "https://localhost/SLAPTEST_getHateoas?mode=search{&query,select_list*,limit*,group_by*,sort_on*,local_roles*,selection_domain*}",
+            "name": "Raw Search",
+            "templated": True
+          }
+        }
+      })
+    ), (
+      'GET',
+      'https://localhost/SLAPTEST_getHateoas?mode=search&query=portal_type%3A%22Compute%20Node%22%20AND%20validation_state%3Avalidated&select_list=title&select_list=reference&limit=40',
+      {},
+      None,
+      200, {}, json.dumps({
+        "_embedded": {
+          "contents": [{
+            "reference": "foo reference",
+            "title": "bar title"
+          }, {
+            "reference": "foo reference 2",
+            "title": "bar title 2"
+          }]
+        }
+      })
+    )]):
+      result = self.slap.getComputerDict()
+    self.assertIsInstance(result, dict)
+    self.assertEqual(set(result.keys()), {'bar title', 'bar title 2'})
+    self.assertEqual(result['bar title']._title, 'bar title')
+    self.assertEqual(result['bar title']._reference, 'foo reference')
+
+  # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   def test_getFullComputerInformation_empty_computer_guid(self):
     """
     Asserts that calling getFullComputerInformation with empty computer_id
@@ -281,188 +536,6 @@ class TestSlap(SlapMixin):
       self.assertRaises(slapos.slap.NotFoundError,
                         self.slap._connection_helper.getFullComputerInformation,
                         None)
-
-  def test_registerComputerPartition_empty_computer_guid(self):
-    """
-    Asserts that calling registerComputerPartition with empty computer_id
-    raises early, before calling master.
-    """
-    self.slap.initializeConnection(self.server_url)
-
-    def handler(url, req):
-      # Shouldn't even be called
-      self.assertFalse(True)
-
-    with httmock.HTTMock(handler):
-      self.assertRaises(slapos.slap.NotFoundError,
-                        self.slap.registerComputerPartition,
-                        None, 'PARTITION_01')
-
-  def test_registerComputerPartition_empty_computer_partition_id(self):
-    """
-    Asserts that calling registerComputerPartition with empty
-    computer_partition_id raises early, before calling master.
-    """
-    self.slap.initializeConnection(self.server_url)
-
-    def handler(url, req):
-      # Shouldn't even be called
-      self.assertFalse(True)
-
-    with httmock.HTTMock(handler):
-      self.assertRaises(slapos.slap.NotFoundError,
-                        self.slap.registerComputerPartition,
-                        self._getTestComputerId(), None)
-
-  def test_registerComputerPartition_empty_computer_guid_empty_computer_partition_id(self):
-    """
-    Asserts that calling registerComputerPartition with empty
-    computer_partition_id raises early, before calling master.
-    """
-    self.slap.initializeConnection(self.server_url)
-
-    def handler(url, req):
-      # Shouldn't even be called
-      self.assertFalse(True)
-
-    with httmock.HTTMock(handler):
-      self.assertRaises(slapos.slap.NotFoundError,
-                        self.slap.registerComputerPartition,
-                        None, None)
-
-
-  def test_getSoftwareReleaseListFromSoftwareProduct_software_product_reference(self):
-    """
-    Check that slap.getSoftwareReleaseListFromSoftwareProduct calls
-    "/getSoftwareReleaseListFromSoftwareProduct" URL with correct parameters,
-    with software_product_reference parameter being specified.
-    """
-    self.slap.initializeConnection(self.server_url)
-    software_product_reference = 'random_reference'
-    software_release_url_list = ['1', '2']
-
-    def handler(url, req):
-      qs = parse.parse_qs(url.query)
-      if url.path == '/getSoftwareReleaseListFromSoftwareProduct' and qs == {
-              'software_product_reference': [software_product_reference]
-              }:
-        return {
-                'status_code': 200,
-                'content': dumps(software_release_url_list)
-                }
-
-    with httmock.HTTMock(handler):
-      self.assertEqual(
-        self.slap.getSoftwareReleaseListFromSoftwareProduct(
-          software_product_reference=software_product_reference),
-        software_release_url_list
-      )
-
-  def test_getSoftwareReleaseListFromSoftwareProduct_software_release_url(self):
-    """
-    Check that slap.getSoftwareReleaseListFromSoftwareProduct calls
-    "/getSoftwareReleaseListFromSoftwareProduct" URL with correct parameters,
-    with software_release_url parameter being specified.
-    """
-    self.slap.initializeConnection(self.server_url)
-    software_release_url = 'random_url'
-    software_release_url_list = ['1', '2']
-
-    def handler(url, req):
-      qs = parse.parse_qs(url.query)
-      if url.path == '/getSoftwareReleaseListFromSoftwareProduct' and qs == {
-              'software_release_url': [software_release_url]
-              }:
-        return {
-                'status_code': 200,
-                'content': dumps(software_release_url_list)
-                }
-
-    with httmock.HTTMock(handler):
-      self.assertEqual(
-        self.slap.getSoftwareReleaseListFromSoftwareProduct(
-            software_release_url=software_release_url),
-        software_release_url_list
-      )
-
-  def test_getSoftwareReleaseListFromSoftwareProduct_too_many_parameters(self):
-    """
-    Check that slap.getSoftwareReleaseListFromSoftwareProduct raises if
-    both parameters are set.
-    """
-    self.assertRaises(
-      AttributeError,
-      self.slap.getSoftwareReleaseListFromSoftwareProduct, 'foo', 'bar'
-    )
-
-  def test_getSoftwareReleaseListFromSoftwareProduct_no_parameter(self):
-    """
-    Check that slap.getSoftwareReleaseListFromSoftwareProduct raises if
-    both parameters are either not set or None.
-    """
-    self.assertRaises(
-      AttributeError,
-      self.slap.getSoftwareReleaseListFromSoftwareProduct
-    )
-
-  def test_initializeConnection_getHateoasUrl(self):
-    """
-    Test that by default, slap will try to fetch Hateoas URL from XML/RPC URL.
-    """
-    hateoas_url = 'foo'
-    def handler(url, req):
-      qs = parse.parse_qs(url.query)
-      if url.path == '/getHateoasUrl':
-        return {
-                'status_code': 200,
-                'content': hateoas_url
-                }
-
-    self.slap.initializeConnection('http://%s' % self.id())
-
-    with httmock.HTTMock(handler):
-      self.assertEqual(
-          self.slap._hateoas_navigator.slapos_master_hateoas_uri,
-          hateoas_url
-      )
-
-  def test_initializeConnection_specifiedHateoasUrl(self):
-    """
-    Test that if rest URL is specified, slap will NOT try to fetch
-    Hateoas URL from XML/RPC URL.
-    """
-    hateoas_url = 'foo'
-    def handler(url, req):
-      qs = parse.parse_qs(url.query)
-      if url.path == '/getHateoasUrl':
-        self.fail('slap should not have contacted master to get Hateoas URL.')
-
-    with httmock.HTTMock(handler):
-      self.slap.initializeConnection('http://%s' % self.id(), slapgrid_rest_uri=hateoas_url)
-    self.assertEqual(
-        self.slap._hateoas_navigator.slapos_master_hateoas_uri,
-        hateoas_url
-    )
-
-  def test_initializeConnection_noHateoasUrl(self):
-    """
-    Test that if no rest URL is specified and master does not know about rest,
-    it still work.
-    """
-    hateoas_url = 'foo'
-    def handler(url, req):
-      qs = parse.parse_qs(url.query)
-      if url.path == '/getHateoasUrl':
-        return {
-                'status_code': 404,
-                }
-
-    self.slap.initializeConnection('http://%s' % self.id())
-    with httmock.HTTMock(handler):
-      self.assertRaises(
-        ValueError,
-        getattr, self.slap._hateoas_navigator, 'slapos_master_hateoas_uri'
-      )
 
 
 class TestComputer(SlapMixin):
@@ -1104,56 +1177,53 @@ class TestComputerPartition(SlapMixin):
       connection_xml='<marshal><dictionary id="i2"><string>a</string>'
                      '<string>b</string></dictionary></marshal>')
 
-  def _test_error(self, error_log, slave_reference=None, expected_post_data=None):
-    with \
-        mock.patch.object(
-          slapos.slap.ComputerPartition, '__init__', return_value=None), \
-        mock.patch.object(
-          slapos.slap.ComputerPartition, 'getId',
-          return_value='PART-0'):
-      partition = slapos.slap.ComputerPartition()
-      partition._connection_helper = mock.Mock()
-      partition._computer_id = 'COMP-0'
-      partition._partition_id = 'PART-0'
-      partition._connection_helper.POST = mock.Mock()
+  ##########################################
+  # ComputerPartition.error
+  ##########################################
+  def _test_error(self, error_log, slave_reference=None):
+    self.slap.initializeConnection('https://example.org')
+    partition = self.slap.registerComputerPartition('COMP-0', 'PART-0')
+
+    call_list = []
+    if slave_reference is None:
+      # slap.py first fetch the instance_guid
+      call_list.append((
+        'POST', 'https://example.org/slapos.get.v0.compute_partition',
+        {'Authorization': 'X-SlapPartition computer_id=COMP-0, computer_partition_id=PART-0'},
+        json.dumps({"computer_guid": "COMP-0", "compute_partition_id": "PART-0"}),
+        200, {}, json.dumps({
+          'instance_guid': 'foo_uid',
+          'state': '',
+          'software_release_uri': '',
+          'software_type': '',
+          'parameters': '',
+          'processing_timestamp': '',
+          'connection_parameters': '',
+          'ip_list': '',
+          'full_ip_list': '',
+          'title': '',
+          'root_instance_title': ''
+        })
+      ))
+    call_list.append((
+      'POST', 'https://example.org/slapos.put.v0.software_instance_error',
+      {'Authorization': 'X-SlapPartition computer_id=COMP-0, computer_partition_id=PART-0'},
+      json.dumps({"instance_guid": slave_reference or 'foo_uid', "message": error_log}),
+      200, {}, b'{}'
+    ))
+    with AssertRequestsMock(self, call_list):
       partition.error(error_log, slave_reference=slave_reference)
-      if expected_post_data:
-        partition._connection_helper.POST.assert_called_with(
-          'softwareInstanceError',
-          data=expected_post_data,
-          auth=partition._connection_helper.POST.call_args.kwargs['auth'])
-        self.assertNotEqual(partition._connection_helper.POST.call_args.kwargs['auth'], None)
-      else:
-        partition._connection_helper.POST.assert_not_called()
 
   def test_error(self):
-    self._test_error(
-      'some error message',
-      expected_post_data={
-        'computer_id': 'COMP-0',
-        'computer_partition_id': 'PART-0',
-        'error_log': 'some error message'
-      })
+    self._test_error('some error message')
 
   def test_error_with_slave_reference(self):
     self._test_error(
       'some error message',
-      slave_reference='SLAVE-0',
-      expected_post_data={
-        'computer_id': 'COMP-0',
-        'computer_partition_id': 'PART-0',
-        'error_log': 'some error message',
-        'slave_reference': 'SLAVE-0'
-      })
+      slave_reference='SLAVE-0')
 
   def test_error_empty_message(self):
-    self._test_error(
-      '',
-      expected_post_data={
-        'computer_id': 'COMP-0',
-        'computer_partition_id': 'PART-0',
-        'error_log': ''
-      })
+    self._test_error('')
 
 
 class TestSoftwareRelease(SlapMixin):

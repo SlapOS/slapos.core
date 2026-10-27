@@ -54,6 +54,7 @@
                 <string>_setReference.*</string>
                 <string>_setDestinationSection.*</string>
                 <string>_setFollowUp.*</string>
+                <string>archive</string>
               </tuple>
             </value>
         </item>

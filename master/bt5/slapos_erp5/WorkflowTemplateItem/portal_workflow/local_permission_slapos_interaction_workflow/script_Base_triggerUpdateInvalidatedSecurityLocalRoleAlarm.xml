@@ -49,14 +49,6 @@
             <value> <string>state_change</string> </value>
         </item>
         <item>
-            <key> <string>_proxy_roles</string> </key>
-            <value>
-              <tuple>
-                <string>Assignor</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
             <key> <string>description</string> </key>
             <value>
               <none/>
@@ -64,11 +56,11 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>script_Project_updateLocalRolesOnRelatedDocument</string> </value>
+            <value> <string>script_Base_triggerUpdateInvalidatedSecurityLocalRoleAlarm</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Project_updateLocalRolesOnRelatedDocument</string> </value>
+            <value> <string>Base_triggerUpdateInvalidatedSecurityLocalRoleAlarm</string> </value>
         </item>
       </dictionary>
     </pickle>

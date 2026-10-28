@@ -1,1 +1,2 @@
 related_successor_but_with_different_title_than_catalog_title | category,catalog/uid/z_related_successor_but_with_different_title_than_catalog_title
+aggregate_parent_validation_state | category,catalog,catalog/validation_state/z_related_aggregate_parent

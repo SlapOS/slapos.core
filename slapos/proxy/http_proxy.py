@@ -61,7 +61,7 @@ def proxy_request(url_scheme, url_netloc, url_path=''):
         url,
         # ignore verifying the SSL certificate
         # as most backend servers uses self signed certificates
-        verify=False,
+        verify=True,
         data=request.get_data(),
         headers=proxy_query_header,
         timeout=5

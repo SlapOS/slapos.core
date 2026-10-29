@@ -75,7 +75,7 @@ def get_certificate_key_pair(logger, master_url_web, token):
     req = requests.post('/'.join([master_url_web, 'Person_getCertificate']),
                         data={},
                         headers={'X-Access-Token': token},
-                        verify=False)
+                        verify=True)
 
     if req.status_code == 403:
         logger.critical('Access denied to the SlapOS Master. '

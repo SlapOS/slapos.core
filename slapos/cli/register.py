@@ -136,8 +136,7 @@ def get_certificate_key_pair(logger, master_url_web, node_name, token):
 
     req = requests.post('/'.join([master_url_web, 'Person_requestComputer']),
                         data={'title': node_name},
-                        headers={'X-Access-Token': token},
-                        verify=False)
+                        headers={'X-Access-Token': token})
 
     if not req.ok and 'Certificate still active.' in req.text:
         # raise a readable exception if the computer name is already used,

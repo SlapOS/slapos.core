@@ -119,7 +119,7 @@ class ConnectionHelper:
                    params=params,
                    cert=cert,
                    auth=auth,
-                   verify=False,
+                   verify=True,
                    data=data,
                    headers=headers,
                    timeout=self.timeout)

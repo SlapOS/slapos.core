@@ -20,7 +20,8 @@
 # See https://www.nexedi.com/licensing for rationale and options.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, \
+                                                    TemporaryAlarmScript
 from AccessControl import getSecurityManager
 import transaction
 
@@ -1464,7 +1465,13 @@ class TestAssignmentRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(support_request, '%s_F-PRODMAN' % project.getReference(), ['Associate'])
     self.assertRoles(support_request, '%s_F-PRODAGNT' % project.getReference(), ['Auditor'])
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'"):
+      # Associate role do not provide View permission on draft state so the
+      # project_security_uid is not indexed/set. So alarms cannot find it by
+      # for not null project_security_uid.
+      support_request.submit()
+      self.tic()
+
     project.invalidate()
     self.tic()
     self.assertSecurityGroup(support_request, [self.user_id, 'F-SALEAGT', 'F-SALEMAN'

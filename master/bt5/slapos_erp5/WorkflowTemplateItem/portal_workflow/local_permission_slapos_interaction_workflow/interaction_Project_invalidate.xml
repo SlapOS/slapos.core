@@ -10,7 +10,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>after_script/portal_workflow/local_permission_slapos_interaction_workflow/script_Project_updateLocalRolesOnRelatedDocument</string>
+                <string>after_script/portal_workflow/local_permission_slapos_interaction_workflow/script_Base_triggerUpdateInvalidatedSecurityLocalRoleAlarm</string>
                 <string>after_script/portal_workflow/local_permission_slapos_interaction_workflow/script_Base_updateAllLocalRoles</string>
               </tuple>
             </value>
@@ -26,6 +26,14 @@
             <value> <string>interaction_Project_invalidate</string> </value>
         </item>
         <item>
+            <key> <string>portal_type_filter</string> </key>
+            <value>
+              <tuple>
+                <string>Project</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>temporary_document_disallowed</string> </key>
             <value> <int>0</int> </value>
         </item>
@@ -38,7 +46,6 @@
             <value>
               <tuple>
                 <string>invalidate</string>
-                <string>validate</string>
               </tuple>
             </value>
         </item>

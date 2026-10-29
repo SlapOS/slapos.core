@@ -5,4 +5,5 @@ Invitation Token | Reference
 Organisation | GeographicOrganisation
 Template Tool | TemplateToolBusinessApplicationModuleCategoryConstraint
 Template Tool | TemplateToolPASConsistencyConstraint
+Template Tool | TemplateToolSlapOSSecurityLocalRoleUpgradeConstraint
 Web Site Module | WebSiteModuleShacacheConstraint

@@ -17,6 +17,7 @@
  <portal_type id="Template Tool">
   <item>TemplateToolBusinessApplicationModuleCategoryConstraint</item>
   <item>TemplateToolPASConsistencyConstraint</item>
+  <item>TemplateToolSlapOSSecurityLocalRoleUpgradeConstraint</item>
  </portal_type>
  <portal_type id="Web Site Module">
   <item>WebSiteModuleShacacheConstraint</item>

@@ -1,4 +1,5 @@
 <key_list>
  <key>aggregate_parent_validation_state | category,catalog,catalog/validation_state/z_related_aggregate_parent</key>
+ <key>parent_validation_state | catalog/validation_state/z_related_parent</key>
  <key>related_successor_but_with_different_title_than_catalog_title | category,catalog/uid/z_related_successor_but_with_different_title_than_catalog_title</key>
 </key_list>

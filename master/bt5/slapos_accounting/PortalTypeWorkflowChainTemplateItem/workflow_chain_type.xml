@@ -16,6 +16,10 @@
   <workflow>edit_workflow, slapos_accounting_interaction_workflow, slapos_consumption_document_workflow</workflow>
  </chain>
  <chain>
+  <type>Consumption Change Request</type>
+  <workflow>edit_workflow, ticket_workflow</workflow>
+ </chain>
+ <chain>
   <type>Consumption Subscription</type>
   <workflow>edit_workflow, item_workflow</workflow>
  </chain>

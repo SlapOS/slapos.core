@@ -17,7 +17,7 @@
  </chain>
  <chain>
   <type>Consumption Change Request</type>
-  <workflow>edit_workflow, ticket_workflow</workflow>
+  <workflow>edit_workflow, slapos_accounting_interaction_workflow, ticket_workflow</workflow>
  </chain>
  <chain>
   <type>Consumption Subscription</type>

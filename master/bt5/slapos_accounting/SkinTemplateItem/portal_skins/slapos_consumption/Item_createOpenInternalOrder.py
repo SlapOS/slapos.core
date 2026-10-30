@@ -31,10 +31,10 @@ if open_consumption_order_line_list:
 service = None
 
 if item.getPortalType() in ['Software Instance', 'Slave Instance']:
-  service = portal.restrictedTraverse('service_module/slapos_software_instance_subscription')
+  service = portal.restrictedTraverse(default_service or 'service_module/slapos_software_instance_subscription')
   project_value = item.getFollowUpValue(portal_type="Project")
 elif item.getPortalType() == 'Compute Node':
-  service = portal.restrictedTraverse('service_module/slapos_compute_node_subscription')
+  service = portal.restrictedTraverse(default_service or 'service_module/slapos_compute_node_subscription')
   project_value = item.getFollowUpValue(portal_type="Project")
 else:
   raise ValueError('Unsupported portal type: %s (%s)' % (item.getPortalType(), item.getRelativeUrl()))

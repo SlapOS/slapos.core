@@ -18,11 +18,12 @@ def storeWorkflowComment(document, comment):
     portal_workflow.doActionFor(document, action='edit_action', comment=comment)
 
 # Search an existing related open consumption order
-open_consumption_order_line = portal.portal_catalog.getResultValue(
+open_consumption_order_line_list = [x for x in portal.portal_catalog(
   portal_type='Open Internal Order Line',
-  aggregate__uid=item.getUid()
-)
-if open_consumption_order_line is not None:
+  aggregate__uid=item.getUid(),
+  validation_state='validated',
+) if x.getValidationState() == 'validated']
+if open_consumption_order_line_list:
   return
 
 #################################################################

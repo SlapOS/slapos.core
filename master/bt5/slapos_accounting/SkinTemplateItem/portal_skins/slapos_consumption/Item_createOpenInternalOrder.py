@@ -17,6 +17,7 @@ def storeWorkflowComment(document, comment):
   if last_workflow_item != comment:
     portal_workflow.doActionFor(document, action='edit_action', comment=comment)
 
+"""
 # Search an existing related open consumption order
 open_consumption_order_line = portal.portal_catalog.getResultValue(
   portal_type='Open Internal Order Line',
@@ -24,7 +25,7 @@ open_consumption_order_line = portal.portal_catalog.getResultValue(
 )
 if open_consumption_order_line is not None:
   return
-
+"""
 #################################################################
 # Find matching Service
 service = None

@@ -101,6 +101,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_erp5/TemplateTool_checkGoogleExtractionPluginExistenceConsistency',
         'slapos_erp5/TemplateTool_checkSlapOSCookieCrumblerConsistency',
         'slapos_erp5/TemplateTool_checkSlapOSOAuth2ConnectorSetConsistency',
+        'slapos_erp5/TemplateTool_checkUpgradeLocalRoleConsistency',
         'slapos_json_rpc_api/JSONRPCService_asJSON',
         'slapos_json_rpc_api/JSONRPCService_bangComputeNodeFromAPIDict',
         'slapos_json_rpc_api/JSONRPCService_bangSoftwareInstanceFromDict',

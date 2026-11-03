@@ -89,13 +89,10 @@ consumption_subscription.validate()
 current_date = getClosestDate(target_date=consumption_subscription.getCreationDate(), precision='day')
 next_period_date = consumption_subscription.getNextPeriodicalDate(current_date)
 
-# if subscription_request.getQuantityUnit() == 'time/month':
 # This start_date calculation ensures the first invoices period
 # will be merged in the user monthly invoice
 start_date = addToDate(next_period_date, to_add={'month': -1})
 assert consumption_subscription.getNextPeriodicalDate(start_date) == next_period_date
-#else:
-#  raise ValueError('Unsupported quantity unit %s' % subscription_request.getQuantityUnit())
 
 """
 source_value=subscription_request.getSourceValue(),
@@ -159,6 +156,9 @@ open_order_line.edit(
   ],
   activate_kw=activate_kw
 )
+
+if open_order_line.getQuantityUnit() != 'time/month':
+  raise ValueError('Unsupported quantity unit %s' % open_order_line.getQuantityUnit())
 
 open_consumption_order.Delivery_fixBaseContributionTaxableRate()
 open_consumption_order.Base_checkConsistency()

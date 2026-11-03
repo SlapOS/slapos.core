@@ -13,6 +13,7 @@ Consumption Supply Module | view
 Consumption Supply | view
 Hosting Subscription | periodicity
 Instance Tree | jump_to_related_open_order_line
+Open Internal Order | create_slapos_consumption_change_request
 Organisation | create_slapos_credit_note_sale_invoice_transaction
 Organisation | create_slapos_deposit
 Organisation | create_slapos_payment_transaction

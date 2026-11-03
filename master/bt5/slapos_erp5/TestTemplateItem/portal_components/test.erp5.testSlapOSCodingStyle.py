@@ -92,6 +92,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_cloud/Person_getProjectCustomerWorkgroup',
         'slapos_cloud/Person_getSlaposActorRequester',
         'slapos_consumption/OpenInternalOrderCell_createDiscountInternalPackingList',
+        'slapos_consumption/OpenInternalOrder_createConsumptionChangeRequest',
         'slapos_consumption/OrderBuilder_selectConsumptionInternalPackingListMovementList',
         'slapos_crm_monitoring/SupportRequest_afterNewEvent',
         'slapos_crm_monitoring/Person_createTicketWithCausality',

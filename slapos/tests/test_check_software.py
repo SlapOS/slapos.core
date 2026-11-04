@@ -31,6 +31,7 @@ import unittest
 import mock
 import os
 import glob
+import shutil
 import tempfile
 import textwrap
 import warnings
@@ -146,3 +147,51 @@ class TestCheckSoftwareLDD(SlapOSStandaloneTestCase):
       self.test_shared_part_using_system_libraries()
       self.test_shared_part_referencing_software()
       self.test_ok()
+
+
+class TestCheckSoftwareInstalledPaths(unittest.TestCase):
+  """A section may only install paths inside its software installation.
+  """
+  software_url = 'https://example.com/software.cfg'
+
+  def setUp(self):
+    base_directory = tempfile.mkdtemp()
+    self.addCleanup(shutil.rmtree, base_directory)
+    software_root = os.path.join(base_directory, 'software')
+    self.software_directory = os.path.join(
+        software_root, md5digest(self.software_url))
+    self.shared_part = os.path.join(base_directory, 'shared')
+    self.shared_location = os.path.join(self.shared_part, 'cmmi', 'signature')
+    os.makedirs(self.software_directory)
+    os.makedirs(self.shared_location)
+    self.slap = mock.Mock(
+        software_directory=software_root,
+        _shared_part_list=[self.shared_part])
+
+  def _write_installed_cfg(self, content):
+    with open(os.path.join(self.software_directory, '.installed.cfg'), 'w') as f:
+      f.write(textwrap.dedent(content).format(self=self))
+
+  def test_section_installing_a_shared_part(self):
+    self._write_installed_cfg(
+        """\
+        [cmmi-checked]
+        location = {self.shared_location}
+        __buildout_installed__ = {self.shared_location}
+        """)
+    with self.assertRaisesRegex(
+        RuntimeError,
+        'Section cmmi-checked installed .*, outside of the software',
+    ):
+      checkSoftware(self.slap, self.software_url)
+
+  def test_shared_part(self):
+    # a shared part is located outside the software, but the section
+    # installed nothing
+    self._write_installed_cfg(
+        """\
+        [cmmi]
+        location = {self.shared_location}
+        __buildout_installed__ =
+        """)
+    checkSoftware(self.slap, self.software_url)

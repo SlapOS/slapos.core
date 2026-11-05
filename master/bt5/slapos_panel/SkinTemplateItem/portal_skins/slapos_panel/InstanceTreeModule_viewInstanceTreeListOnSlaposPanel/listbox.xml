@@ -122,6 +122,10 @@
                           <string>source_reference</string>
                           <string>Software Type</string>
                         </tuple>
+                        <tuple>
+                          <string>text_content</string>
+                          <string>Parameters</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

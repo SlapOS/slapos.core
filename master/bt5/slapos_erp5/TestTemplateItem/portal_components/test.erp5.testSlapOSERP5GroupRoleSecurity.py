@@ -2348,6 +2348,26 @@ class TestConsumptionChangeRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(delivery, 'F-SALEMAN', ['Auditor'])
 
 
+class TestOpenInternalOrderModule(TestSlapOSGroupRoleSecurityMixin):
+  def test_OpenInternalOrderModule(self):
+    module = self.portal.open_internal_order_module
+    self.assertSecurityGroup(module,
+        ['F-SALE*', module.Base_getOwnerId()], False)
+    self.assertRoles(module, 'F-SALE*', ['Auditor'])
+    self.assertRoles(module, module.Base_getOwnerId(), ['Owner'])
+
+
+class TestOpenInternalOrder(TestSlapOSGroupRoleSecurityMixin):
+  def test_OpenInternalOrder_default(self):
+    delivery = self.portal.open_internal_order_module.newContent(
+        portal_type='Open Internal Order')
+    self.assertSecurityGroup(delivery,
+        [self.user_id, 'F-SALEAGT', 'F-SALEMAN'], False)
+    self.assertRoles(delivery, self.user_id, ['Owner'])
+    self.assertRoles(delivery, 'F-SALEAGT', ['Auditor'])
+    self.assertRoles(delivery, 'F-SALEMAN', ['Auditor'])
+
+
 class TestOrganisationModule(TestSlapOSGroupRoleSecurityMixin):
   def test_OrganisationModule(self):
     module = self.portal.organisation_module

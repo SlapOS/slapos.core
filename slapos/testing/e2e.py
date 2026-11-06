@@ -160,7 +160,7 @@ class EndToEndTestCase(unittest.TestCase):
     t0 = t0 or time.time()
     url = cls.waitUntilPublished(instance_name, key, timeout, t0) + suffix
     while True:
-      resp = requests.get(url, verify=False)
+      resp = requests.get(url)
       if resp.status_code == code:
         return resp, url
       msg = 'Instance %s monitor url %s returned unexpected status code %s (expected %s)' % (
@@ -198,7 +198,7 @@ class EndToEndTestCase(unittest.TestCase):
     final_url = f'{new_base_url}{suffix}'
 
     while True:
-      resp = requests.get(final_url, verify=False)
+      resp = requests.get(final_url)
       if resp.status_code == code:
         return resp, final_url
 

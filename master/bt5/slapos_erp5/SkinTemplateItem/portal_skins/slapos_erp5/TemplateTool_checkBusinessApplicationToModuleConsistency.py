@@ -92,6 +92,7 @@ for business_application_id, module_name_list in [
           "internal_packing_list_module",
           "open_internal_order_module",
           "consumption_subscription_module",
+          "consumption_change_request_module",
         ]],
     ]:
   for module_name in module_name_list:

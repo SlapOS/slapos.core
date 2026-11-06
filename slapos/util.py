@@ -63,7 +63,7 @@ except NameError:  # make pylint happy on python2...
   PermissionError = Exception
 
 
-if six.PY2:
+if sys.version_info < (3, 12):
   import pkg_resources
   get_package_resource_bytes = pkg_resources.resource_string
   get_package_resource_filename = pkg_resources.resource_filename

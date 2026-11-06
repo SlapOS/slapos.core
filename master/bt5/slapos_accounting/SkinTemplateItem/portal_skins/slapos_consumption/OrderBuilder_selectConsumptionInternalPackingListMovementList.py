@@ -46,7 +46,7 @@ for (_, brain) in enumerate(portal.portal_simulation.getInventoryList(
     subscribed_item = item.getSpecialiseValue(portal_type='Instance Tree')
     # Data is not consistent
     # assert subscribed_item.getPortalType() == 'Instance Tree'
-  elif causality_portal_type == 'Consumption Subscription':
+  elif causality_portal_type in ['Consumption Subscription', 'Consumption Change Request']:
     # Subscription for Instances/Node are paid by the project owner
     subscribed_item = item_project
   else:

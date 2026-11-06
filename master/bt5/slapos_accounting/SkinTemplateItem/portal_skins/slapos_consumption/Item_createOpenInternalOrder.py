@@ -18,11 +18,12 @@ def storeWorkflowComment(document, comment):
     portal_workflow.doActionFor(document, action='edit_action', comment=comment)
 
 # Search an existing related open consumption order
-open_consumption_order_line = portal.portal_catalog.getResultValue(
+open_consumption_order_line_list = [x for x in portal.portal_catalog(
   portal_type='Open Internal Order Line',
-  aggregate__uid=item.getUid()
-)
-if open_consumption_order_line is not None:
+  aggregate__uid=item.getUid(),
+  validation_state='validated',
+) if x.getValidationState() == 'validated']
+if open_consumption_order_line_list:
   return
 
 #################################################################
@@ -30,10 +31,10 @@ if open_consumption_order_line is not None:
 service = None
 
 if item.getPortalType() in ['Software Instance', 'Slave Instance']:
-  service = portal.restrictedTraverse('service_module/slapos_software_instance_subscription')
+  service = portal.restrictedTraverse(default_service or 'service_module/slapos_software_instance_subscription')
   project_value = item.getFollowUpValue(portal_type="Project")
 elif item.getPortalType() == 'Compute Node':
-  service = portal.restrictedTraverse('service_module/slapos_compute_node_subscription')
+  service = portal.restrictedTraverse(default_service or 'service_module/slapos_compute_node_subscription')
   project_value = item.getFollowUpValue(portal_type="Project")
 else:
   raise ValueError('Unsupported portal type: %s (%s)' % (item.getPortalType(), item.getRelativeUrl()))
@@ -89,13 +90,10 @@ consumption_subscription.validate()
 current_date = getClosestDate(target_date=consumption_subscription.getCreationDate(), precision='day')
 next_period_date = consumption_subscription.getNextPeriodicalDate(current_date)
 
-# if subscription_request.getQuantityUnit() == 'time/month':
 # This start_date calculation ensures the first invoices period
 # will be merged in the user monthly invoice
 start_date = addToDate(next_period_date, to_add={'month': -1})
 assert consumption_subscription.getNextPeriodicalDate(start_date) == next_period_date
-#else:
-#  raise ValueError('Unsupported quantity unit %s' % subscription_request.getQuantityUnit())
 
 """
 source_value=subscription_request.getSourceValue(),
@@ -159,6 +157,9 @@ open_order_line.edit(
   ],
   activate_kw=activate_kw
 )
+
+if open_order_line.getQuantityUnit() != 'time/month':
+  raise ValueError('Unsupported quantity unit %s' % open_order_line.getQuantityUnit())
 
 open_consumption_order.Delivery_fixBaseContributionTaxableRate()
 open_consumption_order.Base_checkConsistency()

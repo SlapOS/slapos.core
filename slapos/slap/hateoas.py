@@ -105,8 +105,6 @@ class ConnectionHelper:
       else:
         cert = None
 
-      # XXX TODO: handle host cert verify
-
       # Old behavior was to pass empty parameters as "None" value.
       # Behavior kept for compatibility with old slapproxies (< v1.3.3).
       # Can be removed when old slapproxies are no longer in use.
@@ -119,7 +117,6 @@ class ConnectionHelper:
                    params=params,
                    cert=cert,
                    auth=auth,
-                   verify=False,
                    data=data,
                    headers=headers,
                    timeout=self.timeout)

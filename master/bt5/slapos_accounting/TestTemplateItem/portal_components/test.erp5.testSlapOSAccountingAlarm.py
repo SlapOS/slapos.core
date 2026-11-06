@@ -1371,3 +1371,182 @@ class TestSlapODeliverAutomatedAccountingTransactionAlarm(SlapOSTestCaseMixin):
     self.tic()
     assert accounting_transaction.getSimulationState() == 'delivered', accounting_transaction.getSimulationState()
 
+
+class TestSlapOSConsumptionChangeRequestValidatedSubmittedAlarm(SlapOSTestCaseMixin):
+
+  #################################################################
+  # slapos_consumption_change_request_validate_submitted
+  #################################################################
+  def _createValidatedItemAndOpenInternalOrderLine(self, portal_type='Compute Node'):
+    project = self.portal.project_module.newContent(
+      portal_type='Project',
+      title=self.generateNewId(),
+      reference="TESTPROJ-%s" % self.generateNewId(),
+    )
+    item = self.portal.getDefaultModule(portal_type).newContent(
+      portal_type=portal_type,
+      title=self.generateNewId(),
+      reference="TESTCOMP-%s" % self.generateNewId(),
+      follow_up_value=project,
+    )
+    item.validate()
+    self.tic()
+
+    open_sale_order = self.portal.open_sale_order_module.newContent(
+      portal_type='Open Sale Order',
+      source_value=self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        title=self.generateNewId(),
+      ),
+      title="Test no subscription %s" % (self.new_id, ),
+      ledger='automated',
+    )
+    open_sale_order.newContent(
+      portal_type='Open Sale Order Line',
+      aggregate_value=[project],
+    )
+    open_sale_order.plan()
+    open_sale_order.validate()
+    self.tic()
+
+    open_order = item.Item_createOpenInternalOrder()
+
+    return item, open_order.contentValues()[0]
+
+  def _createSubmittedConsumptionChangeRequest(self):
+    item, order_line = self._createValidatedItemAndOpenInternalOrderLine()
+
+    new_service = self.portal.service_module.newContent(
+      portal_type='Service',
+      title='Test...',
+      quantity_unit='time/month',
+    )
+    new_service.validate()
+    order = order_line.getParentValue()
+    consumption_change_request = self.portal.consumption_change_request_module.newContent(
+      portal_type='Consumption Change Request',
+      causality_value=order,
+      destination_value=order.getDestinationValue(),
+      resource_value=new_service,
+      quantity=1,
+      ledger='automated',
+      aggregate_value=item,
+    )
+    consumption_change_request.submit()
+    return consumption_change_request
+
+  def test_ConsumptionChangeRequest_validateIfSubmitted_alarm_submitted(self):
+    script_name = "ConsumptionChangeRequest_validateIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_consumption_change_request_validate_submitted
+
+    consumption_change_request = self._createSubmittedConsumptionChangeRequest()
+    with self.changeContextByDisablingPortalAlarm():
+      self.tic()
+    self._test_alarm(alarm, consumption_change_request, script_name)
+
+  def test_ConsumptionChangeRequest_validateIfSubmitted_alarm_handled(self):
+    script_name = "ConsumptionChangeRequest_validateIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_consumption_change_request_validate_submitted
+
+    consumption_change_request = self._createSubmittedConsumptionChangeRequest()
+    consumption_change_request.validate()
+    consumption_change_request.invalidate()
+    with self.changeContextByDisablingPortalAlarm():
+      self.tic()
+    self._test_alarm_not_visited(alarm, consumption_change_request, script_name)
+
+  def test_ConsumptionChangeRequest_validateIfSubmitted_script_REQUEST_disallowed(self):
+    self.assertRaises(
+      Unauthorized,
+      self.portal.ConsumptionChangeRequest_validateIfSubmitted,
+      REQUEST={}
+    )
+
+  def test_ConsumptionChangeRequest_validateIfSubmitted_script_withoutOpenInternalOrder(self):
+    consumption_change_request = self._createSubmittedConsumptionChangeRequest()
+    consumption_change_request.edit(causality=None)
+    result = consumption_change_request.ConsumptionChangeRequest_validateIfSubmitted()
+    self.assertEqual(result, None)
+    self.assertEqual(consumption_change_request.getSimulationState(), 'cancelled')
+
+  def test_ConsumptionChangeRequest_validateIfSubmitted_script_withImmediateValidOpenInternalOrder(self):
+    with PinnedDateTime(self, DateTime('2026/11/04')):
+      consumption_change_request = self._createSubmittedConsumptionChangeRequest()
+    with PinnedDateTime(self, DateTime('2026/11/10')):
+      open_order = consumption_change_request.ConsumptionChangeRequest_validateIfSubmitted()
+    with PinnedDateTime(self, DateTime('2026/11/11')):
+      self.tic()
+      self.assertNotEqual(open_order, None)
+      self.assertEqual(consumption_change_request.getSimulationState(), 'invalidated')
+      self.assertEqual(open_order.getPortalType(), 'Open Internal Order')
+      self.assertEqual(open_order.getValidationState(), 'validated')
+
+      old_open_order = consumption_change_request.getCausalityValue()
+      self.assertEqual(open_order.getDestination(), old_open_order.getDestination())
+      self.assertEqual(open_order.getStartDate(), old_open_order.getStartDate())
+      self.assertEqual(old_open_order.getValidationState(), 'archived')
+
+      open_order_line = open_order.contentValues()[0]
+      old_open_order_line = old_open_order.contentValues()[0]
+      self.assertEqual(open_order_line.getResource(), consumption_change_request.getResource())
+      self.assertNotEqual(old_open_order_line.getResource(), consumption_change_request.getResource())
+      self.assertEqual(open_order_line.getQuantity(), 1)
+
+      # Check that discount was applied
+      inventory_query_kw = {
+        'resource_uid': old_open_order_line.getResourceUid(),
+        'node_uid': old_open_order.getDestinationUid(),
+        'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
+      }
+      inventory = self.portal.portal_simulation.getCurrentInventory(**inventory_query_kw)
+      self.assertEqual(inventory, 0)
+
+      inventory_query_kw = {
+        'resource_uid': open_order_line.getResourceUid(),
+        'node_uid': open_order.getDestinationUid(),
+        'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
+      }
+      inventory = self.portal.portal_simulation.getCurrentInventory(**inventory_query_kw)
+      self.assertEqual(inventory, 1)
+
+
+  def test_ConsumptionChangeRequest_validateIfSubmitted_script_withValidOpenInternalOrder(self):
+    with PinnedDateTime(self, DateTime('2026/10/04')):
+      consumption_change_request = self._createSubmittedConsumptionChangeRequest()
+    with PinnedDateTime(self, DateTime('2026/11/10')):
+      open_order = consumption_change_request.ConsumptionChangeRequest_validateIfSubmitted()
+    with PinnedDateTime(self, DateTime('2026/11/11')):
+      self.tic()
+      self.assertNotEqual(open_order, None)
+      self.assertEqual(consumption_change_request.getSimulationState(), 'invalidated')
+      self.assertEqual(open_order.getPortalType(), 'Open Internal Order')
+      self.assertEqual(open_order.getValidationState(), 'validated')
+
+      old_open_order = consumption_change_request.getCausalityValue()
+      self.assertEqual(open_order.getDestination(), old_open_order.getDestination())
+      self.assertEqual(open_order.getStartDate(), DateTime('2026/11/04'))
+      self.assertEqual(old_open_order.getStartDate(), DateTime('2026/10/04'))
+      self.assertEqual(old_open_order.getValidationState(), 'archived')
+
+      open_order_line = open_order.contentValues()[0]
+      old_open_order_line = old_open_order.contentValues()[0]
+      self.assertEqual(open_order_line.getResource(), consumption_change_request.getResource())
+      self.assertNotEqual(old_open_order_line.getResource(), consumption_change_request.getResource())
+      self.assertEqual(open_order_line.getQuantity(), 1)
+
+      # Check that discount was applied
+      inventory_query_kw = {
+        'resource_uid': old_open_order_line.getResourceUid(),
+        'node_uid': old_open_order.getDestinationUid(),
+        'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
+      }
+      inventory = self.portal.portal_simulation.getCurrentInventory(**inventory_query_kw)
+      self.assertEqual(inventory, 1)
+
+      inventory_query_kw = {
+        'resource_uid': open_order_line.getResourceUid(),
+        'node_uid': open_order.getDestinationUid(),
+        'ledger_uid': self.portal.portal_categories.ledger.automated.getUid()
+      }
+      inventory = self.portal.portal_simulation.getCurrentInventory(**inventory_query_kw)
+      self.assertEqual(inventory, 1)

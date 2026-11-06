@@ -23,6 +23,12 @@ trade_condition = sale_packing_list.getSpecialiseValue(portal_type='Sale Trade C
 effective_date = trade_condition.getEffectiveDate(trade_condition.getCreationDate())
 
 for sale_movement in sale_packing_list.getMovementList():
+  # Drop movement which have been aggregated and leading to a quantity=0
+  # (no need to see lines with quantity=0 on the invoice)
+  if sale_movement.getTotalQuantity() == 0:
+    sale_movement.getParentValue().manage_delObjects(ids=[sale_movement.getId()])
+    continue
+
   sale_movement.edit(
     grouping_reference=grouping_reference,
     price=None,
@@ -44,14 +50,20 @@ for sale_movement in sale_packing_list.getMovementList():
 
   if need_price:
     if not price:
-      raise AssertionError('Can not find a price to generate the Consumption Packing List (%s) for %s' % (sale_packing_list.getSpecialiseValue(), sale_movement.getResource()))
-  else:
-    if price:
-      raise AssertionError('Unexpected price while generating the Consumption Packing List (%s) for %s' % (sale_packing_list.getSpecialiseValue(), sale_movement.getResource()))
+      # Drop priceless movement if the line will be reported on the invoice
+      # (no need to see lines with price=0 on the invoice)
+      sale_movement.getParentValue().manage_delObjects(ids=[sale_movement.getId()])
+      continue
 
   sale_movement.edit(
     price=price,
   )
+
+# If there is no line, fully drop the sale packing list
+# no need to keep such empty packing list
+if not len(sale_packing_list.contentValues(portal_type='Sale Packing List Line')):
+  sale_packing_list.getParentValue().manage_delObjects(ids=[sale_packing_list.getId()])
+  return
 
 sale_packing_list.Delivery_fixBaseContributionTaxableRate()
 sale_packing_list.Base_checkConsistency()

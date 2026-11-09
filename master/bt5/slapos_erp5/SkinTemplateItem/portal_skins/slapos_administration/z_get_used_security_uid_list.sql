@@ -3,6 +3,7 @@
    'function': 'function_security_uid',
    'project': 'project_security_uid',
    'user': 'user_security_uid',
+   'destination': 'destination_security_uid',
    'subscription': 'subscription_security_uid',
    'group': 'group_security_uid',
    'shadow': 'shadow_security_uid',

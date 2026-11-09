@@ -670,7 +670,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     open_order_line = self.portal.portal_catalog.getResultValue(
       portal_type="Open Internal Order Line",
       aggregate__uid=service.getUid(),
-      parent__simulation_state='validated'
+      parent_validation_state='validated'
     )
     self.assertNotEqual(open_order_line, None,
       "Not found internal open order for %s" % service.getRelativeUrl())

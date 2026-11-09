@@ -73,7 +73,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>string:${object_url}/SupportRequestModule_viewTicketListOnSlaposPanel</string> </value>
+            <value> <string>string:${object_url}/SubscriptionRequestModule_viewTicketListOnSlaposPanel</string> </value>
         </item>
       </dictionary>
     </pickle>

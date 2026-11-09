@@ -249,6 +249,17 @@ class BasicMixin(object):
       time.sleep(0.1)
     self.fail('%r not found in %s' % (expected, log_path))
 
+  def assertLogContentEqual(self, log_path, expected, tries=600):
+    # supervisord copies the output of a process to its log file
+    # asynchronously, so the content can arrive after the process has exited.
+    for i in range(tries):
+      with open(log_path) as f:
+        content = f.read()
+      if content == expected:
+        return
+      time.sleep(0.1)
+    self.assertEqual(content, expected)
+
   def assertIsCreated(self, path, tries=600):
     for i in range(tries):
       if os.path.exists(path):
@@ -1080,9 +1091,7 @@ exit 1
                              'runner_worked', 'software_release', 'worked',
                              '.slapos-retention-lock-delay'])
       runner_log_path = os.path.join(partition.partition_path, '.0_runner.log')
-      with open(runner_log_path) as f:
-        runner_log = f.read()
-      self.assertEqual(runner_log, 'Working\n')
+      self.assertLogContentEqual(runner_log_path, 'Working\n')
       self.assertEqual(partition.state, 'started')
 
     computer.status_code = 503 # connection loss
@@ -1092,9 +1101,7 @@ exit 1
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_OFFLINE_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
       assertRunnerWorked()
-      with open(runner_log_path) as f:
-        runner_log = f.read()
-      self.assertEqual(runner_log, 'Working\n' * 2)
+      self.assertLogContentEqual(runner_log_path, 'Working\n' * 2)
       self.assertEqual(computer.sequence, [
         '/getFullComputerInformation',
         '/getComputerPartitionCertificate',

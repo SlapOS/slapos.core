@@ -667,14 +667,14 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
   def checkServiceOpenInternalOrder(self, service):
     self.login()
 
-    open_order_line = self.portal.portal_catalog.getResultValue(
-      portal_type="Open Internal Order Line",
-      aggregate__uid=service.getUid(),
-      parent__simulation_state='validated'
-    )
-    self.assertNotEqual(open_order_line, None,
-      "Not found internal open order for %s" % service.getRelativeUrl())
-    return open_order_line.getParentValue()
+    open_internal_order = self.portal.portal_catalog.getResultValue(
+      portal_type="Open Internal Order",
+      child_aggregate_relative_url=service.getRelativeUrl(),
+      simulation_state='validated')
+
+    self.assertNotEqual(open_internal_order, None,
+      "Not found internal open internal order for %s" % service.getRelativeUrl())
+    return open_internal_order
 
   def checkInstanceAllocation(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server,

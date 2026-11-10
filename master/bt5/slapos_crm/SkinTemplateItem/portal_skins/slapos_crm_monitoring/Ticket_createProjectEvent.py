@@ -52,6 +52,12 @@ else:
 if (notification_message is not None) and (attachment is not None):
   raise ValueError('Can not add attachment to a notification message')
 
+if ticket.getPortalType() != 'Support Request':
+  # Project manager only check Support Request
+  # XXX Maybe a cleaner way to implement this can be found
+  source_project_relative_url = None
+  destination_project_relative_url = None
+
 event_kw = {
   'portal_type': portal_type,
   'resource': resource,

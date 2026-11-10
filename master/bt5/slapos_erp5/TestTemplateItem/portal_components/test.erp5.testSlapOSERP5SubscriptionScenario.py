@@ -201,7 +201,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 2 accounting transaction / line
     # 5 assignment request
     # 2 credential request
-    # 1 event
     # 1 instance tree
     # 1 open sale order / line
     # 5 (can reduce to 2) assignment
@@ -211,7 +210,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 1 sale trade condition
     # 1 software product
     # 2 subscription requests
-    self.assertRelatedObjectCount(project, 29)
+    self.assertRelatedObjectCount(project, 28)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
       self.checkERP5StateBeforeExit()
@@ -545,7 +544,6 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 5 assignment request
     # 1 compute node
     # 2 credential request
-    # 1 event
     # 1 instance tree
     # 4 open sale order / line
     # 5 (can reduce to 2) assignment
@@ -558,7 +556,7 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
     # 1 software product
     # 1 subscription change request
     # 3 subscription requests
-    self.assertRelatedObjectCount(project, 39)
+    self.assertRelatedObjectCount(project, 38)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:01')):
       self.checkERP5StateBeforeExit()

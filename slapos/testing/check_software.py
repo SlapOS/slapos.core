@@ -239,6 +239,12 @@ def checkSoftware(slap, software_url):
         for section_path in config_parser.get(section_name, option_name).splitlines():
           if section_path and not section_path.startswith(software_directory):
             paths_to_check.add(section_path)
+            if option_name == '__buildout_installed__':
+              error_list.append(
+                  "Section {section_name} installed {section_path}, outside"
+                  " of the software. buildout deletes the paths a section"
+                  " installed when the section changes, and a shared part is"
+                  " installed by no section.".format(**locals()))
 
   error_list.extend(
       checkExecutableLink(

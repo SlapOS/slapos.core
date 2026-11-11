@@ -3,6 +3,11 @@ result_list = []
 
 migration_list_kw = [
   {
+    'portal_type': portal.getPortalEventTypeList(),
+    'destination__portal_type': portal.getPortalActorTypeList(),
+    'destination_security_uid': None
+  },
+  {
     'portal_type': 'Instance Tree',
     'validation_state': 'archived',
     'subscription_security_uid': '%'

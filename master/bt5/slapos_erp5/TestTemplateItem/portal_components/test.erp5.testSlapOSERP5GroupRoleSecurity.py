@@ -148,10 +148,11 @@ class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixin):
 class TestZZZSlapOSManageSecurityUidAmount(TestSlapOSGroupRoleSecurityMixin):
 
   def assertMissingSecurityUid(self):
-    for security_uid_column in ["computer_security_uid", "function_security_uid",
-                                "group_security_uid", "project_security_uid",
-                                "security_uid", "shadow_security_uid",
-                                "subscription_security_uid", "user_security_uid"]:
+    for security_uid_column in ["computer_security_uid", "destination_security_uid",
+                                "function_security_uid", "group_security_uid",
+                                "project_security_uid", "security_uid",
+                                "shadow_security_uid", "subscription_security_uid",
+                                "user_security_uid"]:
 
       missing_security_uid_list = self.portal.z_search_unindexed_security_uid(
         security_uid_column=security_uid_column)
@@ -1127,8 +1128,8 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(instance, self.user_id, ['Owner'])
 
     self.tic()
-    subscription.validate()
-    subscription.archive()
+    instance.validate()
+    instance.invalidate()
     self.tic()
     self.assertSecurityGroup(instance, [entity.getUserId(),
         self.user_id], False)
@@ -1225,8 +1226,8 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(instance, self.user_id, ['Owner'])
 
     self.tic()
-    subscription.validate()
-    subscription.archive()
+    instance.validate()
+    instance.invalidate()
     self.tic()
     self.assertSecurityGroup(instance, [entity.getUserId(),
         self.user_id], False)

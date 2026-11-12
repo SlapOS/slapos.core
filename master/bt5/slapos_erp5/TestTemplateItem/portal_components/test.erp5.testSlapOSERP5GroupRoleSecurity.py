@@ -1128,8 +1128,8 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(instance, self.user_id, ['Owner'])
 
     self.tic()
-    subscription.validate()
-    subscription.archive()
+    instance.validate()
+    instance.invalidate()
     self.tic()
     self.assertSecurityGroup(instance, [entity.getUserId(),
         self.user_id], False)
@@ -1226,8 +1226,8 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(instance, self.user_id, ['Owner'])
 
     self.tic()
-    subscription.validate()
-    subscription.archive()
+    instance.validate()
+    instance.invalidate()
     self.tic()
     self.assertSecurityGroup(instance, [entity.getUserId(),
         self.user_id], False)

@@ -14,7 +14,7 @@
   </role>
   <role id='Assignee'>
    <property id='title'>Instance related by Instance Tree</property>
-   <property id='condition'>python: context.getSpecialise('') != '' and context.getSpecialiseValue().getValidationState() != 'archived' </property>
+   <property id='condition'>python: context.getSpecialise('') != '' and context.getValidationState() != 'invalidated' </property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/subscription</multi_property>
    <multi_property id='base_category'>specialise</multi_property>

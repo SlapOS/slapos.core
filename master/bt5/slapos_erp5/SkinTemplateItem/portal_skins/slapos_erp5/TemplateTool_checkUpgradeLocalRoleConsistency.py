@@ -24,7 +24,7 @@ migration_list_kw = [
   },
   {
     'portal_type': ['Software Instance', 'Slave Instance'],
-    'specialise__validation_state': 'archived',
+    'validation_state': 'invalidated',
     'subscription_security_uid': '%'
   },
   {
@@ -32,12 +32,14 @@ migration_list_kw = [
     'validation_state': 'invalidated',
     'group_security_uid': '%'
   },
-  {
-    'portal_type': 'Slave Instance',
-    'validation_state': 'validated',
-    'aggregate__uid': '%',
-    'group_security_uid': None
-  },
+  # This condition don't work exactly well, it is too wide
+  # and cannot be empty like this.
+  #{
+  #  'portal_type': 'Slave Instance',
+  #  'validation_state': 'validated',
+  #  'aggregate__uid': '%',
+  #  'group_security_uid': None
+  #},
   {
     'portal_type': 'Certificate Login',
     'parent_portal_type': ['Software Instance', 'Compute Node'],

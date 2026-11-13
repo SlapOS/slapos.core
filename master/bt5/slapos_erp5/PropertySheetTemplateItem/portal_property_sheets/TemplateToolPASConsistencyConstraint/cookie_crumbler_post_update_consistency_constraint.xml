@@ -42,7 +42,7 @@
         </item>
         <item>
             <key> <string>script_id</string> </key>
-            <value> <string>TemplateTool_checkSlapOSOAuth2ConnectorSetConsistency</string> </value>
+            <value> <string>TemplateTool_checkSlapOSCookieCrumblerConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

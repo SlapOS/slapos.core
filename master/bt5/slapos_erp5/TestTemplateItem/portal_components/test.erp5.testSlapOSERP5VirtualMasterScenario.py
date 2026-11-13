@@ -1008,7 +1008,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 5 assignment request
     # 1 compute node
     # 2 credential request
-    # 2 event
     # 2 instance tree
     # 7 open sale order / line
     # 5 (can reduce to 2) assignment
@@ -1020,7 +1019,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 2 software instance
     # 1 software product
     # 3 subscription requests
-    self.assertRelatedObjectCount(project, 58)
+    self.assertRelatedObjectCount(project, 56)
 
     # 1 allocation supply
     # 1 internal packing list
@@ -1198,7 +1197,6 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 6 assignment request
     # 1 compute node
     # 2 credential request
-    # 1 event
     # 1 instance tree
     # 1 invitation token
     # 1 open sale order / line
@@ -1210,7 +1208,7 @@ class TestSlapOSVirtualMasterScenario(TestSlapOSVirtualMasterScenarioMixin):
     # 1 subscription change request
     # 3 subscription requests
     # 1 workgroup assignment
-    self.assertRelatedObjectCount(project, 32)
+    self.assertRelatedObjectCount(project, 31)
 
     with PinnedDateTime(self, DateTime('2024/02/18 01:02')):
       self.checkERP5StateBeforeExit()

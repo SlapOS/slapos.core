@@ -20,11 +20,15 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Consider the system do not manage double accounting for now.</string> </value>
+            <value> <string>Consider the system do not manage double accounting for now.\n
+\n
+Except if no accounting simulation is generated:\n
+- no source_section\n
+- source_section == destination_section</string> </value>
         </item>
         <item>
             <key> <string>expression</string> </key>
-            <value> <string>python: context.getDestinationSectionValue().getPriceCurrency(\'\') == \'\'</string> </value>
+            <value> <string>python: (context.getDestinationSectionValue().getPriceCurrency(\'\') == \'\') or (context.getSourceSection() == context.getDestinationSection()) or (context.hasSpecialise() and (context.getSpecialiseValue().getSourceSection() == context.getDestinationSection())) or ((context.getSourceSection(None) is None) and ((not context.hasSpecialise()) or (context.getSpecialiseValue().getSourceSection(None) is None)))</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
@@ -44,7 +48,7 @@
         </item>
         <item>
             <key> <string>message_expression_false</string> </key>
-            <value> <string>Price Currency must be defined on the Destination Section</string> </value>
+            <value> <string>Price Currency must not be defined on the Destination Section</string> </value>
         </item>
         <item>
             <key> <string>string_index</string> </key>

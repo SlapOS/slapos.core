@@ -11,7 +11,8 @@ if instance.getSlapState() != 'destroy_requested':
     partition = instance.getAggregateValue()
     if partition is not None:
       software_instance = partition.getAggregateRelatedValue(portal_type="Software Instance")
-      if software_instance is not None:
+      if software_instance is not None and \
+           software_instance.getSlapState() != 'destroy_requested':
         software_instance.SoftwareInstance_bangAsSelf(
           relative_url=software_instance.getRelativeUrl(),
           reference=software_instance.getReference(),

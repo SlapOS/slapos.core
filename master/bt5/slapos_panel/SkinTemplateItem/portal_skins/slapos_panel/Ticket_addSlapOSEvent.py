@@ -17,7 +17,7 @@ if person_relative_url == ticket.getDestination():
 elif len(portal.portal_catalog(
   portal_type='Assignment Request',
   simulation_state='validated',
-  destination__relative_url=ticket.getDestination(),
+  destination__uid=ticket.getUid(),
   destination_decision__uid=person.getUid(),
   limit=1
 )) == 1:

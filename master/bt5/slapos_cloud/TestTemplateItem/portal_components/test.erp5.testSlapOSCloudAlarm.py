@@ -537,6 +537,7 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
   def test_SoftwareInstance_tryToGarbageCollect_script_destroyed(self):
     instance_tree = self.addInstanceTree()
     software_instance = instance_tree.getSuccessorValue()
+    self.tic()
 
     instance_tree.archive()
     self.portal.portal_workflow._jumpToStateFor(instance_tree,
@@ -600,6 +601,38 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
     self.assertEqual('validated',
         software_instance.getValidationState())
 
+  def test_SoftwareInstance_tryToGarbageCollect_script_destroyed_shared(self):
+    instance_tree = self.addInstanceTree(shared=True)
+    software_instance = instance_tree.getSuccessorValue()
+    project = instance_tree.getFollowUpValue()
+    instance_tree_2 = self.addInstanceTree(project=project)
+    _, partition = self.addComputeNodeAndPartition(project=project)
+    software_instance.setAggregate(partition.getRelativeUrl())
+    instance_tree_2.getSuccessorValue().setAggregate(partition.getRelativeUrl())
+    self.tic()
+    instance_tree_2.archive()
+    self.portal.portal_workflow._jumpToStateFor(instance_tree_2,
+        'destroy_requested')
+    self.tic()
+    self.assertEqual('destroy_requested',
+        instance_tree_2.getSuccessorValue().getSlapState())
+
+    self.tic()
+
+    instance_tree.archive()
+    self.portal.portal_workflow._jumpToStateFor(instance_tree,
+        'destroy_requested')
+    self.assertEqual('validated',
+        software_instance.getValidationState())
+
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToGarbageCollect', "'subscribed'"):
+      self.tic()
+    software_instance.SoftwareInstance_tryToGarbageCollect()
+
+    self.assertEqual('destroy_requested',
+        software_instance.getSlapState())
+    self.assertEqual('validated',
+        software_instance.getValidationState())
 
 class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
   require_certificate = 1

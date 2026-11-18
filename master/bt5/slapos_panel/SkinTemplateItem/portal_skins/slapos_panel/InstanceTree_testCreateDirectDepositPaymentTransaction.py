@@ -1,4 +1,5 @@
 from zExceptions import Unauthorized
+from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, NegatedQuery
 if REQUEST is not None:
   raise Unauthorized
 
@@ -15,7 +16,9 @@ if entity is None:
 # Fetch to know if the subscription request is already created
 subscription_request = portal.portal_catalog.getResultValue(
   portal_type='Subscription Request',
-  aggregate__uid=context.getUid())
+  aggregate__uid=context.getUid(),
+  simulation_state=NegatedQuery(SimpleQuery(simulation_state='cancelled')),
+)
 
 price = 0
 if subscription_request is None:
@@ -40,10 +43,10 @@ if not return_message:
   if not context.Base_isExternalPaymentConfigured(currency_uid):
     return False
 
-def getUidWithShadow(portal, source_section):
+def getUidWithShadow(portal, relative_url):
   # Source Section can be one organisation, so shadow is required
   # Shadow has no access to freshly created or temp subscription requests
-  return portal.restrictedTraverse(source_section).getUid()
+  return portal.restrictedTraverse(relative_url).getUid()
 
 section_section_uid = entity.Person_restrictMethodAsShadowUser(
   shadow_document=entity, callable_object=getUidWithShadow,

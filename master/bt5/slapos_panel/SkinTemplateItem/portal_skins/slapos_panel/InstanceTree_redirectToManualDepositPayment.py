@@ -1,3 +1,5 @@
+from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, NegatedQuery
+
 portal = context.getPortalObject()
 web_site = context.getWebSiteValue()
 assert web_site is not None
@@ -11,7 +13,9 @@ person = web_site.restrictedTraverse(person.getRelativeUrl())
 
 subscription_request = portal.portal_catalog.getResultValue(
   portal_type='Subscription Request',
-  aggregate__uid=context.getUid())
+  aggregate__uid=context.getUid(),
+  simulation_state=NegatedQuery(SimpleQuery(simulation_state='cancelled')),
+)
 
 if subscription_request is not None:
   if subscription_request.getSimulationState() != 'submitted':

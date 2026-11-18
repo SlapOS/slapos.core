@@ -1,4 +1,5 @@
 from zExceptions import Unauthorized
+from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, NegatedQuery
 from DateTime import DateTime
 
 portal = context.getPortalObject()
@@ -9,7 +10,9 @@ if entity is None:
 # Fetch to know if the subscription request is already created
 subscription_request = portal.portal_catalog.getResultValue(
   portal_type='Subscription Request',
-  aggregate__uid=context.getUid())
+  aggregate__uid=context.getUid(),
+  simulation_state=NegatedQuery(SimpleQuery(simulation_state='cancelled')),
+)
 
 price = 0
 payment_list = []

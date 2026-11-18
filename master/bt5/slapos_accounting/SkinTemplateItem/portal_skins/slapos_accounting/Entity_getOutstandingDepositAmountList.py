@@ -7,6 +7,10 @@ query_kw = {
 
 assert context.getPortalType() in portal.getPortalEntityTypeList()
 
+# if entity_uid is provided, add more asserts XXX to prevent accessing random info
+if not entity_uid:
+  entity_uid = context.getUid()
+
 if section_uid:
   query_kw['source_section__uid'] = section_uid
 
@@ -19,7 +23,7 @@ if resource_uid is not None:
 object_dict = {}
 
 for subscription_request_brain in portal.portal_catalog(
-  destination_section__uid=context.getUid(),
+  destination_section__uid=entity_uid,
   **query_kw):
 
   subscription_request = subscription_request_brain.getObject()
@@ -39,4 +43,4 @@ for subscription_request_brain in portal.portal_catalog(
                                    subscription_request_total_price]
 
 # Add the current balance, to ensure customer provide enough deposit to match the VAT
-return [s.asContext(total_price=price - s.getDestinationSectionValue().Entity_getDepositBalanceAmount([s])) for s, price in object_dict.values()]
+return [s.asContext(total_price=price - context.Entity_getDepositBalanceAmount([s], entity_uid=entity_uid)) for s, price in object_dict.values()]

@@ -39,6 +39,11 @@ migration_list_kw = [
     'parent_validation_state': 'invalidated',
     'computer_security_uid': '%'
   },
+  {
+    'portal_type': 'ERP5 Login',
+    'parent_portal_type': ['Software Instance', 'Compute Node'],
+    'user_security_uid': '%'
+  }
 ]
 
 step = 0

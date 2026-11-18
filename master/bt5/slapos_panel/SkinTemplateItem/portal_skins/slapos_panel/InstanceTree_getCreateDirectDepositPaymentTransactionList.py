@@ -17,24 +17,35 @@ subscription_request = portal.portal_catalog.getResultValue(
 price = 0
 payment_list = []
 
+def getUidWithShadow(portal, relative_url):
+  # Source Section can be one organisation, so shadow is required
+  # Shadow has no access to freshly created or temp subscription requests
+  return portal.restrictedTraverse(relative_url).getUid()
+
 if subscription_request is None:
   subscription_request = context.Item_createSubscriptionRequest(temp_object=True)
   # Include temp object on the outstanting total price
   price = subscription_request.getPrice(None)
   if price is not None and price != 0:
-    balance = entity.Entity_getDepositBalanceAmount([subscription_request])
+    balance = entity.Entity_getDepositBalanceAmount(
+      [subscription_request],
+      entity_uid=entity.Person_restrictMethodAsShadowUser(
+        shadow_document=entity,
+        callable_object=getUidWithShadow,
+        argument_list=[portal, subscription_request.getDestinationSection()]
+      )
+    )
     if balance > price:
       return payment_list
 elif subscription_request.getSimulationState() != 'submitted':
   # No need to continue if the subscription is already processed.
   return payment_list
 
-def getUidWithShadow(portal, source_section):
-  # Source Section can be one organisation, so shadow is required
-  # Shadow has no access to freshly created or temp subscription requests
-  return portal.restrictedTraverse(source_section).getUid()
-
 currency_uid = subscription_request.getPriceCurrencyUid()
+section_uid = entity.Person_restrictMethodAsShadowUser(
+  shadow_document=entity,
+  callable_object=getUidWithShadow,
+  argument_list=[portal, subscription_request.getDestinationSection()])
 section_section_uid = entity.Person_restrictMethodAsShadowUser(
   shadow_document=entity,
   callable_object=getUidWithShadow,
@@ -43,6 +54,7 @@ section_section_uid = entity.Person_restrictMethodAsShadowUser(
 outstanding_amount_list = entity.Entity_getOutstandingDepositAmountList(
   ledger_uid=subscription_request.getLedgerUid(),
   source_section_uid=section_section_uid,
+  entity_uid=section_uid,
   resource_uid=currency_uid)
 
 assert len(outstanding_amount_list) in [0, 1]

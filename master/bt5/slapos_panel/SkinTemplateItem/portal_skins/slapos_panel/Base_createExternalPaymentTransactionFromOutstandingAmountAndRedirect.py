@@ -1,21 +1,22 @@
 portal = context.getPortalObject()
 
-# Get entity from context to preserve path
-entity = portal.portal_membership.getAuthenticatedMember().getUserValue()
-
 outstanding_amount = context
 web_site = outstanding_amount.getWebSiteValue()
 
 assert outstanding_amount.getLedgerUid() == portal.portal_categories.ledger.automated.getUid()
-assert outstanding_amount.getDestinationSectionUid() == entity.getUid()
+# assert outstanding_amount.getDestinationSectionUid() == entity.getUid()
 assert web_site is not None
 
 
 payment_mode = outstanding_amount.Base_getPaymentModeForCurrency(outstanding_amount.getPriceCurrencyUid())
 
-def wrapWithShadow(entity, outstanding_amount, payment_mode):
+def wrapWithShadow(outstanding_amount, payment_mode):
   portal_type = outstanding_amount.getPortalType()
+  # Ensure to re-take the entity under a proper acquisition context
+  # Get entity from context to preserve path
+  entity = web_site.restrictedTraverse(outstanding_amount.getDestinationSection())
   method_kw = dict(
+    entity_uid=entity.getUid(),
     section_uid=outstanding_amount.getSourceSectionUid(),
     resource_uid=outstanding_amount.getPriceCurrencyUid(),
     ledger_uid=outstanding_amount.getLedgerUid()
@@ -39,11 +40,12 @@ def wrapWithShadow(entity, outstanding_amount, payment_mode):
   raise ValueError("Unsupported outstanding amount type: %s" % (portal_type))
 
 # Ensure to re-take the entity under a proper acquisition context
-entity = web_site.restrictedTraverse(entity.getRelativeUrl())
+# Get entity from context to preserve path
+user_person = web_site.restrictedTraverse(portal.portal_membership.getAuthenticatedMember().getUserValue().getRelativeUrl())
 
-payment_transaction = entity.Person_restrictMethodAsShadowUser(
-  shadow_document=entity,
+payment_transaction = user_person.Person_restrictMethodAsShadowUser(
+  shadow_document=user_person,
   callable_object=wrapWithShadow,
-  argument_list=[entity, outstanding_amount, payment_mode])
+  argument_list=[outstanding_amount, payment_mode])
 
 return payment_transaction.PaymentTransaction_redirectToManualPayment()

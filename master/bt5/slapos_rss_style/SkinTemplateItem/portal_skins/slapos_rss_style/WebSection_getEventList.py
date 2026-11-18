@@ -40,7 +40,7 @@ def getTicketInfo(event, web_site):
     getTicket_memo[follow_up] = (
       ticket.getTitle(),
       # Do not show monitoring resource, to reduce the text density
-      ticket.getResourceTranslatedTitle() or '' if (ticket.getResource('') != 'service_module/slapos_crm_monitoring') else '',
+      ticket.getResourceTranslatedTitle(checked_permission="View") or '' if (ticket.getResource('') != 'service_module/slapos_crm_monitoring') else '',
       web_site.absolute_url() + "/#/" + ticket.getRelativeUrl(),
       ticket_emoji
     )

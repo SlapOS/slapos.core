@@ -43,6 +43,11 @@ migration_list_kw = [
     'portal_type': 'ERP5 Login',
     'parent_portal_type': ['Software Instance', 'Compute Node'],
     'user_security_uid': '%'
+  },
+  {
+    'portal_type': ['Computer Network', 'Facebook Login', 'Google Login', "Sale Packing List"],
+    # Legacy entry
+    'user_security_uid': '%'
   }
 ]
 

@@ -1,7 +1,11 @@
 portal = context.getPortalObject()
+entity = context
+
+if destination_section is None:
+  destination_section = entity.getRelativeUrl()
 
 if destination_decision is None:
-  destination_decision = context.getRelativeUrl()
+  destination_decision = entity.getRelativeUrl()
 
 # Create a temp Sale Order to find the trade condition
 now = DateTime()
@@ -12,6 +16,7 @@ tmp_sale_order = module.newContent(
   trade_condition_type="ticket",
   start_date=now,
   destination=destination_decision,
+  destination_section=destination_section,
   destination_decision=destination_decision,
   source_project=source_project,
   ledger_value=portal.portal_categories.ledger.automated

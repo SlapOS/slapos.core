@@ -43,4 +43,4 @@ for subscription_request_brain in portal.portal_catalog(
                                    subscription_request_total_price]
 
 # Add the current balance, to ensure customer provide enough deposit to match the VAT
-return [s.asContext(total_price=price - context.Entity_getDepositBalanceAmount([s], entity_uid=entity_uid)) for s, price in object_dict.values()]
+return [s.asContext(total_price=max(price, price - context.Entity_getDepositBalanceAmount([s], entity_uid=entity_uid))) for s, price in object_dict.values()]

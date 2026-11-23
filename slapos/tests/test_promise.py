@@ -31,7 +31,6 @@ import unittest
 import sys
 import time
 import json
-import random
 import logging
 import mock
 from datetime import datetime, timedelta
@@ -189,10 +188,10 @@ class RunPromise(GenericPromise):
     with open(state_file) as f:
       result_dict = json.loads(f.read())
       result_dict['result'].pop('date')
-      # execution time of a promise can vary from 0.05 to 0.2 in a busy test machine
-      # it makes no sense to test it
+      # execution time of a promise varies a lot on a busy test machine
+      # it makes no sense to test more than a positive value
       execution_time = result_dict.pop('execution-time')
-      self.assertTrue(execution_time > 0.0 and execution_time <=1.0)
+      self.assertGreater(execution_time, 0.0)
       expected_dict = expected_result % {'promise_dir': self.plugin_dir, 'name': name}
       self.assertEqual(json.loads(expected_dict), result_dict)
 
@@ -1558,7 +1557,7 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     start_date = datetime.now()
     with open(promise.getLogFile(), 'w') as f:
       for i in range(0, 50):
-        transaction_id = '%s-%s' % (int(time.time()), random.randint(100, 999))
+        transaction_id = '%s-%s' % (int(time.time()), 100 + i)
         date = start_date - timedelta(minutes=(49 - i))
         date_string = date.strftime('%Y-%m-%d %H:%M:%S')
         line = "%s - INFO - %s - Promise result %s\n" % (date_string, transaction_id, i)
@@ -1591,7 +1590,7 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     line_list = []
     j = 0
     for i in range(0, 25):
-      transaction_id = '%s-%s' % (int(time.time()), random.randint(100, 999))
+      transaction_id = '%s-%s' % (int(time.time()), 100 + i)
       date_string = date.strftime('%Y-%m-%d %H:%M:%S')
       line_list.append("%s - INFO - %s - Promise result %s\n" % (date_string, transaction_id, j))
       date = date - timedelta(seconds=30)
@@ -1634,7 +1633,7 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     line_list = []
     j = 0
     for i in range(0, 25):
-      transaction_id = '%s-%s' % (int(time.time()), random.randint(100, 999))
+      transaction_id = '%s-%s' % (int(time.time()), 100 + i)
       date_string = date.strftime('%Y-%m-%d %H:%M:%S')
       line_list.append("%s - INFO - %s - Promise result %s\n" % (date_string, transaction_id, j))
       date = date - timedelta(seconds=30)
@@ -1674,7 +1673,9 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     line_list = []
     j = 0
     for i in range(0, 25):
-      transaction_id = '%s-%s' % (int(time.time()), random.randint(100, 999))
+      # Lines with the same transaction id form one result. Each result
+      # needs its own transaction id.
+      transaction_id = '%s-%s' % (int(time.time()), 100 + i)
       date_string = date.strftime('%Y-%m-%d %H:%M:%S')
       line_list.append("%s - INFO - %s - Promise result %s\n" % (date_string, transaction_id, j))
       date = date - timedelta(seconds=30)

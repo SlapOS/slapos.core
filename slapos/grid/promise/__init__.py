@@ -527,8 +527,11 @@ class PromiseLauncher(object):
     self.logger.info("Checking promise %s..." % promise_name)
     queue_item = None
     sleep_time = 0.05
-    increment_limit = int(self.promise_timeout / sleep_time)
-    execution_time = self.promise_timeout
+    start_time = time.time()
+    # Measure the timeout with the clock. On a loaded machine, each loop
+    # iteration takes more than sleep_time.
+    deadline = start_time + self.promise_timeout
+    execution_time = 0
     ps_profile = False
     if self.debug:
       try:
@@ -537,8 +540,9 @@ class PromiseLauncher(object):
       except psutil.NoSuchProcess:
         # process is gone
         pass
-    for current_increment in range(0, increment_limit):
+    while time.time() < deadline:
       if not promise_process.is_alive():
+        execution_time = time.time() - start_time
         try:
           queue_item = self.queue_result.get(True, 1)
         except queue.Empty:
@@ -553,7 +557,7 @@ class PromiseLauncher(object):
           io_counter = psutil_process.io_counters()
           self.logger.debug(
             "[t=%ss] CPU: %s%%, MEM: %s MB (%s%%), DISK: %s Read - %s Write" % (
-              current_increment*sleep_time,
+              round(execution_time, 2),
               psutil_process.cpu_percent(),
               psutil_process.memory_info().rss / float(2 ** 20),
               round(psutil_process.memory_percent(), 4),
@@ -565,8 +569,9 @@ class PromiseLauncher(object):
           # defunct process will raise AccessDenied
           pass
       time.sleep(sleep_time)
-      execution_time = (current_increment + 1) * sleep_time
+      execution_time = time.time() - start_time
     else:
+      execution_time = time.time() - start_time
       promise_process.terminate()
       promise_process.join(1) # wait for process to terminate
       # if the process is still alive after 1 seconds, we kill it

@@ -89,6 +89,7 @@ Project | request_slapos_payable_instance_tree
 Project | slapos_panel_view
 Regularisation Request Module | slapos_panel_view
 Regularisation Request | add_slapos_event
+Regularisation Request | jump_pay_my_slapos_sale_invoice_transaction
 Regularisation Request | slapos_panel_view
 Regularisation Request | slapos_panel_workflow_open
 Regularisation Request | slapos_panel_workflow_suspend

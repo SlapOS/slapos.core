@@ -41,6 +41,7 @@ ticket = portal.getDefaultModule(portal_type).newContent(
   destination_decision=tmp_sale_order.getDestinationDecision(),
   specialise=tmp_sale_order.getSpecialise(),
   causality=causality,
+  price_currency=price_currency,
   # Ensure resoure is Monitoring
   resource_value=resource,
   quantity_unit=resource.getQuantityUnit(),

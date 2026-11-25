@@ -1,24 +1,26 @@
+from zExceptions import Unauthorized
+
 portal = context.getPortalObject()
+person = portal.portal_membership.getAuthenticatedMember().getUserValue()
+ticket = context
 
-entity = context.getDestinationValue()
-if not entity:
-  return []
+def wrapWithShadowToNotGetUnauthorized(actor_relative_url, entity_relative_url, price_currency_uid):
+  if not entity_relative_url:
+    return []
+  entity = portal.restrictedTraverse(entity_relative_url)
 
-ledger_uid = portal.portal_categories.ledger.automated.getUid()
+  return [x for x in entity.Entity_getOutstandingInvoiceList() if ((x.getDestination() == actor_relative_url) and (x.getPriceCurrencyUid() == price_currency_uid))]
 
-# Two-call pattern: first call (without section_uid/resource_uid) returns
-# aggregates grouped by (mirror_section, resource). The second call, made per
-# aggregate with explicit section_uid and resource_uid, disables that grouping
-# and returns one entry per individual unpaid invoice.
-result = []
-for aggregate in entity.Entity_getOutstandingAmountList(
-    ledger_uid=ledger_uid,
-    group_by_node=False,
-):
-  result.extend(entity.Entity_getOutstandingAmountList(
-      ledger_uid=ledger_uid,
-      section_uid=aggregate.section_uid,
-      resource_uid=aggregate.resource_uid,
-      group_by_node=False,
-  ))
-return result
+if person is None:
+  if not portal.portal_membership.isAnonymousUser():
+    return wrapWithShadowToNotGetUnauthorized(ticket.getDestination(), ticket.getDestinationSection(), ticket.getPriceCurrencyUid())
+  raise Unauthorized("You must be logged in")
+
+return person.Person_restrictMethodAsShadowUser(
+  shadow_document=person,
+  callable_object=wrapWithShadowToNotGetUnauthorized,
+  argument_list=[
+    ticket.getDestination(),
+    ticket.getDestinationSection(),
+    ticket.getPriceCurrencyUid(),
+  ])

@@ -92,7 +92,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>python: (context.getWebSiteValue() is not None) and (context.getSimulationState() == \'submitted\')</string> </value>
+            <value> <string>python: (context.getWebSiteValue() is not None) and (context.getSimulationState() == \'submitted\') and (context.Base_isExternalPaymentConfigured(context.getPriceCurrencyUid()))</string> </value>
         </item>
       </dictionary>
     </pickle>

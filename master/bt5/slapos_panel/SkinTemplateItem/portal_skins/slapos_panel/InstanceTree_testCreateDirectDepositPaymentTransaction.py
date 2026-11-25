@@ -1,4 +1,5 @@
 from zExceptions import Unauthorized
+from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, NegatedQuery
 if REQUEST is not None:
   raise Unauthorized
 
@@ -15,7 +16,14 @@ if entity is None:
 # Fetch to know if the subscription request is already created
 subscription_request = portal.portal_catalog.getResultValue(
   portal_type='Subscription Request',
-  aggregate__uid=context.getUid())
+  aggregate__uid=context.getUid(),
+  simulation_state=NegatedQuery(SimpleQuery(simulation_state='cancelled')),
+)
+
+def getUidWithShadow(portal, relative_url):
+  # Source Section can be one organisation, so shadow is required
+  # Shadow has no access to freshly created or temp subscription requests
+  return portal.restrictedTraverse(relative_url).getUid()
 
 price = 0
 if subscription_request is None:
@@ -23,7 +31,14 @@ if subscription_request is None:
   # Include temp object on the outstanting total price
   price = subscription_request.getPrice(None)
   if price is not None and price != 0:
-    balance = entity.Entity_getDepositBalanceAmount([subscription_request])
+    balance = entity.Entity_getDepositBalanceAmount(
+      [subscription_request],
+      entity_uid=entity.Person_restrictMethodAsShadowUser(
+        shadow_document=entity,
+        callable_object=getUidWithShadow,
+        argument_list=[portal, subscription_request.getDestinationSection()]
+      )
+    )
     if balance > price:
       if return_message:
         return NOTHING_TO_PAY
@@ -40,18 +55,19 @@ if not return_message:
   if not context.Base_isExternalPaymentConfigured(currency_uid):
     return False
 
-def getUidWithShadow(portal, source_section):
-  # Source Section can be one organisation, so shadow is required
-  # Shadow has no access to freshly created or temp subscription requests
-  return portal.restrictedTraverse(source_section).getUid()
-
-section_section_uid = entity.Person_restrictMethodAsShadowUser(
+source_section_uid = entity.Person_restrictMethodAsShadowUser(
   shadow_document=entity, callable_object=getUidWithShadow,
   argument_list=[portal, subscription_request.getSourceSection()])
 
+destination_section_uid = entity.Person_restrictMethodAsShadowUser(
+  shadow_document=entity, callable_object=getUidWithShadow,
+  argument_list=[portal, subscription_request.getDestinationSection()])
+
 outstanding_amount_list = entity.Entity_getOutstandingDepositAmountList(
-  ledger_uid=subscription_request.getLedgerUid(), 
-  source_section_uid=section_section_uid,
+  ledger_uid=subscription_request.getLedgerUid(),
+  source_section_uid=source_section_uid,
+  # Required for B2B (user service paid by an organisation)
+  entity_uid=destination_section_uid,
   resource_uid=currency_uid)
 
 assert len(outstanding_amount_list) in [0, 1]
@@ -63,6 +79,7 @@ if outstanting_total_price > 0:
     assert not context.Base_isExternalPaymentConfigured(currency_uid), \
       "Payment is configured (and should not)"
     return PLEASE_CONTACT_US
+  context.log('to pay %s' % outstanting_total_price)
   return True
 
 if return_message:

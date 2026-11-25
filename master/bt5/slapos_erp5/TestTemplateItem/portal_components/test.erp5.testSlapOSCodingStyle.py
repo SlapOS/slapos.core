@@ -269,8 +269,6 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'slapos_panel/SubscriptionRequest_changeSlaposSubmittedPrice',
         'slapos_panel/SubscriptionRequest_jumpToPaymentPage',
         'slapos_panel/Ticket_addSlapOSEvent',
-        'slapos_panel/AccountingTransactionModule_getCreateExternalPaymentTransactionList',
-        'slapos_panel/AccountingTransactionModule_testCreateExternalPaymentTransactionPending',
         'slapos_panel/Base_getExternalPaymentTransactionUrl',
         'slapos_panel/Base_getSupportedExternalPaymentList',
         'slapos_panel/Base_isExternalPaymentConfigured',

@@ -22,7 +22,6 @@
           'Servers',
           'Tickets',
           'Invoices',
-          'Pay',
           'News'
         ])
       }))
@@ -51,10 +50,6 @@
             title: result_dict.translation_dict.Invoices,
             jio_key: 'accounting_module',
             erp5_action: 'slapos_panel_view_my_invoice_list'
-          }, {
-            title: result_dict.translation_dict.Pay,
-            jio_key: 'accounting_module',
-            erp5_action: 'pay_my_slapos_sale_invoice_transaction'
           }]);
         });
     });

@@ -176,7 +176,12 @@
                 <item>
                     <key> <string>search_columns</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <tuple>
+                          <string>foo</string>
+                          <string></string>
+                        </tuple>
+                      </list>
                     </value>
                 </item>
                 <item>
@@ -192,7 +197,12 @@
                 <item>
                     <key> <string>sort_columns</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <tuple>
+                          <string>foo</string>
+                          <string></string>
+                        </tuple>
+                      </list>
                     </value>
                 </item>
                 <item>

@@ -16,13 +16,13 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>action_type/object_jio_action</string>
+                <string>action_type/object_jio_fast_input_raw</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>category</string> </key>
-            <value> <string>object_jio_action</string> </value>
+            <value> <string>object_jio_fast_input_raw</string> </value>
         </item>
         <item>
             <key> <string>condition</string> </key>
@@ -42,7 +42,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>pay_my_slapos_sale_invoice_transaction</string> </value>
+            <value> <string>jump_pay_my_slapos_sale_invoice_transaction</string> </value>
         </item>
         <item>
             <key> <string>permissions</string> </key>
@@ -53,12 +53,16 @@
             </value>
         </item>
         <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>Action Information</string> </value>
+        </item>
+        <item>
             <key> <string>priority</string> </key>
-            <value> <float>60.0</float> </value>
+            <value> <float>100.0</float> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Pay My Invoices</string> </value>
+            <value> <string>Pay</string> </value>
         </item>
         <item>
             <key> <string>visible</string> </key>
@@ -75,7 +79,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>string:${object_url}/AccountingTransactionModule_viewCreateExternalPaymentTransactionOnSlaposPanelDialog</string> </value>
+            <value> <string>string:${object_url}/RegularisationRequest_jumpToPaymentPage</string> </value>
         </item>
       </dictionary>
     </pickle>
@@ -88,7 +92,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>python: (context.getWebSiteValue() is not None)</string> </value>
+            <value> <string>python: (context.getWebSiteValue() is not None) and (context.getSimulationState() in [\'suspended\', \'validated\']) and (context.Base_isExternalPaymentConfigured(context.getPriceCurrencyUid()))</string> </value>
         </item>
       </dictionary>
     </pickle>

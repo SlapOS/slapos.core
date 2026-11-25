@@ -67,9 +67,9 @@ tmp_sale_order = module.newContent(
   start_date=now,
   source=first_subscription.getSource(),
   source_section=first_subscription.getSourceSection(),
-  destination_value=source_section,
-  destination_section_value=source_section,
-  destination_decision_value=source_section,
+  destination_value=first_subscription.getDestinationValue(source_section),
+  destination_section_value=first_subscription.getDestinationSection(source_section),
+  destination_decision_value=first_subscription.getDestinationDecisionValue(source_section),
   ledger=ledger_relative_url,
   price_currency=currency_relative_url
 )

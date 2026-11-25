@@ -1,17 +1,19 @@
+from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, NegatedQuery
+
 portal = context.getPortalObject()
 web_site = context.getWebSiteValue()
 assert web_site is not None
+instance_tree = context
 
 # This script will be used to generate the payment
 # compatible with external providers
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
-# Use proper acquisiton to generate the payment transaction
-person = web_site.restrictedTraverse(person.getRelativeUrl())
-
 subscription_request = portal.portal_catalog.getResultValue(
   portal_type='Subscription Request',
-  aggregate__uid=context.getUid())
+  aggregate__uid=instance_tree.getUid(),
+  simulation_state=NegatedQuery(SimpleQuery(simulation_state='cancelled')),
+)
 
 if subscription_request is not None:
   if subscription_request.getSimulationState() != 'submitted':
@@ -57,14 +59,17 @@ if subscription_request.isTempObject():
   }
 
 
-def wrapWithShadowToNotGetUnauthorized(person, ledger_uid,
+def wrapWithShadowToNotGetUnauthorized(entity_relative_url, ledger_uid,
                                        section, resource_uid,
                                        payment_mode,
                                        temp_subscription_dict):
 
+  # Use proper acquisiton to generate the payment transaction
+  entity = web_site.restrictedTraverse(entity_relative_url)
+
   # Required because user cannot access organisation module
   section_uid = portal.restrictedTraverse(section).getUid()
-  outstanding_amount_list = person.Entity_getOutstandingDepositAmountList(
+  outstanding_amount_list = entity.Entity_getOutstandingDepositAmountList(
     ledger_uid=ledger_uid,
     section_uid=section_uid,
     resource_uid=resource_uid)
@@ -77,7 +82,7 @@ def wrapWithShadowToNotGetUnauthorized(person, ledger_uid,
     outstanding_amount_list.append(temp_subscription_request.asContext(
       total_price=temp_subscription_request.getPrice(None)))
 
-  return person.Entity_createDepositPaymentTransaction(
+  return entity.Entity_createDepositPaymentTransaction(
     subscription_list=outstanding_amount_list,
     payment_mode=payment_mode
   )
@@ -85,7 +90,7 @@ def wrapWithShadowToNotGetUnauthorized(person, ledger_uid,
 payment_transaction = person.Person_restrictMethodAsShadowUser(
   shadow_document=person,
   callable_object=wrapWithShadowToNotGetUnauthorized,
-  argument_list=[person,
+  argument_list=[subscription_request.getDestinationSection(),
     subscription_request.getLedgerUid(),
     subscription_request.getSourceSection(),
     subscription_request.getPriceCurrencyUid(),

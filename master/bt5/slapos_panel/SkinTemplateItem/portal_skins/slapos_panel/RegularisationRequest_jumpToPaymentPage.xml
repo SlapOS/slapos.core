@@ -46,11 +46,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>return_message=False, REQUEST=None</string> </value>
+            <value> <string>**kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>AccountingTransactionModule_testCreateExternalPaymentTransactionPending</string> </value>
+            <value> <string>RegularisationRequest_jumpToPaymentPage</string> </value>
         </item>
       </dictionary>
     </pickle>

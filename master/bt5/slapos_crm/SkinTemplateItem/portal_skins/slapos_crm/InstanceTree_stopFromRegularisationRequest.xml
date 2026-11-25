@@ -46,7 +46,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>person_relative_url, REQUEST=None</string> </value>
+            <value> <string>actor_relative_url, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

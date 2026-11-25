@@ -11,21 +11,23 @@ if int(REQUEST.getHeader('Content-Length', 0)) > 3145728:
   REQUEST.RESPONSE.setStatus(413)
   return ""
 
+ticket_destination_relative_url = ticket.getDestination()
+ticket_destination_value = portal.restrictedTraverse(ticket_destination_relative_url, None)
 if person_relative_url == ticket.getDestination():
   # ticket to a person
   direction = 'incoming'
-elif len(portal.portal_catalog(
+elif (ticket_destination_value is not None) and (len(portal.portal_catalog(
   portal_type='Assignment Request',
   simulation_state='validated',
-  destination__uid=ticket.getUid(),
+  destination__uid=ticket_destination_value.getUid(),
   destination_decision__uid=person.getUid(),
   limit=1
-)) == 1:
+)) == 1):
   # current person is member of ticket workgroup
   direction = 'incoming'
   # Keep workgroup as source, in order to allow
   # all workgroup members to see the event
-  person_relative_url = ticket.getDestination()
+  person_relative_url = ticket_destination_relative_url
 else:
   direction = 'outgoing'
 

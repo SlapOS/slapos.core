@@ -4836,3 +4836,9 @@ class TestCreateSlapgridObjectSoftwareTimeout(unittest.TestCase):
   def test_zero_disables(self):
     grid = self._create(**{'software-timeout': '0'})
     self.assertIsNone(grid.software_timeout)
+
+  def test_command_line_overrides_configuration(self):
+    # --software-timeout gives software_timeout, slapos.cfg gives
+    # software-timeout.
+    grid = self._create(**{'software-timeout': '42', 'software_timeout': 7})
+    self.assertEqual(grid.software_timeout, 7)

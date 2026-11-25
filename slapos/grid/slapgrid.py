@@ -277,15 +277,13 @@ def create_slapgrid_object(options, logger):
     partition_timeout = int(partition_timeout)
 
   # Same as partition_timeout, but for software release builds. Defaults to
-  # SOFTWARE_TIMEOUT (not None) so that a stalled buildout subprocess cannot
-  # block "slapos node software" indefinitely. 0 explicitly disables the
-  # timeout, for example for an unattended "slapos node software
-  # --buildout-debug" session expected to run past the default.
-  software_timeout = op.get('software_timeout', op.get('software-timeout', SOFTWARE_TIMEOUT))
-  if software_timeout is not None:
-    software_timeout = int(software_timeout)
-    if software_timeout == 0:
-      software_timeout = None
+  # SOFTWARE_TIMEOUT so that a stalled buildout subprocess cannot block
+  # "slapos node software" indefinitely. 0 disables the timeout.
+  # "slapos node software --buildout-debug" never applies a timeout.
+  software_timeout = int(op.get('software_timeout',
+                                op.get('software-timeout', SOFTWARE_TIMEOUT)))
+  if software_timeout == 0:
+    software_timeout = None
   return Slapgrid(software_root=op['software_root'],
                   instance_root=op['instance_root'],
                   shared_part_list=op.get('shared_part_list', ''),

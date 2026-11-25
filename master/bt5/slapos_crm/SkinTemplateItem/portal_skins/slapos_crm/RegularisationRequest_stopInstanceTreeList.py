@@ -5,27 +5,16 @@ if REQUEST is not None:
 ticket = context
 portal = context.getPortalObject()
 state = ticket.getSimulationState()
-entity = ticket.getDestinationDecisionValue(portal_type=portal.getPortalEntityTypeList())
+entity = ticket.getDestinationSectionValue(portal_type=portal.getPortalEntityTypeList())
+actor_relative_url = ticket.getDestination(portal_type=portal.getPortalActorTypeList())
 if (state == 'suspended') and \
    (entity is not None) and \
    (ticket.getResource() in ['service_module/slapos_crm_stop_acknowledgement',
                              'service_module/slapos_crm_delete_reminder',
                              'service_module/slapos_crm_delete_acknowledgement']):
 
-
-  ledger_uid = portal.portal_categories.ledger.automated.getUid()
-  # Gather the list of not paid services
-  for outstanding_amount in entity.Entity_getOutstandingAmountList(
-    ledger_uid=ledger_uid,
-    include_planned=True
-  ):
-    for outstanding_invoice in entity.Entity_getOutstandingAmountList(
-      section_uid=outstanding_amount.getSourceSectionUid(),
-      resource_uid=outstanding_amount.getPriceCurrencyUid(),
-      ledger_uid=outstanding_amount.getLedgerUid(),
-      group_by_node=False
-    ):
-      person = outstanding_invoice.getDestinationValue(portal_type="Person")
+  for outstanding_invoice in entity.Entity_getOutstandingInvoiceList():
+    if outstanding_invoice.getDestination() == actor_relative_url:
       subscribed_item = None
       for invoice_line in outstanding_invoice.getMovementList(
         portal_type=['Invoice Line', 'Invoice Cell']
@@ -33,20 +22,17 @@ if (state == 'suspended') and \
         hosting_subscription = invoice_line.getAggregateValue(portal_type='Hosting Subscription')
         if hosting_subscription is not None:
           subscribed_item = invoice_line.getAggregateValue(portal_type=[
-            'Project',
             'Instance Tree',
-            'Compute Node'
           ])
           if subscribed_item is None:
-            raise NotImplementedError('Unhandled invoice line %s' % invoice_line.getRelativeUrl())
+            # Do not touch other items
+            # Idea: monitoring from project node could be disabled
+            continue
 
           if (subscribed_item.getPortalType() == 'Instance Tree'):
             # change the slap state to stopped, to allow propagation of the state
             # even on remote node
-            subscribed_item.InstanceTree_stopFromRegularisationRequest(person.getRelativeUrl())
-
-      if subscribed_item is None:
-        raise NotImplementedError('Unhandled invoice %s' % outstanding_invoice.getRelativeUrl())
+            subscribed_item.InstanceTree_stopFromRegularisationRequest(actor_relative_url)
 
   return True
 return False

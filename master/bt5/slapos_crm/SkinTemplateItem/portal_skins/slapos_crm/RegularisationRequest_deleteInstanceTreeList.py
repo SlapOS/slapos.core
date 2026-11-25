@@ -5,26 +5,16 @@ if REQUEST is not None:
 portal = context.getPortalObject()
 ticket = context
 state = ticket.getSimulationState()
-entity = ticket.getDestinationDecisionValue(portal_type=portal.getPortalEntityTypeList())
+entity = ticket.getDestinationSectionValue(portal_type=portal.getPortalEntityTypeList())
+actor_relative_url = ticket.getDestination(portal_type=portal.getPortalActorTypeList())
 if (state == 'suspended') and \
    (entity is not None) and \
    (ticket.getResource() == 'service_module/slapos_crm_delete_acknowledgement'):
 
   subscribed_item_list = []
 
-  ledger_uid = portal.portal_categories.ledger.automated.getUid()
-  # Gather the list of not paid services
-  for outstanding_amount in entity.Entity_getOutstandingAmountList(
-    ledger_uid=ledger_uid,
-    include_planned=True
-  ):
-    for outstanding_invoice in entity.Entity_getOutstandingAmountList(
-      section_uid=outstanding_amount.getSourceSectionUid(),
-      resource_uid=outstanding_amount.getPriceCurrencyUid(),
-      ledger_uid=outstanding_amount.getLedgerUid(),
-      group_by_node=False
-    ):
-      person = outstanding_invoice.getDestinationValue(portal_type="Person")
+  for outstanding_invoice in entity.Entity_getOutstandingInvoiceList():
+    if outstanding_invoice.getDestination() == actor_relative_url:
       subscribed_item = None
       for invoice_line in outstanding_invoice.getMovementList(
         portal_type=['Invoice Line', 'Invoice Cell']
@@ -32,16 +22,11 @@ if (state == 'suspended') and \
         hosting_subscription = invoice_line.getAggregateValue(portal_type='Hosting Subscription')
         if hosting_subscription is not None:
           subscribed_item = invoice_line.getAggregateValue(portal_type=[
-            'Project',
             'Instance Tree',
-            'Compute Node'
+            'Project'
           ])
-          if subscribed_item is None:
-            raise NotImplementedError('Unhandled invoice line %s' % invoice_line.getRelativeUrl())
-          subscribed_item_list.append(subscribed_item)
-
-      if subscribed_item is None:
-        raise NotImplementedError('Unhandled invoice %s' % outstanding_invoice.getRelativeUrl())
+          if subscribed_item is not None:
+            subscribed_item_list.append(subscribed_item)
 
   for subscribed_item in subscribed_item_list:
     if ((subscribed_item.getPortalType() == 'Compute Node') and
@@ -51,7 +36,7 @@ if (state == 'suspended') and \
     elif (subscribed_item.getPortalType() == 'Instance Tree'):
       # change the slap state to deleted, to allow propagation of the state
       # even on remote node
-      subscribed_item.InstanceTree_deleteFromRegularisationRequest(person.getRelativeUrl())
+      subscribed_item.InstanceTree_deleteFromRegularisationRequest(actor_relative_url)
     elif ((subscribed_item.getPortalType() == 'Project') and
           (subscribed_item.getValidationState() != 'invalidated')):
       # do not close the project until all node and instance trees are corrected deleted

@@ -84,6 +84,7 @@ dummylogger = logging.getLogger()
 
 
 WATCHDOG_TEMPLATE = """#!{python_path}
+import os
 import sys
 sys.path={sys_path}
 import slapos.slap
@@ -91,13 +92,16 @@ import slapos.grid.watchdog
 
 def bang(self_partition, message):
   nl = chr(10)
-  with open('{watchdog_banged}', 'w') as fout:
+  # Write a temporary file, then rename it, so that the test never reads
+  # an incomplete file.
+  with open('{watchdog_banged}.tmp', 'w') as fout:
     for key, value in vars(self_partition).items():
       fout.write('%s: %s%s' % (key, value, nl))
       if key == '_connection_helper':
         for k, v in vars(value).items():
           fout.write('   %s: %s%s' % (k, v, nl))
     fout.write(message)
+  os.rename('{watchdog_banged}.tmp', '{watchdog_banged}')
 
 slapos.slap.ComputerPartition.bang = bang
 slapos.grid.watchdog.main()

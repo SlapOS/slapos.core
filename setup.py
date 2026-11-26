@@ -52,7 +52,6 @@ setup(name=name,
       license='GPLv3',
       url='https://slapos.nexedi.com/',
       author='VIFIB',
-      namespace_packages=['slapos'],
       packages=find_packages(),
       include_package_data=True,
       install_requires=[

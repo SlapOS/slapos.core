@@ -119,14 +119,14 @@ class SlapOSInstanceSlapInterfaceMixin:
 
     # graph allows to "simulate" tree change after requested operation
     graph = {}
-    successor_list = instance_tree.getSuccessorValueList()
+    successor_list = instance_tree.getSuccessorValueList(checked_permission='View')
     graph[instance_tree.getUid()] = [successor.getUid() for successor in successor_list]
     while True:
       try:
         current_software_instance = successor_list.pop(0)
       except IndexError:
         break
-      current_software_instance_successor_list = current_software_instance.getSuccessorValueList() or []
+      current_software_instance_successor_list = current_software_instance.getSuccessorValueList(checked_permission='View') or []
       graph[current_software_instance.getUid()] = [successor.getUid()
                                                    for successor in current_software_instance_successor_list]
       successor_list.extend(current_software_instance_successor_list)
@@ -160,7 +160,7 @@ class SlapOSInstanceSlapInterfaceMixin:
 
         # One last assert, as it seems there is an issue somewhere
         # allowing the creation of 2 instances with the same title
-        assert software_title not in [x.getTitle() for x in requester_instance.getSuccessorValueList() if x.getValidationState() == 'validated']
+        assert software_title not in [x.getTitle() for x in requester_instance.getSuccessorValueList(checked_permission='View') if x.getValidationState() == 'validated']
 
         # Create a new one
         if is_slave == True:

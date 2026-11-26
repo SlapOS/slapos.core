@@ -47,8 +47,16 @@ if first_invoice.getDestinationSection() != context.getRelativeUrl():
 if start_date is None:
   start_date = DateTime()
 
+#######################################################
+# The payment needs to be returned on web site context, to proper handle acquisition later on
+# otherwise, payment redirections would fail on multiple occasions whenever website isn't in
+# the context acquisition.
+web_site = context.getWebSiteValue()
+if web_site is None:
+  web_site = portal
+
 # create the payment transaction
-payment_transaction = portal.accounting_module.newContent(
+payment_transaction = web_site.accounting_module.newContent(
   portal_type='Payment Transaction',
   created_by_builder=True,
   causality_uid_set=causality_uid_list,

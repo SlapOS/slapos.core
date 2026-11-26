@@ -46,11 +46,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>**kw</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>AccountingTransactionModule_getCreateExternalPaymentTransactionList</string> </value>
+            <value> <string>Entity_getOutstandingInvoiceList</string> </value>
         </item>
       </dictionary>
     </pickle>

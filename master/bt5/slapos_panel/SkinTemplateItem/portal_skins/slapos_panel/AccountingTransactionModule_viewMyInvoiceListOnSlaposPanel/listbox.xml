@@ -345,7 +345,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python:[(\'simulation_state\', [\'stopped\', \'delivered\']), (\'ledger__uid\', here.getPortalObject().portal_categories.ledger.automated.getUid()), (\'entity\', here.getPortalObject().portal_membership.getAuthenticatedMember().getUserValue().getRelativeUrl())]</string> </value>
+            <value> <string>python:[(\'simulation_state\', [\'stopped\', \'delivered\']), (\'ledger__uid\', here.getPortalObject().portal_categories.ledger.automated.getUid()), (\'destination__uid\', here.getPortalObject().Base_getAuthenticatedPersonAndWorkgroupUidList())]</string> </value>
         </item>
       </dictionary>
     </pickle>

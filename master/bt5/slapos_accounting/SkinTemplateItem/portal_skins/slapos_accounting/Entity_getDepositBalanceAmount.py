@@ -3,6 +3,10 @@ portal = context.getPortalObject()
 # Only person and organisation are payable
 assert context.getPortalType() in portal.getPortalEntityTypeList()
 
+# if entity_uid is provided, add more asserts XXX to prevent accessing random info
+if not entity_uid:
+  entity_uid = context.getUid()
+
 # Ensure all invoice use the same arrow and resource
 first_subscription = subscription_list[0]
 identical_dict = {
@@ -26,28 +30,30 @@ assert_price_kw = {
   'ledger_uid': first_subscription.getLedgerUid(),
 }
 
-if first_subscription.getDestinationSection() != context.getRelativeUrl():
-  raise ValueError("Subscription not related to the context")
-
 # entity is the depositor
 # mirror_section_uid is the payee/recipient
-entity_uid = context.getUid()
 mirror_section = first_subscription.getSourceSection()
+section = first_subscription.getDestinationSection()
 
-def getUidAsShadow(portal, mirror_section):
+def getUidAsShadow(portal, section, mirror_section):
   return (
+    portal.restrictedTraverse(section).getUid(),
     portal.restrictedTraverse(mirror_section).getUid(),
-    portal.restrictedTraverse('account_module/deposit_received').getUid()
+    portal.restrictedTraverse('account_module/deposit_received').getUid(),
   )
 
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
-if person is not None:
-  mirror_section_uid, deposit_received_uid = person.Person_restrictMethodAsShadowUser(
+if person is None:
+  section_uid, mirror_section_uid, deposit_received_uid = getUidAsShadow(portal, section, mirror_section)
+else:
+  section_uid, mirror_section_uid, deposit_received_uid = person.Person_restrictMethodAsShadowUser(
     shadow_document=person,
     callable_object=getUidAsShadow,
-    argument_list=[portal, mirror_section])
-else:
-  mirror_section_uid, deposit_received_uid = getUidAsShadow(portal, mirror_section)
+    argument_list=[portal, section, mirror_section])
+
+if section_uid != entity_uid:
+  raise ValueError("Subscription not related to the entity")
+
 # Total received
 deposit_amount = portal.portal_simulation.getInventoryAssetPrice(
   section_uid=entity_uid,

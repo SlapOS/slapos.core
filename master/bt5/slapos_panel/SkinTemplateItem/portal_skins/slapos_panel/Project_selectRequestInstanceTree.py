@@ -69,12 +69,22 @@ assert web_site is not None
 # evaluate as Shadow User.
 subscription_request = request_instance_tree.Item_createSubscriptionRequest(temp_object=True)
 
+def getUidWithShadow(portal, relative_url):
+  # Source Section can be one organisation, so shadow is required
+  # Shadow has no access to freshly created or temp subscription requests
+  return portal.restrictedTraverse(relative_url).getUid()
+
 # Check if we could create the Subscription Request
 if subscription_request is not None:
   price = subscription_request.getPrice(None)
-  # If the payment is done by an Organisation, skip user payment process
-  if (price is not None) and (price != 0) and (subscription_request.getDestinationSection() == person.getRelativeUrl()):
-    balance = person.Entity_getDepositBalanceAmount([subscription_request])
+  if (price is not None) and (price != 0):
+    balance = person.Entity_getDepositBalanceAmount(
+      [subscription_request],
+      entity_uid=person.Person_restrictMethodAsShadowUser(
+        shadow_document=person,
+        callable_object=getUidWithShadow,
+        argument_list=[portal, subscription_request.getDestinationSection()]
+    ))
     if balance < price:
       instance = web_site.restrictedTraverse(request_instance_tree.getRelativeUrl())
       return instance.Base_renderForm(

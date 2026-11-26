@@ -29,14 +29,14 @@ def getTicketInfo(event, web_site):
       return event.getTitle(), '', '', ''
 
     if ticket.getSimulationState() == 'suspended':
-      ticket_emoji = '❓ '
+      ticket_emoji = '❓'
     elif ticket.getSimulationState() in ['delivered', 'invalidated', 'cancelled', 'accepted', 'rejected']:
       ticket_emoji = ''
     elif (ticket.getSimulationState() in ['submitted']) and (ticket.getResource('') != 'service_module/slapos_crm_monitoring'):
       # Display a bell for submitted ticket created by customers
-      ticket_emoji = '🔔 '
+      ticket_emoji = '🔔'
     else:
-      ticket_emoji = '🚧 '
+      ticket_emoji = '🚧'
     getTicket_memo[follow_up] = (
       ticket.getTitle(),
       # Do not show monitoring resource, to reduce the text density
@@ -78,8 +78,8 @@ for brain in portal.portal_catalog(
   data_list.append(
       Object(**{
         'title': context.Base_convertToSafeXML(
-          "%s%s%s" % (ticket_emoji, '[%s] ' % ticket_category.upper() if ticket_category else '', ticket_title)),
-        'category': ticket_category,
+          "%s%s" % ('[%s] ' % ticket_category.upper() if ticket_category else '', ticket_title)),
+        'category': ticket_emoji,
         'author':  context.Base_convertToSafeXML(
           event.getSourceTitle(checked_permission="View")),
         'link': ticket_link,
